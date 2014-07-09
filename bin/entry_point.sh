@@ -6,12 +6,14 @@ export DOCKER_HOST_IP=$(netstat -nr | grep '^0\.0\.0\.0' | awk '{print $2}')
 # Start the X server that can run on machines with no display 
 # hardware and no physical input devices
 /usr/bin/Xvfb $DISPLAY -screen 0 $GEOMETRY -ac &
+sleep 0.5
 
 # A fast, lightweight and responsive window manager
 fluxbox -display $DISPLAY &
 
 # Start a GUI xTerm to help debugging when VNC into the container
 x-terminal-emulator -geometry 120x40+10+10 -ls -title "x-terminal-emulator" &
+sleep 0.5
 
 # Start a GUI xTerm to easily debug the headless instance
 x-terminal-emulator -geometry 100x30+10+10 -ls -title "local-sel-headless" \
