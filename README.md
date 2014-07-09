@@ -1,4 +1,4 @@
-# Docker build to spawn selenium standalone servers with Chrome and Firefox
+## Docker build to spawn selenium standalone servers with Chrome and Firefox
 
 * selenium-server-standalone
 * google-chrome-stable
@@ -6,15 +6,15 @@
 * VNC access (useful for debugging the container)
 * fluxbox (lightweight window manager for X)
 
-## 1. Build this image
+### 1. Build this image
 
 ```bash
 sudo docker build -t="elgalu/docker-selenium:latest" .
 ```
 
-## 2. Use this image
+### 2. Use this image
 
-### e.g. Spawn a container for Chrome testing:
+#### e.g. Spawn a container for Chrome testing:
 
 ```bash
 CH=$(sudo docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
@@ -31,7 +31,7 @@ docker port $CH 5900
 ./bin/vncview 127.0.0.1:49160
 ```
 
-### e.g. Spawn a container for Firefox testing:
+#### e.g. Spawn a container for Firefox testing:
 
 ```bash
 FF=$(sudo docker run --rm --name=ff -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
