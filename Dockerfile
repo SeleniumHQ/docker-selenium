@@ -133,9 +133,14 @@ ENV SCREEN_DEPTH 24
 ENV SELENIUM_PORT 4444
 ENV DISPLAY :20.0
 
-#=======
-# Ports
-#=======
+#================================
+# Expose Container's Directories
+#================================
+VOLUME /var/log
+
+#================================
+# Expose Container's Ports
+#================================
 EXPOSE 4444 5900
 
 #===================
