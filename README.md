@@ -6,7 +6,13 @@
 * VNC access (useful for debugging the container)
 * fluxbox (lightweight window manager for X)
 
-### 1. Build this image
+### One-liner Install & Usage
+
+    sudo docker run --privileged -p 4444:4444 -p 5900:5900 elgalu/docker-selenium
+
+### Step by step non-privileged do it yourself
+
+#### 1. Build this image
 
 Ensure you have the Ubuntu base image downloaded, this step is optional since docker takes care of downloading the parent base image automatically, but for the sake of curiosity:
 
@@ -26,9 +32,9 @@ If you prefer to download the final built image from docker you can pull it, per
 
     docker pull -t="elgalu/docker-selenium:latest" elgalu/docker-selenium
 
-### 2. Use this image
+#### 2. Use this image
 
-#### e.g. Spawn a container for Chrome testing:
+##### e.g. Spawn a container for Chrome testing:
 
     CH=$(sudo docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
         -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
@@ -53,14 +59,14 @@ In case you have RealVNC binary `vnc` in your path, you can always take a look, 
 
     ./bin/vncview 127.0.0.1:49160
 
-#### e.g. Spawn a container for Firefox testing:
+##### e.g. Spawn a container for Firefox testing:
 
 This command line is the same as for Chrome, remember that the selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoid certain `:focus` issues you web app may encounter during e2e automation.
 
     FF=$(sudo docker run --rm --name=ff -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
         -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
 
-#### Look around
+##### Look around
 
     sudo docker images
     #=>
