@@ -16,7 +16,7 @@
 
 Ensure you have the Ubuntu base image downloaded, this step is optional since docker takes care of downloading the parent base image automatically, but for the sake of curiosity:
 
-    sudo docker run -i -t ubuntu:14.04 /bin/bash
+    sudo docker run -i -t ubuntu:14.04.1 /bin/bash
 
 If you don't git clone this repo, you can simply build from github:
 
@@ -28,7 +28,7 @@ If you git clone this repo locally, i.e. cd into where the Dockerfile is, you ca
 
     sudo docker build -t="elgalu/docker-selenium:local" .
 
-If you prefer to download the final built image from docker you can pull it, personally I always prefer to build them manually except for the base images like Ubuntu 14.04:
+If you prefer to download the final built image from docker you can pull it, personally I always prefer to build them manually except for the base images like Ubuntu 14.04.1:
 
     docker pull -t="elgalu/docker-selenium:latest" elgalu/docker-selenium
 
@@ -73,4 +73,12 @@ This command line is the same as for Chrome, remember that the selenium running 
 
     REPOSITORY               TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
     elgalu/docker-selenium   local               1c68c8823418        2 minutes ago       1.065 GB
-    ubuntu                   14.04               e54ca5efa2e9        2 weeks ago         276.1 MB
+    ubuntu                   14.04.1             e54ca5efa2e9        2 weeks ago         276.1 MB
+
+### Troubleshooting
+
+Container leaves a few logs files to see what happened:
+
+    /tmp/Xvfb_headless.log
+    /tmp/fluxbox_manager.log
+    /tmp/x11vnc_forever.log

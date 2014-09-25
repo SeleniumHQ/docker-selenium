@@ -1,7 +1,7 @@
 ################
 # Headless e2e #
 ################
-FROM ubuntu:14.04
+FROM ubuntu:14.04.1
 MAINTAINER Leo Gallucci <elgalu3@gmail.com>
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
