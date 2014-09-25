@@ -117,12 +117,13 @@ RUN chmod +x /opt/selenium/local-sel-headless.sh
 #===========
 # DNS stuff
 #===========
-# Poor man /etc/hosts updates until https://github.com/dotcloud/docker/issues/2267
-# Ref: https://stackoverflow.com/questions/19414543/how-can-i-make-etc-hosts-writable-by-root-in-a-docker-container
 ADD ./etc/hosts /tmp/hosts
-RUN mkdir -p -- /lib-override && cp /lib/x86_64-linux-gnu/libnss_files.so.2 /lib-override
-RUN perl -pi -e 's:/etc/hosts:/tmp/hosts:g' /lib-override/libnss_files.so.2
-ENV LD_LIBRARY_PATH /lib-override
+# Below hack is no longer necessary since docker >= 1.2.0, commented to ease old users transition
+#  Poor man /etc/hosts updates until https://github.com/dotcloud/docker/issues/2267
+#  Ref: https://stackoverflow.com/questions/19414543/how-can-i-make-etc-hosts-writable-by-root-in-a-docker-container
+#  RUN mkdir -p -- /lib-override && cp /lib/x86_64-linux-gnu/libnss_files.so.2 /lib-override
+#  RUN perl -pi -e 's:/etc/hosts:/tmp/hosts:g' /lib-override/libnss_files.so.2
+#  ENV LD_LIBRARY_PATH /lib-override
 
 #============================
 # Some configuration options
