@@ -68,12 +68,12 @@ RUN (cd /tmp; wget --no-verbose http://selenium-release.storage.googleapis.com/2
 #==================
 # Chrome webdriver
 #==================
-RUN (cd /tmp; wget --no-verbose -O chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip)
+RUN (cd /tmp; wget --no-verbose -O chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/2.11/chromedriver_linux64.zip)
 RUN (cd /opt/selenium; rm -rf chromedriver; unzip /tmp/chromedriver_linux64.zip)
 RUN rm /tmp/chromedriver_linux64.zip
-RUN mv /opt/selenium/chromedriver /opt/selenium/chromedriver-2.10
-RUN chmod 755 /opt/selenium/chromedriver-2.10
-RUN ln -fs /opt/selenium/chromedriver-2.10 /usr/bin/chromedriver
+RUN mv /opt/selenium/chromedriver /opt/selenium/chromedriver-2.11
+RUN chmod 755 /opt/selenium/chromedriver-2.11
+RUN ln -fs /opt/selenium/chromedriver-2.11 /usr/bin/chromedriver
 
 #=========
 # fluxbox

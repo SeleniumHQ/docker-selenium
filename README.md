@@ -82,3 +82,4 @@ Container leaves a few logs files to see what happened:
     /tmp/Xvfb_headless.log
     /tmp/fluxbox_manager.log
     /tmp/x11vnc_forever.log
+    /tmp/local-sel-headless.log
