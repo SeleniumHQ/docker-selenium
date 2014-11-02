@@ -12,21 +12,23 @@
 
 ### Step by step non-privileged do it yourself
 
+General note: add `sudo` only if needed in your environment
+
 #### 1. Build this image
 
 Ensure you have the Ubuntu base image downloaded, this step is optional since docker takes care of downloading the parent base image automatically, but for the sake of curiosity:
 
-    sudo docker run -i -t ubuntu:14.04.1 /bin/bash
+    docker run -i -t ubuntu:14.04.1 /bin/bash
 
 If you don't git clone this repo, you can simply build from github:
 
-    sudo docker build github.com/elgalu/docker-selenium
-    ID=$(sudo docker images -q | sed -n 1p)
-    sudo docker tag $ID elgalu/docker-selenium:latest
+    docker build github.com/elgalu/docker-selenium
+    ID=$(docker images -q | sed -n 1p)
+    docker tag $ID elgalu/docker-selenium:latest
 
 If you git clone this repo locally, i.e. cd into where the Dockerfile is, you can:
 
-    sudo docker build -t="elgalu/docker-selenium:local" .
+    docker build -t="elgalu/docker-selenium:local" .
 
 If you prefer to download the final built image from docker you can pull it, personally I always prefer to build them manually except for the base images like Ubuntu 14.04.1:
 
@@ -36,7 +38,7 @@ If you prefer to download the final built image from docker you can pull it, per
 
 ##### e.g. Spawn a container for Chrome testing:
 
-    CH=$(sudo docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
+    CH=$(docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
         -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
 
 Note `-v /e2e/uploads:/e2e/uploads` is optional in case you are testing browser uploads on your webapp you'll probably need to share a directory for this.
@@ -63,12 +65,12 @@ In case you have RealVNC binary `vnc` in your path, you can always take a look, 
 
 This command line is the same as for Chrome, remember that the selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoid certain `:focus` issues you web app may encounter during e2e automation.
 
-    FF=$(sudo docker run --rm --name=ff -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
+    FF=$(docker run --rm --name=ff -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
         -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
 
 ##### Look around
 
-    sudo docker images
+    docker images
     #=>
 
     REPOSITORY               TAG                 IMAGE ID            CREATED             VIRTUAL SIZE

@@ -63,7 +63,8 @@ RUN mkdir -p /opt/selenium
 #==========
 # Selenium
 #==========
-RUN (cd /tmp; wget --no-verbose http://selenium-release.storage.googleapis.com/2.43/selenium-server-standalone-2.43.1.jar -O /opt/selenium/selenium-server-standalone.jar)
+RUN (cd /tmp; wget --no-verbose -O /opt/selenium/selenium-server-standalone.jar \
+     http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar)
 
 #==================
 # Chrome webdriver
