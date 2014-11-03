@@ -6,7 +6,8 @@ export VNC_PORT=5900
 export XVFB_LOG="/tmp/Xvfb_headless.log"
 export FLUXBOX_LOG="/tmp/fluxbox_manager.log"
 export VNC_LOG="/tmp/x11vnc_forever.log"
-export XTERMINAL_LOG="/tmp/local-sel-headless.log"
+export XTERMINAL_HUB_LOG="/tmp/sel-hub.log"
+export XTERMINAL_NODE_LOG="/tmp/sel-node.log"
 
 # As of docker >= 1.2.0 is possible to append our stuff directly into /etc/hosts
 cat /tmp/hosts >> /etc/hosts
@@ -23,11 +24,13 @@ fluxbox -display $DISPLAY >$FLUXBOX_LOG 2>&1  &
 
 # Start a GUI xTerm to help debugging when VNC into the container
 x-terminal-emulator -geometry 120x40+10+10 -ls -title "x-terminal-emulator" &
-sleep 0.5
 
 # Start a GUI xTerm to easily debug the headless instance
-x-terminal-emulator -geometry 100x30+10+10 -ls -title "local-sel-headless" \
-    -e "/opt/selenium/local-sel-headless.sh" 2>&1 | tee $XTERMINAL_LOG  &
+x-terminal-emulator -geometry 100x30-10+10 -ls -title "sel-hub" \
+    -e "/opt/selenium/sel-hub.sh" 2>&1 | tee $XTERMINAL_HUB_LOG  &
+
+x-terminal-emulator -geometry 100x30-10-20 -ls -title "sel-node" \
+    -e "/opt/selenium/sel-node.sh" 2>&1 | tee $XTERMINAL_NODE_LOG  &
 
 # Start VNC server to enable viewing what's going on but not mandatory
 x11vnc -forever -usepw -shared -rfbport $VNC_PORT -display $DISPLAY >$VNC_LOG 2>&1
