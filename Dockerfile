@@ -3,124 +3,142 @@
 ################
 FROM ubuntu:14.04.1
 MAINTAINER Leo Gallucci <elgalu3@gmail.com>
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
 #================================================
-# Make sure the package repository is up to date
+# Customize sources for apt-get
 #================================================
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe\n" > /etc/apt/sources.list
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
-RUN apt-get -qqy update
-# Let's make the upgrade even though it is still unclear to me
-# if the upgrade is convenient or not
-RUN apt-get -qqy upgrade
+RUN  echo "deb http://archive.ubuntu.com/ubuntu trusty main universe\n" > /etc/apt/sources.list \
+  && echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
 
 #========================
 # Miscellaneous packages
 #========================
-RUN apt-get -qqy install ca-certificates curl wget unzip vim
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    ca-certificates \
+    unzip \
+    wget \
+  && rm -rf /var/lib/apt/lists/*
 
 #=================
 # Locale settings
 #=================
 ENV LANGUAGE en_US.UTF-8
 ENV LANG en_US.UTF-8
-RUN locale-gen en_US.UTF-8
-# Reconfigure
-RUN dpkg-reconfigure --frontend noninteractive locales
-RUN apt-get -qqy install language-pack-en
+RUN locale-gen en_US.UTF-8 \
+  && dpkg-reconfigure --frontend noninteractive locales \
+  && apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    language-pack-en \
+  && rm -rf /var/lib/apt/lists/*
 
 #===================
 # Timezone settings
 #===================
 ENV TZ "US/Pacific"
-RUN echo "US/Pacific" | sudo tee /etc/timezone
-RUN dpkg-reconfigure --frontend noninteractive tzdata
+RUN echo "US/Pacific" | sudo tee /etc/timezone \
+  && dpkg-reconfigure --frontend noninteractive tzdata
 
 #==============
 # VNC and Xvfb
 #==============
-RUN apt-get -qqy install x11vnc xvfb
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    x11vnc \
+    xvfb \
+  && rm -rf /var/lib/apt/lists/* \
+  && mkdir -p ~/.vnc \
+  && x11vnc -storepasswd secret ~/.vnc/passwd
 
 #======
 # Java
-#======
 # Minimal runtime used for executing non GUI Java programs
-RUN apt-get -qqy install openjdk-7-jre-headless
+#======
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    openjdk-7-jre-headless \
+  && rm -rf /var/lib/apt/lists/*
 
 #=======
 # Fonts
 #=======
-RUN apt-get -qqy install fonts-ipafont-gothic xfonts-100dpi xfonts-75dpi xfonts-scalable xfonts-cyrillic
-
-#===========================
-# Some directories creation
-#===========================
-RUN mkdir -p ~/.vnc
-RUN mkdir -p /opt/selenium
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    fonts-ipafont-gothic \
+    xfonts-100dpi \
+    xfonts-75dpi \
+    xfonts-cyrillic \
+    xfonts-scalable \
+  && rm -rf /var/lib/apt/lists/*
 
 #==========
 # Selenium
 #==========
-RUN (cd /tmp; wget --no-verbose -O /opt/selenium/selenium-server-standalone.jar \
-     http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar)
+RUN  mkdir -p /opt/selenium \
+  && wget --no-verbose http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar -O /opt/selenium/selenium-server-standalone.jar
 
 #==================
 # Chrome webdriver
 #==================
 ENV CHROME_DRIVER_VERSION 2.12
-RUN (cd /tmp; wget --no-verbose -O chromedriver_linux64.zip \
-     http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip)
-RUN (cd /opt/selenium; rm -rf chromedriver; unzip /tmp/chromedriver_linux64.zip)
-RUN rm /tmp/chromedriver_linux64.zip
-RUN mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
-RUN chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
-RUN ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+RUN cd /tmp \
+  && wget --no-verbose -O chromedriver_linux64.zip http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
+  && cd /opt/selenium \
+  && rm -rf chromedriver \
+  && unzip /tmp/chromedriver_linux64.zip \
+  && rm /tmp/chromedriver_linux64.zip \
+  && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
+  && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
+  && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
 #=========
 # fluxbox
-#=========
 # A fast, lightweight and responsive window manager
-RUN apt-get -qqy install fluxbox
+#=========
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    fluxbox \
+  && rm -rf /var/lib/apt/lists/*
 
 #===============
 # Google Chrome
 #===============
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
-RUN apt-get -qqy update
-RUN apt-get -qqy install google-chrome-stable
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    google-chrome-stable \
+  && rm -rf /var/lib/apt/lists/* \
+  && rm /etc/apt/sources.list.d/google-chrome.list
 
 #=================
 # Mozilla Firefox
 #=================
-RUN apt-get -qqy install firefox
-
-#========================
-# Configure VNC password
-#========================
-RUN x11vnc -storepasswd secret ~/.vnc/passwd
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    firefox \
+  && rm -rf /var/lib/apt/lists/*
 
 #========================================
 # Add normal user with passwordless sudo
 #========================================
-RUN sudo useradd user1 --shell /bin/bash --create-home
-RUN sudo usermod -a -G sudo user1 && \
-    echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
+RUN sudo useradd user1 --shell /bin/bash --create-home \
+  && sudo usermod -a -G sudo user1 \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 #====================================================================
 # Script to run selenium standalone server for Chrome and/or Firefox
 #====================================================================
-ADD ./bin/entry_point.sh /opt/selenium/entry_point.sh
-ADD ./bin/local-sel-headless.sh /opt/selenium/local-sel-headless.sh
-RUN chmod +x /opt/selenium/entry_point.sh
-RUN chmod +x /opt/selenium/local-sel-headless.sh
+COPY ./bin/*.sh /opt/selenium/
+RUN  chmod +x /opt/selenium/*.sh
 
 #===========
 # DNS stuff
 #===========
-ADD ./etc/hosts /tmp/hosts
+COPY ./etc/hosts /tmp/hosts
 # Below hack is no longer necessary since docker >= 1.2.0, commented to ease old users transition
 #  Poor man /etc/hosts updates until https://github.com/dotcloud/docker/issues/2267
 #  Ref: https://stackoverflow.com/questions/19414543/how-can-i-make-etc-hosts-writable-by-root-in-a-docker-container
