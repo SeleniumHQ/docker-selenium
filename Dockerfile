@@ -1,7 +1,8 @@
 ################
 # Headless e2e #
 ################
-FROM ubuntu:14.04.1
+#FROM ubuntu:14.04.1
+FROM phusion/baseimage:0.9.15
 MAINTAINER Leo Gallucci <elgalu3@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -12,6 +13,13 @@ ENV DEBCONF_NONINTERACTIVE_SEEN true
 #================================================
 RUN  echo "deb http://archive.ubuntu.com/ubuntu trusty main universe\n" > /etc/apt/sources.list \
   && echo "deb http://archive.ubuntu.com/ubuntu trusty-updates main universe\n" >> /etc/apt/sources.list
+
+#========================================
+# Add normal user with passwordless sudo
+#========================================
+RUN sudo useradd user1 --shell /bin/bash --create-home \
+  && sudo usermod -a -G sudo user1 \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 #========================
 # Miscellaneous packages
@@ -50,8 +58,9 @@ RUN apt-get update -qqy \
     x11vnc \
     xvfb \
   && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p ~/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+  && mkdir -p /home/user1/.vnc \
+  && x11vnc -storepasswd secret /home/user1/.vnc/passwd \
+  && chmod +r /home/user1/.vnc/passwd
 
 #======
 # Java
@@ -122,19 +131,6 @@ RUN apt-get update -qqy \
     firefox \
   && rm -rf /var/lib/apt/lists/*
 
-#========================================
-# Add normal user with passwordless sudo
-#========================================
-RUN sudo useradd user1 --shell /bin/bash --create-home \
-  && sudo usermod -a -G sudo user1 \
-  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-#====================================================================
-# Script to run selenium standalone server for Chrome and/or Firefox
-#====================================================================
-COPY ./bin/*.sh /opt/selenium/
-RUN  chmod +x /opt/selenium/*.sh
-
 #===========
 # DNS stuff
 #===========
@@ -146,6 +142,13 @@ COPY ./etc/hosts /tmp/hosts
 #  RUN perl -pi -e 's:/etc/hosts:/tmp/hosts:g' /lib-override/libnss_files.so.2
 #  ENV LD_LIBRARY_PATH /lib-override
 
+#===================================================================================
+# Scripts to run Xvfb, x11vnc, fluxbox, selenium hub, and selenium node as services
+#===================================================================================
+COPY ./etc /etc
+RUN chmod +x /etc/my_init.d/*.sh \
+  && chmod +x /etc/service/**/run
+
 #============================
 # Some configuration options
 #============================
@@ -154,6 +157,7 @@ ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
 ENV SELENIUM_PORT 4444
 ENV DISPLAY :20.0
+ENV HOME /root
 
 #================================
 # Expose Container's Directories
@@ -169,4 +173,4 @@ EXPOSE 4444 5900
 # CMD or ENTRYPOINT
 #===================
 # Start a selenium standalone server for Chrome and/or Firefox
-CMD ["/opt/selenium/entry_point.sh"]
+#CMD ["/opt/selenium/entry_point.sh"]

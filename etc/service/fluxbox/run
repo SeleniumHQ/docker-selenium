@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+export FLUXBOX_LOG="/tmp/fluxbox_manager.log"
+
+# Give Xvfb a moment to get running
+sleep 5
+
+# A fast, lightweight and responsive window manager
+fluxbox -display $DISPLAY | tee $FLUXBOX_LOG

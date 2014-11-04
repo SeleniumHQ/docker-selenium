@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+export VNC_PORT=5900
+export VNC_LOG="/tmp/x11vnc_forever.log"
+
+# Give Xvfb and Fluxbox a moment to get running
+sleep 10
+
+echo Port $VNC_PORT
+echo Display $DISPLAY
+
+# Start VNC server to enable viewing what's going on but not mandatory
+sudo -E -i -u user1 \
+  x11vnc -forever -usepw -shared -rfbport $VNC_PORT -display $DISPLAY | tee $VNC_LOG
