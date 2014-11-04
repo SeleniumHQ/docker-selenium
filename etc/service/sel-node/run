@@ -6,4 +6,5 @@ sudo -E -i -u user1 \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://localhost:$SELENIUM_PORT/grid/register \
-    -Dwebdriver.chrome.args="--no-sandbox" >>$NODE_LOG 2>&1
+    -Dwebdriver.chrome.args="--no-sandbox" \
+    | tee $NODE_LOG
