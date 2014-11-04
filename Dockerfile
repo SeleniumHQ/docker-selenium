@@ -167,11 +167,7 @@ VOLUME /var/log
 #================================
 # Expose Container's Ports
 #================================
-EXPOSE 4444 5555 5900
+EXPOSE 4444 5900
 
-#===================
-# CMD or ENTRYPOINT
-#===================
-# Start a selenium standalone server for Chrome and/or Firefox
-# No longer used since changed FROM ubuntu:14.04.1 to phusion/baseimage:0.9.15
-#CMD ["/opt/selenium/entry_point.sh"]
+# CMD or ENTRYPOINT no longer used since we changed 
+# FROM ubuntu:14.04.1 to phusion/baseimage:0.9.15
