@@ -3,7 +3,7 @@ export VNC_PORT=5900
 export VNC_LOG="/tmp/x11vnc_forever.log"
 
 # Give Xvfb and Fluxbox a moment to get running
-sleep 10
+sleep 1
 
 echo Port $VNC_PORT
 echo Display $DISPLAY
