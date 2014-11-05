@@ -1,4 +1,5 @@
 ## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/elgalu/docker-selenium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Images included:
 
