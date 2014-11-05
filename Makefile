@@ -1,5 +1,5 @@
 NAME := elgalu/selenium
-VERSION := 2.44.0
+VERSION := $(or $(VERSION),$(VERSION),'2.44.0')
 
 all: hub chrome firefox full
 

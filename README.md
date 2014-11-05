@@ -1,45 +1,68 @@
-## Docker build to spawn selenium standalone servers with Chrome and Firefox
+## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
 
-* selenium-server-standalone
-* google-chrome-stable
-* firefox (stable)
-* VNC access (useful for debugging the container)
-* fluxbox (lightweight window manager for X)
+Images included:
 
-### One-liner Install & Usage
+- __elgalu/selenium-base__: Base image which includes Java runtime and Selenium jar
+- __elgalu/selenium-hub__: Image for running a Selenium Grid Hub
+- __elgalu/selenium-node-base__: Base image for Selenium Nodes which includes a virtual desktop environment and VNC support
+- __elgalu/selenium-node-chrome__: Selenium node with Chrome installed, needs to be connected to a Selenium Hub
+- __elgalu/selenium-node-firefox__: Selenium node with Firefox installed, needs to be connected to a Selenium Hub
+- __elgalu/selenium-full__: Self contained Selenium Hub and Node combined configuration with both Chrome and Firefox
 
-    sudo docker run --privileged -p 4444:4444 -p 5900:5900 elgalu/docker-selenium
+## Running the images
 
-### Step by step non-privileged do it yourself
+### Selenium Grid Hub
 
-General note: add `sudo` only if needed in your environment
+``` bash
+$ docker run -d -p 4444:4444 -p 5900:5900 --name selenium-hub elgalu/selenium-hub:2.44.0
+```
 
-#### 1. Build this image
+### Chrome and Firefox Nodes
 
-Ensure you have the Ubuntu base image downloaded, this step is optional since docker takes care of downloading the parent base image automatically, but for the sake of curiosity:
+``` bash
+$ docker run -d --link selenium-hub:hub elgalu/selenium-node-chrome:2.44.0
+$ docker run -d --link selenium-hub:hub elgalu/selenium-node-firefox:2.44.0
+```
 
-    docker run -i -t ubuntu:14.04.1 /bin/bash
+### Self contained Selenium container
 
-If you don't git clone this repo, you can simply build from github:
+``` bash
+$ docker run -d -p 4444:4444 -p 5900:5900 elgalu/selenium-full:2.44.0
+```
 
-    docker build github.com/elgalu/docker-selenium
-    ID=$(docker images -q | sed -n 1p)
-    docker tag $ID elgalu/docker-selenium:latest
+## Building the images
 
-If you git clone this repo locally, i.e. cd into where the Dockerfile is, you can:
+Ensure you have the `phusion/baseimage:0.9.15` base image downloaded, this step is _optional_ since docker takes care of downloading the parent base image automatically.
 
-    docker build -t="elgalu/docker-selenium:local" .
+``` bash
+$ docker pull phusion/baseimage:0.9.15
+```
 
-If you prefer to download the final built image from docker you can pull it, personally I always prefer to build them manually except for the base images like Ubuntu 14.04.1:
+Clone the repo and from the project directory root you can build everything by running:
 
-    docker pull -t="elgalu/docker-selenium:latest" elgalu/docker-selenium
+``` bash
+$ VERSION=local make build
+```
 
-#### 2. Use this image
+_Note: omitting `VERSION=local` will build the images with the current version number thus overwriting the images downloaded from dockerhub._
+
+## Using the images
 
 ##### e.g. Spawn a container for Chrome testing:
 
-    CH=$(docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
-        -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
+``` bash
+$ docker run -d --name selenium-hub -p=127.0.0.1::4444 elgalu/selenium-hub:2.44.0
+$ CH=$(docker run --rm --name=ch -p=127.0.0.1::5900 \
+    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
+    elgalu/selenium-node-chrome:2.44.0)
+```
+
+-- or --
+
+``` bash
+$ CH=$(docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
+    -v /e2e/uploads:/e2e/uploads elgalu/selenium-full:2.44.0)
+```
 
 Note `-v /e2e/uploads:/e2e/uploads` is optional in case you are testing browser uploads on your webapp you'll probably need to share a directory for this.
 
@@ -49,39 +72,87 @@ I like to remove the containers after each e2e test with `--rm` since this docke
 
 A dynamic port will be binded to the container ones, i.e.
 
-    # Obtain the selenium port you'll connect to:
-    docker port $CH 4444
-    #=> 127.0.0.1:49155
+``` bash
+# Obtain the selenium port you'll connect to:
+docker port selenium-hub 4444
+# -- or --
+docker port $CH 4444
+#=> 127.0.0.1:49155
 
-    # Obtain the VNC server port in case you want to look around
-    docker port $CH 5900
-    #=> 127.0.0.1:49160
-
-In case you have RealVNC binary `vnc` in your path, you can always take a look, view only to avoid messing around your tests with an unintended mouse click or keyboard.
-
-    ./bin/vncview 127.0.0.1:49160
+# Obtain the VNC server port in case you want to look around
+docker port $CH 5900
+#=> 127.0.0.1:49160
+```
 
 ##### e.g. Spawn a container for Firefox testing:
 
 This command line is the same as for Chrome, remember that the selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoid certain `:focus` issues you web app may encounter during e2e automation.
 
-    FF=$(docker run --rm --name=ff -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
-        -v /e2e/uploads:/e2e/uploads elgalu/docker-selenium:local)
+``` bash
+$ docker run -d --name selenium-hub -p=127.0.0.1::4444 elgalu/selenium-hub:2.44.0
+$ FF=$(docker run --rm --name=ch -p=127.0.0.1::5900 \
+    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
+    elgalu/selenium-node-firefox:2.44.0)
+```
+
+-- or --
+
+``` bash
+$ FF=$(docker run --rm --name=ch -p=127.0.0.1::4444 -p=127.0.0.1::5900 \
+    -v /e2e/uploads:/e2e/uploads elgalu/selenium-full:2.44.0)
+```
+
+## VNC Connection
+
+In case you have RealVNC binary `vnc` in your path, you can always take a look, view only to avoid messing around your tests with an unintended mouse click or keyboard.
+
+``` bash
+$ ./bin/vncview 127.0.0.1:49160
+```
+
+If you are running Boot2Docker on Mac then you already have a [VNC client](http://www.davidtheexpert.com/post.php?id=5) built-in. You can connect by entering `vnc://<boot2docker-ip>:49160` in Safari or [Alfred](http://www.alfredapp.com/)
+
+When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
+
+``` dockerfile
+FROM elgalu/selenium-node-base:2.44.0
+#FROM elgalu/selenium-node-chrome:2.44.0
+#FROM elgalu/selenium-node-firefox:2.44.0
+#FROM elgalu/selenium-full:2.44.0
+# Choose the FROM statement that works for you.
+
+RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
+```
 
 ##### Look around
 
-    docker images
-    #=>
-
-    REPOSITORY               TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-    elgalu/docker-selenium   local               1c68c8823418        2 minutes ago       1.065 GB
-    ubuntu                   14.04.1             e54ca5efa2e9        2 weeks ago         276.1 MB
+``` bash
+$ docker images
+#=>
+REPOSITORY                      TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+elgalu/selenium-full            2.44.0              68e369e3141e        30 minutes ago      886.3 MB
+elgalu/selenium-node-firefox    2.44.0              c7c0c99afabd        31 minutes ago      695.9 MB
+elgalu/selenium-node-chrome     2.44.0              c4cd17423321        31 minutes ago      796.7 MB
+elgalu/selenium-node-base       2.44.0              4f7c1788fe4c        32 minutes ago      584.8 MB
+elgalu/selenium-hub             2.44.0              427462f54676        35 minutes ago      431.4 MB
+elgalu/selenium-base            2.44.0              9126579ae96e        35 minutes ago      431.4 MB
+phusion/baseimage               0.9.15              cf39b476aeec        4 weeks ago         289.4 MB
+```
 
 ### Troubleshooting
 
-Container leaves a few logs files to see what happened:
+All output is sent to stdout so it can be inspected by running:
 
-    /tmp/Xvfb_headless.log
-    /tmp/fluxbox_manager.log
-    /tmp/x11vnc_forever.log
-    /tmp/local-sel-headless.log
+``` bash
+$ docker logs -f <container-id|container-name>
+```
+
+The containers leave a few log files in addition to stdout output to see what happened:
+
+``` bash
+/tmp/Xvfb_headless.log
+/tmp/fluxbox_manager.log
+/tmp/x11vnc_forever.log
+/tmp/sel-hub.log
+/tmp/sel-node.log
+```
