@@ -1,5 +1,12 @@
 NAME := elgalu/selenium
 VERSION := $(or $(VERSION),$(VERSION),'2.44.0')
+PLATFORM := $(shell uname -s)
+
+ifeq ($(PLATFORM), Darwin)
+COPYARGS := -pR
+else
+COPYARGS := -rT
+endif
 
 all: hub chrome firefox full
 
@@ -19,7 +26,7 @@ chrome: nodebase
 	mkdir -p chrome_image/build/chrome
 	cp build/Dockerfile chrome_image/Dockerfile
 	cp build/install.sh chrome_image/build/install.sh
-	cp -pR build/chrome chrome_image/build/
+	cp $(COPYARGS) build/chrome chrome_image/build/
 	cd ./chrome_image && docker build -t $(NAME)-node-chrome:$(VERSION) .
 
 firefox: nodebase
@@ -27,15 +34,15 @@ firefox: nodebase
 	mkdir -p firefox_image/build/firefox
 	cp build/Dockerfile firefox_image/Dockerfile
 	cp build/install.sh firefox_image/build/install.sh
-	cp -pR build/firefox firefox_image/build/
+	cp $(COPYARGS) build/firefox firefox_image/build/
 	cd ./firefox_image && docker build -t $(NAME)-node-firefox:$(VERSION) .
 
 full: nodebase
 	rm -rf full_image
 	mkdir -p full_image/build/
 	cp build/Dockerfile full_image/Dockerfile
-	cp -pR build/ full_image/build/
-	cp -pR Hub/etc/ full_image/build/full/etc/
+	cp $(COPYARGS) build/ full_image/build/
+	cp $(COPYARGS) Hub/etc/ full_image/build/full/etc/
 	cd ./full_image && docker build -t $(NAME)-full:$(VERSION) .
 
 tag_latest:
