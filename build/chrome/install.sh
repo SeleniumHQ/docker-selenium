@@ -31,8 +31,13 @@ mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
 chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
 ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
-#==================
+#========================
 # Selenium Configuration
-#==================
+#========================
 cp /tmp/build/chrome/config.json /opt/selenium/config.json
-#cp -rT /tmp/build/chrome/etc/ /etc/
+
+#=================================
+# Chrome Launch Script Modication
+#=================================
+chmod +x /tmp/build/chrome/chrome_launcher.sh
+cp /tmp/build/chrome/chrome_launcher.sh /opt/google/chrome/google-chrome

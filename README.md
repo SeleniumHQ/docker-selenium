@@ -73,16 +73,6 @@ I like to remove the containers after each e2e test with `--rm` since this docke
 
 A dynamic port will be binded to the container ones, i.e.
 
-When you send your capabilities request for chrome be sure in include the `--no-sandbox` argument to be used when launching Chrome, for example:
-
-```
-options = webdriver.ChromeOptions()
-options.add_argument("--no-sandbox")
-driver = webdriver.Remote(command_executor='http://127.0.0.1:4444/wd/hub',desired_capabilities=options.to_capabilities())
-driver.get("http://www.python.org")
-print(driver.title)
-```
-
 ``` bash
 # Obtain the selenium port you'll connect to:
 docker port selenium-hub 4444

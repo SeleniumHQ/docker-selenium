@@ -5,18 +5,16 @@ ADDR=localhost
 PORT=4444
 
 if [ -n "$HUB_PORT_4444_TCP_ADDR" ]; then
-	ADDR=$HUB_PORT_4444_TCP_ADDR
+  ADDR=$HUB_PORT_4444_TCP_ADDR
 fi
 
 if [ -n "$HUB_PORT_4444_TCP_PORT" ]; then
-	PORT=$HUB_PORT_4444_TCP_PORT
+  PORT=$HUB_PORT_4444_TCP_PORT
 fi
 
 sudo -E -i -u seluser \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$ADDR:$PORT/grid/register \
-		-nodeConfig /opt/selenium/config.json
-    -Dwebdriver.chrome.args="--no-sandbox" \
-    -Dselenium.chrome.args="--no-sandbox" \
+    -nodeConfig /opt/selenium/config.json \
     | tee $NODE_LOG
