@@ -1,5 +1,5 @@
 FROM phusion/baseimage:0.9.15
-MAINTAINER Leo Gallucci <elgalu3@gmail.com>
+MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #================================================
 # Customize sources for apt-get

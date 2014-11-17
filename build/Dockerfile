@@ -1,5 +1,5 @@
 FROM elgalu/selenium-node-base:2.44.0
-MAINTAINER Leo Gallucci <elgalu3@gmail.com>
+MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 COPY ./build /tmp/build
 RUN chmod +x /tmp/build/install.sh \
