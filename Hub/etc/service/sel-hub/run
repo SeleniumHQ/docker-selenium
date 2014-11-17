@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-export HUB_LOG="/tmp/sel-hub.log"
-
-sudo -E -i -u seluser \
-  java -jar /opt/selenium/selenium-server-standalone.jar -port 4444 -role hub | tee $HUB_LOG

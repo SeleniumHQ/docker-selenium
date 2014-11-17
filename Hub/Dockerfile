@@ -1,10 +1,6 @@
-FROM elgalu/selenium-base:2.44.0
+FROM selenium/base:2.44.0
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
-#==========================================
-# Scripts to run selenium hub as a service
-#==========================================
-COPY ./etc /etc
-# Allow child images to also chime in on which services to run
-RUN chmod +x /etc/my_init.d/*.sh \
-  && chmod +x /etc/service/**/run
+USER seluser
+
+CMD java -jar /opt/selenium/selenium-server-standalone.jar -port 4444 -role hub
