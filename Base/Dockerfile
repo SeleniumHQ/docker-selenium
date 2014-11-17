@@ -1,4 +1,4 @@
-FROM phusion/baseimage:0.9.15
+FROM ubuntu:14.04
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #================================================
