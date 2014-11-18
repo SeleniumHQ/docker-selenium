@@ -8,7 +8,7 @@ else
 COPYARGS := -rT
 endif
 
-all: hub chrome firefox full
+all: hub chrome firefox test
 
 build: all clean
 
@@ -48,8 +48,8 @@ release: tag_latest
 	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
 
 clean:
-	rm -rf chrome_image
-	rm -rf firefox_image
-	rm -rf full_image
+
+test:
+	./test.sh
 
 .PHONY: all base hub nodebase chrome firefox full tag_latest release clean

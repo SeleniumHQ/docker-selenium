@@ -1,0 +1,1 @@
+require('./smoke-test')('firefox');

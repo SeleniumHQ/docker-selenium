@@ -1,0 +1,15 @@
+{
+  "name": "docker-selenium-tests",
+  "version": "0.0.0",
+  "description": "Tests for docker selenium configuration",
+  "main": "index.js",
+  "scripts": {
+    "start": "node smoke-chrome.js && node smoke-firefox.js"
+  },
+  "license": "Apache 2",
+  "dependencies": {
+    "chai": "^1.10.0",
+    "colors": "^1.0.3",
+    "wd": "^0.3.11"
+  }
+}
