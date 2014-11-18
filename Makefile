@@ -2,15 +2,11 @@ NAME := selenium
 VERSION := $(or $(VERSION),$(VERSION),'2.44.0')
 PLATFORM := $(shell uname -s)
 
-ifeq ($(PLATFORM), Darwin)
-COPYARGS := -pR
-else
-COPYARGS := -rT
-endif
+all: hub chrome firefox
 
-all: hub chrome firefox test
+build: all
 
-build: all clean
+ci: build test
 
 base:
 	cd ./Base && docker build -t $(NAME)/base:$(VERSION) .
@@ -47,9 +43,7 @@ release: tag_latest
 	docker push $(NAME)/node-firefox
 	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
 
-clean:
-
 test:
 	./test.sh
 
-.PHONY: all base hub nodebase chrome firefox full tag_latest release clean
+.PHONY: all base hub nodebase chrome firefox full tag_latest release build test
