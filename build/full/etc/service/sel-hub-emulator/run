@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-export HUB_LOG="/tmp/sel-hub.log"
-
-# Start a GUI xTerm to easily debug the headless instance
-x-terminal-emulator -geometry 100x30-10+10 -ls -title "selenium hub log" -e "tail -f $HUB_LOG"
