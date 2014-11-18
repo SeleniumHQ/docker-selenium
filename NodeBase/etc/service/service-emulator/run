@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-# Start a GUI xTerm to help debugging when VNC into the container
-x-terminal-emulator -geometry 120x40+10+10 -ls -title "x-terminal-emulator"

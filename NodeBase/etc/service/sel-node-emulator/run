@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-export HUB_NODE="/tmp/sel-node.log"
-
-# Start a GUI xTerm to easily debug the headless instance
-x-terminal-emulator -geometry 100x30-10-20 -ls -title "selenium node log" -e "tail -f $HUB_NODE"

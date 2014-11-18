@@ -22,12 +22,7 @@ nodebase: base
 	cd ./NodeBase && docker build -t $(NAME)/node-base:$(VERSION) .
 
 chrome: nodebase
-	rm -rf chrome_image
-	mkdir -p chrome_image/build/chrome
-	cp build/Dockerfile chrome_image/Dockerfile
-	cp build/install.sh chrome_image/build/install.sh
-	cp $(COPYARGS) build/chrome chrome_image/build/
-	cd ./chrome_image && docker build -t $(NAME)/node-chrome:$(VERSION) .
+	cd ./NodeChrome && docker build -t $(NAME)/node-chrome:$(VERSION) .
 
 firefox: nodebase
 	rm -rf firefox_image

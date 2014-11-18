@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
-export XVFB_LOG="/tmp/Xvfb_headless.log"
-
-# Start the X server that can run on machines with no display
-# hardware and no physical input devices
-/usr/bin/Xvfb $DISPLAY -screen 0 $GEOMETRY -ac | tee $XVFB_LOG
