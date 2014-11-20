@@ -25,12 +25,15 @@ module.exports = function(browserName) {
   browser.init({
     browserName: browserName
   }, function() {
-    browser.get("http://google.com", function() {
+    browser.get("https://github.com", function() {
       browser.title(function(err, title) {
         if (err) {
           console.error(err);
+          browser.quit();
+          process.exit(1);
         }
-        title.should.include('Google');
+
+        title.should.include('GitHub');
         browser.quit();
       });
     });

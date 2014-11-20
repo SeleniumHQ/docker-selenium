@@ -13,8 +13,16 @@ fi
 
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
-xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
+sudo -E -i -u seluser \
+  DISPLAY=$DISPLAY \
+  xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://hub:4444/grid/register \
-    -nodeConfig /opt/selenium/config.json
+    -nodeConfig /opt/selenium/config.json \
+  | tee "/tmp/sel-node.log" &
+sleep 0.5
+
+fluxbox -display $DISPLAY &
+
+x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY
