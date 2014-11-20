@@ -1,10 +1,10 @@
-# Selenium Grid Node - Chrome
+# Selenium Grid Node - ##BROWSER## Debug
 
-Selenium Node configured to run Google Chrome.
+_This image is only intended for development purposes!_ Runs a Selenium Grid Node with a VNC Server to allow you to visually see the browser being automated. Since it runs additional services to support this it is too heavy weight for usage within a Selenium Grid cluster.
 
 ## Dockerfile
 
-[`selenium/node-chrome` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeChrome/Dockerfile)
+[`selenium/##BASE##-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/##FOLDER##/Dockerfile)
 
 ## How to use this image
 
@@ -14,10 +14,33 @@ First, you will need a Selenium Grid Hub that the Node will connect to.
 $ docker run -d -P --name selenium-hub selenium/hub
 ```
 
-Once the hub is up and running will want to launch nodes that can run tests. You can run as many nodes as you wish.
+Once the hub is up and running will want to launch nodes that can run tests.
 
 ```
-$ docker run -d --link selenium-hub:hub selenium/node-chrome
+$ docker run -d -P --link selenium-hub:hub selenium/##BASE##-debug
+```
+
+You can acquire the port that the VNC server is exposed to by running:
+
+``` bash
+$ docker port <container-name|container-id> 5900
+#=> 0.0.0.0:49338
+```
+
+Using RealVNC you can look in view only mode, to avoid accidentally messing up your tests, utilizing our [vncview script](https://github.com/SeleniumHQ/docker-selenium/blob/master/bin/vncview).
+
+``` bash
+$ ./bin/vncview 127.0.0.1:49338
+```
+
+If you are running Boot2Docker on Mac then you already have a [VNC client](http://www.davidtheexpert.com/post.php?id=5) built-in. You can connect by entering `vnc://<boot2docker-ip>:49160` in Safari or [Alfred](http://www.alfredapp.com/)
+
+When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
+
+``` dockerfile
+FROM selenium/##BASE##-debug:2.44.0
+
+RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
 
 ## What is Selenium?

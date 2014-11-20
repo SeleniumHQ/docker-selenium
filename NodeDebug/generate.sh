@@ -1,7 +1,8 @@
 #!/bin/bash
 FOLDER=../$1
 BASE=$2
-VERSION=$3
+BROWSER=$3
+VERSION=$4
 
 rm -rf $FOLDER
 mkdir -p $FOLDER
@@ -17,3 +18,8 @@ sed 's/^xvfb-run/sudo -E -i -u seluser \\\
 mv $FOLDER/entry_point.sh.tmp $FOLDER/entry_point.sh
 
 cat ./debug-script.sh >> $FOLDER/entry_point.sh
+
+cat ./README.template.md \
+  | sed "s/##BROWSER##/$BROWSER/" \
+  | sed "s/##BASE##/$BASE/" \
+  | sed "s/##FOLDER##/$1/" > $FOLDER/README.md

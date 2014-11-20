@@ -1,10 +1,10 @@
-# Selenium Grid Node - Chrome
+# Selenium Grid Node Base
 
-Selenium Node configured to run Google Chrome.
+_This image is not meant to be run directly!_ It serves as the base image used for Selenium Nodes.
 
 ## Dockerfile
 
-[`selenium/node-chrome` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeChrome/Dockerfile)
+[`selenium/node-base` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeBase/Dockerfile)
 
 ## How to use this image
 
@@ -17,7 +17,7 @@ $ docker run -d -P --name selenium-hub selenium/hub
 Once the hub is up and running will want to launch nodes that can run tests. You can run as many nodes as you wish.
 
 ```
-$ docker run -d --link selenium-hub:hub selenium/node-chrome
+$ docker run -d --link selenium-hub:hub selenium/node-firefox
 ```
 
 ## What is Selenium?

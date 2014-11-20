@@ -2,6 +2,10 @@
 
 The Hub receives a test to be executed along with information on which browser and 'platform' where the test should be run. The hub will use this information and delegate to a node that can service those needs.
 
+## Dockerfile
+
+[`selenium/hub` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/Hub/Dockerfile)
+
 ## How to use this image
 
 ```
@@ -21,3 +25,23 @@ _Selenium automates browsers._ That's it! What you do with that power is entirel
 Selenium has the support of some of the largest browser vendors who have taken (or are taking) steps to make Selenium a native part of their browser. It is also the core technology in countless other browser automation tools, APIs and frameworks.
 
 See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage within your test code.
+
+## License
+
+View [license information](https://code.google.com/p/selenium/source/browse/COPYING) for the software contained in this image.
+
+## Getting Help
+
+### User Group
+
+The first place where people ask for help about Selenium is the [Official User Group](https://groups.google.com/forum/#!forum/selenium-users). Here, you'll find that most of the time, someone already found the problem you are facing right now, and usually reached the solution for which you are looking.
+
+_Note: Please make sure to search the group before asking for something. Your question likely won't get answered if it was previously answered in another discussion!_
+
+### Chat Room
+
+The best place to ask for help is the user group (because they also keep the information accessible for others to read in the future). However, if you have a very important (or too simple) issue that needs a solution ASAP, you can always enter the IRC chat room. You might just find someone ready to help on `#selenium` at [Freenode](https://freenode.net/).
+
+### Issues
+
+If you have any problems with or questions about this image, please contact us through a [Github issue](https://github.com/SeleniumHQ/docker-selenium/issues). If you have any problems with or questions about Selenium, please contact us through Selenium's [But Tracker](https://code.google.com/p/selenium/issues/list).

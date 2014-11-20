@@ -24,13 +24,13 @@ firefox: nodebase
 	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
 
 generate_chromedebug:
-	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome $(VERSION)
+	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome Chrome $(VERSION)
 
 chromedebug: generate_chromedebug chrome
 	cd ./NodeChromeDebug && docker build -t $(NAME)/node-chrome-debug:$(VERSION) .
 
 generate_firefoxdebug:
-	cd ./NodeDebug && ./generate.sh NodeFirefoxDebug node-firefox $(VERSION)
+	cd ./NodeDebug && ./generate.sh NodeFirefoxDebug node-firefox Firefox $(VERSION)
 
 firefoxdebug: generate_firefoxdebug firefox
 	cd ./NodeFirefoxDebug && docker build -t $(NAME)/node-firefox-debug:$(VERSION) .
