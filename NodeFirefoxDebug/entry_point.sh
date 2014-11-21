@@ -11,6 +11,11 @@ if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
   exit 1
 fi
 
+function shutdown {
+  kill -s SIGTERM $NODE_PID
+  wait $NODE_PID
+}
+
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
 sudo -E -i -u seluser \
@@ -19,10 +24,14 @@ sudo -E -i -u seluser \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://hub:4444/grid/register \
-    -nodeConfig /opt/selenium/config.json \
-  | tee "/tmp/sel-node.log" &
+    -nodeConfig /opt/selenium/config.json &
+NODE_PID=$!
+
+trap shutdown SIGTERM SIGINT
 sleep 0.5
 
 fluxbox -display $DISPLAY &
 
-x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY
+x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY &
+
+wait $NODE_PID

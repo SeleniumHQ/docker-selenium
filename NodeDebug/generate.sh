@@ -10,14 +10,18 @@ mkdir -p $FOLDER
 echo FROM selenium/$BASE:$VERSION > $FOLDER/Dockerfile
 cat ./Dockerfile >> $FOLDER/Dockerfile
 
-sed '${s/$/ \\/;}' ../NodeBase/entry_point.sh > $FOLDER/entry_point.sh
-
-sed 's/^xvfb-run/sudo -E -i -u seluser \\\
+cat ../NodeBase/entry_point.sh \
+  | sed 's/^xvfb-run/sudo -E -i -u seluser \\\
   DISPLAY=$DISPLAY \\\
-  xvfb-run/' $FOLDER/entry_point.sh > $FOLDER/entry_point.sh.tmp
-mv $FOLDER/entry_point.sh.tmp $FOLDER/entry_point.sh
-
-cat ./debug-script.sh >> $FOLDER/entry_point.sh
+  xvfb-run/' \
+  | sed 's/^wait \$NODE_PID/sleep 0.5\
+\
+fluxbox -display $DISPLAY \&\
+\
+x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY \&\
+\
+wait \$NODE_PID/' \
+  > $FOLDER/entry_point.sh
 
 cat ./README.template.md \
   | sed "s/##BROWSER##/$BROWSER/" \

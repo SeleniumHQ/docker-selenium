@@ -36,4 +36,4 @@ ENV DISPLAY :99.0
 
 USER seluser
 
-CMD /opt/bin/entry_point.sh
+CMD ["/opt/bin/entry_point.sh"]
