@@ -23,3 +23,5 @@ cat ./README.template.md \
   | sed "s/##BROWSER##/$BROWSER/" \
   | sed "s/##BASE##/$BASE/" \
   | sed "s/##FOLDER##/$1/" > $FOLDER/README.md
+
+cp ./README-short.txt $FOLDER/README-short.txt
