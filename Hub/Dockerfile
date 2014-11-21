@@ -5,4 +5,4 @@ EXPOSE 4444
 
 USER seluser
 
-CMD java -jar /opt/selenium/selenium-server-standalone.jar -port 4444 -role hub
+CMD ["java", "-jar", "/opt/selenium/selenium-server-standalone.jar", "-port", "4444", "-role", "hub"]
