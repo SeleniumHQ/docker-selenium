@@ -38,7 +38,6 @@ docker stop $HUB
 docker rm $HUB
 
 if [ ! $STATUS == 0 ]; then
-  stopHub
   echo Failed
   exit 1
 fi
