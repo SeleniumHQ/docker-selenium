@@ -21,7 +21,7 @@ function shutdown {
 xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
-    -hub http://hub:4444/grid/register \
+    -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
     -nodeConfig /opt/selenium/config.json &
 NODE_PID=$!
 
