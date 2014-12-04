@@ -9,10 +9,10 @@ USER root
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy install \
-    x11vnc \
+    tightvncserver \
   && rm -rf /var/lib/apt/lists/* \
   && mkdir -p ~/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+  && echo secret | vncpasswd -f >~/.vnc/passwd
 
 #=================
 # Locale settings
@@ -44,7 +44,7 @@ RUN apt-get update -qqy \
 #=========
 RUN apt-get update -qqy \
   && apt-get -qqy install \
-    fluxbox \
+    fluxbox xterm \
   && rm -rf /var/lib/apt/lists/*
 
 #==============================
@@ -52,5 +52,7 @@ RUN apt-get update -qqy \
 #==============================
 COPY entry_point.sh /opt/bin/entry_point.sh
 RUN chmod +x /opt/bin/entry_point.sh
+RUN chmod go-rwx /root/.vnc/passwd
+ENV DISPLAY :99
 
 EXPOSE 5900
