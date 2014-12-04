@@ -1,5 +1,4 @@
 #!/bin/bash
-export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
 if [ ! -e /opt/selenium/config.json ]; then
   echo No Selenium Node configuration file, the node-base image is not intended to be run directly. 1>&2
@@ -24,29 +23,35 @@ fi
 
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
-sudo -E -i -u seluser \
-  DISPLAY=$DISPLAY \
-  xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
-  java -jar /opt/selenium/selenium-server-standalone.jar \
+# startup tightvnc server
+export FONTROOT=/usr/share/fonts/X11
+export USER=root
+export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT"
+
+Xtightvnc $DISPLAY \
+    -desktop X \
+    -auth /root/.Xauthority \
+    -geometry $GEOMETRY \
+    -depth $SCREEN_DEPTH \
+    -rfbwait 120000 \
+    -rfbauth /root/.vnc/passwd \
+    -rfbport 5900 \
+    -fp $FONTROOT/misc/,$FONTROOT/Type1/,$FONTROOT/75dpi/,$FONTROOT/100dpi/ \
+    -co /etc/X11/rgb &
+
+NODE_PID=$!
+
+sleep 1
+
+java -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
     ${REMOTE_HOST_PARAM} \
     -nodeConfig /opt/selenium/config.json &
-NODE_PID=$!
-
-trap shutdown SIGTERM SIGINT
-for i in $(seq 1 10)
-do
-  xdpyinfo -display $DISPLAY >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    break
-  fi
-  echo Waiting xvfb...
-  sleep 0.5
-done
 
 fluxbox -display $DISPLAY &
 
-x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY &
-
+trap shutdown SIGTERM SIGINT
+sleep 0.5
 wait $NODE_PID
+
