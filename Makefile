@@ -2,7 +2,7 @@ NAME := selenium
 VERSION := $(or $(VERSION),$(VERSION),'2.44.0')
 PLATFORM := $(shell uname -s)
 
-all: hub chrome firefox chromedebug firefoxdebug
+all: hub chrome firefox chromedebug firefoxdebug standalone_chrome standalone_firefox
 
 build: all
 
@@ -22,6 +22,18 @@ chrome: nodebase
 
 firefox: nodebase
 	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
+
+generate_standalone_firefox:
+	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION)
+
+standalone_firefox: generate_standalone_firefox firefox
+  cd ./StandaloneFirefox && docker build -t $(NAME)/standalone-firefox:$(VERSION) .
+
+generate_standalone_chrome:
+	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome Chrome $(VERSION)
+
+standalone_chrome: generate_standalone_chrome chrome
+	cd ./StandaloneChrome && docker build -t $(NAME)/standalone-chrome:$(VERSION) .
 
 generate_chromedebug:
 	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome Chrome $(VERSION)

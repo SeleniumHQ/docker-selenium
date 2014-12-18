@@ -1,3 +1,4 @@
 tmp/
 *_image/
 node_modules/
+.idea/
