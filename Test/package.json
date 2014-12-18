@@ -4,7 +4,7 @@
   "description": "Tests for docker selenium configuration",
   "main": "index.js",
   "scripts": {
-    "start": "node smoke-chrome.js && node smoke-firefox.js"
+    "start": "$TEST_CMD"
   },
   "license": "Apache 2",
   "dependencies": {
