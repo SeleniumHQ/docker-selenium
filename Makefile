@@ -78,6 +78,23 @@ test:
 	./sa-test.sh
 	./test.sh debug
 
-.PHONY: all build ci base hub nodebase chrome firefox \
-	generate_chromedebug chromedebug generate_firefoxdebug firefoxdebug \
-	tag_latest release test
+.PHONY: \
+	all \
+	base \
+	build \
+	chrome \
+	chromedebug \
+	ci \
+	firefox \
+	firefoxdebug \
+	generate_chromedebug \
+	generate_firefoxdebug \
+	generate_standalone_chrome \
+	generate_standalone_firefox \
+	hub \
+	nodebase \
+	release \
+	standalone_chrome \
+	standalone_firefox \
+	tag_latest \
+	test
