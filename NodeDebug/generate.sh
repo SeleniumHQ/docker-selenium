@@ -14,7 +14,15 @@ cat ../NodeBase/entry_point.sh \
   | sed 's/^xvfb-run/sudo -E -i -u seluser \\\
   DISPLAY=$DISPLAY \\\
   xvfb-run/' \
-  | sed 's/^wait \$NODE_PID/sleep 0.5\
+  | sed 's/^wait \$NODE_PID/for i in $(seq 1 10)\
+do\
+  xdpyinfo -display $DISPLAY >\/dev\/null 2>\&1\
+  if [ $? -eq 0 ]; then\
+    break\
+  fi\
+  echo Waiting xvfb...\
+  sleep 0.5\
+done\
 \
 fluxbox -display $DISPLAY \&\
 \
