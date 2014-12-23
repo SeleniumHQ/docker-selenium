@@ -1,5 +1,7 @@
 # Selenium Docker
 
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/SeleniumHQ/docker-selenium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache 2.0 license](https://code.google.com/p/selenium/source/browse/COPYING).
 
 ## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
