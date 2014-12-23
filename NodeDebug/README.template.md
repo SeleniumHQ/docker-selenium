@@ -50,23 +50,6 @@ Selenium has the support of some of the largest browser vendors who have taken (
 
 See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage within your test code.
 
-## Known Issues
-
-### Problems with `/dev/random`
-
-You may occasionally see that nodes will not immediately connect with the hub. In some cases the delay has been as high as 40 minutes. This is due to a known problem with linux containers where there is a lack of entropy within the running container. [James Bayer](http://blog.pivotal.io/cloud-foundry-pivotal/features/challenges-with-randomness-in-multi-tenant-linux-container-platforms) wrote a great article explaining the core of the problem.
-
-
-You can either install an entropy gathering daemon (EGD), such as [HAVEGED](http://www.issihosts.com/haveged/index.html), on you docker host.
-
--- or --
-
-Run your container with the `-v /dev/urandom:/dev/random` option. ie:
-
-```
-$ docker run -d -v /dev/urandom:/dev/random --link selenium-hub:hub selenium/node-firefox
-```
-
 ## License
 
 View [license information](https://code.google.com/p/selenium/source/browse/COPYING) for the software contained in this image.
