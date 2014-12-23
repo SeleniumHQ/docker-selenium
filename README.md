@@ -12,10 +12,18 @@ Images included:
 - __selenium/node-base__: Base image for Selenium Nodes which includes a virtual desktop environment and VNC support
 - __selenium/node-chrome__: Selenium node with Chrome installed, needs to be connected to a Selenium Hub
 - __selenium/node-firefox__: Selenium node with Firefox installed, needs to be connected to a Selenium Hub
+- __selenium/standalone-chrome__: Selenium standalone with Chrome installed
+- __selenium/standalone-firefox__: Selenium standalone with Firefox
 - __selenium/node-chrome-debug__: Selenium node with Chrome installed and runs a VNC server, needs to be connected to a Selenium Hub
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Hub
 
 ## Running the images
+
+### Standalone Chrome and Firefox
+
+``` bash
+$ docker run -d -p 4444:4444 selenium/standalone-chrome:2.44.0
+```
 
 ### Selenium Grid Hub
 
@@ -24,8 +32,6 @@ $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.44.0
 ```
 
 ### Chrome and Firefox Nodes
-
-df/f-r/n
 
 ``` bash
 $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.44.0
