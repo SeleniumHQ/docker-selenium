@@ -17,7 +17,8 @@ RUN apt-get update -qqy \
     openjdk-7-jre-headless \
     unzip \
     wget \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && sed -i 's/\/dev\/urandom/\/dev\/.\/urandom/' ./usr/lib/jvm/java-7-openjdk-amd64/jre/lib/security/java.security
 
 #==========
 # Selenium
