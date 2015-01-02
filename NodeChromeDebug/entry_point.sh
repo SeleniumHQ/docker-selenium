@@ -11,8 +11,9 @@ if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
 fi
 
 function shutdown {
-  kill -s SIGTERM $NODE_PID
-  wait $NODE_PID
+  kill -s SIGTERM $JAVA_PID
+  wait $JAVA_PID
+  kill -s SIGTERM $VNC_PID
 }
 
 REMOTE_HOST_PARAM=""
@@ -25,21 +26,21 @@ fi
 
 # startup tightvnc server
 export FONTROOT=/usr/share/fonts/X11
-export USER=root
+export USER=seluser
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT"
 
 Xtightvnc $DISPLAY \
-    -desktop X \
-    -auth /root/.Xauthority \
-    -geometry $GEOMETRY \
-    -depth $SCREEN_DEPTH \
-    -rfbwait 120000 \
-    -rfbauth /root/.vnc/passwd \
-    -rfbport 5900 \
-    -fp $FONTROOT/misc/,$FONTROOT/Type1/,$FONTROOT/75dpi/,$FONTROOT/100dpi/ \
-    -co /etc/X11/rgb &
+  -desktop X \
+  -auth /root/.Xauthority \
+  -geometry $GEOMETRY \
+  -depth $SCREEN_DEPTH \
+  -rfbwait 120000 \
+  -rfbauth /root/.vnc/passwd \
+  -rfbport 5900 \
+  -fp $FONTROOT/misc/,$FONTROOT/Type1/,$FONTROOT/75dpi/,$FONTROOT/100dpi/ \
+  -co /etc/X11/rgb &
 
-NODE_PID=$!
+VNC_PID=$!
 
 sleep 1
 
@@ -49,9 +50,11 @@ java -jar /opt/selenium/selenium-server-standalone.jar \
     ${REMOTE_HOST_PARAM} \
     -nodeConfig /opt/selenium/config.json &
 
+JAVA_PID=$!
+
 fluxbox -display $DISPLAY &
 
 trap shutdown SIGTERM SIGINT
-sleep 0.5
-wait $NODE_PID
+sleep 1
+wait $VNC_PID $JAVA_PID
 
