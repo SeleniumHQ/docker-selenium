@@ -12,6 +12,14 @@ The Hub receives a test to be executed along with information on which browser a
 $ docker run -d -P --name selenium-hub selenium/hub
 ```
 
+Note: You can optionally override default configuration settings using environment variables.
+See the [Hub's Dockerfile](Dockerfile) to view the list of variables and their default values.
+
+```
+$ docker run -d -P --name selenium-hub -e GRID_TIMEOUT=10000 selenium/hub
+```
+
+
 Once the hub is up and running will want to launch nodes that can run tests. You can run as many nodes as you wish.
 
 ```
