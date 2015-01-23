@@ -6,9 +6,10 @@ USER root
 #=========
 # Firefox
 #=========
+ENV FIREFOX_VERSION 28.0+build2-0ubuntu2
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-    firefox \
+    firefox=$FIREFOX_VERSION \
   && rm -rf /var/lib/apt/lists/*
 
 #========================
