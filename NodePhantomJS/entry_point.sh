@@ -1,11 +1,6 @@
 #!/bin/bash
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
-if [ ! -e /opt/selenium/config.json ]; then
-  echo No Selenium Node configuration file, the node-base image is not intended to be run directly. 1>&2
-  exit 1
-fi
-
 if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
   echo Not linked with a running Hub container 1>&2
   exit 1
@@ -27,7 +22,7 @@ function shutdown {
 
 ip="$(ifconfig | grep -A 1 'eth0' | tail -1 | cut -d ':' -f 2 | cut -d ' ' -f 1)"
 
-phantomjs --webdriver=$ip:5555 --webdriver-selenium-grid-hub=http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT
+phantomjs --webdriver=$ip:8080 --webdriver-selenium-grid-hub=http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID
