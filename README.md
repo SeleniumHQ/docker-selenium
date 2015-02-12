@@ -67,7 +67,7 @@ $ CH=$(docker run --rm --name=ch \
 
 Note `-v /e2e/uploads:/e2e/uploads` is optional in case you are testing browser uploads on your webapp you'll probably need to share a directory for this.
 
-I like to remove the containers after each e2e test with `--rm` since this docker container is not meant to preserve state, spawning a new one is less than 3 seconds. You need to think of your docker container as processes, not as running virtual machines if case you are familiar with vagrant.
+I like to remove the containers after each e2e test with `--rm` since this docker container is not meant to preserve state, spawning a new one is less than 3 seconds. You need to think of your docker containers as single processes, not as running virtual machines, in case you are familiar with vagrant.
 
 ##### e.g. Spawn a container for Firefox testing:
 
