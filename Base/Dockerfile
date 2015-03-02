@@ -24,7 +24,7 @@ RUN apt-get update -qqy \
 # Selenium
 #==========
 RUN  mkdir -p /opt/selenium \
-  && wget --no-verbose http://selenium-release.storage.googleapis.com/2.44/selenium-server-standalone-2.44.0.jar -O /opt/selenium/selenium-server-standalone.jar
+  && wget --no-verbose http://selenium-release.storage.googleapis.com/2.45/selenium-server-standalone-2.45.0.jar -O /opt/selenium/selenium-server-standalone.jar
 
 #========================================
 # Add normal user with passwordless sudo
