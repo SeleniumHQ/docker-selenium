@@ -22,20 +22,20 @@ Images included:
 ### Standalone Chrome and Firefox
 
 ``` bash
-$ docker run -d -p 4444:4444 selenium/standalone-chrome:2.44.0
+$ docker run -d -p 4444:4444 selenium/standalone-chrome:2.45.0
 ```
 
 ### Selenium Grid Hub
 
 ``` bash
-$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.44.0
+$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.45.0
 ```
 
 ### Chrome and Firefox Nodes
 
 ``` bash
-$ docker run -d --link selenium-hub:hub selenium/node-chrome:2.44.0
-$ docker run -d --link selenium-hub:hub selenium/node-firefox:2.44.0
+$ docker run -d --link selenium-hub:hub selenium/node-chrome:2.45.0
+$ docker run -d --link selenium-hub:hub selenium/node-firefox:2.45.0
 ```
 
 ## Building the images
@@ -59,10 +59,10 @@ _Note: omitting `VERSION=local` will build the images with the current version n
 ##### e.g. Spawn a container for Chrome testing:
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.44.0
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.45.0
 $ CH=$(docker run --rm --name=ch \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    selenium/node-chrome:2.44.0)
+    selenium/node-chrome:2.45.0)
 ```
 
 Note `-v /e2e/uploads:/e2e/uploads` is optional in case you are testing browser uploads on your webapp you'll probably need to share a directory for this.
@@ -74,10 +74,10 @@ I like to remove the containers after each e2e test with `--rm` since this docke
 This command line is the same as for Chrome, remember that the selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoid certain `:focus` issues you web app may encounter during e2e automation.
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.44.0
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.45.0
 $ FF=$(docker run --rm --name=ch \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    selenium/node-firefox:2.44.0)
+    selenium/node-firefox:2.45.0)
 ```
 
 ## Debugging
@@ -85,8 +85,8 @@ $ FF=$(docker run --rm --name=ch \
 In the event you wish to visually see what the browser is doing you will want to run the selenium/node-chrome-debug and selenium/node-firefox-debug images.
 
 ``` bash
-$ docker run -d -P --link selenium-hub:hub selenium/node-chrome-debug:2.44.0
-$ docker run -d -P --link selenium-hub:hub selenium/node-firefox-debug:2.44.0
+$ docker run -d -P --link selenium-hub:hub selenium/node-chrome-debug:2.45.0
+$ docker run -d -P --link selenium-hub:hub selenium/node-firefox-debug:2.45.0
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -107,8 +107,8 @@ If you are running Boot2Docker on Mac then you already have a [VNC client](http:
 When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
 
 ``` dockerfile
-#FROM selenium/node-chrome-debug:2.44.0
-#FROM selenium/node-firefox-debug:2.44.0
+#FROM selenium/node-chrome-debug:2.45.0
+#FROM selenium/node-firefox-debug:2.45.0
 # Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
@@ -120,11 +120,11 @@ RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 $ docker images
 #=>
 REPOSITORY                      TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-selenium/node-firefox           2.44.0              c7c0c99afabd        31 minutes ago      695.9 MB
-selenium/node-chrome            2.44.0              c4cd17423321        31 minutes ago      796.7 MB
-selenium/node-base              2.44.0              4f7c1788fe4c        32 minutes ago      584.8 MB
-selenium/hub                    2.44.0              427462f54676        35 minutes ago      431.4 MB
-selenium/base                   2.44.0              9126579ae96e        35 minutes ago      431.4 MB
+selenium/node-firefox           2.45.0              c7c0c99afabd        31 minutes ago      695.9 MB
+selenium/node-chrome            2.45.0              c4cd17423321        31 minutes ago      796.7 MB
+selenium/node-base              2.45.0              4f7c1788fe4c        32 minutes ago      584.8 MB
+selenium/hub                    2.45.0              427462f54676        35 minutes ago      431.4 MB
+selenium/base                   2.45.0              9126579ae96e        35 minutes ago      431.4 MB
 ubuntu                          14.04               5506de2b643b        3 weeks ago         199.3 MB
 ```
 
