@@ -9,12 +9,12 @@ echo Building test container image
 docker build -t selenium/test:local ./Test
 
 echo Starting Selenium Container
-HUB=$(docker run -d selenium/hub:2.44.0)
+HUB=$(docker run -d selenium/hub:2.45.0)
 HUB_NAME=$(docker inspect -f '{{ .Name  }}' $HUB | sed s:/::)
 sleep 2
 
-NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:2.44.0)
-NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:2.44.0)
+NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:2.45.0)
+NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:2.45.0)
 
 docker logs -f $HUB &
 docker logs -f $NODE_CHROME &
