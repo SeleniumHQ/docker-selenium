@@ -23,6 +23,9 @@ chrome: nodebase
 firefox: nodebase
 	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
 
+htmlunit: nodebase
+	cd ./NodeHtmlUnit && docker build -t $(NAME)/node-htmlunit:$(VERSION) .
+
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION)
 
@@ -53,6 +56,7 @@ tag_latest:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
+	docker tag $(NAME)/node-htmlunit:$(VERSION) $(NAME)/node-htmlunit:latest
 	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:latest
 
@@ -91,6 +95,7 @@ test:
 	generate_firefoxdebug \
 	generate_standalone_chrome \
 	generate_standalone_firefox \
+	htmlunit \
 	hub \
 	nodebase \
 	release \
