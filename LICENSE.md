@@ -1,1 +1,1 @@
-The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache 2.0 license](https://code.google.com/p/selenium/source/browse/COPYING).
+The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache 2.0 license](https://raw.githubusercontent.com/SeleniumHQ/selenium/master/LICENSE).
