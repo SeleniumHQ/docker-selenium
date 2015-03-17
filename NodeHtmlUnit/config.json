@@ -1,0 +1,24 @@
+{
+  "capabilities": [
+    {
+      "browserName": "htmlunit",
+      "maxInstances": 5,
+      "seleniumProtocol": "WebDriver",
+      "platform": "ANY"
+    },
+    {
+      "browserName": "htmlunit",
+      "maxInstances": 5,
+      "seleniumProtocol": "WebDriver",
+      "version":"firefox",
+      "platform": "ANY"
+    }
+  ],
+  "configuration": {
+    "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
+    "maxSession": 10,
+    "port": 5555,
+    "register": true,
+    "registerCycle": 5000
+  }
+}
