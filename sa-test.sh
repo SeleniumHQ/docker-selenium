@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 
+DEBUG=''
+
+if [ -n "$1" ] && [ $1 == 'debug' ]; then
+  DEBUG='-debug'
+fi
+
 echo Building test container image
 docker build -t selenium/test:local ./Test
 
 function test_standalone {
   BROWSER=$1
-  echo Starting $BROWSER standalone container
+  echo Starting Selenium standalone-$BROWSER$DEBUG container
 
-  SA=$(docker run -d selenium/standalone-$BROWSER:2.45.0)
+  SA=$(docker run -d selenium/standalone-$BROWSER$DEBUG:2.45.0)
   SA_NAME=$(docker inspect -f '{{ .Name  }}' $SA | sed s:/::)
   TEST_CMD="node smoke-$BROWSER.js"
 
@@ -22,7 +28,7 @@ function test_standalone {
   fi
 
   if [ ! "$CIRCLECI" ==  "true" ]; then
-    echo Tearing down Selenium $BROWSER standalone container
+    echo Tearing down Selenium standalone-$BROWSER$DEBUG container
     docker stop $SA_NAME
     docker rm $SA_NAME
     echo Removing the test container
@@ -30,5 +36,5 @@ function test_standalone {
   fi
 }
 
-test_standalone firefox
-test_standalone chrome
+test_standalone firefox $DEBUG
+test_standalone chrome $DEBUG

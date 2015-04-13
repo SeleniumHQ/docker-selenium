@@ -95,6 +95,7 @@ test:
 	./test.sh
 	./sa-test.sh
 	./test.sh debug
+	./sa-test.sh debug
 
 .PHONY: \
 	all \
