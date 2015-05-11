@@ -3,6 +3,8 @@
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache 2.0 license](https://code.google.com/p/selenium/source/browse/COPYING).
 
 ## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
+[![Circle CI](https://circleci.com/gh/SeleniumHQ/docker-selenium.svg?style=svg)](https://circleci.com/gh/SeleniumHQ/docker-selenium)
+
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/SeleniumHQ/docker-selenium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Images included:

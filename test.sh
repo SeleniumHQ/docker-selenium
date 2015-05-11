@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 DEBUG=''
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
@@ -22,24 +22,30 @@ docker logs -f $NODE_FIREFOX &
 sleep 2
 
 echo Running test container...
-docker run --rm -it --link $HUB_NAME:hub selenium/test:local
+docker run -it --link $HUB_NAME:hub selenium/test:local
 STATUS=$?
-
-echo Tearing down Selenium Chrome Node container
-docker stop $NODE_CHROME
-docker rm $NODE_CHROME
-
-echo Tearing down Selenium Firefox Node container
-docker stop $NODE_FIREFOX
-docker rm $NODE_FIREFOX
-
-echo Tearing down Selenium Hub container
-docker stop $HUB
-docker rm $HUB
+TEST_CONTAINER=$(docker ps -aq | head -1)
 
 if [ ! $STATUS == 0 ]; then
   echo Failed
   exit 1
+fi
+
+if [ ! "$CIRCLECI" ==  "true" ]; then
+  echo Tearing down Selenium Chrome Node container
+  docker stop $NODE_CHROME
+  docker rm $NODE_CHROME
+
+  echo Tearing down Selenium Firefox Node container
+  docker stop $NODE_FIREFOX
+  docker rm $NODE_FIREFOX
+
+  echo Tearing down Selenium Hub container
+  docker stop $HUB
+  docker rm $HUB
+
+  echo Removing the test container
+  docker rm $TEST_CONTAINER
 fi
 
 echo Done

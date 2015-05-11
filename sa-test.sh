@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo Building test container image
 docker build -t selenium/test:local ./Test
@@ -12,17 +12,21 @@ function test_standalone {
   TEST_CMD="node smoke-$BROWSER.js"
 
   echo Running test container...
-  docker run --rm -it --link $SA_NAME:hub -e "TEST_CMD=$TEST_CMD" selenium/test:local
+  docker run -it --link $SA_NAME:hub -e "TEST_CMD=$TEST_CMD" selenium/test:local
   STATUS=$?
-
-  echo Tearing down Selenium $BROWSER standalone container
-
-  docker stop $SA_NAME
-  docker rm $SA_NAME
+  TEST_CONTAINER=$(docker ps -aq | head -1)
 
   if [ ! $STATUS == 0 ]; then
     echo Failed
     exit 1
+  fi
+
+  if [ ! "$CIRCLECI" ==  "true" ]; then
+    echo Tearing down Selenium $BROWSER standalone container
+    docker stop $SA_NAME
+    docker rm $SA_NAME
+    echo Removing the test container
+    docker rm $TEST_CONTAINER
   fi
 }
 
