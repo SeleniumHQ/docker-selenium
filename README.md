@@ -77,7 +77,7 @@ This command line is the same as for Chrome, remember that the selenium running 
 
 ``` bash
 $ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.45.0
-$ FF=$(docker run --rm --name=ch \
+$ FF=$(docker run --rm --name=fx \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
     selenium/node-firefox:2.45.0)
 ```
