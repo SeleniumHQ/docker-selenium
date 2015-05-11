@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 COUNTER=0
 
 while [ $COUNTER -lt 50 ]; do
