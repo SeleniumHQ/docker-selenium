@@ -15,7 +15,9 @@ Images included:
 - __selenium/node-chrome__: Selenium node with Chrome installed, needs to be connected to a Selenium Hub
 - __selenium/node-firefox__: Selenium node with Firefox installed, needs to be connected to a Selenium Hub
 - __selenium/standalone-chrome__: Selenium standalone with Chrome installed
-- __selenium/standalone-firefox__: Selenium standalone with Firefox
+- __selenium/standalone-firefox__: Selenium standalone with Firefox installed
+- __selenium/standalone-chrome-debug__: Selenium standalone with Chrome installed and runs a VNC server
+- __selenium/standalone-firefox-debug__: Selenium standalone with Firefox installed and runs a VNC server
 - __selenium/node-chrome-debug__: Selenium node with Chrome installed and runs a VNC server, needs to be connected to a Selenium Hub
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Hub
 
@@ -25,7 +27,13 @@ Images included:
 
 ``` bash
 $ docker run -d -p 4444:4444 selenium/standalone-chrome:2.45.0
+# OR
+$ docker run -d -p 4444:4444 selenium/standalone-firefox:2.45.0
 ```
+
+Note: only one standalone image can run on port 4444 at a time.
+
+To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. [See debugging section for more...](#debugging)
 
 ### Selenium Grid Hub
 
@@ -84,11 +92,19 @@ $ FF=$(docker run --rm --name=fx \
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the selenium/node-chrome-debug and selenium/node-firefox-debug images.
+In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images.
 
 ``` bash
 $ docker run -d -P --link selenium-hub:hub selenium/node-chrome-debug:2.45.0
 $ docker run -d -P --link selenium-hub:hub selenium/node-firefox-debug:2.45.0
+```
+
+And for standalone: 
+
+``` bash
+$ docker run -d -p 4444:4444 selenium/standalone-chrome-debug:2.45.0
+# OR
+$ docker run -d -p 4444:4444 selenium/standalone-firefox-debug:2.45.0
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
