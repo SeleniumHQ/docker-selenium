@@ -48,6 +48,15 @@ $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.45.0
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.45.0
 ```
 
+### Additional parameters
+
+If you need to pass additional configuration flags to the selenium servers (hub or node), you just need to add them at the end of the docker command line you are using to start the containers: 
+
+``` bash
+JAVA_OPTS=-Dhttp.proxyHost=webproxy.domain.com -Dhttp.proxyPort=3128
+docker run -d -p 4444:4444 --name selenium-hub selenium/hub ${JAVA_OPTS}
+```
+
 ## Building the images
 
 Ensure you have the `ubuntu:14.04` base image downloaded, this step is _optional_ since docker takes care of downloading the parent base image automatically.
