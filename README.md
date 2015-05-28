@@ -50,7 +50,7 @@ $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.45.0
 
 ### Additional parameters
 
-If you need to pass additional configuration flags to the selenium servers (hub or node), you just need to add them at the end of the docker command line you are using to start the containers: 
+If you need to pass additional configuration flags to the selenium servers (hub or node), you just need to add them at the end of the docker command line you use to start the containers. This example below shows you how to configure the http proxy inside the container. 
 
 ``` bash
 JAVA_OPTS=-Dhttp.proxyHost=webproxy.domain.com -Dhttp.proxyPort=3128
