@@ -1,4 +1,4 @@
-#FROM selenium/node-*:2.45.0 Proper FROM attr will be applied throuh generate.sh
+#FROM selenium/node-*:2.46.0 Proper FROM attr will be applied throuh generate.sh
 
 USER root
 
