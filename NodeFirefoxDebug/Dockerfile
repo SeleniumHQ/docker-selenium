@@ -1,5 +1,5 @@
-FROM selenium/node-firefox:2.45.0
-#FROM selenium/node-*:2.45.0 Proper FROM attr will be applied throuh generate.sh
+FROM selenium/node-firefox:2.46.0
+#FROM selenium/node-*:2.46.0 Proper FROM attr will be applied throuh generate.sh
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
