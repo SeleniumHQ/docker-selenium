@@ -21,15 +21,28 @@ docker logs -f $NODE_CHROME &
 docker logs -f $NODE_FIREFOX &
 sleep 2
 
-echo Running test container...
-docker run -it --link $HUB_NAME:hub selenium/test:local
-STATUS=$?
-TEST_CONTAINER=$(docker ps -aq | head -1)
+function test_node {
+  BROWSER=$1
+  echo Running $BROWSER test...
+  TEST_CMD="node smoke-$BROWSER.js"
+  docker run -it --link $HUB_NAME:hub -e TEST_CMD="$TEST_CMD" selenium/test:local
+  STATUS=$?
+  TEST_CONTAINER=$(docker ps -aq | head -1)
 
-if [ ! $STATUS == 0 ]; then
-  echo Failed
-  exit 1
-fi
+  if [ ! $STATUS == 0 ]; then
+    echo Failed
+    exit 1
+  fi
+
+  if [ ! "$CIRCLECI" ==  "true" ]; then
+    echo Removing the test container
+    docker rm $TEST_CONTAINER
+  fi
+
+}
+
+test_node chrome $DEBUG
+test_node firefox $DEBUG
 
 if [ ! "$CIRCLECI" ==  "true" ]; then
   echo Tearing down Selenium Chrome Node container
@@ -43,9 +56,6 @@ if [ ! "$CIRCLECI" ==  "true" ]; then
   echo Tearing down Selenium Hub container
   docker stop $HUB
   docker rm $HUB
-
-  echo Removing the test container
-  docker rm $TEST_CONTAINER
 fi
 
 echo Done
