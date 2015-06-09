@@ -4,6 +4,18 @@ PLATFORM := $(shell uname -s)
 
 all: hub chrome firefox chromedebug firefoxdebug standalone_chrome standalone_firefox standalone_debug_chrome standalone_debug_firefox
 
+generate_all:	\
+	generate_hub \
+	generate_nodebase \
+	generate_chrome \
+	generate_firefox \
+	generate_chromedebug \
+	generate_firefoxdebug \
+	generate_standalone_firefox \
+	generate_standalone_chrome \
+	generate_standalone_debug_firefox \
+	generate_standalone_debug_chrome
+
 build: all
 
 ci: build test
@@ -118,6 +130,11 @@ test:
 	ci \
 	firefox \
 	firefoxdebug \
+	generate_all \
+	generate_hub \
+	generate_nodebase \
+	generate_chrome \
+	generate_firefox \
 	generate_chromedebug \
 	generate_firefoxdebug \
 	generate_standalone_chrome \
