@@ -11,16 +11,28 @@ ci: build test
 base:
 	cd ./Base && docker build -t $(NAME)/base:$(VERSION) .
 
-hub: base
+generate_hub:
+	cd ./Hub && ./generate.sh $(VERSION)
+
+hub: base generate_hub
 	cd ./Hub && docker build -t $(NAME)/hub:$(VERSION) .
 
-nodebase: base
+generate_nodebase:
+	cd ./NodeBase && ./generate.sh $(VERSION)
+
+nodebase: base generate_nodebase
 	cd ./NodeBase && docker build -t $(NAME)/node-base:$(VERSION) .
 
-chrome: nodebase
+generate_chrome:
+	cd ./NodeChrome && ./generate.sh $(VERSION)
+
+chrome: nodebase generate_chrome
 	cd ./NodeChrome && docker build -t $(NAME)/node-chrome:$(VERSION) .
 
-firefox: nodebase
+generate_firefox:
+		cd ./NodeFirefox && ./generate.sh $(VERSION)
+
+firefox: nodebase generate_firefox
 	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
 
 generate_standalone_firefox:
