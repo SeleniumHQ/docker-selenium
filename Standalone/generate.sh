@@ -8,7 +8,7 @@ rm -rf $FOLDER
 mkdir -p $FOLDER
 
 echo FROM selenium/$BASE:$VERSION > $FOLDER/Dockerfile
-cat ./Dockerfile >> $FOLDER/Dockerfile
+cat ./Dockerfile.txt >> $FOLDER/Dockerfile
 
 cp ./entry_point.sh $FOLDER
 

@@ -4,6 +4,18 @@ PLATFORM := $(shell uname -s)
 
 all: hub chrome firefox chromedebug firefoxdebug standalone_chrome standalone_firefox standalone_debug_chrome standalone_debug_firefox
 
+generate_all:	\
+	generate_hub \
+	generate_nodebase \
+	generate_chrome \
+	generate_firefox \
+	generate_chromedebug \
+	generate_firefoxdebug \
+	generate_standalone_firefox \
+	generate_standalone_chrome \
+	generate_standalone_debug_firefox \
+	generate_standalone_debug_chrome
+
 build: all
 
 ci: build test
@@ -11,16 +23,28 @@ ci: build test
 base:
 	cd ./Base && docker build -t $(NAME)/base:$(VERSION) .
 
-hub: base
+generate_hub:
+	cd ./Hub && ./generate.sh $(VERSION)
+
+hub: base generate_hub
 	cd ./Hub && docker build -t $(NAME)/hub:$(VERSION) .
 
-nodebase: base
+generate_nodebase:
+	cd ./NodeBase && ./generate.sh $(VERSION)
+
+nodebase: base generate_nodebase
 	cd ./NodeBase && docker build -t $(NAME)/node-base:$(VERSION) .
 
-chrome: nodebase
+generate_chrome:
+	cd ./NodeChrome && ./generate.sh $(VERSION)
+
+chrome: nodebase generate_chrome
 	cd ./NodeChrome && docker build -t $(NAME)/node-chrome:$(VERSION) .
 
-firefox: nodebase
+generate_firefox:
+		cd ./NodeFirefox && ./generate.sh $(VERSION)
+
+firefox: nodebase generate_firefox
 	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
 
 generate_standalone_firefox:
@@ -106,6 +130,11 @@ test:
 	ci \
 	firefox \
 	firefoxdebug \
+	generate_all \
+	generate_hub \
+	generate_nodebase \
+	generate_chrome \
+	generate_firefox \
 	generate_chromedebug \
 	generate_firefoxdebug \
 	generate_standalone_chrome \
