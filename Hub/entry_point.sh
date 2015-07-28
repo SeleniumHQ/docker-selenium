@@ -15,6 +15,7 @@ function shutdown {
 }
 
 java -jar /opt/selenium/selenium-server-standalone.jar \
+  ${JAVA_OPTS} \
   -role hub \
   -hubConfig $CONF &
 NODE_PID=$!
