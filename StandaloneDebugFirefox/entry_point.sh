@@ -9,7 +9,7 @@ function shutdown {
 sudo -E -i -u seluser \
   DISPLAY=$DISPLAY \
   xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
-  java -jar /opt/selenium/selenium-server-standalone.jar &
+  java -jar /opt/selenium/selenium-server-standalone.jar ${JAVA_OPTS} &
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT

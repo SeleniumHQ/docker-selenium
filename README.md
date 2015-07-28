@@ -48,6 +48,14 @@ $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.46.0
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.46.0
 ```
 
+### Java Environment Options
+
+You can pass JAVA_OPTS environment variable to selenium java processes.
+
+``` bash
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:2.46.0
+```
+
 ## Building the images
 
 Ensure you have the `ubuntu:14.04` base image downloaded, this step is _optional_ since docker takes care of downloading the parent base image automatically.
