@@ -36,7 +36,7 @@ See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage wit
 
 ## License
 
-View [license information](https://code.google.com/p/selenium/source/browse/COPYING) for the software contained in this image.
+View [license information](https://github.com/SeleniumHQ/docker-selenium/blob/master/LICENSE.md) for the software contained in this image.
 
 ## Getting Help
 
