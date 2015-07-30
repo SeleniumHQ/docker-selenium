@@ -1,4 +1,4 @@
-FROM selenium/standalone-firefox:2.46.0
+FROM selenium/standalone-firefox:2.47.0
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
