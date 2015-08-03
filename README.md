@@ -57,10 +57,10 @@ $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/
 
 ## Building the images
 
-Ensure you have the `ubuntu:14.04` base image downloaded, this step is _optional_ since Docker takes care of downloading the parent base image automatically.
+Ensure you have the `ubuntu:14.10` base image downloaded, this step is _optional_ since Docker takes care of downloading the parent base image automatically.
 
 ``` bash
-$ docker pull ubuntu:14.04
+$ docker pull ubuntu:14.10
 ```
 
 Clone the repo and from the project directory root you can build everything by running:
@@ -140,12 +140,12 @@ RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 $ docker images
 #=>
 REPOSITORY                      TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-selenium/node-firefox           2.45.0              c7c0c99afabd        31 minutes ago      695.9 MB
-selenium/node-chrome            2.45.0              c4cd17423321        31 minutes ago      796.7 MB
-selenium/node-base              2.45.0              4f7c1788fe4c        32 minutes ago      584.8 MB
-selenium/hub                    2.45.0              427462f54676        35 minutes ago      431.4 MB
-selenium/base                   2.45.0              9126579ae96e        35 minutes ago      431.4 MB
-ubuntu                          14.04               5506de2b643b        3 weeks ago         199.3 MB
+selenium/node-firefox           2.47.1              69f762d0d79e        29 minutes ago      552.1 MB
+selenium/node-chrome            2.47.1              9dd73160660b        30 minutes ago      723.6 MB
+selenium/node-base              2.47.1              1b7a0b7024b1        32 minutes ago      426.1 MB
+selenium/hub                    2.47.1              2570bbb98229        33 minutes ago      394.4 MB
+selenium/base                   2.47.1              33478d455dab        33 minutes ago      362.6 MB
+ubuntu                          14.10               dce38fb57986        3 weeks ago         194.5 MB
 ```
 
 ### Troubleshooting
