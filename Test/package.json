@@ -8,8 +8,8 @@
   },
   "license": "Apache 2",
   "dependencies": {
-    "chai": "^1.10.0",
-    "colors": "^1.0.3",
-    "wd": "^0.3.11"
+    "chai": "^3.2.0",
+    "colors": "^1.1.2",
+    "wd": "^0.3.12"
   }
 }
