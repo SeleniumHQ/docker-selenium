@@ -1,11 +1,11 @@
-FROM ubuntu:14.10
+FROM ubuntu:15.04
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #================================================
 # Customize sources for apt-get
 #================================================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu utopic main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu utopic-updates main universe\n" >> /etc/apt/sources.list
+RUN  echo "deb http://archive.ubuntu.com/ubuntu vivid main universe\n" > /etc/apt/sources.list \
+  && echo "deb http://archive.ubuntu.com/ubuntu vivid-updates main universe\n" >> /etc/apt/sources.list
 
 #========================
 # Miscellaneous packages
