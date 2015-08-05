@@ -4,4 +4,6 @@ node_modules/
 .idea/
 # Sed backup files.
 *-e
+# Vim swap files.
+*.swp
 
