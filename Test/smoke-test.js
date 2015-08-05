@@ -25,7 +25,7 @@ module.exports = function(browserName) {
   browser.init({
     browserName: browserName
   }, function() {
-    browser.get("https://github.com", function() {
+    browser.get("https://www.wikipedia.org/", function() {
       browser.title(function(err, title) {
         if (err) {
           console.error(err);
@@ -33,9 +33,9 @@ module.exports = function(browserName) {
           process.exit(1);
         }
 
-        title.should.include('GitHub');
+        title.should.include('Wikipedia');
         browser.quit();
-      });
+      })
     });
   });
 };
