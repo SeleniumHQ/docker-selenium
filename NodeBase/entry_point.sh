@@ -17,9 +17,9 @@ function shutdown {
 }
 
 REMOTE_HOST_PARAM=""
-if [ ! -z "$REMOTE_HOST" ]; then
+if [ ! -z "$HOST" ]; then
   echo "REMOTE_HOST variable is set, appending -remoteHost"
-  REMOTE_HOST_PARAM="-remoteHost $REMOTE_HOST"
+  REMOTE_HOST_PARAM="-remoteHost $HOST"
 fi
 
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
