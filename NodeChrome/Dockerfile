@@ -23,7 +23,7 @@ RUN apt-get update -qqy \
 #==============================
 # Scripts to run Selenium Node
 #==============================
-COPY entry_point.sh /opt/bin/entry_point.sh
+COPY ../NodeBase/entry_point.sh /opt/bin/entry_point.sh
 RUN chmod +x /opt/bin/entry_point.sh
 
 #============================
