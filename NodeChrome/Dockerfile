@@ -38,3 +38,5 @@ COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
 
 USER seluser
+
+CMD echo "I am running"
