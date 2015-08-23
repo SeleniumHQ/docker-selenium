@@ -40,6 +40,6 @@ RUN chmod +x /opt/google/chrome/google-chrome
 #=================================
 # Hack to get the remote host variable set correctly
 #=================================
-RUN sed -i '1iexport REMOTE_HOST=$HOST' '/opt/bin/entry_point.sh'
+RUN sed -i '2iexport REMOTE_HOST=$HOST' '/opt/bin/entry_point.sh'
 
 USER seluser
