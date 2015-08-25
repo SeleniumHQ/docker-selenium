@@ -22,6 +22,12 @@ if [ ! -z "$HOST" ]; then
   REMOTE_HOST_PARAM="-remoteHost $HOST"
 fi
 
+if [ ! -z "$PORT" ]; then
+  echo "REMOTE_PORT variable is set, appending to -remoteHost"
+  REMOTE_HOST_PARAM="$REMOTE_HOST_PARAM:$PORT"
+fi
+
+
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
 xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
