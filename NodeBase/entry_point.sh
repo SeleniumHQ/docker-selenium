@@ -19,7 +19,7 @@ function shutdown {
 REMOTE_HOST_PARAM=""
 if [ ! -z "$HOST" ]; then
   echo "REMOTE_HOST variable is set, appending -remoteHost"
-  REMOTE_HOST_PARAM="-remoteHost $HOST"
+  REMOTE_HOST_PARAM="-remoteHost http://$HOST"
 fi
 
 if [ ! -z "$PORT" ]; then
