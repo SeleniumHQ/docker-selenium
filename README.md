@@ -21,6 +21,15 @@ Images included:
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
 
 ## Running the images
+ 
+When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory.
+
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:2.47.1
+```
+
+This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952 
+
 
 ### Standalone Chrome and Firefox
 
