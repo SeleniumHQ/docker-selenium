@@ -1,4 +1,4 @@
-FROM node:0.10-onbuild
+FROM node:0.12.7-onbuild
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 ENV TEST_CMD ""
