@@ -19,7 +19,7 @@ RUN apt-get update -qqy \
     unzip \
     wget \
   && rm -rf /var/lib/apt/lists/* \
-  && sed -i 's/\/dev\/urandom/\/dev\/.\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
 #==========
 # Selenium
