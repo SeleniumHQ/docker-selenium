@@ -16,6 +16,10 @@ function shutdown {
   wait $NODE_PID
 }
 
+if [ ! -z "$MESOS_TASK_ID" ]; then
+  REMOTE_HOST="http://${HOST}:${PORT_5555}"
+fi
+
 REMOTE_HOST_PARAM=""
 if [ ! -z "$REMOTE_HOST" ]; then
   echo "REMOTE_HOST variable is set, appending -remoteHost"
