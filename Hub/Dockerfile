@@ -1,4 +1,4 @@
-FROM selenium/base:2.47.1
+FROM selenium/base:2.48.1
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #========================
