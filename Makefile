@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),'2.48.1')
+VERSION := $(or $(VERSION),$(VERSION),'2.48.2')
 PLATFORM := $(shell uname -s)
 
 all: hub chrome firefox chromedebug firefoxdebug standalone_chrome standalone_firefox standalone_debug_chrome standalone_debug_firefox
