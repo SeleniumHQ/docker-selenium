@@ -1,4 +1,4 @@
-FROM ubuntu:15.04
+FROM ubuntu:15.10
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #================================================
