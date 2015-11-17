@@ -7,6 +7,10 @@ $ROOT/generate_config >$CONF
 echo "starting selenium hub with configuration:"
 cat $CONF
 
+if [ ! -z "$SE_OPTS" ]; then
+  echo "appending selenium options: ${SE_OPTS}"
+fi
+
 function shutdown {
     echo "shutting down hub.."
     kill -s SIGTERM $NODE_PID
@@ -16,7 +20,8 @@ function shutdown {
 
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   -role hub \
-  -hubConfig $CONF &
+  -hubConfig $CONF \
+  ${SE_OPTS} &
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT

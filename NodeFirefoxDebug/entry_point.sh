@@ -22,6 +22,10 @@ if [ ! -z "$REMOTE_HOST" ]; then
   REMOTE_HOST_PARAM="-remoteHost $REMOTE_HOST"
 fi
 
+if [ ! -z "$SE_OPTS" ]; then
+  echo "appending selenium options: ${SE_OPTS}"
+fi
+
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
 sudo -E -i -u seluser \
@@ -31,7 +35,8 @@ sudo -E -i -u seluser \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
     ${REMOTE_HOST_PARAM} \
-    -nodeConfig /opt/selenium/config.json &
+    -nodeConfig /opt/selenium/config.json \
+    ${SE_OPTS} &
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
