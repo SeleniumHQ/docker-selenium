@@ -78,7 +78,7 @@ Clone the repo and from the project directory root you can build everything by r
 $ VERSION=local make build
 ```
 
-_Note: Omitting_ `VERSION=local` _will build the images with the current version number thus overwriting the images downloaded from [Docker Hub](https://registry.hub.docker.com/)._
+_Note: Omitting_ `VERSION=local` _will build the images with the current version number thus overwriting the images downloaded from [Docker Hub](https://hub.docker.com/r/selenium/)._
 
 ## Using the images
 
