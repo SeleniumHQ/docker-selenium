@@ -56,12 +56,20 @@ $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.48.2
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.48.2
 ```
 
-### Java Environment Options
+### JAVA_OPTS Java Environment Options
 
-You can pass JAVA_OPTS environment variable to selenium java processes.
+You can pass `JAVA_OPTS` environment variable to java process.
 
 ``` bash
 $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:2.48.2
+```
+
+### SE_OPTS Selenium Configuration Options
+
+You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
+
+``` bash
+$ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:2.48.2
 ```
 
 ## Building the images
