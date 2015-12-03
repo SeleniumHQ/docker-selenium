@@ -1,6 +1,7 @@
 NAME := selenium
 VERSION := $(or $(VERSION),$(VERSION),'2.48.2')
 PLATFORM := $(shell uname -s)
+BUILD_ARGS := $(BUILD_ARGS)
 
 all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
@@ -21,67 +22,67 @@ build: all
 ci: build test
 
 base:
-	cd ./Base && docker build -t $(NAME)/base:$(VERSION) .
+	cd ./Base && docker build $(BUILD_ARGS) -t $(NAME)/base:$(VERSION) .
 
 generate_hub:
 	cd ./Hub && ./generate.sh $(VERSION)
 
 hub: base generate_hub
-	cd ./Hub && docker build -t $(NAME)/hub:$(VERSION) .
+	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(VERSION) .
 
 generate_nodebase:
 	cd ./NodeBase && ./generate.sh $(VERSION)
 
 nodebase: base generate_nodebase
-	cd ./NodeBase && docker build -t $(NAME)/node-base:$(VERSION) .
+	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(VERSION) .
 
 generate_chrome:
 	cd ./NodeChrome && ./generate.sh $(VERSION)
 
 chrome: nodebase generate_chrome
-	cd ./NodeChrome && docker build -t $(NAME)/node-chrome:$(VERSION) .
+	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(VERSION) .
 
 generate_firefox:
 		cd ./NodeFirefox && ./generate.sh $(VERSION)
 
 firefox: nodebase generate_firefox
-	cd ./NodeFirefox && docker build -t $(NAME)/node-firefox:$(VERSION) .
+	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION) .
 
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION)
 
 standalone_firefox: generate_standalone_firefox firefox
-	cd ./StandaloneFirefox && docker build -t $(NAME)/standalone-firefox:$(VERSION) .
+	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(VERSION) .
 
 generate_standalone_firefox_debug:
 	cd ./StandaloneDebug && ./generate.sh StandaloneFirefoxDebug standalone-firefox Firefox $(VERSION)
 
 standalone_firefox_debug: generate_standalone_firefox_debug standalone_firefox
-	cd ./StandaloneFirefoxDebug && docker build -t $(NAME)/standalone-firefox-debug:$(VERSION) .
+	cd ./StandaloneFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox-debug:$(VERSION) .
 
 generate_standalone_chrome:
 	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome Chrome $(VERSION)
 
 standalone_chrome: generate_standalone_chrome chrome
-	cd ./StandaloneChrome && docker build -t $(NAME)/standalone-chrome:$(VERSION) .
+	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(VERSION) .
 
 generate_standalone_chrome_debug:
 	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug standalone-chrome Chrome $(VERSION)
 
 standalone_chrome_debug: generate_standalone_chrome_debug standalone_chrome
-	cd ./StandaloneChromeDebug && docker build -t $(NAME)/standalone-chrome-debug:$(VERSION) .
+	cd ./StandaloneChromeDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome-debug:$(VERSION) .
 
 generate_chrome_debug:
 	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome Chrome $(VERSION)
 
 chrome_debug: generate_chrome_debug chrome
-	cd ./NodeChromeDebug && docker build -t $(NAME)/node-chrome-debug:$(VERSION) .
+	cd ./NodeChromeDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome-debug:$(VERSION) .
 
 generate_firefox_debug:
 	cd ./NodeDebug && ./generate.sh NodeFirefoxDebug node-firefox Firefox $(VERSION)
 
 firefox_debug: generate_firefox_debug firefox
-	cd ./NodeFirefoxDebug && docker build -t $(NAME)/node-firefox-debug:$(VERSION) .
+	cd ./NodeFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox-debug:$(VERSION) .
 
 tag_latest:
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:latest
