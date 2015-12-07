@@ -2,19 +2,19 @@ NAME := selenium
 VERSION := $(or $(VERSION),$(VERSION),'2.48.2')
 PLATFORM := $(shell uname -s)
 
-all: hub chrome firefox chromedebug firefoxdebug standalone_chrome standalone_firefox standalone_debug_chrome standalone_debug_firefox
+all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
 generate_all:	\
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
-	generate_chromedebug \
-	generate_firefoxdebug \
+	generate_chrome_debug \
+	generate_firefox_debug \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
-	generate_standalone_debug_firefox \
-	generate_standalone_debug_chrome
+	generate_standalone_firefox_debug \
+	generate_standalone_chrome_debug
 
 build: all
 
@@ -53,11 +53,11 @@ generate_standalone_firefox:
 standalone_firefox: generate_standalone_firefox firefox
 	cd ./StandaloneFirefox && docker build -t $(NAME)/standalone-firefox:$(VERSION) .
 
-generate_standalone_debug_firefox:
-	cd ./StandaloneDebug && ./generate.sh StandaloneDebugFirefox standalone-firefox Firefox $(VERSION)
+generate_standalone_firefox_debug:
+	cd ./StandaloneDebug && ./generate.sh StandaloneFirefoxDebug standalone-firefox Firefox $(VERSION)
 
-standalone_debug_firefox: generate_standalone_debug_firefox standalone_firefox
-	cd ./StandaloneDebugFirefox && docker build -t $(NAME)/standalone-firefox-debug:$(VERSION) .
+standalone_firefox_debug: generate_standalone_firefox_debug standalone_firefox
+	cd ./StandaloneFirefoxDebug && docker build -t $(NAME)/standalone-firefox-debug:$(VERSION) .
 
 generate_standalone_chrome:
 	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome Chrome $(VERSION)
@@ -65,22 +65,22 @@ generate_standalone_chrome:
 standalone_chrome: generate_standalone_chrome chrome
 	cd ./StandaloneChrome && docker build -t $(NAME)/standalone-chrome:$(VERSION) .
 
-generate_standalone_debug_chrome:
-	cd ./StandaloneDebug && ./generate.sh StandaloneDebugChrome standalone-chrome Chrome $(VERSION)
+generate_standalone_chrome_debug:
+	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug standalone-chrome Chrome $(VERSION)
 
-standalone_debug_chrome: generate_standalone_debug_chrome standalone_chrome
-	cd ./StandaloneDebugChrome && docker build -t $(NAME)/standalone-chrome-debug:$(VERSION) .
+standalone_chrome_debug: generate_standalone_chrome_debug standalone_chrome
+	cd ./StandaloneChromeDebug && docker build -t $(NAME)/standalone-chrome-debug:$(VERSION) .
 
-generate_chromedebug:
+generate_chrome_debug:
 	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome Chrome $(VERSION)
 
-chromedebug: generate_chromedebug chrome
+chrome_debug: generate_chrome_debug chrome
 	cd ./NodeChromeDebug && docker build -t $(NAME)/node-chrome-debug:$(VERSION) .
 
-generate_firefoxdebug:
+generate_firefox_debug:
 	cd ./NodeDebug && ./generate.sh NodeFirefoxDebug node-firefox Firefox $(VERSION)
 
-firefoxdebug: generate_firefoxdebug firefox
+firefox_debug: generate_firefox_debug firefox
 	cd ./NodeFirefoxDebug && docker build -t $(NAME)/node-firefox-debug:$(VERSION) .
 
 tag_latest:
@@ -89,6 +89,8 @@ tag_latest:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
+	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:latest
+	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:latest
 	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-chrome-debug:$(VERSION) $(NAME)/standalone-chrome-debug:latest
@@ -100,6 +102,8 @@ release: tag_latest
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-chrome-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-firefox-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-firefox-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-chrome version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-chrome-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -109,6 +113,9 @@ release: tag_latest
 	docker push $(NAME)/node-base
 	docker push $(NAME)/node-chrome
 	docker push $(NAME)/node-firefox
+	docker push $(NAME)/node-chrome-debug
+	docker push $(NAME)/node-firefox-debug
+	docker push $(NAME)/standalone-chrome
 	docker push $(NAME)/standalone-chrome
 	docker push $(NAME)/standalone-firefox
 	docker push $(NAME)/standalone-chrome-debug
@@ -126,27 +133,27 @@ test:
 	base \
 	build \
 	chrome \
-	chromedebug \
+	chrome_debug \
 	ci \
 	firefox \
-	firefoxdebug \
+	firefox_debug \
 	generate_all \
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
-	generate_chromedebug \
-	generate_firefoxdebug \
+	generate_chrome_debug \
+	generate_firefox_debug \
 	generate_standalone_chrome \
 	generate_standalone_firefox \
-	generate_standalone_debug_chrome \
-	generate_standalone_debug_firefox \
+	generate_standalone_chrome_debug \
+	generate_standalone_firefox_debug \
 	hub \
 	nodebase \
 	release \
 	standalone_chrome \
 	standalone_firefox \
-	standalone_debug_chrome \
-	standalone_debug_firefox \
+	standalone_chrome_debug \
+	standalone_firefox_debug \
 	tag_latest \
 	test

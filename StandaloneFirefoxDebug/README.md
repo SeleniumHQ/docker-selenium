@@ -5,7 +5,7 @@ _This image is only intended for development purposes!_ Runs a Selenium Grid Sta
 
 ## Dockerfile
 
-[`selenium/standalone-firefox-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneDebugFirefox/Dockerfile)
+[`selenium/standalone-firefox-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneFirefoxDebug/Dockerfile)
 
 ## How to use this image
 

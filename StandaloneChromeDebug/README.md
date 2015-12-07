@@ -5,7 +5,7 @@ _This image is only intended for development purposes!_ Runs a Selenium Grid Sta
 
 ## Dockerfile
 
-[`selenium/standalone-chrome-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneDebugChrome/Dockerfile)
+[`selenium/standalone-chrome-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneChromeDebug/Dockerfile)
 
 ## How to use this image
 
