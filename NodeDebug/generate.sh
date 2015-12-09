@@ -11,7 +11,10 @@ echo FROM selenium/$BASE:$VERSION > $FOLDER/Dockerfile
 cat ./Dockerfile.txt >> $FOLDER/Dockerfile
 
 cat ../NodeBase/entry_point.sh \
-  | sed 's/^xvfb-run/sudo -E -i -u seluser \\\
+  | sed 's/^xvfb-run/env | cut -f 1 -d "=" | sort > asroot\
+  sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser\
+  sudo -E -i -u seluser \\\
+  $(for E in $(grep -vxFf asseluser asroot); do echo $E=$(eval echo \\\$$E); done) \\\
   DISPLAY=$DISPLAY \\\
   xvfb-run/' \
   | sed 's/^wait \$NODE_PID/for i in $(seq 1 10)\
