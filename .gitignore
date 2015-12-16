@@ -1,3 +1,4 @@
+.DS_Store
 tmp/
 *_image/
 node_modules/
