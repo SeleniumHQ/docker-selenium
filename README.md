@@ -63,6 +63,12 @@ docker run -d -p 4444:4444 --net=selenium-network --name selenium-hub selenium/h
 docker run -d --net=selenium-network -e HUB_HOST=selenium-hub selenium/node-chrome:2.48.2
 docker run -d --net=selenium-network -e HUB_HOST=selenium-hub selenium/node-firefox:2.48.2
 ```
+You can also pass in an IP address, if your selenium hub is location on a different physical machine:
+``` bash
+docker run -d -e HUB_HOST=10.0.0.1:4444 selenium/node-chrome:2.48.2
+docker run -d -e HUB_HOST=10.0.0.1:4444 selenium/node-firefox:2.48.2
+```
+
 
 ### JAVA_OPTS Java Environment Options
 
