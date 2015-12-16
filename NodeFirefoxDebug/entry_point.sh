@@ -6,6 +6,11 @@ if [ ! -e /opt/selenium/config.json ]; then
   exit 1
 fi
 
+if [ ! -z "$HUB_HOST" ]; then
+  echo "Connecting to the selenium hub using the host string ${HUB_HOST}"
+  HUB_PORT_4444_TCP_ADDR=$HUB_HOST
+fi
+
 if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
   echo Not linked with a running Hub container 1>&2
   exit 1
