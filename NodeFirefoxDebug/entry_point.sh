@@ -6,10 +6,10 @@ if [ ! -e /opt/selenium/config.json ]; then
   exit 1
 fi
 
-if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
-  echo Not linked with a running Hub container 1>&2
-  exit 1
-fi
+#if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
+#  echo Not linked with a running Hub container 1>&2
+#  exit 2
+#fi
 
 function shutdown {
   kill -s SIGTERM $NODE_PID
@@ -30,7 +30,7 @@ sudo -E -i -u seluser \
   java -jar /opt/selenium/selenium-server-standalone.jar \
     ${JAVA_OPTS} \
     -role node \
-    -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
+    -hub http://hub:4444/grid/register \
     ${REMOTE_HOST_PARAM} \
     -nodeConfig /opt/selenium/config.json &
 NODE_PID=$!
