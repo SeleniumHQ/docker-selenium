@@ -122,17 +122,30 @@ _Note: Since a Docker container is not meant to preserve state and spawning a ne
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images:
+In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images (substitute a free port that you wish to connect to on VNC for <port4VNC>; 5900 is fine if it is free, but of course you can only run one node on that port):
 ``` bash
-$ docker run -d -P --link selenium-hub:hub selenium/node-chrome-debug:2.48.2
-$ docker run -d -P --link selenium-hub:hub selenium/node-firefox-debug:2.48.2
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.48.2
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.48.2
 ```
+e.g.:
+``` bash
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.48.2
+$ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.48.2
+```
+
+to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
 And for standalone: 
 ``` bash
-$ docker run -d -p 4444:4444 selenium/standalone-chrome-debug:2.48.2
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-chrome-debug:2.48.2
 # OR
-$ docker run -d -p 4444:4444 selenium/standalone-firefox-debug:2.48.2
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-firefox-debug:2.48.2
+```
+or
+``` bash
+$ docker run -d -p 4444:4444 -p 5900:5900 selenium/standalone-chrome-debug:2.48.2
+# OR
+$ docker run -d -p 4444:4444 -p 5901:5900 selenium/standalone-firefox-debug:2.48.2
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
