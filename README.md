@@ -120,6 +120,18 @@ $ FF=$(docker run --rm --name=fx \
 
 _Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
 
+##### Example: Spawn a container on one Docker host connected to an external hub for testing in Firefox:
+
+To use a Grid Hub running on another Docker host (or not running on Docker at all), the address and port must be passed to the Docker container so it knows where to connect to the Hub, and, in addition, the 5555 callback port must be mapped to a port on the Docker host running the node, and this node must be passed along with the IP address of the node's host to the Hub so the Hub can call the Node back.
+
+``` bash
+$  docker run -d -e HUB_PORT_4444_TCP_ADDR=<SeleniumGridHubAddress> \
+    -e HUB_PORT_4444_TCP_PORT=<SeleniumGridHubPort> \
+    -e REMOTE_HOST=http://<ThisDockerHostsAdress>:5555 -p 5555:5555 selenium/node-firefox
+```
+
+_Note: 5555 is passed as the REMOTE_HOST port because it is mapped to 5555 via the -p 5555:5555 Docker flag. The port given in the REMOTE_HOST must match the mapped port in -p e.g. if -p 6000:5555 was used for Docker, the REMOTE_HOST URL would end with 6000_
+
 ## Debugging
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images:
