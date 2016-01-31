@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),'2.50.0')
+VERSION := $(or $(VERSION),$(VERSION),'2.50.1')
 PLATFORM := $(shell uname -s)
 BUILD_ARGS := $(BUILD_ARGS)
 
