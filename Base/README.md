@@ -2,6 +2,8 @@
 
 _This image is not meant to be run directly!_ It serves as the base image used for each of the Selenium images involved in setting up a Selenium Grid.
 
+[![](http://badge-imagelayers.iron.io/selenium/base:latest.svg)](http://imagelayers.iron.io/?images=selenium/base:latest 'Get your own badge on imagelayers.iron.io')
+
 ## Dockerfile
 
 [`selenium/base` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/Base/Dockerfile)
