@@ -130,6 +130,8 @@ $  docker run -d -e HUB_PORT_4444_TCP_ADDR=<SeleniumGridHubAddress> \
     -e REMOTE_HOST=http://<ThisDockerHostsAdress>:5555 -p 5555:5555 selenium/node-firefox
 ```
 
+_Note: The HUB_PORT_4444_TCP_ADDR must be a hostname or IP address, while the REMOTE_HOST is a URL_
+
 _Note: 5555 is passed as the REMOTE_HOST port because it is mapped to 5555 via the -p 5555:5555 Docker flag. The port given in the REMOTE_HOST must match the mapped port in -p e.g. if -p 6000:5555 was used for Docker, the REMOTE_HOST URL would end with 6000_
 
 ## Debugging
