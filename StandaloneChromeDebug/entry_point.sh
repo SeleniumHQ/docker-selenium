@@ -1,5 +1,5 @@
 #!/bin/bash
-source "clear_x_locks.sh"
+source "/opt/bin/clear_x_locks.sh"
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
