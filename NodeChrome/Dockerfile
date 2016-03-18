@@ -38,3 +38,4 @@ COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
 
 USER seluser
+ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
