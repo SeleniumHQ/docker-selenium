@@ -28,12 +28,13 @@ fi
 
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
+SERVERNUM=$(echo $DISPLAY | sed 's/:\([0-9][0-9]*\).[0-9][0-9]*/\1/')
 env | cut -f 1 -d "=" | sort > asroot
   sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
   sudo -E -i -u seluser \
   $(for E in $(grep -vxFf asseluser asroot); do echo $E=$(eval echo \$$E); done) \
   DISPLAY=$DISPLAY \
-  xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
+  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
