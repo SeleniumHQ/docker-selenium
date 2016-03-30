@@ -18,6 +18,17 @@ RUN apt-get update -qqy \
   && mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
   && ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
 
+#=======
+# Wires
+#=======
+ENV WIRES_VERSION 0.6.2
+RUN wget --no-verbose -O /tmp/wires.gz https://github.com/jgraham/wires/releases/download/v$WIRES_VERSION/wires-$WIRES_VERSION-linux64.gz \
+  && rm -rf /opt/wires \
+  && gunzip -c /tmp/wires.gz > /opt/wires-$WIRES_VERSION \
+  && rm /tmp/wires.gz \
+  && chmod 755 /opt/wires-$WIRES_VERSION \
+  && ln -fs /opt/wires-$WIRES_VERSION /usr/bin/wires
+
 #========================
 # Selenium Configuration
 #========================
