@@ -22,14 +22,23 @@ Images included:
 
 ## Running the images
  
-When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory.
-
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:2.52.0
-```
+### Chrome workarounds
+When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory. 
 
 This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952 
 
+In addition, add an environmental variable that directs DBUS to /dev/null - `DBUS_SESSION_BUS_ADDRESS=/dev/null`. This is a workaround for chrome starting issue:
+https://github.com/SeleniumHQ/docker-selenium/issues/87
+
+These fixes should be done for both standalone and GRID nodes.
+For standalone:
+``` bash
+$ docker run -d -p 4444:4444 --env DBUS_SESSION_BUS_ADDRESS=/dev/null -v /dev/shm:/dev/shm selenium/standalone-chrome:2.52.0
+```
+For grid node:
+``` bash
+$ docker run -d -d --link selenium-hub:hub --env DBUS_SESSION_BUS_ADDRESS=/dev/null -v /dev/shm:/dev/shm selenium/node-chrome:2.52.0
+```
 
 ### Standalone Chrome and Firefox
 
