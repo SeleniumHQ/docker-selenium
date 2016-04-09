@@ -1,11 +1,11 @@
-FROM ubuntu:15.10
+FROM ubuntu:16.04
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #================================================
 # Customize sources for apt-get
 #================================================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu wily main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu wily-updates main universe\n" >> /etc/apt/sources.list
+RUN  echo "deb http://archive.ubuntu.com/ubuntu xenial main universe\n" > /etc/apt/sources.list \
+  && echo "deb http://archive.ubuntu.com/ubuntu xenial-updates main universe\n" >> /etc/apt/sources.list
 
 #========================
 # Miscellaneous packages
