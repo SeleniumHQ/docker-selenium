@@ -129,8 +129,8 @@ $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-fire
 ```
 e.g.:
 ``` bash
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.48.2
-$ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.48.2
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.53.0
+$ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.53.0
 ```
 
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
