@@ -9,7 +9,7 @@ ENV DEBCONF_NONINTERACTIVE_SEEN true
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
 ENV TZ "US/Pacific"
-RUN echo "US/Pacific" | sudo tee /etc/timezone \
+RUN echo "US/Pacific" > /etc/timezone \
   && dpkg-reconfigure --frontend noninteractive tzdata
 
 #==============
