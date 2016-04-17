@@ -1,4 +1,7 @@
 #!/bin/bash
+
+source /opt/bin/functions.sh
+
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
 function shutdown {
@@ -10,7 +13,7 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
 
-SERVERNUM=$(echo $DISPLAY | sed 's/:\([0-9][0-9]*\).[0-9][0-9]*/\1/')
+SERVERNUM=$(get_server_num)
 env | cut -f 1 -d "=" | sort > asroot
 sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
 sudo -E -i -u seluser \
