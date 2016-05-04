@@ -18,6 +18,12 @@ RUN apt-get update -qqy \
   && mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
   && ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
 
+#=============================
+# Install mp4 video libraries
+#=============================
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install gstreamer1.0-libav
+
 #========================
 # Selenium Configuration
 #========================
