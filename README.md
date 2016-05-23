@@ -21,14 +21,14 @@ Images included:
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
 
 ## Running the images
- 
+
 When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory.
 
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:2.53.0
 ```
 
-This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952 
+This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952
 
 
 ### Standalone Chrome and Firefox
@@ -122,7 +122,7 @@ _Note: Since a Docker container is not meant to preserve state and spawning a ne
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images (substitute a free port that you wish to connect to on VNC for <port4VNC>; 5900 is fine if it is free, but of course you can only run one node on that port):
+In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish.  Example: <port4VNC>: 5900) you will only be able to run 1 node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.53.0
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.53.0
@@ -135,7 +135,7 @@ $ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-de
 
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
-And for standalone: 
+And for standalone:
 ``` bash
 $ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-chrome-debug:2.53.0
 # OR
