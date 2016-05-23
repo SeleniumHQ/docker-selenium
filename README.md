@@ -149,6 +149,7 @@ $ docker run -d -p 4444:4444 -p 5901:5900 selenium/standalone-firefox-debug:2.53
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
+(In this case our port mapping looks like 49338:5900 for our node)
 ``` bash
 $ docker port <container-name|container-id> 5900
 #=> 0.0.0.0:49338
