@@ -1,0 +1,24 @@
+FROM selenium/base:2.53.0-alpine
+MAINTAINER Selenium <selenium-developers@googlegroups.com>
+
+COPY \
+  entry_point.sh \
+  functions.sh \
+    /opt/bin/
+
+USER seluser
+
+RUN sudo apk add --no-cache \
+        xvfb \
+        tzdata \
+        alpine-conf \
+    && sudo setup-timezone -z "US/Pacific" \
+    && sudo chmod +x /opt/bin/entry_point.sh
+
+ENV SCREEN_WIDTH=1360 \
+    SCREEN_HEIGHT=1020 \
+    SCREEN_DEPTH=24 \
+    DISPLAY=:99.0 \
+    TZ="US/Pacific"
+
+CMD ["/opt/bin/entry_point.sh"]
