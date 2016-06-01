@@ -32,6 +32,9 @@ fi
 # TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
 SERVERNUM=$(get_server_num)
+
+rm -f /tmp/.X*lock
+
 env | cut -f 1 -d "=" | sort > asroot
   sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
   sudo -E -i -u seluser \
