@@ -8,6 +8,15 @@ The Hub receives a test to be executed along with information on which browser a
 
 ## How to use this image
 
+We are depending on an external project (https://github.com/roydekleijn/selenium-grid-prioritizer).
+
+- Clone it
+- Create package
+- Copy the artifact into HubPrioritizer (and rename to: GridPlugin-0.0.1.jar)
+- Build the container (docker build -t grid-hub-prioritizer .)
+- Run the container (docker run -t grid-hub-prioritizer)
+
+
 ```
 $ docker run -d -P --name selenium-hub selenium/hub
 ```
