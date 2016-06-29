@@ -10,7 +10,8 @@ if [ ! -e /opt/selenium/config.json ]; then
 fi
 
 # Can't check this anymore as the these environment variables are not supported by 
-# docker-compose v2 file
+# docker-compose v2 file or docker link itself
+# See https://docs.docker.com/compose/link-env-deprecated/
 #if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
 #  echo Not linked with a running Hub container 1>&2
 #  exit 1
