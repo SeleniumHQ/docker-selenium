@@ -20,12 +20,17 @@ rm -f /tmp/.X*lock
 SERVERNUM=$(get_server_num)
 env | cut -f 1 -d "=" | sort > asroot
 sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
-sudo -E -i -u seluser bash -c "\
-  $(for E in $(grep -vxFf asseluser asroot); do echo $E="'$(eval echo \$$E)'"; done) \
-  DISPLAY=$DISPLAY \
-  xvfb-run -n $SERVERNUM --server-args=\"-screen 0 $GEOMETRY -ac +extension RANDR\" \
+
+# Add root environment variables that are not present in the seluser
+# environment to an environment file.
+$(for E in $(grep -vxFf asseluser asroot); do echo $E="'${!E}'" >> ~seluser/selenv; done) \
+echo "DISPLAY=${DISPLAY}" >> ~seluser/selenv
+
+sudo -E -i -u seluser \
+  source selenv && \
+  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
-  ${SE_OPTS} &"
+  ${SE_OPTS} &
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
