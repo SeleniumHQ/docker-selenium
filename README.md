@@ -72,6 +72,13 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 $ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:2.53.0
 ```
 
+### Setting up for accessing files on via Corporate Proxy 
+
+You may be in a situation where you need to access an externally hosted SPA. (On AWS S3 perhaps). You may run into trouble trying to send http requests from your Corporate VPC with the containers to through your router. (Particularly if it is a Microsoft router that requires a username and password in the URL - which Chrome doesn't support. 
+
+The solution in this case is to use [node-http-proxy]|(https://github.com/nodejitsu/node-http-proxy) - simply pass your http basic credentials to node-http-proxy on startup, then point Chrome to this proxy running locally. 
+
+
 ## Building the images
 
 Ensure you have the `ubuntu:16.04` base image downloaded, this step is _optional_ since Docker takes care of downloading the parent base image automatically.
