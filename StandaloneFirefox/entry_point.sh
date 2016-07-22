@@ -15,7 +15,7 @@ fi
 
 SERVERNUM=$(get_server_num)
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone-${SELENIUM_VERSION}.jar \
   ${SE_OPTS} &
 NODE_PID=$!
 

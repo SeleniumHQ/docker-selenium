@@ -21,14 +21,14 @@ Images included:
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
 
 ## Running the images
- 
+
 When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory.
 
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:2.53.1
 ```
 
-This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952 
+This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952
 
 
 ### Standalone Chrome and Firefox
@@ -54,6 +54,20 @@ $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.53.1
 ``` bash
 $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.53.1
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.53.1
+```
+
+### Specifying versions
+
+By default the latest stable versions will be used, however you can override
+these using the following environment variables:
+
+- `SELENIUM_VERSION` - version of the Selenium server
+
+For example, the following will start a standalone Firefox server using
+Selenium 2.53.1:
+
+```bash
+$ docker run -d -p 4444:4444 -e SELENIUM_VERSION=2.53.1 selenium/standalone-firefox:2.53.1
 ```
 
 ### JAVA_OPTS Java Environment Options
@@ -135,7 +149,7 @@ $ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-de
 
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
-And for standalone: 
+And for standalone:
 ``` bash
 $ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-chrome-debug:2.53.1
 # OR
