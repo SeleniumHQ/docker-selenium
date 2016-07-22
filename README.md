@@ -62,12 +62,13 @@ By default the latest stable versions will be used, however you can override
 these using the following environment variables:
 
 - `SELENIUM_VERSION` - version of the Selenium server
+- `FIREFOX_VERSION` - version of Firefox (only applies to Firefox images)
 
-For example, the following will start a standalone Firefox server using
-Selenium 2.53.0:
+For example, the following will start a standalone server using Selenium 2.53.0
+and Firefox 45.0.2:
 
 ```bash
-$ docker run -d -p 4444:4444 -e SELENIUM_VERSION=2.53.0 selenium/standalone-firefox:2.53.1
+$ docker run -d -p 4444:4444 -e SELENIUM_VERSION=2.53.0 -e FIREFOX_VERSION=45.0.2 selenium/standalone-firefox:2.53.1
 ```
 
 ### JAVA_OPTS Java Environment Options
