@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),'2.53.0')
+VERSION := $(or $(VERSION),$(VERSION),'2.53.1')
 PLATFORM := $(shell uname -s)
 BUILD_ARGS := $(BUILD_ARGS)
 
@@ -85,17 +85,17 @@ firefox_debug: generate_firefox_debug firefox
 	cd ./NodeFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox-debug:$(VERSION) .
 
 tag_latest:
-	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:latest
-	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:latest
-	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
-	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
-	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
-	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:latest
-	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:latest
-	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:latest
-	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:latest
-	docker tag $(NAME)/standalone-chrome-debug:$(VERSION) $(NAME)/standalone-chrome-debug:latest
-	docker tag $(NAME)/standalone-firefox-debug:$(VERSION) $(NAME)/standalone-firefox-debug:latest
+	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:2.53.1
+	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:2.53.1
+	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:2.53.1
+	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:2.53.1
+	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:2.53.1
+	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:2.53.1
+	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:2.53.1
+	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:2.53.1
+	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:2.53.1
+	docker tag $(NAME)/standalone-chrome-debug:$(VERSION) $(NAME)/standalone-chrome-debug:2.53.1
+	docker tag $(NAME)/standalone-firefox-debug:$(VERSION) $(NAME)/standalone-firefox-debug:2.53.1
 
 release: tag_latest
 	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
