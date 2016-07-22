@@ -9,6 +9,10 @@ function shutdown {
   wait $NODE_PID
 }
 
+if [ ! -z "$FIREFOX_VERSION" ]; then
+  sudo ln -fs /opt/firefox/${FIREFOX_VERSION}/firefox /usr/bin/firefox
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi

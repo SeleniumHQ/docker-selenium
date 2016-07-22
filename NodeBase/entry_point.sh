@@ -25,6 +25,10 @@ if [ ! -z "$REMOTE_HOST" ]; then
   REMOTE_HOST_PARAM="-remoteHost $REMOTE_HOST"
 fi
 
+if [ ! -z "$FIREFOX_VERSION" ]; then
+  sudo ln -fs /opt/firefox/${FIREFOX_VERSION}/firefox /usr/bin/firefox
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
