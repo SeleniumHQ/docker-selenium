@@ -9,10 +9,15 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     x11vnc \
-  && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p ~/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+  && rm -rf /var/lib/apt/lists/*
+  
+USER seluser
 
+RUN mkdir -p ~/.vnc \
+&& x11vnc -storepasswd secret ~/.vnc/passwd
+  
+USER root  
+  
 #=================
 # Locale settings
 #=================
