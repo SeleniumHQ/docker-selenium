@@ -1,12 +1,12 @@
 {
   "capabilities": [
     {
-      "browserName": "*firefox",
+      "browserName": "firefox",
       "maxInstances": 1,
-      "seleniumProtocol": "Selenium"
+      "seleniumProtocol": "WebDriver"
     },
     {
-      "browserName": "firefox",
+      "browserName": "chrome",
       "maxInstances": 1,
       "seleniumProtocol": "WebDriver"
     }
