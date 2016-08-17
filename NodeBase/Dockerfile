@@ -1,4 +1,4 @@
-FROM selenium/base:2.53.0
+FROM allanklp/base:2.53.1
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 ENV DEBIAN_FRONTEND noninteractive
