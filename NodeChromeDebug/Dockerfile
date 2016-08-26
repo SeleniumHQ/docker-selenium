@@ -1,4 +1,4 @@
-FROM selenium/node-chrome:2.52.0
+FROM selenium/node-chrome:2.53.0
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root

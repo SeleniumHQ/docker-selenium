@@ -1,4 +1,4 @@
-FROM selenium/standalone-chrome:2.52.0
+FROM selenium/standalone-chrome:2.53.0
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -50,6 +50,8 @@ RUN apt-get update -qqy \
 # Scripts to run Selenium Node
 #==============================
 COPY entry_point.sh /opt/bin/entry_point.sh
+COPY clear_x_locks.sh /opt/bin/clear_x_locks.sh
 RUN chmod +x /opt/bin/entry_point.sh
+RUN chmod +x /opt/bin/clear_x_locks.sh
 
 EXPOSE 5900
