@@ -3,14 +3,23 @@ MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
 
-#===============
+#============================================
 # Google Chrome
-#===============
+#============================================
+# can specify versions by CHROME_VERSION;
+#  e.g. google-chrome-stable=53.0.2785.101-1
+#       google-chrome-beta=53.0.2785.92-1
+#       google-chrome-unstable=54.0.2840.14-1
+#       latest (equivalent to google-chrome-stable)
+#       google-chrome-beta  (pull latest beta)
+#============================================
+ENV CHROME_VERSION latest
+RUN if $CHROME_VERSION -eq "latest"; then export CHROME="google-chrome-stable"; else export CHROME="${CHROME_VERSION}"; fi
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
   && apt-get -qqy install \
-    google-chrome-stable \
+    $CHROME \
   && rm /etc/apt/sources.list.d/google-chrome.list \
   && rm -rf /var/lib/apt/lists/*
 
