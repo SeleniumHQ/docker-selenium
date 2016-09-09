@@ -9,13 +9,17 @@ function shutdown {
   wait $NODE_PID
 }
 
+if [ ! -z "$FIREFOX_VERSION" ]; then
+  sudo ln -fs /opt/firefox/${FIREFOX_VERSION}/firefox /usr/bin/firefox
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
 
 SERVERNUM=$(get_server_num)
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone-${SELENIUM_VERSION}.jar \
   ${SE_OPTS} &
 NODE_PID=$!
 
