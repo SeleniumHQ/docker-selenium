@@ -1,4 +1,4 @@
-FROM selenium/node-base:2.53.0
+FROM selenium/node-base:2.53.1
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -6,7 +6,7 @@ USER root
 #=========
 # Firefox
 #=========
-ENV FIREFOX_VERSION 45.0.2
+ENV FIREFOX_VERSION 47.0.1
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* \
