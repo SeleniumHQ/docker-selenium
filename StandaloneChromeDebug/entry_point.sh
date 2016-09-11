@@ -17,8 +17,14 @@ fi
 SERVERNUM=$(get_server_num)
 env | cut -f 1 -d "=" | sort > asroot
 sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
+
+for E in $(grep -vxFf asseluser asroot)
+do
+  ALL_ENVS="$ALL_ENVS \"$E=${!E}\""
+done
+
 sudo -E -i -u seluser \
-  $(for E in $(grep -vxFf asseluser asroot); do echo $E=$(eval echo \$$E); done) \
+  "${ALL_ENVS}" \
   DISPLAY=$DISPLAY \
   xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
