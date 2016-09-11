@@ -4,13 +4,12 @@ BASE=$2
 BROWSER=$3
 VERSION=$4
 
-rm -rf $FOLDER
-mkdir -p $FOLDER
-
-echo FROM selenium/$BASE:$VERSION > $FOLDER/Dockerfile
+echo '# THIS FILE IS GENERATED: DO NOT EDIT!' > $FOLDER/Dockerfile
+echo FROM selenium/$BASE:$VERSION >> $FOLDER/Dockerfile
 cat ../NodeDebug/Dockerfile.txt >> $FOLDER/Dockerfile
 
-cp ./entry_point.sh $FOLDER
+cp ./clear_x_locks.sh \
+   ./entry_point.sh $FOLDER
 
 BROWSER_LC=$(echo $BROWSER |  tr '[:upper:]' '[:lower:]')
 
