@@ -10,7 +10,7 @@ RUN apt-get update -qqy \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -y purge firefox
 ENV FIREFOX_VERSION 47.0.1
-RUN for VERSION in 48.0.2 47.0.1 46.0.1 45.0.2; do \
+RUN for VERSION in 49.0.1 48.0.2 47.0.1 45.4.0esr 38.8.0esr; do \
     wget --no-verbose -O /tmp/firefox-$VERSION.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$VERSION/linux-x86_64/en-US/firefox-$VERSION.tar.bz2 \
     && mkdir -p /opt/firefox/$VERSION \
     && tar -C /opt/firefox/$VERSION --strip-components 1 -xjf /tmp/firefox-$VERSION.tar.bz2 \
