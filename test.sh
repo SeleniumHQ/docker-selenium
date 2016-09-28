@@ -19,8 +19,9 @@ else
   echo 'Skipping shell functions test on Mac OS X.'
 fi
 
-echo Building test container image
-docker build -t selenium/test:local ./Test
+#echo Building selenium test container image
+#docker build -t test:local ./Test
+docker images
 
 echo 'Starting Selenium Hub Container...'
 HUB=$(docker run -d selenium/hub:2.53.1)
@@ -42,7 +43,7 @@ function test_node {
   BROWSER=$1
   echo Running $BROWSER test...
   TEST_CMD="node smoke-$BROWSER.js"
-  docker run -it --link $HUB_NAME:hub -e TEST_CMD="$TEST_CMD" selenium/test:local
+  docker run -it --link $HUB_NAME:hub -e TEST_CMD="$TEST_CMD" test:local
   STATUS=$?
   TEST_CONTAINER=$(docker ps -aq | head -1)
 
