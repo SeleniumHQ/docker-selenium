@@ -10,6 +10,7 @@ dependencies:
     - git clone https://github.com/sstephenson/bats.git && cd bats && sudo ./install.sh /usr/local
     - docker info
     - make build
+    - docker build -t test:local ./Test
 
 test:
   override:

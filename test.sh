@@ -19,8 +19,8 @@ else
   echo 'Skipping shell functions test on Mac OS X.'
 fi
 
-echo Building selenium test container image
-docker build -t test:local ./Test
+#echo Building selenium test container image
+#docker build -t test:local ./Test
 docker images
 
 echo 'Starting Selenium Hub Container...'
