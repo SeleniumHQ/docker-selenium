@@ -1,0 +1,5 @@
+---
+hub:
+  image: 91334e0ff808
+  environment:
+    - GRID_TIMEOUT=36000
