@@ -21,6 +21,7 @@ fi
 
 echo Building selenium test container image
 docker build -t test:local ./Test
+docker images
 
 echo 'Starting Selenium Hub Container...'
 HUB=$(docker run -d selenium/hub:2.53.1)
