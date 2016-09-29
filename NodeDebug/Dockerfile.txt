@@ -7,7 +7,7 @@ USER root
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy install \
-    x11vnc \
+  x11vnc \
   && rm -rf /var/lib/apt/lists/*
   
 USER seluser
