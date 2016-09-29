@@ -1,0 +1,15 @@
+---
+sudo: required
+
+services:
+  - docker
+
+language: bash
+
+before_install:
+  - docker info
+  - make build
+  - docker build -t test:local ./Test
+
+script:
+  - make test
