@@ -1,0 +1,6 @@
+# Dockerfile will be generated.
+Dockerfile
+
+# These files come from other sources.
+clear_x_locks.sh
+entry_point.sh

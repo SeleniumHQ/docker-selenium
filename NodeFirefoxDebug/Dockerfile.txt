@@ -1,4 +1,4 @@
-FROM selenium/node-chrome:2.53.0
+FROM selenium/node-firefox:2.53.0
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -12,12 +12,12 @@ RUN apt-get update -qqy \
   && rm -rf /var/lib/apt/lists/*
   
 USER seluser
-
+  
 RUN mkdir -p ~/.vnc \
 && x11vnc -storepasswd secret ~/.vnc/passwd
   
 USER root
-  
+
 #=================
 # Locale settings
 #=================

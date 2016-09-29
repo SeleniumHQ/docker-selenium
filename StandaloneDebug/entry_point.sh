@@ -1,5 +1,8 @@
 #!/bin/bash
+#
+# IMPORTANT: Change this file only in directory StandaloneDebug!
 
+source /opt/bin/clear_x_locks.sh
 source /opt/bin/functions.sh
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"

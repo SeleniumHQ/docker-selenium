@@ -4,10 +4,8 @@ BASE=$2
 BROWSER=$3
 VERSION=$4
 
-rm -rf $FOLDER
-mkdir -p $FOLDER
-
-echo FROM selenium/$BASE:$VERSION > $FOLDER/Dockerfile
+echo '# THIS FILE IS GENERATED: DO NOT EDIT!' > $FOLDER/Dockerfile
+echo FROM selenium/$BASE:$VERSION >> $FOLDER/Dockerfile
 cat ./Dockerfile.txt >> $FOLDER/Dockerfile
 
 cat ../NodeBase/entry_point.sh \
