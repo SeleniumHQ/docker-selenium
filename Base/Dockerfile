@@ -26,7 +26,7 @@ RUN apt-get update -qqy \
 #==========
 # Selenium
 #==========
-RUN  mkdir -p /opt/selenium \
+RUN mkdir -p /opt/selenium \
   && wget --no-verbose https://selenium-release.storage.googleapis.com/3.0-beta3/selenium-server-standalone-3.0.0-beta3.jar -O /opt/selenium/selenium-server-standalone.jar
 
 #========================================
