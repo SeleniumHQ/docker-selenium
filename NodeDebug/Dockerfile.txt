@@ -13,7 +13,7 @@ RUN apt-get update -qqy \
 USER seluser
 
 RUN mkdir -p ~/.vnc \
-&& x11vnc -storepasswd secret ~/.vnc/passwd
+ && x11vnc -storepasswd secret ~/.vnc/passwd
 
 USER root  
 
