@@ -24,3 +24,4 @@ after_success:
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
     VERSION="$TRAVIS_TAG" make tag_latest;
     VERSION="latest" make release; 
+    fi
