@@ -8,7 +8,7 @@ language: bash
 
 before_install:
   - docker info
-  - make build
+  - VERSION="$TRAVIS_BRANCH" make build
   - docker build -t test:local ./Test
 
 script:
@@ -18,5 +18,9 @@ script:
 after_success:
   - if [ "$TRAVIS_TAG" != "" ]; then
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    make release;
+    if [ "$TRAVIS_TAG" == "$LATEST" ]; then
+    VERSION="$TRAVIS_TAG" make tag_latest;
+    VERSION="latest" make release;
+    fi
+    VERSION="$TRAVIS_TAG" make release;
     fi
