@@ -109,18 +109,18 @@ release:
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-chrome-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	docker push $(NAME)/base
-	docker push $(NAME)/hub
-	docker push $(NAME)/node-base
-	docker push $(NAME)/node-chrome
-	docker push $(NAME)/node-firefox
-	docker push $(NAME)/node-chrome-debug
-	docker push $(NAME)/node-firefox-debug
-	docker push $(NAME)/standalone-chrome
-	docker push $(NAME)/standalone-chrome
-	docker push $(NAME)/standalone-firefox
-	docker push $(NAME)/standalone-chrome-debug
-	docker push $(NAME)/standalone-firefox-debug
+	docker push $(NAME)/base:$(VERSION)
+	docker push $(NAME)/hub:$(VERSION)
+	docker push $(NAME)/node-base:$(VERSION)
+	docker push $(NAME)/node-chrome:$(VERSION)
+	docker push $(NAME)/node-firefox:$(VERSION)
+	docker push $(NAME)/node-chrome-debug:$(VERSION)
+	docker push $(NAME)/node-firefox-debug:$(VERSION)
+	docker push $(NAME)/standalone-chrome:$(VERSION)
+	docker push $(NAME)/standalone-chrome:$(VERSION)
+	docker push $(NAME)/standalone-firefox:$(VERSION)
+	docker push $(NAME)/standalone-chrome-debug:$(VERSION)
+	docker push $(NAME)/standalone-firefox-debug:$(VERSION)
 
 test:
 	./test.sh
