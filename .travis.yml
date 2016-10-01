@@ -18,9 +18,9 @@ script:
 after_success:
   - if [ "$TRAVIS_TAG" != "" ]; then
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    if [ "$TRAVIS_TAG" == "$LATEST" ]; then
-    VERSION="$TRAVIS_TAG" make tag_latest;
-    VERSION="latest" make release;
-    fi
     VERSION="$TRAVIS_TAG" make release;
     fi
+  - if [ "$TRAVIS_TAG" == "$LATEST" ]; then
+    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+    VERSION="$TRAVIS_TAG" make tag_latest;
+    VERSION="latest" make release; 
