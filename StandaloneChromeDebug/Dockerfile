@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/standalone-chrome:2.53.1
+FROM selenium/standalone-chrome:3.0beta3
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -12,10 +12,15 @@ USER root
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy install \
-    x11vnc \
-  && rm -rf /var/lib/apt/lists/* \
-  && mkdir -p ~/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+  x11vnc \
+  && rm -rf /var/lib/apt/lists/*
+
+USER seluser
+
+RUN mkdir -p ~/.vnc \
+ && x11vnc -storepasswd secret ~/.vnc/passwd
+
+USER root
 
 #=================
 # Locale settings
