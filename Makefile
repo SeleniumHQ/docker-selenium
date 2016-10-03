@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),'2.53.1')
+VERSION := $(or $(VERSION),$(VERSION),'2.53.0')
 PLATFORM := $(shell uname -s)
 BUILD_ARGS := $(BUILD_ARGS)
 
@@ -97,7 +97,7 @@ tag_latest:
 	docker tag $(NAME)/standalone-chrome-debug:$(VERSION) $(NAME)/standalone-chrome-debug:latest
 	docker tag $(NAME)/standalone-firefox-debug:$(VERSION) $(NAME)/standalone-firefox-debug:latest
 
-release: tag_latest
+release:
 	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/hub version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -109,19 +109,18 @@ release: tag_latest
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-chrome-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
-	docker push $(NAME)/base
-	docker push $(NAME)/hub
-	docker push $(NAME)/node-base
-	docker push $(NAME)/node-chrome
-	docker push $(NAME)/node-firefox
-	docker push $(NAME)/node-chrome-debug
-	docker push $(NAME)/node-firefox-debug
-	docker push $(NAME)/standalone-chrome
-	docker push $(NAME)/standalone-chrome
-	docker push $(NAME)/standalone-firefox
-	docker push $(NAME)/standalone-chrome-debug
-	docker push $(NAME)/standalone-firefox-debug
-	@echo "*** Don't forget to create a tag. git tag rel-$(VERSION) && git push origin rel-$(VERSION)"
+	docker push $(NAME)/base:$(VERSION)
+	docker push $(NAME)/hub:$(VERSION)
+	docker push $(NAME)/node-base:$(VERSION)
+	docker push $(NAME)/node-chrome:$(VERSION)
+	docker push $(NAME)/node-firefox:$(VERSION)
+	docker push $(NAME)/node-chrome-debug:$(VERSION)
+	docker push $(NAME)/node-firefox-debug:$(VERSION)
+	docker push $(NAME)/standalone-chrome:$(VERSION)
+	docker push $(NAME)/standalone-chrome:$(VERSION)
+	docker push $(NAME)/standalone-firefox:$(VERSION)
+	docker push $(NAME)/standalone-chrome-debug:$(VERSION)
+	docker push $(NAME)/standalone-firefox-debug:$(VERSION)
 
 test:
 	./test.sh
