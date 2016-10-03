@@ -2,7 +2,6 @@
 #
 # IMPORTANT: Change this file only in directory StandaloneDebug!
 
-source /opt/bin/clear_x_locks.sh
 source /opt/bin/functions.sh
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
@@ -15,6 +14,8 @@ function shutdown {
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
+
+rm -f /tmp/.X*lock
 
 SERVERNUM=$(get_server_num)
 env | cut -f 1 -d "=" | sort > asroot

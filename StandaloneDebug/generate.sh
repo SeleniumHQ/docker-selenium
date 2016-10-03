@@ -11,8 +11,7 @@ echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $FOLDER/Dockerfil
 echo FROM selenium/$BASE:$VERSION >> $FOLDER/Dockerfile
 cat ../NodeDebug/Dockerfile.txt >> $FOLDER/Dockerfile
 
-cp ./clear_x_locks.sh \
-   ./entry_point.sh $FOLDER
+cp ./entry_point.sh $FOLDER
 
 BROWSER_LC=$(echo $BROWSER |  tr '[:upper:]' '[:lower:]')
 
