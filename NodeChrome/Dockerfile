@@ -3,16 +3,7 @@ MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
 
-#===============
-# OSMESA
-# Off-screen interface is used for rendering into the user-alloctaed memory
-#===============
-
-RUN apt-get update -qqy \
-  && apt-get -qqy --no-install-recommends install \
-    libosmesa6 \
-  && ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so \
-  && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update -qqy && apt-get install apt-utils -qqy
 
 #===============
 # Google Chrome
@@ -47,6 +38,18 @@ COPY config.json /opt/selenium/config.json
 #=================================
 COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
+
+
+#===============
+# OSMESA
+# Off-screen interface is used for rendering into the user-alloctaed memory
+#===============
+
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    libosmesa6 \
+  && ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so \
+  && rm -rf /var/lib/apt/lists/*
 
 USER seluser
 # Following line fixes
