@@ -4,6 +4,17 @@ MAINTAINER Selenium <selenium-developers@googlegroups.com>
 USER root
 
 #===============
+# OSMESA
+# Off-screen interface is used for rendering into the user-alloctaed memory
+#===============
+
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    libosmesa6 \
+  && ln -s /usr/lib/x86_64-linux-gnu/libOSMesa.so.6 /opt/google/chrome/libosmesa.so \
+  && rm -rf /var/lib/apt/lists/*
+
+#===============
 # Google Chrome
 #===============
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
