@@ -42,6 +42,7 @@ ENV NODE_MAX_INSTANCES 1
 ENV NODE_MAX_SESSION 1
 ENV NODE_REGISTER_CYCLE 5000
 COPY generate_config /opt/selenium/generate_config
-RUN /opt/selenium/generate_config > /opt/selenium/config.json
+RUN chmod +x /opt/selenium/generate_config \
+  && chown -R seluser:seluser /opt/selenium
 
 USER seluser
