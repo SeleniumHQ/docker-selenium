@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:2.53.1
+FROM selenium/node-base:2.53.1-americium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -38,6 +38,10 @@ RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geck
 #========================
 # Selenium Configuration
 #========================
-COPY config.json /opt/selenium/config.json
+ENV NODE_MAX_INSTANCES 1
+ENV NODE_MAX_SESSION 1
+ENV NODE_REGISTER_CYCLE 5000
+COPY generate_config /opt/selenium/generate_config
+RUN /opt/selenium/generate_config > /opt/selenium/config.json
 
 USER seluser

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+echo "
+{
+  \"capabilities\": [
+    {
+      \"browserName\": \"*googlechrome\",
+      \"maxInstances\": $NODE_MAX_INSTANCES,
+      \"seleniumProtocol\": \"Selenium\"
+    },
+    {
+      \"browserName\": \"chrome\",
+      \"maxInstances\": $NODE_MAX_INSTANCES,
+      \"seleniumProtocol\": \"WebDriver\"
+    }
+  ],
+  \"configuration\": {
+    \"proxy\": \"org.openqa.grid.selenium.proxy.DefaultRemoteProxy\",
+    \"maxSession\": $NODE_MAX_SESSION,
+    \"port\": 5555,
+    \"register\": true,
+    \"registerCycle\": $NODE_REGISTER_CYCLE
+  }
+}" 
+

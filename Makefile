@@ -43,7 +43,7 @@ chrome: nodebase generate_chrome
 	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(VERSION) .
 
 generate_firefox:
-		cd ./NodeFirefox && ./generate.sh $(VERSION)
+	cd ./NodeFirefox && ./generate.sh $(VERSION)
 
 firefox: nodebase generate_firefox
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION) .
