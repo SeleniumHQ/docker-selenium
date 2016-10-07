@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:2.53.1
+FROM selenium/node-base:2.53.1-americium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -17,7 +17,7 @@ USER root
 #       latest (equivalent to google-chrome-stable)
 #       google-chrome-beta  (pull latest beta)
 #============================================
-ENV CHROME_VERSION "google-chrome-stable"
+ARG CHROME_VERSION="google-chrome-stable"
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
@@ -29,7 +29,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 #==================
 # Chrome webdriver
 #==================
-ENV CHROME_DRIVER_VERSION 2.24
+ARG CHROME_DRIVER_VERSION=2.24
 RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
   && rm -rf /opt/selenium/chromedriver \
   && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
@@ -41,13 +41,19 @@ RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.stor
 #========================
 # Selenium Configuration
 #========================
-COPY config.json /opt/selenium/config.json
+ENV NODE_MAX_INSTANCES 1
+ENV NODE_MAX_SESSION 1
+ENV NODE_REGISTER_CYCLE 5000
+COPY generate_config /opt/selenium/generate_config
+RUN chmod +x /opt/selenium/generate_config
 
 #=================================
 # Chrome Launch Script Modication
 #=================================
 COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
+
+RUN chown -R seluser:seluser /opt/selenium
 
 USER seluser
 # Following line fixes
