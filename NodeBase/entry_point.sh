@@ -26,6 +26,10 @@ if [ ! -z "$REMOTE_HOST" ]; then
   REMOTE_HOST_PARAM="-remoteHost $REMOTE_HOST"
 fi
 
+if [ ! -z "$FIREFOX_VERSION" ]; then
+  sudo ln -fs /opt/firefox/${FIREFOX_VERSION}/firefox /usr/bin/firefox
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
@@ -37,7 +41,7 @@ SERVERNUM=$(get_server_num)
 rm -f /tmp/.X*lock
 
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone-${SELENIUM_VERSION}.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
     ${REMOTE_HOST_PARAM} \

@@ -42,7 +42,7 @@ env | cut -f 1 -d "=" | sort > asroot
   $(for E in $(grep -vxFf asseluser asroot); do echo $E=$(eval echo \$$E); done) \
   DISPLAY=$DISPLAY \
   xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone-${SELENIUM_VERSION}.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
     ${REMOTE_HOST_PARAM} \

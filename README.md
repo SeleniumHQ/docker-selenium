@@ -56,6 +56,31 @@ $ docker run -d --link selenium-hub:hub selenium/node-chrome:2.53.1
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:2.53.1
 ```
 
+### Specifying versions
+
+By default the latest stable versions will be used, however you can override
+these using the following environment variables:
+
+- `SELENIUM_VERSION` - version of the Selenium server
+  - latest stable: `2.53.1`
+  - latest beta: `3.0.0-beta4`
+- `FIREFOX_VERSION` - version of Firefox (only applies to Firefox images)
+  - latest release: `49.0.1`
+  - previous release: `48.0.2`
+  - latest ESR: `45.4.0esr`
+  - previous ESR: `38.8.0esr`
+
+Note that as the latest releases of Firefox work best with Selenium 3.0, which
+is currently in beta, the latest release supported by 2.53.x is `47.0.1` and is
+also available (and the default).
+
+For example, the following will start a standalone server using Selenium 3.0.0-beta4
+and Firefox 49.0.1:
+
+```bash
+$ docker run -d -p 4444:4444 -e SELENIUM_VERSION=3.0.0-beta4 -e FIREFOX_VERSION=49.0.1 selenium/standalone-firefox:latest
+```
+
 ### JAVA_OPTS Java Environment Options
 
 You can pass `JAVA_OPTS` environment variable to java process.
