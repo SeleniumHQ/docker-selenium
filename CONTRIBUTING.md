@@ -4,4 +4,4 @@ Much of the magic behind Selenium is the hard work of programmers with backgroun
 
 We encourage code patches and other contributions - get involved by following the instructions on our [wiki](https://code.google.com/p/selenium/wiki/CommitYourCode). You can also track the activity of the development team by checking out the read-only [Selenium Developer Activity Group](http://groups.google.com/group/selenium-developer-activity).
 
-If you do supply a patch we will need you to [sign the CLA](https://spreadsheets.google.com/spreadsheet/viewform?hl=en_US&formkey=dFFjXzBzM1VwekFlOWFWMjFFRjJMRFE6MQ#gid=0). We are a part of [SFC](http://www.sfconservancy.org/).
+If you do supply a patch we will need you to [sign the CLA](https://goo.gl/a2VrTx). We are a part of [SFC](http://www.sfconservancy.org/).
