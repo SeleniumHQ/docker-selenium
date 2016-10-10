@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:2.53.1-americium
+FROM selenium/node-firefox:2.53.1-beryllium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -13,7 +13,7 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
   x11vnc \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && mkdir -p /root/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
 
@@ -27,7 +27,7 @@ RUN locale-gen en_US.UTF-8 \
   && apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
     language-pack-en \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=======
 # Fonts
@@ -39,7 +39,7 @@ RUN apt-get update -qqy \
     xfonts-75dpi \
     xfonts-cyrillic \
     xfonts-scalable \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=========
 # fluxbox
@@ -48,7 +48,7 @@ RUN apt-get update -qqy \
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     fluxbox \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================
 # Scripts to run Selenium Node

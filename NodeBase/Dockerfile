@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:2.53.1-americium
+FROM selenium/base:2.53.1-beryllium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -22,7 +22,7 @@ RUN echo "${TZ}" > /etc/timezone \
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     xvfb \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================
 # Scripts to run Selenium Node

@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/standalone-firefox:2.53.1-americium
+FROM selenium/standalone-firefox:2.53.1-beryllium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
