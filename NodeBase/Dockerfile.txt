@@ -17,7 +17,7 @@ RUN echo "${TZ}" > /etc/timezone \
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     xvfb \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================
 # Scripts to run Selenium Node
