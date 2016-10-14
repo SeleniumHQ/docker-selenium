@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.0.0-actinium
+FROM selenium/node-base:3.0.0-berkelium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
