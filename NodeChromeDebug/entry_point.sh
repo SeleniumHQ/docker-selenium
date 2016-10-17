@@ -20,10 +20,9 @@ function shutdown {
   wait $NODE_PID
 }
 
-REMOTE_HOST_PARAM=""
 if [ ! -z "$REMOTE_HOST" ]; then
-  echo "REMOTE_HOST variable is set, appending -remoteHost"
-  REMOTE_HOST_PARAM="-remoteHost $REMOTE_HOST"
+  >&2 echo "REMOTE_HOST variable is *DEPRECATED* in these docker containers.  Please use SE_OPTS=\"-hubHost <host> -hubPort <port>\" instead!"
+  exit 1
 fi
 
 if [ ! -z "$SE_OPTS" ]; then

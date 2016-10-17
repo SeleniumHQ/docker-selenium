@@ -1,4 +1,4 @@
-FROM selenium/node-firefox:3.0.0-cerium
+FROM selenium/node-firefox:3.0.0-dubnium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
