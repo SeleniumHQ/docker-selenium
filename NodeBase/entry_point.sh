@@ -21,7 +21,7 @@ function shutdown {
 }
 
 if [ ! -z "$REMOTE_HOST" ]; then
-  >&2 echo "REMOTE_HOST variable is *DEPRECATED* in these docker containers.  Please use SE_OPTS=\"-hubHost <host> -hubPort <port>\" instead!"
+  >&2 echo "REMOTE_HOST variable is *DEPRECATED* in these docker containers.  Please use SE_OPTS=\"-host <host> -port <port>\" instead!"
   exit 1
 fi
 
