@@ -21,7 +21,7 @@ function shutdown {
 }
 
 if [ ! -z "$REMOTE_HOST" ]; then
-  >&2 echo "REMOTE_HOST variable is *DEPRECATED* in these docker containers.  Please use SE_OPTS=\"-hubHost <host> -hubPort <port>\" instead!"
+  >&2 echo "REMOTE_HOST variable is *DEPRECATED* in these docker containers.  Please use SE_OPTS=\"-host <host> -port <port>\" instead!"
   exit 1
 fi
 
@@ -44,7 +44,6 @@ env | cut -f 1 -d "=" | sort > asroot
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
-    ${REMOTE_HOST_PARAM} \
     -nodeConfig /opt/selenium/config.json \
     ${SE_OPTS} &
 NODE_PID=$!
