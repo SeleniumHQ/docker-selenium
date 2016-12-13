@@ -17,9 +17,15 @@ SERVERNUM=$(get_server_num)
 
 rm -f /tmp/.X*lock
 
-xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
+# Use xvfb only if there is not an x server running already
+if xset q &>/dev/null; then
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
-  ${SE_OPTS} &
+    ${SE_OPTS} &
+else
+  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
+    java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+    ${SE_OPTS} &
+fi
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
