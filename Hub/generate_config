@@ -6,7 +6,7 @@ echo "
   \"port\": 4444,
   \"prioritizer\": null,
   \"capabilityMatcher\": \"org.openqa.grid.internal.utils.DefaultCapabilityMatcher\",
-  \"throwOnCapabilityNotPresent\": true,
+  \"throwOnCapabilityNotPresent\": $GRID_THROW_ON_CAPABILITY_NOT_PRESENT,
   \"newSessionWaitTimeout\": $GRID_NEW_SESSION_WAIT_TIMEOUT,
   \"jettyMaxThreads\": $GRID_JETTY_MAX_THREADS,
   \"nodePolling\": $GRID_NODE_POLLING,
