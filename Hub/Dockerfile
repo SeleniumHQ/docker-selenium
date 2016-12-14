@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.0.1-barium
+FROM selenium/base:3.0.1-carbon
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 #========================
@@ -11,6 +11,7 @@ MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 EXPOSE 4444
 
+ENV GRID_THROW_ON_CAPABILITY_NOT_PRESENT true
 ENV GRID_NEW_SESSION_WAIT_TIMEOUT -1
 ENV GRID_JETTY_MAX_THREADS -1
 ENV GRID_NODE_POLLING  5000

@@ -1,9 +1,9 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),3.0.1-barium)
+VERSION := $(or $(VERSION),$(VERSION),3.0.1-carbon)
 PLATFORM := $(shell uname -s)
 BUILD_ARGS := $(BUILD_ARGS)
-MAJOR:=$(word 1,$(subst ., ,$(VERSION)))
-MINOR:=$(word 2,$(subst ., ,$(VERSION)))
+MAJOR := $(word 1,$(subst ., ,$(VERSION)))
+MINOR := $(word 2,$(subst ., ,$(VERSION)))
 
 all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
@@ -110,7 +110,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:$(MAJOR)
 	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:$(MAJOR)
 	docker tag $(NAME)/standalone-chrome-debug:$(VERSION) $(NAME)/standalone-chrome-debug:$(MAJOR)
-	docker tag $(NAME)/standalone-firefox-debug:$(VERSION) $(NAME)/standalone-firefox-debug:$(MAJOR) 
+	docker tag $(NAME)/standalone-firefox-debug:$(VERSION) $(NAME)/standalone-firefox-debug:$(MAJOR)
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
