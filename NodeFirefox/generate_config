@@ -1,12 +1,11 @@
 #!/bin/bash
 
-FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
+#FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
 
 echo "
 {
   \"capabilities\": [
     {
-      \"version\": \"$FIREFOX_VERSION\",
       \"browserName\": \"firefox\",
       \"maxInstances\": $NODE_MAX_INSTANCES,
       \"seleniumProtocol\": \"WebDriver\"
