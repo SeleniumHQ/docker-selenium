@@ -1,9 +1,12 @@
 #!/bin/bash
 
+FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
+
 echo "
 {
   \"capabilities\": [
     {
+      \"version\": \"$FIREFOX_VERSION\",
       \"browserName\": \"firefox\",
       \"maxInstances\": $NODE_MAX_INSTANCES,
       \"seleniumProtocol\": \"WebDriver\"
@@ -14,5 +17,5 @@ echo "
   \"port\": 5555,
   \"register\": true,
   \"registerCycle\": $NODE_REGISTER_CYCLE
-}" 
+}"
 
