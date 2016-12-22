@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
+
 echo "
 {
   \"capabilities\": [
@@ -14,5 +16,5 @@ echo "
   \"port\": 5555,
   \"register\": true,
   \"registerCycle\": $NODE_REGISTER_CYCLE
-}" 
+}"
 
