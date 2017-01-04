@@ -23,16 +23,16 @@ echo Building test container image
 docker build -t selenium/test:local ./Test
 
 echo 'Starting Selenium Hub Container...'
-HUB=$(docker run -d selenium/hub:3.0.1-carbon)
+HUB=$(docker run -d selenium/hub:3.0.1-dysprosium)
 HUB_NAME=$(docker inspect -f '{{ .Name  }}' $HUB | sed s:/::)
 echo 'Waiting for Hub to come online...'
 docker logs -f $HUB &
 sleep 2
 
 echo 'Starting Selenium Chrome node...'
-NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:3.0.1-carbon)
+NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:3.0.1-dysprosium)
 echo 'Starting Selenium Firefox node...'
-NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:3.0.1-carbon)
+NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:3.0.1-dysprosium)
 docker logs -f $NODE_CHROME &
 docker logs -f $NODE_FIREFOX &
 echo 'Waiting for nodes to register and come online...'
