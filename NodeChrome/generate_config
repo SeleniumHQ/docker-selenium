@@ -1,9 +1,12 @@
 #!/bin/bash
 
+CHROME_VERSION=$( sudo dpkg -s google-chrome-stable | grep Version | cut -d " " -f 2 | cut -d "-" -f 1 )
+
 echo "
 {
   \"capabilities\": [
     {
+      \"version\": \"$CHROME_VERSION\",
       \"browserName\": \"chrome\",
       \"maxInstances\": $NODE_MAX_INSTANCES,
       \"seleniumProtocol\": \"WebDriver\"
