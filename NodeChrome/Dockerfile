@@ -44,6 +44,11 @@ RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.stor
 ENV NODE_MAX_INSTANCES 1
 ENV NODE_MAX_SESSION 1
 ENV NODE_REGISTER_CYCLE 5000
+<<<<<<< HEAD
+ENV NODE_PORT 5555
+
+=======
+>>>>>>> parent of 79b19fb... Moving port assignment to environment variable to allow for assignment
 COPY generate_config /opt/selenium/generate_config
 RUN chmod +x /opt/selenium/generate_config
 
