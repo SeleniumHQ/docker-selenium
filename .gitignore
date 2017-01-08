@@ -7,3 +7,4 @@ node_modules/
 # Vim swap files.
 *.swp
 
+docker-selenium.iml
