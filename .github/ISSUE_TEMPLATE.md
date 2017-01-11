@@ -3,6 +3,8 @@ Image(s):
 <!-- node-chrome? hub? standalone-firefox? -->
 Docker Version:  
 <!-- 2.53.1, 2.53.1-americium, etc -->
+OS: 
+<!-- Windows 10, OSX Yosemite, Centos6, etc -->
 
 <!-- NOTE
 FIREFOX 48+ IS ONLY COMPATIBLE WITH GECKODRIVER.
