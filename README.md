@@ -86,7 +86,7 @@ Clone the repo and from the project directory root you can build everything by r
 $ VERSION=local make build
 ```
 
-If you need to configure environment variable in order to build the image (http proxy for instance), simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the docker context (this will only work with docker >= 1.9)
+If you need to configure environment variable in order to build the image (http proxy for instance), simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the docker context (this will only work with docker >= 1.9). (Note that the proxy here refers to the proxy for building the Chrome image, not running Chrome - just to make this _super_-clear). 
 
 ``` bash
 $ BUILD_ARGS="--build-arg http_proxy=http://acme:3128 --build-arg https_proxy=http://acme:3128" make build
@@ -184,6 +184,41 @@ selenium/hub                    3.0.1-fermium              2570bbb98229        3
 selenium/base                   3.0.1-fermium              33478d455dab        33 minutes ago      362.6 MB
 ubuntu                          16.04               0b7735b9290f        6 days ago          123.7 MB
 ```
+
+## Setting a proxy for running Chrome
+
+There are a couple of options here. You can add a build arg in Selenium, which will be added as a parameter to Chrome when it is executed. For example:
+
+    DesiredCapabilities capabilities = DesiredCapabilities.chrome();
+    capabilities.setCapability("chrome.switches", Arrays.asList("--proxy "http=http://proxyserver:port/;https=http://proxyserver:port/\""));
+    WebDriver driver = new ChromeDriver(capabilities);
+
+Note that this won't work if the proxy requires username and password auth. (This is a bug in Chrome, please star the issue here if it is a pain point for you.  eg this won't work:
+
+    capabilities.setCapability("chrome.switches", Arrays.asList("--proxy \"http=http://username:password@proxyserver:port/;https=http://username:password@proxyserver:port/\""));
+
+The solution in this circumstance is to use a proxy PAC file. The file looks like this (this is JavaScript Code):
+
+    if (host == "mylocalserver.com")
+    {
+        return 'DIRECT';
+    } else {
+       return return "PROXY wcg2.example.com:8080 ";
+    }
+
+(But there are plenty of better proxy file examples online found with a simple Google Search.)
+
+You can use it in Chrome by adding a runarg like this:
+
+    --proxy-pac-url=file:///proxy.pac
+
+So in Selenium it looks like:
+
+    capabilities.setCapability("chrome.switches", Arrays.asList("--proxy-pac-url=file:///proxy.pac"));
+
+To debug proxies - look at the resulting setting in Chrome with this URL:
+
+    chrome://net-internals/proxyservice#proxy
 
 ### Troubleshooting
 
