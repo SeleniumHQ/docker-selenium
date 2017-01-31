@@ -43,18 +43,15 @@ _Note: Only one standalone image can run on port_ `4444` _at a time._
 
 To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
 
-### Selenium Grid Hub
+### Selenium Grid Hub and Nodes
 
 ``` bash
 $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.0.1-fermium
-```
-
-### Chrome and Firefox Grid Nodes
-
-``` bash
 $ docker run -d --link selenium-hub:hub selenium/node-chrome:3.0.1-fermium
 $ docker run -d --link selenium-hub:hub selenium/node-firefox:3.0.1-fermium
 ```
+
+## Configuring the containers
 
 ### JAVA_OPTS Java Environment Options
 
