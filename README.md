@@ -74,12 +74,6 @@ $ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:
 
 ## Building the images
 
-Ensure you have the `ubuntu:16.04` base image downloaded, this step is _optional_ since Docker takes care of downloading the parent base image automatically.
-
-``` bash
-$ docker pull ubuntu:16.04
-```
-
 Clone the repo and from the project directory root you can build everything by running:
 
 ``` bash
@@ -169,20 +163,6 @@ When you are prompted for the password it is `secret`. If you wish to change thi
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
-```
-
-##### Look around
-
-``` bash
-$ docker images
-#=>
-REPOSITORY                      TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-selenium/node-firefox           3.0.1-fermium              69f762d0d79e        29 minutes ago      552.1 MB
-selenium/node-chrome            3.0.1-fermium              9dd73160660b        30 minutes ago      723.6 MB
-selenium/node-base              3.0.1-fermium              1b7a0b7024b1        32 minutes ago      426.1 MB
-selenium/hub                    3.0.1-fermium              2570bbb98229        33 minutes ago      394.4 MB
-selenium/base                   3.0.1-fermium              33478d455dab        33 minutes ago      362.6 MB
-ubuntu                          16.04               0b7735b9290f        6 days ago          123.7 MB
 ```
 
 ### Troubleshooting
