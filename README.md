@@ -21,47 +21,44 @@ Images included:
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
 
 ## Running the images
- 
+
 When executing docker run for an image with chrome browser please add volume mount `-v /dev/shm:/dev/shm` to use the host's shared memory.
 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:2.52.0
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.0.1-fermium
 ```
 
-This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952 
+This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952
 
 
 ### Standalone Chrome and Firefox
 
 ``` bash
-$ docker run -d -p 4444:4444 selenium/standalone-chrome:2.52.0
+$ docker run -d -p 4444:4444 selenium/standalone-chrome:3.0.1-fermium
 # OR
-$ docker run -d -p 4444:4444 selenium/standalone-firefox:2.52.0
+$ docker run -d -p 4444:4444 selenium/standalone-firefox:3.0.1-fermium
 ```
 
 _Note: Only one standalone image can run on port_ `4444` _at a time._
 
 To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
 
-### Selenium Grid Hub
+### Selenium Grid Hub and Nodes
 
 ``` bash
-$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:2.52.0
+$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.0.1-fermium
+$ docker run -d --link selenium-hub:hub selenium/node-chrome:3.0.1-fermium
+$ docker run -d --link selenium-hub:hub selenium/node-firefox:3.0.1-fermium
 ```
 
-### Chrome and Firefox Grid Nodes
-
-``` bash
-$ docker run -d --link selenium-hub:hub selenium/node-chrome:2.52.0
-$ docker run -d --link selenium-hub:hub selenium/node-firefox:2.52.0
-```
+## Configuring the containers
 
 ### JAVA_OPTS Java Environment Options
 
 You can pass `JAVA_OPTS` environment variable to java process.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:2.52.0
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:3.0.1-fermium
 ```
 
 ### SE_OPTS Selenium Configuration Options
@@ -69,16 +66,10 @@ $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:2.52.0
+$ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:3.0.1-fermium
 ```
 
 ## Building the images
-
-Ensure you have the `ubuntu:15.04` base image downloaded, this step is _optional_ since Docker takes care of downloading the parent base image automatically.
-
-``` bash
-$ docker pull ubuntu:15.04
-```
 
 Clone the repo and from the project directory root you can build everything by running:
 
@@ -99,10 +90,10 @@ _Note: Omitting_ `VERSION=local` _will build the images with the current version
 ##### Example: Spawn a container for testing in Chrome:
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.52.0
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.0.1-fermium
 $ CH=$(docker run --rm --name=ch \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    selenium/node-chrome:2.52.0)
+    selenium/node-chrome:3.0.1-fermium)
 ```
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
@@ -112,43 +103,44 @@ _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing brow
 This command line is the same as for Chrome. Remember that the Selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:2.52.0
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.0.1-fermium
 $ FF=$(docker run --rm --name=fx \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    selenium/node-firefox:2.52.0)
+    selenium/node-firefox:3.0.1-fermium)
 ```
 
 _Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images (substitute a free port that you wish to connect to on VNC for <port4VNC>; 5900 is fine if it is free, but of course you can only run one node on that port):
+In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish.  Example: <port4VNC>: 5900) you will only be able to run 1 node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.52.0
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.52.0
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-chrome-debug:3.0.1-fermium
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-firefox-debug:3.0.1-fermium
 ```
 e.g.:
 ``` bash
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub selenium/node-chrome-debug:2.48.2
-$ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-debug:2.48.2
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub selenium/node-chrome-debug:3.0.1-fermium
+$ docker run -d -P -p 5901:5900 --link selenium-hub:hub selenium/node-firefox-debug:3.0.1-fermium
 ```
 
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
-And for standalone: 
+And for standalone:
 ``` bash
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-chrome-debug:2.52.0
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-chrome-debug:3.0.1-fermium
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-firefox-debug:2.52.0
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 selenium/standalone-firefox-debug:3.0.1-fermium
 ```
 or
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 selenium/standalone-chrome-debug:2.52.0
+$ docker run -d -p 4444:4444 -p 5900:5900 selenium/standalone-chrome-debug:3.0.1-fermium
 # OR
-$ docker run -d -p 4444:4444 -p 5901:5900 selenium/standalone-firefox-debug:2.52.0
+$ docker run -d -p 4444:4444 -p 5901:5900 selenium/standalone-firefox-debug:3.0.1-fermium
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
+(In this case our port mapping looks like 49338:5900 for our node)
 ``` bash
 $ docker port <container-name|container-id> 5900
 #=> 0.0.0.0:49338
@@ -163,25 +155,11 @@ If you are running [Boot2Docker](https://docs.docker.com/installation/mac/) on O
 
 When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
 ``` dockerfile
-#FROM selenium/node-chrome-debug:2.52.0
-#FROM selenium/node-firefox-debug:2.52.0
+#FROM selenium/node-chrome-debug:3.0.1-fermium
+#FROM selenium/node-firefox-debug:3.0.1-fermium
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
-```
-
-##### Look around
-
-``` bash
-$ docker images
-#=>
-REPOSITORY                      TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
-selenium/node-firefox           2.52.0              69f762d0d79e        29 minutes ago      552.1 MB
-selenium/node-chrome            2.52.0              9dd73160660b        30 minutes ago      723.6 MB
-selenium/node-base              2.52.0              1b7a0b7024b1        32 minutes ago      426.1 MB
-selenium/hub                    2.52.0              2570bbb98229        33 minutes ago      394.4 MB
-selenium/base                   2.52.0              33478d455dab        33 minutes ago      362.6 MB
-ubuntu                          15.04               013f3d01d247        6 days ago          131.4 MB
 ```
 
 ### Troubleshooting

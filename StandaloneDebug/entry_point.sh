@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# IMPORTANT: Change this file only in directory StandaloneDebug!
+
+source /opt/bin/functions.sh
+
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
 function shutdown {
@@ -10,12 +15,19 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
 
-env | cut -f 1 -d "=" | sort > asroot
-sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
+rm -f /tmp/.X*lock
+
+SERVERNUM=$(get_server_num)
+
+env | sort -k 1 -t '=' > asroot
+sudo -E -u seluser -i env | sort -k 1 -t '=' > asseluser
+
+# The .bash_aliases file will run when starting xvfb with the seluser below
+join -v 1 -j 1 -t '=' --nocheck-order asroot asseluser > /home/seluser/.bash_aliases
+
 sudo -E -i -u seluser \
-  $(for E in $(grep -vxFf asseluser asroot); do echo $E=$(eval echo \$$E); done) \
   DISPLAY=$DISPLAY \
-  xvfb-run --server-args="$DISPLAY -screen 0 $GEOMETRY -ac +extension RANDR" \
+  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
 NODE_PID=$!
