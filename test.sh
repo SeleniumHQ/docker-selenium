@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 DEBUG=''
+VERSION=${VERSION:-3.0.1-germanium}
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
   DEBUG='-debug'
@@ -30,12 +31,12 @@ docker logs -f $HUB &
 sleep 2
 
 echo 'Starting Selenium Chrome node...'
-NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:3.0.1-germanium)
+NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:${VERSION})
 echo 'Starting Selenium Firefox node...'
-NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:3.0.1-germanium)
+NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:${VERSION})
 if [ -z $DEBUG ]; then
   echo 'Starting Selenium PhantomJS node...'
-  NODE_PHANTOMJS=$(docker run -d --link $HUB_NAME:hub selenium/node-phantomjs:3.0.1-germanium)
+  NODE_PHANTOMJS=$(docker run -d --link $HUB_NAME:hub selenium/node-phantomjs:${VERSION})
 fi
 docker logs -f $NODE_CHROME &
 docker logs -f $NODE_FIREFOX &
