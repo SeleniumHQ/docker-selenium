@@ -1,4 +1,4 @@
-FROM selenium/node-firefox:3.0.1-fermium
+FROM selenium/node-firefox:3.0.1-germanium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
