@@ -56,7 +56,8 @@ RUN chmod +x /opt/google/chrome/google-chrome
 
 RUN chown -R seluser:seluser /opt/selenium
 
-USER seluser
 # Following line fixes
 # https://github.com/SeleniumHQ/docker-selenium/issues/87
-ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
+RUN echo "DBUS_SESSION_BUS_ADDRESS=/dev/null" >> /etc/environment
+
+USER seluser
