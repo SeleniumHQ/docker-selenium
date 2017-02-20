@@ -16,7 +16,7 @@ Note: You can optionally override default configuration settings using environme
 See the [Hub's Dockerfile](Dockerfile) to view the list of variables and their default values.
 
 ```
-$ docker run -d -P --name selenium-hub -e GRID_TIMEOUT=10000 selenium/hub
+$ docker run -d -P --name selenium-hub -e GRID_TIMEOUT=10 selenium/hub
 ```
 
 
