@@ -69,6 +69,9 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 $ docker run -d -p 4444:4444 -e SE_OPTS=-debug --name selenium-hub selenium/hub:3.0.1-germanium
 ```
 
+### Connect to host network from container
+When developing with a web server running locally on the host, the browser within the docker container needs to access the URL that's available only on the host (typically `http://localhost` or maybe `http://myproject.dev`). Add the `--net=host` option to the `docker run` commands to accomplish this.
+
 ## Building the images
 
 Clone the repo and from the project directory root you can build everything by running:
