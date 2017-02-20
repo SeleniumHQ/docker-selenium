@@ -51,6 +51,10 @@ RUN chmod +x /opt/google/chrome/google-chrome
 
 RUN chown -R seluser:seluser /opt/selenium
 
+# Ensure that the environment variable below is preserved when using sudo -i
+# https://github.com/SeleniumHQ/docker-selenium/issues/358
+RUN echo 'Defaults env_keep += "DBUS_SESSION_BUS_ADDRESS"' >> /etc/sudoers
+
 USER seluser
 # Following line fixes
 # https://github.com/SeleniumHQ/docker-selenium/issues/87
