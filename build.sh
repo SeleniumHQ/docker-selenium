@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: build.sh <component> <selenium-version> <docker-version-to-output>"
+  echo "Usage: build.sh <component> <selenium-version> [<docker-version-to-output>]"
   echo "   Example: build.sh hub 3.0.1 0.1.0"
   exit 1
 }
@@ -25,6 +25,11 @@ function check_args {
 	fi
 }
 
+function set_variables {
+	COMPONENT=$1
+	SELENIUM_VERSION_INPUT=$2
+}
+
 function split_string {
   IN=$1
   arrIN=(${IN//./ })
@@ -34,7 +39,6 @@ function split_string {
 
 
 function parse_selenium_version {
-	SELENIUM_VERSION_INPUT=$2
 	SELENIUM_MAJOR=$(split_string $SELENIUM_VERSION_INPUT 0)
 	SELENIUM_MINOR=$(split_string $SELENIUM_VERSION_INPUT 1)
 	SELENIUM_PATCH=$(split_string $SELENIUM_VERSION_INPUT 2)
@@ -61,8 +65,9 @@ function parse_selenium_version {
 }
 
 check_args "$@"
+set_variables "$@"
 parse_selenium_version "$@"
 
-BUILD_ARGS="--build-arg SELENIUM_MAJOR_VERSION=$SELENIUM_MAJOR --build-arg SELENIUM_MINOR_VERSION=$SELENIUM_MINOR --build-arg SELENIUM_PATCH_VERSION=$SELENIUM_PATCH"
+export BUILD_ARGS="$BUILD_ARGS --build-arg SELENIUM_MAJOR_VERSION=$SELENIUM_MAJOR --build-arg SELENIUM_MINOR_VERSION=$SELENIUM_MINOR --build-arg SELENIUM_PATCH_VERSION=$SELENIUM_PATCH"
 
-VERSION=$MY_VERSION make build $1
+VERSION=$MY_VERSION make build $COMPONENT
