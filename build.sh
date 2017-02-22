@@ -2,7 +2,7 @@
 
 function usage {
   echo "Usage: build.sh <component> <selenium-version> <docker-version-to-output> [<additional-build-args> ]"
-  echo "   Example: build.sh hub 3.0.1 local \"--build-arg MYKEY=MYVAL\""
+  echo "   Example: build.sh hub 3.0.1 local \"--build-arg FIREFOX_VERSION=46.0.1 --build-arg GECKODRIVER_VERSION=0.14.0\""
   exit 1
 }
 
