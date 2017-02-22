@@ -27,9 +27,9 @@ function check_args {
 	fi
 	if [ -z "$5" ]
 	  then
-	    MY_VERSION=local
+	    OUTPUT_VERSION=local
 	  else
-	    MY_VERSION=$3
+	    OUTPUT_VERSION=$5
 	fi
 }
 
@@ -38,7 +38,6 @@ function set_variables {
 	BROWSER_VERSION=$2
 	DRIVER_VALUE=$3
 	SELENIUM_VERSION=$4
-	OUTPUT_VERSION=$5
 }
 
 function check_browser {
@@ -72,6 +71,6 @@ set_variables "$@"
 check_browser "$@"
 check_web_driver "$@"
 
-export BUILD_ARGS="--build-arg $VERSION_KEY=$BROWSER_VERSION --build-arg $DRIVER_KEY=$DRIVER_VALUE"
+BUILD_ARGS="--build-arg $VERSION_KEY=$BROWSER_VERSION --build-arg $DRIVER_KEY=$DRIVER_VALUE"
 
-./build.sh $BROWSER_TYPE $SELENIUM_VERSION $OUTPUT_VERSION
+./build.sh $BROWSER_TYPE $SELENIUM_VERSION $OUTPUT_VERSION "$BUILD_ARGS"

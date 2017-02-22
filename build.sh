@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function usage {
-  echo "Usage: build.sh <component> <selenium-version> [<docker-version-to-output>]"
-  echo "   Example: build.sh hub 3.0.1 0.1.0"
+  echo "Usage: build.sh <component> <selenium-version> <docker-version-to-output> [<additional-build-args> ]"
+  echo "   Example: build.sh hub 3.0.1 local \"--build-arg MYKEY=MYVAL\""
   exit 1
 }
 
@@ -16,18 +16,22 @@ function check_args {
 	  then
 	    usage
 	fi
-
 	if [ -z "$3" ]
 	  then
-	    MY_VERSION=local
+	    usage
+	fi
+	if [ -z "$4" ]
+	  then
+	    ADDITIONAL_BUILD_ARGS=""
 	  else
-	    MY_VERSION=$3
+	    ADDITIONAL_BUILD_ARGS="$4"
 	fi
 }
 
 function set_variables {
 	COMPONENT=$1
 	SELENIUM_VERSION_INPUT=$2
+	MY_VERSION=$3
 }
 
 function split_string {
@@ -68,6 +72,6 @@ check_args "$@"
 set_variables "$@"
 parse_selenium_version "$@"
 
-export BUILD_ARGS="$BUILD_ARGS --build-arg SELENIUM_MAJOR_VERSION=$SELENIUM_MAJOR --build-arg SELENIUM_MINOR_VERSION=$SELENIUM_MINOR --build-arg SELENIUM_PATCH_VERSION=$SELENIUM_PATCH"
+BUILD_ARGS="$ADDITIONAL_BUILD_ARGS --build-arg SELENIUM_MAJOR_VERSION=$SELENIUM_MAJOR --build-arg SELENIUM_MINOR_VERSION=$SELENIUM_MINOR --build-arg SELENIUM_PATCH_VERSION=$SELENIUM_PATCH"
 
-VERSION=$MY_VERSION make build $COMPONENT
+BUILD_ARGS="$BUILD_ARGS" VERSION=$MY_VERSION make build $COMPONENT
