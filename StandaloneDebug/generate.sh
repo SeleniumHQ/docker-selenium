@@ -11,8 +11,8 @@ echo "# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED." >> $FOLDER/Dockerfile
 echo "# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE" >> $FOLDER/Dockerfile
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $FOLDER/Dockerfile
 echo FROM $NAMESPACE/$BASE:$VERSION >> $FOLDER/Dockerfile
-echo MAINTAINER $MAINTAINER >> ./Dockerfile 
-echo "" >> ./Dockerfile
+echo MAINTAINER $MAINTAINER >> $FOLDER/Dockerfile 
+echo "" >> $FOLDER/Dockerfile
 cat ../NodeDebug/Dockerfile.txt >> $FOLDER/Dockerfile
 
 cp ./entry_point.sh $FOLDER
