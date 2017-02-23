@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 DEBUG=''
+VERSION=${VERSION:-3.0.1-germanium}
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
   DEBUG='-debug'
@@ -30,11 +31,18 @@ docker logs -f $HUB &
 sleep 2
 
 echo 'Starting Selenium Chrome node...'
-NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:3.0.1-germanium)
+NODE_CHROME=$(docker run -d --link $HUB_NAME:hub  selenium/node-chrome$DEBUG:${VERSION})
 echo 'Starting Selenium Firefox node...'
-NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:3.0.1-germanium)
+NODE_FIREFOX=$(docker run -d --link $HUB_NAME:hub selenium/node-firefox$DEBUG:${VERSION})
+if [ -z $DEBUG ]; then
+  echo 'Starting Selenium PhantomJS node...'
+  NODE_PHANTOMJS=$(docker run -d --link $HUB_NAME:hub selenium/node-phantomjs:${VERSION})
+fi
 docker logs -f $NODE_CHROME &
 docker logs -f $NODE_FIREFOX &
+if [ -z $DEBUG ]; then
+  docker logs -f $NODE_PHANTOMJS &
+fi
 echo 'Waiting for nodes to register and come online...'
 sleep 2
 
@@ -60,6 +68,9 @@ function test_node {
 
 test_node chrome $DEBUG
 test_node firefox $DEBUG
+if [ -z $DEBUG ]; then
+  test_node phantomjs $DEBUG
+fi
 
 if [ ! "$CIRCLECI" ==  "true" ]; then
   echo Tearing down Selenium Chrome Node container
@@ -69,6 +80,12 @@ if [ ! "$CIRCLECI" ==  "true" ]; then
   echo Tearing down Selenium Firefox Node container
   docker stop $NODE_FIREFOX
   docker rm $NODE_FIREFOX
+
+  if [ -z $DEBUG ]; then
+    echo Tearing down Selenium PhantomJS Node container
+    docker stop $NODE_PHANTOMJS
+    docker rm $NODE_PHANTOMJS
+  fi
 
   echo Tearing down Selenium Hub container
   docker stop $HUB
