@@ -43,6 +43,15 @@ FROM selenium/##BASE##-debug:3.0.1-germanium
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
 
+### Encrypted WebSockets
+To connect to the VNC server via encrypted WebSockets, point your docker image to a directory containing `ssl.cert` and `ssl.key` files and expose the internal WebSocket proxy port 6900.
+``` bash
+$ docker run -d -p 6900:6900 -v /path/to/certificate/dir:/cert selenium/##BASE##-debug
+```
+
+##### Example: Connect with noVNC via encrypted WebSockets:
+http://novnc.com/noVNC/vnc_auto.html?host=your.domain.here&port=6900&encrypt=1
+
 ## What is Selenium?
 _Selenium automates browsers._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.
 

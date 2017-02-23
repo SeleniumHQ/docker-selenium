@@ -63,4 +63,6 @@ fluxbox -display $DISPLAY &
 
 x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY &
 
+websockify --key /cert/ssl.key --cert /cert/ssl.cert 0.0.0.0:6900 0.0.0.0:5900 &
+
 wait $NODE_PID

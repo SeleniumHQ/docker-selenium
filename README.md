@@ -113,7 +113,7 @@ _Note: Since a Docker container is not meant to preserve state and spawning a ne
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish.  Example: <port4VNC>: 5900) you will only be able to run 1 node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
+In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900 and a WebSocket proxy on port 6900. You are free to map that to any free external port that you wish.  (Example: `<port4VNC>: 5900`) you will only be able to run 1 node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as that's the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-chrome-debug:3.0.1-germanium
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub selenium/node-firefox-debug:3.0.1-germanium
@@ -161,6 +161,15 @@ When you are prompted for the password it is `secret`. If you wish to change thi
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
+
+### Encrypted WebSockets
+To connect to the VNC server via encrypted WebSockets, point your docker image to a directory containing `ssl.cert` and `ssl.key` files and expose the internal WebSocket proxy port 6900.
+``` bash
+$ docker run -d -p 6900:6900 -v /path/to/certificate/dir:/cert selenium/standalone-##BROWSER_LC##-debug
+```
+
+#### noVNC example
+http://novnc.com/noVNC/vnc_auto.html?host=your.domain.here&port=6900&encrypt=1
 
 ### Troubleshooting
 

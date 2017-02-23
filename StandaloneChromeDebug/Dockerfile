@@ -17,6 +17,14 @@ RUN apt-get update -qqy \
   && mkdir -p /root/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
 
+#============
+# Websockify
+#============
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    websockify python-pkg-resources \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+
 #=================
 # Locale settings
 #=================
@@ -57,3 +65,4 @@ COPY entry_point.sh /opt/bin/entry_point.sh
 RUN chmod +x /opt/bin/entry_point.sh
 
 EXPOSE 5900
+EXPOSE 6900
