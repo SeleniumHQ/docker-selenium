@@ -4,12 +4,15 @@ BASE=$2
 BROWSER=$3
 VERSION=$4
 NAMESPACE=$5
+MAINTAINER=$6
 
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" > $FOLDER/Dockerfile
 echo "# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED." >> $FOLDER/Dockerfile
 echo "# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE" >> $FOLDER/Dockerfile
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $FOLDER/Dockerfile
 echo FROM $NAMESPACE/$BASE:$VERSION >> $FOLDER/Dockerfile
+echo MAINTAINER $MAINTAINER >> ./Dockerfile 
+echo "" >> ./Dockerfile
 cat ./Dockerfile.txt >> $FOLDER/Dockerfile
 
 cp ./entry_point.sh $FOLDER
