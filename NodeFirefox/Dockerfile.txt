@@ -5,7 +5,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=51.0.1
+ARG FIREFOX_VERSION=52.0
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
