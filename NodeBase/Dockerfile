@@ -4,7 +4,6 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/base:3.1.0-astatine
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
-
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
 
