@@ -34,8 +34,10 @@ RUN apt-get update -qqy \
 #==========
 # Selenium
 #==========
+ARG SELENIUM_VERSION=3.3.1
+ARG SELENIUM_DIR=3.3
 RUN  mkdir -p /opt/selenium \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.1/selenium-server-standalone-3.1.0.jar -O /opt/selenium/selenium-server-standalone.jar
+  && wget --no-verbose https://selenium-release.storage.googleapis.com/$SELENIUM_DIR/selenium-server-standalone-$SELENIUM_VERSION.jar -O /opt/selenium/selenium-server-standalone.jar
 
 #========================================
 # Add normal user with passwordless sudo
