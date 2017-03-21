@@ -6,7 +6,15 @@ USER root
 # Firefox
 #=========
 ARG FIREFOX_VERSION=52.0
-RUN apt-get update -qqy \
+RUN version=$(echo $FIREFOX_VERSION | awk '{split($0,a,"."); print a[1]}') \
+  && if [ $version -lt 52 ]; then \
+    echo "deb http://ppa.launchpad.net/ubuntu-mozilla-daily/ppa/ubuntu xenial main" >> /etc/apt/sources.list.d/mozilla.list \
+      && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys B34505EA326FEAEA07E3618DEF4186FE247510BE \
+      && apt-get update -qqy \
+      && apt-get install --no-install-recommends -qqy dbus xul-ext-ubufox libasound2 libpulse-dev \
+      && dbus-uuidgen > /etc/machine-id; \
+  fi \
+  && apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && wget --no-verbose -O /tmp/firefox.tar.bz2 https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2 \
