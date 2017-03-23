@@ -18,15 +18,16 @@ fi
 rm -f /tmp/.X*lock
 
 SERVERNUM=$(get_server_num)
+env | cut -f 1 -d "=" | sort > asroot
+sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
 
-env | sort -k 1 -t '=' > asroot
-sudo -E -u seluser -i env | sort -k 1 -t '=' > asseluser
-
-# The .bash_aliases file will run when starting xvfb with the seluser below
-join -v 1 -j 1 -t '=' --nocheck-order asroot asseluser > /home/seluser/.bash_aliases
+# Add root environment variables that are not present in the seluser
+# environment to an environment file.
+$(for E in $(grep -vxFf asseluser asroot); do echo $E="'${!E}'" >> ~seluser/selenv; done) \
+echo "DISPLAY=${DISPLAY}" >> ~seluser/selenv
 
 sudo -E -i -u seluser \
-  DISPLAY=$DISPLAY \
+  source selenv && \
   xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
