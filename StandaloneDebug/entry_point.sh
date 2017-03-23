@@ -23,7 +23,7 @@ env | sort -k 1 -t '=' > asroot
 sudo -E -u seluser -i env | sort -k 1 -t '=' > asseluser
 
 # The .bash_aliases file will run when starting xvfb with the seluser below
-join -v 1 -j 1 -t '=' --nocheck-order asroot asseluser > /home/seluser/.bash_aliases
+join -v 1 -j 1 -t '=' --nocheck-order asroot asseluser | sed -e 's/^/export /' > /home/seluser/.bash_aliases
 
 sudo -E -i -u seluser \
   DISPLAY=$DISPLAY \
