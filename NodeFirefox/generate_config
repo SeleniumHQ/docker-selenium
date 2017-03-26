@@ -9,7 +9,8 @@ echo "
       \"version\": \"$FIREFOX_VERSION\",
       \"browserName\": \"firefox\",
       \"maxInstances\": $NODE_MAX_INSTANCES,
-      \"seleniumProtocol\": \"WebDriver\"
+      \"seleniumProtocol\": \"WebDriver\",
+      \"applicationName\": \"$NODE_APPLICATION_NAME\"
     }
   ],
   \"proxy\": \"org.openqa.grid.selenium.proxy.DefaultRemoteProxy\",
