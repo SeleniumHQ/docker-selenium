@@ -6,6 +6,9 @@ services:
 
 language: bash
 
+notifications:
+    slack: seleniumhq:Kx5MB7T51SPMpbBMYfvxNW4q
+
 before_install:
   - docker info
   - VERSION="$TRAVIS_BRANCH" make build
