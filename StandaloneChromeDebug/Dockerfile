@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/standalone-chrome:3.2.0-actinium
+FROM selenium/standalone-chrome:3.3.0-americium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root

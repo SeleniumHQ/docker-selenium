@@ -13,7 +13,7 @@ function test_standalone {
   BROWSER=$1
   echo Starting Selenium standalone-$BROWSER$DEBUG container
 
-  SA=$(docker run -d selenium/standalone-$BROWSER$DEBUG:3.2.0-actinium)
+  SA=$(docker run -d selenium/standalone-$BROWSER$DEBUG:3.3.0-americium)
   SA_NAME=$(docker inspect -f '{{ .Name  }}' $SA | sed s:/::)
   TEST_CMD="node smoke-$BROWSER.js"
 
