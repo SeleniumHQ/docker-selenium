@@ -56,4 +56,8 @@ RUN apt-get update -qqy \
 COPY entry_point.sh /opt/bin/entry_point.sh
 RUN chmod +x /opt/bin/entry_point.sh
 
+# Following line fixes
+# https://github.com/SeleniumHQ/docker-selenium/issues/87
+RUN echo "DBUS_SESSION_BUS_ADDRESS=/dev/null" >> /etc/environment
+
 EXPOSE 5900
