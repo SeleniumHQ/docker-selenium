@@ -100,7 +100,7 @@ tag_latest:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
-	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantoms:latest
+	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantomjs:latest
 	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:latest
 	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:latest
 	docker tag $(NAME)/standalone-chrome:$(VERSION) $(NAME)/standalone-chrome:latest
