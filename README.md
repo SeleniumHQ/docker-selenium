@@ -2,10 +2,14 @@
 
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache License 2.0](https://github.com/SeleniumHQ/docker-selenium/blob/master/LICENSE.md).
 
-## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
-[![Circle CI](https://circleci.com/gh/SeleniumHQ/docker-selenium.svg?style=svg)](https://circleci.com/gh/SeleniumHQ/docker-selenium)
+## Community
 
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/SeleniumHQ/docker-selenium?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+### [SeleniumHQ Slack](https://seleniumhq.herokuapp.com/)
+
+### IRC (&#35;selenium at Freenode)
+
+## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
+[Travis CI](https://travis-ci.org/SeleniumHQ/docker-selenium)
 
 Images included:
 - __selenium/base__: Base image which includes Java runtime and Selenium JAR file
@@ -20,6 +24,8 @@ Images included:
 - __selenium/standalone-firefox-debug__: Selenium standalone with Firefox installed and runs a VNC server
 - __selenium/node-chrome-debug__: Selenium node with Chrome installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
 - __selenium/node-firefox-debug__: Selenium node with Firefox installed and runs a VNC server, needs to be connected to a Selenium Grid Hub
+
+## 
 
 ## Running the images
 
