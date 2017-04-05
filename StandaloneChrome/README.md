@@ -2,6 +2,8 @@
 
 Selenium Standalone Server with Chrome
 
+[![](http://badge-imagelayers.iron.io/selenium/standalone-chrome:latest.svg)](http://imagelayers.iron.io/?images=selenium/standalone-chrome:latest 'Get your own badge on imagelayers.iron.io')
+
 ## Dockerfile
 
 [`selenium/standalone-chrome` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneChrome/Dockerfile)
