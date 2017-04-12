@@ -1,4 +1,4 @@
-FROM selenium/node-firefox:3.3.1-arsenic
+FROM selenium/node-firefox:3.3.1-bohrium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
