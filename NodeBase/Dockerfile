@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.3.1-bohrium
+FROM selenium/base:3.3.1-cesium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -15,6 +15,7 @@ RUN apt-get update -qqy \
   && apt-get -qqy install \
     locales \
     xvfb \
+    dbus \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================

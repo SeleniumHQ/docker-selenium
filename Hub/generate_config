@@ -4,6 +4,7 @@ echo "
 {
   \"host\": null,
   \"port\": 4444,
+  \"role\": \"hub\",
   \"maxSession\": $GRID_MAX_SESSION,
   \"newSessionWaitTimeout\": $GRID_NEW_SESSION_WAIT_TIMEOUT,
   \"capabilityMatcher\": \"org.openqa.grid.internal.utils.DefaultCapabilityMatcher\",
@@ -12,5 +13,5 @@ echo "
   \"cleanUpCycle\": $GRID_CLEAN_UP_CYCLE,
   \"browserTimeout\": $GRID_BROWSER_TIMEOUT,
   \"timeout\": $GRID_TIMEOUT,
-  \"prioritizer\": null,
+  \"debug\": $GRID_DEBUG
 }"

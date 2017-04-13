@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.3.1-bohrium
+FROM selenium/node-base:3.3.1-cesium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -10,7 +10,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=52.0
+ARG FIREFOX_VERSION=52.0.2
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
@@ -57,5 +57,9 @@ ENV NODE_APPLICATION_NAME ""
 COPY generate_config /opt/selenium/generate_config
 RUN chmod +x /opt/selenium/generate_config \
   && chown -R seluser:seluser /opt/selenium
+
+# Following line fixes
+# https://github.com/SeleniumHQ/docker-selenium/issues/87
+RUN echo "DBUS_SESSION_BUS_ADDRESS=/dev/null" >> /etc/environment
 
 USER seluser
