@@ -6,8 +6,8 @@ echo "
 {
   \"capabilities\": [
     {
-      \"version\": \"$CHROME_VERSION\",
-      \"browserName\": \"chrome\",
+      \"version\": \"$FIREFOX_VERSION\",
+      \"browserName\": \"firefox\",
       \"maxInstances\": $NODE_MAX_INSTANCES,
       \"seleniumProtocol\": \"WebDriver\",
       \"applicationName\": \"$NODE_APPLICATION_NAME\"
