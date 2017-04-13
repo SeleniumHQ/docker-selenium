@@ -12,6 +12,7 @@ USER root
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy install \
+  locales \
   x11vnc \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && mkdir -p /root/.vnc \
