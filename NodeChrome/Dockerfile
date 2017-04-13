@@ -41,11 +41,23 @@ RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.stor
 #========================
 # Selenium Configuration
 #========================
+# As integer, maps to "maxInstances"
 ENV NODE_MAX_INSTANCES 1
+# As integer, maps to "maxSession"
 ENV NODE_MAX_SESSION 1
-ENV NODE_REGISTER_CYCLE 5000
+# As integer, maps to "port"
 ENV NODE_PORT 5555
+# In milliseconds, maps to "registerCycle"
+ENV NODE_REGISTER_CYCLE 5000
+# In milliseconds, maps to "nodePolling"
+ENV NODE_POLLING 5000
+# In milliseconds, maps to "unregisterIfStillDownAfter"
+ENV NODE_UNREGISTER_IF_STILL_DOWN_AFTER 60000
+# As integer, maps to "downPollingLimit"
+ENV NODE_DOWN_POLLING_LIMIT 2
+# As string, maps to "applicationName"
 ENV NODE_APPLICATION_NAME ""
+
 COPY generate_config /opt/selenium/generate_config
 RUN chmod +x /opt/selenium/generate_config
 

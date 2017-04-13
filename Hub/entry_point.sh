@@ -27,4 +27,3 @@ NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID
-

@@ -18,5 +18,7 @@ echo "
   \"port\": $NODE_PORT,
   \"register\": true,
   \"registerCycle\": $NODE_REGISTER_CYCLE
-}" 
-
+  \"nodePolling\": $NODE_POLLING,
+  \"unregisterIfStillDownAfter\": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
+  \"downPollingLimit\": $NODE_DOWN_POLLING_LIMIT
+}"
