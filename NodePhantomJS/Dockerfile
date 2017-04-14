@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.0.1-fermium
+FROM selenium/node-base:3.3.1-cesium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
@@ -30,6 +30,7 @@ ENV SCREEN_WIDTH 1360
 ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
 ENV DISPLAY :99.0
+ENV NODE_APPLICATION_NAME ""
 
 USER seluser
 
