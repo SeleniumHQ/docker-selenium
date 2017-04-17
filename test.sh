@@ -59,7 +59,7 @@ function test_node {
     exit 1
   fi
 
-  if [ ! "$CIRCLECI" ==  "true" ]; then
+  if [ ! "${IN_TRAVIS}" ==  "true" ]; then
     echo Removing the test container
     docker rm $TEST_CONTAINER
   fi
@@ -72,7 +72,7 @@ if [ -z $DEBUG ]; then
   test_node phantomjs $DEBUG
 fi
 
-if [ ! "$CIRCLECI" ==  "true" ]; then
+if [ ! "${IN_TRAVIS}" ==  "true" ]; then
   echo Tearing down Selenium Chrome Node container
   docker stop $NODE_CHROME
   docker rm $NODE_CHROME

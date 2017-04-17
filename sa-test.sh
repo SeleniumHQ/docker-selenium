@@ -27,7 +27,7 @@ function test_standalone {
     exit 1
   fi
 
-  if [ ! "$CIRCLECI" ==  "true" ]; then
+  if [ ! "${IN_TRAVIS}" ==  "true" ]; then
     echo Tearing down Selenium standalone-$BROWSER$DEBUG container
     docker stop $SA_NAME
     docker rm $SA_NAME
