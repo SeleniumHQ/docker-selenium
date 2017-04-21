@@ -23,7 +23,7 @@ sudo -E -u seluser -i env | cut -f 1 -d "=" | sort > asseluser
 
 # Add root environment variables that are not present in the seluser
 # environment to an environment file.
-$(for E in $(grep -vxFf asseluser asroot); do echo $E="'${!E}'" >> ~seluser/selenv; done) \
+"$(for E in $(grep -vxFf asseluser asroot); do echo $E="'${!E}'" >> ~seluser/selenv; done)" \
 echo "DISPLAY=${DISPLAY}" >> ~seluser/selenv
 
 sudo -E -i -u seluser \
