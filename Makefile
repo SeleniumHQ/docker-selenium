@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),3.4.0-actinium)
+VERSION := $(or $(VERSION),$(VERSION),3.4.0-bismuth)
 PLATFORM := $(shell uname -s)
 BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(VERSION)))

@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:3.4.0-actinium
+FROM selenium/node-firefox:3.4.0-bismuth
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root

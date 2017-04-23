@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 DEBUG=''
-VERSION=${VERSION:-3.4.0-actinium}
+VERSION=${VERSION:-3.4.0-bismuth}
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
   DEBUG='-debug'
@@ -24,7 +24,7 @@ echo Building test container image
 docker build -t selenium/test:local ./Test
 
 echo 'Starting Selenium Hub Container...'
-HUB=$(docker run -d selenium/hub:3.4.0-actinium)
+HUB=$(docker run -d selenium/hub:3.4.0-bismuth)
 HUB_NAME=$(docker inspect -f '{{ .Name  }}' $HUB | sed s:/::)
 echo 'Waiting for Hub to come online...'
 docker logs -f $HUB &
