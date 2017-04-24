@@ -227,10 +227,10 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox-debug:$(MAJOR_MINOR_PATCH)
 
 test:
-	./test.sh
-	./sa-test.sh
-	./test.sh debug
-	./sa-test.sh debug
+	VERSION=$(VERSION) ./test.sh
+	VERSION=$(VERSION) ./sa-test.sh
+	VERSION=$(VERSION) ./test.sh debug
+	VERSION=$(VERSION) ./sa-test.sh debug
 
 .PHONY: \
 	all \
