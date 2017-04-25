@@ -5,14 +5,17 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
+NIGHTLY_VERSION := $(shell date +%m%d%Y>&1)
+LATEST_GECKODRIVER_URL := $(shell curl -s https://api.github.com/repos/mozilla/geckodriver/releases | grep browser_download_url | grep 'linux64.tar.gz' | head -n 1 | cut -d '"' -f 4 >&1)
 
-all: hub chrome firefox phantomjs chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
+all: hub chrome firefox firefox_nightly phantomjs chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
 generate_all:	\
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
+	generate_firefox_nightly \
 	generate_phantomjs \
 	generate_chrome_debug \
 	generate_firefox_debug \
@@ -51,6 +54,12 @@ generate_firefox:
 
 firefox: nodebase generate_firefox
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION) .
+
+generate_firefox_nightly:
+	cd ./NodeFirefoxNightly && ./generate.sh $(VERSION)
+
+firefox_nightly: nodebase generate_firefox_nightly
+	cd ./NodeFirefoxNightly && docker build $(BUILD_ARGS) --build-arg GECKODRIVER_URL=$(LATEST_GECKODRIVER_URL) -t $(NAME)/node-firefox-nightly:$(NIGHTLY_VERSION) .
 
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION)
@@ -100,6 +109,7 @@ tag_latest:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
+	docker tag $(NAME)/node-firefox-nightly:$(VERSION) $(NAME)/node-firefox-nightly:latest
 	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantomjs:latest
 	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:latest
 	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:latest
@@ -114,6 +124,7 @@ release_latest:
 	docker push $(NAME)/node-base:latest
 	docker push $(NAME)/node-chrome:latest
 	docker push $(NAME)/node-firefox:latest
+	docker push $(NAME)/node-firefox-nightly:latest
 	docker push $(NAME)/node-phantomjs:latest
 	docker push $(NAME)/node-chrome-debug:latest
 	docker push $(NAME)/node-firefox-debug:latest
@@ -128,6 +139,7 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR)
+#	docker tag $(NAME)/node-firefox-nightly:$(VERSION) $(NAME)/node-firefox-nightly:$(MAJOR)
 	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantomjs:$(MAJOR)
 	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:$(MAJOR)
 	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:$(MAJOR)
@@ -140,6 +152,7 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR).$(MINOR)
+#	docker tag $(NAME)/node-firefox-nightly:$(VERSION) $(NAME)/node-firefox-nightly:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantomjs:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:$(MAJOR).$(MINOR)
@@ -152,6 +165,7 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
+#	docker tag $(NAME)/node-firefox-nightly:$(VERSION) $(NAME)/node-firefox-nightly:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-phantomjs:$(VERSION) $(NAME)/node-phantomjs:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome-debug:$(VERSION) $(NAME)/node-chrome-debug:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-firefox-debug:$(VERSION) $(NAME)/node-firefox-debug:$(MAJOR_MINOR_PATCH)
@@ -166,6 +180,7 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-firefox-nightly | awk '{ print $$2 }' | grep -q -F $(NIGHTLY_VERSION); then echo "$(NAME)/node-firefox-nightly version $(NIGHTLY_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-phantomjs | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-phantomjs version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox-debug | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-firefox-debug version $(VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -178,6 +193,7 @@ release: tag_major_minor
 	docker push $(NAME)/node-base:$(VERSION)
 	docker push $(NAME)/node-chrome:$(VERSION)
 	docker push $(NAME)/node-firefox:$(VERSION)
+	docker push $(NAME)/node-firefox-nightly:$(NIGHTLY_VERSION)
 	docker push $(NAME)/node-phantomjs:$(VERSION)
 	docker push $(NAME)/node-chrome-debug:$(VERSION)
 	docker push $(NAME)/node-firefox-debug:$(VERSION)
@@ -191,6 +207,7 @@ release: tag_major_minor
 	docker push $(NAME)/node-base:$(MAJOR)
 	docker push $(NAME)/node-chrome:$(MAJOR)
 	docker push $(NAME)/node-firefox:$(MAJOR)
+#	docker push $(NAME)/node-firefox-nightly:$(MAJOR)
 	docker push $(NAME)/node-phantomjs:$(MAJOR)
 	docker push $(NAME)/node-chrome-debug:$(MAJOR)
 	docker push $(NAME)/node-firefox-debug:$(MAJOR)
@@ -204,6 +221,7 @@ release: tag_major_minor
 	docker push $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-firefox:$(MAJOR).$(MINOR)
+#	docker push $(NAME)/node-firefox-nightly:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-phantomjs:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome-debug:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-firefox-debug:$(MAJOR).$(MINOR)
@@ -217,6 +235,7 @@ release: tag_major_minor
 	docker push $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
+#	docker push $(NAME)/node-firefox-nightly:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-phantomjs:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome-debug:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-firefox-debug:$(MAJOR_MINOR_PATCH)
@@ -241,12 +260,14 @@ test:
 	ci \
 	firefox \
 	firefox_debug \
+	firefox_nightly \
 	phantomjs \
 	generate_all \
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
+	generate_firefox_nightly \
 	generate_phantomjs \
 	generate_chrome_debug \
 	generate_firefox_debug \
