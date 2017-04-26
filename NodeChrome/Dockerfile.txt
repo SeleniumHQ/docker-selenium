@@ -57,15 +57,14 @@ COPY generate_config /opt/selenium/generate_config
 RUN chmod +x /opt/selenium/generate_config
 
 #=================================
-# Chrome Launch Script Modication
+# Chrome Launch Script Modification
 #=================================
 COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 RUN chmod +x /opt/google/chrome/google-chrome
 
 RUN chown -R seluser:seluser /opt/selenium
 
-# Following line fixes
-# https://github.com/SeleniumHQ/docker-selenium/issues/87
-RUN echo "DBUS_SESSION_BUS_ADDRESS=/dev/null" >> /etc/environment
+# Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
+ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 USER seluser
