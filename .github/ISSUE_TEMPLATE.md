@@ -1,8 +1,8 @@
 ## Meta -
 Image(s):  
 <!-- node-chrome? hub? standalone-firefox? -->
-Docker Version:  
-<!-- 2.53.1, 2.53.1-americium, etc -->
+Docker-Selenium Image Version(s):  
+<!-- 3, 3.4, 3.4.0-chromium etc -->
 OS: 
 <!-- Windows 10, OSX Yosemite, Centos6, etc -->
 
