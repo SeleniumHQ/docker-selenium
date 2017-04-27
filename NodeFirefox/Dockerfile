@@ -3,7 +3,7 @@
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/node-base:3.4.0-bismuth
-MAINTAINER Selenium <selenium-developers@googlegroups.com>
+LABEL authors=SeleniumHQ
 
 USER root
 
@@ -58,8 +58,7 @@ COPY generate_config /opt/selenium/generate_config
 RUN chmod +x /opt/selenium/generate_config \
   && chown -R seluser:seluser /opt/selenium
 
-# Following line fixes
-# https://github.com/SeleniumHQ/docker-selenium/issues/87
-RUN echo "DBUS_SESSION_BUS_ADDRESS=/dev/null" >> /etc/environment
+# Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
+ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 USER seluser

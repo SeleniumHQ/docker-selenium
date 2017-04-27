@@ -3,7 +3,7 @@
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/base:3.4.0-bismuth
-MAINTAINER Selenium <selenium-developers@googlegroups.com>
+LABEL authors=SeleniumHQ
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN true
@@ -15,7 +15,6 @@ RUN apt-get update -qqy \
   && apt-get -qqy install \
     locales \
     xvfb \
-    dbus \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================

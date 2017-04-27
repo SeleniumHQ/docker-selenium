@@ -3,12 +3,16 @@ FOLDER=../$1
 BASE=$2
 BROWSER=$3
 VERSION=$4
+NAMESPACE=$5
+AUTHORS=$6
 
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" > $FOLDER/Dockerfile
 echo "# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED." >> $FOLDER/Dockerfile
 echo "# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE" >> $FOLDER/Dockerfile
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $FOLDER/Dockerfile
-echo FROM selenium/$BASE:$VERSION >> $FOLDER/Dockerfile
+echo FROM $NAMESPACE/$BASE:$VERSION >> $FOLDER/Dockerfile
+echo LABEL authors="$AUTHORS" >> $FOLDER/Dockerfile
+echo "" >> $FOLDER/Dockerfile
 cat ./Dockerfile.txt >> $FOLDER/Dockerfile
 
 cp ./entry_point.sh $FOLDER

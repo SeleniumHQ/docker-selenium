@@ -3,7 +3,7 @@
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/node-chrome:3.4.0-bismuth
-MAINTAINER Selenium <selenium-developers@googlegroups.com>
+LABEL authors=SeleniumHQ
 
 USER root
 
