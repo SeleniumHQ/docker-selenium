@@ -1,4 +1,4 @@
-FROM selenium/node-firefox:3.4.0-bismuth
+FROM selenium/node-firefox:3.4.0-chromium
 MAINTAINER Selenium <selenium-developers@googlegroups.com>
 
 USER root
