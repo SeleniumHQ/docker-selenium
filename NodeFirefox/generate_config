@@ -2,23 +2,24 @@
 
 FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
 
-echo "
+cat <<_EOF
 {
-  \"capabilities\": [
+  "capabilities": [
     {
-      \"version\": \"$FIREFOX_VERSION\",
-      \"browserName\": \"firefox\",
-      \"maxInstances\": $NODE_MAX_INSTANCES,
-      \"seleniumProtocol\": \"WebDriver\",
-      \"applicationName\": \"$NODE_APPLICATION_NAME\"
+      "version": "$FIREFOX_VERSION",
+      "browserName": "firefox",
+      "maxInstances": $NODE_MAX_INSTANCES,
+      "seleniumProtocol": "WebDriver",
+      "applicationName": "$NODE_APPLICATION_NAME"
     }
   ],
-  \"proxy\": \"org.openqa.grid.selenium.proxy.DefaultRemoteProxy\",
-  \"maxSession\": $NODE_MAX_SESSION,
-  \"port\": $NODE_PORT,
-  \"register\": true,
-  \"registerCycle\": $NODE_REGISTER_CYCLE,
-  \"nodePolling\": $NODE_POLLING,
-  \"unregisterIfStillDownAfter\": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
-  \"downPollingLimit\": $NODE_DOWN_POLLING_LIMIT
-}"
+  "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
+  "maxSession": $NODE_MAX_SESSION,
+  "port": $NODE_PORT,
+  "register": true,
+  "registerCycle": $NODE_REGISTER_CYCLE,
+  "nodePolling": $NODE_POLLING,
+  "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
+  "downPollingLimit": $NODE_DOWN_POLLING_LIMIT
+}
+_EOF
