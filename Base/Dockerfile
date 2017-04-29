@@ -19,6 +19,7 @@ RUN apt-get update -qqy \
     openjdk-8-jre-headless \
     tzdata \
     sudo \
+    tzdata \
     unzip \
     wget \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
