@@ -1,9 +1,9 @@
 #!/bin/bash
 
-ROOT=/opt/selenium
+ROOT=/home/seluser/selenium
 CONF=$ROOT/config.json
 
-$ROOT/generate_config >$CONF
+/opt/bin/generate_config >$CONF
 
 echo "starting selenium hub with configuration:"
 cat $CONF
@@ -19,7 +19,7 @@ function shutdown {
     echo "shutdown complete"
 }
 
-java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+java ${JAVA_OPTS} -jar /home/seluser/selenium/selenium-server-standalone.jar \
   -role hub \
   -hubConfig $CONF \
   ${SE_OPTS} &
