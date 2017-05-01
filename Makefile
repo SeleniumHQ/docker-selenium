@@ -61,7 +61,7 @@ standalone_firefox: generate_standalone_firefox firefox
 	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(VERSION) .
 
 generate_standalone_firefox_debug:
-	cd ./StandaloneDebug && ./generate.sh StandaloneFirefoxDebug standalone-firefox Firefox $(VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./StandaloneDebug && ./generate.sh StandaloneFirefoxDebug node-firefox-debug Firefox $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_firefox_debug: generate_standalone_firefox_debug standalone_firefox
 	cd ./StandaloneFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox-debug:$(VERSION) .
@@ -73,7 +73,7 @@ standalone_chrome: generate_standalone_chrome chrome
 	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(VERSION) .
 
 generate_standalone_chrome_debug:
-	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug standalone-chrome Chrome $(VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug node-chrome-debug Chrome $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_chrome_debug: generate_standalone_chrome_debug standalone_chrome
 	cd ./StandaloneChromeDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome-debug:$(VERSION) .

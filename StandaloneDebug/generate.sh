@@ -13,7 +13,8 @@ echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $FOLDER/Dockerfil
 echo FROM $NAMESPACE/$BASE:$VERSION >> $FOLDER/Dockerfile
 echo LABEL authors="$AUTHORS" >> $FOLDER/Dockerfile
 echo "" >> $FOLDER/Dockerfile
-cat ../NodeDebug/Dockerfile.txt >> $FOLDER/Dockerfile
+cat ../Standalone/Dockerfile.txt >> $FOLDER/Dockerfile
+echo EXPOSE 5900 >> $FOLDER/Dockerfile
 
 cp ./entry_point.sh $FOLDER
 
