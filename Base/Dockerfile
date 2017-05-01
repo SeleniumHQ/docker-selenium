@@ -8,11 +8,15 @@ RUN  echo "deb http://archive.ubuntu.com/ubuntu xenial main universe\n" > /etc/a
   && echo "deb http://archive.ubuntu.com/ubuntu xenial-updates main universe\n" >> /etc/apt/sources.list \
   && echo "deb http://security.ubuntu.com/ubuntu xenial-security main universe\n" >> /etc/apt/sources.list
 
+# No interactive frontend during docker build
+ENV DEBIAN_FRONTEND=noninteractive \
+    DEBCONF_NONINTERACTIVE_SEEN=true
+
 #========================
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-RUN apt-get update -qqy \
+RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     bzip2 \
     ca-certificates \
@@ -32,16 +36,26 @@ ENV TZ "UTC"
 RUN echo "${TZ}" > /etc/timezone \
   && dpkg-reconfigure --frontend noninteractive tzdata
 
-#==========
-# Selenium
-#==========
-RUN  mkdir -p /opt/selenium \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar -O /opt/selenium/selenium-server-standalone.jar
-
 #========================================
 # Add normal user with passwordless sudo
 #========================================
-RUN sudo useradd seluser --shell /bin/bash --create-home \
-  && sudo usermod -a -G sudo seluser \
+RUN useradd seluser \
+         --shell /bin/bash  \
+         --create-home \
+  && usermod -a -G sudo seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
+
+#===================================================
+# Run the following commands as non-privileged user
+#===================================================
+USER seluser
+WORKDIR /home/seluser
+
+#==========
+# Selenium
+#==========
+RUN  mkdir -p /home/seluser/selenium \
+  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar \
+    -O /home/seluser/selenium/selenium-server-standalone.jar
+
