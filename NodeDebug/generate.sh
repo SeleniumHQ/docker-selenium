@@ -21,3 +21,4 @@ cat ./README.template.md \
   | sed "s/##FOLDER##/$1/" > $FOLDER/README.md
 
 cp ./README-short.txt $FOLDER/README-short.txt
+cp ./entry_point.sh $FOLDER/entry_point.sh
