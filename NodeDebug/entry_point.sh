@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# IMPORTANT: Change this file only in directory NodeDebug!
 
 source /opt/bin/functions.sh
 /opt/bin/generate_config > /home/seluser/selenium/config.json
