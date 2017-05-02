@@ -26,12 +26,12 @@ USER seluser
 #==================
 ARG CHROME_DRIVER_VERSION=2.29
 RUN wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
-  && rm -rf /home/seluser/selenium/chromedriver \
-  && unzip /tmp/chromedriver_linux64.zip -d /home/seluser/selenium \
+  && rm -rf /opt/selenium/chromedriver \
+  && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
   && rm /tmp/chromedriver_linux64.zip \
-  && mv /home/seluser/selenium/chromedriver /home/seluser/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-  && chmod 755 /home/seluser/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-  && sudo ln -fs /home/seluser/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+  && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
+  && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
+  && sudo ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
 COPY generate_config /opt/bin/generate_config
 

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 source /opt/bin/functions.sh
-/opt/bin/generate_config > /home/seluser/selenium/config.json
+/opt/bin/generate_config > /opt/selenium/config.json
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
-if [ ! -e /home/seluser/selenium/config.json ]; then
+if [ ! -e /opt/selenium/config.json ]; then
   echo No Selenium Node configuration file, the node-base image is not intended to be run directly. 1>&2
   exit 1
 fi
@@ -34,10 +34,10 @@ SERVERNUM=$(get_server_num)
 rm -f /tmp/.X*lock
 
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /home/seluser/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
-    -nodeConfig /home/seluser/selenium/config.json \
+    -nodeConfig /opt/selenium/config.json \
     ${SE_OPTS} &
 NODE_PID=$!
 

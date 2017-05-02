@@ -50,12 +50,12 @@ RUN useradd seluser \
 # Run the following commands as non-privileged user
 #===================================================
 USER seluser
-WORKDIR /home/seluser
 
 #==========
 # Selenium
 #==========
-RUN  mkdir -p /home/seluser/selenium \
+RUN  sudo mkdir -p /opt/selenium \
+  && sudo chown seluser:seluser /opt/selenium \
   && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar \
-    -O /home/seluser/selenium/selenium-server-standalone.jar
+    -O /opt/selenium/selenium-server-standalone.jar
 
