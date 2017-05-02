@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# IMPORTANT: Change this file only in directory Standalone!
 
 source /opt/bin/functions.sh
 
@@ -18,7 +20,7 @@ SERVERNUM=$(get_server_num)
 rm -f /tmp/.X*lock
 
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
-  java ${JAVA_OPTS} -jar /home/seluser/selenium/selenium-server-standalone.jar \
+  java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
 NODE_PID=$!
 
