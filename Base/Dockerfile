@@ -21,7 +21,8 @@ RUN apt-get update -qqy \
     sudo \
     unzip \
     wget \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
 #===================
