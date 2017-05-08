@@ -9,7 +9,8 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
   x11vnc \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean \
   && mkdir -p /root/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
 
@@ -23,7 +24,8 @@ RUN locale-gen en_US.UTF-8 \
   && apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
     language-pack-en \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean
 
 #=======
 # Fonts
@@ -35,7 +37,8 @@ RUN apt-get update -qqy \
     xfonts-75dpi \
     xfonts-cyrillic \
     xfonts-scalable \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean
 
 #=========
 # fluxbox
@@ -44,7 +47,8 @@ RUN apt-get update -qqy \
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     fluxbox \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean
 
 #==============================
 # Scripts to run Selenium Node
