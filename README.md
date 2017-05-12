@@ -37,6 +37,14 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.4
 
 This is a workaround to node-chrome crash in docker container issue: https://code.google.com/p/chromium/issues/detail?id=519952
 
+When executing docker run for an image with firefox browser please set shm-size to 2g.
+
+``` bash
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.4.0-chromium
+```
+
+This is a workaround to node-firefox crash in docker container issue: https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10
+
 
 ### Standalone Chrome and Firefox
 
