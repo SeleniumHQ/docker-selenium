@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CHROME_VERSION=$( sudo dpkg -s google-chrome-stable | grep Version | cut -d " " -f 2 | cut -d "-" -f 1 )
+CHROME_VERSION=$(/opt/google/chrome/chrome -version | awk '{ print $3 }')
 
 cat <<_EOF
 {
