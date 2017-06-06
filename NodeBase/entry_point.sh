@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source /opt/bin/functions.sh
-/opt/selenium/generate_config > /opt/selenium/config.json
+/opt/bin/generate_config > /opt/selenium/config.json
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
@@ -28,8 +28,6 @@ fi
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
-
-# TODO: Look into http://www.seleniumhq.org/docs/05_selenium_rc.jsp#browser-side-logs
 
 SERVERNUM=$(get_server_num)
 

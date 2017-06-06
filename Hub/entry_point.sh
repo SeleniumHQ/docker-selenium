@@ -3,7 +3,7 @@
 ROOT=/opt/selenium
 CONF=$ROOT/config.json
 
-$ROOT/generate_config >$CONF
+/opt/bin/generate_config >$CONF
 
 echo "starting selenium hub with configuration:"
 cat $CONF
