@@ -1,7 +1,6 @@
 #!/bin/bash
 
 source /opt/bin/functions.sh
-/opt/bin/generate_config > /opt/selenium/config.json
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 

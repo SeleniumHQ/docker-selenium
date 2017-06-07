@@ -46,3 +46,6 @@ COPY generate_config /opt/bin/generate_config
 # Chrome Launch Script Modification
 #=================================
 COPY chrome_launcher.sh /opt/google/chrome/google-chrome
+
+# Generating config inside the image rather than with entry_point.sh
+RUN /opt/bin/generate_config > /opt/selenium/config.json
