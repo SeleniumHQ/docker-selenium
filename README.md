@@ -84,9 +84,9 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 $ docker run -d -p 4444:4444 -e SE_OPTS="-debug true" --name selenium-hub selenium/hub:3.4.0-dysprosium
 ```
 
-### HUB_PORT_444_TCP_ADDR and HUB_PORT_444_TCP_PORT Selenium Node Configuration options
+### HUB_PORT_4444_TCP_ADDR and HUB_PORT_4444_TCP_PORT Selenium Node Configuration options
 
-You can pass `HUB_PORT_444_TCP_ADDR` and `HUB_PORT_444_TCP_PORT` options to provide the hub address to a node when needed.
+You can pass `HUB_PORT_4444_TCP_ADDR` and `HUB_PORT_4444_TCP_PORT` options to provide the hub address to a node when needed.
 
 ``` bash
 $ docker run -d -p 4444:4444 -e HUB_PORT_4444_TCP_ADDR=10.10.1.10 -e HUB_PORT_4444_TCP_PORT=4444 \ 
