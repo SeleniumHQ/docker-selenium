@@ -228,11 +228,23 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-chrome-debug:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox-debug:$(MAJOR_MINOR_PATCH)
 
-test:
-	VERSION=$(VERSION) ./test.sh
-	VERSION=$(VERSION) ./sa-test.sh
-	VERSION=$(VERSION) ./test.sh debug
-	VERSION=$(VERSION) ./sa-test.sh debug
+test: test_chrome test_firefox test_phantomjs
+
+test_chrome:
+	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
+
+test_chrome_standalone:
+	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChrome
+
+test_firefox:
+	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
+
+test_firefox_standalone:
+	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
+
+test_phantomjs:
+	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodePhantomJS
+
 
 .PHONY: \
 	all \
