@@ -2,7 +2,7 @@
 
 source /opt/bin/functions.sh
 
-if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
+if [ -z "$HUB_ADDR" ]; then
   echo Not linked with a running Hub container 1>&2
   exit 1
 fi
