@@ -11,7 +11,9 @@ USER root
 # PhantomJS
 #==============
 RUN apt-get update -y
-RUN apt-get install bzip2 libfreetype6 libfontconfig1 -y
+RUN apt-get install build-essential g++ flex bison gperf ruby perl \
+  libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
+  libpng-dev libjpeg-dev python libx11-dev libxext-dev -y
 COPY phantomjs /usr/local/bin/phantomjs
 RUN chmod +x /usr/local/bin/phantomjs
 
