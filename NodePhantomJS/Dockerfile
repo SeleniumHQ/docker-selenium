@@ -12,10 +12,11 @@ USER root
 #==============
 RUN apt-get update -y
 RUN apt-get install bzip2 libfreetype6 libfontconfig1 curl ca-certificates -y
-    && mkdir /tmp/phantomjs \
-    &&curl -L https://raw.githubusercontent.com/mrorgues/PhantomJSCustomEdition/builds/phantomjs-2.1.1-linux-x86_64-workaround_issue_394.tar.bz2 \
-        | tar -xj --strip-components=1 -C /tmp/phantomjs \
-    && mv /tmp/phantomjs/bin/phantomjs /usr/local/bin
+RUN mkdir /tmp/phantomjs 
+RUN curl -L https://raw.githubusercontent.com/mrorgues/PhantomJSCustomEdition/builds/phantomjs-2.1.1-linux-x86_64-workaround_issue_394.tar.bz2
+RUN tar -xj --strip-components=1 -C /tmp/phantomjs
+RUN mv /tmp/phantomjs/bin/phantomjs /usr/local/bin
+RUN chmod +x /usr/local/bin/phantomjs
 
 #==============================
 # Scripts to run Selenium Node
