@@ -4,6 +4,9 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/node-base:3.4.0-einsteinium
 LABEL authors=SeleniumHQ
+MAINTAINER Ken.l.ma
+# used as a fork from the selenium docker images
+# update phantomjs to 2.1.1
 
 USER root
 
