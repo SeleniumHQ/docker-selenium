@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM ubuntu:16.04
+FROM selenium/node-base:3.4.0-einsteinium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -14,8 +14,10 @@ RUN apt-get update -y
 RUN apt-get install build-essential g++ flex bison gperf ruby perl \
   libsqlite3-dev libfontconfig1-dev libicu-dev libfreetype6 libssl-dev \
   libpng-dev libjpeg-dev python libx11-dev libxext-dev ttf-mscorefonts-installer -y
+
 COPY phantomjs /usr/local/bin/phantomjs
-RUN chmod +x /usr/local/bin/phantomjs
+RUN chmod +x /usr/local/bin/phantomjs \
+  && phantomjs --version
 
 #==============================
 # Scripts to run Selenium Node
