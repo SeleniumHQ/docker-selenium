@@ -17,7 +17,7 @@ if [ -z "$IP" ]; then
 fi
 
 
-phantomjs --webdriver=$IP:NODE_PORT ${PHANTOMJS_OPTS} --webdriver-selenium-grid-hub=http://$HUB_ADDR:$HUB_PORT
+phantomjs --webdriver=$IP:$NODE_PORT ${PHANTOMJS_OPTS} --webdriver-selenium-grid-hub=http://$HUB_ADDR:$HUB_PORT
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID
