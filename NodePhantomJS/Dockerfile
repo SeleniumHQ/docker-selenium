@@ -15,8 +15,10 @@ USER root
 #==============
 RUN apt-get update -y
 RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu50  -y
-COPY phantomjs /usr/local/bin/phantomjs
-RUN chmod +x /usr/local/bin/phantomjs
+RUN wget https://github.com/danielra/phantomjs-2.0.0-linux-x86_64/raw/master/phantomjs-2.0.0-linux-x86_64.tar.bz2
+RUN tar -xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 && rm phantomjs-2.1.1-linux-x86_64.tar.bz2
+RUN mv /phantomjs-2.1.1-linux-x86_64 /usr/local/phantomjs-2.1.1-linux-x86_64
+RUN ln -s /usr/local/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
 
 #==============================
 # Scripts to run Selenium Node
