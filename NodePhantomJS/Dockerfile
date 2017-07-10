@@ -14,12 +14,9 @@ USER root
 # PhantomJS
 #==============
 RUN apt-get update -y
-RUN apt-get install bzip2 libfreetype6 libfontconfig1 unzip -y
-RUN wget https://github.com/eugene1g/phantomjs/releases/download/2.0.0-bin/phantomjs-2.0.0-ubuntu_x86_64.zip
-RUN unzip phantomjs-2.0.0-ubuntu_x86_64.zip -d .
-RUN mv phantomjs /usr/local/
-RUN chmod +x /usr/local/phantomjs
-RUN ln -s /usr/local/phantomjs /usr/local/bin/phantomjs
+RUN apt-get install bzip2 libfreetype6 libfontconfig1 -y
+COPY phantomjs /usr/local/bin/phantomjs
+RUN chmod +x /usr/local/bin/phantomjs
 RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
 RUN chmod +x libicu52_52.1-3ubuntu0.6_amd64.deb
 RUN dpkg -i libicu52_52.1-3ubuntu0.6_amd64.deb
