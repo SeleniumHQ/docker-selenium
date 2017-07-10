@@ -14,12 +14,14 @@ USER root
 # PhantomJS
 #==============
 RUN apt-get update -y
-RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu52 -y
+RUN apt-get install bzip2 libfreetype6 libfontconfig1 -y
 RUN wget https://github.com/Pyppe/phantomjs2.0-ubuntu14.04x64/raw/master/bin/phantomjs
 #RUN tar -xvjf phantomjs-2.1.1-linux-x86_64.tar.bz2 && rm phantomjs-2.1.1-linux-x86_64.tar.bz2
 RUN mv phantomjs /usr/local/
 RUN chmod +x /usr/local/phantomjs
 RUN ln -s /usr/local/phantomjs /usr/local/bin/phantomjs
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN dpkg -i libicu52_52.1-3ubuntu0.4_amd64.deb
 
 #==============================
 # Scripts to run Selenium Node
