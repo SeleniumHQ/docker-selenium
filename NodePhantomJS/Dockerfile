@@ -21,6 +21,7 @@ RUN mv phantomjs /usr/local/
 RUN chmod +x /usr/local/phantomjs
 RUN ln -s /usr/local/phantomjs /usr/local/bin/phantomjs
 RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN chmod +x libicu52_52.1-3ubuntu0.6_amd64.deb
 RUN dpkg -i libicu52_52.1-3ubuntu0.4_amd64.deb
 
 #==============================
