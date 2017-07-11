@@ -14,7 +14,7 @@ USER root
 # PhantomJS
 #==============
 RUN apt-get update -y
-RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu-devel -y
+RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu-dev -y
 COPY phantomjs /usr/local/bin/phantomjs
 RUN chmod +x /usr/local/bin/phantomjs
 
