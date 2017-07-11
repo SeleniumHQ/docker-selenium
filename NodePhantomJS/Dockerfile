@@ -19,7 +19,9 @@ RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-li
 RUN tar -xvzf phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz && rm phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz
 RUN mv phantomjs-2.5.0-beta-ubuntu-trusty /usr/local/phantomjs-2.5.0-beta-ubuntu-trusty
 RUN ln -s /usr/local/phantomjs-2.5.0-beta-ubuntu-trusty/bin/phantomjs /usr/local/bin/phantomjs
-
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN chmod +x libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN dpkg -i libicu52_52.1-3ubuntu0.6_amd64.deb
 
 #==============================
 # Scripts to run Selenium Node
