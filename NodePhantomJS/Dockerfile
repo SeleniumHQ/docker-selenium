@@ -15,8 +15,10 @@ USER root
 #==============
 RUN apt-get update -y
 RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu-dev -y
-COPY phantomjs /usr/local/bin/phantomjs
-RUN chmod +x /usr/local/bin/phantomjs
+RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz
+RUN tar -xvzf phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz && rm phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz
+RUN mv phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64 /usr/localphantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64
+RUN ln -s /usr/local/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64/bin/phantomjs /usr/local/bin/phantomjs
 
 
 #==============================
