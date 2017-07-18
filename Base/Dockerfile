@@ -57,5 +57,7 @@ USER seluser
 RUN  sudo mkdir -p /opt/selenium \
   && sudo chown seluser:seluser /opt/selenium \
   && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.0.jar \
-    -O /opt/selenium/selenium-server-standalone.jar
+    -O /opt/selenium/selenium-server-standalone.jar \
+  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.4/selenium-html-runner-3.4.0.jar \
+    -O /opt/selenium/selenium-html-runner.jar
 
