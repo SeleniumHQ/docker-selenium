@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.4.0-einsteinium
+FROM selenium/node-base:3.4.0-francium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -42,3 +42,6 @@ COPY generate_config /opt/bin/generate_config
 # To run a command as administrator (user "root"), use "sudo <command>". See "man sudo_root" for details.
 # When logging into the container
 RUN sudo echo ""
+
+# Generating config inside the image rather than with entry_point.sh
+RUN /opt/bin/generate_config > /opt/selenium/config.json
