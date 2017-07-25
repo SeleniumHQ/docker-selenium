@@ -13,6 +13,7 @@ cat <<_EOF
       "applicationName": "$NODE_APPLICATION_NAME"
     }
   ],
+  "host": $NODE_IP
   "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
   "maxSession": $NODE_MAX_SESSION,
   "port": $NODE_PORT,
