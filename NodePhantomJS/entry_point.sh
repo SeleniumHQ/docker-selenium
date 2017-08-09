@@ -2,7 +2,7 @@
 
 source /opt/bin/functions.sh
 
-if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
+if [ -z "$HUB_ADDR" ]; then
   echo Not linked with a running Hub container 1>&2
   exit 1
 fi
@@ -17,7 +17,7 @@ if [ -z "$IP" ]; then
 fi
 
 
-phantomjs --webdriver=$IP:4444 ${PHANTOMJS_OPTS} --webdriver-selenium-grid-hub=http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT
+phantomjs --webdriver=$IP:$NODE_PORT ${PHANTOMJS_OPTS} --webdriver-selenium-grid-hub=http://$HUB_ADDR:$HUB_PORT
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID

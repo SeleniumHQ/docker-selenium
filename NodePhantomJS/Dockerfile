@@ -4,6 +4,9 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/node-base:3.4.0-francium
 LABEL authors=SeleniumHQ
+MAINTAINER Ken.l.ma
+# used as a fork from the selenium docker images
+# update phantomjs to 2.0.0
 
 USER root
 
@@ -11,11 +14,14 @@ USER root
 # PhantomJS
 #==============
 RUN apt-get update -y
-RUN apt-get install bzip2 libfreetype6 libfontconfig1  -y
-RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.8-linux-x86_64.tar.bz2
-RUN tar -xvjf phantomjs-1.9.8-linux-x86_64.tar.bz2 && rm phantomjs-1.9.8-linux-x86_64.tar.bz2
-RUN mv phantomjs-1.9.8-linux-x86_64 /usr/local/phantomjs-1.9.8-linux-x86_64
-RUN ln -s /usr/local/phantomjs-1.9.8-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+RUN apt-get install bzip2 libfreetype6 libfontconfig1 libicu-dev libxml2 libxslt1-dev libhyphen-dev libwebp5 -y
+RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz
+RUN tar -xvzf phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz && rm phantomjs-2.5.0-beta-linux-ubuntu-trusty-x86_64.tar.gz
+RUN mv phantomjs-2.5.0-beta-ubuntu-trusty /usr/local/phantomjs-2.5.0-beta-ubuntu-trusty
+RUN ln -s /usr/local/phantomjs-2.5.0-beta-ubuntu-trusty/bin/phantomjs /usr/local/bin/phantomjs
+RUN wget http://security.ubuntu.com/ubuntu/pool/main/i/icu/libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN chmod +x libicu52_52.1-3ubuntu0.6_amd64.deb
+RUN dpkg -i libicu52_52.1-3ubuntu0.6_amd64.deb
 
 #==============================
 # Scripts to run Selenium Node
