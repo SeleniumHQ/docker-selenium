@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox-debug:3.5.0-antimony
+FROM selenium/node-firefox-debug:3.5.1-antimony
 LABEL authors=SeleniumHQ
 
 USER seluser
