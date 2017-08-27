@@ -2,7 +2,7 @@
 Image(s):  
 <!-- node-chrome? hub? standalone-firefox? -->
 Docker-Selenium Image Version(s):  
-<!-- 3, 3.5, 3.5.1-antimony etc -->
+<!-- 3, 3.5, 3.5.2-antimony etc -->
 OS: 
 <!-- Windows 10, OSX Yosemite, Centos6, etc -->
 
