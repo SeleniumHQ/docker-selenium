@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 DEBUG=''
-VERSION=${VERSION:-3.5.0-argon}
+VERSION=${VERSION:-3.5.1-aluminum}
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
   DEBUG='-debug'
