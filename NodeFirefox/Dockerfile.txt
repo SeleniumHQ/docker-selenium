@@ -36,5 +36,5 @@ COPY generate_config /opt/bin/generate_config
 # When logging into the container
 RUN sudo echo ""
 
-# Generating config inside the image rather than with entry_point.sh
+# Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
