@@ -38,6 +38,26 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
   && chmod 755 /opt/selenium/chromedriver-$CD_VERSION\
   && sudo ln -fs /opt/selenium/chromedriver-$CD_VERSION/usr/bin/chromedriver
 
+#========================
+# Selenium Configuration
+#========================
+# As integer, maps to "maxInstances"
+ENV NODE_MAX_INSTANCES 1
+# As integer, maps to "maxSession"
+ENV NODE_MAX_SESSION 1
+# As integer, maps to "port"
+ENV NODE_PORT 5555
+# In milliseconds, maps to "registerCycle"
+ENV NODE_REGISTER_CYCLE 5000
+# In milliseconds, maps to "nodePolling"
+ENV NODE_POLLING 5000
+# In milliseconds, maps to "unregisterIfStillDownAfter"
+ENV NODE_UNREGISTER_IF_STILL_DOWN_AFTER 60000
+# As integer, maps to "downPollingLimit"
+ENV NODE_DOWN_POLLING_LIMIT 2
+# As string, maps to "applicationName"
+ENV NODE_APPLICATION_NAME ""
+
 COPY generate_config /opt/bin/generate_config
 
 #=================================
