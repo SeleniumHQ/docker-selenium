@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.5.3-astatine
+FROM selenium/node-base:3.5.3-boron
 LABEL authors=SeleniumHQ
 
 USER root
@@ -43,5 +43,5 @@ COPY generate_config /opt/bin/generate_config
 # When logging into the container
 RUN sudo echo ""
 
-# Generating config inside the image rather than with entry_point.sh
+# Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
