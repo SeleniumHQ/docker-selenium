@@ -36,7 +36,7 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
   && rm /tmp/chromedriver_linux64.zip \
   && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CD_VERSION\
   && chmod 755 /opt/selenium/chromedriver-$CD_VERSION\
-  && sudo ln -fs /opt/selenium/chromedriver-$CD_VERSION/usr/bin/chromedriver
+  && sudo ln -fs /opt/selenium/chromedriver-$CD_VERSION /usr/bin/chromedriver
 
 COPY generate_config /opt/bin/generate_config
 
