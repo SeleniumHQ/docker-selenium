@@ -1,0 +1,39 @@
+import unittest
+import urllib2
+import time
+import json
+import os
+
+
+class SmokeTests(unittest.TestCase):
+    def smoke_test_container(self, port):
+        build_version = os.environ.get('VERSION')
+        current_attempts = 0
+        max_attempts = 3
+        sleep_interval = 2
+        status_fetched = False
+        status_json = None
+
+        while current_attempts < max_attempts:
+            current_attempts = current_attempts + 1
+            try:
+                response = urllib2.urlopen('http://localhost:%s/wd/hub/status' % port)
+                status_json = json.loads(response.read())
+                status_fetched = True
+            except Exception as e:
+                time.sleep(sleep_interval)
+
+        self.assertTrue(status_fetched, "Container status was not fetched on port %s" % port)
+        self.assertTrue(status_json['status'] == 0, "Wrong status value for container on port %s" % port)
+        self.assertTrue(status_json['value']['build']['version'] == build_version, "Wrong build version in container on port %s" % port)
+
+
+class NodeTest(SmokeTests):
+    def test_hub_and_node_up(self):
+        self.smoke_test_container(4444)
+        self.smoke_test_container(5555)
+
+
+class StandaloneTest(SmokeTests):
+    def test_standalone_up(self):
+        self.smoke_test_container(4444)

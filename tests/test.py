@@ -4,7 +4,6 @@ import unittest
 import logging
 import sys
 
-import time
 from docker.errors import NotFound
 
 # LOGGING #
@@ -17,7 +16,7 @@ client = docker.from_env()
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
 
-NAME_MAP = {
+IMAGE_NAME_MAP = {
     # Hub
     'Hub': 'hub',
 
@@ -25,16 +24,34 @@ NAME_MAP = {
     'NodeChrome': 'node-chrome',
     'NodeChromeDebug': 'node-chrome-debug',
     'StandaloneChrome': 'standalone-chrome',
+    'StandaloneChromeDebug': 'standalone-chrome-debug',
 
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'NodeFirefoxDebug': 'node-firefox-debug',
     'StandaloneFirefox': 'standalone-firefox',
+    'StandaloneFirefoxDebug': 'standalone-firefox-debug',
 
     # PhantomJS Images
     'NodePhantomJS': 'node-phantomjs',
 }
 
+TEST_NAME_MAP = {
+    # Chrome Images
+    'NodeChrome': 'ChromeTests',
+    'NodeChromeDebug': 'ChromeTests',
+    'StandaloneChrome': 'ChromeTests',
+    'StandaloneChromeDebug': 'ChromeTests',
+
+    # Firefox Images
+    'NodeFirefox': 'FirefoxTests',
+    'NodeFirefoxDebug': 'FirefoxTests',
+    'StandaloneFirefox': 'FirefoxTests',
+    'StandaloneFirefoxDebug': 'FirefoxTests',
+
+    # PhantomJS Images
+    'NodePhantomJS': 'PhantomJSTests',
+}
 
 def launch_hub():
     """
@@ -75,8 +92,9 @@ def launch_container(container, **kwargs):
     logger.info("Done building %s" % container)
 
     # Run the container
+    # TODO: This is pulling the container, not using the built one
     logger.info("Running %s container..." % container)
-    container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, NAME_MAP[container], VERSION),
+    container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
@@ -87,52 +105,60 @@ if __name__ == '__main__':
     # The container to test against
     image = sys.argv[1]
 
-    if len(sys.argv) > 2:
-        standalone = True
-    else:
-        standalone = False
+    standalone = 'standalone' in image.lower()
 
     # Flag for failure (for posterity)
     failed = False
 
-    if not standalone:
+    logger.info('========== Starting %s Container ==========' % image)
+
+    if standalone:
         """
-        Hub / Node Configurations
+        Standalone Configuration
         """
-        logger.info('========== Starting %s Container ==========' % image)
-        hub_id = launch_hub()
-        test_container_id = launch_container(image, links={hub_id: 'hub'})
-        logger.info('========== / Containers ready to go ==========')
-        try:
-            # Hub / Node Tests
-            logger.info('*********** Running %s Tests **********' % image)
-            image_class = "%sTest" % image
-            test_class = getattr(__import__(image, fromlist=[image_class]), image_class)
-
-            suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
-
-            unittest.TextTestRunner(verbosity=3).run(suite)
-        except Exception as e:
-            logger.fatal(e.message)
-            failed = True
-
-        logger.info("Cleaning up...")
-        # kill the node and the hub that were launched
-        hub = client.containers.get(hub_id)
-        node = client.containers.get(test_container_id)
-
-        hub.kill()
-        node.kill()
-
-        hub.remove()
-        node.remove()
-
-        logger.info("Hub / Node Cleaned up")
-
-        if failed:
-            exit(1)
+        smoke_test_class = 'StandaloneTest'
+        test_container_id = launch_container(image, ports={'4444': 4444})
     else:
         """
-        Standalone Configurations
+        Hub / Node Configuration
         """
-        pass
+        smoke_test_class = 'NodeTest'
+        hub_id = launch_hub()
+        test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555})
+
+    logger.info('========== / Containers ready to go ==========')
+
+    try:
+        # Smoke tests
+        logger.info('*********** Running smoke tests %s Tests **********' % image)
+        image_class = "%sTest" % image
+        test_class = getattr(__import__('SmokeTests', fromlist=[smoke_test_class]), smoke_test_class)
+        suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
+        unittest.TextTestRunner(verbosity=3).run(suite)
+
+        # Run Selenium tests
+        logger.info('*********** Running Selenium tests %s Tests **********' % image)
+        test_class = getattr(__import__('SeleniumTests', fromlist=[TEST_NAME_MAP[image]]), TEST_NAME_MAP[image])
+        suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
+        unittest.TextTestRunner(verbosity=3).run(suite)
+    except Exception as e:
+        logger.fatal(e.message)
+        failed = True
+
+    logger.info("Cleaning up...")
+
+    test_container = client.containers.get(test_container_id)
+    test_container.kill()
+    test_container.remove()
+
+    if standalone:
+        logger.info("Standalone Cleaned up")
+    else:
+        #Kill the launched hub
+        hub = client.containers.get(hub_id)
+        hub.kill()
+        hub.remove()
+        logger.info("Hub / Node Cleaned up")
+
+    if failed:
+        exit(1)
