@@ -7,7 +7,6 @@ import os
 
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
-        build_version = os.environ.get('MAJOR_MINOR_PATCH')
         current_attempts = 0
         max_attempts = 3
         sleep_interval = 3
@@ -26,8 +25,6 @@ class SmokeTests(unittest.TestCase):
 
         self.assertTrue(status_fetched, "Container status was not fetched on port %s" % port)
         self.assertTrue(status_json['status'] == 0, "Wrong status value for container on port %s" % port)
-        self.assertTrue(status_json['value']['build']['version'] == build_version,
-                        "Wrong build version in container on port %s" % port)
         self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
 
 

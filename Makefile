@@ -239,31 +239,31 @@ test: test_chrome \
 
 
 test_chrome:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
 
 test_chrome_debug:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromeDebug
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromeDebug
 
 test_chrome_standalone:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChrome
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChrome
 
 test_chrome_standalone_debug:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromeDebug
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromeDebug
 
 test_firefox:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
 
 test_firefox_debug:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefoxDebug
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefoxDebug
 
 test_firefox_standalone:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
 test_firefox_standalone_debug:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefoxDebug
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefoxDebug
 
 test_phantomjs:
-	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodePhantomJS
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodePhantomJS
 
 
 .PHONY: \
