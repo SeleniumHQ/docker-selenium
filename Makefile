@@ -239,31 +239,31 @@ test: test_chrome \
 
 
 test_chrome:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
 
 test_chrome_debug:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromeDebug
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromeDebug
 
 test_chrome_standalone:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChrome
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChrome
 
 test_chrome_standalone_debug:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromeDebug
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromeDebug
 
 test_firefox:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
 
 test_firefox_debug:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefoxDebug
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefoxDebug
 
 test_firefox_standalone:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
 test_firefox_standalone_debug:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefoxDebug
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefoxDebug
 
 test_phantomjs:
-	VERSION=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodePhantomJS
+	VERSION=$(VERSION) MAJOR_MINOR_PATCH=$(MAJOR_MINOR_PATCH) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodePhantomJS
 
 
 .PHONY: \

@@ -7,7 +7,7 @@ import os
 
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
-        build_version = os.environ.get('VERSION')
+        build_version = os.environ.get('MAJOR_MINOR_PATCH')
         current_attempts = 0
         max_attempts = 3
         sleep_interval = 3

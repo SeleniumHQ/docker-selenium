@@ -53,6 +53,7 @@ TEST_NAME_MAP = {
     'NodePhantomJS': 'PhantomJSTests',
 }
 
+
 def launch_hub():
     """
     Launch the hub
@@ -88,11 +89,12 @@ def launch_container(container, **kwargs):
     """
     # Build the container if it doesn't exist
     logger.info("Building %s container..." % container)
-    client.images.build(path='../%s' % container)
+    client.images.build(path='../%s' % container,
+                        tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                        rm=True)
     logger.info("Done building %s" % container)
 
     # Run the container
-    # TODO: This is pulling the container, not using the built one
     logger.info("Running %s container..." % container)
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
