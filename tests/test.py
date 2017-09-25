@@ -134,13 +134,19 @@ if __name__ == '__main__':
         image_class = "%sTest" % image
         test_class = getattr(__import__('SmokeTests', fromlist=[smoke_test_class]), smoke_test_class)
         suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
-        unittest.TextTestRunner(verbosity=3).run(suite)
+        test_runner = unittest.TextTestRunner(verbosity=3)
+        failed = not test_runner.run(suite).wasSuccessful()
+    except Exception as e:
+        logger.fatal(e.message)
+        failed = True
 
+    try:
         # Run Selenium tests
         logger.info('*********** Running Selenium tests %s Tests **********' % image)
         test_class = getattr(__import__('SeleniumTests', fromlist=[TEST_NAME_MAP[image]]), TEST_NAME_MAP[image])
         suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
-        unittest.TextTestRunner(verbosity=3).run(suite)
+        test_runner = unittest.TextTestRunner(verbosity=3)
+        failed = not test_runner.run(suite).wasSuccessful()
     except Exception as e:
         logger.fatal(e.message)
         failed = True
