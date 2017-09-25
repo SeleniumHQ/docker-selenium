@@ -2,7 +2,6 @@ import unittest
 import urllib2
 import time
 import json
-import os
 
 
 class SmokeTests(unittest.TestCase):
