@@ -5,8 +5,6 @@ sudo: required
 services:
   - docker
 
-language: bash
-
 notifications:
     slack: seleniumhq:Kx5MB7T51SPMpbBMYfvxNW4q
 
