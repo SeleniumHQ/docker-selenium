@@ -16,15 +16,21 @@ class SeleniumGenericTests(unittest.TestCase):
         driver.switch_to.frame('frame-middle')
         self.assertTrue(driver.find_element_by_id('content').text == "MIDDLE", "content should be MIDDLE")
 
-    # https://github.com/tourdedave/elemental-selenium-tips/blob/master/04-work-with-multiple-windows/python/windows.py
-    def test_with_windows(self):
+    # https://github.com/tourdedave/elemental-selenium-tips/blob/master/05-select-from-a-dropdown/python/dropdown.py
+    def test_select_from_a_dropdown(self):
         driver = self.driver
-        driver.get('http://the-internet.herokuapp.com/windows')
-        driver.find_element_by_css_selector('.example a').click()
-        driver.switch_to_window(driver.window_handles[0])
-        self.assertTrue(driver.title != "New Window", "title should not be New Window")
-        driver.switch_to_window(driver.window_handles[-1])
-        self.assertTrue(driver.title == "New Window", "title should be New Window")
+        driver.get('http://the-internet.herokuapp.com/dropdown')
+        dropdown_list = driver.find_element_by_id('dropdown')
+        options = dropdown_list.find_elements_by_tag_name('option')
+        for opt in options:
+            if opt.text == 'Option 1':
+                opt.click()
+                break
+        for opt in options:
+            if opt.is_selected():
+                selected_option = opt.text
+                break
+        self.assertTrue(selected_option == 'Option 1', "Selected option should be Option 1")
 
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/13-work-with-basic-auth/python/basic_auth_1.py
     def test_visit_basic_auth_secured_page(self):
