@@ -1,10 +1,9 @@
----
+language: python
+
 sudo: required
 
 services:
   - docker
-
-language: bash
 
 notifications:
     slack: seleniumhq:Kx5MB7T51SPMpbBMYfvxNW4q
@@ -12,7 +11,6 @@ notifications:
 before_install:
   - docker info
   - VERSION="$TRAVIS_BRANCH" make build
-  - docker build -t test:local ./Test
 
 script:
   - VERSION="$TRAVIS_BRANCH" make test
