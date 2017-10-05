@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.6.0-americium
+FROM selenium/node-base:3.6.0-bromine
 LABEL authors=SeleniumHQ
 
 USER root
@@ -26,6 +26,12 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
   && rm /etc/apt/sources.list.d/google-chrome.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+#=================================
+# Chrome Launch Script Wrapper
+#=================================
+COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
+RUN /opt/bin/wrap_chrome_binary
+
 USER seluser
 
 #============================================
@@ -46,11 +52,6 @@ RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $
   && sudo ln -fs /opt/selenium/chromedriver-$CD_VERSION /usr/bin/chromedriver
 
 COPY generate_config /opt/bin/generate_config
-
-#=================================
-# Chrome Launch Script Modification
-#=================================
-COPY chrome_launcher.sh /opt/google/chrome/google-chrome
 
 # Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
