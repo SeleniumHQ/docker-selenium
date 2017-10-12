@@ -3,7 +3,7 @@
 cat <<_EOF
 {
   "host": null,
-  "port": 4444,
+  "port": $GRID_HUB_PORT,
   "role": "hub",
   "maxSession": $GRID_MAX_SESSION,
   "newSessionWaitTimeout": $GRID_NEW_SESSION_WAIT_TIMEOUT,
