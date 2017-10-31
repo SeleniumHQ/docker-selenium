@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.6.0-copper
+FROM selenium/node-base:3.6.0-darmstadtium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -10,7 +10,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=56.0
+ARG FIREFOX_VERSION=56.0.2
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
@@ -25,7 +25,7 @@ RUN apt-get update -qqy \
 #============
 # GeckoDriver
 #============
-ARG GECKODRIVER_VERSION=0.19.0
+ARG GECKODRIVER_VERSION=0.19.1
 RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz \
   && rm -rf /opt/geckodriver \
   && tar -C /opt -zxf /tmp/geckodriver.tar.gz \
