@@ -75,7 +75,7 @@ standalone_chrome: generate_standalone_chrome chrome
 generate_standalone_chrome_debug:
 	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug node-chrome-debug Chrome $(VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_chrome_debug: generate_standalone_chrome_debug standalone_chrome
+standalone_chrome_debug: chrome_debug generate_standalone_chrome_debug standalone_chrome
 	cd ./StandaloneChromeDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome-debug:$(VERSION) .
 
 generate_chrome_debug:
