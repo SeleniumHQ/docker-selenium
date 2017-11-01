@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# IMPORTANT: Change this file only in directory Standalone!
 
 source /opt/bin/functions.sh
 

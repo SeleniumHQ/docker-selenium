@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DEBUG=''
+VERSION=${VERSION:-3.6.0-darmstadtium}
 
 if [ -n "$1" ] && [ $1 == 'debug' ]; then
   DEBUG='-debug'
@@ -13,7 +14,7 @@ function test_standalone {
   BROWSER=$1
   echo Starting Selenium standalone-$BROWSER$DEBUG container
 
-  SA=$(docker run -d selenium/standalone-$BROWSER$DEBUG:3.4.0-bismuth)
+  SA=$(docker run -d selenium/standalone-$BROWSER$DEBUG:${VERSION})
   SA_NAME=$(docker inspect -f '{{ .Name  }}' $SA | sed s:/::)
   TEST_CMD="node smoke-$BROWSER.js"
 

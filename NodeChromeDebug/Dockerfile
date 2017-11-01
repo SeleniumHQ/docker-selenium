@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome:3.4.0-bismuth
-MAINTAINER Selenium <selenium-developers@googlegroups.com>
+FROM selenium/node-chrome:3.6.0-darmstadtium
+LABEL authors=SeleniumHQ
 
 USER root
 
@@ -13,9 +13,7 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
   x11vnc \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-  && mkdir -p /root/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================
 # Locale settings
@@ -50,10 +48,19 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+USER seluser
+
+#==============================
+# Generating the VNC password as seluser
+# So the service can be started with seluser
+#==============================
+
+RUN mkdir -p ~/.vnc \
+  && x11vnc -storepasswd secret ~/.vnc/passwd
+
 #==============================
 # Scripts to run Selenium Node
 #==============================
 COPY entry_point.sh /opt/bin/entry_point.sh
-RUN chmod +x /opt/bin/entry_point.sh
 
 EXPOSE 5900

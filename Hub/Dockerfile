@@ -2,8 +2,10 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.4.0-bismuth
-MAINTAINER Selenium <selenium-developers@googlegroups.com>
+FROM selenium/base:3.6.0-darmstadtium
+LABEL authors=SeleniumHQ
+
+USER seluser
 
 #========================
 # Selenium Configuration
@@ -27,12 +29,15 @@ ENV GRID_BROWSER_TIMEOUT 0
 ENV GRID_TIMEOUT 30
 # Debug
 ENV GRID_DEBUG false
+# As integer, maps to "port"
+ENV GRID_HUB_PORT 4444
 
-COPY generate_config /opt/selenium/generate_config
-COPY entry_point.sh /opt/bin/entry_point.sh
-RUN /opt/selenium/generate_config > /opt/selenium/config.json
-RUN chown -R seluser /opt/selenium
-
-USER seluser
+COPY generate_config \
+    entry_point.sh \
+    /opt/bin/
+# Running this command as sudo just to avoid the message:
+# To run a command as administrator (user "root"), use "sudo <command>". See "man sudo_root" for details.
+# When logging into the container
+RUN /opt/bin/generate_config > /opt/selenium/config.json
 
 CMD ["/opt/bin/entry_point.sh"]
