@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.7.1-argon
+FROM selenium/node-base:3.7.1-beryllium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -10,7 +10,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=56.0.2
+ARG FIREFOX_VERSION=57.0
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
