@@ -38,3 +38,7 @@ RUN sudo echo ""
 
 # Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+# Install 'pulseaudio' package to support WebRTC audio streams
+RUN sudo apt-get update && sudo apt-get install -y pulseaudio
+
