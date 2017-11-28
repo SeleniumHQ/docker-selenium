@@ -17,7 +17,6 @@ Images included:
 - __selenium/node-base__: Base image for Selenium Grid Nodes which includes a virtual desktop environment and VNC support
 - __selenium/node-chrome__: Selenium node with Chrome installed, needs to be connected to a Selenium Grid Hub
 - __selenium/node-firefox__: Selenium node with Firefox installed, needs to be connected to a Selenium Grid Hub
-- __selenium/node-phantomjs__: Selenium node with PhantomJS installed, needs to be connected to a Selenium Grid Hub
 - __selenium/standalone-chrome__: Selenium standalone with Chrome installed
 - __selenium/standalone-firefox__: Selenium standalone with Firefox installed
 - __selenium/standalone-chrome-debug__: Selenium standalone with Chrome installed and runs a VNC server
@@ -92,14 +91,6 @@ You can pass `HUB_PORT_4444_TCP_ADDR` and `HUB_PORT_4444_TCP_PORT` options to pr
 $ docker run -d -p 4444:4444 -e HUB_PORT_4444_TCP_ADDR=10.10.1.10 -e HUB_PORT_4444_TCP_PORT=4444 \ 
     --name selenium-hub selenium/hub:3.7.1-beryllium
 ```
-
-### PHANTOMJS_OPTS PhantomJS Configuration Options
-
-``` bash
-$ docker run -d -e PHANTOMJS_OPTS="--ignore-ssl-errors=true" --link selenium-hub:hub selenium/node-phantomjs:3.7.1-beryllium
-```
-
-You can pass `SE_OPTS` variable with additional commandline parameters for starting a PhantomJS node.
 
 ## Building the images
 
