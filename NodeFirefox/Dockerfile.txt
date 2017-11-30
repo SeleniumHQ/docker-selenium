@@ -27,6 +27,9 @@ RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geck
   && chmod 755 /opt/geckodriver-$GECKODRIVER_VERSION \
   && ln -fs /opt/geckodriver-$GECKODRIVER_VERSION /usr/bin/geckodriver
 
+# Install 'pulseaudio' package to support WebRTC audio streams
+RUN apt-get update && apt-get install -y pulseaudio
+
 USER seluser
 
 COPY generate_config /opt/bin/generate_config
@@ -38,3 +41,5 @@ RUN sudo echo ""
 
 # Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+
