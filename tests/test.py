@@ -31,9 +31,6 @@ IMAGE_NAME_MAP = {
     'NodeFirefoxDebug': 'node-firefox-debug',
     'StandaloneFirefox': 'standalone-firefox',
     'StandaloneFirefoxDebug': 'standalone-firefox-debug',
-
-    # PhantomJS Images
-    'NodePhantomJS': 'node-phantomjs',
 }
 
 TEST_NAME_MAP = {
@@ -48,9 +45,6 @@ TEST_NAME_MAP = {
     'NodeFirefoxDebug': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
     'StandaloneFirefoxDebug': 'FirefoxTests',
-
-    # PhantomJS Images
-    'NodePhantomJS': 'PhantomJSTests',
 }
 
 

@@ -17,8 +17,6 @@ https://sites.google.com/a/chromium.org/chromedriver/help
 If the issue is with Firefox GeckoDriver (aka Marionette) consider logging an issue with Mozilla:
 https://bugzilla.mozilla.org/buglist.cgi?product=Testing&component=Marionette
 
-If the issue is with PhantomJS consider logging an issue with Ghostdriver:
-https://github.com/detro/ghostdriver
 -->
 ## Expected Behavior -
 
