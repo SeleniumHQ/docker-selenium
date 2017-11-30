@@ -17,6 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
 RUN apt-get -qqy update \
+  && apt-get upgrade -y \
   && apt-get -qqy --no-install-recommends install \
     bzip2 \
     ca-certificates \
