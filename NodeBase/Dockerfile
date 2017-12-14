@@ -14,6 +14,7 @@ RUN apt-get update -qqy \
   && apt-get -qqy install \
     locales \
     xvfb \
+    x11-xserver-utils \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================================================
