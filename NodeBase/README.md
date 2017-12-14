@@ -6,20 +6,6 @@ _This image is not meant to be run directly!_ It serves as the base image used f
 
 [`selenium/node-base` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeBase/Dockerfile)
 
-## How to use this image
-
-First, you will need a Selenium Grid Hub that the Node will connect to.
-
-```
-$ docker run -d -P --name selenium-hub selenium/hub
-```
-
-Once the hub is up and running will want to launch nodes that can run tests. You can run as many nodes as you wish.
-
-```
-$ docker run -d --link selenium-hub:hub selenium/node-firefox
-```
-
 ## What is Selenium?
 _Selenium automates browsers._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.
 
@@ -41,11 +27,11 @@ _Note: Please make sure to search the group before asking for something. Your qu
 
 ### Chat Room
 
-The best place to ask for help is the user group (because they also keep the information accessible for others to read in the future). However, if you have a very important (or too simple) issue that needs a solution ASAP, you can always enter the IRC chat room. You might just find someone ready to help on `#selenium` at [Freenode](https://freenode.net/).
+The best place to ask for help is the user group (because they also keep the information accessible for others to read in the future). However, if you have a very important (or too simple) issue that needs a solution ASAP, you can always enter the IRC chat room. You might just find someone ready to help on `#selenium` at [Freenode](https://freenode.net/) or [SeleniumHQ Slack](https://seleniumhq.herokuapp.com/)
 
 ### Issues
 
-If you have any problems with or questions about this image, please contact us through a [Github issue](https://github.com/SeleniumHQ/docker-selenium/issues). If you have any problems with or questions about Selenium, please contact us through Selenium's [Bug Tracker](https://code.google.com/p/selenium/issues/list).
+If you have any problems with or questions about this image, please contact us through a [Github issue](https://github.com/SeleniumHQ/docker-selenium/issues). If you have any problems with or questions about Selenium, please contact us through Selenium's [Bug Tracker](https://github.com/SeleniumHQ/selenium/issues).
 
 ## Contributing
 
