@@ -41,7 +41,10 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.
 #OR
 $ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.8.1-bohrium
 ```
-This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10). The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
+This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
+[Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
+The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
+to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
 
 
 ### Standalone Chrome and Firefox
@@ -57,6 +60,68 @@ _Note: Only one standalone image can run on port_ `4444` _at a time._
 To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
 
 ### Selenium Grid Hub and Nodes
+There are different ways to run the images and create a grid, check the following options.
+
+#### Using docker networking
+With this option, the hub and nodes will be created in the same network and they will recognize each other by their container name.
+A docker [network](https://docs.docker.com/engine/reference/commandline/network_create/) needs to be created as a first step.
+
+``` bash
+$ docker network create grid
+$ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:3.8.1-bohrium
+$ docker run -d -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.8.1-bohrium
+$ docker run -d -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.8.1-bohrium
+```
+
+When you are done using the grid and the containers have exited, the network can be removed with the following command:
+
+``` bash
+# Remove all unused networks
+$ docker network prune
+# OR 
+# Removes the grid network
+$ docker network rm grid
+```
+
+#### Via docker-compose
+The most simple way to start a grid is with [docker-compose](https://docs.docker.com/compose/overview/), use the following
+snippet as your `docker-compose.yaml`, save it locally and in the same folder run `docker-compose up`.
+
+```yaml
+# To execute this docker-compose yml file use docker-compose -f <file_name> up
+# Add the "-d" flag at the end for deattached execution
+version: '2'
+services:
+  firefox:
+    image: selenium/node-firefox:3.8.1-bohrium
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  chrome:
+    image: selenium/node-chrome:3.8.1-bohrium
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
+  hub:
+    image: selenium/hub:3.8.1-bohrium
+    ports:
+      - "4444:4444"
+```  
+
+To stop the grid and cleanup the created containers, run `docker-compose down`.
+
+#### Using `--link`
+This option can be used for a single host scenario (hub and nodes running in a single machine), but it is not recommended
+for longer term usage since this is a a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
+It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on. 
 
 ``` bash
 $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.8.1-bohrium
@@ -82,13 +147,22 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 $ docker run -d -p 4444:4444 -e SE_OPTS="-debug true" --name selenium-hub selenium/hub:3.8.1-bohrium
 ```
 
-### HUB_PORT_4444_TCP_ADDR and HUB_PORT_4444_TCP_PORT Selenium Node Configuration options
+### Selenium Hub and Node Configuration options
 
-You can pass `HUB_PORT_4444_TCP_ADDR` and `HUB_PORT_4444_TCP_PORT` options to provide the hub address to a node when needed.
+For special network configurations or when the hub and the nodes are running on different machines `HUB_HOST` and `HUB_PORT`
+or `REMOTE_HOST` can be used.
+
+You can pass the `HUB_HOST` and `HUB_PORT` options to provide the hub address to a node when needed.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e HUB_PORT_4444_TCP_ADDR=10.10.1.10 -e HUB_PORT_4444_TCP_PORT=4444 \ 
-    --name selenium-hub selenium/node-chrome:3.8.1-bohrium
+$ docker run -d -p 4444:4444 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:3.8.1-bohrium
+```
+
+Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
+can be used to supply the hub a url where the node is reachable under your specific network configuration 
+
+``` bash
+$ docker run -d -p 4444:4444 -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.8.1-bohrium
 ```
 
 ## Building the images
