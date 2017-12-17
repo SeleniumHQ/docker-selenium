@@ -1,0 +1,22 @@
+FROM selenium/node-base:2.53.0-alpine
+MAINTAINER Selenium <selenium-developers@googlegroups.com>
+
+USER root
+
+ENV CHROME_DRIVER_VERSION=2.21 \
+    DBUS_SESSION_BUS_ADDRESS=/dev/null
+# Previous env line fixes
+# https://github.com/SeleniumHQ/docker-selenium/issues/87
+
+RUN apk add --no-cache \
+        chromium \
+        chromium-chromedriver \
+    && cp /usr/lib/chromium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION
+    #&& ln -sf /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+
+
+COPY config.json /opt/selenium/config.json
+COPY chrome_launcher.sh /opt/google/chrome/google-chrome
+RUN chmod +x /opt/google/chrome/google-chrome
+
+USER seluser
