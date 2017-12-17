@@ -164,7 +164,7 @@ can be used to supply the hub a url where the node is reachable under your speci
 
 ``` bash
 # Assuming a hub was already started
-$ docker run -d -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.8.1-bohrium
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.8.1-bohrium
 ```
 
 ## Building the images
