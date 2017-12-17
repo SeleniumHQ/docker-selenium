@@ -155,14 +155,16 @@ or `REMOTE_HOST` can be used.
 You can pass the `HUB_HOST` and `HUB_PORT` options to provide the hub address to a node when needed.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:3.8.1-bohrium
+# Assuming a hub was already started
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:3.8.1-bohrium
 ```
 
 Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
 can be used to supply the hub a url where the node is reachable under your specific network configuration 
 
 ``` bash
-$ docker run -d -p 4444:4444 -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.8.1-bohrium
+# Assuming a hub was already started
+$ docker run -d -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.8.1-bohrium
 ```
 
 ## Building the images
