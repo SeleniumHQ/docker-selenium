@@ -7,7 +7,10 @@ node_modules/
 # Vim swap files.
 *.swp
 
-docker-selenium.iml
+# Ignoring the generated entry_point.sh files in different folders
+Node*Debug/entry_point.sh
+StandaloneC*/entry_point.sh
+StandaloneF*/entry_point.sh
 
 # Created by https://www.gitignore.io/api/virtualenv
 

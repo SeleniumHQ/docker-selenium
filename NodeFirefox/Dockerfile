@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.6.0-darmstadtium
+FROM selenium/node-base:3.8.1-bohrium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -10,7 +10,7 @@ USER root
 #=========
 # Firefox
 #=========
-ARG FIREFOX_VERSION=56.0.2
+ARG FIREFOX_VERSION=57.0.2
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install firefox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
@@ -34,6 +34,9 @@ RUN wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geck
   && chmod 755 /opt/geckodriver-$GECKODRIVER_VERSION \
   && ln -fs /opt/geckodriver-$GECKODRIVER_VERSION /usr/bin/geckodriver
 
+# Install 'pulseaudio' package to support WebRTC audio streams
+RUN apt-get update && apt-get install -y pulseaudio
+
 USER seluser
 
 COPY generate_config /opt/bin/generate_config
@@ -45,3 +48,5 @@ RUN sudo echo ""
 
 # Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+
