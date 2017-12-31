@@ -10,7 +10,7 @@ MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 NIGHTLY_VERSION := $(shell date +%m%d%Y>&1)
 LATEST_GECKODRIVER_VERSION := $(shell curl -s https://api.github.com/repos/mozilla/geckodriver/releases | grep tag_name | head -n 1 | cut -d '"' -f 4 | cut -d "v" -f 2 >&1)
 
-all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
+all: hub chrome firefox firefox_nightly chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
 generate_all:	\
 	generate_hub \
