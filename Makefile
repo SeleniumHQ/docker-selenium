@@ -7,6 +7,7 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
+NIGHTLY_VERSION := $(shell date +%m%d%Y>&1)
 LATEST_GECKODRIVER_VERSION := $(shell curl -s https://api.github.com/repos/mozilla/geckodriver/releases | grep tag_name | head -n 1 | cut -d '"' -f 4 | cut -d "v" -f 2 >&1)
 
 all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
@@ -92,6 +93,14 @@ generate_firefox_debug:
 
 firefox_debug: generate_firefox_debug firefox
 	cd ./NodeFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox-debug:$(VERSION) .
+
+tag_nightly:
+	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:nightly
+	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(NIGHTLY_VERSION)
+
+release_nightly:
+	docker push $(NAME)/node-firefox:nightly
+	docker push $(NAME)/node-firefox:$(NIGHTLY_VERSION)
 
 tag_latest:
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:latest
