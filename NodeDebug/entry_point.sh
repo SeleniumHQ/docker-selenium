@@ -12,8 +12,20 @@ if [ ! -e /opt/selenium/config.json ]; then
   exit 1
 fi
 
+# In the long term the idea is to remove $HUB_PORT_4444_TCP_ADDR and $HUB_PORT_4444_TCP_PORT and only work with
+# $HUB_HOST and $HUB_PORT
+if [ ! -z "$HUB_HOST" ]; then
+  HUB_PORT_PARAM=4444
+  if [ ! -z "$HUB_PORT" ]; then
+      HUB_PORT_PARAM=${HUB_PORT}
+  fi
+  echo "Connecting to the Hub using the host ${HUB_HOST} and port ${HUB_PORT_PARAM}"
+  HUB_PORT_4444_TCP_ADDR=${HUB_HOST}
+  HUB_PORT_4444_TCP_PORT=${HUB_PORT_PARAM}
+fi
+
 if [ -z "$HUB_PORT_4444_TCP_ADDR" ]; then
-  echo Not linked with a running Hub container 1>&2
+  echo "Not linked with a running Hub container" 1>&2
   exit 1
 fi
 
