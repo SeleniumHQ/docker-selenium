@@ -120,7 +120,7 @@ To stop the grid and cleanup the created containers, run `docker-compose down`.
 
 #### Using `--link`
 This option can be used for a single host scenario (hub and nodes running in a single machine), but it is not recommended
-for longer term usage since this is a a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
+for longer term usage since this is a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
 It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on. 
 
 ``` bash
