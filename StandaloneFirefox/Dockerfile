@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:3.8.1-chlorine
+FROM selenium/node-firefox:3.8.1-dubnium
 LABEL authors=SeleniumHQ
 
 USER seluser
