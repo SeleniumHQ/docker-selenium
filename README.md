@@ -144,7 +144,7 @@ $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS="-debug true" --name selenium-hub selenium/hub:3.8.1-francium
+$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:3.8.1-francium
 ```
 
 ### Selenium Hub and Node Configuration options
