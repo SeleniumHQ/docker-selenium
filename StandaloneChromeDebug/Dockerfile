@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome-debug:3.9.0-antimony
+FROM selenium/node-chrome-debug:3.9.1-actinium
 LABEL authors=SeleniumHQ
 
 USER seluser
