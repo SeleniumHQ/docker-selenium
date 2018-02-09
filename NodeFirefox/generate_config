@@ -28,7 +28,6 @@ cat <<_EOF
   "registerCycle": $NODE_REGISTER_CYCLE,
   "nodePolling": $NODE_POLLING,
   "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
-  "downPollingLimit": $NODE_DOWN_POLLING_LIMIT,
-  "hub": "http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register"
+  "downPollingLimit": $NODE_DOWN_POLLING_LIMIT
 }
 _EOF
