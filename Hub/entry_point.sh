@@ -25,5 +25,7 @@ java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
 NODE_PID=$!
 
+/opt/bin/wait-for-it.sh -h 127.0.0.1 -p $GRID_HUB_PORT -t 30 -- echo "Hub is up and running."
+
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID

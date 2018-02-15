@@ -46,6 +46,17 @@ RUN useradd seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
 
+#=======================================
+# Create shared / common bin directory
+#=======================================
+RUN  mkdir -p /opt/bin 
+
+#======================================
+# Add intermediate service discovery
+#======================================
+COPY wait-for-it.sh \
+       /opt/bin/
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
