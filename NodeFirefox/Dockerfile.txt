@@ -30,9 +30,6 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo $(w
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
-# Install 'pulseaudio' package to support WebRTC audio streams
-RUN apt-get update && apt-get install -y pulseaudio
-
 USER seluser
 
 COPY generate_config /opt/bin/generate_config
