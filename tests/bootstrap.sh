@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cd tests
-pip install selenium===3.9.0 \
-            docker===2.5.1 \
+pip install selenium===3.10.0 \
+            docker===3.1.1 \
             | grep -v 'Requirement already satisfied'
 
 python test.py $1 $2
