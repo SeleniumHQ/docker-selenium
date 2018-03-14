@@ -2,7 +2,6 @@
 
 cat <<_EOF
 {
-  "host": null,
   "port": $GRID_HUB_PORT,
   "role": "hub",
   "maxSession": $GRID_MAX_SESSION,
