@@ -23,7 +23,7 @@ $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrom
 If you are behind a corporate proxy, you can run it with a proxy
 
 ```
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm -e proxy_host=proxy.example.com -e proxy_port=8080 -e no_proxy=localhost,\*.dev.example.com selenium/node-chrome
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm -e proxy_host=proxy.example.com -e proxy_port=8080 -e no_proxy=localhost,*.dev.example.com selenium/node-chrome
 ```
 
 ## What is Selenium?
