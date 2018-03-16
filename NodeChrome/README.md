@@ -20,6 +20,12 @@ Once the hub is up and running will want to launch nodes that can run tests. You
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome
 ```
 
+If you are behind a corporate proxy, you can run it with a proxy
+
+```
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm -e proxy_host=proxy.example.com -e proxy_port=8080 -e no_proxy=localhost,\*.dev.example.com selenium/node-chrome
+```
+
 ## What is Selenium?
 _Selenium automates browsers._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.
 
