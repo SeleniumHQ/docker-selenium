@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.11.0-antimony
+FROM selenium/base:3.11.0-bismuth
 LABEL authors=SeleniumHQ
 
 USER root
@@ -15,6 +15,40 @@ RUN apt-get update -qqy \
     locales \
     xvfb \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#================
+# Font libraries
+#================
+# libfontconfig            ~1 MB
+# libfreetype6             ~1 MB
+# xfonts-cyrillic          ~2 MB
+# xfonts-scalable          ~2 MB
+# fonts-liberation         ~3 MB
+# fonts-ipafont-gothic     ~13 MB
+# fonts-wqy-zenhei         ~17 MB
+# fonts-tlwg-loma-otf      ~300 KB
+# ttf-ubuntu-font-family   ~5 MB
+#   Ubuntu Font Family, sans-serif typeface hinted for clarity
+# Removed packages:
+# xfonts-100dpi            ~6 MB
+# xfonts-75dpi             ~6 MB
+# Regarding fonts-liberation see:
+#  https://github.com/SeleniumHQ/docker-selenium/issues/383#issuecomment-278367069
+# Layer size: small: 36.28 MB (with --no-install-recommends)
+# Layer size: small: 36.28 MB
+RUN apt -qqy update \
+  && apt -qqy --no-install-recommends install \
+    libfontconfig \
+    libfreetype6 \
+    xfonts-cyrillic \
+    xfonts-scalable \
+    fonts-liberation \
+    fonts-ipafont-gothic \
+    fonts-wqy-zenhei \
+    fonts-tlwg-loma-otf \
+    ttf-ubuntu-font-family \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt -qyy clean
 
 #===================================================
 # Run the following commands as non-privileged user
