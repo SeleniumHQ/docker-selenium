@@ -261,6 +261,8 @@ When you are prompted for the password it is `secret`. If you wish to change thi
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
 
+If you want to run VNC without password authentication you can set the environment variable `VNC_NO_PASSWORD=1`.
+
 ### Troubleshooting
 
 All output is sent to stdout so it can be inspected by running:

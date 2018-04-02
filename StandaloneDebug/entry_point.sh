@@ -11,6 +11,13 @@ function shutdown {
   wait $NODE_PID
 }
 
+if [ ! -z $VNC_NO_PASSWORD ]; then
+    echo "starting VNC server without password authentication"
+    X11VNC_OPTS=
+else
+    X11VNC_OPTS=-usepw
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
@@ -38,6 +45,6 @@ done
 
 fluxbox -display $DISPLAY &
 
-x11vnc -forever -usepw -shared -rfbport 5900 -display $DISPLAY &
+x11vnc $X11VNC_OPTS -forever -shared -rfbport 5900 -display $DISPLAY &
 
 wait $NODE_PID
