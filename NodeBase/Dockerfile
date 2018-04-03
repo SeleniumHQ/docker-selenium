@@ -2,19 +2,39 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.11.0-bismuth
+FROM selenium/base:3.11.0-californium
 LABEL authors=SeleniumHQ
 
 USER root
 
 #==============
-# VNC and Xvfb
+# Xvfb
 #==============
 RUN apt-get update -qqy \
   && apt-get -qqy install \
-    locales \
     xvfb \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#==============================
+# Locale and encoding settings
+#==============================
+ENV LANG_WHICH en
+ENV LANG_WHERE US
+ENV ENCODING UTF-8
+ENV LANGUAGE ${LANG_WHICH}_${LANG_WHERE}.${ENCODING}
+ENV LANG ${LANGUAGE}
+# Layer size: small: ~9 MB
+# Layer size: small: ~9 MB MB (with --no-install-recommends)
+RUN apt -qqy update \
+  && apt -qqy --no-install-recommends install \
+    language-pack-en \
+    tzdata \
+    locales \
+  && locale-gen ${LANGUAGE} \
+  && dpkg-reconfigure --frontend noninteractive locales \
+  && apt -qyy autoremove \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt -qyy clean
 
 #================
 # Font libraries
