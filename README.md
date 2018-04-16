@@ -87,6 +87,7 @@ $ docker network rm grid
 The most simple way to start a grid is with [docker-compose](https://docs.docker.com/compose/overview/), use the following
 snippet as your `docker-compose.yaml`, save it locally and in the same folder run `docker-compose up`.
 
+##### Version 2
 ```yaml
 # To execute this docker-compose yml file use docker-compose -f <file_name> up
 # Add the "-d" flag at the end for deattached execution
@@ -114,7 +115,34 @@ services:
     image: selenium/hub:3.11.0-californium
     ports:
       - "4444:4444"
-```  
+```
+
+##### Version 3
+```yaml
+# To execute this docker-compose yml file use docker-compose -f <file_name> up
+# Add the "-d" flag at the end for deattached execution
+version: "3"
+services:
+  selenium-hub:
+    image: selenium/hub:3.11.0-californium
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+  chrome:
+    image: selenium/node-chrome:3.11.0-californium
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+  firefox:
+    image: selenium/node-firefox:3.11.0-californium
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+```
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
 
