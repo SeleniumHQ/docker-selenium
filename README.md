@@ -133,15 +133,15 @@ services:
     depends_on:
       - selenium-hub
     environment:
-      - HUB_PORT_4444_TCP_ADDR=selenium-hub
-      - HUB_PORT_4444_TCP_PORT=4444
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
   firefox:
     image: selenium/node-firefox:3.11.0-californium
     depends_on:
       - selenium-hub
     environment:
-      - HUB_PORT_4444_TCP_ADDR=selenium-hub
-      - HUB_PORT_4444_TCP_PORT=4444
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
 ```
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
