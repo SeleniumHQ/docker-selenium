@@ -118,7 +118,7 @@ services:
 ```
 
 ##### Version 3
-```
+```yaml
 # To execute this docker-compose yml file use docker-compose -f <file_name> up
 # Add the "-d" flag at the end for deattached execution
 version: "3"
