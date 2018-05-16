@@ -33,4 +33,7 @@ COPY generate_config \
 # When logging into the container
 RUN /opt/bin/generate_config > /opt/selenium/config.json
 
+# Reaping zombies and performing signal forwarding
+ENTRYPOINT ["/usr/bin/tini", "-g", "-p", "SIGTERM", "--"]
+
 CMD ["/opt/bin/entry_point.sh"]

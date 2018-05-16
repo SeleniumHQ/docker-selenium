@@ -107,4 +107,7 @@ ENV NODE_APPLICATION_NAME ""
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
+# Reaping zombies and performing signal forwarding
+ENTRYPOINT ["/usr/bin/tini", "-g", "-p", "SIGTERM", "--"]
+
 CMD ["/opt/bin/entry_point.sh"]
