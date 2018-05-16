@@ -66,4 +66,4 @@ RUN  sudo mkdir -p /opt/selenium \
 ENV TINI_VERSION v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini \
     /usr/bin/tini
-RUN chmod +x /usr/bin/tini
+RUN sudo chmod +x /usr/bin/tini
