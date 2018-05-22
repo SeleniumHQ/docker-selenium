@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.11.0-californium
+FROM selenium/base:3.12.0-americium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -25,16 +25,16 @@ ENV LANGUAGE ${LANG_WHICH}_${LANG_WHERE}.${ENCODING}
 ENV LANG ${LANGUAGE}
 # Layer size: small: ~9 MB
 # Layer size: small: ~9 MB MB (with --no-install-recommends)
-RUN apt -qqy update \
-  && apt -qqy --no-install-recommends install \
+RUN apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install \
     language-pack-en \
     tzdata \
     locales \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
-  && apt -qyy autoremove \
+  && apt-get -qyy autoremove \
   && rm -rf /var/lib/apt/lists/* \
-  && apt -qyy clean
+  && apt-get -qyy clean
 
 #================
 # Font libraries
@@ -56,8 +56,8 @@ RUN apt -qqy update \
 #  https://github.com/SeleniumHQ/docker-selenium/issues/383#issuecomment-278367069
 # Layer size: small: 36.28 MB (with --no-install-recommends)
 # Layer size: small: 36.28 MB
-RUN apt -qqy update \
-  && apt -qqy --no-install-recommends install \
+RUN apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install \
     libfontconfig \
     libfreetype6 \
     xfonts-cyrillic \
@@ -68,7 +68,7 @@ RUN apt -qqy update \
     fonts-tlwg-loma-otf \
     ttf-ubuntu-font-family \
   && rm -rf /var/lib/apt/lists/* \
-  && apt -qyy clean
+  && apt-get -qyy clean
 
 #===================================================
 # Run the following commands as non-privileged user
