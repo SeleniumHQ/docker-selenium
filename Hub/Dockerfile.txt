@@ -24,7 +24,9 @@ ENV GRID_TIMEOUT 30
 ENV GRID_DEBUG false
 # As integer, maps to "port"
 ENV GRID_HUB_PORT 4444
-
+# As string, maps to "host"
+ENV GRID_HUB_HOST "0.0.0.0"
+ 
 COPY generate_config \
     entry_point.sh \
     /opt/bin/
