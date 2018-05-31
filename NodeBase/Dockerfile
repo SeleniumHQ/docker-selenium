@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.12.0-americium
+FROM selenium/base:3.12.0-boron
 LABEL authors=SeleniumHQ
 
 USER root
@@ -98,6 +98,8 @@ ENV DISPLAY :99.0
 ENV NODE_MAX_INSTANCES 1
 # As integer, maps to "maxSession"
 ENV NODE_MAX_SESSION 1
+# As address, maps to "host"
+ENV NODE_HOST 0.0.0.0
 # As integer, maps to "port"
 ENV NODE_PORT 5555
 # In milliseconds, maps to "registerCycle"
