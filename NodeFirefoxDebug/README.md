@@ -37,7 +37,7 @@ If you are running Boot2Docker on Mac then you already have a [VNC client](http:
 When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
 
 ``` dockerfile
-FROM selenium/node-firefox-debug:3.12.0-boron
+FROM selenium/node-firefox-debug:3.12.0-cobalt
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
@@ -47,7 +47,7 @@ _Selenium automates browsers._ That's it! What you do with that power is entirel
 
 Selenium has the support of some of the largest browser vendors who have taken (or are taking) steps to make Selenium a native part of their browser. It is also the core technology in countless other browser automation tools, APIs and frameworks.
 
-See the Selenium [site](http://docs.seleniumhq.org/) for documentation on usage within your test code.
+See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage within your test code.
 
 ## License
 
