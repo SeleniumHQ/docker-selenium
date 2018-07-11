@@ -195,6 +195,14 @@ can be used to supply the hub a url where the node is reachable under your speci
 $ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e REMOTE_HOST="http://node_ip|node_name:node_port" selenium/node-firefox:3.13.0-argon
 ```
 
+### Setting Screen Resolution
+
+By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits.  These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT` and/or `ENV SCREEN_DEPTH` environmental variables when starting the container.
+
+``` bash
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=12 selenium/standalone-firefox
+```
+
 ## Building the images
 
 Clone the repo and from the project directory root you can build everything by running:
