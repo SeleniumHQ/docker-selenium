@@ -203,6 +203,33 @@ By default, nodes start with a screen resolution of 1360 x 1020 with a color dep
 docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=12 selenium/standalone-firefox
 ```
 
+### Increasing the number of browser instances/slots
+
+By default, each image will only allow one slot per container, which is what we recommend as a best practice since all
+container resources and variables will be used for that browser, and this helps to have more stable tests.
+
+Nevertheless, if you would like to have more slots per node, this can be configured via environment variables with the
+environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 slots: 
+
+``` bash
+# Assuming a hub was already started
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 selenium/node-firefox:3.13.0-boron
+```
+
+Don't forget to combine this with the environment variable `NODE_MAX_SESSION`, which sets the maximum amount of tests
+that can run at the same time in a node. Following the previous example, if `NODE_MAX_INSTANCES=5`, then `NODE_MAX_SESSION`
+should also be at least 5. Full example:
+
+``` bash
+# Assuming a hub was already started
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 selenium/node-firefox:3.13.0-boron
+```
+
+
+``` bash
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=12 selenium/standalone-firefox
+```
+
 ## Building the images
 
 Clone the repo and from the project directory root you can build everything by running:
