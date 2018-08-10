@@ -6,8 +6,18 @@ mv "$WRAPPER_PATH" "$BASE_PATH"
 
 cat > "$WRAPPER_PATH" <<_EOF
 #!/bin/bash
+CHROME_OPTIONS=""
+if [ ! -z "\${proxy_host}" ];
+then
+CHROME_OPTIONS="--proxy-server=\"\${proxy_host}:\${proxy_port}\""
+fi
+
+if [ ! -z "\${no_proxy}" ];
+then
+CHROME_OPTIONS="\$CHROME_OPTIONS --proxy-bypasss-list=\"\${no_proxy}\""
+fi
 
 # Note: exec -a below is a bashism.
-exec -a "\$0" "$BASE_PATH" --no-sandbox "\$@"
+exec -a "\$0" "$BASE_PATH" --no-sandbox \$CHROME_OPTIONS "\$@"
 _EOF
 chmod +x "$WRAPPER_PATH"
