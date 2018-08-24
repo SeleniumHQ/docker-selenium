@@ -306,9 +306,9 @@ when the docker container is started.
 
 The script [check-grid.sh](Base/check-grid.sh), which is included in the images, can be used to poll the Grid status.
 
-This example checks the status of the Grid every 15 seconds, with has a timeout of 30 seconds when the check is done,
-and it retries up to 5 times until the container is marked as unhealthy. Please use values that adjust to your needs,
-additionally (if needed) replace the `--host` and `--port` parameters for the ones you have in your configuration.
+This example checks the status of the Grid every 15 seconds, it has a timeout of 30 seconds when the check is done,
+and it retries up to 5 times until the container is marked as unhealthy. Please use adjusted values to fit your needs,
+(if needed) replace the `--host` and `--port` parameters for the ones used in your environment.
 
 ``` bash
 $ docker network create grid
@@ -319,7 +319,7 @@ $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.14.0-arsenic
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-arsenic
 ```
-**Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or `\``.
+**Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
 The container health status can be checked by doing `docker ps` and verifying the `(healthy)|(unhealthy)` status or by
 inspecting it in the following way:
@@ -334,8 +334,7 @@ $ docker inspect --format='{{json .State.Health.Status}}' selenium-hub
 A common problem known in docker is that a running container does not always mean that the application inside it is ready.
 A simple way to tackle this is by using a "wait-for-it" script, more information can be seen [here](https://docs.docker.com/compose/startup-order/).
 
-The following script is an example of how this can be done using bash, but the same principle applies if you want to do this in a method implemented
-in the programming language used to run the tests.
+The following script is an example of how this can be done using bash, but the same principle applies if you want to do this with the programming language used to write the tests.
 
 ```bash
 #!/bin/bash
