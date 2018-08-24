@@ -46,8 +46,6 @@ SERVERNUM=$(get_server_num)
 
 rm -f /tmp/.X*lock
 
-/opt/bin/wait-for-it.sh -h $HUB_PORT_4444_TCP_ADDR -p $HUB_PORT_4444_TCP_PORT -t 30 -s -- echo "Hub is ready for connections"
-
 xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
@@ -56,8 +54,6 @@ xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" 
     -nodeConfig /opt/selenium/config.json \
     ${SE_OPTS} &
 NODE_PID=$!
-
-/opt/bin/wait-for-it.sh -h 127.0.0.1 -p $NODE_PORT -t 30 -s -- echo "Node is up."
 
 trap shutdown SIGTERM SIGINT
 wait $NODE_PID

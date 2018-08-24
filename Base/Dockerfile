@@ -25,6 +25,8 @@ RUN apt-get -qqy update \
     sudo \
     unzip \
     wget \
+    jq \
+    curl \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
@@ -54,8 +56,9 @@ RUN  mkdir -p /opt/bin
 #======================================
 # Add intermediate service discovery
 #======================================
-COPY wait-for-it.sh \
+COPY check-grid.sh \
        /opt/bin/
+RUN chmod +x /opt/bin/check-grid.sh
 
 #===================================================
 # Run the following commands as non-privileged user
