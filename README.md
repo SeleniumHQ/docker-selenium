@@ -354,7 +354,7 @@ done
 exec $cmd
 ```
 **Note:** If needed, replace `localhost` and `4444` for the correct values in your environment. Also, this script is polling indefinitely, you might want
-to teak it and establish a timeout. 
+to tweak it and establish a timeout. 
 
 Let's say that the normal command to execute your tests is `mvn clean test`. Here is a way to use the above script and execute your tests:
 
