@@ -269,6 +269,101 @@ $ FF=$(docker run --rm --name=fx \
 
 _Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
 
+## Waiting for the Grid to be ready
+
+It is a good practice to check first if the Grid is up and ready to receive requests, this can be done by checking the `/wd/hub/status` endpoint.
+
+A Grid that is ready, composed by a hub and a node, could look like this:
+
+```json
+{
+  "status": 0,
+  "value": {
+    "ready": true,
+    "message": "Hub has capacity",
+    "build": {
+      "revision": "aacccce0",
+      "time": "2018-08-02T20:13:22.693Z",
+      "version": "3.14.0"
+    },
+    "os": {
+      "arch": "amd64",
+      "name": "Linux",
+      "version": "4.9.93-linuxkit-aufs"
+    },
+    "java": {
+      "version": "1.8.0_181"
+    }
+  }
+}
+```
+
+The `"ready": true` value indicates that the Grid is ready to receive requests. This status can be polled through a 
+script before running any test, or it can be added as a [HEALTHCHECK](https://docs.docker.com/engine/reference/run/#healthcheck)
+when the docker container is started.
+
+### Adding a [HEALTHCHECK](https://docs.docker.com/engine/reference/run/#healthcheck) to the Grid
+
+The script [check-grid.sh](Base/check-grid.sh), which is included in the images, can be used to poll the Grid status.
+
+This example checks the status of the Grid every 15 seconds, it has a timeout of 30 seconds when the check is done,
+and it retries up to 5 times until the container is marked as unhealthy. Please use adjusted values to fit your needs,
+(if needed) replace the `--host` and `--port` parameters for the ones used in your environment.
+
+``` bash
+$ docker network create grid
+$ docker run -d -p 4444:4444 --net grid --name selenium-hub \
+    --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
+    --health-interval=15s --health-timeout=30s --health-retries=5 \
+    selenium/hub:3.14.0-arsenic
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.14.0-arsenic
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-arsenic
+```
+**Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
+
+The container health status can be checked by doing `docker ps` and verifying the `(healthy)|(unhealthy)` status or by
+inspecting it in the following way:
+
+```bash
+$ docker inspect --format='{{json .State.Health.Status}}' selenium-hub
+"healthy"
+```
+
+### Using a bash script to wait for the Grid
+
+A common problem known in docker is that a running container does not always mean that the application inside it is ready.
+A simple way to tackle this is by using a "wait-for-it" script, more information can be seen [here](https://docs.docker.com/compose/startup-order/).
+
+The following script is an example of how this can be done using bash, but the same principle applies if you want to do this with the programming language used to write the tests.
+
+```bash
+#!/bin/bash
+# wait-for-grid.sh
+
+set -e
+
+cmd="$@"
+
+while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
+        | jq -r '.value.ready' 2>&1 | grep "true" >/dev/null; do
+    echo 'Waiting for the Grid'
+    sleep 1
+done
+
+>&2 echo "Selenium Grid is up - executing tests"
+exec $cmd
+```
+**Note:** If needed, replace `localhost` and `4444` for the correct values in your environment. Also, this script is polling indefinitely, you might want
+to tweak it and establish a timeout. 
+
+Let's say that the normal command to execute your tests is `mvn clean test`. Here is a way to use the above script and execute your tests:
+
+```bash
+$ ./wait-for-grid.sh mvn clean test
+```
+
+Like this, the script will poll until the Grid is ready, and then your tests will start. 
+
 ## Debugging
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:

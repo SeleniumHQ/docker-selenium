@@ -25,6 +25,8 @@ RUN apt-get -qqy update \
     sudo \
     unzip \
     wget \
+    jq \
+    curl \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
@@ -45,6 +47,18 @@ RUN useradd seluser \
   && usermod -a -G sudo seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
+
+#=======================================
+# Create shared / common bin directory
+#=======================================
+RUN  mkdir -p /opt/bin 
+
+#======================================
+# Add intermediate service discovery
+#======================================
+COPY check-grid.sh \
+       /opt/bin/
+RUN chmod +x /opt/bin/check-grid.sh
 
 #===================================================
 # Run the following commands as non-privileged user

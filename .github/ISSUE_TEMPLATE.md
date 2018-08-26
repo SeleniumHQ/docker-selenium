@@ -1,4 +1,11 @@
 ## Meta -
+
+<!-- Please fill out the whole template so we have enough information to help you fix 
+ the issue as fast as possible. -->
+
+<!-- If the template is not complete or deleted, we might close the issue right away 
+ since we will lack the needed information to troubleshoot it. -->
+
 Image(s):  
 <!-- node-chrome? hub? standalone-firefox? -->
 Docker-Selenium Image Version(s):  
@@ -21,3 +28,9 @@ https://bugzilla.mozilla.org/buglist.cgi?product=Testing&component=Marionette
 ## Expected Behavior -
 
 ## Actual Behavior -
+
+## Steps to reproduce -
+<!--
+Please be sure to include an SSCCE (Short, Self Contained, Correct [compilable] example) http://sscce.org/
+If you can't provide a link to the page, consider creating a reproducible page on https://jsfiddle.net/
+-->
