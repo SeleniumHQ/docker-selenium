@@ -2,8 +2,6 @@
 #
 # IMPORTANT: Change this file only in directory StandaloneDebug!
 
-source /opt/bin/functions.sh
-
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
 
 function shutdown {
@@ -24,10 +22,7 @@ fi
 
 rm -f /tmp/.X*lock
 
-SERVERNUM=$(get_server_num)
-
-DISPLAY=$DISPLAY \
-  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
+xvfb-run -a --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
 NODE_PID=$!
@@ -35,6 +30,11 @@ NODE_PID=$!
 trap shutdown SIGTERM SIGINT
 for i in $(seq 1 10)
 do
+  DISPLAY=$(xvfb-run printenv DISPLAY)
+  if [ -z "$DISPLAY" ]; then
+    echo "\$DISPLAY env variable is empty"
+    break
+  fi
   xdpyinfo -display $DISPLAY >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     break
