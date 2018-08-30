@@ -2,7 +2,6 @@
 #
 # IMPORTANT: Change this file only in directory NodeDebug!
 
-source /opt/bin/functions.sh
 /opt/bin/generate_config > /opt/selenium/config.json
 
 export GEOMETRY="$SCREEN_WIDTH""x""$SCREEN_HEIGHT""x""$SCREEN_DEPTH"
@@ -51,12 +50,9 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "appending selenium options: ${SE_OPTS}"
 fi
 
-SERVERNUM=$(get_server_num)
-
 rm -f /tmp/.X*lock
 
-DISPLAY=$DISPLAY \
-  xvfb-run -n $SERVERNUM --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
+xvfb-run -a --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
     -role node \
     -hub http://$HUB_PORT_4444_TCP_ADDR:$HUB_PORT_4444_TCP_PORT/grid/register \
@@ -68,6 +64,11 @@ NODE_PID=$!
 trap shutdown SIGTERM SIGINT
 for i in $(seq 1 10)
 do
+  DISPLAY=$(xvfb-run printenv DISPLAY)
+  if [ -z "$DISPLAY" ]; then
+    echo "\$DISPLAY env variable is empty"
+    break
+  fi
   xdpyinfo -display $DISPLAY >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     break

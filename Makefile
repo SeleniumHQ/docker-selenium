@@ -211,8 +211,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-chrome-debug:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox-debug:$(MAJOR_MINOR_PATCH)
 
-test: test_shell_functions \
- test_chrome \
+test: test_chrome \
  test_firefox \
  test_chrome_debug \
  test_firefox_debug \
@@ -221,9 +220,6 @@ test: test_shell_functions \
  test_chrome_standalone_debug \
  test_firefox_standalone_debug
 
-
-test_shell_functions:
-	./tests/test-shell-functions.sh
 
 test_chrome:
 	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
