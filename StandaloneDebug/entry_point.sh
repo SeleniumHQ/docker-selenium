@@ -22,29 +22,31 @@ fi
 
 rm -f /tmp/.X*lock
 
-xvfb-run -a --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
+# Creating a file descriptor, where the DISPLAY will be saved ("6" was arbitrarily chosen)
+exec 6>/tmp/display.log
+xvfb-run -a --server-args="-screen 0 $GEOMETRY -ac +extension RANDR -displayfd 6" \
   java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
   ${SE_OPTS} &
 NODE_PID=$!
+exec 6>&-
 
 trap shutdown SIGTERM SIGINT
 for i in $(seq 1 10)
 do
-  DISPLAY=$(xvfb-run printenv DISPLAY)
-  if [ -z "$DISPLAY" ]; then
-    echo "\$DISPLAY env variable is empty"
-    break
+  sleep 1
+  export DISPLAY=:$(cat /tmp/display.log)
+  if [ "${DISPLAY}" != ":" ]; then
+    echo "Display ${DISPLAY} allocated"
   fi
-  xdpyinfo -display $DISPLAY >/dev/null 2>&1
+  xdpyinfo -display ${DISPLAY} >/dev/null 2>&1
   if [ $? -eq 0 ]; then
     break
   fi
-  echo Waiting xvfb...
-  sleep 0.5
+  echo "Waiting xvfb..."
 done
 
-fluxbox -display $DISPLAY &
+fluxbox -display ${DISPLAY} &
 
-x11vnc $X11VNC_OPTS -forever -shared -rfbport 5900 -display $DISPLAY &
+x11vnc ${X11VNC_OPTS} -forever -shared -rfbport 5900 -display ${DISPLAY} &
 
-wait $NODE_PID
+wait ${NODE_PID}
