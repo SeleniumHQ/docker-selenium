@@ -21,4 +21,4 @@ xvfb-run -a --server-args="-screen 0 $GEOMETRY -ac +extension RANDR" \
 NODE_PID=$!
 
 trap shutdown SIGTERM SIGINT
-wait $NODE_PID
+wait ${NODE_PID}
