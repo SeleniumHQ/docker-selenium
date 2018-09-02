@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.14.0-beryllium
+FROM selenium/base:3.14.0-curium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -79,9 +79,7 @@ USER seluser
 #==============================
 # Scripts to run Selenium Node
 #==============================
-COPY entry_point.sh \
-  functions.sh \
-    /opt/bin/
+COPY entry_point.sh  /opt/bin/
 
 #============================
 # Some configuration options
@@ -89,7 +87,6 @@ COPY entry_point.sh \
 ENV SCREEN_WIDTH 1360
 ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
-ENV DISPLAY :99.0
 
 #========================
 # Selenium Configuration

@@ -1,5 +1,5 @@
 NAME := selenium
-VERSION := $(or $(VERSION),$(VERSION),3.14.0-beryllium)
+VERSION := $(or $(VERSION),$(VERSION),3.14.0-curium)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PLATFORM := $(shell uname -s)
