@@ -72,7 +72,9 @@ USER seluser
 #==============================
 # Scripts to run Selenium Node
 #==============================
-COPY entry_point.sh  /opt/bin/
+COPY entry_point.sh \
+  functions.sh \
+    /opt/bin/
 
 #============================
 # Some configuration options
