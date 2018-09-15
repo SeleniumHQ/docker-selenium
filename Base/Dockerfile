@@ -47,6 +47,7 @@ RUN useradd seluser \
   && usermod -a -G sudo seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
+ENV HOME=/home/seluser
 
 #=======================================
 # Create shared / common bin directory
@@ -71,4 +72,6 @@ USER seluser
 RUN  sudo mkdir -p /opt/selenium \
   && sudo chown seluser:seluser /opt/selenium \
   && wget --no-verbose https://selenium-release.storage.googleapis.com/3.14/selenium-server-standalone-3.14.0.jar \
-    -O /opt/selenium/selenium-server-standalone.jar
+    -O /opt/selenium/selenium-server-standalone.jar \
+  && sudo chgrp -R 0 /opt/selenium $HOME \
+  && sudo chmod -R g=u /opt/selenium $HOME
