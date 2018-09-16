@@ -20,9 +20,6 @@ after_success:
   - if [ "$TRAVIS_TAG" != "" ]; then
     docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
     VERSION="$TRAVIS_TAG" make release;
-    fi
-  - if [[ "$TRAVIS_TAG" == "$LATEST"* ]]; then
-    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
     VERSION="$TRAVIS_TAG" make tag_latest;
     VERSION="latest" make release_latest;
     fi
