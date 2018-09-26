@@ -47,9 +47,9 @@ $ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.14.0-eu
 ```
 Opera
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.14.0-dubnium
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.14.0-europium
 #OR
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-opera:3.14.0-dubnium
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-opera:3.14.0-europium
 ```
 This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
@@ -125,7 +125,7 @@ services:
       HUB_HOST: hub
 
   opera:
-    image: selenium/node-opera:3.14.0-dubnium
+    image: selenium/node-opera:3.14.0-europium
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -165,7 +165,7 @@ services:
       - HUB_HOST=selenium-hub
       - HUB_PORT=4444
   opera:
-    image: selenium/node-opera:3.14.0-dubnium
+    image: selenium/node-opera:3.14.0-europium
     depends_on:
       - selenium-hub
     environment:
@@ -227,6 +227,7 @@ $ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e REMOTE_HOST="http://node_ip|nod
 
 ### Setting Screen Resolution
 
+By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits.  These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT` and/or `SCREEN_DEPTH` environmental variables when starting the container.
 By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits.  These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT` and/or `SCREEN_DEPTH` environmental variables when starting the container.
 
 ``` bash

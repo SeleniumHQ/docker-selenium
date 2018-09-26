@@ -1,10 +1,10 @@
-# Selenium Grid Standalone - Firefox
+# Selenium Grid Standalone - Opera
 
-Selenium Standalone Server with Firefox
+Selenium Standalone Server with Opera
 
 ## Dockerfile
 
-[`selenium/standalone-opera` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneFirefox/Dockerfile)
+[`selenium/standalone-opera` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneOpera/Dockerfile)
 
 ## How to use this image
 
