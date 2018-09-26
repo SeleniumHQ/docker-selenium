@@ -49,19 +49,19 @@ generate_chrome:
 	cd ./NodeChrome && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 chrome: nodebase generate_chrome
-	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(VERSION)	.
+	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(VERSION) .
 
 generate_firefox:
 	cd ./NodeFirefox && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 firefox: nodebase generate_firefox
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION)	.
+	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION) .
 
 generate_opera:
 	cd ./NodeOpera && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 opera: nodebase generate_opera
-	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(VERSION)	.
+	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(VERSION) .
 
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION) $(NAMESPACE) $(AUTHORS)
