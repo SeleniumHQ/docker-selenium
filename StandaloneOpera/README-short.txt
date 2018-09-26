@@ -1,1 +1,1 @@
-Selenium Standalone configured to run Firefox
+Selenium Standalone configured to run Opera
