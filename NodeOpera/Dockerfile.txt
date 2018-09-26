@@ -1,0 +1,29 @@
+USER root
+
+#============================================
+# Opera
+#============================================
+RUN   wget -O- http://deb.opera.com/archive.key | apt-key add - \
+      && echo 'deb http://deb.opera.com/opera-stable/ stable non-free' > /etc/apt/sources.list.d/opera-blink.list \
+      && apt-get update \
+      && apt-get -y --no-install-recommends install opera-stable \
+      && opera --version \
+      && rm /etc/apt/sources.list.d/opera-stable.list
+
+#============================================
+# Opera webdriver
+#============================================
+ARG OD_VERSION=2.38
+RUN echo "Using operadriver version: "$OD_VERSION \
+  && wget --no-verbose -O /tmp/operadriver_linux64.zip https://github.com/operasoftware/operachromiumdriver/releases/download/v.$OD_VERSION/operadriver_linux64.zip \
+  && rm -rf /opt/selenium/operadriver \
+  && unzip /tmp/operadriver_linux64.zip -d /opt/selenium \
+  && rm /tmp/operadriver_linux64.zip \
+  && mv /opt/selenium/operadriver* /opt/selenium/operadriver-$OD_VERSION \
+  && chmod 755 /opt/selenium/operadriver-$OD_VERSION \
+  && sudo ln -fs /opt/selenium/operadriver-$OD_VERSION /usr/bin/operadriver
+
+COPY generate_config /opt/bin/generate_config
+
+# Generating a default config during build time
+RUN /opt/bin/generate_config > /opt/selenium/config.json
