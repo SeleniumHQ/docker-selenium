@@ -1,11 +1,11 @@
-# Selenium Grid Standalone - Firefox Debug
+# Selenium Grid Standalone - Opera Debug
 
 _This image is only intended for development purposes!_ Runs a Selenium Grid Standalone with a VNC Server to allow you to visually see the browser being automated.
 
 
 ## Dockerfile
 
-[`selenium/standalone-opera-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneFirefoxDebug/Dockerfile)
+[`selenium/standalone-opera-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneOperaDebug/Dockerfile)
 
 ## How to use this image
 
