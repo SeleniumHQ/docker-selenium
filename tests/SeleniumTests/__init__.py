@@ -60,3 +60,9 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.get('https://the-internet.herokuapp.com')
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
+
+class OperaTests(SeleniumGenericTests):
+    def setUp(self):
+        self.driver = webdriver.Remote(
+            desired_capabilities=DesiredCapabilities.OPERA
+        )

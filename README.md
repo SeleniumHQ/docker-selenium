@@ -8,7 +8,7 @@ The project is made possible by volunteer contributors who have put in thousands
 
 ### IRC (&#35;selenium at Freenode)
 
-## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
+## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome, Firefox and Opera
 [Travis CI](https://travis-ci.org/SeleniumHQ/docker-selenium)
 
 Images included:
@@ -17,12 +17,16 @@ Images included:
 - __selenium/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
 - __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
 - __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
+- __selenium/node-opera__: Grid Node with Opera installed, needs to be connected to a Grid Hub
 - __selenium/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
+- __selenium/node-opera-debug__: Grid Node with Opera installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/standalone-chrome__: Selenium Standalone with Chrome installed
 - __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
+- __selenium/standalone-opera__: Selenium Standalone with Opera installed
 - __selenium/standalone-chrome-debug__: Selenium Standalone with Chrome installed and runs a VNC server
 - __selenium/standalone-firefox-debug__: Selenium Standalone with Firefox installed and runs a VNC server
+- __selenium/standalone-opera-debug__: Selenium Standalone with Opera installed and runs a VNC server
 
 ## 
 
@@ -41,23 +45,31 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.
 #OR
 $ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.14.0-europium
 ```
+Opera
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.14.0-dubnium
+#OR
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-opera:3.14.0-dubnium
+```
 This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
 The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
 to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
 
 
-### Standalone Chrome and Firefox
+### Standalone Chrome, Firefox and Opera
 
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.14.0-europium
 # OR
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.14.0-europium
+# OR
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.14.0-europium
 ```
 
 _Note: Only one standalone image can run on port_ `4444` _at a time._
 
-To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
+To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` or `standalone-opera-debug` images. See [Debugging](#debugging) section for details.
 
 ### Selenium Grid Hub and Nodes
 There are different ways to run the images and create a grid, check the following options.
@@ -71,6 +83,7 @@ $ docker network create grid
 $ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:3.14.0-europium
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.14.0-europium
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-europium
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:3.14.0-europium
 ```
 
 When you are done using the grid and the containers have exited, the network can be removed with the following command:
@@ -111,6 +124,15 @@ services:
     environment:
       HUB_HOST: hub
 
+  opera:
+    image: selenium/node-opera:3.14.0-dubnium
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
+
   hub:
     image: selenium/hub:3.14.0-europium
     ports:
@@ -142,6 +164,13 @@ services:
     environment:
       - HUB_HOST=selenium-hub
       - HUB_PORT=4444
+  opera:
+    image: selenium/node-opera:3.14.0-dubnium
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
 ```
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
@@ -155,6 +184,7 @@ It could serve you as an option for a proof of concept, and for simplicity it is
 $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.14.0-europium
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.14.0-europium
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-europium
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.14.0-europium
 ```
 
 ## Configuring the containers

@@ -31,6 +31,12 @@ IMAGE_NAME_MAP = {
     'NodeFirefoxDebug': 'node-firefox-debug',
     'StandaloneFirefox': 'standalone-firefox',
     'StandaloneFirefoxDebug': 'standalone-firefox-debug',
+
+    # Opera Images
+    'NodeOpera': 'node-opera',
+    'NodeOperaDebug': 'node-opera-debug',
+    'StandaloneOpera': 'standalone-opera',
+    'StandaloneOperaDebug': 'standalone-opera-debug',
 }
 
 TEST_NAME_MAP = {
@@ -45,6 +51,12 @@ TEST_NAME_MAP = {
     'NodeFirefoxDebug': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
     'StandaloneFirefoxDebug': 'FirefoxTests',
+    
+    # Opera Images
+    'NodeOpera': 'OperaTests',
+    'NodeOperaDebug': 'OperaTests',
+    'StandaloneOpera': 'OperaTests',
+    'StandaloneOperaDebug': 'OperaTests',
 }
 
 
