@@ -27,6 +27,7 @@ RUN apt-get -qqy update \
     wget \
     jq \
     curl \
+    supervisor \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
@@ -55,11 +56,15 @@ ENV HOME=/home/seluser
 RUN  mkdir -p /opt/bin 
 
 #======================================
-# Add intermediate service discovery
+# Add Grid check script
 #======================================
-COPY check-grid.sh \
-       /opt/bin/
+COPY check-grid.sh /opt/bin/
 RUN chmod +x /opt/bin/check-grid.sh
+
+#======================================
+# Add Supervisor configuration file
+#======================================
+COPY supervisord.conf /etc
 
 #===================================================
 # Run the following commands as non-privileged user
@@ -74,4 +79,11 @@ RUN  sudo mkdir -p /opt/selenium \
   && wget --no-verbose https://selenium-release.storage.googleapis.com/3.14/selenium-server-standalone-3.14.0.jar \
     -O /opt/selenium/selenium-server-standalone.jar \
   && sudo chgrp -R 0 /opt/selenium $HOME \
-  && sudo chmod -R g=u /opt/selenium $HOME
+  && sudo chmod -R g=u /opt/selenium $HOME \
+  && sudo mkdir -p /var/run/supervisor/ \
+  && sudo mkdir -p /var/log/supervisor/ \
+  && sudo chown -R seluser:seluser /var/run/supervisor \
+  && sudo chown -R seluser:seluser /var/log/supervisor
+
+
+CMD ["/usr/bin/supervisord", "--configuration", "/etc/supervisord.conf"]

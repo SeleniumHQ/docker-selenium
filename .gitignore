@@ -7,10 +7,11 @@ node_modules/
 # Vim swap files.
 *.swp
 
-# Ignoring the generated entry_point.sh files in different folders
-Node*Debug/entry_point.sh
-StandaloneC*/entry_point.sh
-StandaloneF*/entry_point.sh
+# Ignoring generated files during the build process
+Node*Debug/selenium-debug.conf
+Node*Debug/start-*.sh
+Standalone*/selenium.conf
+Standalone*/start-*.sh
 
 # Created by https://www.gitignore.io/api/virtualenv
 
