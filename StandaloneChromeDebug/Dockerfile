@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome-debug:3.14.0-europium
+FROM selenium/node-chrome-debug:3.14.0-francium
 LABEL authors=SeleniumHQ
 
 USER seluser
@@ -10,7 +10,13 @@ USER seluser
 #====================================
 # Scripts to run Selenium Standalone
 #====================================
-COPY entry_point.sh /opt/bin/entry_point.sh
+COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
+
+#==============================
+# Supervisor configuration file
+#==============================
+COPY selenium.conf /etc/supervisor/conf.d/
+
 
 EXPOSE 4444
 EXPOSE 5900

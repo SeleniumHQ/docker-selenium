@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.14.0-europium
+FROM selenium/base:3.14.0-francium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -77,9 +77,17 @@ RUN apt-get -qqy update \
 USER seluser
 
 #==============================
-# Scripts to run Selenium Node
+# Scripts to run Selenium Node and XVFB
 #==============================
-COPY entry_point.sh  /opt/bin/
+COPY start-selenium-node.sh \
+      start-xvfb.sh \
+      /opt/bin/
+
+#==============================
+# Supervisor configuration file
+#==============================
+COPY selenium.conf /etc/supervisor/conf.d/
+
 
 #============================
 # Some configuration options
@@ -87,6 +95,8 @@ COPY entry_point.sh  /opt/bin/
 ENV SCREEN_WIDTH 1360
 ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
+ENV DISPLAY :99.0
+ENV START_XVFB true
 
 #========================
 # Selenium Configuration
@@ -113,4 +123,5 @@ ENV NODE_APPLICATION_NAME ""
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-CMD ["/opt/bin/entry_point.sh"]
+# Creating base directory for Xvfb
+RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix

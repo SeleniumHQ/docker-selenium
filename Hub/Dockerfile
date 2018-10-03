@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.14.0-europium
+FROM selenium/base:3.14.0-francium
 LABEL authors=SeleniumHQ
 
 USER seluser
@@ -35,9 +35,9 @@ ENV GRID_HUB_PORT 4444
 ENV GRID_HUB_HOST "0.0.0.0"
  
 COPY generate_config \
-    entry_point.sh \
+    start-selenium-hub.sh \
     /opt/bin/
 
-RUN /opt/bin/generate_config > /opt/selenium/config.json
+COPY selenium-hub.conf /etc/supervisor/conf.d/
 
-CMD ["/opt/bin/entry_point.sh"]
+RUN /opt/bin/generate_config > /opt/selenium/config.json

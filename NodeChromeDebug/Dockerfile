@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome:3.14.0-europium
+FROM selenium/node-chrome:3.14.0-francium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -35,8 +35,15 @@ RUN mkdir -p ~/.vnc \
   && x11vnc -storepasswd secret ~/.vnc/passwd
 
 #==============================
-# Scripts to run Selenium Node
+# Scripts to run fluxbox and x11vnc
 #==============================
-COPY entry_point.sh /opt/bin/entry_point.sh
+COPY start-fluxbox.sh \
+      start-vnc.sh \
+      /opt/bin/
+
+#==============================
+# Supervisor configuration file
+#==============================
+COPY selenium-debug.conf /etc/supervisor/conf.d/
 
 EXPOSE 5900
