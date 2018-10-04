@@ -157,6 +157,63 @@ $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrom
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-francium
 ```
 
+#### Via CloudFoundry
+
+Please read about ["Using docker in CloudFoundry"](https://docs.cloudfoundry.org/adminguide/docker.html)  
+
+- Selenium-Hub manifest
+
+	```yaml
+	---
+	applications:
+	- name: selenium-hub
+	  docker:
+		image: selenium/hub
+	  instances: 1
+	  memory: 512M
+	  disk_quota: 512M
+	  routes:
+	  - route: selenium-hub.mycf.cloud
+	  env: 
+		GRID_DEBUG: false
+	```
+
+- Selenium-Nodes manifest
+
+	```yaml
+	---
+	applications:
+	- name: selenium-node-chrome-1
+	  docker:
+		image: selenium/node-chrome
+	  instances: 1
+	  memory: 512M
+	  disk_quota: 1G
+	  routes:
+	  - route: selenium-node-chrome-1.mycf.cloud
+	  env: 
+		GRID_DEBUG: false
+		HUB_HOST: selenium-hub.mycf.cloud
+		HUB_PORT: 80
+		NODE_PORT: 8080
+		REMOTE_HOST: http://selenium-node-chrome-1.mycf.cloud
+
+	- name: selenium-node-firefox-1
+	  docker:
+		image: selenium/node-firefox
+	  instances: 1
+	  memory: 512M
+	  disk_quota: 1G
+	  routes:
+	  - route: selenium-node-firefox-1.mycf.cloud
+	  env: 
+		GRID_DEBUG: false
+		HUB_HOST: selenium-hub.mycf.cloud
+		HUB_PORT: 80
+		NODE_PORT: 8080
+		REMOTE_HOST: http://selenium-node-firefox-1.mycf.cloud
+	```
+
 ## Configuring the containers
 
 ### JAVA_OPTS Java Environment Options
