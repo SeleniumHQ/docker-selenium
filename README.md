@@ -146,6 +146,38 @@ services:
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
 
+##### Version 3 with Swarm support
+```yaml
+# Run with `docker stack deploy -c docker-compose.yml grid`
+# Stop with `docker stack rm grid`
+
+version: '3.7'
+
+services:
+  hub:
+   image: selenium/hub:3.14.0-francium
+   ports:
+     - "4444:4444"
+
+  chrome:
+    image: selenium/node-chrome:3.14.0-francium
+    environment:
+      HUB_HOST: hub
+      HUB_PORT: 4444
+    deploy:
+        replicas: 1
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+
+  firefox:
+    image: selenium/node-firefox:3.14.0-francium
+    environment:
+      HUB_HOST: hub
+      HUB_PORT: 4444
+    deploy:
+        replicas: 1
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+```
+
 #### Using `--link`
 This option can be used for a single host scenario (hub and nodes running in a single machine), but it is not recommended
 for longer term usage since this is a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
