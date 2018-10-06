@@ -24,7 +24,7 @@ Images included:
 - __selenium/standalone-chrome-debug__: Selenium Standalone with Chrome installed and runs a VNC server
 - __selenium/standalone-firefox-debug__: Selenium Standalone with Firefox installed and runs a VNC server
 
-## 
+##
 
 ## Running the images
 :exclamation: When executing `docker run` for an image with Chrome or Firefox please either mount `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
@@ -78,7 +78,7 @@ When you are done using the grid and the containers have exited, the network can
 ``` bash
 # Remove all unused networks
 $ docker network prune
-# OR 
+# OR
 # Removes the grid network
 $ docker network rm grid
 ```
@@ -148,7 +148,8 @@ To stop the grid and cleanup the created containers, run `docker-compose down`.
 
 ##### Version 3 with Swarm support
 ```yaml
-# Run with `docker stack deploy -c docker-compose.yml grid`
+# To start Docker in Swarm mode, you need to run `docker swarm init`
+# To deploy the Grid, `docker stack deploy -c docker-compose.yml grid`
 # Stop with `docker stack rm grid`
 
 version: '3.7'
@@ -181,7 +182,7 @@ services:
 #### Using `--link`
 This option can be used for a single host scenario (hub and nodes running in a single machine), but it is not recommended
 for longer term usage since this is a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
-It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on. 
+It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on.
 
 ``` bash
 $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.14.0-francium
@@ -225,7 +226,7 @@ $ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chr
 ```
 
 Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
-can be used to supply the hub a url where the node is reachable under your specific network configuration 
+can be used to supply the hub a url where the node is reachable under your specific network configuration
 
 ``` bash
 # Assuming a hub was already started on the default port
@@ -246,7 +247,7 @@ By default, each image will only allow one slot per container, which is what we 
 container resources and variables will be used for that browser, and this helps to have more stable tests.
 
 Nevertheless, if you would like to have more slots per node, this can be configured via environment variables with the
-environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 slots: 
+environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 slots:
 
 ``` bash
 # Assuming a hub was already started
@@ -335,7 +336,7 @@ A Grid that is ready, composed by a hub and a node, could look like this:
 }
 ```
 
-The `"ready": true` value indicates that the Grid is ready to receive requests. This status can be polled through a 
+The `"ready": true` value indicates that the Grid is ready to receive requests. This status can be polled through a
 script before running any test, or it can be added as a [HEALTHCHECK](https://docs.docker.com/engine/reference/run/#healthcheck)
 when the docker container is started.
 
@@ -391,7 +392,7 @@ done
 exec $cmd
 ```
 **Note:** If needed, replace `localhost` and `4444` for the correct values in your environment. Also, this script is polling indefinitely, you might want
-to tweak it and establish a timeout. 
+to tweak it and establish a timeout.
 
 Let's say that the normal command to execute your tests is `mvn clean test`. Here is a way to use the above script and execute your tests:
 
@@ -399,7 +400,7 @@ Let's say that the normal command to execute your tests is `mvn clean test`. Her
 $ ./wait-for-grid.sh mvn clean test
 ```
 
-Like this, the script will poll until the Grid is ready, and then your tests will start. 
+Like this, the script will poll until the Grid is ready, and then your tests will start.
 
 ## Debugging
 
