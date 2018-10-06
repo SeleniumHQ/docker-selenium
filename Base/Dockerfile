@@ -58,7 +58,7 @@ RUN  mkdir -p /opt/bin
 #======================================
 # Add Grid check script
 #======================================
-COPY check-grid.sh /opt/bin/
+COPY check-grid.sh entry_point.sh /opt/bin/
 RUN chmod +x /opt/bin/check-grid.sh
 
 #======================================
@@ -86,4 +86,4 @@ RUN  sudo mkdir -p /opt/selenium \
   && sudo chown -R seluser:seluser /var/log/supervisor
 
 
-CMD ["/usr/bin/supervisord", "--configuration", "/etc/supervisord.conf"]
+CMD ["/opt/bin/entry_point.sh"]
