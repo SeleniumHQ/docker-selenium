@@ -83,7 +83,9 @@ RUN  sudo mkdir -p /opt/selenium \
   && sudo mkdir -p /var/run/supervisor/ \
   && sudo mkdir -p /var/log/supervisor/ \
   && sudo chown -R seluser:seluser /var/run/supervisor \
-  && sudo chown -R seluser:seluser /var/log/supervisor
+  && sudo chown -R seluser:seluser /var/log/supervisor \
+  && sudo chgrp -R 0 /var/run/supervisor /var/log/supervisor \
+  && sudo chmod -R g=u /var/run/supervisor /var/log/supervisor
 
 
 CMD ["/opt/bin/entry_point.sh"]
