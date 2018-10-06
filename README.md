@@ -189,6 +189,11 @@ $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrom
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.14.0-francium
 ```
 
+### Deploying to Kubernetes
+
+Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
+on how to deploy selenium hub and nodes on a Kubernetes cluster.
+
 ## Configuring the containers
 
 ### JAVA_OPTS Java Environment Options
