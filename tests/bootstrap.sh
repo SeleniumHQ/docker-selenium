@@ -1,7 +1,19 @@
 #!/usr/bin/env bash
 cd tests
-pip install selenium===3.14.0 \
+
+if [ "${TRAVIS:-false}" = "false" ]; then
+  pip install virtualenv | grep -v 'Requirement already satisfied'
+  virtualenv docker-selenium-tests
+  source docker-selenium-tests/bin/activate
+fi
+
+
+pip install selenium===3.14.1 \
             docker===3.5.0 \
             | grep -v 'Requirement already satisfied'
 
 python test.py $1 $2
+
+if [ "${TRAVIS:-false}" = "false" ]; then
+  deactivate
+fi

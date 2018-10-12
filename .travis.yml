@@ -6,20 +6,24 @@ services:
   - docker
 
 notifications:
-    slack: seleniumhq:Kx5MB7T51SPMpbBMYfvxNW4q
+  slack: seleniumhq:Kx5MB7T51SPMpbBMYfvxNW4q
 
-before_install:
-  - docker info
-  - VERSION="$TRAVIS_BRANCH" make build
-
-script:
-  - VERSION="$TRAVIS_BRANCH" make test
-
-# only push up tags
-after_success:
-  - if [ "$TRAVIS_TAG" != "" ]; then
-    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-    VERSION="$TRAVIS_TAG" make release;
-    VERSION="$TRAVIS_TAG" make tag_latest;
-    VERSION="latest" make release_latest;
-    fi
+jobs:
+  include:
+    - stage: Build and integration tests
+      env: step=build_and_test
+      script:
+      - docker info
+      - VERSION="$TRAVIS_BRANCH" make ci
+    - env: step=build_and_test_random_user
+      script:
+      - docker info
+      - USE_RANDOM_USER_ID=true VERSION="$TRAVIS_BRANCH" make ci
+    - stage: Release
+      if: branch = master AND type != pull_request AND tag IS present
+      script:
+      - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      - VERSION="${TRAVIS_TAG}" make build
+      - VERSION="${TRAVIS_TAG}" make release
+      - VERSION="${TRAVIS_TAG}" make tag_latest
+      - VERSION="${TRAVIS_TAG}" make release_latest
