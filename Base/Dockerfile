@@ -66,26 +66,21 @@ RUN chmod +x /opt/bin/check-grid.sh
 #======================================
 COPY supervisord.conf /etc
 
+#==========
+# Selenium & relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
+  && touch /opt/selenium/config.json \
+  && chmod -R 777 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd \
+  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.14/selenium-server-standalone-3.14.0.jar \
+    -O /opt/selenium/selenium-server-standalone.jar \
+  && chgrp -R 0 /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor \
+  && chmod -R g=u /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
 USER seluser
-
-#==========
-# Selenium
-#==========
-RUN  sudo mkdir -p /opt/selenium \
-  && sudo chown seluser:seluser /opt/selenium \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.14/selenium-server-standalone-3.14.0.jar \
-    -O /opt/selenium/selenium-server-standalone.jar \
-  && sudo chgrp -R 0 /opt/selenium $HOME \
-  && sudo chmod -R g=u /opt/selenium $HOME \
-  && sudo mkdir -p /var/run/supervisor/ \
-  && sudo mkdir -p /var/log/supervisor/ \
-  && sudo chown -R seluser:seluser /var/run/supervisor \
-  && sudo chown -R seluser:seluser /var/log/supervisor \
-  && sudo chgrp -R 0 /var/run/supervisor /var/log/supervisor \
-  && sudo chmod -R g=u /var/run/supervisor /var/log/supervisor
 
 
 CMD ["/opt/bin/entry_point.sh"]
