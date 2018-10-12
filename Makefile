@@ -1,4 +1,4 @@
-NAME := selenium
+NAME := $(or $(NAME),$(NAME),selenium)
 VERSION := $(or $(VERSION),$(VERSION),3.14.0-gallium)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
