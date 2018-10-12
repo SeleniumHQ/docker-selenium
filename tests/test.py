@@ -3,6 +3,7 @@ import docker
 import unittest
 import logging
 import sys
+import random
 
 from docker.errors import NotFound
 
@@ -15,6 +16,7 @@ client = docker.from_env()
 
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
+USE_RANDOM_USER_ID = os.environ.get('USE_RANDOM_USER_ID')
 
 IMAGE_NAME_MAP = {
     # Hub
@@ -70,7 +72,13 @@ def launch_hub():
             logger.debug("hub killed")
         existing_hub.remove()
         logger.debug("hub removed")
-    hub_container_id = launch_container('Hub', ports={'4444': 4444})
+
+
+    if use_random_user_id:
+        hub_container_id = launch_container('Hub', ports={'4444': 4444}, user=random_user_id)
+    else:
+        hub_container_id = launch_container('Hub', ports={'4444': 4444})
+
     logger.info("Hub Launched")
     return hub_container_id
 
@@ -101,6 +109,12 @@ if __name__ == '__main__':
     # The container to test against
     image = sys.argv[1]
 
+    use_random_user_id = USE_RANDOM_USER_ID == 'true'
+    random_user_id = random.randint(100000,2147483647)
+
+    if use_random_user_id:
+        logger.info("Running tests with a random user ID -> %s" % random_user_id)
+
     standalone = 'standalone' in image.lower()
 
     # Flag for failure (for posterity)
@@ -113,14 +127,20 @@ if __name__ == '__main__':
         Standalone Configuration
         """
         smoke_test_class = 'StandaloneTest'
-        test_container_id = launch_container(image, ports={'4444': 4444})
+        if use_random_user_id:
+            test_container_id = launch_container(image, ports={'4444': 4444}, user=random_user_id)
+        else:
+            test_container_id = launch_container(image, ports={'4444': 4444})
     else:
         """
         Hub / Node Configuration
         """
         smoke_test_class = 'NodeTest'
         hub_id = launch_hub()
-        test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555})
+        if use_random_user_id:
+            test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555}, user=random_user_id)
+        else:
+            test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555})
 
     logger.info('========== / Containers ready to go ==========')
 
