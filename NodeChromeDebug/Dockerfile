@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome:3.14.0-gallium
+FROM selenium/node-chrome:3.14.0-helium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -31,8 +31,15 @@ USER seluser
 # So the service can be started with seluser
 #==============================
 
-RUN mkdir -p ~/.vnc \
-  && x11vnc -storepasswd secret ~/.vnc/passwd
+RUN mkdir -p ${HOME}/.vnc \
+  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN sudo chmod -R 777 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}
 
 #==============================
 # Scripts to run fluxbox and x11vnc

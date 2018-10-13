@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.14.0-gallium
+FROM selenium/node-base:3.14.0-helium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -41,10 +41,13 @@ USER seluser
 
 COPY generate_config /opt/bin/generate_config
 
-# Running this command as sudo just to avoid the message:
-# To run a command as administrator (user "root"), use "sudo <command>". See "man sudo_root" for details.
-# When logging into the container
-RUN sudo echo ""
-
 # Generating a default config during build time
 RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN sudo chmod -R 777 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}
+
