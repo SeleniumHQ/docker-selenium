@@ -20,7 +20,7 @@ jobs:
       - docker info
       - USE_RANDOM_USER_ID=true VERSION="$TRAVIS_BRANCH" make ci
     - stage: Release
-      if: branch = master AND type != pull_request AND tag IS present
+      if: type != pull_request AND tag IS present
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - VERSION="${TRAVIS_TAG}" make build
