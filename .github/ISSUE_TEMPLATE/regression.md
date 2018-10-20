@@ -51,4 +51,6 @@ Docker-Selenium image version: <!-- 3, 3.4, 3.14.0-helium etc
 Also provide the docker image id 
 -->
 Docker version: 
-Docker-Compose version:
+Docker-Compose version (if applicable):
+Exact Docker command to start the containers (if using docker-compose, provide 
+the docker-compose file as well):
