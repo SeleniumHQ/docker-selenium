@@ -1,5 +1,8 @@
 USER root
 
+# Debug
+ENV GRID_DEBUG true
+
 #=====
 # VNC
 #=====
