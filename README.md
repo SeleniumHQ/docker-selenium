@@ -460,3 +460,8 @@ All output is sent to stdout so it can be inspected by running:
 ``` bash
 $ docker logs -f <container-id|container-name>
 ```
+
+You can turn on debugging by passing environment variable to the hub and the nodes containers:
+```
+GRID_DEBUG=true
+```
