@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.14.0-iron
+FROM selenium/base:3.14.0-krypton
 LABEL authors=SeleniumHQ
 
 USER root
@@ -119,6 +119,8 @@ ENV NODE_UNREGISTER_IF_STILL_DOWN_AFTER 60000
 ENV NODE_DOWN_POLLING_LIMIT 2
 # As string, maps to "applicationName"
 ENV NODE_APPLICATION_NAME ""
+# Debug
+ENV GRID_DEBUG false
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
