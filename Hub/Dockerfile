@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.14.0-krypton
+FROM selenium/base:3.141.0-actinium
 LABEL authors=SeleniumHQ
 
 USER seluser
@@ -26,7 +26,7 @@ ENV GRID_CLEAN_UP_CYCLE 5000
 # In seconds, maps to "browserTimeout"
 ENV GRID_BROWSER_TIMEOUT 0
 # In seconds, maps to "timeout"
-ENV GRID_TIMEOUT 30
+ENV GRID_TIMEOUT 1800
 # Debug
 ENV GRID_DEBUG false
 # As integer, maps to "port"
