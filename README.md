@@ -478,3 +478,15 @@ You can turn on debugging by passing environment variable to the hub and the nod
 ```
 GRID_DEBUG=true
 ```
+
+#### Headless
+
+If you see the following selenium exceptions:
+
+`Message: invalid argument: can't kill an exited process`
+
+or
+
+`Message: unknown error: Chrome failed to start: exited abnormally`
+
+The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to actually run Firefox or Chrome (respectively) in headless mode.
