@@ -263,6 +263,19 @@ should also be at least 5. Full example:
 $ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 selenium/node-firefox:3.141.5-astatine
 ```
 
+### Running in Headless mode
+
+Both [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode) and [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) support running tests in headless mode.
+When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
+
+To avoid starting the server you can set the `START_XVFB` environment variable to `false` (or any other value than `true`), for example:
+
+``` bash
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -e START_XVFB=false -v /dev/shm:/dev/shm selenium/node-chrome
+``` 
+
+For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
+
 ## Building the images
 
 Clone the repo and from the project directory root you can build everything by running:
