@@ -10,8 +10,10 @@ node_modules/
 # Ignoring generated files during the build process
 Node*Debug/selenium-debug.conf
 Node*Debug/start-*.sh
-Standalone*/selenium.conf
-Standalone*/start-*.sh
+StandaloneC*/selenium.conf
+StandaloneF*/selenium.conf
+StandaloneC*/start-*.sh
+StandaloneF*/start-*.sh
 
 # Created by https://www.gitignore.io/api/virtualenv
 
