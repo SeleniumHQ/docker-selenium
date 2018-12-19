@@ -130,6 +130,8 @@ services:
       - "4444:4444"
   chrome:
     image: selenium/node-chrome:3.141.59-dubnium
+    volumes:
+      - /dev/shm:/dev/shm
     depends_on:
       - selenium-hub
     environment:
@@ -137,6 +139,8 @@ services:
       - HUB_PORT=4444
   firefox:
     image: selenium/node-firefox:3.141.59-dubnium
+    volumes:
+      - /dev/shm:/dev/shm
     depends_on:
       - selenium-hub
     environment:
@@ -162,6 +166,8 @@ services:
 
   chrome:
     image: selenium/node-chrome:3.141.59-dubnium
+    volumes:
+      - /dev/shm:/dev/shm
     environment:
       HUB_HOST: hub
       HUB_PORT: 4444
@@ -171,6 +177,8 @@ services:
 
   firefox:
     image: selenium/node-firefox:3.141.59-dubnium
+    volumes:
+      - /dev/shm:/dev/shm
     environment:
       HUB_HOST: hub
       HUB_PORT: 4444
