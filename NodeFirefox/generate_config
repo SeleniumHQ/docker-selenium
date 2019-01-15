@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
+FIREFOX_VERSION=devedition-latest
 DRIVER_LOGLEVEL=${DRIVER_LOGLEVEL:-info}
 
 cat <<_EOF
