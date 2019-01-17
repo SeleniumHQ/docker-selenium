@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-europium
-LABEL authors=SeleniumHQ
+FROM vaadin-testbench/base:5.1.2
+LABEL authors=SeleniumHQ and Urosporo
 
 USER root
 
@@ -77,16 +77,16 @@ RUN apt-get -qqy update \
 USER seluser
 
 #==============================
-# Scripts to run Selenium Node and XVFB
+# Scripts to run Vaadin Testbench Node and XVFB
 #==============================
-COPY start-selenium-node.sh \
+COPY start-testbench-node.sh \
       start-xvfb.sh \
       /opt/bin/
 
 #==============================
 # Supervisor configuration file
 #==============================
-COPY selenium.conf /etc/supervisor/conf.d/
+COPY testbenchNode.conf /etc/supervisor/conf.d/
 
 
 #============================
@@ -99,7 +99,7 @@ ENV DISPLAY :99.0
 ENV START_XVFB true
 
 #========================
-# Selenium Configuration
+# Vaadin Testbench Configuration
 #========================
 # As integer, maps to "maxInstances"
 ENV NODE_MAX_INSTANCES 1
