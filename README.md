@@ -191,11 +191,6 @@ $ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/n
 $ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox:5.1.2
 ```
 
-### Deploying to Kubernetes
-
-Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
-on how to deploy selenium hub and nodes on a Kubernetes cluster.
-
 ## Configuring the containers
 
 ### JAVA_OPTS Java Environment Options
@@ -206,7 +201,7 @@ You can pass `JAVA_OPTS` environment variable to java process.
 $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name testbench-hub vaadin-testbench/hub:5.1.2
 ```
 
-### SE_OPTS Selenium Configuration Options
+### SE_OPTS Vaadin Testbench Configuration Options
 
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
@@ -214,7 +209,7 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 $ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name testbench-hub vaadin-testbench/hub:5.1.2
 ```
 
-### Selenium Hub and Node Configuration options
+### Vaadin Testbench Hub and Node Configuration options
 
 For special network configurations or when the hub and the nodes are running on different machines `HUB_HOST` and `HUB_PORT`
 or `REMOTE_HOST` can be used.
@@ -275,7 +270,7 @@ To avoid starting the server you can set the `START_XVFB` environment variable t
 $ docker run -d --net grid -e HUB_HOST=testbench-hub -e START_XVFB=false -v /dev/shm:/dev/shm vaadin-testbench/node-chrome
 ``` 
 
-For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-vaadin-testbench/issues/567).
+For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
 
 ## Building the images
 
@@ -309,7 +304,7 @@ _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing brow
 
 ##### Example: Spawn a container for testing in Firefox:
 
-This command line is the same as for Chrome. Remember that the Selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
+This command line is the same as for Chrome. Remember that the Vaadin Testbench running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
 ``` bash
 $ docker run -d --name testbench-hub -p 4444:4444 vaadin-testbench/hub:5.1.2
@@ -402,7 +397,7 @@ while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
     sleep 1
 done
 
->&2 echo "Selenium Grid is up - executing tests"
+>&2 echo "Vaadin Testbench Grid is up - executing tests"
 exec $cmd
 ```
 **Note:** If needed, replace `localhost` and `4444` for the correct values in your environment. Also, this script is polling indefinitely, you might want
@@ -482,7 +477,7 @@ GRID_DEBUG=true
 
 #### Headless
 
-If you see the following selenium exceptions:
+If you see the following Vaadin Testbench exceptions:
 
 `Message: invalid argument: can't kill an exited process`
 
