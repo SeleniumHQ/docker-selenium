@@ -3,7 +3,7 @@
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM urosporo/testbench-node-chrome-debug:5.1.2
-LABEL authors=SeleniumHQ and Urosporo
+LABEL authors="SeleniumHQ and Urosporo"
 
 USER seluser
 
