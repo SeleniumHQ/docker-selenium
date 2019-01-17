@@ -1,8 +1,8 @@
-# Selenium Docker 4 Vaadin Testbench 5.x
+# Vaadin Testbench Docker
 
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache License 2.0](https://github.com/SeleniumHQ/docker-vaadin-testbench/blob/master/LICENSE.md) and contains the Vaadin Testbench 5.x standalone.jar which is distributed under the [CVAL 3.0](https://vaadin.com/license/cval-3.0). 
 
-## Docker images for Selenium 4 Vaadin Testbench 5.x Standalone Server Hub and Node configurations with Chrome and Firefox
+## Docker images for Vaadin Testbench Standalone Server Hub and Node configurations with Chrome and Firefox
 
 Images included:
 - __vaadin-testbench/base__: Base image which includes Java runtime and Vaadin Testbench 5.x Standalone JAR file
@@ -12,10 +12,10 @@ Images included:
 - __vaadin-testbench/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
 - __vaadin-testbench/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
 - __vaadin-testbench/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
-- __vaadin-testbench/standalone-chrome__: Selenium 4 Vaadin Testbench 5.x Standalone with Chrome installed
-- __vaadin-testbench/standalone-firefox__: Selenium 4 Vaadin Testbench 5.x Standalone with Firefox installed
-- __vaadin-testbench/standalone-chrome-debug__: Selenium 4 Vaadin Testbench 5.x Standalone with Chrome installed and runs a VNC server
-- __vaadin-testbench/standalone-firefox-debug__: Selenium 4 Vaadin Testbench 5.x Standalone with Firefox installed and runs a VNC server
+- __vaadin-testbench/standalone-chrome__: Vaadin Testbench Standalone with Chrome installed
+- __vaadin-testbench/standalone-firefox__: Vaadin Testbench Standalone with Firefox installed
+- __vaadin-testbench/standalone-chrome-debug__: Vaadin Testbench Standalone with Chrome installed and runs a VNC server
+- __vaadin-testbench/standalone-firefox-debug__: Vaadin Testbench Standalone with Firefox installed and runs a VNC server
 
 ##
 

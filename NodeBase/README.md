@@ -1,4 +1,4 @@
-# Selenium Docker 4 Vaadin Testbench 5.x Grid Node Base
+# Vaadin Testbench Docker Grid Node Base
 
 _This image is not meant to be run directly!_ It serves as the base image used for Vaadin Testbench Nodes.
 
