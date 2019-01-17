@@ -4,7 +4,7 @@ Vaadin Testbench Node configured to run Firefox
 
 ## Dockerfile
 
-[`vaadin-testbench/node-firefox` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeFirefox/Dockerfile)
+[`urosporo/testbench-node-firefox` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeFirefox/Dockerfile)
 
 ## How to use this image
 

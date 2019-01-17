@@ -4,7 +4,7 @@ The Hub receives a test to be executed along with information on which browser a
 
 ## Dockerfile
 
-[`vaadin-testbench/hub` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/Hub/Dockerfile)
+[`urosporo/testbench-hub` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/Hub/Dockerfile)
 
 ## How to use this image
 

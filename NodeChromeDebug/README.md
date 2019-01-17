@@ -4,7 +4,7 @@ _This image is only intended for development purposes!_ Runs a Vaadin Testbench 
 
 ## Dockerfile
 
-[`vaadin-testbench/node-chrome-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeChromeDebug/Dockerfile)
+[`urosporo/testbench-node-chrome-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeChromeDebug/Dockerfile)
 
 ## How to use this image
 

@@ -4,7 +4,7 @@ _This image is only intended for development purposes!_ Runs a Selenium Grid Nod
 
 ## Dockerfile
 
-[`vaadin-testbench/##BASE##-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
+[`urosporo/testbench-##BASE##-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
 
 ## How to use this image
 

@@ -4,7 +4,7 @@ Vaadin Testbench Node configured to run Google Chrome.
 
 ## Dockerfile
 
-[`vaadin-testbench/node-chrome` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeChrome/Dockerfile)
+[`urosporo/testbench-node-chrome` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeChrome/Dockerfile)
 
 ## How to use this image
 

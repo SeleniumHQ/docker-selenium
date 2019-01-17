@@ -5,7 +5,7 @@ _This image is only intended for development purposes!_ Runs a Vaadin Testbench 
 
 ## Dockerfile
 
-[`vaadin-testbench/standalone-firefox-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneFirefoxDebug/Dockerfile)
+[`urosporo/testbench-standalone-firefox-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneFirefoxDebug/Dockerfile)
 
 ## How to use this image
 

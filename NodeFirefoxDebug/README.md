@@ -4,7 +4,7 @@ _This image is only intended for development purposes!_ Runs a Vaadin Testbench 
 
 ## Dockerfile
 
-[`vaadin-testbench/node-firefox-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeFirefoxDebug/Dockerfile)
+[`urosporo/testbench-node-firefox-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeFirefoxDebug/Dockerfile)
 
 ## How to use this image
 

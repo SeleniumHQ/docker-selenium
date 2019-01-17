@@ -4,7 +4,7 @@ Vaadin Testbench Standalone Server with ##BROWSER##
 
 ## Dockerfile
 
-[`vaadin-testbench/standalone-##BROWSER_LC##` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
+[`urosporo/testbench-standalone-##BROWSER_LC##` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
 
 ## How to use this image
 

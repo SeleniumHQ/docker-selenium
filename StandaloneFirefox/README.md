@@ -4,7 +4,7 @@ Vaadin Testbench Standalone Server with Firefox
 
 ## Dockerfile
 
-[`vaadin-testbench/standalone-firefox` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneFirefox/Dockerfile)
+[`urosporo/testbench-standalone-firefox` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneFirefox/Dockerfile)
 
 ## How to use this image
 

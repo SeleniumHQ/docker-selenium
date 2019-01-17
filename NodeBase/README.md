@@ -4,7 +4,7 @@ _This image is not meant to be run directly!_ It serves as the base image used f
 
 ## Dockerfile
 
-[`vaadin-testbench/node-base` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeBase/Dockerfile)
+[`urosporo/testbench-node-base` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/NodeBase/Dockerfile)
 
 ## What is Vaadin Testbench?
 _Vaadin Testbench is based on Selenium and automates browsers to test Vaadin-based applications._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.

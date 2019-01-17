@@ -4,7 +4,7 @@ Vaadin Testbench Standalone Server with Chrome
 
 ## Dockerfile
 
-[`vaadin-testbench/standalone-chrome` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneChrome/Dockerfile)
+[`urosporo/testbench-standalone-chrome` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/StandaloneChrome/Dockerfile)
 
 ## How to use this image
 

@@ -5,7 +5,7 @@ _This image is only intended for development purposes!_ Runs a Vaadin Testbench 
 
 ## Dockerfile
 
-[`vaadin-testbench/standalone-##BROWSER_LC##-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
+[`urosporo/testbench-standalone-##BROWSER_LC##-debug` Dockerfile](https://github.com/urosporo/docker-vaadin-testbench/blob/master/##FOLDER##/Dockerfile)
 
 ## How to use this image
 
