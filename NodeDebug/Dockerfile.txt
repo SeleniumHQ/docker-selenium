@@ -44,6 +44,6 @@ COPY start-fluxbox.sh \
 #==============================
 # Supervisor configuration file
 #==============================
-COPY selenium-debug.conf /etc/supervisor/conf.d/
+COPY testbench-debug.conf /etc/supervisor/conf.d/
 
 EXPOSE 5900
