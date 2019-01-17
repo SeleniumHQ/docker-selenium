@@ -4,6 +4,7 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM vaadin-testbench/node-firefox:5.1.2
 LABEL authors=SeleniumHQ and Urosporo
+
 USER seluser
 
 #====================================
