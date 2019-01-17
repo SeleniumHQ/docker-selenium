@@ -2,20 +2,20 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:3.141.59-europium
-LABEL authors=SeleniumHQ
+FROM vaadin-testbench/node-firefox:5.1.2
+LABEL authors=SeleniumHQ and Urosporo
 
 USER seluser
 
 #====================================
-# Scripts to run Selenium Standalone
+# Scripts to run Vaadin Testbench Standalone
 #====================================
-COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
+COPY start-testbench-standalone.sh /opt/bin/start-testbench-standalone.sh
 
 #==============================
 # Supervisor configuration file
 #==============================
-COPY selenium.conf /etc/supervisor/conf.d/
+COPY testbench.conf /etc/supervisor/conf.d/
 
 
 EXPOSE 4444

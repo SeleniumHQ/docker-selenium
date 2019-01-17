@@ -1,1 +1,1 @@
-Selenium Standalone configured to run Chrome
+Vaadin Testbench Standalone configured to run Chrome

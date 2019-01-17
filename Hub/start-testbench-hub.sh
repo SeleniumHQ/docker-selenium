@@ -8,14 +8,14 @@ CONF=${ROOT}/config.json
 
 /opt/bin/generate_config >${CONF}
 
-echo "Starting Selenium Hub with configuration:"
+echo "Starting Vaadin Testbench Hub with configuration:"
 cat ${CONF}
 
 if [ ! -z "$SE_OPTS" ]; then
-  echo "Appending Selenium options: ${SE_OPTS}"
+  echo "Appending Vaadin Testbench options: ${SE_OPTS}"
 fi
 
-java ${JAVA_OPTS} -jar /opt/selenium/selenium-server-standalone.jar \
+java ${JAVA_OPTS} -jar /opt/selenium/vaadin-testbench-standalone.jar \
   -role hub \
   -hubConfig ${CONF} \
   ${SE_OPTS}

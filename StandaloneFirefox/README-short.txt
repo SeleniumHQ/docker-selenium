@@ -1,1 +1,1 @@
-Selenium Standalone configured to run Firefox
+Vaadin Testbench Standalone configured to run Firefox

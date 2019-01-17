@@ -23,4 +23,4 @@ cat ./README.template.md \
 cp ./README-short.txt ${FOLDER}/README-short.txt
 cp ./start-fluxbox.sh ${FOLDER}/start-fluxbox.sh
 cp ./start-vnc.sh ${FOLDER}/start-vnc.sh
-cp ./selenium-debug.conf ${FOLDER}/selenium-debug.conf
+cp ./testbench-debug.conf ${FOLDER}/testbench-debug.conf

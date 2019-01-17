@@ -1,1 +1,1 @@
-Selenium Standalone configured to run ##BROWSER##
+Vaadin Testbench Standalone configured to run ##BROWSER##

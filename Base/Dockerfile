@@ -1,5 +1,5 @@
 FROM ubuntu:bionic-20181204
-LABEL authors="Selenium <selenium-developers@googlegroups.com>"
+LABEL authors="Selenium <selenium-developers@googlegroups.com>" and Urosporo
 
 #================================================
 # Customize sources for apt-get
@@ -29,6 +29,7 @@ RUN apt-get -qqy update \
     curl \
     supervisor \
     gnupg2 \
+    iproute \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
@@ -68,13 +69,13 @@ RUN chmod +x /opt/bin/check-grid.sh
 COPY supervisord.conf /etc
 
 #==========
-# Selenium & relaxing permissions for OpenShift and other non-sudo environments
+# Vaadin Testbench & relaxing permissions for OpenShift and other non-sudo environments
 #==========
 RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.json \
   && chmod -R 777 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/3.141/selenium-server-standalone-3.141.59.jar \
-    -O /opt/selenium/selenium-server-standalone.jar \
+  && wget --no-verbose https://github.com/vaadin/testbench/releases/download/5.1.2/vaadin-testbench-standalone-5.1.2.jar \
+    -O /opt/selenium/vaadin-testbench-standalone.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor
 

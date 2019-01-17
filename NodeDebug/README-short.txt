@@ -1,1 +1,1 @@
-_This image is only intended for development purposes!_ Runs a Selenium Grid Node with a VNC Server to allow you to visually see the browser being automated.
+_This image is only intended for development purposes!_ Runs a Vaadin Testbench Grid Node with a VNC Server to allow you to visually see the browser being automated.

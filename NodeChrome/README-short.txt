@@ -1,1 +1,1 @@
-Selenium Node configured to run Google Chrome.
+Vaadin Testbench Node configured to run Google Chrome.

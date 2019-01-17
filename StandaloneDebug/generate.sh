@@ -16,8 +16,8 @@ echo "" >> ${FOLDER}/Dockerfile
 cat ../Standalone/Dockerfile.txt >> ${FOLDER}/Dockerfile
 echo EXPOSE 5900 >> ${FOLDER}/Dockerfile
 
-cp ./start-selenium-standalone.sh ${FOLDER}
-cp ./selenium.conf ${FOLDER}
+cp ./start-testbench-standalone.sh ${FOLDER}
+cp ./testbench.conf ${FOLDER}
 
 
 BROWSER_LC=$(echo ${BROWSER} |  tr '[:upper:]' '[:lower:]')

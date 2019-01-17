@@ -15,13 +15,14 @@ cat <<_EOF
   ],
   "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
   "maxSession": $NODE_MAX_SESSION,
-  "host": "$NODE_HOST",
+  "host": ip,
   "port": $NODE_PORT,
   "register": true,
   "registerCycle": $NODE_REGISTER_CYCLE,
   "nodePolling": $NODE_POLLING,
   "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
   "downPollingLimit": $NODE_DOWN_POLLING_LIMIT,
-  "debug": $GRID_DEBUG
+  "debug": $GRID_DEBUG,
+  "hub": "http://$NODE_HOST:$HUB_PORT/grid/register"
 }
 _EOF
