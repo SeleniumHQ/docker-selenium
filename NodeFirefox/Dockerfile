@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.141.59-europium
-LABEL authors=SeleniumHQ
+FROM vaadin-testbench/node-base:5.1.2
+LABEL authors=SeleniumHQ and Urosporo
 
 USER root
 

@@ -1,1 +1,1 @@
-Selenium Node configured to run Firefox
+Vaadin Testbench Node configured to run Firefox
