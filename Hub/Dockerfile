@@ -2,13 +2,13 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-europium
-LABEL authors=SeleniumHQ
+FROM vaadin-testbench/base:5.1.2
+LABEL authors=SeleniumHQ and Urosporo
 
 USER seluser
 
 #========================
-# Selenium Configuration
+# Vaadin Testbench Configuration
 #========================
 
 EXPOSE 4444
@@ -35,7 +35,7 @@ ENV GRID_HUB_PORT 4444
 ENV GRID_HUB_HOST "0.0.0.0"
  
 COPY generate_config \
-    start-selenium-hub.sh \
+    start-testbench-hub.sh \
     /opt/bin/
 
 COPY selenium-hub.conf /etc/supervisor/conf.d/
