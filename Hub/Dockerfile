@@ -38,6 +38,6 @@ COPY generate_config \
     start-testbench-hub.sh \
     /opt/bin/
 
-COPY selenium-hub.conf /etc/supervisor/conf.d/
+COPY testbench-hub.conf /etc/supervisor/conf.d/
 
 RUN /opt/bin/generate_config > /opt/selenium/config.json
