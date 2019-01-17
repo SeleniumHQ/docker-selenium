@@ -16,7 +16,7 @@ echo "" >> ${FOLDER}/Dockerfile
 cat ./Dockerfile.txt >> ${FOLDER}/Dockerfile
 
 cp ./start-testbench-standalone.sh ${FOLDER}
-cp ./testbenchNode.conf ${FOLDER}
+cp ./testbench.conf ${FOLDER}
 
 BROWSER_LC=$(echo ${BROWSER} |  tr '[:upper:]' '[:lower:]')
 
