@@ -1,9 +1,9 @@
 USER seluser
 
 #====================================
-# Scripts to run Selenium Standalone
+# Scripts to run Vaadin Testbench Standalone
 #====================================
-COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
+COPY start-testbench-standalone.sh /opt/bin/start-testbench-standalone.sh
 
 #==============================
 # Supervisor configuration file

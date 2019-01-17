@@ -15,8 +15,8 @@ echo LABEL authors="$AUTHORS" >> ${FOLDER}/Dockerfile
 echo "" >> ${FOLDER}/Dockerfile
 cat ./Dockerfile.txt >> ${FOLDER}/Dockerfile
 
-cp ./start-selenium-standalone.sh ${FOLDER}
-cp ./selenium.conf ${FOLDER}
+cp ./start-testbench-standalone.sh ${FOLDER}
+cp ./testbenchNode.conf ${FOLDER}
 
 BROWSER_LC=$(echo ${BROWSER} |  tr '[:upper:]' '[:lower:]')
 
