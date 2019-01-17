@@ -272,6 +272,22 @@ $ docker run -d --net grid -e HUB_HOST=testbench-hub -e START_XVFB=false -v /dev
 
 For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
 
+## Building the images
+
+Clone the repo and from the project directory root you can build everything by running:
+
+``` bash
+$ VERSION=local make build
+```
+
+If you need to configure environment variable in order to build the image (http proxy for instance), simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the docker context (this will only work with docker >= 1.9)
+
+``` bash
+$ BUILD_ARGS="--build-arg http_proxy=http://acme:3128 --build-arg https_proxy=http://acme:3128" make build
+```
+
+_Note: Omitting_ `VERSION=local` _will build the images with the current version number thus overwriting the images downloaded from [Docker Hub](https://hub.docker.com/r/selenium/)._
+
 ## Using the images
 
 ##### Example: Spawn a container for testing in Chrome:
