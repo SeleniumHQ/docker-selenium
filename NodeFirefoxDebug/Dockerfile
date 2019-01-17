@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:3.141.59-europium
-LABEL authors=SeleniumHQ
+FROM vaadin-testbench/node-firefox:5.1.2
+LABEL authors=SeleniumHQ and Urosporo
 
 USER root
 
@@ -51,6 +51,6 @@ COPY start-fluxbox.sh \
 #==============================
 # Supervisor configuration file
 #==============================
-COPY selenium-debug.conf /etc/supervisor/conf.d/
+COPY testbench-debug.conf /etc/supervisor/conf.d/
 
 EXPOSE 5900
