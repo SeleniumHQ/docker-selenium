@@ -11,7 +11,7 @@ _This image is only intended for development purposes!_ Runs a Vaadin Testbench 
 
 
 ```
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm vaadin-testbench/standalone-##BROWSER_LC##-debug
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm urosporo/testbench-standalone-##BROWSER_LC##-debug
 ```
 
 You can acquire the port that the VNC server is exposed to by running:

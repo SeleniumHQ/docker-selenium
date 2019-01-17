@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM vaadin-testbench/node-base:5.1.2
+FROM urosporo/testbench-node-base:5.1.2
 LABEL authors=SeleniumHQ and Urosporo
 
 USER root

@@ -1,5 +1,5 @@
 FROM ubuntu:bionic-20181204
-LABEL authors="Selenium <selenium-developers@googlegroups.com>" and Urosporo
+LABEL authors="Selenium <selenium-developers@googlegroups.com> and Urosporo"
 
 #================================================
 # Customize sources for apt-get

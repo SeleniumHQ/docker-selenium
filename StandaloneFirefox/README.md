@@ -10,7 +10,7 @@ Vaadin Testbench Standalone Server with Firefox
 
 
 ```
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-firefox
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-firefox
 ```
 
 ## What is Vaadin Testbench?

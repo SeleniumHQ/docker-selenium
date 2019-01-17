@@ -10,7 +10,7 @@ Vaadin Testbench Standalone Server with ##BROWSER##
 
 
 ```
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-##BROWSER_LC##
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-##BROWSER_LC##
 ```
 
 ## What is Vaadin Testbench?

@@ -1,21 +1,21 @@
 # Vaadin Testbench Docker
 
-The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache License 2.0](https://github.com/SeleniumHQ/docker-vaadin-testbench/blob/master/LICENSE.md) it and contains the Vaadin Testbench 5.x standalone.jar which is distributed under the [CVAL 3.0](https://vaadin.com/license/cval-3.0). 
+The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache License 2.0](https://github.com/SeleniumHQ/docker-vaadin-testbench/blob/master/LICENSE.md) and it contains the Vaadin Testbench 5.x standalone.jar which is distributed under the [CVAL 3.0](https://vaadin.com/license/cval-3.0). 
 
 ## Docker images for Vaadin Testbench Standalone Server Hub and Node configurations with Chrome and Firefox
 
 Images included:
-- __vaadin-testbench/base__: Base image which includes Java runtime and Vaadin Testbench 5.x Standalone JAR file
-- __vaadin-testbench/hub__: Image for running a Grid Hub
-- __vaadin-testbench/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
-- __vaadin-testbench/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
-- __vaadin-testbench/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
-- __vaadin-testbench/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
-- __vaadin-testbench/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
-- __vaadin-testbench/standalone-chrome__: Vaadin Testbench Standalone with Chrome installed
-- __vaadin-testbench/standalone-firefox__: Vaadin Testbench Standalone with Firefox installed
-- __vaadin-testbench/standalone-chrome-debug__: Vaadin Testbench Standalone with Chrome installed and runs a VNC server
-- __vaadin-testbench/standalone-firefox-debug__: Vaadin Testbench Standalone with Firefox installed and runs a VNC server
+- __urosporo/testbench-base__: Base image which includes Java runtime and Vaadin Testbench 5.x Standalone JAR file
+- __urosporo/testbench-hub__: Image for running a Grid Hub
+- __urosporo/testbench-node-base__: Base image for Grid Nodes which includes a virtual desktop environment
+- __urosporo/testbench-node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
+- __urosporo/testbench-node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
+- __urosporo/testbench-node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
+- __urosporo/testbench-node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
+- __urosporo/testbench-standalone-chrome__: Vaadin Testbench Standalone with Chrome installed
+- __urosporo/testbench-standalone-firefox__: Vaadin Testbench Standalone with Firefox installed
+- __urosporo/testbench-standalone-chrome-debug__: Vaadin Testbench Standalone with Chrome installed and runs a VNC server
+- __urosporo/testbench-standalone-firefox-debug__: Vaadin Testbench Standalone with Firefox installed and runs a VNC server
 
 ##
 
@@ -24,15 +24,15 @@ Images included:
 
 Chrome
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-chrome:5.1.2
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-chrome:5.1.2
 #OR
-$ docker run -d -p 4444:4444 --shm-size=2g vaadin-testbench/standalone-chrome:5.1.2
+$ docker run -d -p 4444:4444 --shm-size=2g urosporo/testbench-standalone-chrome:5.1.2
 ```
 Firefox
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-firefox:5.1.2
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-firefox:5.1.2
 #OR
-$ docker run -d -p 4444:4444 --shm-size 2g vaadin-testbench/standalone-firefox:5.1.2
+$ docker run -d -p 4444:4444 --shm-size 2g urosporo/testbench-standalone-firefox:5.1.2
 ```
 This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
@@ -43,9 +43,9 @@ to tune this value according to your needs. Along the examples `-v /dev/shm:/dev
 ### Standalone Chrome and Firefox
 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-chrome:5.1.2
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-chrome:5.1.2
 # OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm vaadin-testbench/standalone-firefox:5.1.2
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm urosporo/testbench-standalone-firefox:5.1.2
 ```
 
 _Note: Only one standalone image can run on port_ `4444` _at a time._
@@ -61,9 +61,9 @@ A docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 --net grid --name testbench-hub vaadin-testbench/hub:5.1.2
-$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm vaadin-testbench/node-chrome:5.1.2
-$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox:5.1.2
+$ docker run -d -p 4444:4444 --net grid --name testbench-hub urosporo/testbench-hub:5.1.2
+$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm urosporo/testbench-node-chrome:5.1.2
+$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm urosporo/testbench-node-firefox:5.1.2
 ```
 
 When you are done using the grid and the containers have exited, the network can be removed with the following command:
@@ -87,7 +87,7 @@ snippet as your `docker-compose.yaml`, save it locally and in the same folder ru
 version: '2'
 services:
   firefox:
-    image: vaadin-testbench/node-firefox:5.1.2
+    image: urosporo/testbench-node-firefox:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -96,7 +96,7 @@ services:
       HUB_HOST: hub
 
   chrome:
-    image: vaadin-testbench/node-chrome:5.1.2
+    image: urosporo/testbench-node-chrome:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -105,7 +105,7 @@ services:
       HUB_HOST: hub
 
   hub:
-    image: vaadin-testbench/hub:5.1.2
+    image: urosporo/testbench-hub:5.1.2
     ports:
       - "4444:4444"
 ```
@@ -117,12 +117,12 @@ services:
 version: "3"
 services:
   testbench-hub:
-    image: vaadin-testbench/hub:5.1.2
+    image: urosporo/testbench-hub:5.1.2
     container_name: testbench-hub
     ports:
       - "4444:4444"
   chrome:
-    image: vaadin-testbench/node-chrome:5.1.2
+    image: urosporo/testbench-node-chrome:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -131,7 +131,7 @@ services:
       - HUB_HOST=testbench-hub
       - HUB_PORT=4444
   firefox:
-    image: vaadin-testbench/node-firefox:5.1.2
+    image: urosporo/testbench-node-firefox:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -153,12 +153,12 @@ version: '3.7'
 
 services:
   hub:
-   image: vaadin-testbench/hub:5.1.2
+   image: urosporo/testbench-hub:5.1.2
    ports:
      - "4444:4444"
 
   chrome:
-    image: vaadin-testbench/node-chrome:5.1.2
+    image: urosporo/testbench-node-chrome:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -169,7 +169,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   firefox:
-    image: vaadin-testbench/node-firefox:5.1.2
+    image: urosporo/testbench-node-firefox:5.1.2
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -186,9 +186,9 @@ for longer term usage since this is a docker [legacy feature](https://docs.docke
 It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on.
 
 ``` bash
-$ docker run -d -p 4444:4444 --name testbench-hub vaadin-testbench/hub:5.1.2
-$ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-chrome:5.1.2
-$ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox:5.1.2
+$ docker run -d -p 4444:4444 --name testbench-hub urosporo/testbench-hub:5.1.2
+$ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-chrome:5.1.2
+$ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-firefox:5.1.2
 ```
 
 ## Configuring the containers
@@ -198,7 +198,7 @@ $ docker run -d --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/n
 You can pass `JAVA_OPTS` environment variable to java process.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name testbench-hub vaadin-testbench/hub:5.1.2
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name testbench-hub urosporo/testbench-hub:5.1.2
 ```
 
 ### SE_OPTS Vaadin Testbench Configuration Options
@@ -206,7 +206,7 @@ $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name testbench-hub vaadin-t
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name testbench-hub vaadin-testbench/hub:5.1.2
+$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name testbench-hub urosporo/testbench-hub:5.1.2
 ```
 
 ### Vaadin Testbench Hub and Node Configuration options
@@ -218,7 +218,7 @@ You can pass the `HUB_HOST` and `HUB_PORT` options to provide the hub address to
 
 ``` bash
 # Assuming a hub was already started on the default port
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 vaadin-testbench/node-chrome:5.1.2
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 urosporo/testbench-node-chrome:5.1.2
 ```
 
 Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
@@ -226,7 +226,7 @@ can be used to supply the hub a url where the node is reachable under your speci
 
 ``` bash
 # Assuming a hub was already started on the default port
-$ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 -e REMOTE_HOST="http://<node_ip|node_name>:<node_port>" vaadin-testbench/node-firefox:5.1.2
+$ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 -e REMOTE_HOST="http://<node_ip|node_name>:<node_port>" urosporo/testbench-node-firefox:5.1.2
 ```
 
 ### Setting Screen Resolution
@@ -234,7 +234,7 @@ $ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=44
 By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits.  These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT` and/or `SCREEN_DEPTH` environmental variables when starting the container.
 
 ``` bash
-docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 vaadin-testbench/standalone-firefox
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 urosporo/testbench-standalone-firefox
 ```
 
 ### Increasing the number of browser instances/slots
@@ -247,7 +247,7 @@ environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 sl
 
 ``` bash
 # Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 vaadin-testbench/node-firefox:5.1.2
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 urosporo/testbench-node-firefox:5.1.2
 ```
 
 Don't forget to combine this with the environment variable `NODE_MAX_SESSION`, which sets the maximum amount of tests
@@ -256,7 +256,7 @@ should also be at least 5. Full example:
 
 ``` bash
 # Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 vaadin-testbench/node-firefox:5.1.2
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 urosporo/testbench-node-firefox:5.1.2
 ```
 
 ### Running in Headless mode
@@ -267,7 +267,7 @@ When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.or
 To avoid starting the server you can set the `START_XVFB` environment variable to `false` (or any other value than `true`), for example:
 
 ``` bash
-$ docker run -d --net grid -e HUB_HOST=testbench-hub -e START_XVFB=false -v /dev/shm:/dev/shm vaadin-testbench/node-chrome
+$ docker run -d --net grid -e HUB_HOST=testbench-hub -e START_XVFB=false -v /dev/shm:/dev/shm urosporo/testbench-node-chrome
 ``` 
 
 For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
@@ -277,11 +277,11 @@ For more information, see this Github [issue](https://github.com/SeleniumHQ/dock
 ##### Example: Spawn a container for testing in Chrome:
 
 ``` bash
-$ docker run -d --name testbench-hub -p 4444:4444 vaadin-testbench/hub:5.1.2
+$ docker run -d --name testbench-hub -p 4444:4444 urosporo/testbench-hub:5.1.2
 $ CH=$(docker run --rm --name=ch \
     --link testbench-hub:hub -v /e2e/uploads:/e2e/uploads \
     -v /dev/shm:/dev/shm \
-    vaadin-testbench/node-chrome:5.1.2)
+    urosporo/testbench-node-chrome:5.1.2)
 ```
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
@@ -291,11 +291,11 @@ _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing brow
 This command line is the same as for Chrome. Remember that the Vaadin Testbench running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
 ``` bash
-$ docker run -d --name testbench-hub -p 4444:4444 vaadin-testbench/hub:5.1.2
+$ docker run -d --name testbench-hub -p 4444:4444 urosporo/testbench-hub:5.1.2
 $ FF=$(docker run --rm --name=fx \
     --link testbench-hub:hub -v /e2e/uploads:/e2e/uploads \
     -v /dev/shm:/dev/shm \
-    vaadin-testbench/node-firefox:5.1.2)
+    urosporo/testbench-node-firefox:5.1.2)
 ```
 
 _Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
@@ -346,9 +346,9 @@ $ docker network create grid
 $ docker run -d -p 4444:4444 --net grid --name testbench-hub \
     --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
     --health-interval=15s --health-timeout=30s --health-retries=5 \
-    vaadin-testbench/hub:5.1.2
-$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm vaadin-testbench/node-chrome:5.1.2
-$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox:5.1.2
+    urosporo/testbench-hub:5.1.2
+$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm urosporo/testbench-node-chrome:5.1.2
+$ docker run -d --net grid -e HUB_HOST=testbench-hub -v /dev/shm:/dev/shm urosporo/testbench-node-firefox:5.1.2
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
@@ -399,27 +399,27 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
-$ docker run -d -P -p <port4VNC>:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-chrome-debug:5.1.2
-$ docker run -d -P -p <port4VNC>:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox-debug:5.1.2
+$ docker run -d -P -p <port4VNC>:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-chrome-debug:5.1.2
+$ docker run -d -P -p <port4VNC>:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-firefox-debug:5.1.2
 ```
 e.g.:
 ``` bash
-$ docker run -d -P -p 5900:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-chrome-debug:5.1.2
-$ docker run -d -P -p 5901:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm vaadin-testbench/node-firefox-debug:5.1.2
+$ docker run -d -P -p 5900:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-chrome-debug:5.1.2
+$ docker run -d -P -p 5901:5900 --link testbench-hub:hub -v /dev/shm:/dev/shm urosporo/testbench-node-firefox-debug:5.1.2
 ```
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
 And for standalone:
 ``` bash
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm vaadin-testbench/standalone-chrome-debug:5.1.2
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm urosporo/testbench-standalone-chrome-debug:5.1.2
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm vaadin-testbench/standalone-firefox-debug:5.1.2
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm urosporo/testbench-standalone-firefox-debug:5.1.2
 ```
 or
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm vaadin-testbench/standalone-chrome-debug:5.1.2
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm urosporo/testbench-standalone-chrome-debug:5.1.2
 # OR
-$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm vaadin-testbench/standalone-firefox-debug:5.1.2
+$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm urosporo/testbench-standalone-firefox-debug:5.1.2
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -438,8 +438,8 @@ If you are running [Boot2Docker](https://docs.docker.com/installation/mac/) on O
 
 When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
 ``` dockerfile
-#FROM vaadin-testbench/node-chrome-debug:5.1.2
-#FROM vaadin-testbench/node-firefox-debug:5.1.2
+#FROM urosporo/testbench-node-chrome-debug:5.1.2
+#FROM urosporo/testbench-node-firefox-debug:5.1.2
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
