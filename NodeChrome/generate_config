@@ -22,6 +22,7 @@ cat <<_EOF
   "nodePolling": $NODE_POLLING,
   "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
   "downPollingLimit": $NODE_DOWN_POLLING_LIMIT,
-  "debug": $GRID_DEBUG
+  "debug": $GRID_DEBUG,
+  "hub": "http://$NODE_HOST:$HUB_PORT/grid/register"
 }
 _EOF
