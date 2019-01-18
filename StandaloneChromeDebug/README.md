@@ -41,12 +41,6 @@ View [license information](https://github.com/urosporo/docker-vaadin-testbench/b
 
 ## Getting Help
 
-### User Group
-
-The first place where people ask for help about Selenium is the [Official User Group](https://groups.google.com/forum/#!forum/selenium-users). Here, you'll find that most of the time, someone already found the problem you are facing right now, and usually reached the solution for which you are looking.
-
-_Note: Please make sure to search the group before asking for something. Your question likely won't get answered if it was previously answered in another discussion!_
-
 ### Issues
 
 If you have any problems with or questions about this image, please contact us through a [Github issue](https://github.com/urosporo/docker-vaadin-testbench/issues). If you have any problems with or questions about Vaadin Testbench, please contact Vaadin through Vaadin's [Bug Tracker](https://github.com/vaadin/testbench/issues). If you have any problems with or questions about Selenium, please contact Selenium through Selenium's [Bug Tracker](https://github.com/SeleniumHQ/selenium/issues).
