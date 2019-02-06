@@ -13,7 +13,10 @@ pip install selenium===3.14.1 \
             | grep -v 'Requirement already satisfied'
 
 python test.py $1 $2
+ret_code=$?
 
 if [ "${TRAVIS:-false}" = "false" ]; then
   deactivate
 fi
+
+exit $ret_code
