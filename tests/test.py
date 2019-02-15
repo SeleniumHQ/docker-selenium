@@ -17,6 +17,9 @@ client = docker.from_env()
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
 USE_RANDOM_USER_ID = os.environ.get('USE_RANDOM_USER_ID')
+http_proxy = os.environ.get('http_proxy', '')
+https_proxy = os.environ.get('https_proxy', '')
+no_proxy = os.environ.get('no_proxy', '')
 
 IMAGE_NAME_MAP = {
     # Hub
@@ -100,6 +103,11 @@ def launch_container(container, **kwargs):
     logger.info("Running %s container..." % container)
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
+                                         environment={
+                                             'http_proxy': http_proxy,
+                                             'https_proxy': https_proxy,
+                                             'no_proxy': no_proxy
+                                         },
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
     return container_id
