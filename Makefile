@@ -14,7 +14,7 @@ b_firefox: hub firefox chromium_firefox standalone_firefox standalone_firefox_de
 
 b_chromium: hub chromium chromium_debug standalone_chromium standalone_chromium_debug
 
-all: b_chrome b_firefox b_chromium
+all: hub chrome chrome_debug standalone_chrome standalone_chrome_debug firefox chromium_firefox standalone_firefox standalone_firefox_debug chromium chromium_debug standalone_chromium standalone_chromium_debug
 
 generate_all:	\
 	generate_hub \
