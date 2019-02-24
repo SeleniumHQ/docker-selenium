@@ -8,7 +8,7 @@ The project is made possible by volunteer contributors who have put in thousands
 
 ### IRC (&#35;selenium at Freenode)
 
-## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
+## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome, Chromium and Firefox
 [Travis CI](https://travis-ci.org/SeleniumHQ/docker-selenium)
 
 Images included:
@@ -16,12 +16,16 @@ Images included:
 - __selenium/hub__: Image for running a Grid Hub
 - __selenium/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
 - __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
+- __selenium/node-chromium__: Grid Node with Chromium installed, needs to be connected to a Grid Hub
 - __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
 - __selenium/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
+- __selenium/node-chromium-debug__: Grid Node with Chromium installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/standalone-chrome__: Selenium Standalone with Chrome installed
+- __selenium/standalone-chromium__: Selenium Standalone with Chrome installed
 - __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
 - __selenium/standalone-chrome-debug__: Selenium Standalone with Chrome installed and runs a VNC server
+- __selenium/standalone-chromium-debug__: Selenium Standalone with Chromium installed and runs a VNC server
 - __selenium/standalone-firefox-debug__: Selenium Standalone with Firefox installed and runs a VNC server
 
 ##
@@ -35,6 +39,12 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.1
 #OR
 $ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:3.141.59-iron
 ```
+Chromium
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chromium:3.141.59-iron
+#OR
+$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chromium:3.141.59-iron
+```
 Firefox
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-iron
@@ -47,17 +57,19 @@ The shm size of 2gb is arbitrary but known to work well, your specific use case 
 to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
 
 
-### Standalone Chrome and Firefox
+### Standalone Chrome, Chromium and Firefox
 
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-iron
+# OR
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chromium:3.141.59-iron
 # OR
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-iron
 ```
 
 _Note: Only one standalone image can run on port_ `4444` _at a time._
 
-To inspect visually what the browser is doing use the `standalone-chrome-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
+To inspect visually what the browser is doing use the `standalone-chrome-debug`, `standalone-chromium-debug` or `standalone-firefox-debug` images. See [Debugging](#debugging) section for details.
 
 ### Selenium Grid Hub and Nodes
 There are different ways to run the images and create a grid, check the following options.
@@ -70,6 +82,7 @@ A docker [network](https://docs.docker.com/engine/reference/commandline/network_
 $ docker network create grid
 $ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:3.141.59-iron
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-iron
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chromium:3.141.59-iron
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-iron
 ```
 
@@ -110,6 +123,15 @@ services:
       - hub
     environment:
       HUB_HOST: hub
+      
+  chromium:
+    image: selenium/node-chromium:3.141.59-iron
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - hub
+    environment:
+      HUB_HOST: hub
 
   hub:
     image: selenium/hub:3.141.59-iron
@@ -130,6 +152,15 @@ services:
       - "4444:4444"
   chrome:
     image: selenium/node-chrome:3.141.59-iron
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+  chromium:
+    image: selenium/node-chromium:3.141.59-iron
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -175,6 +206,17 @@ services:
         replicas: 1
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
 
+  chromium:
+    image: selenium/node-chromium:3.141.59-iron
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      HUB_HOST: hub
+      HUB_PORT: 4444
+    deploy:
+        replicas: 1
+    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+
   firefox:
     image: selenium/node-firefox:3.141.59-iron
     volumes:
@@ -195,6 +237,7 @@ It could serve you as an option for a proof of concept, and for simplicity it is
 ``` bash
 $ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.141.59-iron
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-iron
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chromium:3.141.59-iron
 $ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-iron
 ```
 
@@ -314,6 +357,18 @@ $ CH=$(docker run --rm --name=ch \
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
 
+##### Example: Spawn a container for testing in Chromium:
+
+``` bash
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-iron
+$ CH=$(docker run --rm --name=ch \
+    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
+    -v /dev/shm:/dev/shm \
+    selenium/node-chromium:3.141.59-iron)
+```
+
+_Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
+
 ##### Example: Spawn a container for testing in Firefox:
 
 This command line is the same as for Chrome. Remember that the Selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
@@ -376,6 +431,7 @@ $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
     --health-interval=15s --health-timeout=30s --health-retries=5 \
     selenium/hub:3.141.59-iron
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-iron
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chromium:3.141.59-iron
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-iron
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
@@ -428,11 +484,13 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-iron
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chromium-debug:3.141.59-iron
 $ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-iron
 ```
 e.g.:
 ``` bash
 $ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-iron
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chromium-debug:3.141.59-iron
 $ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-iron
 ```
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
@@ -441,10 +499,14 @@ And for standalone:
 ``` bash
 $ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-iron
 # OR
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chromium-debug:3.141.59-iron
+# OR
 $ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-iron
 ```
 or
 ``` bash
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chromium-debug:3.141.59-iron
+# OR
 $ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-iron
 # OR
 $ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-iron
@@ -467,6 +529,7 @@ If you are running [Boot2Docker](https://docs.docker.com/installation/mac/) on O
 When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
 ``` dockerfile
 #FROM selenium/node-chrome-debug:3.141.59-iron
+#FROM selenium/node-chromium-debug:3.141.59-iron
 #FROM selenium/node-firefox-debug:3.141.59-iron
 #Choose the FROM statement that works for you.
 
