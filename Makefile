@@ -96,8 +96,8 @@ standalone_chrome: chrome generate_standalone_chrome
 generate_standalone_chromium:
 	cd ./Standalone && ./generate.sh StandaloneChromium node-chromium Chromium $(VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_chromium: chrome generate_standalone_chromium
-	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(VERSION) .
+standalone_chromium: chromium generate_standalone_chromium
+	cd ./StandaloneChromium && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(VERSION) .
 
 generate_standalone_chrome_debug:
 	cd ./StandaloneDebug && ./generate.sh StandaloneChromeDebug node-chrome-debug Chrome $(VERSION) $(NAMESPACE) $(AUTHORS)
