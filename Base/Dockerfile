@@ -1,4 +1,4 @@
-FROM ubuntu:bionic-20181204
+FROM ubuntu:bionic
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
@@ -25,7 +25,7 @@ RUN apt-get -qqy update \
     curl \
     supervisor \
     gnupg2 \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' .$(update-alternatives --list java | sed 's/bin\/java*//')lib/security/java.security
 
 #===================
