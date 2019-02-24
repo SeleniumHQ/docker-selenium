@@ -8,23 +8,37 @@ MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 
-all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
+b_chrome: hub chrome chrome_debug standalone_chrome standalone_chrome_debug
 
-half: hub chromium chromium_debug standalone_chromium standalone_chromium_debug
+b_firefox: hub firefox chromium_firefox standalone_firefox standalone_firefox_debug
+
+b_chromium: hub chromium chromium_debug standalone_chromium standalone_chromium_debug
+
+all: b_chrome b_firefox b_chromium
 
 generate_all:	\
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
+	generate_chromium \
 	generate_firefox \
 	generate_chrome_debug \
+	generate_chromium_debug \
 	generate_firefox_debug \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
+	generate_standalone_chromium \
 	generate_standalone_firefox_debug \
-	generate_standalone_chrome_debug
+	generate_standalone_chrome_debug \
+	generate_standalone_chromium_debug
 
-build: half
+build: all
+
+build_chrome: b_chrome
+
+build_firefox: b_firefox
+
+build_chromium: b_chromium
 
 ci: build test
 
