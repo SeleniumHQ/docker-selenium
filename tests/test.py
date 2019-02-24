@@ -30,6 +30,12 @@ IMAGE_NAME_MAP = {
     'NodeChromeDebug': 'node-chrome-debug',
     'StandaloneChrome': 'standalone-chrome',
     'StandaloneChromeDebug': 'standalone-chrome-debug',
+    
+    # Chromium Images
+    'NodeChromium': 'node-chromium',
+    'NodeChromiumDebug': 'node-chromium-debug',
+    'StandaloneChromium': 'standalone-chromium',
+    'StandaloneChromiumDebug': 'standalone-chromium-debug',
 
     # Firefox Images
     'NodeFirefox': 'node-firefox',
@@ -44,6 +50,12 @@ TEST_NAME_MAP = {
     'NodeChromeDebug': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
     'StandaloneChromeDebug': 'ChromeTests',
+    
+    # Chromium Images
+    'NodeChromium': 'ChromeTests',
+    'NodeChromiumDebug': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
+    'StandaloneChromiumDebug': 'ChromeTests',
 
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
