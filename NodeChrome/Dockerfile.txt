@@ -33,8 +33,12 @@ USER seluser
 # can specify versions by CHROME_DRIVER_VERSION
 # Latest released version will be used by default
 #============================================
-ARG CHROME_DRIVER_VERSION="73.0.3683.68"
-RUN CD_VERSION=$(echo $CHROME_DRIVER_VERSION) \
+RUN CHROME_STRING=$(google-chrome --version) \ 
+  && CHROME_VERSION_STRING=$(echo "${CHROME_STRING}" | grep -oP "\d+\.\d+\.\d+\.\d+") \
+  && CHROME_MAYOR_VERSION=$(echo "${CHROME_VERSION_STRING%%.*}") \
+  && wget --no-verbose -O /tmp/LATEST_RELEASE "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAYOR_VERSION}" \
+  && CD_VERSION=$(cat "/tmp/LATEST_RELEASE") \
+  && rm /tmp/LATEST_RELEASE \
   && echo "Using chromedriver version: "$CD_VERSION \
   && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CD_VERSION/chromedriver_linux64.zip \
   && rm -rf /opt/selenium/chromedriver \
