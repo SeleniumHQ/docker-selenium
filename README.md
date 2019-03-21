@@ -249,6 +249,9 @@ By default, nodes start with a screen resolution of 1360 x 1020 with a color dep
 docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 selenium/standalone-firefox
 ```
 
+Bear in mind that in non-debug images, the maximize window command won't work. You can use the resize window command
+instead. Also, some browser drivers allow specifying window size in capabilities.
+
 ### Increasing the number of browser instances/slots
 
 By default, each image will only allow one slot per container, which is what we recommend as a best practice since all
