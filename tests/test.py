@@ -161,7 +161,7 @@ if __name__ == '__main__':
         test_runner = unittest.TextTestRunner(verbosity=3)
         failed = not test_runner.run(suite).wasSuccessful()
     except Exception as e:
-        logger.fatal(e.message)
+        logger.fatal(e)
         failed = True
 
     try:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
         test_runner = unittest.TextTestRunner(verbosity=3)
         failed = not test_runner.run(suite).wasSuccessful()
     except Exception as e:
-        logger.fatal(e.message)
+        logger.fatal(e)
         failed = True
 
     logger.info("Cleaning up...")

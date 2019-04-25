@@ -1,7 +1,11 @@
 import unittest
-import urllib2
 import time
 import json
+
+try:
+    from urllib2 import urlopen
+except ImportError:
+    from urllib.request import urlopen
 
 
 class SmokeTests(unittest.TestCase):
@@ -15,7 +19,7 @@ class SmokeTests(unittest.TestCase):
         while current_attempts < max_attempts:
             current_attempts = current_attempts + 1
             try:
-                response = urllib2.urlopen('http://localhost:%s/wd/hub/status' % port)
+                response = urlopen('http://localhost:%s/wd/hub/status' % port)
                 status_json = json.loads(response.read())
                 self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
                 status_fetched = True
