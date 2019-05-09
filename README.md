@@ -415,6 +415,8 @@ done
 >&2 echo "Selenium Grid is up - executing tests"
 exec $cmd
 ```
+> Will require `jq` installed via `apt-get`, else the script will keep printing `Waiting` without completing the execution.
+
 **Note:** If needed, replace `localhost` and `4444` for the correct values in your environment. Also, this script is polling indefinitely, you might want
 to tweak it and establish a timeout.
 
