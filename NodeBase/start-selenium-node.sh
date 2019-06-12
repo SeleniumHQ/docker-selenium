@@ -7,6 +7,16 @@ if [ ! -e /opt/selenium/config.json ]; then
   exit 1
 fi
 
+# Start the pulseaudio server
+pulseaudio -D --exit-idle-time=-1
+
+# Load the virtual sink and set it as default
+pacmd load-module module-virtual-sink sink_name=v1
+pacmd set-default-sink v1
+
+# set the monitor of v1 sink to be the default source
+pacmd set-default-source v1.monitor
+
 # In the long term the idea is to remove $HUB_PORT_4444_TCP_ADDR and $HUB_PORT_4444_TCP_PORT and only work with
 # $HUB_HOST and $HUB_PORT
 if [ ! -z "$HUB_HOST" ]; then
