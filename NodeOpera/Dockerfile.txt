@@ -1,0 +1,39 @@
+USER root
+
+#=========
+# Opera
+#=========
+ENV OPERA_VERSION=60.0.3255.170
+ENV OPERA_DRIVER_VERSION=v.2.45
+
+RUN wget -O- http://deb.opera.com/archive.key | apt-key add - && \
+     echo 'deb http://deb.opera.com/opera-stable/ stable non-free' > /etc/apt/sources.list.d/opera-blink.list
+
+RUN apt-get update && \
+     apt-get -y --no-install-recommends install opera-stable && \
+     opera --version && \
+     rm -Rf /var/lib/apt/lists/*
+
+#=====================
+# OperaChromiumDriver
+#=====================
+RUN wget --no-verbose -O /tmp/operachromiumdriver.zip https://github.com/operasoftware/operachromiumdriver/releases/download/$OPERA_DRIVER_VERSION/operadriver_linux64.zip \
+  && rm -rf /opt/operachromiumdriver \
+  && unzip /tmp/operachromiumdriver.zip -d /opt/operachromiumdriver \
+  && ln -fs /opt/operachromiumdriver /usr/bin/operachromiumdriver \
+  && chmod 755 /opt/operachromiumdriver/ \
+  && rm -rf /tmp/operachromiumdriver.zip
+
+USER seluser
+
+COPY ./generate_config /opt/bin/generate_config
+
+# Generation a default config during build time
+RUN /opt/bin/generate_config > /opt/selenium/config.json
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN sudo chmod -R 777 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}

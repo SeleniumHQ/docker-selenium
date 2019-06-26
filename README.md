@@ -17,6 +17,7 @@ Images included:
 - __selenium/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
 - __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
 - __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
+- __selenium/node-opera__: Selenium node with Opera installed, needs to be connected to a Selenium Grid Hub
 - __selenium/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/standalone-chrome__: Selenium Standalone with Chrome installed
@@ -24,7 +25,7 @@ Images included:
 - __selenium/standalone-chrome-debug__: Selenium Standalone with Chrome installed and runs a VNC server
 - __selenium/standalone-firefox-debug__: Selenium Standalone with Firefox installed and runs a VNC server
 
-##
+## 
 
 ## Running the images
 :exclamation: When executing `docker run` for an image with Chrome or Firefox please either mount `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
