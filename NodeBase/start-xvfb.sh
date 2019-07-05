@@ -5,7 +5,7 @@ if [ "${START_XVFB}" = true ] ; then
 
   rm -f /tmp/.X*lock
 
-  /usr/bin/Xvfb ${DISPLAY} -screen 0 ${GEOMETRY} -ac +extension RANDR
+  /usr/bin/Xvfb ${DISPLAY} -screen 0 ${GEOMETRY} -dpi ${SCREEN_DPI} -ac +extension RANDR
 else
   echo "Xvfb won't start. Chrome/Firefox can only run in headless mode. Remember to set the 'headless' flag in your test."
 fi
