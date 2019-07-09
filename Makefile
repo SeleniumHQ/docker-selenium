@@ -107,7 +107,7 @@ standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(VERSION) .
 
 generate_standalone_opera_debug:
-	cd ./StandaloneOpera && ./generate.sh StandaloneOperaDebug node-opera-debug Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./StandaloneDebug && ./generate.sh StandaloneOperaDebug node-opera-debug Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_opera_debug: opera_debug generate_standalone_opera_debug
 	cd ./StandaloneOperaDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera-debug:$(VERSION) .
@@ -127,7 +127,7 @@ firefox_debug: generate_firefox_debug firefox
 generate_opera_debug:
 	cd ./NodeDebug && ./generate.sh NodeOperaDebug node-opera Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
 
-chrome_debug: generate_opera_debug opera
+opera_debug: generate_opera_debug opera
 	cd ./NodeOperaDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-opera-debug:$(VERSION) .
 
 tag_latest:
@@ -296,8 +296,10 @@ test: test_chrome \
  test_firefox_standalone \
  test_chrome_standalone_debug \
  test_firefox_standalone_debug \
- test_opera
-
+ test_opera \
+ test_opera_debug \
+ test_opera_standalone \
+ test_opera_standalone_debug
 
 test_chrome:
 	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome

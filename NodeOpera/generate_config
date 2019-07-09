@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPERA_VERSION=60.0.3255.170
+OPERA_VERSION=$(opera --version)
 
 cat <<_EOF
 {

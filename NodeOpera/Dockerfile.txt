@@ -3,8 +3,6 @@ USER root
 #=========
 # Opera
 #=========
-ENV OPERA_DRIVER_VERSION=v.2.45
-
 RUN wget -O- http://deb.opera.com/archive.key | apt-key add - && \
      echo 'deb http://deb.opera.com/opera-stable/ stable non-free' > /etc/apt/sources.list.d/opera-blink.list
 
@@ -16,7 +14,7 @@ RUN apt-get update && \
 #=====================
 # OperaChromiumDriver
 #=====================
-RUN wget --no-verbose -O /tmp/operachromiumdriver.zip https://github.com/operasoftware/operachromiumdriver/releases/download/$OPERA_DRIVER_VERSION/operadriver_linux64.zip \
+RUN wget --no-verbose -O /tmp/operachromiumdriver.zip https://github.com/operasoftware/operachromiumdriver/releases/latest/download/operadriver_linux64.zip \
   && rm -rf /opt/operachromiumdriver \
   && unzip /tmp/operachromiumdriver.zip -d /opt/operachromiumdriver \
   && ln -fs /opt/operachromiumdriver /usr/bin/operachromiumdriver \

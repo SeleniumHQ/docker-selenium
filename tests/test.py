@@ -57,11 +57,11 @@ TEST_NAME_MAP = {
     'StandaloneFirefox': 'FirefoxTests',
     'StandaloneFirefoxDebug': 'FirefoxTests',
 
-    # Firefox Images
-    'NodeOpera': 'OperaTests'
-    'NodeOperaDebug': 'FirefoxTests',
-    'StandaloneOpera': 'FirefoxTests',
-    'StandaloneOperaDebug': 'FirefoxTests',
+    # Opera Images
+    'NodeOpera': 'OperaTests',
+    'NodeOperaDebug': 'OperaTests',
+    'StandaloneOpera': 'OperaTests',
+    'StandaloneOperaDebug': 'OperaTests'
 }
 
 
