@@ -253,10 +253,10 @@ $ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=44
 
 ### Setting Screen Resolution
 
-By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits.  These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT` and/or `SCREEN_DEPTH` environmental variables when starting the container.
+By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits and a dpi of 96. These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `SCREEN_DEPTH`, and/or `SCREEN_DPI` environmental variables when starting the container.
 
 ``` bash
-docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 selenium/standalone-firefox
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox
 ```
 
 Bear in mind that in non-debug images, the maximize window command won't work. You can use the resize window command
