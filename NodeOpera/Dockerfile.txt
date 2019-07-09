@@ -3,7 +3,6 @@ USER root
 #=========
 # Opera
 #=========
-ENV OPERA_VERSION=60.0.3255.170
 ENV OPERA_DRIVER_VERSION=v.2.45
 
 RUN wget -O- http://deb.opera.com/archive.key | apt-key add - && \
