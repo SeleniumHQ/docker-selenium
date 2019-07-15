@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-radium
+FROM selenium/base:3.141.59-selenium
 LABEL authors=SeleniumHQ
 
 USER root
@@ -95,6 +95,7 @@ COPY selenium.conf /etc/supervisor/conf.d/
 ENV SCREEN_WIDTH 1360
 ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
+ENV SCREEN_DPI 96
 ENV DISPLAY :99.0
 ENV START_XVFB true
 
