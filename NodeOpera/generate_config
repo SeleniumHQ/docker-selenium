@@ -10,6 +10,7 @@ cat <<_EOF
       "browserName": "opera",
       "maxInstances": $NODE_MAX_INSTANCES,
       "seleniumProtocol": "WebDriver",
+      "ensureCleanSession": "true",
       "applicationName": "$NODE_APPLICATION_NAME"
     }
   ],

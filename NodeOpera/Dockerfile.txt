@@ -1,27 +1,34 @@
 USER root
 
+USER root
+
 #=========
 # Opera
 #=========
 RUN wget -O- http://deb.opera.com/archive.key | apt-key add - && \
-     echo 'deb http://deb.opera.com/opera-stable/ stable non-free' > /etc/apt/sources.list.d/opera-blink.list
-
-RUN apt-get update && \
+     echo 'deb http://deb.opera.com/opera-stable/ stable non-free' > /etc/apt/sources.list.d/opera-stable.list && \
+     apt-get update && \
      apt-get -y --no-install-recommends install opera-stable && \
      opera --version && \
-     rm -Rf /var/lib/apt/lists/*
+     rm -rf /etc/apt/sources.list.d/opera-blink.list
+
+#=================================
+# Opera Launch Script Wrapper
+#=================================
+#COPY wrap_opera_binary /opt/bin/wrap_opera_binary
+#RUN /opt/bin/wrap_opera_binary
+
+USER seluser
 
 #=====================
 # OperaChromiumDriver
 #=====================
 RUN wget --no-verbose -O /tmp/operachromiumdriver.zip https://github.com/operasoftware/operachromiumdriver/releases/latest/download/operadriver_linux64.zip \
   && rm -rf /opt/operachromiumdriver \
-  && unzip /tmp/operachromiumdriver.zip -d /opt/operachromiumdriver \
-  && ln -fs /opt/operachromiumdriver /usr/bin/operachromiumdriver \
-  && chmod 755 /opt/operachromiumdriver/ \
+  && unzip /tmp/operachromiumdriver.zip -d /opt/selenium \
+  && chmod 755 /opt/selenium/operadriver_linux64/operadriver \
+  && sudo ln -fs /opt/selenium/operadriver_linux64/operadriver /usr/bin/operadriver \
   && rm -rf /tmp/operachromiumdriver.zip
-
-USER seluser
 
 COPY ./generate_config /opt/bin/generate_config
 
