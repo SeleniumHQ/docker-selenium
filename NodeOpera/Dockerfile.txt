@@ -1,7 +1,5 @@
 USER root
 
-USER root
-
 #=========
 # Opera
 #=========
@@ -10,7 +8,8 @@ RUN wget -O- http://deb.opera.com/archive.key | apt-key add - && \
      apt-get update && \
      apt-get -y --no-install-recommends install opera-stable && \
      opera --version && \
-     rm -rf /etc/apt/sources.list.d/opera-blink.list
+     rm -rf /etc/apt/sources.list.d/opera-stable.list && \
+     rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================
 # Opera Launch Script Wrapper
