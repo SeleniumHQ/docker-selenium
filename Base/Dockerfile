@@ -51,11 +51,6 @@ RUN useradd seluser \
   && echo 'seluser:secret' | chpasswd
 ENV HOME=/home/seluser
 
-#=======================================
-# Create shared / common bin directory
-#=======================================
-RUN  mkdir -p /opt/bin 
-
 #======================================
 # Add Grid check script
 #======================================
