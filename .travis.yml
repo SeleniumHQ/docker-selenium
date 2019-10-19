@@ -1,6 +1,7 @@
+dist: bionic
 language: python
-
-sudo: required
+python:
+  - "3.8.0"
 
 services:
   - docker
