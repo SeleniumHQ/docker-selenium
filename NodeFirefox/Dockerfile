@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.141.59-vanadium
+FROM selenium/node-base:3.141.59-xenon
 LABEL authors=SeleniumHQ
 
 USER root
@@ -27,7 +27,7 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 # GeckoDriver
 #============
 ARG GECKODRIVER_VERSION=latest
-RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.25.0"; else echo $GECKODRIVER_VERSION; fi) \
+RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.26.0"; else echo $GECKODRIVER_VERSION; fi) \
   && echo "Using GeckoDriver version: "$GK_VERSION \
   && wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GK_VERSION/geckodriver-v$GK_VERSION-linux64.tar.gz \
   && rm -rf /opt/geckodriver \
@@ -50,4 +50,3 @@ RUN /opt/bin/generate_config > /opt/selenium/config.json
 RUN sudo chmod -R 777 ${HOME} \
   && sudo chgrp -R 0 ${HOME} \
   && sudo chmod -R g=u ${HOME}
-
