@@ -1,4 +1,4 @@
-FROM ubuntu:bionic-20190612
+FROM ubuntu:bionic
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
