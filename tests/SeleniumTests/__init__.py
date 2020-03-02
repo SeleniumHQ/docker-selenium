@@ -1,5 +1,8 @@
 import unittest
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
@@ -38,6 +41,20 @@ class SeleniumGenericTests(unittest.TestCase):
         driver.get('http://admin:admin@the-internet.herokuapp.com/basic_auth')
         page_message = driver.find_element_by_css_selector('.example p').text
         self.assertTrue(page_message == 'Congratulations! You must have the proper credentials.')
+
+    def test_play_video(self):
+        driver = self.driver
+        driver.get('https://hls-js.netlify.com/demo/')
+        wait = WebDriverWait(driver, 30)
+        video = wait.until(
+            EC.element_to_be_clickable((By.TAG_NAME, 'video'))
+        )
+        video.click()
+        wait.until(
+            lambda d: d.find_element_by_tag_name('video').get_property('currentTime')
+        )
+        paused = video.get_property('paused')
+        self.assertFalse(paused)
 
     def tearDown(self):
         self.driver.quit()
