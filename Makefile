@@ -8,19 +8,23 @@ MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 
-all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
+all: hub chrome firefox opera chrome_debug firefox_debug opera_debug standalone_chrome standalone_firefox standalone_opera standalone_chrome_debug standalone_firefox_debug standalone_opera_debug
 
 generate_all:	\
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
+	generate_opera \
 	generate_chrome_debug \
 	generate_firefox_debug \
+	generate_opera_debug \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
+	generate_standalone_opera \
 	generate_standalone_firefox_debug \
-	generate_standalone_chrome_debug
+	generate_standalone_chrome_debug \
+	generate_standalone_opera_debug
 
 build: all
 
@@ -53,6 +57,12 @@ generate_firefox:
 firefox: nodebase generate_firefox
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(VERSION) .
 
+generate_opera:
+	cd ./NodeOpera && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+opera: nodebase generate_opera
+	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(VERSION) .
+
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(VERSION) $(NAMESPACE) $(AUTHORS)
 
@@ -77,6 +87,18 @@ generate_standalone_chrome_debug:
 standalone_chrome_debug: chrome_debug generate_standalone_chrome_debug
 	cd ./StandaloneChromeDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome-debug:$(VERSION) .
 
+generate_standalone_opera:
+	cd ./Standalone && ./generate.sh StandaloneOpera node-opera Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+standalone_opera: opera generate_standalone_opera
+	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(VERSION) .
+
+generate_standalone_opera_debug:
+	cd ./StandaloneDebug && ./generate.sh StandaloneOperaDebug node-opera-debug Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+standalone_opera_debug: opera_debug generate_standalone_opera_debug
+	cd ./StandaloneOperaDebug && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera-debug:$(VERSION) .
+
 generate_chrome_debug:
 	cd ./NodeDebug && ./generate.sh NodeChromeDebug node-chrome Chrome $(VERSION) $(NAMESPACE) $(AUTHORS)
 
@@ -88,6 +110,12 @@ generate_firefox_debug:
 
 firefox_debug: generate_firefox_debug firefox
 	cd ./NodeFirefoxDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox-debug:$(VERSION) .
+
+generate_opera_debug:
+	cd ./NodeDebug && ./generate.sh NodeOperaDebug node-opera Opera $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+opera_debug: generate_opera_debug opera
+	cd ./NodeOperaDebug && docker build $(BUILD_ARGS) -t $(NAME)/node-opera-debug:$(VERSION) .
 
 tag_latest:
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:latest
@@ -209,12 +237,16 @@ release: tag_major_minor
 
 test: test_chrome \
  test_firefox \
+ test_opera \
  test_chrome_debug \
  test_firefox_debug \
+ test_opera_debug \
  test_chrome_standalone \
  test_firefox_standalone \
+ test_opera_standalone \
  test_chrome_standalone_debug \
- test_firefox_standalone_debug
+ test_firefox_standalone_debug \
+ test_opera_standalone_debug
 
 
 test_chrome:
@@ -241,6 +273,18 @@ test_firefox_standalone:
 test_firefox_standalone_debug:
 	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefoxDebug
 
+test_opera:
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeOpera
+
+test_opera_debug:
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeOperaDebug
+
+test_opera_standalone:
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneOpera
+
+test_opera_standalone_debug:
+	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneOperaDebug
+
 
 .PHONY: \
 	all \
@@ -251,17 +295,23 @@ test_firefox_standalone_debug:
 	ci \
 	firefox \
 	firefox_debug \
+	opera \
+	opera_debug \
 	generate_all \
 	generate_hub \
 	generate_nodebase \
 	generate_chrome \
 	generate_firefox \
+	generage_opera \
 	generate_chrome_debug \
 	generate_firefox_debug \
+	generate_opera_debug \
 	generate_standalone_chrome \
 	generate_standalone_firefox \
+	generate_standalone_opera \
 	generate_standalone_chrome_debug \
 	generate_standalone_firefox_debug \
+	generate_standalone_opera_debug \
 	hub \
 	nodebase \
 	release \
