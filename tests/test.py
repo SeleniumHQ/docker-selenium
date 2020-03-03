@@ -27,41 +27,29 @@ IMAGE_NAME_MAP = {
 
     # Chrome Images
     'NodeChrome': 'node-chrome',
-    'NodeChromeDebug': 'node-chrome-debug',
     'StandaloneChrome': 'standalone-chrome',
-    'StandaloneChromeDebug': 'standalone-chrome-debug',
 
     # Firefox Images
     'NodeFirefox': 'node-firefox',
-    'NodeFirefoxDebug': 'node-firefox-debug',
     'StandaloneFirefox': 'standalone-firefox',
-    'StandaloneFirefoxDebug': 'standalone-firefox-debug',
 
     # Opera Images
     'NodeOpera': 'node-opera',
-    'NodeOperaDebug': 'node-opera-debug',
     'StandaloneOpera': 'standalone-opera',
-    'StandaloneOperaDebug': 'standalone-opera-debug',
 }
 
 TEST_NAME_MAP = {
     # Chrome Images
     'NodeChrome': 'ChromeTests',
-    'NodeChromeDebug': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
-    'StandaloneChromeDebug': 'ChromeTests',
 
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
-    'NodeFirefoxDebug': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
-    'StandaloneFirefoxDebug': 'FirefoxTests',
 
     # Opera Images
     'NodeOpera': 'OperaTests',
-    'NodeOperaDebug': 'OperaTests',
     'StandaloneOpera': 'OperaTests',
-    'StandaloneOperaDebug': 'OperaTests',
 }
 
 
