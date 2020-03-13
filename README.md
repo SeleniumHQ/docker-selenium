@@ -8,8 +8,8 @@ The project is made possible by volunteer contributors who have put in thousands
 
 ### IRC (&#35;selenium at Freenode)
 
-## Docker images for Selenium Standalone Server Hub and Node configurations with Chrome and Firefox
-[Travis CI](https://travis-ci.org/SeleniumHQ/docker-selenium)
+## Docker images for Selenium Grid with Chrome, Firefox and Opera
+[![Travis Status](https://travis-ci.com/SeleniumHQ/docker-selenium.svg?branch=master)](//travis-ci.com/SeleniumHQ/docker-selenium/builds)
 
 Images included:
 - __selenium/base__: Base image which includes Java runtime and Selenium Server JAR file
@@ -18,41 +18,38 @@ Images included:
 - __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
 - __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
 - __selenium/node-opera__: Grid Node with Opera installed, needs to be connected to a Grid Hub
-- __selenium/node-chrome-debug__: Grid Node with Chrome installed and runs a VNC server, needs to be connected to a Grid Hub
-- __selenium/node-firefox-debug__: Grid Node with Firefox installed and runs a VNC server, needs to be connected to a Grid Hub
-- __selenium/node-opera-debug__: Grid Node with Opera installed and runs a VNC server, needs to be connected to a Grid Hub
 - __selenium/standalone-chrome__: Selenium Standalone with Chrome installed
 - __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
 - __selenium/standalone-opera__: Selenium Standalone with Opera installed
-- __selenium/standalone-chrome-debug__: Selenium Standalone with Chrome installed and runs a VNC server
-- __selenium/standalone-firefox-debug__: Selenium Standalone with Firefox installed and runs a VNC server
-- __selenium/standalone-opera-debug__: Selenium Standalone with Opera installed and runs a VNC server
 
 ##
 
 ## Running the images
-:exclamation: When executing `docker run` for an image with Chrome or Firefox please either mount `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
+:exclamation: When executing `docker run` for an image that contains a browser please either mount `-v /dev/shm:/dev/shm` or use the
+flag `--shm-size=2g` to use the host's shared memory.
 
-:exclamation: In general, use a tag with an element suffix to pin a specific browser version. See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
+:exclamation: Always use a tag with an element suffix to pin a specific browser version.
+See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
 Chrome
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-zirconium
-#OR
+# OR
 $ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:3.141.59-zirconium
 ```
 Firefox
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-zirconium
-#OR
+# OR
 $ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.141.59-zirconium
 ```
 Opera
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-zirconium
-#OR
+# OR
 $ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-opera:3.141.59-zirconium
 ```
+
 This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
 The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
@@ -69,9 +66,9 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-zirconium
 ```
 
-_Note: Only one standalone image can run on port_ `4444` _at a time._
+_Note: Only one Standalone container can run on port_ `4444` _at a time._
 
-To inspect visually what the browser is doing use the `standalone-chrome-debug`, `standalone-firefox-debug` or `standalone-opera-debug` images. See [Debugging](#debugging) section for details.
+To inspect visually what the browser is doing, see the [Debugging](#debugging) section for details.
 
 ### Selenium Grid Hub and Nodes
 There are different ways to run the images and create a grid, check the following options.
@@ -113,7 +110,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
-      - hub
+      - selenium-hub
     environment:
       HUB_HOST: hub
 
@@ -122,7 +119,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
-      - hub
+      - selenium-hub
     environment:
       HUB_HOST: hub
 
@@ -131,11 +128,11 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
-      - hub
+      - selenium-hub
     environment:
       HUB_HOST: hub
 
-  hub:
+  selenium-hub:
     image: selenium/hub:3.141.59-zirconium
     ports:
       - "4444:4444"
@@ -161,7 +158,6 @@ services:
       - selenium-hub
     environment:
       - HUB_HOST=selenium-hub
-      - HUB_PORT=4444
 
   firefox:
     image: selenium/node-firefox:3.141.59-zirconium
@@ -171,7 +167,6 @@ services:
       - selenium-hub
     environment:
       - HUB_HOST=selenium-hub
-      - HUB_PORT=4444
 
   opera:
     image: selenium/node-opera:3.141.59-zirconium
@@ -181,7 +176,6 @@ services:
       - selenium-hub
     environment:
       - HUB_HOST=selenium-hub
-      - HUB_PORT=4444
 ```
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
@@ -195,7 +189,7 @@ To stop the grid and cleanup the created containers, run `docker-compose down`.
 version: '3.7'
 
 services:
-  hub:
+  selenium-hub:
    image: selenium/hub:3.141.59-zirconium
    ports:
      - "4444:4444"
@@ -205,8 +199,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     environment:
-      HUB_HOST: hub
-      HUB_PORT: 4444
+      HUB_HOST: selenium-hub
     deploy:
         replicas: 1
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
@@ -216,8 +209,7 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     environment:
-      HUB_HOST: hub
-      HUB_PORT: 4444
+      HUB_HOST: selenium-hub
     deploy:
         replicas: 1
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
@@ -227,23 +219,10 @@ services:
     volumes:
       - /dev/shm:/dev/shm
     environment:
-      HUB_HOST: hub
-      HUB_PORT: 4444
+      HUB_HOST: selenium-hub
     deploy:
         replicas: 1
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
-```
-
-#### Using `--link`
-This option can be used for a single host scenario (hub and nodes running in a single machine), but it is not recommended
-for longer term usage since this is a docker [legacy feature](https://docs.docker.com/compose/compose-file/#links).
-It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on.
-
-``` bash
-$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.141.59-zirconium
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-zirconium
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-zirconium
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-zirconium
 ```
 
 ### Deploying to Kubernetes

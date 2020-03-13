@@ -19,7 +19,7 @@ class SmokeTests(unittest.TestCase):
         while current_attempts < max_attempts:
             current_attempts = current_attempts + 1
             try:
-                response = urlopen('http://localhost:%s/wd/hub/status' % port)
+                response = urlopen('http://localhost:%s/status' % port)
                 status_json = json.loads(response.read())
                 self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
                 status_fetched = True
@@ -27,7 +27,6 @@ class SmokeTests(unittest.TestCase):
                 time.sleep(sleep_interval)
 
         self.assertTrue(status_fetched, "Container status was not fetched on port %s" % port)
-        self.assertTrue(status_json['status'] == 0, "Wrong status value for container on port %s" % port)
         self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
 
 

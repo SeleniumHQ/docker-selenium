@@ -63,14 +63,16 @@ class SeleniumGenericTests(unittest.TestCase):
 class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
-            desired_capabilities=DesiredCapabilities.CHROME
+            desired_capabilities=DesiredCapabilities.CHROME,
+            command_executor='http://localhost:4444'
         )
 
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
-            desired_capabilities=DesiredCapabilities.FIREFOX
+            desired_capabilities=DesiredCapabilities.FIREFOX,
+            command_executor='http://localhost:4444'
         )
 
     def test_title_and_maximize_window(self):
@@ -84,5 +86,6 @@ class OperaTests(SeleniumGenericTests):
         capabilities = DesiredCapabilities.CHROME
         capabilities['browserName'] = 'operablink'
         self.driver = webdriver.Remote(
-            desired_capabilities=capabilities
+            desired_capabilities=capabilities,
+            command_executor='http://localhost:4444'
         )

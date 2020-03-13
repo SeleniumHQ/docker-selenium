@@ -53,7 +53,7 @@ TEST_NAME_MAP = {
 }
 
 
-def launch_hub():
+def launch_hub(network_name):
     """
     Launch the hub
     :return: the hub ID
@@ -76,14 +76,22 @@ def launch_hub():
         existing_hub.remove()
         logger.debug("hub removed")
 
-
+    ports = {'4442': 4442, '4443': 4443, '4444': 4444}
     if use_random_user_id:
-        hub_container_id = launch_container('Hub', ports={'4444': 4444}, user=random_user_id)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=ports, user=random_user_id)
     else:
-        hub_container_id = launch_container('Hub', ports={'4444': 4444})
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=ports)
 
     logger.info("Hub Launched")
     return hub_container_id
+
+
+def create_network(network_name):
+    client.networks.create(network_name, driver="bridge")
+
+
+def prune_networks():
+    client.networks.prune()
 
 
 def launch_container(container, **kwargs):
@@ -101,13 +109,16 @@ def launch_container(container, **kwargs):
 
     # Run the container
     logger.info("Running %s container..." % container)
+    # Merging env vars
+    environment = {
+        'http_proxy': http_proxy,
+        'https_proxy': https_proxy,
+        'no_proxy': no_proxy,
+        'HUB_HOST': 'selenium-hub'
+    }
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
-                                         environment={
-                                             'http_proxy': http_proxy,
-                                             'https_proxy': https_proxy,
-                                             'no_proxy': no_proxy
-                                         },
+                                         environment=environment,
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
     return container_id
@@ -144,11 +155,15 @@ if __name__ == '__main__':
         Hub / Node Configuration
         """
         smoke_test_class = 'NodeTest'
-        hub_id = launch_hub()
+        prune_networks()
+        create_network("grid")
+        hub_id = launch_hub("grid")
+        ports = {'5555': 5555}
         if use_random_user_id:
-            test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555}, user=random_user_id)
+            test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
         else:
-            test_container_id = launch_container(image, links={hub_id: 'hub'}, ports={'5555': 5555})
+            test_container_id = launch_container(image, network='grid', ports=ports)
+        prune_networks()
 
     logger.info('========== / Containers ready to go ==========')
 
@@ -184,7 +199,7 @@ if __name__ == '__main__':
     if standalone:
         logger.info("Standalone Cleaned up")
     else:
-        #Kill the launched hub
+        # Kill the launched hub
         hub = client.containers.get(hub_id)
         hub.kill()
         hub.remove()

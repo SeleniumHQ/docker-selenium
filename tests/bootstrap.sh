@@ -9,7 +9,7 @@ fi
 
 
 python -m pip install selenium===3.14.1 \
-                      docker===3.5.0 \
+                      docker===4.2.0 \
                       | grep -v 'Requirement already satisfied'
 
 python test.py $1 $2
