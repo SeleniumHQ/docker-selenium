@@ -28,6 +28,14 @@ $ ./bin/vncview 127.0.0.1:49338
 
 If you are running Boot2Docker on Mac then you already have a [VNC client](http://www.davidtheexpert.com/post.php?id=5) built-in. You can connect by entering `vnc://<boot2docker-ip>:49160` in Safari or [Alfred](http://www.alfredapp.com/)
 
+When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
+
+``` dockerfile
+FROM selenium/node-chrome-debug-debug:3.141.59-zirconium
+
+RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
+```
+
 ## What is Selenium?
 _Selenium automates browsers._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.
 
