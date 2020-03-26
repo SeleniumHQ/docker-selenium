@@ -180,7 +180,8 @@ services:
 
 To stop the grid and cleanup the created containers, run `docker-compose down`.
 
-##### Version 3 with Swarm support
+##### Version 3 with Swarm support (:exclamation: not tested yet) 
+
 ```yaml
 # To start Docker in Swarm mode, you need to run `docker swarm init`
 # To deploy the Grid, `docker stack deploy -c docker-compose.yml grid`
@@ -225,7 +226,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
 ```
 
-### Deploying to Kubernetes
+### Deploying to Kubernetes (:exclamation: not tested yet)
 
 Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
 on how to deploy selenium hub and nodes on a Kubernetes cluster.
@@ -480,33 +481,33 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-zirconium
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-zirconium
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-zirconium
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-zirconium
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-zirconium
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-zirconium
 ```
 e.g.:
 ``` bash
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-zirconium
-$ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-zirconium
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-zirconium
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-zirconium
+$ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-zirconium
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-zirconium
 ```
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
 
 And for standalone:
 ``` bash
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-zirconium
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-zirconium
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-zirconium
 ```
 or
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-zirconium
 # OR
-$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-zirconium
 # OR
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-zirconium
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-zirconium
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -525,9 +526,9 @@ If you are running [Boot2Docker](https://docs.docker.com/installation/mac/) on O
 
 When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
 ``` dockerfile
-#FROM selenium/node-chrome-debug:3.141.59-zirconium
-#FROM selenium/node-firefox-debug:3.141.59-zirconium
-#FROM selenium/node-opera-debug:3.141.59-zirconium
+#FROM selenium/node-chrome:3.141.59-zirconium
+#FROM selenium/node-firefox:3.141.59-zirconium
+#FROM selenium/node-opera:3.141.59-zirconium
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
