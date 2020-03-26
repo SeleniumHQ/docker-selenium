@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-zirconium
+FROM selenium/base:3.141.59-20200326
 LABEL authors=SeleniumHQ
 
 USER root
@@ -13,6 +13,7 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     xvfb \
+    pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================

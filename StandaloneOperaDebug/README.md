@@ -1,17 +1,17 @@
-# Selenium Grid Standalone - ##BROWSER## Debug
+# Selenium Grid Standalone - Opera Debug
 
 _This image is only intended for development purposes!_ Runs a Selenium Grid Standalone with a VNC Server to allow you to visually see the browser being automated.
 
 
 ## Dockerfile
 
-[`selenium/standalone-##BROWSER_LC##-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/##FOLDER##/Dockerfile)
+[`selenium/standalone-opera-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneOperaDebug/Dockerfile)
 
 ## How to use this image
 
 
 ```
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-##BROWSER_LC##-debug
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -31,7 +31,7 @@ If you are running Boot2Docker on Mac then you already have a [VNC client](http:
 When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
 
 ``` dockerfile
-FROM selenium/##BASE##-debug:3.141.59-20200326
+FROM selenium/node-opera-debug-debug:3.141.59-20200326
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```

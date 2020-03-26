@@ -1,17 +1,23 @@
-# Selenium Grid Standalone - ##BROWSER## Debug
+# Selenium Grid Node - Opera Debug
 
-_This image is only intended for development purposes!_ Runs a Selenium Grid Standalone with a VNC Server to allow you to visually see the browser being automated.
-
+_This image is only intended for development purposes!_ Runs a Selenium Grid Node with a VNC Server to allow you to visually see the browser being automated. Since it runs additional services to support this it is too heavy weight for usage within a Selenium Grid cluster.
 
 ## Dockerfile
 
-[`selenium/standalone-##BROWSER_LC##-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/##FOLDER##/Dockerfile)
+[`selenium/node-opera-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeOperaDebug/Dockerfile)
 
 ## How to use this image
 
+First, you will need a Selenium Grid Hub that the Node will connect to.
 
 ```
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-##BROWSER_LC##-debug
+$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub
+```
+
+Once the hub is up and running will want to launch nodes that can run tests.
+
+```
+$ docker run -d -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -31,7 +37,7 @@ If you are running Boot2Docker on Mac then you already have a [VNC client](http:
 When you are prompted for the password it is __secret__. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a docker image that derives from the posted ones which reconfigures it:
 
 ``` dockerfile
-FROM selenium/##BASE##-debug:3.141.59-20200326
+FROM selenium/node-opera-debug:3.141.59-20200326
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
