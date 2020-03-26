@@ -26,5 +26,5 @@ jobs:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - VERSION="${TRAVIS_TAG}" make build
       - VERSION="${TRAVIS_TAG}" make release
-      - VERSION="${TRAVIS_TAG}" make tag_latest
-      - VERSION="${TRAVIS_TAG}" make release_latest
+#      - VERSION="${TRAVIS_TAG}" make tag_latest
+#      - VERSION="${TRAVIS_TAG}" make release_latest
