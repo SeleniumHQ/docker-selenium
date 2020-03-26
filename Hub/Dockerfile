@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-zirconium
+FROM selenium/base:4.0.0-alpha-5-20200326
 LABEL authors=SeleniumHQ
 
 USER seluser
@@ -11,6 +11,8 @@ USER seluser
 # Selenium Configuration
 #========================
 
+EXPOSE 4442
+EXPOSE 4443
 EXPOSE 4444
 
 # As integer, maps to "maxSession"
@@ -33,7 +35,7 @@ ENV GRID_DEBUG false
 ENV GRID_HUB_PORT 4444
 # As string, maps to "host"
 ENV GRID_HUB_HOST "0.0.0.0"
- 
+
 COPY generate_config \
     start-selenium-hub.sh \
     /opt/bin/

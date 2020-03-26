@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-zirconium
+FROM selenium/base:4.0.0-alpha-5-20200326
 LABEL authors=SeleniumHQ
 
 USER root
@@ -13,6 +13,7 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy install \
     xvfb \
+    pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #==============================
@@ -35,6 +36,23 @@ RUN apt-get -qqy update \
   && apt-get -qyy autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
+
+#=====
+# VNC
+#=====
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+  x11vnc \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#=========
+# fluxbox
+# A fast, lightweight and responsive window manager
+#=========
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    fluxbox \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #================
 # Font libraries
@@ -88,6 +106,27 @@ COPY start-selenium-node.sh \
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
 
+#==============================
+# Generating the VNC password as seluser
+# So the service can be started with seluser
+#==============================
+
+RUN mkdir -p ${HOME}/.vnc \
+  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN sudo chmod -R 777 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}
+
+#==============================
+# Scripts to run fluxbox and x11vnc
+#==============================
+COPY start-fluxbox.sh \
+      start-vnc.sh \
+      /opt/bin/
 
 #============================
 # Some configuration options
@@ -128,3 +167,5 @@ ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 # Creating base directory for Xvfb
 RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
+
+EXPOSE 5900
