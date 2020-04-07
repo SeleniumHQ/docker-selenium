@@ -1,0 +1,32 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
+# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FROM selenium/base:4.0.0-alpha-5-20200326
+LABEL authors=SeleniumHQ
+
+USER root
+
+#========================
+# Miscellaneous packages
+# Includes minimal runtime used for executing non GUI Java programs
+#========================
+RUN apt-get update -qqy \
+  && apt-get -qqy --no-install-recommends install \
+    # OpenJDK Java runtime, using Hotspot JIT (headless) - https://packages.ubuntu.com/bionic/openjdk-8-jre-headless
+    openjdk-8-jre-headless \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+
+#======================================
+# Add Grid check script
+#======================================
+COPY check-grid.sh entry_point.sh /opt/bin/
+
+#===================================================
+# Run the following commands as non-privileged user
+#===================================================
+USER seluser
+
+
+CMD ["/opt/bin/entry_point.sh"]

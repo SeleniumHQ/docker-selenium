@@ -11,6 +11,7 @@ MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 all: hub chrome firefox opera standalone_chrome standalone_firefox standalone_opera
 
 generate_all:	\
+	generate_grid_base \
 	generate_hub \
 	generate_node_base \
 	generate_chrome \
@@ -27,16 +28,22 @@ ci: build test
 base:
 	cd ./Base && docker build $(BUILD_ARGS) -t $(NAME)/base:$(VERSION) .
 
+generate_grid_base: base
+	cd ./GridBase && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+grid_base: generate_grid_base
+	cd ./GridBase && docker build $(BUILD_ARGS) -t $(NAME)/grid-base:$(VERSION) .
+
 generate_hub:
 	cd ./Hub && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
 
-hub: base generate_hub
+hub: grid_base generate_hub
 	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(VERSION) .
 
 generate_node_base:
 	cd ./NodeBase && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
 
-node_base: base generate_node_base
+node_base: grid_base generate_node_base
 	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(VERSION) .
 
 generate_chrome:
@@ -77,6 +84,7 @@ standalone_opera: opera generate_standalone_opera
 
 tag_latest:
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:latest
+	docker tag $(NAME)/grid-base:$(VERSION) $(NAME)/grid-base:latest
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:latest
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
@@ -88,6 +96,7 @@ tag_latest:
 
 release_latest:
 	docker push $(NAME)/base:latest
+	docker push $(NAME)/grid-base:latest
 	docker push $(NAME)/hub:latest
 	docker push $(NAME)/node-base:latest
 	docker push $(NAME)/node-chrome:latest
@@ -99,6 +108,7 @@ release_latest:
 
 tag_major_minor:
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:$(MAJOR)
+	docker tag $(NAME)/grid-base:$(VERSION) $(NAME)/grid-base:$(MAJOR)
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR)
@@ -108,6 +118,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:$(MAJOR)
 	docker tag $(NAME)/standalone-opera:$(VERSION) $(NAME)/standalone-opera:$(MAJOR)
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/grid-base:$(VERSION) $(NAME)/grid-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR).$(MINOR)
@@ -117,6 +128,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-firefox:$(VERSION) $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-opera:$(VERSION) $(NAME)/standalone-opera:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/base:$(VERSION) $(NAME)/base:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/grid-base:$(VERSION) $(NAME)/grid-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
@@ -128,6 +140,7 @@ tag_major_minor:
 
 release: tag_major_minor
 	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/grid-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/grid-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/hub version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome version $(VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -137,6 +150,7 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-opera | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/standalone-opera version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)/base:$(VERSION)
+	docker push $(NAME)/grid-base:$(VERSION)
 	docker push $(NAME)/hub:$(VERSION)
 	docker push $(NAME)/node-base:$(VERSION)
 	docker push $(NAME)/node-chrome:$(VERSION)
@@ -146,6 +160,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(VERSION)
 	docker push $(NAME)/standalone-opera:$(VERSION)
 	docker push $(NAME)/base:$(MAJOR)
+	docker push $(NAME)/grid-base:$(MAJOR)
 	docker push $(NAME)/hub:$(MAJOR)
 	docker push $(NAME)/node-base:$(MAJOR)
 	docker push $(NAME)/node-chrome:$(MAJOR)
@@ -155,6 +170,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(MAJOR)
 	docker push $(NAME)/standalone-opera:$(MAJOR)
 	docker push $(NAME)/base:$(MAJOR).$(MINOR)
+	docker push $(NAME)/grid-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome:$(MAJOR).$(MINOR)
@@ -164,6 +180,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-opera:$(MAJOR).$(MINOR)
 	docker push $(NAME)/base:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/grid-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
@@ -202,12 +219,14 @@ test_opera_standalone:
 .PHONY: \
 	all \
 	base \
+	grid-base \
 	build \
 	chrome \
 	ci \
 	firefox \
 	opera \
 	generate_all \
+	generate_grid_base \
 	generate_hub \
 	generate_node_base \
 	generate_chrome \
