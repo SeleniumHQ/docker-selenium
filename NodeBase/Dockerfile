@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/grid-base:4.0.0-alpha-5-20200326
+FROM selenium/base:4.0.0-alpha-5-20200326
 LABEL authors=SeleniumHQ
 
 USER root

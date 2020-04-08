@@ -1,4 +1,4 @@
-FROM ubuntu:bionic-20200311
+FROM ubuntu:bionic-20191029
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
@@ -18,27 +18,19 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #========================
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    # bzip2 - high-quality block-sorting file compressor - utilities https://packages.ubuntu.com/bionic/bzip2
     bzip2 \
-    # Common CA certificates - https://packages.ubuntu.com/bionic/ca-certificates
     ca-certificates \
-    # OpenJDK Java runtime, using Hotspot JIT (headless) - https://packages.ubuntu.com/bionic/openjdk-8-jre-headless
+    openjdk-8-jre-headless \
     tzdata \
-    # Provide limited super user privileges to specific users - https://packages.ubuntu.com/bionic/sudo
     sudo \
-    # De-archiver for .zip files - https://packages.ubuntu.com/bionic/unzip
     unzip \
-    # retrieves files from the web - https://packages.ubuntu.com/bionic/wget
     wget \
-    # lightweight and flexible command-line JSON processor - https://packages.ubuntu.com/bionic/jq
     jq \
-    # command line tool for transferring data with URL syntax - https://packages.ubuntu.com/bionic/curl
     curl \
-    # System for controlling process state - https://packages.ubuntu.com/bionic/supervisor
     supervisor \
-    # GNU privacy guard - a free PGP replacement (dummy transitional package) - https://packages.ubuntu.com/bionic/gnupg2
     gnupg2 \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
 
 #===================
 # Timezone settings
@@ -58,6 +50,11 @@ RUN useradd seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
 ENV HOME=/home/seluser
+
+#======================================
+# Add Grid check script
+#======================================
+COPY check-grid.sh entry_point.sh /opt/bin/
 
 #======================================
 # Add Supervisor configuration file
