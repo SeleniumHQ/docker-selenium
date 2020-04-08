@@ -8,12 +8,13 @@ MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 
-all: hub distributor router chrome firefox opera standalone_chrome standalone_firefox standalone_opera
+all: hub distributor router sessions chrome firefox opera standalone_chrome standalone_firefox standalone_opera
 
 generate_all:	\
 	generate_hub \
 	generate_distributor \
 	generate_router \
+	generate_sessions \
 	generate_node_base \
 	generate_chrome \
 	generate_firefox \
@@ -46,6 +47,12 @@ generate_router:
 
 router: base generate_router
 	cd ./Router && docker build $(BUILD_ARGS) -t $(NAME)/router:$(VERSION) .
+
+generate_sessions:
+	cd ./Sessions && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
+
+sessions: base generate_sessions
+	cd ./Sessions && docker build $(BUILD_ARGS) -t $(NAME)/sessions:$(VERSION) .
 
 generate_node_base:
 	cd ./NodeBase && ./generate.sh $(VERSION) $(NAMESPACE) $(AUTHORS)
@@ -94,6 +101,7 @@ tag_latest:
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:latest
 	docker tag $(NAME)/distributor:$(VERSION) $(NAME)/distributor:latest
 	docker tag $(NAME)/router:$(VERSION) $(NAME)/router:latest
+	docker tag $(NAME)/sessions:$(VERSION) $(NAME)/sessions:latest
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:latest
@@ -107,6 +115,7 @@ release_latest:
 	docker push $(NAME)/hub:latest
 	docker push $(NAME)/distributor:latest
 	docker push $(NAME)/router:latest
+	docker push $(NAME)/sessions:latest
 	docker push $(NAME)/node-base:latest
 	docker push $(NAME)/node-chrome:latest
 	docker push $(NAME)/node-firefox:latest
@@ -120,6 +129,7 @@ tag_major_minor:
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR)
 	docker tag $(NAME)/distributor:$(VERSION) $(NAME)/distributor:$(MAJOR)
 	docker tag $(NAME)/router:$(VERSION) $(NAME)/router:$(MAJOR)
+	docker tag $(NAME)/sessions:$(VERSION) $(NAME)/sessions:$(MAJOR)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR)
@@ -131,6 +141,7 @@ tag_major_minor:
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/distributor:$(VERSION) $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/router:$(VERSION) $(NAME)/router:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/sessions:$(VERSION) $(NAME)/sessions:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR).$(MINOR)
@@ -142,6 +153,7 @@ tag_major_minor:
 	docker tag $(NAME)/hub:$(VERSION) $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/distributor:$(VERSION) $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/router:$(VERSION) $(NAME)/router:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/sessions:$(VERSION) $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-base:$(VERSION) $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome:$(VERSION) $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-firefox:$(VERSION) $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
@@ -155,6 +167,7 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/hub version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/distributor version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/router | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/router version $(VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/sessions | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/sessions version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-base version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-chrome version $(VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(VERSION); then echo "$(NAME)/node-firefox version $(VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -166,6 +179,7 @@ release: tag_major_minor
 	docker push $(NAME)/hub:$(VERSION)
 	docker push $(NAME)/distributor:$(VERSION)
 	docker push $(NAME)/router:$(VERSION)
+	docker push $(NAME)/sessions:$(VERSION)
 	docker push $(NAME)/node-base:$(VERSION)
 	docker push $(NAME)/node-chrome:$(VERSION)
 	docker push $(NAME)/node-firefox:$(VERSION)
@@ -177,6 +191,7 @@ release: tag_major_minor
 	docker push $(NAME)/hub:$(MAJOR)
 	docker push $(NAME)/distributor:$(MAJOR)
 	docker push $(NAME)/router:$(MAJOR)
+	docker push $(NAME)/sessions:$(MAJOR)
 	docker push $(NAME)/node-base:$(MAJOR)
 	docker push $(NAME)/node-chrome:$(MAJOR)
 	docker push $(NAME)/node-firefox:$(MAJOR)
@@ -188,6 +203,7 @@ release: tag_major_minor
 	docker push $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker push $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker push $(NAME)/router:$(MAJOR).$(MINOR)
+	docker push $(NAME)/sessions:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-firefox:$(MAJOR).$(MINOR)
@@ -199,6 +215,7 @@ release: tag_major_minor
 	docker push $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/router:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
@@ -245,6 +262,7 @@ test_opera_standalone:
 	generate_hub \
 	generate_distributor \
 	generate_router \
+	generate_sessions \
 	generate_node_base \
 	generate_chrome \
 	generate_firefox \
@@ -255,6 +273,7 @@ test_opera_standalone:
 	hub \
 	distributor \
 	router \
+	sessions \
 	node_base \
 	release \
 	standalone_chrome \
