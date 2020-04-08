@@ -37,9 +37,9 @@ ENV GRID_HUB_PORT 4444
 ENV GRID_HUB_HOST "0.0.0.0"
 
 COPY generate_config \
-    start-selenium-grid-hub.sh \
+    start-selenium-grid-distributor.sh \
     /opt/bin/
 
-COPY selenium-grid-hub.conf /etc/supervisor/conf.d/
+COPY selenium-grid-distributor.conf /etc/supervisor/conf.d/
 
 RUN /opt/bin/generate_config > /opt/selenium/config.json
