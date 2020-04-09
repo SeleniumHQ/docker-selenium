@@ -14,6 +14,9 @@ The project is made possible by volunteer contributors who have put in thousands
 Images included:
 - __selenium/base__: Base image which includes Java runtime and Selenium Server JAR file
 - __selenium/hub__: Image for running a Grid Hub
+- __selenium/distributor__: Image for running a Grid Distributor
+- __selenium/router__: Image for running a Grid Router
+- __selenium/sessions__: Image for running a Grid Sessions
 - __selenium/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
 - __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
 - __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
