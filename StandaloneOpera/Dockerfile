@@ -5,7 +5,7 @@
 FROM selenium/node-opera:3.141.59-20200525
 LABEL authors=SeleniumHQ
 
-USER seluser
+USER 1200
 
 #====================================
 # Scripts to run Selenium Standalone

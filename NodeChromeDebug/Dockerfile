@@ -24,7 +24,7 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-USER seluser
+USER 1200
 
 #==============================
 # Generating the VNC password as seluser

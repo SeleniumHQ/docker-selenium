@@ -68,7 +68,7 @@ RUN apt-get -qqy update \
 # Run the following commands as non-privileged user
 #===================================================
 
-USER seluser
+USER 1200
 
 #==============================
 # Scripts to run Selenium Node and XVFB

@@ -37,7 +37,7 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
-USER seluser
+USER 1200
 
 COPY generate_config /opt/bin/generate_config
 
