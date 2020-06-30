@@ -20,7 +20,7 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     bzip2 \
     ca-certificates \
-    openjdk-8-jre-headless \
+    openjdk-14-jre-headless \
     tzdata \
     sudo \
     unzip \
@@ -29,8 +29,7 @@ RUN apt-get -qqy update \
     curl \
     supervisor \
     gnupg2 \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-8-openjdk-amd64/jre/lib/security/java.security
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
 # Timezone settings
