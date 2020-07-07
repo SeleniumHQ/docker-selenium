@@ -1,0 +1,86 @@
+version: 2
+updates:
+- package-ecosystem: docker
+  directory: "/StandaloneFirefoxDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/StandaloneChrome"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/StandaloneFirefox"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/StandaloneChromeDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeFirefoxDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeOperaDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeFirefox"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeOpera"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/Hub"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeChromeDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeBase"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/StandaloneOperaDebug"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeChrome"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
