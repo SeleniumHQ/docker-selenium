@@ -1,6 +1,0 @@
-version: 1
-update_configs:
-  # Keep Dockerfile up to date, batching pull requests daily
-  - package_manager: "docker"
-    directory: "/"
-    update_schedule: "daily"
