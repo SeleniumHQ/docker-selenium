@@ -511,7 +511,7 @@ $ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm sel
 $ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-20200525
 $ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-20200525
 ```
-to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
+to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those nodes are free, and reachable).
 
 And for standalone:
 ``` bash
