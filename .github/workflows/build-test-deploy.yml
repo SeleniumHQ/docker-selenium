@@ -1,0 +1,17 @@
+name: Build & test
+
+on:
+  push:
+    branches:
+      selenium-4-alpha
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+      - name: Output Docker info
+        run: docker info
+      - name: Build Docker images
+        run: make all
