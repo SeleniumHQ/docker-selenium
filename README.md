@@ -9,7 +9,7 @@ The project is made possible by volunteer contributors who have put in thousands
 ### IRC (&#35;selenium at Freenode)
 
 ## Docker images for Selenium Grid with Chrome, Firefox and Opera
-[![Travis Status](https://travis-ci.com/SeleniumHQ/docker-selenium.svg?branch=master)](//travis-ci.com/SeleniumHQ/docker-selenium/builds)
+[![Travis Status](https://travis-ci.com/SeleniumHQ/docker-selenium.svg?branch=master)](https://travis-ci.com/SeleniumHQ/docker-selenium/builds)
 
 Images included:
 - __selenium/base__: Base image which includes Java runtime and Selenium Server JAR file
@@ -494,7 +494,7 @@ $ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm sel
 $ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-6-20200609
 $ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-6-20200609
 ```
-to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those node are free, and reachable).
+to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those nodes are free, and reachable).
 
 And for standalone:
 ``` bash
