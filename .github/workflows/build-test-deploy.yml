@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-and-test:
-    needs: setup
     name: Build & test Docker images with random user
     runs-on: ubuntu-18.04
     strategy:
