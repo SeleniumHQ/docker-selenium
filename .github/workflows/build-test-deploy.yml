@@ -9,6 +9,9 @@ jobs:
   build-and-test:
     name: Build & test Docker images
     runs-on: ubuntu-18.04
+    strategy:
+      maxtrix:
+        use-random-user: [false, true]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -19,4 +22,9 @@ jobs:
         with:
           python-version: 3.8
       - name: Build Docker images
-        run: make ci
+        run: VERSION=${GITHUB_SHA} make build
+      - name: Test Docker images with random user
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${GITHUB_SHA} make test
+        env:
+          USE_RANDOM_USER: ${{ matrix.use-random-user }}
+
