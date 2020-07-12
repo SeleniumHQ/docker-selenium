@@ -6,20 +6,17 @@ on:
       selenium-4-alpha
 
 jobs:
-  build:
-    name: Build Docker images
+  build-and-test:
+    name: Build & test Docker images
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
       - name: Output Docker info
         run: docker info
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
       - name: Build Docker images
-        run: make all
-  test:
-    needs: build
-    name: Test Docker images
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Output Docker images
-        run: docker ps
+        run: make ci
