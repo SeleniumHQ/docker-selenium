@@ -10,7 +10,7 @@ jobs:
     name: Build & test Docker images
     runs-on: ubuntu-18.04
     strategy:
-      maxtrix:
+      matrix:
         use-random-user: [false, true]
     steps:
       - name: Checkout repo
