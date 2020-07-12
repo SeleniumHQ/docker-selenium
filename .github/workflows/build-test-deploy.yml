@@ -6,13 +6,6 @@ on:
       selenium-4-alpha
 
 jobs:
-  setup:
-    name: Checkout repository
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v1
-      - name: Output Docker info
-        run: docker info
   build-and-test:
     needs: setup
     name: Build & test Docker images with random user
@@ -21,6 +14,9 @@ jobs:
       matrix:
         use-random-user: [false, true]
     steps:
+      - uses: actions/checkout@v1
+      - name: Output Docker info
+        run: docker info
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
