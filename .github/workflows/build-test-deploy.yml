@@ -17,6 +17,7 @@ jobs:
       - name: Build Docker images
         run: make all
   test:
+    needs: build
     name: Test Docker images
     runs-on: ubuntu-18.04
     steps:
