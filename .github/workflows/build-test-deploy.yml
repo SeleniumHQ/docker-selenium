@@ -6,24 +6,28 @@ on:
       selenium-4-alpha
 
 jobs:
+  setup:
+    name: Checkout repository
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Output Docker info
+        run: docker info
   build-and-test:
-    name: Build & test Docker images
+    needs: checkout
+    name: Build & test Docker images with random user
     runs-on: ubuntu-18.04
     strategy:
       matrix:
         use-random-user: [false, true]
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-      - name: Output Docker info
-        run: docker info
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
       - name: Build Docker images
         run: VERSION=${GITHUB_SHA} make build
-      - name: Test Docker images with random user
+      - name: Test Docker images
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${GITHUB_SHA} make test
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
