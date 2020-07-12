@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build Docker images
     runs-on: ubuntu-18.04
     steps:
       - name: Checkout repo
@@ -15,3 +16,9 @@ jobs:
         run: docker info
       - name: Build Docker images
         run: make all
+  test:
+    name: Test Docker images
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Output Docker images
+        run: docker ps
