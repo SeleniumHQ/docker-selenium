@@ -41,11 +41,15 @@ RUN echo "${TZ}" > /etc/timezone \
   && dpkg-reconfigure --frontend noninteractive tzdata
 
 #========================================
-# Add normal user with passwordless sudo
+# Add normal user and group with passwordless sudo
 #========================================
-RUN useradd seluser \
-         --shell /bin/bash  \
+RUN groupadd seluser \
+         --gid 1201 \
+  && useradd seluser \
          --create-home \
+         --gid 1201 \
+         --shell /bin/bash \
+         --uid 1200 \
   && usermod -a -G sudo seluser \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && echo 'seluser:secret' | chpasswd
@@ -75,7 +79,7 @@ RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
-USER seluser
+USER 1200:1201
 
 
 CMD ["/opt/bin/entry_point.sh"]
