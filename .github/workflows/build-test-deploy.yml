@@ -6,20 +6,8 @@ on:
       selenium-4-alpha
 
 jobs:
-  build:
-    name: Build Docker images
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v1
-      - name: Output Docker info
-        run: docker info
-      - name: Build Docker images
-        run: VERSION=${GITHUB_SHA} make build
-      - name: Output Docker images
-        run: docker images
-  test:
-    needs: build
-    name: Test Docker images with random user
+  build-and-test:
+    name: Build & test Docker images with random user
     runs-on: ubuntu-18.04
     strategy:
       matrix:
@@ -28,12 +16,12 @@ jobs:
       - uses: actions/checkout@v1
       - name: Output Docker info
         run: docker info
-      - name: Output Docker images
-        run: docker images
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Build Docker images
+        run: VERSION=${GITHUB_SHA} make build
       - name: Test Docker images
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${GITHUB_SHA} make test
         env:
