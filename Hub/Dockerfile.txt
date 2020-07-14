@@ -1,4 +1,4 @@
-USER seluser
+USER 1200
 
 #========================
 # Selenium Configuration
