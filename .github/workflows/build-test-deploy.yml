@@ -3,7 +3,7 @@ name: Build & test
 on:
   push:
     branches:
-      selenium-4-alpha
+      trunk
 
 jobs:
   build-and-test:
@@ -16,6 +16,12 @@ jobs:
       - uses: actions/checkout@v1
       - name: Output Docker info
         run: docker info
+      - name: Gets tag as env var if present
+        run: echo ::set-env name=GITHUB_TAG::${GITHUB_REF#refs/*/}
+      - name: Output GITHUB_TAG if present
+        run: |
+          echo $GITHUB_TAG
+          echo ${{ env.GITHUB_TAG }}
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
