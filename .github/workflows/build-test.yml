@@ -4,9 +4,14 @@ on:
   push:
     branches:
       trunk
+  pull_request:
+    branches:
+      trunk
 
 jobs:
   build-and-test:
+    # Skip job based on the commit message
+    if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Build & test Docker images with random user
     runs-on: ubuntu-18.04
     strategy:
@@ -16,20 +21,18 @@ jobs:
       - uses: actions/checkout@v1
       - name: Output Docker info
         run: docker info
-      - name: Gets tag as env var if present
-        run: echo ::set-env name=GITHUB_TAG::${GITHUB_REF#refs/*/}
-      - name: Output GITHUB_TAG if present
-        run: |
-          echo $GITHUB_TAG
-          echo ${{ env.GITHUB_TAG }}
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - name: Extract branch Name
+        run: echo "::set-env name=BRANCH::$(echo ${GITHUB_REF##*/})"
+      - name: Output branch name
+        run: echo ${BRANCH}
       - name: Build Docker images
-        run: VERSION=${GITHUB_SHA} make build
+        run: VERSION=${BRANCH} make build
       - name: Test Docker images
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${GITHUB_SHA} make test
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} make test
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
 

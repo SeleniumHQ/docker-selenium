@@ -1,0 +1,33 @@
+name: Deploys
+
+on:
+  push:
+    tags:
+
+jobs:
+  build-and-test:
+    # Skip job based on the commit message
+    if: contains(toJson(github.event.commits), '[skip ci]') == false
+    name: Deploy Docker images
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Output Docker info
+        run: docker info
+      - name: Gets tag as env var if present
+        run: echo ::set-env name=TAG::${GITHUB_REF#refs/*/}
+      - name: Output tag if present
+        run: echo ${TAG}
+      - name: Build
+        run: VERSION="${TAG}" make build
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Deploy new images
+        run: VERSION="${TRAVIS_TAG}" make release
+#      - name: Deploy tag latest
+#        run: VERSION="${TRAVIS_TAG}" make tag_latest
+#      - name: Deploy release latest
+#        run: VERSION="${TRAVIS_TAG}" make release_latest
