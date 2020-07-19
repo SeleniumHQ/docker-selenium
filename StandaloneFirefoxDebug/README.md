@@ -5,7 +5,7 @@ _This image is only intended for development purposes!_ Runs a Selenium Grid Sta
 
 ## Dockerfile
 
-[`selenium/standalone-firefox-debug` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/StandaloneFirefoxDebug/Dockerfile)
+[`selenium/standalone-firefox-debug` Dockerfile](Dockerfile)
 
 ## How to use this image
 
@@ -41,11 +41,11 @@ _Selenium automates browsers._ That's it! What you do with that power is entirel
 
 Selenium has the support of some of the largest browser vendors who have taken (or are taking) steps to make Selenium a native part of their browser. It is also the core technology in countless other browser automation tools, APIs and frameworks.
 
-See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage within your test code.
+See the Selenium [site](http://docs.seleniumhq.org/) for documentation on usage within your test code.
 
 ## License
 
-View [license information](https://github.com/SeleniumHQ/docker-selenium/blob/master/LICENSE.md) for the software contained in this image.
+View [license information](../LICENSE.md) for the software contained in this image.
 
 ## Getting Help
 

@@ -4,18 +4,18 @@ _This image is not meant to be run directly!_ It serves as the base image used f
 
 ## Dockerfile
 
-[`selenium/base` Dockerfile](https://github.com/SeleniumHQ/docker-selenium/blob/master/Base/Dockerfile)
+[`selenium/base` Dockerfile](Dockerfile)
 
 ## What is Selenium?
 _Selenium automates browsers._ That's it! What you do with that power is entirely up to you. Primarily, it is for automating web applications for testing purposes, but is certainly not limited to just that. Boring web-based administration tasks can (and should!) also be automated as well.
 
 Selenium has the support of some of the largest browser vendors who have taken (or are taking) steps to make Selenium a native part of their browser. It is also the core technology in countless other browser automation tools, APIs and frameworks.
 
-See the Selenium [site](http://docs.seleniumhq.org/) for documation on usage within your test code.
+See the Selenium [site](http://docs.seleniumhq.org/) for documentation on usage within your test code.
 
 ## License
 
-View [license information](https://github.com/SeleniumHQ/docker-selenium/blob/master/LICENSE.md) for the software contained in this image.
+View [license information](../LICENSE.md) for the software contained in this image.
 
 ## Getting Help
 
