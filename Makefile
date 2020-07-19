@@ -98,6 +98,18 @@ generate_standalone_opera:
 standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(TAG_VERSION) .
 
+
+tag_browser_images: tag_chrome_images tag_firefox_images tag_opera_images
+
+tag_chrome_images:
+	./tag_browser_images.sh $(TAG_VERSION) $(NAMESPACE) chrome
+
+tag_firefox_images:
+	./tag_browser_images.sh $(TAG_VERSION) $(NAMESPACE) firefox
+
+tag_opera_images:
+	./tag_browser_images.sh $(TAG_VERSION) $(NAMESPACE) opera
+
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:latest
@@ -281,4 +293,5 @@ test_opera_standalone:
 	standalone_chrome \
 	standalone_firefox \
 	tag_latest \
+	tag_browser_images \
 	test
