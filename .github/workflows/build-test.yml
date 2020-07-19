@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - trunk
-      - upgrade-ubuntu-bionic-20200639
   pull_request:
     branches:
       - trunk
