@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.141.59-20200525
+FROM selenium/node-base:3.141.59-20200719
 LABEL authors=SeleniumHQ
 
 USER root
@@ -39,7 +39,7 @@ RUN wget -q -O - https://deb.opera.com/archive.key | apt-key add - \
 COPY wrap_opera_binary /opt/bin/wrap_opera_binary
 RUN /opt/bin/wrap_opera_binary
 
-USER seluser
+USER 1200
 
 #=====================
 # Opera webdriver

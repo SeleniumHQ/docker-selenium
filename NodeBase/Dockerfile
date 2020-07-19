@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-20200525
+FROM selenium/base:3.141.59-20200719
 LABEL authors=SeleniumHQ
 
 USER root
@@ -75,7 +75,7 @@ RUN apt-get -qqy update \
 # Run the following commands as non-privileged user
 #===================================================
 
-USER seluser
+USER 1200
 
 #==============================
 # Scripts to run Selenium Node and XVFB

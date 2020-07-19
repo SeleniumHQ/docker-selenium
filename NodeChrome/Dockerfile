@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:3.141.59-20200525
+FROM selenium/node-base:3.141.59-20200719
 LABEL authors=SeleniumHQ
 
 USER root
@@ -32,7 +32,7 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
 RUN /opt/bin/wrap_chrome_binary
 
-USER seluser
+USER 1200
 
 #============================================
 # Chrome webdriver

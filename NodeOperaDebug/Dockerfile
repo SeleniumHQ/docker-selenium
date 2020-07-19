@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-opera:3.141.59-20200525
+FROM selenium/node-opera:3.141.59-20200719
 LABEL authors=SeleniumHQ
 
 USER root
@@ -24,7 +24,7 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-USER seluser
+USER 1200
 
 #==============================
 # Generating the VNC password as seluser
