@@ -32,7 +32,7 @@ _Selenium automates browsers._ That's it! What you do with that power is entirel
 
 Selenium has the support of some of the largest browser vendors who have taken (or are taking) steps to make Selenium a native part of their browser. It is also the core technology in countless other browser automation tools, APIs and frameworks.
 
-See the Selenium [site](http://docs.seleniumhq.org/) for documentation on usage within your test code.
+See the Selenium [site](https://www.selenium.dev/documentation/en/) for documentation on usage within your test code.
 
 ## License
 
@@ -56,6 +56,6 @@ If you have any problems with or questions about this image, please contact us t
 
 ## Contributing
 
-There are many ways to [contribute](http://docs.seleniumhq.org/about/getting-involved.jsp) whether by answering user questions, additional docs, or pull request we look forward to hearing from you.
+There are many ways to [contribute](https://www.selenium.dev/getinvolved/) whether by answering user questions, additional docs, or pull request we look forward to hearing from you.
 
 If you do supply a patch we will need you to [sign the CLA](https://spreadsheets.google.com/spreadsheet/viewform?hl=en_US&formkey=dFFjXzBzM1VwekFlOWFWMjFFRjJMRFE6MQ#gid=0). We are part of [SFC](http://www.sfconservancy.org/)
