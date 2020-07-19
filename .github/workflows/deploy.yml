@@ -3,9 +3,10 @@ name: Deploys
 on:
   push:
     tags:
+      - 4.*
 
 jobs:
-  build-and-test:
+  deploy:
     # Skip job based on the commit message
     if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Deploy Docker images
@@ -26,7 +27,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        run: VERSION="${TRAVIS_TAG}" make release
+        run: VERSION="${TAG}" make release
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
 #      - name: Deploy release latest
