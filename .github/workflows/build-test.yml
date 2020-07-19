@@ -3,10 +3,10 @@ name: Build & test
 on:
   push:
     branches:
-      trunk
+      - trunk
   pull_request:
     branches:
-      trunk
+      - trunk
 
 jobs:
   build-and-test:
@@ -25,8 +25,16 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - name: Extract branch Name
-        run: echo "::set-env name=BRANCH::$(echo ${GITHUB_REF##*/})"
+      - name: Get branch name (only for push to branch)
+        if: github.event_name == 'push'
+        run: echo "::set-env name=BRANCH::$(echo ${PUSH_BRANCH##*/})"
+        env:
+          PUSH_BRANCH: ${{ github.ref }}
+      - name: Get target branch name (only for PRs)
+        if: github.event_name == 'pull_request'
+        run: echo "::set-env name=BRANCH::$(echo ${TARGET_BRANCH##*/})"
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Build Docker images
