@@ -3,10 +3,11 @@ name: Build & test
 on:
   push:
     branches:
-      trunk
+      - trunk
+      - upgrade-ubuntu-bionic-20200639
   pull_request:
     branches:
-      trunk
+      - trunk
 
 jobs:
   build-and-test:
@@ -29,6 +30,12 @@ jobs:
         run: echo "::set-env name=BRANCH::$(echo ${GITHUB_REF##*/})"
       - name: Output branch name
         run: echo ${BRANCH}
+      - name: Output GitHub Head ref
+        if: github.event_name == 'pull_request'
+        run: echo ${{ github.head_ref }}
+      - name: Output GitHub ref
+        if: github.event_name == 'push'
+        run: echo ${{ github.ref }}
       - name: Build Docker images
         run: VERSION=${BRANCH} make build
       - name: Test Docker images
