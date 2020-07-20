@@ -27,6 +27,8 @@ jobs:
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
       - name: Display Grid version
         run: echo ${GRID_VERSION}
+      - name: Remove local Docker tag
+        run: docker rmi selenium/base:local-${BUILD_DATE}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       #      - name: Login Docker Hub
