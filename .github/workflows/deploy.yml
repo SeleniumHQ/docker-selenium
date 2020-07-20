@@ -19,11 +19,11 @@ jobs:
         run: echo ${TAG}
       - name: Build
         run: VERSION="${TAG}" make build
-      - name: Login Docker Hub
-        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        env:
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+#      - name: Login Docker Hub
+#        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+#        env:
+#          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+#          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
 #      - name: Deploy new images
 #        run: VERSION="${TAG}" make release
       - name: Tag browser images
