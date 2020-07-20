@@ -31,6 +31,8 @@ jobs:
         run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
       - name: Display latest tag
         run: echo ${LATEST_TAG}
+      - name: Display commits since last tag
+        run: git log "${LATEST_TAG}...automated-release" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an"
 #      - name: Build images
 #        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
 #      - name: List images
