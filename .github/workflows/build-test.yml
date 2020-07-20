@@ -42,7 +42,7 @@ jobs:
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} make test
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
 

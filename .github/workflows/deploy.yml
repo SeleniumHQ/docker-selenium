@@ -23,13 +23,19 @@ jobs:
       - name: Build base image to get Grid version
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base
       - name: Get Grid version
+        # sed used to remove last comma of Selenium version output
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
       - name: Display Grid version
         run: echo ${GRID_VERSION}
-      - name: Build
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-      - name: List Docker images
-        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
+      - name: Get latest tag
+        run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
+      - name: Display latest tag
+        run: echo ${LATEST_TAG}
+#      - name: Build images
+#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+#      - name: List images
+#        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
+
 #      - name: Login Docker Hub
 #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 #        env:
