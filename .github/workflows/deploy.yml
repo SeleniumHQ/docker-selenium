@@ -2,23 +2,27 @@ name: Deploys
 
 on:
   push:
-    tags:
-      - 4.*
+    branches:
+      - trunk
 
 jobs:
   deploy:
+    # Only continue if the commit message has '[deploy]' in it
+    if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v1
       - name: Output Docker info
         run: docker info
+      - name: Sets build date
+        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
       - name: Gets tag as env var if present
         run: echo ::set-env name=TAG::${GITHUB_REF#refs/*/}
       - name: Output tag if present
         run: echo ${TAG}
       - name: Build
-        run: VERSION="${TAG}" make build
+        run: VERSION="${TAG}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
