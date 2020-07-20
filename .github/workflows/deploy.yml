@@ -27,26 +27,26 @@ jobs:
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
       - name: Display Grid version
         run: echo ${GRID_VERSION}
+      - name: Build images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      #      - name: Login Docker Hub
+      #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      #        env:
+      #          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+      #          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      #      - name: Deploy new images
+      #        run: VERSION="${TAG}" make release
+      - name: Tag browser images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=false make tag_and_push_browser_images
       - name: Get latest tag
         run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
       - name: Display latest tag
         run: echo ${LATEST_TAG}
-      - name: Display commits since last tag
-        run: echo $(git log "${LATEST_TAG}...automated-release" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an")
-#      - name: Build images
-#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-#      - name: List images
-#        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
+#      - name: Display commits since last tag
+#        run: echo $(git log "${LATEST_TAG}...automated-release" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an")
+      - name: List images
+        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
 
-#      - name: Login Docker Hub
-#        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-#        env:
-#          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-#          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-#      - name: Deploy new images
-#        run: VERSION="${TAG}" make release
-#      - name: Tag browser images
-#        run: VERSION="${TAG}" PUSH_IMAGE=true make tag_and_push_browser_images
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
