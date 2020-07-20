@@ -37,16 +37,18 @@ jobs:
       #      - name: Deploy new images
       #        run: VERSION="${TAG}" make release
       - name: Tag browser images
+        # TODO: set PUSH_IMAGE=true before merge
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=false make tag_and_push_browser_images
       - name: Get latest tag
         run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
       - name: Display latest tag
         run: echo ${LATEST_TAG}
-#      - name: Display commits since last tag
-#        run: echo $(git log "${LATEST_TAG}...automated-release" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an")
-      - name: List images
-        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
-
+      - name: Create release notes
+        run: ./generate_release_notes.sh ${LATEST_TAG} automated-release ${GRID_VERSION} ${BUILD_DATE}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: release_notes
+          path: release_notes.md
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
