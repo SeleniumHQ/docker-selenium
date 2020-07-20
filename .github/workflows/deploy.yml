@@ -46,7 +46,7 @@ jobs:
       - name: Display latest tag
         run: echo ${LATEST_TAG}
       - name: Create release notes
-        run: ./generate_release_notes.sh ${LATEST_TAG} automated-release ${GRID_VERSION} ${BUILD_DATE}
+        run: ./generate_release_notes.sh ${LATEST_TAG} origin/automated-release ${GRID_VERSION} ${BUILD_DATE}
       - uses: actions/upload-artifact@v2
         with:
           name: release_notes
