@@ -5,6 +5,7 @@ TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PLATFORM := $(shell uname -s)
+PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
 BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
@@ -99,16 +100,18 @@ standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(TAG_VERSION) .
 
 
-tag_browser_images: tag_chrome_images tag_firefox_images tag_opera_images
+# https://github.com/SeleniumHQ/docker-selenium/issues/992
+# Additional tags for browser images
+tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_opera_images
 
-tag_chrome_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) chrome
+tag_and_push_chrome_images:
+	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
 
-tag_firefox_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) firefox
+tag_and_push_firefox_images:
+	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
 
-tag_opera_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) opera
+tag_and_push_opera_images:
+	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) opera
 
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
@@ -293,5 +296,5 @@ test_opera_standalone:
 	standalone_chrome \
 	standalone_firefox \
 	tag_latest \
-	tag_browser_images \
+	tag_and_push_browser_images \
 	test
