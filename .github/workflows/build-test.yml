@@ -35,6 +35,8 @@ jobs:
         run: echo "::set-env name=BRANCH::$(echo ${TARGET_BRANCH##*/})"
         env:
           TARGET_BRANCH: ${{ github.head_ref }}
+      - name: Output GitHub Event commits
+        run: echo ${{ github.event.commits }}
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Build Docker images
