@@ -7,8 +7,6 @@ on:
 
 jobs:
   deploy:
-    # Skip job based on the commit message
-    if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:
@@ -26,8 +24,12 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      - name: Deploy new images
-        run: VERSION="${TAG}" make release
+#      - name: Deploy new images
+#        run: VERSION="${TAG}" make release
+      - name: Tag browser images
+        run: VERSION="${TAG}" make tag_and_push_browser_images
+      - name: List Docker images
+        run: docker images
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
 #      - name: Deploy release latest
