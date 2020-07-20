@@ -26,12 +26,10 @@ jobs:
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
       - name: Display Grid version
         run: echo ${GRID_VERSION}
-#      - name: Gets tag as env var if present
-#        run: echo ::set-env name=TAG::${GITHUB_REF#refs/*/}
-#      - name: Output tag if present
-#        run: echo ${TAG}
-#      - name: Build
-#        run: VERSION="${TAG}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Build
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: List Docker images
+        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
 #      - name: Login Docker Hub
 #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 #        env:
@@ -41,8 +39,6 @@ jobs:
 #        run: VERSION="${TAG}" make release
 #      - name: Tag browser images
 #        run: VERSION="${TAG}" PUSH_IMAGE=true make tag_and_push_browser_images
-#      - name: List Docker images
-#        run: docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}"
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
