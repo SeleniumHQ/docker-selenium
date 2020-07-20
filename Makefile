@@ -105,13 +105,13 @@ standalone_opera: opera generate_standalone_opera
 tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_opera_images
 
 tag_and_push_chrome_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
 
 tag_and_push_firefox_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
 
 tag_and_push_opera_images:
-	./tag_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) opera
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) opera
 
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
