@@ -7,8 +7,6 @@ on:
 
 jobs:
   deploy:
-    # Skip job based on the commit message
-    if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:

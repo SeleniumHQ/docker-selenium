@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    # Skip job based on the commit message
+    # Skip job based on the commit message, only works in push to branches for now
     if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Build & test Docker images with random user
     runs-on: ubuntu-18.04
@@ -35,8 +35,6 @@ jobs:
         run: echo "::set-env name=BRANCH::$(echo ${TARGET_BRANCH##*/})"
         env:
           TARGET_BRANCH: ${{ github.head_ref }}
-      - name: Output GitHub Event commits
-        run: echo ${{ github.event.commits }}
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Build Docker images
