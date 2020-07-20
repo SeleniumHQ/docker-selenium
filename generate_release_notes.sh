@@ -8,10 +8,11 @@ BUILD_DATE=$4
 TAG_VERSION=${GRID_VERSION}-${BUILD_DATE}
 
 # Get all tags, branches, and history
-git fetch --depth=1 origin +refs/tags/*:refs/tags/* 1>&2
-git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/* 1>&2
-git fetch --prune --unshallow 1>&2
+#git fetch --depth=1 origin +refs/tags/*:refs/tags/* 1>&2
+#git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/* 1>&2
+#git fetch --prune --unshallow 1>&2
 
+echo "" >> release_notes.md
 echo "### Changelog" > release_notes.md
 git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" --reverse >> release_notes.md
 
