@@ -29,7 +29,7 @@ jobs:
 #      - name: Deploy new images
 #        run: VERSION="${TAG}" make release
       - name: Tag browser images
-        run: VERSION="${TAG}" make tag_browser_images
+        run: VERSION="${TAG}" make tag_and_push_browser_images
       - name: List Docker images
         run: docker images
 #      - name: Deploy tag latest
