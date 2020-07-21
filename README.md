@@ -9,7 +9,7 @@ The project is made possible by volunteer contributors who have put in thousands
 ### IRC (&#35;selenium at Freenode)
 
 ## Docker images for Selenium Grid with Chrome, Firefox and Opera
-[![Travis Status](https://travis-ci.com/SeleniumHQ/docker-selenium.svg?branch=master)](https://travis-ci.com/SeleniumHQ/docker-selenium/builds)
+![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
 
 Images included:
 - __selenium/base__: Base image which includes Java runtime and Selenium Server JAR file
