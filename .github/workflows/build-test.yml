@@ -37,10 +37,12 @@ jobs:
           TARGET_BRANCH: ${{ github.head_ref }}
       - name: Output branch name
         run: echo ${BRANCH}
+      - name: Sets build date
+        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
       - name: Build Docker images
-        run: VERSION=${BRANCH} make build
+        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} make test
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
 
