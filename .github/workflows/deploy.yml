@@ -42,7 +42,7 @@ jobs:
       - name: Display latest tag
         run: echo ${LATEST_TAG}
       - name: Create release notes (release_notes.md)
-        run: ./generate_release_notes.sh ${LATEST_TAG} origin/automated-release ${GRID_VERSION} ${BUILD_DATE}
+        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
