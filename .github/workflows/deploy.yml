@@ -45,12 +45,19 @@ jobs:
         run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
       - name: Display latest tag
         run: echo ${LATEST_TAG}
-      - name: Create release notes
+      - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/automated-release ${GRID_VERSION} ${BUILD_DATE}
-      - uses: actions/upload-artifact@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: release_notes
-          path: release_notes.md
+          tag_name: ${GRID_VERSION}-${BUILD_DATE}
+          release_name: Release ${GRID_VERSION}-${BUILD_DATE}
+          body_path: release_notes.md
+          draft: true
+          prerelease: true
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
