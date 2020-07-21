@@ -53,8 +53,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${GRID_VERSION}-${BUILD_DATE}
-          release_name: Release ${GRID_VERSION}-${BUILD_DATE}
+          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
           body_path: release_notes.md
           draft: true
           prerelease: true
