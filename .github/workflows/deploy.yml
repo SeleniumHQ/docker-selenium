@@ -4,14 +4,11 @@ on:
   push:
     branches:
       - trunk
-  pull_request:
-    branches:
-      - trunk
 
 jobs:
   deploy:
     # Only continue if the commit message has '[deploy]' in it
-    # if: contains(toJson(github.event.commits), '[deploy]') == true
+    if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:
@@ -31,16 +28,15 @@ jobs:
         run: docker rmi selenium/base:local-${BUILD_DATE}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-      #      - name: Login Docker Hub
-      #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-      #        env:
-      #          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-      #          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      #      - name: Deploy new images
-      #        run: VERSION="${TAG}" make release
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Deploy new images
+        run: VERSION="${TAG}" make release
       - name: Tag browser images
-        # TODO: set PUSH_IMAGE=true before merge
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=false make tag_and_push_browser_images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
       - name: Get latest tag
         run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
       - name: Display latest tag
@@ -56,8 +52,8 @@ jobs:
           tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
           release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
           body_path: release_notes.md
-          draft: true
-          prerelease: true
+          draft: false
+          prerelease: false
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
