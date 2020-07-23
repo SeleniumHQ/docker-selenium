@@ -115,7 +115,7 @@ services:
     depends_on:
       - selenium-hub
     environment:
-      HUB_HOST: hub
+      HUB_HOST: selenium-hub
 
   firefox:
     image: selenium/node-firefox:4.0.0-alpha-6-20200721
@@ -124,7 +124,7 @@ services:
     depends_on:
       - selenium-hub
     environment:
-      HUB_HOST: hub
+      HUB_HOST: selenium-hub
 
   opera:
     image: selenium/node-opera:4.0.0-alpha-6-20200721
@@ -133,7 +133,7 @@ services:
     depends_on:
       - selenium-hub
     environment:
-      HUB_HOST: hub
+      HUB_HOST: selenium-hub
 
   selenium-hub:
     image: selenium/hub:4.0.0-alpha-6-20200721
