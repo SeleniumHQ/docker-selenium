@@ -1,18 +1,43 @@
-# Selenium Docker
+# Docker images for the Selenium Grid Server
 
-The project is made possible by volunteer contributors who have put in thousands of hours of their own time, and made the source code freely available under the [Apache License 2.0](LICENSE.md).
+The project is made possible by volunteer contributors who have put in thousands of hours of their own time, 
+and made the source code freely available under the [Apache License 2.0](LICENSE.md).
+
+![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
+![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
 
 ## Community
 
-### [SeleniumHQ Slack](https://seleniumhq.herokuapp.com/)
+Do you need help using these Docker images?
+Here are all the contact points for the different Selenium projects:
+https://www.selenium.dev/support/
 
-### IRC (&#35;selenium at Freenode)
+## Quick start
 
-## Docker images for Selenium Grid with Chrome, Firefox and Opera
-![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
+1. Start a Docker container with Firefox
 
-Images included:
-- __selenium/base__: Base image which includes Java runtime and Selenium Server JAR file
+``` bash
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-6-20200730
+# OR
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-6-20200730
+```
+
+2. Point your WebDriver tests to http://localhost:4444/wd/hub
+
+3. That's it! 
+
+:point_up: When executing `docker run` for an image that contains a browser please either mount 
+  `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
+  
+Why is `-v /dev/shm:/dev/shm` or `--shm-size 2g` necessary?
+> This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
+[Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
+The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
+to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
+
+## Available images (server & browsers)
+
+- __selenium/base__: Base image, including Java and the Selenium Server
 - __selenium/hub__: Image for running a Grid Hub
 - __selenium/distributor__: Image for running a Grid Distributor
 - __selenium/router__: Image for running a Grid Router
@@ -25,39 +50,8 @@ Images included:
 - __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
 - __selenium/standalone-opera__: Selenium Standalone with Opera installed
 
-##
-
-## Running the images
-:exclamation: When executing `docker run` for an image that contains a browser please either mount `-v /dev/shm:/dev/shm` or use the
-flag `--shm-size=2g` to use the host's shared memory.
-
-:exclamation: Always use a tag with an element suffix to pin a specific browser version.
+:point_up: Always use a tag with an element suffix to pin a specific browser version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
-
-Chrome
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:4.0.0-alpha-6-20200730
-```
-Firefox
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-6-20200730
-```
-Opera
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-opera:4.0.0-alpha-6-20200730
-```
-
-This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
-[Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
-The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
-to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
-
 
 ### Standalone Chrome, Firefox and Opera
 
