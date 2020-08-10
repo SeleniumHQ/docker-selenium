@@ -19,21 +19,25 @@ https://www.selenium.dev/support/
 ``` bash
 $ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-6-20200730
 # OR
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-6-20200730
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
 ```
 
 2. Point your WebDriver tests to http://localhost:4444/wd/hub
 
 3. That's it! 
 
+To inspect visually the browser activity, see the [Debugging](#debugging) section for details.
+
 :point_up: When executing `docker run` for an image that contains a browser please either mount 
   `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
   
-Why is `-v /dev/shm:/dev/shm` or `--shm-size 2g` necessary?
+> Why is `-v /dev/shm:/dev/shm` or `--shm-size 2g` necessary?
 > This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
 The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
 to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
+
+
 
 ## Available images (server & browsers)
 
@@ -64,8 +68,6 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.
 ```
 
 _Note: Only one Standalone container can run on port_ `4444` _at a time._
-
-To inspect visually what the browser is doing, see the [Debugging](#debugging) section for details.
 
 ### Selenium Grid Hub and Nodes
 There are different ways to run the images and create a grid, check the following options.
