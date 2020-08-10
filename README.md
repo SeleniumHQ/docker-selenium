@@ -37,7 +37,30 @@ To inspect visually the browser activity, see the [Debugging](#debugging) sectio
 The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
 to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
 
+:point_up: Always use a tag with an element suffix to pin a specific browser version.
+See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
+___
+___
+
+### Standalone images
+
+![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
+```
+
+![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-6-20200730
+```
+
+![Opera](https://raw.githubusercontent.com/alrra/browser-logos/main/src/opera/opera_24x24.png) Opera 
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
+```
+
+_Note: Only one Standalone container can run on port_ `4444` _at the same time._
 
 ## Available images (server & browsers)
 
@@ -54,20 +77,6 @@ to tune this value according to your needs. Along the examples `-v /dev/shm:/dev
 - __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
 - __selenium/standalone-opera__: Selenium Standalone with Opera installed
 
-:point_up: Always use a tag with an element suffix to pin a specific browser version.
-See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
-
-### Standalone Chrome, Firefox and Opera
-
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
-```
-
-_Note: Only one Standalone container can run on port_ `4444` _at a time._
 
 ### Selenium Grid Hub and Nodes
 There are different ways to run the images and create a grid, check the following options.
