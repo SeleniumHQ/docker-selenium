@@ -5,4 +5,4 @@ set -e
 
 echo "Starting Selenium Grid Sessions..."
 
-java -jar /opt/selenium/selenium-server.jar sessions
+java -jar /opt/selenium/selenium-server.jar sessions ${SE_OPTS}

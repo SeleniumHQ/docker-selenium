@@ -5,4 +5,4 @@ set -e
 
 echo "Starting Selenium Grid Router..."
 
-java -jar /opt/selenium/selenium-server.jar router
+java -jar /opt/selenium/selenium-server.jar router ${SE_OPTS}

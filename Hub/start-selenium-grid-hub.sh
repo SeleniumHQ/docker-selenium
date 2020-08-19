@@ -5,4 +5,4 @@ set -e
 
 echo "Starting Selenium Grid Hub..."
 
-java -jar /opt/selenium/selenium-server.jar hub
+java -jar /opt/selenium/selenium-server.jar hub ${SE_OPTS}

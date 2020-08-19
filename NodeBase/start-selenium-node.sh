@@ -15,4 +15,5 @@ pacmd set-default-source v1.monitor
 rm -f /tmp/.X*lock
 
 java -jar /opt/selenium/selenium-server.jar node --publish-events tcp://"$HUB_HOST":4442 \
-  --subscribe-events tcp://"$HUB_HOST":4443
+  --subscribe-events tcp://"$HUB_HOST":4443 \
+  ${SE_OPTS}

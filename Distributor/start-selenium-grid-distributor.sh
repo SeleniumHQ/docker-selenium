@@ -5,4 +5,4 @@ set -e
 
 echo "Starting Selenium Grid Distributor..."
 
-java -jar /opt/selenium/selenium-server.jar distributor
+java -jar /opt/selenium/selenium-server.jar distributor ${SE_OPTS}
