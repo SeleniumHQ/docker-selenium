@@ -171,7 +171,7 @@ services:
 
 To stop the Grid and cleanup the created containers, run `docker-compose down`.
 
-#### Version 3 with Swarm support (:warning: not tested yet) 
+### Version 3 with Swarm support 
 
 ```yaml
 # To start Docker in Swarm mode, you need to run `docker swarm init`
@@ -190,31 +190,37 @@ services:
     image: selenium/node-chrome:4.0.0-alpha-6-20200730
     volumes:
       - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
     environment:
       HUB_HOST: selenium-hub
     deploy:
         replicas: 1
-    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   firefox:
     image: selenium/node-firefox:4.0.0-alpha-6-20200730
     volumes:
       - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
     environment:
       HUB_HOST: selenium-hub
     deploy:
         replicas: 1
-    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   opera:
     image: selenium/node-opera:4.0.0-alpha-6-20200730
     volumes:
       - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
     environment:
       HUB_HOST: selenium-hub
     deploy:
         replicas: 1
-    entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
+    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 ```
 
 ### Deploying to Kubernetes (:warning: not tested yet)
