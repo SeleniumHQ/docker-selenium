@@ -170,28 +170,6 @@ docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SC
 Bear in mind that in non-debug images, the maximize window command won't work. You can use the resize window command
 instead. Also, some browser drivers allow specifying window size in capabilities.
 
-### Increasing the number of browser instances/slots
-
-By default, each image will only allow one slot per container, which is what we recommend as a best practice since all
-container resources and variables will be used for that browser, and this helps to have more stable tests.
-
-Nevertheless, if you would like to have more slots per node, this can be configured via environment variables with the
-environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 slots:
-
-``` bash
-# Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 selenium/node-firefox:4.0.0-alpha-6-20200730
-```
-
-Don't forget to combine this with the environment variable `NODE_MAX_SESSION`, which sets the maximum amount of tests
-that can run at the same time in a node. Following the previous example, if `NODE_MAX_INSTANCES=5`, then `NODE_MAX_SESSION`
-should also be at least 5. Full example:
-
-``` bash
-# Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 selenium/node-firefox:4.0.0-alpha-6-20200730
-```
-
 ### Running in Headless mode
 
 [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and [Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) support running tests in headless mode.
