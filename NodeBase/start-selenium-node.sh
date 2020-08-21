@@ -29,7 +29,7 @@ if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   exit 1
 fi
 
-java -jar /opt/selenium/selenium-server.jar node \
+java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   ${SE_OPTS}

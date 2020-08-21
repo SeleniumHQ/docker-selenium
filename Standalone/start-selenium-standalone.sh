@@ -2,4 +2,4 @@
 #
 # IMPORTANT: Change this file only in directory Standalone!
 
-java -jar /opt/selenium/selenium-server.jar standalone ${SE_OPTS}
+java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar standalone ${SE_OPTS}
