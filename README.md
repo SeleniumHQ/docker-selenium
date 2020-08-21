@@ -139,14 +139,6 @@ You can pass `JAVA_OPTS` environment variable to java process.
 $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
 ```
 
-### JAVA_CLASSPATH Java classpath
-
-By default, `CLASSPATH` for Java is `/opt/selenium/*:.` but you can overwrite it with yours using `JAVA_CLASSPATH`. This is useful when you want to use your own JAR files. Note that `/opt/selenium/*` always needs to be included because the Selenium JAR file is in the directory.
-
-```bash
-$ docker run -d -p 4444:4444 -v $(pwd):/mnt -e JAVA_CLASSPATH="/mnt/*:/opt/selenium/*:." -e SE_OPTS="-servlets com.example.your.AwesomeServlet" --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
-```
-
 ### Selenium Hub and Node Configuration options
 
 For special network configurations or when the hub and the nodes are running on different machines `HUB_HOST` and `HUB_PORT`
