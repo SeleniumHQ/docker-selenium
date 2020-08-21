@@ -8,12 +8,12 @@ node_modules/
 *.swp
 
 # Ignoring generated files during the build process
-Node*Debug/selenium-debug.conf
-Node*Debug/start-*.sh
 StandaloneC*/selenium.conf
 StandaloneF*/selenium.conf
+StandaloneO*/selenium.conf
 StandaloneC*/start-*.sh
 StandaloneF*/start-*.sh
+StandaloneO*/start-*.sh
 
 # Created by https://www.gitignore.io/api/virtualenv
 

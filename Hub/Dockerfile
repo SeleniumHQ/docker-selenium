@@ -8,7 +8,7 @@ LABEL authors=SeleniumHQ
 USER 1200
 
 #========================
-# Selenium Configuration
+# Selenium Hub Configuration
 #========================
 
 EXPOSE 4442
