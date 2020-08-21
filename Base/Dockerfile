@@ -1,4 +1,4 @@
-FROM ubuntu:bionic-20200630
+FROM ubuntu:bionic-20200807
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
@@ -71,8 +71,10 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.json \
   && chmod -R 777 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://selenium-release.storage.googleapis.com/4.0-alpha-6/selenium-server-4.0.0-alpha-6.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/alpha-jars/selenium-server-4.0.0-alpha-7.jar \
     -O /opt/selenium/selenium-server.jar \
+#  && wget --no-verbose https://selenium-release.storage.googleapis.com/4.0-alpha-6/selenium-server-4.0.0-alpha-6.jar \
+#    -O /opt/selenium/selenium-server.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor
 

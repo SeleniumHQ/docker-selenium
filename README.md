@@ -73,10 +73,10 @@ A Docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-6-20200730
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-6-20200730
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-6-20200730
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-6-20200730
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-6-20200730
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-6-20200730
 ```
 
 When you are done using the Grid and the containers have exited, the network can be removed with the following command:
@@ -87,174 +87,41 @@ $ docker network rm grid
 ```
 
 ### Docker Compose
-[Docker Compose](https://docs.docker.com/compose/) is the most simple way to start a Grid. Use the following
-snippet as your `docker-compose.yml`, save it locally and in the same folder run `docker-compose up`.
+[Docker Compose](https://docs.docker.com/compose/) is the most simple way to start a Grid. Use the
+linked resources below, save them locally, and check the execution instructions on top of each file.
 
 #### Version 2
-```yaml
-# To execute this docker-compose yml file use `docker-compose -f <file_name> up`
-# Add the `-d` flag at the end for detached execution
-version: '2'
-services:
-  chrome:
-    image: selenium/node-chrome:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-
-  firefox:
-    image: selenium/node-firefox:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-
-  opera:
-    image: selenium/node-opera:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-
-  selenium-hub:
-    image: selenium/hub:4.0.0-alpha-6-20200730
-    ports:
-      - "4444:4444"
-```
+[`docker-compose-v2.yml`](docker-compose-v2.yml)
 
 #### Version 3
-```yaml
-# To execute this docker-compose yml file use `docker-compose -f <file_name> up`
-# Add the `-d` flag at the end for detached execution
-version: "3"
-services:
-  selenium-hub:
-    image: selenium/hub:4.0.0-alpha-6-20200730
-    container_name: selenium-hub
-    ports:
-      - "4444:4444"
-
-  chrome:
-    image: selenium/node-chrome:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      - HUB_HOST=selenium-hub
-
-  firefox:
-    image: selenium/node-firefox:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      - HUB_HOST=selenium-hub
-
-  opera:
-    image: selenium/node-opera:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      - HUB_HOST=selenium-hub
-```
+[`docker-compose-v3.yml`](docker-compose-v3.yml)
 
 To stop the Grid and cleanup the created containers, run `docker-compose down`.
 
-### Version 3 with Swarm support 
+#### Version 3 with Swarm support 
 
-```yaml
-# To start Docker in Swarm mode, you need to run `docker swarm init`
-# To deploy the Grid, `docker stack deploy -c docker-compose.yml grid`
-# Stop with `docker stack rm grid`
+[`docker-compose-v3-swarm.yml`](docker-compose-v3-swarm.yml)
 
-version: '3.7'
+___
 
-services:
-  selenium-hub:
-   image: selenium/hub:4.0.0-alpha-6-20200730
-   ports:
-     - "4444:4444"
+## Selenium Grid - Router, Distributor, EventBus, SessionMap and Nodes
 
-  chrome:
-    image: selenium/node-chrome:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-    deploy:
-        replicas: 1
-    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
+It is possible to start a Selenium Grid with its five components apart. For simplicity, only an
+example with docker-compose will be provided. Save the file locally, and check the execution 
+instructions on top of it.
 
-  firefox:
-    image: selenium/node-firefox:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-    deploy:
-        replicas: 1
-    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
+[`docker-compose-v3-full-grid.yml`](docker-compose-v3-full-grid.yml)
 
-  opera:
-    image: selenium/node-opera:4.0.0-alpha-6-20200730
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      HUB_HOST: selenium-hub
-    deploy:
-        replicas: 1
-    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
-```
+___
 
-### Deploying to Kubernetes (:warning: not tested yet)
+## Deploying to Kubernetes (:warning: not tested yet with Selenium 4 images)
 
 Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
 on how to deploy selenium hub and nodes on a Kubernetes cluster.
 
 ___
 
-## Available images (server & browsers)
-
-- __selenium/base__: Base image, including Java and the Selenium Server
-- __selenium/hub__: Image for running a Grid Hub
-- __selenium/distributor__: Image for running a Grid Distributor
-- __selenium/router__: Image for running a Grid Router
-- __selenium/sessions__: Image for running a Grid Sessions
-- __selenium/node-base__: Base image for Grid Nodes which includes a virtual desktop environment
-- __selenium/node-chrome__: Grid Node with Chrome installed, needs to be connected to a Grid Hub
-- __selenium/node-firefox__: Grid Node with Firefox installed, needs to be connected to a Grid Hub
-- __selenium/node-opera__: Grid Node with Opera installed, needs to be connected to a Grid Hub
-- __selenium/standalone-chrome__: Selenium Standalone with Chrome installed
-- __selenium/standalone-firefox__: Selenium Standalone with Firefox installed
-- __selenium/standalone-opera__: Selenium Standalone with Opera installed
-
-
 ## Configuring the containers
-
-### JAVA_OPTS Java Environment Options
-
-You can pass `JAVA_OPTS` environment variable to java process.
-
-``` bash
-$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
-```
 
 ### SE_OPTS Selenium Configuration Options
 
@@ -262,6 +129,14 @@ You can pass `SE_OPTS` variable with additional commandline parameters for start
 
 ``` bash
 $ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
+```
+
+### JAVA_OPTS Java Environment Options
+
+You can pass `JAVA_OPTS` environment variable to java process.
+
+``` bash
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
 ```
 
 ### JAVA_CLASSPATH Java classpath

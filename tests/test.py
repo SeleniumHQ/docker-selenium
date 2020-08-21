@@ -114,7 +114,9 @@ def launch_container(container, **kwargs):
         'http_proxy': http_proxy,
         'https_proxy': https_proxy,
         'no_proxy': no_proxy,
-        'HUB_HOST': 'selenium-hub'
+        'SE_EVENT_BUS_HOST': 'selenium-hub',
+        'SE_EVENT_BUS_PUBLISH_PORT': 4442,
+        'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443
     }
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,

@@ -14,6 +14,22 @@ pacmd set-default-source v1.monitor
 
 rm -f /tmp/.X*lock
 
-java -jar /opt/selenium/selenium-server.jar node --publish-events tcp://"$HUB_HOST":4442 \
-  --subscribe-events tcp://"$HUB_HOST":4443 \
+if [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
+  echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
+  exit 1
+fi
+
+if [[ -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
+  echo "SE_EVENT_BUS_PUBLISH_PORT not set, exiting!" 1>&2
+  exit 1
+fi
+
+if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
+  echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
+  exit 1
+fi
+
+java -jar /opt/selenium/selenium-server.jar node \
+  --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
+  --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   ${SE_OPTS}
