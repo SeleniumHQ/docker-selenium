@@ -139,49 +139,48 @@ You can pass `JAVA_OPTS` environment variable to java process.
 $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
 ```
 
-### Selenium Hub and Node Configuration options
+### Node configuration options
 
-For special network configurations or when the hub and the nodes are running on different machines `HUB_HOST` and `HUB_PORT`
-or `REMOTE_HOST` can be used.
+The Nodes register themselves through the Event Bus. When the Grid is started in its typical Hub/Node
+setup, the Hub will be the one acting as the Event Bus, and when the Grid is started with all its five
+elements apart, the Event Bus will be running on its own.
 
-You can pass the `HUB_HOST` and `HUB_PORT` options to provide the hub address to a node when needed.
+In both cases, it is necessary to tell the Node where the Event Bus is, so it can register itself. That is
+the purpose of the `SE_EVENT_BUS_HOST`, `SE_EVENT_BUS_PUBLISH_PORT` and `SE_EVENT_BUS_SUBSCRIBE_PORT` environment
+variables.
 
-``` bash
-# Assuming a hub was already started on the default port
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:4.0.0-alpha-6-20200730
-```
+Here is an example with the default values of these environment variables:
 
-Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
-can be used to supply the hub a url where the node is reachable under your specific network configuration
-
-``` bash
-# Assuming a hub was already started on the default port
-$ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 -e REMOTE_HOST="http://<node_ip|node_name>:<node_port>" selenium/node-firefox:4.0.0-alpha-6-20200730
+```bash
+$ docker run -d --e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-6-20200730
 ```
 
 ### Setting Screen Resolution
 
-By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits and a dpi of 96. These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `SCREEN_DEPTH`, and/or `SCREEN_DPI` environmental variables when starting the container.
+By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits and a dpi of 96. 
+These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `SCREEN_DEPTH`, and/or `SCREEN_DPI` 
+environmental variables when starting the container.
 
 ``` bash
 docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox
 ```
 
-Bear in mind that in non-debug images, the maximize window command won't work. You can use the resize window command
-instead. Also, some browser drivers allow specifying window size in capabilities.
-
 ### Running in Headless mode
 
-[Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and [Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) support running tests in headless mode.
+[Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), 
+[Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and 
+[Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) support running tests in headless mode.
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
-To avoid starting the server you can set the `START_XVFB` environment variable to `false` (or any other value than `true`), for example:
+To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
+(or any other value than `true`), for example:
 
 ``` bash
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -e START_XVFB=false -v /dev/shm:/dev/shm selenium/node-chrome
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false -v /dev/shm:/dev/shm selenium/node-chrome
 ```
 
-For more information, see this Github [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
+For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
+___
 
 ## Building the images
 
@@ -191,53 +190,43 @@ Clone the repo and from the project directory root you can build everything by r
 $ VERSION=local make build
 ```
 
-If you need to configure environment variable in order to build the image (http proxy for instance), simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the docker context (this will only work with docker >= 1.9)
+If you need to configure environment variable in order to build the image (http proxy for instance), 
+simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the 
+docker context (this will only work with docker >= 1.9)
 
 ``` bash
 $ BUILD_ARGS="--build-arg http_proxy=http://acme:3128 --build-arg https_proxy=http://acme:3128" make build
 ```
 
-_Note: Omitting_ `VERSION=local` _will build the images with the current version number thus overwriting the images downloaded from [Docker Hub](https://hub.docker.com/r/selenium/)._
+_Note: Omitting_ `VERSION=local` _will build the images with the released version but replacing the date for the 
+current one._
 
 ## Using the images
 
-##### Example: Spawn a container for testing in Chrome:
+### Example: Spawn a container for testing in Firefox ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png):
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:4.0.0-alpha-6-20200730
-$ CH=$(docker run --rm --name=ch \
-    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-6-20200730
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v /dev/shm:/dev/shm \
-    selenium/node-chrome:4.0.0-alpha-6-20200730)
+    -v /e2e/uploads:/e2e/uploads selenium/node-firefox:4.0.0-alpha-6-20200730
 ```
 
-_Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
+_Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your 
+web app you will probably need to share a directory for this._
 
-##### Example: Spawn a container for testing in Firefox:
+This command line for Opera or Chrome is the virtually the same, only remember to replace the image name for 
+`node-opera` or `node-crhome`. Remember that the Selenium running container is able to launch either 
+Chrome, Opera or Firefox, the idea around having 3 separate containers, one for each browser is for convenience plus 
+avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
-This command line is the same as for Chrome. Remember that the Selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
+_Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you 
+will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your 
+Docker containers as single processes, not as running virtual machines._
 
-``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:4.0.0-alpha-6-20200730
-$ FF=$(docker run --rm --name=fx \
-    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    -v /dev/shm:/dev/shm \
-    selenium/node-firefox:4.0.0-alpha-6-20200730)
-```
-
-_Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
-
-##### Example: Spawn a container for testing in Opera:
-
-``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:4.0.0-alpha-6-20200730
-$ CH=$(docker run --rm --name=ch \
-    --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
-    -v /dev/shm:/dev/shm \
-    selenium/node-opera:4.0.0-alpha-6-20200730)
-```
-
-_Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
+___
 
 ## Waiting for the Grid to be ready
 
@@ -337,6 +326,8 @@ $ ./wait-for-grid.sh mvn clean test
 
 Like this, the script will poll until the Grid is ready, and then your tests will start.
 
+___
+
 ## Debugging
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
@@ -395,7 +386,9 @@ RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 
 If you want to run VNC without password authentication you can set the environment variable `VNC_NO_PASSWORD=1`.
 
-### Troubleshooting
+___
+
+## Troubleshooting
 
 All output is sent to stdout so it can be inspected by running:
 ``` bash
@@ -407,7 +400,7 @@ You can turn on debugging by passing environment variable to the hub and the nod
 GRID_DEBUG=true
 ```
 
-#### Headless
+### Headless
 
 If you see the following selenium exceptions:
 
