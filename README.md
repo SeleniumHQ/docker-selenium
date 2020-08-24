@@ -203,7 +203,7 @@ current one._
 
 ## Using the images
 
-### Example: Spawn a container for testing in Firefox ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png):
+### Example: Spawn a container for testing in Firefox ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png)
 
 ``` bash
 $ docker network create grid
@@ -232,27 +232,45 @@ ___
 
 It is a good practice to check first if the Grid is up and ready to receive requests, this can be done by checking the `/wd/hub/status` endpoint.
 
-A Grid that is ready, composed by a hub and a node, could look like this:
+A Grid that is ready, composed by a hub and two nodes, could look like this:
 
 ```json
 {
-  "status": 0,
   "value": {
     "ready": true,
-    "message": "Hub has capacity",
-    "build": {
-      "revision": "aacccce0",
-      "time": "2018-08-02T20:13:22.693Z",
-      "version": "3.14.0"
-    },
-    "os": {
-      "arch": "amd64",
-      "name": "Linux",
-      "version": "4.9.93-linuxkit-aufs"
-    },
-    "java": {
-      "version": "1.8.0_181"
-    }
+    "message": "Selenium Grid ready.",
+    "nodes": [
+      {
+        "id": "6c0a2c59-7e99-469d-bbfc-313dc638797c",
+        "uri": "http:\u002f\u002f172.19.0.3:5555",
+        "maxSessions": 4,
+        "stereotypes": [
+          {
+            "capabilities": {
+              "browserName": "firefox"
+            },
+            "count": 4
+          }
+        ],
+        "sessions": [
+        ]
+      },
+      {
+        "id": "26af3363-a0d8-4bd6-a854-2c7497ed64a4",
+        "uri": "http:\u002f\u002f172.19.0.4:5555",
+        "maxSessions": 4,
+        "stereotypes": [
+          {
+            "capabilities": {
+              "browserName": "chrome"
+            },
+            "count": 4
+          }
+        ],
+        "sessions": [
+        ]
+      }
+    ]
   }
 }
 ```
