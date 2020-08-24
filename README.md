@@ -348,51 +348,36 @@ ___
 
 ## Debugging
 
-In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
-``` bash
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-6-20200730
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-6-20200730
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-6-20200730
-```
-e.g.:
-``` bash
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-6-20200730
-$ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-6-20200730
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-6-20200730
-```
-to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those nodes are free, and reachable).
+In the event you wish to see what the browser is doing, you can check what is going inside by connecting to the VNC 
+server running on port 5900 inside the browser container. 
 
-And for standalone:
-``` bash
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
-```
-or
+You are free to map that port to any free external port that you wish. Keep in mind that you will only be able to run 
+one node per port. If you wish to include a second node (or more), you will have to use different ports.
+
+The internal 5900 port will need to remain the same because that is the configured port for the VNC server 
+running inside the container.
+
+Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
 $ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-6-20200730
-# OR
 $ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-6-20200730
-# OR
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
+$ docker run -d -p 4444:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-6-20200730
 ```
 
-You can acquire the port that the VNC server is exposed to by running:
-(Assuming that we mapped the ports like this: 49338:5900)
+Then, you would use in your VNC client:
+- Port 5900 to connect to the Chrome container
+- Port 5901 to connect to the Firefox container
+- Port 5902 to connect to the Opera container
+
+In case you have [RealVNC](https://www.realvnc.com/) binary `vnc` in your path, you can always take a look, select view 
+only to avoid messing around your tests with an unintended mouse click or keyboard interrupt:
 ``` bash
-$ docker port <container-name|container-id> 5900
-#=> 0.0.0.0:49338
+$ ./bin/vncview 127.0.0.1:5900
 ```
 
-In case you have [RealVNC](https://www.realvnc.com/) binary `vnc` in your path, you can always take a look, view only to avoid messing around your tests with an unintended mouse click or keyboard interrupt:
-``` bash
-$ ./bin/vncview 127.0.0.1:49338
-```
-
-When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` 
-and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
+When you are prompted for the password it is `secret`. If you wish to change this then you should either change 
+it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
+the posted ones which reconfigures it:
 ``` dockerfile
 #FROM selenium/node-chrome:4.0.0-alpha-6-20200730
 #FROM selenium/node-firefox:4.0.0-alpha-6-20200730
@@ -428,4 +413,5 @@ or
 
 `Message: unknown error: Chrome failed to start: exited abnormally`
 
-The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to actually run Firefox, Chrome or Opera (respectively) in headless mode.
+The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
+actually run Firefox, Chrome or Opera in headless mode.
