@@ -31,8 +31,8 @@ jobs:
         run: echo ${GRID_VERSION}
       - name: Remove local Docker tag
         run: docker rmi selenium/base:local-${BUILD_DATE}
-#      - name: Build images
-#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Build images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
 #      - name: Login Docker Hub
 #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 #        env:
@@ -58,7 +58,7 @@ jobs:
 #          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
 #          body_path: release_notes.md
 #          draft: false
-#          prerelease: false
+#          prerelease: ${{ env.PRERELEASE }}
 
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
