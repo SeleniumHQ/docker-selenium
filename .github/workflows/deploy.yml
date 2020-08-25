@@ -25,7 +25,7 @@ jobs:
         # sed used to remove last comma of Selenium version output
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
       - name: Is it a prerelease?
-        run: echo ::set-env name=GRID_VERSION::$(GRID_VERSION)-prerelease && echo ::set-env name=PRERELEASE::true
+        run: echo ::set-env name=GRID_VERSION::${GRID_VERSION}-prerelease && echo ::set-env name=PRERELEASE::true
         if: contains(toJson(github.event.commits), '[prerelease]') == true
       - name: Display Grid version
         run: echo ${GRID_VERSION}
