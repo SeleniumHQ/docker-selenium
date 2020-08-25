@@ -16,7 +16,7 @@ jobs:
       - name: Output Docker info
         run: docker info
       - name: Sets build date
-        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d') && ::set-env name=PRERELEASE::false
+        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
       - name: Sets prerelease to false by default
         run: echo ::set-env name=PRERELEASE::false
       - name: Build base image to get Grid version
