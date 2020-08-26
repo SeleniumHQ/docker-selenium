@@ -12,35 +12,58 @@ jobs:
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
       - name: Output Docker info
         run: docker info
       - name: Sets build date
         run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
+      - name: Sets prerelease to false by default
+        run: echo ::set-env name=PRERELEASE::false
       - name: Build base image to get Grid version
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base
       - name: Get Grid version
         # sed used to remove last comma of Selenium version output
         run: echo ::set-env name=GRID_VERSION::$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')
+      - name: Is it a prerelease?
+        run: echo ::set-env name=GRID_VERSION::${GRID_VERSION}-prerelease && echo ::set-env name=PRERELEASE::true
+        if: contains(toJson(github.event.commits), '[prerelease]') == true
       - name: Display Grid version
         run: echo ${GRID_VERSION}
       - name: Remove local Docker tag
         run: docker rmi selenium/base:local-${BUILD_DATE}
+      - name: Sets env var for the next tag
+        run: echo ::set-env name=NEXT_TAG::"${GRID_VERSION}"-${BUILD_DATE}
+      - name: Get latest tag
+        run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
+      - name: Display latest tag
+        run: echo ${LATEST_TAG}
+      - name: Update tag in docs and files
+        run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Update tag in docs and files" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: trunk
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        run: VERSION="${TAG}" make release
+        run: make release
       - name: Tag browser images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
-      - name: Get latest tag
-        run: echo ::set-env name=LATEST_TAG::$(git tag | tail -1)
-      - name: Display latest tag
-        run: echo ${LATEST_TAG}
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release
@@ -53,7 +76,8 @@ jobs:
           release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
           body_path: release_notes.md
           draft: false
-          prerelease: false
+          prerelease: ${{ env.PRERELEASE }}
+
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
 #        run: VERSION="${TRAVIS_TAG}" make tag_latest
