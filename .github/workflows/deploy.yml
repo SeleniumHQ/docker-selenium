@@ -45,6 +45,15 @@ jobs:
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Update tag in docs and files" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 #      - name: Login Docker Hub
 #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 #        env:
