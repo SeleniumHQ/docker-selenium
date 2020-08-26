@@ -31,8 +31,6 @@ jobs:
         run: echo ${GRID_VERSION}
       - name: Remove local Docker tag
         run: docker rmi selenium/base:local-${BUILD_DATE}
-      - name: Build images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Sets env var for the next tag
         run: echo ::set-env name=NEXT_TAG::"${GRID_VERSION}"-${BUILD_DATE}
       - name: Get latest tag
@@ -41,6 +39,10 @@ jobs:
         run: echo ${LATEST_TAG}
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
+
+
+#      - name: Build images
+#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
 #      - name: Login Docker Hub
 #        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 #        env:
