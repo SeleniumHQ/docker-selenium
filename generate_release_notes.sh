@@ -34,5 +34,4 @@ echo "### Published Docker images" >> release_notes.md
 echo '```' >> release_notes.md
 docker images --filter=reference='selenium/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >> release_notes.md
 echo '```' >> release_notes.md
-cat release_notes.md
 

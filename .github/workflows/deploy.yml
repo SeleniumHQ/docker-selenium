@@ -12,7 +12,11 @@ jobs:
     name: Deploy Docker images
     runs-on: ubuntu-18.04
     steps:
-      - uses: actions/checkout@v1
+      - name: Checkout code ✅
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
       - name: Output Docker info
         run: docker info
       - name: Sets build date
