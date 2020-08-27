@@ -49,7 +49,7 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files" -a
+          git commit -m "Update tag in docs and files [skip ci]" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
