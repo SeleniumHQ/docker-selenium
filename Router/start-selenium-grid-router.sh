@@ -32,4 +32,4 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar router \
   --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port ${SE_SESSIONS_MAP_PORT} \
   --distributor-host "${SE_DISTRIBUTOR_HOST}" --distributor-port ${SE_DISTRIBUTOR_PORT} \
-  ${SE_OPTS}
+  --relax-checks true ${SE_OPTS}
