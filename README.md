@@ -6,6 +6,20 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 ![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
 ![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
 
+# :point_right: Status: Grid 4 is under development and on a [Alpha stage](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
+We are doing prereleases on a regular basis to get early feedback. This means that all other Selenium components
+can be currently at a different alpha version (e.g. bindings on Alpha 6, and these Docker images on prerelease Alpha 7).
+
+Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
+our [prereleases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-alpha-7-prerelease-20200826)
+
+To get notifications of new prereleases, add yourself as a watcher of "Releases only". 
+
+Doubts or questions? Please get in touch through the different communication channels available in the **Community** section.
+
+Looking for Grid 3? Head to the [Selenium 3 branch](https://github.com/SeleniumHQ/docker-selenium/tree/selenium-3). This branch
+will be having new browser releases until Grid 4 has its major release.
+
 ## Community
 
 Do you need help using these Docker images?
