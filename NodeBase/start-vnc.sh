@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# IMPORTANT: Change this file only in directory NodeDebug!
+# IMPORTANT: Change this file only in directory NodeBase!
 
 if [ "${START_XVFB}" = true ] ; then
   if [ ! -z $VNC_NO_PASSWORD ]; then
@@ -20,8 +20,7 @@ if [ "${START_XVFB}" = true ] ; then
     echo "Waiting for Xvfb..."
   done
 
-  # -noxrecord fixes https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=859213 in x11vnc 0.9.13-2
-  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport 5900 -display ${DISPLAY} -noxrecord
+  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport 5900 -rfbportv6 5900 -display ${DISPLAY}
 else
   echo "Vnc won't start because Xvfb is configured to not start."
 fi
