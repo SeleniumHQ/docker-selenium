@@ -273,7 +273,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-opera:$(MAJOR_MINOR_PATCH)
-	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)-$(BUILD_DATE)
+	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 test: test_chrome \
  test_firefox \
