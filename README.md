@@ -130,7 +130,7 @@ ___
 
 ## Video recording ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
 
-It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20200920`
+It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20200921`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
