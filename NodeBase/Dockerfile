@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-alpha-7-prerelease-20200907
+FROM selenium/base:4.0.0-alpha-7-prerelease-20200921
 LABEL authors=SeleniumHQ
 
 USER root
@@ -124,9 +124,13 @@ RUN sudo chmod -R 777 ${HOME} \
 #==============================
 # Scripts to run fluxbox and x11vnc
 #==============================
-COPY start-fluxbox.sh \
-      start-vnc.sh \
+COPY start-vnc.sh \
       /opt/bin/
+
+#==============================
+# Selenium Grid logo as wallpaper for Fluxbox
+#==============================
+COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
 
 #============================
 # Some configuration options
@@ -136,6 +140,7 @@ ENV SCREEN_HEIGHT 1020
 ENV SCREEN_DEPTH 24
 ENV SCREEN_DPI 96
 ENV DISPLAY :99.0
+ENV DISPLAY_NUM 99
 ENV START_XVFB true
 
 #========================

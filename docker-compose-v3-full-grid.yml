@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/event-bus:4.0.0-alpha-7-prerelease-20200921
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -12,7 +12,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/sessions:4.0.0-alpha-7-prerelease-20200921
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -24,7 +24,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-distributor:
-    image: selenium/distributor:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/distributor:4.0.0-alpha-7-prerelease-20200921
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -39,7 +39,7 @@ services:
       - SE_SESSIONS_MAP_PORT=5556
 
   selenium-router:
-    image: selenium/router:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/router:4.0.0-alpha-7-prerelease-20200921
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -53,7 +53,7 @@ services:
       - SE_SESSIONS_MAP_PORT=5556
 
   chrome:
-    image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20200921
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -66,7 +66,7 @@ services:
       - "6900:5900"
 
   firefox:
-    image: selenium/node-firefox:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/node-firefox:4.0.0-alpha-7-prerelease-20200921
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -79,7 +79,7 @@ services:
       - "6901:5900"
 
   opera:
-    image: selenium/node-opera:4.0.0-alpha-7-prerelease-20200907
+    image: selenium/node-opera:4.0.0-alpha-7-prerelease-20200921
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
