@@ -120,6 +120,11 @@ RUN sudo chmod -R 777 ${HOME} \
 COPY start-vnc.sh \
       /opt/bin/
 
+#==============================
+# Selenium Grid logo as wallpaper for Fluxbox
+#==============================
+COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
+
 #============================
 # Some configuration options
 #============================

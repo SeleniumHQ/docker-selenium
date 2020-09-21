@@ -17,6 +17,7 @@ FIREFOX_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} firefox -
 GECKODRIVER_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
 OPERA_VERSION=$(docker run --rm selenium/node-opera:${TAG_VERSION} opera --version)
 OPERADRIVER_VERSION=$(docker run --rm selenium/node-opera:${TAG_VERSION} operadriver --version | awk 'NR==1{print $2}')
+FFMPEG_VERSION=$(docker run --entrypoint="" --rm selenium/video:ffmpeg-4.3.1-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
 
 
 echo "" >> release_notes.md
@@ -28,6 +29,7 @@ echo "* Firefox: ${FIREFOX_VERSION}" >> release_notes.md
 echo "* GeckoDriver: ${GECKODRIVER_VERSION}" >> release_notes.md
 echo "* Opera: ${OPERA_VERSION}" >> release_notes.md
 echo "* OperaDriver: ${OPERADRIVER_VERSION}" >> release_notes.md
+echo "* ffmpeg: ${FFMPEG_VERSION}" >> release_notes.md
 
 echo "" >> release_notes.md
 echo "### Published Docker images" >> release_notes.md

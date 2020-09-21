@@ -10,8 +10,20 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
+FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-4.3.1)
 
-all: hub distributor router sessions event_bus chrome firefox opera standalone_chrome standalone_firefox standalone_opera
+all: hub \
+	distributor \
+	router \
+	sessions \
+	event_bus \
+	chrome \
+	firefox \
+	opera \
+	standalone_chrome \
+	standalone_firefox \
+	standalone_opera \
+	video
 
 generate_all:	\
 	generate_hub \
@@ -105,6 +117,9 @@ generate_standalone_opera:
 
 standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(TAG_VERSION) .
+
+video:
+	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
@@ -257,6 +272,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-opera:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 test: test_chrome \
  test_firefox \
@@ -316,4 +332,5 @@ test_opera_standalone:
 	standalone_firefox \
 	tag_latest \
 	tag_and_push_browser_images \
-	test
+	test \
+	video
