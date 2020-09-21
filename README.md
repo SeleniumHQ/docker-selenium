@@ -128,6 +128,48 @@ instructions on top of it.
 
 ___
 
+## Video recording ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
+
+It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20200920`
+Docker image. One container is needed per each container where a browser is running. This means if you are
+running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
+
+Currently, the only way to do this mapping is manually (either starting the containers manually, or through
+`docker-compose`). We are iterating on this process and probably this setup will be more simple in the future.
+
+The video Docker image we provide is based on the ffmpeg Ubuntu image provided by the 
+[jrottenberg/ffmpeg](https://github.com/jrottenberg/ffmpeg) project, thank you for providing this image and
+simplifying our work :tada:
+
+**Notes**:
+- If you have questions or feedback, please use the community contact points shown [here](https://www.selenium.dev/support/). 
+- Please report any bugs through GitHub [issues](https://github.com/SeleniumHQ/docker-selenium/issues/new/choose), and provide
+all the information requested on the template.
+- Video recording for headless browsers is not supported. 
+- Video recording tends to use considerable amounts of CPU. Normally you should estimate 1CPU per video container, 
+and 1 CPU per browser container.
+- Videos are stored in the `/videos` directory inside the video container. Map a local directory to get the videos.
+- If you are running more than one video container, be sure to overwrite the video file name through the `FILE_NAME`
+environment variable to avoid unexpected results.
+
+This example shows how to start the containers manually:
+
+``` bash
+$ docker network create grid
+$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-20200907
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-4.3.1-20200907
+# Run your tests
+$ docker stop video && docker rm video
+$ docker stop selenium && docker rm selenium
+```
+After the containers are stopped and removed, you should see a video file on your machine's `/tmp/videos` directory.
+
+Here is an example using a Hub and 3 Nodes (Chrome, Firefox, and Opera):
+
+[`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
+
+___
+
 ## Deploying to Kubernetes (:warning: not tested yet with Selenium 4 images)
 
 Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
