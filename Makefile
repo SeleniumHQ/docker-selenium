@@ -118,7 +118,6 @@ generate_standalone_opera:
 standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(TAG_VERSION) .
 
-# The video container should not change often, therefore
 video:
 	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
