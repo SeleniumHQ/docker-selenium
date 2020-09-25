@@ -1,4 +1,4 @@
-# To execute this yml file use this command in your local kubernetes environment `kubectl apply -f docker-compose-v3-full-grid.yml`
+# To execute this yml file use this command in your local kubernetes environment `kubectl apply -f k8s-deployment-full-grid.yaml`
 #***************************************
 #SELENIUM ROUTER
 #***************************************
