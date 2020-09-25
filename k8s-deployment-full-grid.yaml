@@ -1,0 +1,361 @@
+# To execute this yml file use this command in your local kubernetes environment `kubectl apply -f docker-compose-v3-full-grid.yml`
+#***************************************
+#SELENIUM ROUTER
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-router
+  labels:
+    name: selenium-router
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-router
+  ports:
+    - name: web
+      protocol: TCP
+      port: 4444
+      targetPort: 4444
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-router-deployment
+  labels:
+    app: selenium-router
+    name: selenium-router
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-router
+  template:
+    metadata:
+      labels:
+        app: selenium-router
+        name: selenium-router
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-router
+          image: selenium/router:4.0.0-alpha-7-prerelease-20200907
+          env:
+            - name: SE_DISTRIBUTOR_HOST
+              value: "selenium-distributor"
+            - name: SE_DISTRIBUTOR_PORT
+              value: "5553"
+            - name: SE_SESSIONS_MAP_HOST
+              value: "selenium-sessions"
+            - name: SE_SESSIONS_MAP_PORT
+              value: "5556"
+          ports:
+            - containerPort: 4444
+              protocol: TCP
+---
+#***************************************
+#SELENIUM EVENT BUS
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-event-bus
+  labels:
+    name: selenium-event-bus
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-event-bus
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 4442
+      targetPort: 4442
+    - name: port2
+      protocol: TCP
+      port: 4443
+      targetPort: 4443
+    - name: port3
+      protocol: TCP
+      port: 5557
+      targetPort: 5557
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-event-bus-deployment
+  labels:
+    app: selenium-event-bus
+    name: selenium-event-bus
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-event-bus
+  template:
+    metadata:
+      labels:
+        app: selenium-event-bus
+        name: selenium-event-bus
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-event-bus
+          image: selenium/event-bus:4.0.0-alpha-7-prerelease-20200907
+          ports:
+            - containerPort: 4442
+              protocol: TCP
+            - containerPort: 4443
+              protocol: TCP
+            - containerPort: 5557
+              protocol: TCP
+---
+#***************************************
+#SELENIUM SESSIONS MAP
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-sessions
+  labels:
+    name: selenium-sessions
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-sessions
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 5556
+      targetPort: 5556
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-sessions-deployment
+  labels:
+    app: selenium-sessions
+    name: selenium-sessions
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-sessions
+  template:
+    metadata:
+      labels:
+        app: selenium-sessions
+        name: selenium-sessions
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-sessions
+          image: selenium/sessions:4.0.0-alpha-7-prerelease-20200907
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+          ports:
+            - containerPort: 5556
+              protocol: TCP
+---
+#***************************************
+#SELENIUM DISTRIBUTOR
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-distributor
+  labels:
+    name: selenium-distributor
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-distributor
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 5553
+      targetPort: 5553
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-distributor-deployment
+  labels:
+    app: selenium-distributor
+    name: selenium-distributor
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-distributor
+  template:
+    metadata:
+      labels:
+        app: selenium-distributor
+        name: selenium-distributor
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-distributor
+          image: selenium/distributor:4.0.0-alpha-7-prerelease-20200907
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+            - name: SE_SESSIONS_MAP_HOST
+              value: "selenium-sessions"
+            - name: SE_SESSIONS_MAP_PORT
+              value: "5556"
+          ports:
+            - containerPort: 5553
+              protocol: TCP
+---
+#***************************************
+#SELENIUM CHROME NODE
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-chrome-node
+  labels:
+    name: selenium-chrome-node
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-chrome-node
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 6900
+      targetPort: 5900
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-chrome-node-deployment
+  labels:
+    app: selenium-chrome-node
+    name: selenium-chrome-node
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-chrome-node
+  template:
+    metadata:
+      labels:
+        app: selenium-chrome-node
+        name: selenium-chrome-node
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-chrome-node
+          image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20200907
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+          ports:
+            - containerPort: 5553
+              protocol: TCP
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+      volumes:
+        - name: dshm
+          emptyDir: { "medium": "Memory" }
+---
+#***************************************
+#SELENIUM FIREFOX NODE
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-ff-node
+  labels:
+    name: selenium-ff-node
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-ff-node
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 6900
+      targetPort: 5900
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-ff-node-deployment
+  labels:
+    app: selenium-ff-node
+    name: selenium-ff-node
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-ff-node
+  template:
+    metadata:
+      labels:
+        app: selenium-ff-node
+        name: selenium-ff-node
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-ff-node
+          image: selenium/node-firefox:4.0.0-alpha-7-prerelease-202009217
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+          ports:
+            - containerPort: 5553
+              protocol: TCP
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+      volumes:
+        - name: dshm
+          emptyDir: { "medium": "Memory" }
