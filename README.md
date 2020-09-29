@@ -274,7 +274,7 @@ _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing brow
 web app you will probably need to share a directory for this._
 
 This command line for Opera or Chrome is the virtually the same, only remember to replace the image name for 
-`node-opera` or `node-crhome`. Remember that the Selenium running container is able to launch either 
+`node-opera` or `node-chrome`. Remember that the Selenium running container is able to launch either 
 Chrome, Opera or Firefox, the idea around having 3 separate containers, one for each browser is for convenience plus 
 avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
