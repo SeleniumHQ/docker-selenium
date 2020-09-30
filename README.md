@@ -170,7 +170,21 @@ Here is an example using a Hub and 3 Nodes (Chrome, Firefox, and Opera):
 
 ___
 
-## Deploying to Kubernetes (:warning: not tested yet with Selenium 4 images)
+## Deploying to Kubernetes
+Here are the steps to deploy the Grid 4 to a Kubernetes cluster.
+``` bash
+# Deploying all the grid components to kubernetes
+$ kubectl apply -f k8s-deployment-full-grid.yaml
+
+# Exposing the router
+$ kubectl expose deployment selenium-router-deployment --type=NodePort --port=4444
+
+# Get the router URL to access the grid from outside K8s cluster
+$ minikube service selenium-router-deployment --url
+
+# To list all the Grid componenets
+$ kubectl get all -l component=selenium-grid-4
+```
 
 Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
 on how to deploy selenium hub and nodes on a Kubernetes cluster.
