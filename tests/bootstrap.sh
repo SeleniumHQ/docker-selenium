@@ -12,7 +12,7 @@ python -m pip install selenium===3.14.1 \
                       docker===4.2.0 \
                       | grep -v 'Requirement already satisfied'
 
-python test.py $1 $2
+python test.py $1
 ret_code=$?
 
 if [ "${TRAVIS:-false}" = "false" ]; then

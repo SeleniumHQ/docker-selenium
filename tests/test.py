@@ -131,7 +131,7 @@ if __name__ == '__main__':
     image = sys.argv[1]
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
-    random_user_id = random.randint(100000,2147483647)
+    random_user_id = random.randint(100000, 2147483647)
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)
