@@ -302,8 +302,8 @@ test_opera_standalone:
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
-test_video: video hub chrome firefox #opera
-	for node in NodeChrome NodeFirefox ; do \
+test_video: video hub chrome firefox opera
+	for node in NodeChrome NodeFirefox NodeOpera ; do \
 			cd ./tests || true ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
