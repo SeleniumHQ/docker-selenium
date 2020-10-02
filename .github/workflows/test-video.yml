@@ -1,4 +1,4 @@
-name: Build & test
+name: Test video files
 
 on:
   push:
