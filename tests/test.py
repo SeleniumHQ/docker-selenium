@@ -144,6 +144,8 @@ if __name__ == '__main__':
     failed = False
 
     # Avoiding to start the containers when running inside docker-compose
+    test_container_id = ''
+    hub_id = ''
     if not run_in_docker_compose:
         logger.info('========== Starting %s Container ==========' % image)
 
@@ -196,20 +198,22 @@ if __name__ == '__main__':
         logger.fatal(e)
         failed = True
 
-    logger.info("Cleaning up...")
+    # Avoiding a container cleanup if tests run inside docker-compose
+    if not run_in_docker_compose:
+        logger.info("Cleaning up...")
 
-    test_container = client.containers.get(test_container_id)
-    test_container.kill()
-    test_container.remove()
+        test_container = client.containers.get(test_container_id)
+        test_container.kill()
+        test_container.remove()
 
-    if standalone:
-        logger.info("Standalone Cleaned up")
-    else:
-        # Kill the launched hub
-        hub = client.containers.get(hub_id)
-        hub.kill()
-        hub.remove()
-        logger.info("Hub / Node Cleaned up")
+        if standalone:
+            logger.info("Standalone Cleaned up")
+        else:
+            # Kill the launched hub
+            hub = client.containers.get(hub_id)
+            hub.kill()
+            hub.remove()
+            logger.info("Hub / Node Cleaned up")
 
     if failed:
         exit(1)
