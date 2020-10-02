@@ -300,6 +300,29 @@ test_opera:
 test_opera_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneOpera
 
+# This should run on its own CI job. There is no need to combine it with the other tests.
+# Its main purpose is to check that a video file was generated.
+test_video: video hub chrome firefox #opera
+	for node in NodeChrome NodeFirefox ; do \
+			cd ./tests || true ; \
+			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
+			echo TAG=$(TAG_VERSION) >> .env ; \
+			echo NODE=$$node >> .env ; \
+			if [ $$node = "NodeChrome" ] ; then \
+					echo BROWSER=chrome >> .env ; \
+					echo VIDEO_FILE_NAME=chrome_video.mp4 >> .env ; \
+			fi ; \
+			if [ $$node = "NodeFirefox" ] ; then \
+					echo BROWSER=firefox >> .env ; \
+					echo VIDEO_FILE_NAME=firefox_video.mp4 >> .env ; \
+			fi ; \
+			if [ $$node = "NodeOpera" ] ; then \
+					echo BROWSER=opera >> .env ; \
+					echo VIDEO_FILE_NAME=opera_video.mp4 >> .env ; \
+			fi ; \
+			docker-compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build ; \
+	done
+
 .PHONY: \
 	all \
 	base \
