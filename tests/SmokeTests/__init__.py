@@ -33,12 +33,6 @@ class SmokeTests(unittest.TestCase):
         self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
 
 
-class NodeTest(SmokeTests):
-    def test_hub_and_node_up(self):
-        self.smoke_test_container(4444)
-        self.smoke_test_container(5555)
-
-
-class StandaloneTest(SmokeTests):
-    def test_standalone_up(self):
+class GridTest(SmokeTests):
+    def test_grid_is_up(self):
         self.smoke_test_container(4444)

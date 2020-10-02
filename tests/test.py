@@ -147,16 +147,15 @@ if __name__ == '__main__':
         """
         Standalone Configuration
         """
-        smoke_test_class = 'StandaloneTest'
+        ports = {'4444': 4444}
         if use_random_user_id:
-            test_container_id = launch_container(image, ports={'4444': 4444}, user=random_user_id)
+            test_container_id = launch_container(image, ports=ports, user=random_user_id)
         else:
-            test_container_id = launch_container(image, ports={'4444': 4444})
+            test_container_id = launch_container(image, ports=ports)
     else:
         """
         Hub / Node Configuration
         """
-        smoke_test_class = 'NodeTest'
         prune_networks()
         create_network("grid")
         hub_id = launch_hub("grid")
@@ -173,7 +172,8 @@ if __name__ == '__main__':
         # Smoke tests
         logger.info('*********** Running smoke tests %s Tests **********' % image)
         image_class = "%sTest" % image
-        test_class = getattr(__import__('SmokeTests', fromlist=[smoke_test_class]), smoke_test_class)
+        module = __import__('SmokeTests', fromlist='GridTest')
+        test_class = getattr(module, 'GridTest')
         suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
         test_runner = unittest.TextTestRunner(verbosity=3)
         failed = not test_runner.run(suite).wasSuccessful()
