@@ -325,9 +325,9 @@ test_video: video hub chrome firefox opera
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	 docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/chrome_video.mp4 -f null - 2>error.log
-	 docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/firefox_video.mp4 -f null - 2>error.log
-	 docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/opera_video.mp4 -f null - 2>error.log
+	docker run -v ./tests:/tmp/workdir -w /tmp/workdir jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -v ./tests:/tmp/workdir -w /tmp/workdir jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -v ./tests:/tmp/workdir -w /tmp/workdir jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./videos/opera_video.mp4 -f null - 2>error.log
 
 .PHONY: \
 	all \
