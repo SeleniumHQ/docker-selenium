@@ -302,7 +302,7 @@ test_opera_standalone:
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
-test_video: video hub chrome firefox #opera
+test_video: video hub chrome firefox opera
 	# Running a few tests with docker-compose to generate the videos
 	for node in NodeChrome NodeFirefox ; do \
 			cd ./tests || true ; \
@@ -325,9 +325,9 @@ test_video: video hub chrome firefox #opera
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -v $(pwd):$(pwd) -w $(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/opera_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu1804 -v error -i ./tests/videos/opera_video.mp4 -f null - 2>error.log
 
 .PHONY: \
 	all \
