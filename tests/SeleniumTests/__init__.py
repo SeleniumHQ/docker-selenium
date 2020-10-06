@@ -1,12 +1,16 @@
 import unittest
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
+
 
 class SeleniumGenericTests(unittest.TestCase):
+
     def test_title(self):
         self.driver.get('https://the-internet.herokuapp.com')
         self.assertTrue(self.driver.title == 'The Internet')
@@ -64,7 +68,7 @@ class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
             desired_capabilities=DesiredCapabilities.CHROME,
-            command_executor='http://localhost:4444'
+            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 
 
@@ -72,7 +76,7 @@ class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
             desired_capabilities=DesiredCapabilities.FIREFOX,
-            command_executor='http://localhost:4444'
+            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 
     def test_title_and_maximize_window(self):
@@ -87,5 +91,5 @@ class OperaTests(SeleniumGenericTests):
         capabilities['browserName'] = 'operablink'
         self.driver = webdriver.Remote(
             desired_capabilities=capabilities,
-            command_executor='http://localhost:4444'
+            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )

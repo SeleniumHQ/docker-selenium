@@ -14,6 +14,7 @@ StandaloneO*/selenium.conf
 StandaloneC*/start-*.sh
 StandaloneF*/start-*.sh
 StandaloneO*/start-*.sh
+videos
 
 # Created by https://www.gitignore.io/api/virtualenv
 

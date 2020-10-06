@@ -1,0 +1,47 @@
+# How to run this?
+# docker-compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build
+# To clean up, `docker-compose -f docker-compose-v3-test-video.yml down`
+version: "3"
+services:
+  browser:
+    image: selenium/node-${BROWSER}:${TAG:-test-video}
+    volumes:
+      - /dev/shm:/dev/shm
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    ports:
+      - "6900:5900"
+
+  browser_video:
+    image: selenium/video:${VIDEO_TAG:-test-video}
+    volumes:
+      - ./videos:/videos
+    depends_on:
+      - browser
+    environment:
+      - DISPLAY_CONTAINER_NAME=browser
+      - FILE_NAME=${VIDEO_FILE_NAME}
+
+  selenium-hub:
+    image: selenium/hub:${TAG:-test-video}
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  tests:
+    image: docker-selenium-tests:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - selenium-hub
+    environment:
+      - RUN_IN_DOCKER_COMPOSE=true
+      - SELENIUM_GRID_HOST=selenium-hub
+    command: ["./bootstrap.sh", "${NODE}"]
