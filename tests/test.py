@@ -17,6 +17,7 @@ client = docker.from_env()
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
 USE_RANDOM_USER_ID = os.environ.get('USE_RANDOM_USER_ID')
+RUN_IN_DOCKER_COMPOSE = os.environ.get('RUN_IN_DOCKER_COMPOSE')
 http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
@@ -76,11 +77,11 @@ def launch_hub(network_name):
         existing_hub.remove()
         logger.debug("hub removed")
 
-    ports = {'4442': 4442, '4443': 4443, '4444': 4444}
+    grid_ports = {'4442': 4442, '4443': 4443, '4444': 4444}
     if use_random_user_id:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=ports, user=random_user_id)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=grid_ports, user=random_user_id)
     else:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=ports)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=grid_ports)
 
     logger.info("Hub Launched")
     return hub_container_id
@@ -131,7 +132,8 @@ if __name__ == '__main__':
     image = sys.argv[1]
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
-    random_user_id = random.randint(100000,2147483647)
+    run_in_docker_compose = RUN_IN_DOCKER_COMPOSE == 'true'
+    random_user_id = random.randint(100000, 2147483647)
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)
@@ -141,39 +143,43 @@ if __name__ == '__main__':
     # Flag for failure (for posterity)
     failed = False
 
-    logger.info('========== Starting %s Container ==========' % image)
+    # Avoiding to start the containers when running inside docker-compose
+    test_container_id = ''
+    hub_id = ''
+    if not run_in_docker_compose:
+        logger.info('========== Starting %s Container ==========' % image)
 
-    if standalone:
-        """
-        Standalone Configuration
-        """
-        smoke_test_class = 'StandaloneTest'
-        if use_random_user_id:
-            test_container_id = launch_container(image, ports={'4444': 4444}, user=random_user_id)
+        if standalone:
+            """
+            Standalone Configuration
+            """
+            ports = {'4444': 4444}
+            if use_random_user_id:
+                test_container_id = launch_container(image, ports=ports, user=random_user_id)
+            else:
+                test_container_id = launch_container(image, ports=ports)
         else:
-            test_container_id = launch_container(image, ports={'4444': 4444})
-    else:
-        """
-        Hub / Node Configuration
-        """
-        smoke_test_class = 'NodeTest'
-        prune_networks()
-        create_network("grid")
-        hub_id = launch_hub("grid")
-        ports = {'5555': 5555}
-        if use_random_user_id:
-            test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
-        else:
-            test_container_id = launch_container(image, network='grid', ports=ports)
-        prune_networks()
+            """
+            Hub / Node Configuration
+            """
+            prune_networks()
+            create_network("grid")
+            hub_id = launch_hub("grid")
+            ports = {'5555': 5555}
+            if use_random_user_id:
+                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
+            else:
+                test_container_id = launch_container(image, network='grid', ports=ports)
+            prune_networks()
 
-    logger.info('========== / Containers ready to go ==========')
+        logger.info('========== / Containers ready to go ==========')
 
     try:
         # Smoke tests
         logger.info('*********** Running smoke tests %s Tests **********' % image)
         image_class = "%sTest" % image
-        test_class = getattr(__import__('SmokeTests', fromlist=[smoke_test_class]), smoke_test_class)
+        module = __import__('SmokeTests', fromlist='GridTest')
+        test_class = getattr(module, 'GridTest')
         suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
         test_runner = unittest.TextTestRunner(verbosity=3)
         failed = not test_runner.run(suite).wasSuccessful()
@@ -192,20 +198,22 @@ if __name__ == '__main__':
         logger.fatal(e)
         failed = True
 
-    logger.info("Cleaning up...")
+    # Avoiding a container cleanup if tests run inside docker-compose
+    if not run_in_docker_compose:
+        logger.info("Cleaning up...")
 
-    test_container = client.containers.get(test_container_id)
-    test_container.kill()
-    test_container.remove()
+        test_container = client.containers.get(test_container_id)
+        test_container.kill()
+        test_container.remove()
 
-    if standalone:
-        logger.info("Standalone Cleaned up")
-    else:
-        # Kill the launched hub
-        hub = client.containers.get(hub_id)
-        hub.kill()
-        hub.remove()
-        logger.info("Hub / Node Cleaned up")
+        if standalone:
+            logger.info("Standalone Cleaned up")
+        else:
+            # Kill the launched hub
+            hub = client.containers.get(hub_id)
+            hub.kill()
+            hub.remove()
+            logger.info("Hub / Node Cleaned up")
 
     if failed:
         exit(1)
