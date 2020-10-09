@@ -6,6 +6,8 @@ set -e
 HOST="localhost"
 PORT="4444"
 
+echoerr() { echo "$@" 1>&2; }
+
 # process arguments
 while [[ $# -gt 0 ]]
 do
@@ -20,6 +22,7 @@ do
         ;;
         *)
         echoerr "Unknown argument: $1"
+        exit 1
         ;;
     esac
 done
