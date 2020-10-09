@@ -11,7 +11,7 @@ We are doing prereleases on a regular basis to get early feedback. This means th
 can be currently at a different alpha version (e.g. bindings on Alpha 6, and these Docker images on prerelease Alpha 7).
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
-our [prereleases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-alpha-7-prerelease-20200921)
+our [prereleases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-alpha-7-prerelease-20201009)
 
 To get notifications of new prereleases, add yourself as a watcher of "Releases only". 
 
@@ -31,9 +31,9 @@ https://www.selenium.dev/support/
 1. Start a Docker container with Firefox
 
 ``` bash
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009
 # OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009
 ```
 
 2. Point your WebDriver tests to http://localhost:4444/wd/hub
@@ -60,17 +60,17 @@ ___
 
 ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ![Opera](https://raw.githubusercontent.com/alrra/browser-logos/main/src/opera/opera_24x24.png) Opera 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-7-prerelease-20201009
 ```
 
 _Note: Only one Standalone container can run on port_ `4444` _at the same time._
@@ -87,20 +87,20 @@ A Docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v /dev/shm:/dev/shm \
-    selenium/node-chrome:4.0.0-alpha-7-prerelease-20200921
+    selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-7-prerelease-20200921
+    -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-7-prerelease-20200921
+    -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-7-prerelease-20201009
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -156,9 +156,9 @@ You can save this file locally and name it, for example, `config.toml`.
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-opera:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"operablink\"}"
+    "selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-opera:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"operablink\"}"
     ]
 
 # URL for connecting to the docker daemon
@@ -177,12 +177,12 @@ virtual machines.
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-20200921
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/node-docker:4.0.0-alpha-7-20200921
+    selenium/node-docker:4.0.0-alpha-7-20201009
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -197,14 +197,14 @@ $ docker network rm grid
 ```bash
 docker run --rm -ti --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/standalone-docker:4.0.0-alpha-7-20200921
+    selenium/standalone-docker:4.0.0-alpha-7-20201009
 ```
 
 ___
 
 ## Video recording ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
 
-It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20200921`
+It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20201009`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -230,8 +230,8 @@ This example shows how to start the containers manually:
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-20200921
-$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-4.3.1-20200921
+$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-20201009
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-4.3.1-20201009
 # Run your tests
 $ docker stop video && docker rm video
 $ docker stop selenium && docker rm selenium
@@ -258,7 +258,7 @@ ___
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ### JAVA_OPTS Java Environment Options
@@ -266,7 +266,7 @@ $ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hu
 You can pass `JAVA_OPTS` environment variable to java process.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ### Node configuration options
@@ -282,7 +282,7 @@ variables.
 Here is an example with the default values of these environment variables:
 
 ```bash
-$ docker run -d --e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d --e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ### Setting Screen Resolution
@@ -337,11 +337,11 @@ current one._
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v /dev/shm:/dev/shm \
-    -v /e2e/uploads:/e2e/uploads selenium/node-firefox:4.0.0-alpha-7-prerelease-20200921
+    -v /e2e/uploads:/e2e/uploads selenium/node-firefox:4.0.0-alpha-7-prerelease-20201009
 ```
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your 
@@ -422,10 +422,10 @@ $ docker network create grid
 $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
     --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
     --health-interval=15s --health-timeout=30s --health-retries=5 \
-    selenium/hub:4.0.0-alpha-7-prerelease-20200921
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-7-prerelease-20200921
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-7-prerelease-20200921
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-7-prerelease-20200921
+    selenium/hub:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-alpha-7-prerelease-20201009
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
@@ -489,9 +489,9 @@ running inside the container.
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200921
-$ docker run -d -p 4445:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921
-$ docker run -d -p 4446:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-7-prerelease-20200921
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d -p 4445:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d -p 4446:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-alpha-7-prerelease-20201009
 ```
 
 Then, you would use in your VNC client:
@@ -509,9 +509,9 @@ When you are prompted for the password it is `secret`. If you wish to change thi
 it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
 the posted ones which reconfigures it:
 ``` dockerfile
-#FROM selenium/node-chrome:4.0.0-alpha-7-prerelease-20200921
-#FROM selenium/node-firefox:4.0.0-alpha-7-prerelease-20200921
-#FROM selenium/node-opera:4.0.0-alpha-7-prerelease-20200921
+#FROM selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
+#FROM selenium/node-firefox:4.0.0-alpha-7-prerelease-20201009
+#FROM selenium/node-opera:4.0.0-alpha-7-prerelease-20201009
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
