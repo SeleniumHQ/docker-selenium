@@ -1,0 +1,19 @@
+[network]
+# Relax checks on origin header and content type of incoming requests, in contravention of strict W3C spec compliance.
+# Type: boolean
+relax_checks = true
+
+
+[docker]
+# Docker configs which map image name to stereotype capabilities (example `-D selenium/standalone-firefox:latest '{"browserName": "firefox"}')
+# Type: list of strings
+configs = [
+    "selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-opera:4.0.0-alpha-7-prerelease-20200921", "{\"browserName\": \"opera\"}"
+    ]
+
+# URL for connecting to the docker daemon
+# Type: url
+# url = "unix:/var/run/docker"
+host = "tcp://host.docker.internal:2375"
