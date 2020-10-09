@@ -101,19 +101,19 @@ opera: node_base generate_opera
 	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(TAG_VERSION) .
 
 generate_standalone_firefox:
-	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox Firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_firefox: firefox generate_standalone_firefox
 	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 generate_standalone_chrome:
-	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome Chrome $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_chrome: chrome generate_standalone_chrome
 	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 
 generate_standalone_opera:
-	cd ./Standalone && ./generate.sh StandaloneOpera node-opera Opera $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./Standalone && ./generate.sh StandaloneOpera node-opera $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
 standalone_opera: opera generate_standalone_opera
 	cd ./StandaloneOpera && docker build $(BUILD_ARGS) -t $(NAME)/standalone-opera:$(TAG_VERSION) .
