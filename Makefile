@@ -20,6 +20,7 @@ all: hub \
 	chrome \
 	firefox \
 	opera \
+	docker \
 	standalone_chrome \
 	standalone_firefox \
 	standalone_opera \
@@ -36,6 +37,7 @@ generate_all:	\
 	generate_chrome \
 	generate_firefox \
 	generate_opera \
+	generate_docker \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
 	generate_standalone_opera \
@@ -101,6 +103,12 @@ generate_opera:
 
 opera: node_base generate_opera
 	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(TAG_VERSION) .
+
+generate_docker:
+	cd ./NodeDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+docker: base generate_docker
+	cd ./NodeDocker && docker build $(BUILD_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
 
 generate_standalone_docker:
 	cd ./StandaloneDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
@@ -345,6 +353,7 @@ test_video: video hub chrome firefox opera
 	ci \
 	firefox \
 	opera \
+	docker \
 	generate_all \
 	generate_hub \
 	generate_distributor \
@@ -355,6 +364,7 @@ test_video: video hub chrome firefox opera
 	generate_chrome \
 	generate_firefox \
 	generate_opera \
+	generate_docker \
 	generate_standalone_chrome \
 	generate_standalone_firefox \
 	generate_standalone_opera \
