@@ -8,12 +8,14 @@ LABEL authors=SeleniumHQ
 USER 1200
 
 #========================
-# Selenium Router Configuration
+# Selenium Standalone Docker Configuration
 #========================
 
 EXPOSE 4444
 
-COPY start-selenium-grid-router.sh \
+COPY start-selenium-grid-standalone-docker.sh \
+    config.toml \
     /opt/bin/
 
-COPY selenium-grid-router.conf /etc/supervisor/conf.d/
+COPY selenium-grid-standalone-docker.conf /etc/supervisor/conf.d/
+

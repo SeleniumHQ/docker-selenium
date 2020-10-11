@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 FOLDER=../$1
 BASE=$2
-BROWSER=$3
-VERSION=$4
-NAMESPACE=$5
-AUTHORS=$6
+VERSION=$3
+NAMESPACE=$4
+AUTHORS=$5
 
 echo "# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" > ${FOLDER}/Dockerfile
 echo "# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED." >> ${FOLDER}/Dockerfile
@@ -17,15 +16,3 @@ cat ./Dockerfile.txt >> ${FOLDER}/Dockerfile
 
 cp ./start-selenium-standalone.sh ${FOLDER}
 cp ./selenium.conf ${FOLDER}
-
-BROWSER_LC=$(echo ${BROWSER} |  tr '[:upper:]' '[:lower:]')
-
-cat ./README.template.md \
-  | sed "s/##BROWSER##/$BROWSER/" \
-  | sed "s/##BROWSER_LC##/$BROWSER_LC/" \
-  | sed "s/##BASE##/$BASE/" \
-  | sed "s/##FOLDER##/$1/" > ${FOLDER}/README.md
-
-
-cat ./README-short.template.txt \
-  | sed "s/##BROWSER##/$BROWSER/" > ${FOLDER}/README-short.txt
