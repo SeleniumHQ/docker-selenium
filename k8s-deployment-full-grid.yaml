@@ -41,7 +41,7 @@ spec:
     spec:
       containers:
         - name: selenium-router
-          image: selenium/router:4.0.0-alpha-7-prerelease-20200907
+          image: selenium/router:4.0.0-alpha-7-prerelease-20201009
           env:
             - name: SE_DISTRIBUTOR_HOST
               value: "selenium-distributor"
@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
         - name: selenium-event-bus
-          image: selenium/event-bus:4.0.0-alpha-7-prerelease-20200907
+          image: selenium/event-bus:4.0.0-alpha-7-prerelease-20201009
           ports:
             - containerPort: 4442
               protocol: TCP
@@ -156,7 +156,7 @@ spec:
     spec:
       containers:
         - name: selenium-sessions
-          image: selenium/sessions:4.0.0-alpha-7-prerelease-20200907
+          image: selenium/sessions:4.0.0-alpha-7-prerelease-20201009
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -210,7 +210,7 @@ spec:
     spec:
       containers:
         - name: selenium-distributor
-          image: selenium/distributor:4.0.0-alpha-7-prerelease-20200907
+          image: selenium/distributor:4.0.0-alpha-7-prerelease-20201009
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -268,7 +268,7 @@ spec:
     spec:
       containers:
         - name: selenium-chrome-node
-          image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20200907
+          image: selenium/node-chrome:4.0.0-alpha-7-prerelease-20201009
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
@@ -335,7 +335,7 @@ spec:
     spec:
       containers:
         - name: selenium-ff-node
-          image: selenium/node-firefox:4.0.0-alpha-7-prerelease-202009217
+          image: selenium/node-firefox:4.0.0-alpha-7-prerelease-20201009
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"
