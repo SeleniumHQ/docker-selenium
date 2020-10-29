@@ -177,12 +177,12 @@ virtual machines.
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-20201009
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/node-docker:4.0.0-alpha-7-20201009
+    selenium/node-docker:4.0.0-alpha-7-prerelease-20201009
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -197,7 +197,7 @@ $ docker network rm grid
 ```bash
 docker run --rm -ti --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/standalone-docker:4.0.0-alpha-7-20201009
+    selenium/standalone-docker:4.0.0-alpha-7-prerelease-20201009
 ```
 
 ___
@@ -230,7 +230,7 @@ This example shows how to start the containers manually:
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-20201009
+$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009
 $ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-4.3.1-20201009
 # Run your tests
 $ docker stop video && docker rm video
