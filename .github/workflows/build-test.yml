@@ -38,7 +38,7 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Sets build date
-        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
+        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
