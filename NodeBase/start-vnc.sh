@@ -3,7 +3,7 @@
 # IMPORTANT: Change this file only in directory NodeBase!
 
 if [ "${START_XVFB}" = true ] ; then
-  if [ ! -z "$VNC_NO_PASSWORD" ]; then
+  if [ ! -z $VNC_NO_PASSWORD ]; then
       echo "Starting VNC server without password authentication"
       X11VNC_OPTS=
   else
@@ -20,7 +20,7 @@ if [ "${START_XVFB}" = true ] ; then
     echo "Waiting for Xvfb..."
   done
 
-  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport 5900 -rfbportv6 5900 -display "${DISPLAY}"
+  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport 5900 -rfbportv6 5900 -display ${DISPLAY}
 else
   echo "Vnc won't start because Xvfb is configured to not start."
 fi
