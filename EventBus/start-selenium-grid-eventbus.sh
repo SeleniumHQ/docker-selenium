@@ -5,4 +5,4 @@ set -e
 
 echo "Starting Selenium Grid EventBus..."
 
-java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar event-bus ${SE_OPTS}
+java "${JAVA_OPTS}" -jar /opt/selenium/selenium-server.jar event-bus "${SE_OPTS}"

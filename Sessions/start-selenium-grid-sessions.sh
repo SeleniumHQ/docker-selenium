@@ -24,7 +24,7 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessions \
-  --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
-  --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
-  ${SE_OPTS}
+java "${JAVA_OPTS}" -jar /opt/selenium/selenium-server.jar sessions \
+  --publish-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_PUBLISH_PORT}" \
+  --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_SUBSCRIBE_PORT}" \
+  "${SE_OPTS}"
