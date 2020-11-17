@@ -27,18 +27,18 @@ jobs:
           python-version: 3.8
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
-        run: echo "::set-env name=BRANCH::$(echo ${PUSH_BRANCH##*/})"
+        run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
         env:
           PUSH_BRANCH: ${{ github.ref }}
       - name: Get target branch name (only for PRs)
         if: github.event_name == 'pull_request'
-        run: echo "::set-env name=BRANCH::$(echo ${TARGET_BRANCH##*/})"
+        run: echo "BRANCH=$(echo ${TARGET_BRANCH##*/})" >> $GITHUB_ENV
         env:
           TARGET_BRANCH: ${{ github.head_ref }}
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Sets build date
-        run: echo ::set-env name=BUILD_DATE::$(date '+%Y%m%d')
+        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
