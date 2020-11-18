@@ -69,7 +69,7 @@ COPY supervisord.conf /etc
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
 RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
-  && touch /opt/selenium/config.json \
+  && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd \
   && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/alpha-jars/selenium-server-4.0.0-alpha-7-4a3bb6d550.jar \
     -O /opt/selenium/selenium-server.jar \
