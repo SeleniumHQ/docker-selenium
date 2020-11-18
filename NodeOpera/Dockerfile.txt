@@ -55,4 +55,4 @@ RUN LATEST_VERSION=$(curl -s https://api.github.com/repos/operasoftware/operachr
 COPY generate_config /opt/bin/generate_config
 
 # Generating a default config during build time
-RUN /opt/bin/generate_config > /opt/selenium/config.json
+RUN /opt/bin/generate_config > /opt/selenium/config.toml

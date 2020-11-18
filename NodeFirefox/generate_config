@@ -1,35 +1,14 @@
 #!/bin/bash
 
-FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
-DRIVER_LOGLEVEL=${DRIVER_LOGLEVEL:-info}
+#FIREFOX_VERSION=$( firefox -version | cut -d " " -f 3 )
+#DRIVER_LOGLEVEL=${DRIVER_LOGLEVEL:-info}
 
 cat <<_EOF
-{
-  "capabilities": [
-    {
-      "version": "$FIREFOX_VERSION",
-      "browserName": "firefox",
-      "maxInstances": $NODE_MAX_INSTANCES,
-      "seleniumProtocol": "WebDriver",
-      "applicationName": "$NODE_APPLICATION_NAME",
-      "moz:firefoxOptions":
-        {
-          "log":
-            {
-              "level": "$DRIVER_LOGLEVEL"
-            }
-        }
-    }
-  ],
-  "proxy": "org.openqa.grid.selenium.proxy.DefaultRemoteProxy",
-  "maxSession": $NODE_MAX_SESSION,
-  "host": "$NODE_HOST",
-  "port": $NODE_PORT,
-  "register": true,
-  "registerCycle": $NODE_REGISTER_CYCLE,
-  "nodePolling": $NODE_POLLING,
-  "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
-  "downPollingLimit": $NODE_DOWN_POLLING_LIMIT,
-  "debug": $GRID_DEBUG
-}
+[node]
+max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
+
+[events]
+publish = "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}"
+subscribe = "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
+
 _EOF
