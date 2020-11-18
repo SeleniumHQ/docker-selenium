@@ -6,7 +6,7 @@ USER 1200
 
 EXPOSE 5559
 
-COPY start-selenium-grid-sessionqueuer.sh \
+COPY start-selenium-grid-session-queuer.sh \
     /opt/bin/
 
-COPY selenium-grid-sessionqueuer.conf /etc/supervisor/conf.d/
+COPY selenium-grid-session-queuer.conf /etc/supervisor/conf.d/
