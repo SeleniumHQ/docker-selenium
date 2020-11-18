@@ -20,9 +20,11 @@ all: hub \
 	event_bus \
 	chrome \
 	firefox \
+	opera \
 	docker \
 	standalone_chrome \
 	standalone_firefox \
+	standalone_opera \
 	standalone_docker \
 	video
 
