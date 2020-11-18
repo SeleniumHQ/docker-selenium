@@ -1,7 +1,5 @@
 #!/bin/bash
 
-/opt/bin/generate_config > /opt/selenium/config.json
-
 # Start the pulseaudio server
 pulseaudio -D --exit-idle-time=-1
 
