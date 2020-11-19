@@ -68,15 +68,15 @@ COPY supervisord.conf /etc
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN  mkdir -p /opt/selenium /var/run/supervisor /var/log/supervisor \
+RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
-  && chmod -R 777 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/alpha-jars/selenium-server-4.0.0-alpha-7-4a3bb6d550.jar \
+  && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
+  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/alpha-jars/selenium-server-4.0.0-alpha-7-f89bec1f87.jar \
     -O /opt/selenium/selenium-server.jar \
 #  && wget --no-verbose https://selenium-release.storage.googleapis.com/4.0-alpha-6/selenium-server-4.0.0-alpha-6.jar \
 #    -O /opt/selenium/selenium-server.jar \
-  && chgrp -R 0 /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor \
-  && chmod -R g=u /opt/selenium ${HOME} /var/run/supervisor /var/log/supervisor
+  && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
 #===================================================
 # Run the following commands as non-privileged user
