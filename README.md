@@ -8,7 +8,7 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 
 # :point_right: Status: Grid 4 is under development and on a [Alpha stage](https://en.wikipedia.org/wiki/Software_release_life_cycle#Alpha)
 We are doing prereleases on a regular basis to get early feedback. This means that all other Selenium components
-can be currently at a different alpha version (e.g. bindings on Alpha 6, and these Docker images on prerelease Alpha 7).
+can be currently at a different alpha version (e.g. bindings on Alpha 7, and Docker images on prerelease Beta 1).
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
 our [prereleases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-alpha-7-prerelease-20201009)
@@ -51,7 +51,7 @@ To inspect visually the browser activity, see the [Debugging](#debugging) sectio
 The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
 to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
 
-:point_up: Always use a tag with an element suffix to pin a specific browser version.
+:point_up: Always use a Docker image with a full tag to pin a specific browser and Grid version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
 ___
@@ -123,7 +123,6 @@ linked resources below, save them locally, and check the execution instructions 
 To stop the Grid and cleanup the created containers, run `docker-compose down`.
 
 #### Version 3 with Swarm support 
-
 [`docker-compose-v3-swarm.yml`](docker-compose-v3-swarm.yml)
 
 ___
@@ -135,70 +134,6 @@ example with docker-compose will be provided. Save the file locally, and check t
 instructions on top of it.
 
 [`docker-compose-v3-full-grid.yml`](docker-compose-v3-full-grid.yml)
-
-___
-
-## Dynamic Grid ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
-
-Grid 4 has the ability to start Docker containers on demand, this means that it starts
-a Docker container in the background for each new session request, the test gets executed
-there, and when the test completes, the container gets thrown away.
-
-This execution mode can be used either in the Standalone or Node roles. The "dynamic"
-execution mode needs to be told what Docker images to use when the containers get started.
-Additionally, the Grid needs to know the URI of the Docker daemon.
-
-### Configuration example
-
-You can save this file locally and name it, for example, `config.toml`.
-```toml
-[docker]
-# Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
-# start a container with the given image.
-configs = [
-    "selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-opera:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"operablink\"}"
-    ]
-
-# URL for connecting to the docker daemon
-# host.docker.internal works for macOS and Windows.
-# Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
-# To have Docker listening through tcp on macOS, install socat and run the following command
-# socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
-host = "tcp://host.docker.internal:2375"
-```
-
-### Execution with Hub & Node roles
-
-This can be expanded to a full Grid deployment, all components deployed individually. The overall
-idea is to have the Hub in one virtual machine, and each of the Nodes in separate and more powerful
-virtual machines. 
-
-``` bash
-$ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/node-docker:4.0.0-alpha-7-prerelease-20201009
-```
-
-When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
-
-``` bash
-# Removes the grid network
-$ docker network rm grid
-```
-
-### Execution with Standalone roles
-
-```bash
-docker run --rm -ti --name selenium-docker -p 4444:4444 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
-    selenium/standalone-docker:4.0.0-alpha-7-prerelease-20201009
-```
 
 ___
 
@@ -242,6 +177,98 @@ Here is an example using a Hub and 3 Nodes (Chrome, Firefox, and Opera):
 
 [`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
 
+___
+
+## Dynamic Grid ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
+
+Grid 4 has the ability to start Docker containers on demand, this means that it starts
+a Docker container in the background for each new session request, the test gets executed
+there, and when the test completes, the container gets thrown away.
+
+This execution mode can be used either in the Standalone or Node roles. The "dynamic"
+execution mode needs to be told what Docker images to use when the containers get started.
+Additionally, the Grid needs to know the URI of the Docker daemon.
+
+### Configuration example
+
+You can save this file locally and name it, for example, `config.toml`.
+```toml
+[docker]
+# Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
+# start a container with the given image.
+configs = [
+    "selenium/standalone-firefox:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-opera:4.0.0-alpha-7-prerelease-20201009", "{\"browserName\": \"operablink\"}"
+    ]
+
+# URL for connecting to the docker daemon
+# host.docker.internal works for macOS and Windows.
+# Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
+# To have Docker listening through tcp on macOS, install socat and run the following command
+# socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
+host = "tcp://host.docker.internal:2375"
+# Docker imagee used for video recording
+video-image = "selenium/video:ffmpeg-4.3.1-20201009"
+# Absolute path where test assets will be stored (this path must exist on the host)
+assets-path = "/assets/path/on/your/host/machine"
+# Absolute path where test assets will be stored inside the container
+# "/opt/selenium/assets" already exists inside the containers
+# If you want to use another one, be sure it exists.
+container-assets-path = "/opt/selenium/assets"
+```
+
+### Execution with Hub & Node roles
+
+This can be expanded to a full Grid deployment, all components deployed individually. The overall
+idea is to have the Hub in one virtual machine, and each of the Nodes in separate and more powerful
+virtual machines. 
+
+``` bash
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-alpha-7-prerelease-20201009
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v /path/on/your/host/machine:/opt/selenium/assets \
+    selenium/node-docker:4.0.0-alpha-7-prerelease-20201009
+```
+
+When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
+
+``` bash
+# Removes the grid network
+$ docker network rm grid
+```
+
+### Execution with Standalone roles
+
+```bash
+docker run --rm -ti --name selenium-docker -p 4444:4444 \
+    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v /path/on/your/host/machine:/opt/selenium/assets \
+    selenium/standalone-docker:4.0.0-alpha-7-prerelease-20201009
+```
+
+### Video recording, screen resolution, and time zones in a Dynamic Grid
+To record your WebDriver session, you need to add a `se:options` section to
+your capabilities and inside it, configure the desired settings, for example:
+
+```json
+{
+  "browserName": "firefox",
+  "platformName": "linux",
+  "se:options": {
+    "recordVideo": "true",
+    "timeZone": "US/Pacific",
+    "screenResolution": "1920x1080"
+  }
+}
+```
+
+After running a test, check the path you mounted to the Docker container, 
+(`/path/on/your/host/machine`), and you should see videos and session information. 
 ___
 
 ## Deploying to Kubernetes
