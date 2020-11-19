@@ -1,61 +1,5 @@
 # To execute this yml file use this command in your local kubernetes environment `kubectl apply -f k8s-deployment-full-grid.yaml`
 #***************************************
-#SELENIUM ROUTER
-#***************************************
-apiVersion: v1
-kind: Service
-metadata:
-  name: selenium-router
-  labels:
-    name: selenium-router
-    component: "selenium-grid-4"
-spec:
-  selector:
-    app: selenium-router
-  ports:
-    - name: web
-      protocol: TCP
-      port: 4444
-      targetPort: 4444
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: selenium-router-deployment
-  labels:
-    app: selenium-router
-    name: selenium-router
-    component: "selenium-grid-4"
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: selenium-router
-  template:
-    metadata:
-      labels:
-        app: selenium-router
-        name: selenium-router
-        component: "selenium-grid-4"
-    spec:
-      containers:
-        - name: selenium-router
-          image: selenium/router:4.0.0-alpha-7-20201119
-          env:
-            - name: SE_DISTRIBUTOR_HOST
-              value: "selenium-distributor"
-            - name: SE_DISTRIBUTOR_PORT
-              value: "5553"
-            - name: SE_SESSIONS_MAP_HOST
-              value: "selenium-sessions"
-            - name: SE_SESSIONS_MAP_PORT
-              value: "5556"
-          ports:
-            - containerPort: 4444
-              protocol: TCP
----
-#***************************************
 #SELENIUM EVENT BUS
 #***************************************
 apiVersion: v1
@@ -169,6 +113,59 @@ spec:
               protocol: TCP
 ---
 #***************************************
+#SELENIUM SESSION QUEUER
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-session-queuer
+  labels:
+    name: selenium-session-queuer
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-session-queuer
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 5559
+      targetPort: 55569
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-session-queuer-deployment
+  labels:
+    app: selenium-session-queuer
+    name: selenium-session-queuer
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-session-queuer
+  template:
+    metadata:
+      labels:
+        app: selenium-session-queuer
+        name: selenium-session-queuer
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-session-queuer
+          image: selenium/session-queuer:4.0.0-alpha-7-20201119
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+          ports:
+            - containerPort: 5556
+              protocol: TCP
+---
+#***************************************
 #SELENIUM DISTRIBUTOR
 #***************************************
 apiVersion: v1
@@ -222,8 +219,72 @@ spec:
               value: "selenium-sessions"
             - name: SE_SESSIONS_MAP_PORT
               value: "5556"
+            - name: SE_SESSION_QUEUER_HOST
+              value: "selenium-session-queuer"
+            - name: SE_SESSION_QUEUER_PORT
+              value: "5559"
           ports:
             - containerPort: 5553
+              protocol: TCP
+---
+#***************************************
+#SELENIUM ROUTER
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-router
+  labels:
+    name: selenium-router
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-router
+  ports:
+    - name: web
+      protocol: TCP
+      port: 4444
+      targetPort: 4444
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-router-deployment
+  labels:
+    app: selenium-router
+    name: selenium-router
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-router
+  template:
+    metadata:
+      labels:
+        app: selenium-router
+        name: selenium-router
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-router
+          image: selenium/router:4.0.0-alpha-7-20201119
+          env:
+            - name: SE_DISTRIBUTOR_HOST
+              value: "selenium-distributor"
+            - name: SE_DISTRIBUTOR_PORT
+              value: "5553"
+            - name: SE_SESSIONS_MAP_HOST
+              value: "selenium-sessions"
+            - name: SE_SESSIONS_MAP_PORT
+              value: "5556"
+            - name: SE_SESSION_QUEUER_HOST
+              value: "selenium-session-queuer"
+            - name: SE_SESSION_QUEUER_PORT
+              value: "5559"
+          ports:
+            - containerPort: 4444
               protocol: TCP
 ---
 #***************************************
