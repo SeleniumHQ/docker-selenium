@@ -27,7 +27,7 @@ jobs:
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base
       - name: Get Grid version
         # sed used to remove last comma of Selenium version output
-        run: echo "BUILD_DATE=$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')" >> $GITHUB_ENV
+        run: echo "GRID_VERSION=$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')" >> $GITHUB_ENV
       - name: Is it a prerelease?
         run: echo "GRID_VERSION=${GRID_VERSION}-prerelease" >> $GITHUB_ENV && echo "PRERELEASE=true" >> $GITHUB_ENV
         if: contains(toJson(github.event.commits), '[prerelease]') == true
