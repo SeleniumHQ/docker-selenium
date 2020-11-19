@@ -2,8 +2,8 @@ name: Deploys
 
 on:
   push:
-#    branches:
-#      - trunk
+    branches:
+      - trunk
 
 jobs:
   deploy:
@@ -45,38 +45,38 @@ jobs:
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-#      - name: Commit files
-#        run: |
-#          git config --local user.email "selenium-ci@users.noreply.github.com"
-#          git config --local user.name "Selenium CI Bot"
-#          git commit -m "Update tag in docs and files [skip ci]" -a
-#      - name: Push changes
-#        uses: ad-m/github-push-action@master
-#        with:
-#          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
-#          branch: trunk
-#      - name: Login Docker Hub
-#        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-#        env:
-#          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-#          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-#      - name: Deploy new images
-#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
-#      - name: Tag browser images
-#        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
-#      - name: Create release notes (release_notes.md)
-#        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
-#      - name: Create Release
-#        id: create_release
-#        uses: actions/create-release@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-#          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-#          body_path: release_notes.md
-#          draft: false
-#          prerelease: ${{ env.PRERELEASE }}
+      - name: Commit files
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update tag in docs and files [skip ci]" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: trunk
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Deploy new images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
+      - name: Tag browser images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+      - name: Create release notes (release_notes.md)
+        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ env.PRERELEASE }}
 
 # Enable this part when Selenium 4 is released
 #      - name: Deploy tag latest
