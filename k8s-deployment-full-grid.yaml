@@ -129,7 +129,7 @@ spec:
     - name: port1
       protocol: TCP
       port: 5559
-      targetPort: 55569
+      targetPort: 5559
 ---
 apiVersion: apps/v1
 kind: Deployment
