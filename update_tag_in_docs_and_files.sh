@@ -3,7 +3,7 @@
 LATEST_TAG=$1
 NEXT_TAG=$2
 LATEST_DATE=$(echo ${LATEST_TAG} | sed 's/.*-//')
-NEXT_DATE=$4$(echo ${NEXT_TAG} | sed 's/.*-//')
+NEXT_DATE=$(echo ${NEXT_TAG} | sed 's/.*-//')
 
 echo -e "\033[0;32m Updating tag displayed in docs and files...\033[0m"
 echo -e "\033[0;32m LATEST_TAG -> ${LATEST_TAG}\033[0m"
