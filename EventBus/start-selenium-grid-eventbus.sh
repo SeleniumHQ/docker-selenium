@@ -12,7 +12,7 @@ fi
 
 if [ ! -z "$SE_EVENT_BUS_PORT" ]; then
   echo "Using SE_EVENT_BUS_PORT: ${SE_EVENT_BUS_PORT}"
-  PORT_CONFIG="--host ${SE_EVENT_BUS_PORT}"
+  PORT_CONFIG="--port ${SE_EVENT_BUS_PORT}"
 fi
 
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar event-bus \

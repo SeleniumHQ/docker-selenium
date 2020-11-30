@@ -51,7 +51,7 @@ fi
 
 if [ ! -z "$SE_DISTRIBUTOR_PORT" ]; then
   echo "Using SE_DISTRIBUTOR_PORT: ${SE_DISTRIBUTOR_PORT}"
-  PORT_CONFIG="--host ${SE_DISTRIBUTOR_PORT}"
+  PORT_CONFIG="--port ${SE_DISTRIBUTOR_PORT}"
 fi
 
 
