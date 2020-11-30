@@ -3,6 +3,10 @@
 # IMPORTANT: Change this file only in directory NodeBase!
 
 if [ "${START_XVFB}" = true ] ; then
+  # Centering wallpaper
+  echo "Centering wallpaper"
+  /usr/bin/fbsetbg -c /usr/share/images/fluxbox/ubuntu-light.png
+
   if [ ! -z $VNC_NO_PASSWORD ]; then
       echo "Starting VNC server without password authentication"
       X11VNC_OPTS=
