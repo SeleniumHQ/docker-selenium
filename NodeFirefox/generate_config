@@ -11,4 +11,12 @@ max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
 publish = "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}"
 subscribe = "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
 
+[server]
+hostname = "${SE_HUB_HOST}"
+port = ${SE_HUB_PORT}
+
+[server]
+hostname = "${SE_NODE_HOST}"
+port = ${SE_NODE_PORT}
+
 _EOF

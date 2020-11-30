@@ -141,6 +141,10 @@ ENV START_XVFB true
 #========================
 # As integer, maps to "max-concurrent-sessions"
 ENV SE_NODE_MAX_CONCURRENT_SESSIONS 1
+# As integer, maps to "port"
+ENV SE_NODE_PORT 5555
+# As string, maps to "host"
+ENV SE_NODE_HOST "0.0.0.0"
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
