@@ -128,14 +128,6 @@ $ docker run -d -p 5555:5555
     -e SE_NODE_HOST=<ip-from-machine-2> \
     -v /dev/shm:/dev/shm \
     selenium/node-chrome:4.0.0-prerelease-beta-1-prerelease-20201127
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-prerelease-beta-1-prerelease-20201127
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-prerelease-beta-1-prerelease-20201127
 ```
 
 Node Firefox - Machine/VM 3
