@@ -258,6 +258,12 @@ assets-path = "/assets/path/on/your/host/machine"
 # "/opt/selenium/assets" already exists inside the containers
 # If you want to use another one, be sure it exists.
 container-assets-path = "/opt/selenium/assets"
+
+# Uncomment the following section if you are running the node on a separate VM
+# Fill out the placeholders with appropriate values
+#[server]
+#hostname = <ip-from-node-machine>
+#port = <port-from-node-machine>
 ```
 
 ### Execution with Hub & Node roles

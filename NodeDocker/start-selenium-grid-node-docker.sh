@@ -24,7 +24,5 @@ java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   --detect-drivers false \
-  --host ${SE_NODE_HOST} \
-  --port ${SE_NODE_PORT} \
   --config /opt/bin/config.toml \
   ${SE_OPTS}
