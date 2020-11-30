@@ -14,10 +14,6 @@ ENV SE_SESSION_REQUEST_TIMEOUT 300
 ENV SE_SESSION_RETRY_INTERVAL 5
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
-# As integer, maps to "port"
-ENV SE_HUB_PORT 4444
-# As string, maps to "host"
-ENV SE_HUB_HOST "0.0.0.0"
 # As string, maps to "allow-cors"
 ENV SE_ALLOW_CORS false
 
