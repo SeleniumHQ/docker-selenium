@@ -110,6 +110,48 @@ When you are done using the Grid, and the containers have exited, the network ca
 $ docker network rm grid
 ```
 
+### Using different machines/VMs
+The Hub and Nodes will be created on different machines/VMs, they need to know each other's IPs to
+communicate properly.
+
+Hub - Machine/VM 1
+``` bash
+$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.0.0-prerelease-beta-1-prerelease-20201127
+```
+
+Node Chrome - Machine/VM 2
+``` bash
+$ docker run -d -p 5555:5555 
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -e SE_NODE_HOST=<ip-from-machine-2> \
+    -v /dev/shm:/dev/shm \
+    selenium/node-chrome:4.0.0-prerelease-beta-1-prerelease-20201127
+```
+
+Node Firefox - Machine/VM 3
+``` bash
+$ docker run -d -p 5555:5555 
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -e SE_NODE_HOST=<ip-from-machine-3> \
+    -v /dev/shm:/dev/shm \
+    selenium/node-firefox:4.0.0-prerelease-beta-1-prerelease-20201127
+```
+
+Node Opera - Machine/VM 4
+``` bash
+$ docker run -d -p 5555:5555 
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -e SE_NODE_HOST=<ip-from-machine-4> \
+    -v /dev/shm:/dev/shm \
+    selenium/node-opera:4.0.0-prerelease-beta-1-prerelease-20201127
+```
+
 ### Docker Compose
 [Docker Compose](https://docs.docker.com/compose/) is the simplest way to start a Grid. Use the
 linked resources below, save them locally, and check the execution instructions on top of each file.
@@ -216,6 +258,12 @@ assets-path = "/assets/path/on/your/host/machine"
 # "/opt/selenium/assets" already exists inside the containers
 # If you want to use another one, be sure it exists.
 container-assets-path = "/opt/selenium/assets"
+
+# Uncomment the following section if you are running the node on a separate VM
+# Fill out the placeholders with appropriate values
+#[server]
+#hostname = <ip-from-node-machine>
+#port = <port-from-node-machine>
 ```
 
 ### Execution with Hub & Node roles

@@ -1,10 +1,10 @@
-import os
-import docker
-import unittest
 import logging
-import sys
+import os
 import random
+import sys
+import unittest
 
+import docker
 from docker.errors import NotFound
 
 # LOGGING #
@@ -79,9 +79,11 @@ def launch_hub(network_name):
 
     grid_ports = {'4442': 4442, '4443': 4443, '4444': 4444}
     if use_random_user_id:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=grid_ports, user=random_user_id)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub",
+                                            ports=grid_ports, user=random_user_id)
     else:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=grid_ports)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub",
+                                            ports=grid_ports)
 
     logger.info("Hub Launched")
     return hub_container_id

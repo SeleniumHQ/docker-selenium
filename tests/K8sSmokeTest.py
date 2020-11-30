@@ -1,5 +1,3 @@
-import os
-import time
 import json
 import sys
 import time
@@ -13,6 +11,7 @@ SELENIUM_GRID_URL = sys.argv[1]
 max_attempts = 6
 sleep_interval = 10
 
+
 def get_grid_status():
     try:
         response = urlopen('%s/status1' % (SELENIUM_GRID_URL))
@@ -25,6 +24,7 @@ def get_grid_status():
         return response_json['value']['ready']
     except Exception as e:
         return False
+
 
 def wait_for_grid_to_get_ready():
     result = get_grid_status()
@@ -40,5 +40,6 @@ def wait_for_grid_to_get_ready():
         result = get_grid_status()
     print("Grid Status: " + str(result))
     print("Grid is in Ready state now")
+
 
 wait_for_grid_to_get_ready()

@@ -27,13 +27,11 @@ if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   exit 1
 fi
 
-CONFIG_TOML_FILE=/opt/selenium/config.toml
-
-/opt/bin/generate_config >${CONFIG_TOML_FILE}
+/opt/bin/generate_config
 
 echo "Starting Selenium Grid Node with configuration: "
-cat ${CONFIG_TOML_FILE}
+cat /opt/selenium/config.toml
 
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
-  --config ${CONFIG_TOML_FILE} \
+  --config /opt/selenium/config.toml \
   ${SE_OPTS}
