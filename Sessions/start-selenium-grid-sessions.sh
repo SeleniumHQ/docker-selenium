@@ -24,7 +24,19 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_SESSIONS_HOST" ]; then
+  echo "Using SE_SESSIONS_HOST: ${SE_SESSIONS_HOST}"
+  HOST_CONFIG="--host ${SE_SESSIONS_HOST}"
+fi
+
+if [ ! -z "$SE_SESSIONS_PORT" ]; then
+  echo "Using SE_SESSIONS_PORT: ${SE_SESSIONS_PORT}"
+  PORT_CONFIG="--port ${SE_SESSIONS_PORT}"
+fi
+
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessions \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
+  ${HOST_CONFIG} \
+  ${PORT_CONFIG} \
   ${SE_OPTS}
