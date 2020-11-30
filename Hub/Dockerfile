@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-prerelease-beta-1-prerelease-20201127
+FROM selenium/base:4.0.0-beta-1-prerelease-20201130
 LABEL authors=SeleniumHQ
 
 USER 1200
@@ -21,17 +21,8 @@ ENV SE_SESSION_REQUEST_TIMEOUT 300
 ENV SE_SESSION_RETRY_INTERVAL 5
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
-# As integer, maps to "port"
-ENV SE_HUB_PORT 4444
-# As string, maps to "host"
-ENV SE_HUB_HOST "0.0.0.0"
-# As string, maps to "allow-cors"
-ENV SE_ALLOW_CORS false
 
-COPY generate_config \
-    start-selenium-grid-hub.sh \
+COPY start-selenium-grid-hub.sh \
     /opt/bin/
 
 COPY selenium-grid-hub.conf /etc/supervisor/conf.d/
-
-RUN /opt/bin/generate_config > /opt/selenium/config.toml

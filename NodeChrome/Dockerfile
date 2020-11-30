@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-prerelease-beta-1-prerelease-20201127
+FROM selenium/node-base:4.0.0-beta-1-prerelease-20201130
 LABEL authors=SeleniumHQ
 
 USER root
@@ -57,4 +57,4 @@ RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
 COPY generate_config /opt/bin/generate_config
 
 # Generating a default config during build time
-RUN /opt/bin/generate_config > /opt/selenium/config.toml
+RUN /opt/bin/generate_config

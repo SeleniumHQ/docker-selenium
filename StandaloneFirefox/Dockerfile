@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-firefox:4.0.0-prerelease-beta-1-prerelease-20201127
+FROM selenium/node-firefox:4.0.0-beta-1-prerelease-20201130
 LABEL authors=SeleniumHQ
 
 USER 1200
