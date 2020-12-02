@@ -1,35 +1,29 @@
 #!/bin/bash
 
-# OPERA_VERSION=$(opera -version)
-
-echo "[node]
-max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
-[events]
+echo "[events]
 publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
 subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
 " > /opt/selenium/config.toml
 
-
 if [[ -z "${SE_NODE_HOST}" ]] || [[ -z "${SE_NODE_PORT}" ]]; then
-  echo "SE_NODE_HOST and SE_NODE_PORT not found."
-else
-  echo "[server]" >> /opt/selenium/config.toml
-fi
-
-if [[ -z "${SE_NODE_HOST}" ]] || [[ -z "${SE_NODE_PORT}" ]]; then
-  echo "SE_NODE_HOST and SE_NODE_PORT not found."
+  echo "Configuring server..."
 else
   echo "[server]" >> /opt/selenium/config.toml
 fi
 
 if [[ -z "${SE_NODE_HOST}" ]]; then
-  echo "Using default SE_NODE_HOST."
+  echo "Setting up SE_NODE_HOST..."
 else
   echo "hostname = \"${SE_NODE_HOST}\"" >> /opt/selenium/config.toml
 fi
 
 if [[ -z "${SE_NODE_PORT}" ]]; then
-  echo "Using default SE_NODE_PORT."
+  echo "Setting up SE_NODE_PORT..."
 else
   echo "port = \"${SE_NODE_PORT}\"" >> /opt/selenium/config.toml
 fi
+
+echo "[node]
+max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
+" >> /opt/selenium/config.toml
+
