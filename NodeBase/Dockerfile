@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-beta-1-prerelease-20201130
+FROM selenium/base:4.0.0-beta-1-prerelease-20201202
 LABEL authors=SeleniumHQ
 
 USER root
@@ -154,5 +154,12 @@ ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
 # Creating base directory for Xvfb
 RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
+
+# Copying configuration script generator
+COPY generate_config /opt/bin/generate_config
+
+# Generating a default config during build time
+RUN /opt/bin/generate_config
+
 
 EXPOSE 5900
