@@ -252,12 +252,6 @@ configs = [
 host = "tcp://host.docker.internal:2375"
 # Docker imagee used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20201202"
-# Absolute path where test assets will be stored (this path must exist on the host)
-assets-path = "/assets/path/on/your/host/machine"
-# Absolute path where test assets will be stored inside the container
-# "/opt/selenium/assets" already exists inside the containers
-# If you want to use another one, be sure it exists.
-container-assets-path = "/opt/selenium/assets"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -283,6 +277,8 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     selenium/node-docker:4.0.0-beta-1-prerelease-20201202
 ```
 
+To have the assets saved on your host, please mount your host path to `/opt/selenium/assets`.
+
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
 
 ``` bash
@@ -298,6 +294,8 @@ docker run --rm -ti --name selenium-docker -p 4444:4444 \
     -v /path/on/your/host/machine:/opt/selenium/assets \
     selenium/standalone-docker:4.0.0-beta-1-prerelease-20201202
 ```
+
+To have the assets saved on your host, please mount your host path to `/opt/selenium/assets`.
 
 ### Video recording, screen resolution, and time zones in a Dynamic Grid
 To record your WebDriver session, you need to add a `se:options` section to
