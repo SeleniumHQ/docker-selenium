@@ -69,7 +69,7 @@ services:
     depends_on:
       - opera
     environment:
-      - DISPLAY_CONTAINER_NAME=firefox
+      - DISPLAY_CONTAINER_NAME=opera
       - FILE_NAME=opera_video.mp4
 
   selenium-hub:
