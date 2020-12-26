@@ -13,7 +13,7 @@ jobs:
     # Skip job based on the commit message, only works in push to branches for now
     if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Build & test Docker images with random user
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         use-random-user: [false, true]
