@@ -13,6 +13,9 @@ USER root
 #       latest (equivalent to opera-stable)
 #       opera-beta  (pull latest beta)
 #============================================
+# to avoid installing chromium-ffmpeg with snap (https://snapcraft.io/chromium-ffmpeg)
+COPY --from=builder-codecs-ffmpeg /usr/lib/chromium-browser/libffmpeg.so /usr/lib/chromium-browser/libffmpeg.so
+
 ARG OPERA_VERSION="opera-stable"
 RUN wget -q -O - https://deb.opera.com/archive.key | apt-key add - \
   && echo "deb https://deb.opera.com/opera-stable/ stable non-free" >> /etc/apt/sources.list.d/opera-stable.list \
