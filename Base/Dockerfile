@@ -71,7 +71,7 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/beta-jars/selenium-server-4.0.0-prerelease-beta-1-2e2ec56b20.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/docker-selenium/raw/beta-jars/selenium-server-4.0.0-prerelease-beta-1-bd1110cddd.jar \
     -O /opt/selenium/selenium-server.jar \
 #  && wget --no-verbose https://selenium-release.storage.googleapis.com/4.0-alpha-6/selenium-server-4.0.0-alpha-6.jar \
 #    -O /opt/selenium/selenium-server.jar \
