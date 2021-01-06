@@ -2,7 +2,10 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-beta-1-prerelease-20201208
+FROM ubuntu:bionic AS builder-codecs-ffmpeg
+RUN apt-get update -qqy && apt-get -qqy install chromium-codecs-ffmpeg-extra
+
+FROM selenium/node-base:4.0.0-beta-1-prerelease-20210106
 LABEL authors=SeleniumHQ
 
 USER root
@@ -20,6 +23,9 @@ USER root
 #       latest (equivalent to opera-stable)
 #       opera-beta  (pull latest beta)
 #============================================
+# to avoid installing chromium-ffmpeg with snap (https://snapcraft.io/chromium-ffmpeg)
+COPY --from=builder-codecs-ffmpeg /usr/lib/chromium-browser/libffmpeg.so /usr/lib/chromium-browser/libffmpeg.so
+
 ARG OPERA_VERSION="opera-stable"
 RUN wget -q -O - https://deb.opera.com/archive.key | apt-key add - \
   && echo "deb https://deb.opera.com/opera-stable/ stable non-free" >> /etc/apt/sources.list.d/opera-stable.list \
