@@ -7,7 +7,7 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 fi
 
-python -m pip install selenium===3.14.1 \
+python -m pip install selenium==4.0.0a6.post2 \
                       docker===4.2.0 \
                       | grep -v 'Requirement already satisfied'
 
