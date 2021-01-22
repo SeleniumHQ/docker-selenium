@@ -1,0 +1,65 @@
+{{- if (not .Values.isolateComponents) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.hub.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &hub_labels
+    app: selenium-hub
+    app.kubernetes.io/name: selenium-hub
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-hub
+  template:
+    metadata:
+      labels: *hub_labels
+    {{- with .Values.hub.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      containers:
+        - name: selenium-hub
+          image: {{ printf "%s:%s" .Values.hub.imageName .Values.hub.imageTag }}
+          imagePullPolicy: {{ .Values.hub.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.hub.port }}
+              protocol: TCP
+            - containerPort: {{ .Values.hub.publishPort }}
+              protocol: TCP
+            - containerPort: {{ .Values.hub.subscribePort }}
+              protocol: TCP
+        {{- if .Values.hub.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.hub.livenessProbe.path }}
+              port: {{ .Values.hub.port }}
+            initialDelaySeconds: {{ .Values.hub.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.hub.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.hub.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.hub.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.hub.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.hub.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.hub.readinessProbe.path }}
+              port: {{ .Values.hub.port }}
+            initialDelaySeconds: {{ .Values.hub.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.hub.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.hub.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.hub.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.hub.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- with .Values.hub.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+        {{- with .Values.hub.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+{{- end }}

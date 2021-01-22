@@ -1,0 +1,306 @@
+# Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
+isolateComponents: false
+
+# ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
+busConfigMap:
+  # Name of the configmap
+  name: selenium-event-bus-config
+  # Custom annotations for configmap
+  annotations: {}
+
+# Configuration for isolated components (applied only if `isolateComponents: true`)
+components:
+
+  # Configuration for router component
+  router:
+    # Router image name
+    imageName: selenium/router
+    # Router image tag
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+    imagePullPolicy: IfNotPresent
+    # Custom annotations for router pod
+    annotations: {}
+    # Router port
+    port: 4444
+    # Liveness probe settings
+    livenessProbe:
+      enabled: true
+      path: /status
+      initialDelaySeconds: 10
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Readiness probe settings
+    readinessProbe:
+      enabled: true
+      path: /status
+      initialDelaySeconds: 12
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Resources for router container
+    resources: {}
+    # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+    serviceType: NodePort
+    # Custom annotations for router service
+    serviceAnnotations: {}
+
+  # Configuration for distributor component
+  distributor:
+    # Distributor image name
+    imageName: selenium/distributor
+    # Distributor image tag
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+    imagePullPolicy: IfNotPresent
+    # Custom annotations for Distributor pod
+    annotations: {}
+    # Distributor port
+    port: 5553
+    # Resources for Distributor container
+    resources: {}
+    # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+    serviceType: ClusterIP
+    # Custom annotations for Distributor service
+    serviceAnnotations: {}
+
+  # Configuration for Event Bus component
+  eventBus:
+    # Event Bus image name
+    imageName: selenium/event-bus
+    # Event Bus image tag
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+    imagePullPolicy: IfNotPresent
+    # Custom annotations for Event Bus pod
+    annotations: {}
+    # Event Bus port
+    port: 5557
+    # Port where events are published
+    publishPort: 4442
+    # Port where to subscribe for events
+    subscribePort: 4443
+    # Resources for event-bus container
+    resources: {}
+    # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+    serviceType: ClusterIP
+    # Custom annotations for Event Bus service
+    serviceAnnotations: {}
+
+  # Configuration for Session Map component
+  sessionMap:
+    # Session Map image name
+    imageName: selenium/sessions
+    # Session Map image tag
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+    imagePullPolicy: IfNotPresent
+    # Custom annotations for Session Map pod
+    annotations: {}
+    port: 5556
+    # Resources for event-bus container
+    resources: {}
+    # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+    serviceType: ClusterIP
+    # Custom annotations for Session Map service
+    serviceAnnotations: {}
+
+  # Configuration for Session Queuer component
+  sessionQueuer:
+    # Session Queuer image name
+    imageName: selenium/session-queuer
+    # Session Queuer image tag
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+    imagePullPolicy: IfNotPresent
+    # Custom annotations for Session Queuer pod
+    annotations: {}
+    port: 5559
+    # Resources for event-bus container
+    resources: {}
+    # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+    serviceType: ClusterIP
+    # Custom annotations for Session Queuer service
+    serviceAnnotations: {}
+
+  # Custom environment variables for all components
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+
+# Configuration for selenium hub deployment (applied only if `isolateComponents: false`)
+hub:
+  # Selenium Hub image name
+  imageName: selenium/hub
+  # Selenium Hub image tag
+  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # Custom annotations for Selenium Hub pod
+  annotations: {}
+  # Port where events are published
+  publishPort: 4442
+  # Port where to subscribe for events
+  subscribePort: 4443
+  # Selenium Hub port
+  port: 4444
+  # Liveness probe settings
+  livenessProbe:
+    enabled: true
+    path: /wd/hub/status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+  # Readiness probe settings
+  readinessProbe:
+    enabled: true
+    path: /wd/hub/status
+    initialDelaySeconds: 12
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+  # Custom environment variables for selenium-hub
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name: SECRET_VARIABLE
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+  # Resources for selenium-hub container
+  resources: {}
+  # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+  serviceType: NodePort
+  # Custom annotations for Selenium Hub service
+  serviceAnnotations: {}
+
+# Configuration for chrome nodes
+chromeNode:
+  # Enable chrome nodes
+  enabled: true
+  # Number of chrome nodes
+  replicas: 1
+  # Image of chrome nodes
+  imageName: selenium/node-chrome
+  # Image of chrome nodes
+  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # Port list to enable on container
+  ports:
+    - 5553
+  # Selenium port (spec.ports[0].targetPort in kubernetes service)
+  seleniumPort: 5900
+  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
+  seleniumServicePort: 6900
+  # Annotations for chrome-node pods
+  annotations: {}
+  # Resources for chrome-node container
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  # Custom environment variables for chrome nodes
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+
+# Configuration for firefox nodes
+firefoxNode:
+  # Enable firefox nodes
+  enabled: true
+  # Number of firefox nodes
+  replicas: 1
+  # Image of firefox nodes
+  imageName: selenium/node-firefox
+  # Image of firefox nodes
+  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # Port list to enable on container
+  ports:
+    - 5553
+  # Selenium port (spec.ports[0].targetPort in kubernetes service)
+  seleniumPort: 5900
+  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
+  seleniumServicePort: 6900
+  # Annotations for firefox-node pods
+  annotations: {}
+  # Resources for firefox-node container
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  # Custom environment variables for firefox nodes
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+
+# Configuration for opera nodes
+operaNode:
+  # Enable opera nodes
+  enabled: true
+  # Number of opera nodes
+  replicas: 1
+  # Image of opera nodes
+  imageName: selenium/node-opera
+  # Image of opera nodes
+  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  ports:
+    - 5553
+  # Selenium port (spec.ports[0].targetPort in kubernetes service)
+  seleniumPort: 5900
+  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
+  seleniumServicePort: 6900
+  # Annotations for opera-node pods
+  annotations: {}
+  # Resources for opera-node container
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  # Custom environment variables for firefox nodes
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+
+# Custom labels for k8s resources
+customLabels: {}

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: selenium-firefox-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+    app: selenium-firefox-node
+  ports:
+    - name: tcp-firefox
+      protocol: TCP
+      port: {{ .Values.firefoxNode.seleniumServicePort }}
+      targetPort: {{ .Values.firefoxNode.seleniumPort }}

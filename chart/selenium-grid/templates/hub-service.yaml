@@ -1,0 +1,33 @@
+{{- if (not .Values.isolateComponents) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.hub.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-hub
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.hub.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: selenium-hub
+  type: {{ .Values.hub.serviceType }}
+  ports:
+    - name: http-hub
+      protocol: TCP
+      port: {{ .Values.hub.port }}
+      targetPort: {{ .Values.hub.port }}
+    - name: tcp-hub-pub
+      protocol: TCP
+      port: {{ .Values.hub.publishPort }}
+      targetPort: {{ .Values.hub.publishPort }}
+    - name: tcp-hub-sub
+      protocol: TCP
+      port: {{ .Values.hub.subscribePort }}
+      targetPort: {{ .Values.hub.subscribePort }}
+{{- end }}

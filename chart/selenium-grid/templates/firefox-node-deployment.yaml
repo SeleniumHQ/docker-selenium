@@ -1,0 +1,54 @@
+{{- if .Values.firefoxNode.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &firefox_node_labels
+    app: selenium-firefox-node
+    app.kubernetes.io/name: selenium-firefox-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.firefoxNode.replicas }}
+  selector:
+    matchLabels:
+      app: selenium-firefox-node
+  template:
+    metadata:
+      labels: *firefox_node_labels
+      annotations:
+        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
+        {{- with .Values.firefoxNode.annotations }}
+          {{ toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: selenium-firefox-node
+          image: {{ printf "%s:%s" .Values.firefoxNode.imageName .Values.firefoxNode.imageTag }}
+          imagePullPolicy: {{ .Values.firefoxNode.imagePullPolicy }}
+        {{- with .Values.firefoxNode.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+        {{- if gt (len .Values.firefoxNode.ports) 0 }}
+          ports:
+          {{- range .Values.firefoxNode.ports }}
+            - containerPort: {{ . }}
+              protocol: TCP
+          {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+        {{- with .Values.firefoxNode.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: dshm
+          emptyDir: { "medium": "Memory" }
+{{- end }}

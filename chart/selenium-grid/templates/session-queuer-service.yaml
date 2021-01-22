@@ -1,0 +1,25 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.sessionQueuer.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-session-queuer
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.sessionQueuer.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: selenium-session-queuer
+  type: {{ .Values.components.sessionQueuer.serviceType }}
+  ports:
+    - name: tcp-ssn-que
+      protocol: TCP
+      port: {{ .Values.components.sessionQueuer.port }}
+      targetPort: {{ .Values.components.sessionQueuer.port }}
+{{- end }}

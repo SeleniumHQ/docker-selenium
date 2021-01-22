@@ -1,0 +1,33 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.eventBus.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-event-bus
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.eventBus.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: selenium-event-bus
+  type: {{ .Values.components.eventBus.serviceType }}
+  ports:
+    - name: http-evtbus
+      protocol: TCP
+      port: {{ .Values.components.eventBus.port }}
+      targetPort: {{ .Values.components.eventBus.port }}
+    - name: tcp-evtbus-pub
+      protocol: TCP
+      port: {{ .Values.components.eventBus.publishPort }}
+      targetPort: {{ .Values.components.eventBus.publishPort }}
+    - name: tcp-evtbus-sub
+      protocol: TCP
+      port: {{ .Values.components.eventBus.subscribePort }}
+      targetPort: {{ .Values.components.eventBus.subscribePort }}
+{{- end }}

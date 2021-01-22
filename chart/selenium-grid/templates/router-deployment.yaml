@@ -1,0 +1,74 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.router.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &router_labels
+    app: selenium-router
+    app.kubernetes.io/name: selenium-router
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-router
+  template:
+    metadata:
+      labels: *router_labels
+    {{- with .Values.components.router.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      containers:
+        - name: selenium-router
+          image: {{ printf "%s:%s" .Values.components.router.imageName .Values.components.router.imageTag }}
+          imagePullPolicy: {{ .Values.components.router.imagePullPolicy }}
+          env:
+            - name: SE_DISTRIBUTOR_HOST
+              value: {{ template "seleniumGrid.distributor.fullname" . }}
+            - name: SE_DISTRIBUTOR_PORT
+              value: {{ .Values.components.distributor.port | quote }}
+            - name: SE_SESSIONS_MAP_HOST
+              value: {{ template "seleniumGrid.sessionMap.fullname" . }}
+            - name: SE_SESSIONS_MAP_PORT
+              value: {{ .Values.components.sessionMap.port | quote }}
+            - name: SE_SESSION_QUEUER_HOST
+              value: {{ template "seleniumGrid.sessionQueuer.fullname" . }}
+            - name: SE_SESSION_QUEUER_PORT
+              value: {{ .Values.components.sessionQueuer.port | quote }}
+          {{- with .Values.components.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.components.router.port }}
+              protocol: TCP
+        {{- if .Values.components.router.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.components.router.livenessProbe.path }}
+              port: {{ .Values.components.router.port }}
+            initialDelaySeconds: {{ .Values.components.router.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.components.router.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.components.router.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.components.router.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.components.router.livenessProbe.failureThreshold }}
+        {{- end }}
+        {{- if .Values.components.router.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.components.router.readinessProbe.path }}
+              port: {{ .Values.components.router.port }}
+            initialDelaySeconds: {{ .Values.components.router.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.components.router.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.components.router.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.components.router.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.components.router.readinessProbe.failureThreshold }}
+        {{- end }}
+        {{- with .Values.components.router.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+{{- end }}

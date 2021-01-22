@@ -1,0 +1,20 @@
+{{- $eventBusHost := ternary (include "seleniumGrid.eventBus.fullname" .) (include "seleniumGrid.hub.fullname" .) .Values.isolateComponents -}}
+{{- $eventBusPublishPort := ternary .Values.components.eventBus.publishPort .Values.hub.publishPort .Values.isolateComponents -}}
+{{- $eventBusSubscribePort := ternary .Values.components.eventBus.subscribePort .Values.hub.subscribePort .Values.isolateComponents -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.busConfigMap.name }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.busConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  SE_EVENT_BUS_HOST: {{ $eventBusHost }}
+  SE_EVENT_BUS_PUBLISH_PORT: {{ $eventBusPublishPort | quote }}
+  SE_EVENT_BUS_SUBSCRIBE_PORT: {{ $eventBusSubscribePort | quote }}

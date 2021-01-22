@@ -1,0 +1,54 @@
+{{- if .Values.chromeNode.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &chrome_node_labels
+    app: selenium-chrome-node
+    app.kubernetes.io/name: selenium-chrome-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.chromeNode.replicas }}
+  selector:
+    matchLabels:
+      app: selenium-chrome-node
+  template:
+    metadata:
+      labels: *chrome_node_labels
+      annotations:
+        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
+        {{- with .Values.chromeNode.annotations }}
+          {{ toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: selenium-chrome-node
+          image: {{ printf "%s:%s" .Values.chromeNode.imageName .Values.chromeNode.imageTag }}
+          imagePullPolicy: {{ .Values.chromeNode.imagePullPolicy }}
+        {{- with .Values.chromeNode.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+        {{- if gt (len .Values.chromeNode.ports) 0 }}
+          ports:
+          {{- range .Values.chromeNode.ports }}
+            - containerPort: {{ . }}
+              protocol: TCP
+          {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+        {{- with .Values.chromeNode.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: dshm
+          emptyDir: { "medium": "Memory" }
+{{- end }}
