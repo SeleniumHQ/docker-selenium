@@ -73,6 +73,11 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-1-prerelease-20210201
 ```
 
+![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Microsoft Edge
+``` bash
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-1-prerelease-20210201
+```
+
 _Note: Only one Standalone container can run on port_ `4444` _at the same time._
 
 ___
