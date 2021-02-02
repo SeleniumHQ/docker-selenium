@@ -18,6 +18,18 @@ services:
       replicas: 1
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
+  edge:
+    image: selenium/node-edge:4.0.0-beta-1-prerelease-20210201
+    volumes:
+      - /dev/shm:/dev/shm
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    deploy:
+      replicas: 1
+    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
+
   firefox:
     image: selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
     volumes:

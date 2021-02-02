@@ -71,6 +71,13 @@ class ChromeTests(SeleniumGenericTests):
             command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 
+class EdgeTests(SeleniumGenericTests):
+    def setUp(self):
+        self.driver = webdriver.Remote(
+            desired_capabilities=DesiredCapabilities.EDGE,
+            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+        )
+
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
