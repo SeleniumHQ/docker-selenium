@@ -101,11 +101,18 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
+    -v /dev/shm:/dev/shm \
+    selenium/node-edge:4.0.0-beta-1-prerelease-20210201
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-beta-1-prerelease-20210201
+    -v /dev/shm:/dev/shm \
+    selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -v /dev/shm:/dev/shm \
+    selenium/node-opera:4.0.0-beta-1-prerelease-20210201
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -135,7 +142,7 @@ $ docker run -d -p 5555:5555
     selenium/node-chrome:4.0.0-beta-1-prerelease-20210201
 ```
 
-Node Firefox - Machine/VM 3
+Node Edge - Machine/VM 3
 ``` bash
 $ docker run -d -p 5555:5555 
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
@@ -143,16 +150,27 @@ $ docker run -d -p 5555:5555
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-3> \
     -v /dev/shm:/dev/shm \
-    selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
+    selenium/node-edge:4.0.0-beta-1-prerelease-20210201
 ```
 
-Node Opera - Machine/VM 4
+Node Firefox - Machine/VM 4
 ``` bash
 $ docker run -d -p 5555:5555 
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
+    -v /dev/shm:/dev/shm \
+    selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
+```
+
+Node Opera - Machine/VM 5
+``` bash
+$ docker run -d -p 5555:5555 
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -e SE_NODE_HOST=<ip-from-machine-5> \
     -v /dev/shm:/dev/shm \
     selenium/node-opera:4.0.0-beta-1-prerelease-20210201
 ```
@@ -247,7 +265,8 @@ configs = [
     "selenium/standalone-firefox:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"firefox\"}",
     "selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"chrome\"}",
     "selenium/standalone-opera:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"operablink\"}"
-    ]
+    "selenium/standalone-edge:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"msedge\"}"
+]
 
 # URL for connecting to the docker daemon
 # host.docker.internal works for macOS and Windows.
@@ -516,6 +535,7 @@ $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
     --health-interval=15s --health-timeout=30s --health-retries=5 \
     selenium/hub:4.0.0-beta-1-prerelease-20210201
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-beta-1-prerelease-20210201
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-edge:4.0.0-beta-1-prerelease-20210201
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-beta-1-prerelease-20210201
 ```
@@ -582,6 +602,7 @@ running inside the container.
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
 $ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210201
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-1-prerelease-20210201
 $ docker run -d -p 4445:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-1-prerelease-20210201
 $ docker run -d -p 4446:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-1-prerelease-20210201
 ```
@@ -602,6 +623,7 @@ it in the `/NodeBase/Dockerfile` and build the images yourself, or you can defin
 the posted ones which reconfigures it:
 ``` dockerfile
 #FROM selenium/node-chrome:4.0.0-beta-1-prerelease-20210201
+#FROM selenium/node-edge:4.0.0-beta-1-prerelease-20210201
 #FROM selenium/node-firefox:4.0.0-beta-1-prerelease-20210201
 #FROM selenium/node-opera:4.0.0-beta-1-prerelease-20210201
 #Choose the FROM statement that works for you.
