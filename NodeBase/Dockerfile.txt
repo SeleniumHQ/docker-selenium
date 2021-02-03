@@ -148,6 +148,9 @@ ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 # Creating base directory for Xvfb
 RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
 
+#fix java.awt.AWTError: Assistive Technology not found: org.GNOME.Accessibility.AtkWrapper
+RUN sudo sed -i -e '/^assistive_technologies=/s/^/#/' /etc/java-*-openjdk/accessibility.properties
+
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config
 
