@@ -44,7 +44,7 @@ jobs:
           while [ $podsCount -lt 6 ]
           do
             ((ctr++))
-            if [[ $ctr -eq 35 ]]; then
+            if [[ $ctr -eq 30 ]]; then
               echo "Timed out while waiting for Pods to get ready"
               exit 1
             fi
