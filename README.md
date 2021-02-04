@@ -266,7 +266,7 @@ configs = [
     "selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"chrome\"}",
     "selenium/standalone-opera:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"operablink\"}"
     "selenium/standalone-edge:4.0.0-beta-1-prerelease-20210201", "{\"browserName\": \"msedge\"}"
-]
+    ]
 
 # URL for connecting to the docker daemon
 # host.docker.internal works for macOS and Windows.
