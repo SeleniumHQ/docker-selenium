@@ -19,10 +19,12 @@ all: hub \
 	sessionqueuer \
 	event_bus \
 	chrome \
+	edge \
 	firefox \
 	opera \
 	docker \
 	standalone_chrome \
+	standalone_edge \
 	standalone_firefox \
 	standalone_opera \
 	standalone_docker \
@@ -37,11 +39,13 @@ generate_all:	\
 	generate_event_bus \
 	generate_node_base \
 	generate_chrome \
+	generate_edge \
 	generate_firefox \
 	generate_opera \
 	generate_docker \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
+	generate_standalone_edge \
 	generate_standalone_opera \
 	generate_standalone_docker
 
@@ -100,6 +104,12 @@ generate_chrome:
 chrome: node_base generate_chrome
 	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
+generate_edge:
+	cd ./NodeEdge && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+edge: node_base generate_edge
+	cd ./NodeEdge && docker build $(BUILD_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
+
 generate_firefox:
 	cd ./NodeFirefox && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
@@ -111,12 +121,6 @@ generate_opera:
 
 opera: node_base generate_opera
 	cd ./NodeOpera && docker build $(BUILD_ARGS) -t $(NAME)/node-opera:$(TAG_VERSION) .
-
-generate_edge:
-	cd ./NodeEdge && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
-
-edge: node_base generate_edge
-	cd ./NodeEdge && docker build $(BUILD_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
 
 generate_docker:
 	cd ./NodeDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
@@ -165,14 +169,14 @@ tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_ima
 tag_and_push_chrome_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
 
+tag_and_push_edge_images:
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) edge
+
 tag_and_push_firefox_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
 
 tag_and_push_opera_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) opera
-
-tag_and_push_edge_images:
-	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) edge
 
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
@@ -367,10 +371,11 @@ release: tag_major_minor
 # video: this should be moved to release_latest when Selenium 4 is released
 
 test: test_chrome \
- test_firefox \
  test_edge \
+ test_firefox \
  test_opera \
  test_chrome_standalone \
+ test_edge_standalone \
  test_firefox_standalone \
  test_opera_standalone
 
@@ -437,8 +442,8 @@ test_video: video hub chrome firefox opera
 	all \
 	base \
 	build \
-	chrome \
 	ci \
+	chrome \
 	edge \
 	firefox \
 	opera \
