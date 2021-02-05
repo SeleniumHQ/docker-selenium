@@ -116,7 +116,7 @@ generate_edge:
 	cd ./NodeEdge && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
 edge: node_base generate_edge
-	cd ./NodeEdge && docker build --no-cache $(BUILD_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
+	cd ./NodeEdge && docker build $(BUILD_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
 
 generate_docker:
 	cd ./NodeDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)

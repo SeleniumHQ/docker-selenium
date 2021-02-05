@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-beta-1-prerelease-20210201
+FROM selenium/node-base:4.0.0-beta-1-prerelease-20210204
 LABEL authors=SeleniumHQ
 
 USER root
@@ -38,7 +38,7 @@ USER 1200
 ARG EDGE_DRIVER_VERSION
 RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   then EDGE_MAJOR_VERSION=$(microsoft-edge --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
-    && EDGE_DRIVER_VERSION=$(wget --no-verbose -O - "https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION}" | tr -cd "\11\12\15\40-\176" | tr -d "\r"); \
+    && EDGE_DRIVER_VERSION=$(wget --no-verbose -O - "https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION}_LINUX" | tr -cd "\11\12\15\40-\176" | tr -d "\r"); \
   fi \
   && echo "Using msedgedriver version: "$EDGE_DRIVER_VERSION \
   && wget --no-verbose -O /tmp/msedgedriver_linux64.zip https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_linux64.zip \
