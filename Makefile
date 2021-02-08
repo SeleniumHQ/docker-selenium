@@ -406,7 +406,7 @@ test_opera_standalone:
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
-test_video: video hub chrome firefox opera
+test_video: video hub chrome firefox opera edge
 	# Running a few tests with docker-compose to generate the videos
 	for node in NodeChrome NodeEdge NodeFirefox NodeOpera ; do \
 			cd ./tests || true ; \
