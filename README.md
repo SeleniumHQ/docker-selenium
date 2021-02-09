@@ -264,7 +264,7 @@ You can save this file locally and name it, for example, `config.toml`.
 configs = [
     "selenium/standalone-firefox:4.0.0-beta-1-prerelease-20210207", "{\"browserName\": \"firefox\"}",
     "selenium/standalone-chrome:4.0.0-beta-1-prerelease-20210207", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-opera:4.0.0-beta-1-prerelease-20210207", "{\"browserName\": \"operablink\"}"
+    "selenium/standalone-opera:4.0.0-beta-1-prerelease-20210207", "{\"browserName\": \"operablink\"}",
     "selenium/standalone-edge:4.0.0-beta-1-prerelease-20210207", "{\"browserName\": \"msedge\"}"
     ]
 
