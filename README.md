@@ -112,7 +112,7 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v /dev/shm:/dev/shm \
-    selenium/node-opera:4.0.0-beta-1-prerelease-20210204
+    selenium/node-opera:4.0.0-beta-1-prerelease-20210207
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:

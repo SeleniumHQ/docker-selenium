@@ -396,7 +396,7 @@ spec:
     spec:
       containers:
         - name: selenium-edge-node
-          image: selenium/node-edge:4.0.0-beta-1-prerelease-20210201
+          image: selenium/node-edge:4.0.0-beta-1-prerelease-20210207
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-event-bus"

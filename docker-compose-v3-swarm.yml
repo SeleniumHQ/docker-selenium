@@ -19,7 +19,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-1-prerelease-20210201
+    image: selenium/node-edge:4.0.0-beta-1-prerelease-20210207
     volumes:
       - /dev/shm:/dev/shm
     environment:

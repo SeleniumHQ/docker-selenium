@@ -17,7 +17,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-1-prerelease-20210201
+    image: selenium/node-edge:4.0.0-beta-1-prerelease-20210207
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
