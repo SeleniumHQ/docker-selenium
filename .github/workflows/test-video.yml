@@ -48,6 +48,11 @@ jobs:
         with:
           name: chrome_video
           path: ./tests/videos/chrome_video.mp4
+      - name: Upload recorded Edge video
+        uses: actions/upload-artifact@v2
+        with:
+          name: edge_video
+          path: ./tests/videos/edge_video.mp4
       - name: Upload recorded Firefox video
         uses: actions/upload-artifact@v2
         with:

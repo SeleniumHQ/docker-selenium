@@ -30,6 +30,10 @@ IMAGE_NAME_MAP = {
     'NodeChrome': 'node-chrome',
     'StandaloneChrome': 'standalone-chrome',
 
+    # Edge Images
+    'NodeEdge': 'node-edge',
+    'StandaloneEdge': 'standalone-edge',
+
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
@@ -43,6 +47,10 @@ TEST_NAME_MAP = {
     # Chrome Images
     'NodeChrome': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
+
+    # Edge Images
+    'NodeEdge': 'EdgeTests',
+    'StandaloneEdge': 'EdgeTests',
 
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',

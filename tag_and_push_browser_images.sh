@@ -63,6 +63,50 @@ chrome)
   done
 
   ;;
+edge)
+  EDGE_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
+  echo "Edge version -> "${EDGE_VERSION}
+  EDGE_SHORT_VERSION="$(short_version ${EDGE_VERSION})"
+  echo "Short Edge version -> "${EDGE_SHORT_VERSION}
+
+  EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $2}')
+  echo "EdgeDriver version -> "${EDGEDRIVER_VERSION}
+  EDGEDRIVER_SHORT_VERSION="$(short_version ${EDGEDRIVER_VERSION})"
+  echo "Short EdgeDriver version -> "${EDGEDRIVER_SHORT_VERSION}
+
+  EDGE_TAGS=(
+      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-grid-${TAG_VERSION}
+      # Browser version and browser driver version plus build date
+      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-${BUILD_DATE}
+      # Browser version and browser driver version
+      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}
+      # Browser version and build date
+      ${EDGE_VERSION}-${BUILD_DATE}
+      # Browser version
+      ${EDGE_VERSION}
+      ## Short versions
+      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+      # Browser version and browser driver version plus build date
+      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+      # Browser version and browser driver version
+      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}
+      # Browser version and build date
+      ${EDGE_SHORT_VERSION}-${BUILD_DATE}
+      # Browser version
+      ${EDGE_SHORT_VERSION}
+  )
+
+  for edge_tag in "${EDGE_TAGS[@]}"
+  do
+    docker tag ${NAMESPACE}/node-edge:${TAG_VERSION} ${NAMESPACE}/node-edge:${edge_tag}
+    docker tag ${NAMESPACE}/standalone-edge:${TAG_VERSION} ${NAMESPACE}/standalone-edge:${edge_tag}
+    if [ "${PUSH_IMAGE}" = true ]; then
+        docker push ${NAMESPACE}/node-edge:${edge_tag}
+        docker push ${NAMESPACE}/standalone-edge:${edge_tag}
+    fi
+  done
+
+  ;;
 firefox)
   FIREFOX_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
   echo "Firefox version -> "${FIREFOX_VERSION}

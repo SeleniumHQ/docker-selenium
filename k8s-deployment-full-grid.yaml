@@ -355,6 +355,73 @@ spec:
           emptyDir: { "medium": "Memory" }
 ---
 #***************************************
+#SELENIUM EDGE NODE
+#***************************************
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-edge-node
+  labels:
+    name: selenium-edge-node
+    component: "selenium-grid-4"
+spec:
+  selector:
+    app: selenium-edge-node
+  ports:
+    - name: port1
+      protocol: TCP
+      port: 6901
+      targetPort: 5900
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-edge-node-deployment
+  labels:
+    app: selenium-edge-node
+    name: selenium-edge-node
+    component: "selenium-grid-4"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-edge-node
+  template:
+    metadata:
+      labels:
+        app: selenium-edge-node
+        name: selenium-edge-node
+        component: "selenium-grid-4"
+    spec:
+      containers:
+        - name: selenium-edge-node
+          image: selenium/node-edge:4.0.0-beta-1-prerelease-20210201
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-event-bus"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+          ports:
+            - containerPort: 5553
+              protocol: TCP
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+      volumes:
+        - name: dshm
+          emptyDir: { "medium": "Memory" }
+---
+#***************************************
 #SELENIUM FIREFOX NODE
 #***************************************
 apiVersion: v1
@@ -370,7 +437,7 @@ spec:
   ports:
     - name: port1
       protocol: TCP
-      port: 6900
+      port: 6902
       targetPort: 5900
 
 ---
