@@ -164,7 +164,7 @@ video:
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
-tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_opera_images
+tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_opera_images tag_and_push_edge_images
 
 tag_and_push_chrome_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
