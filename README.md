@@ -329,11 +329,9 @@ your capabilities and inside it, configure the desired settings, for example:
 {
   "browserName": "firefox",
   "platformName": "linux",
-  "se:options": {
-    "recordVideo": "true",
-    "timeZone": "US/Pacific",
-    "screenResolution": "1920x1080"
-  }
+  "se:recordVideo": "true",
+  "se:timeZone": "US/Pacific",
+  "se:screenResolution": "1920x1080"  
 }
 ```
 
