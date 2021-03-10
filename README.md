@@ -273,14 +273,14 @@ configs = [
 # Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
 # To have Docker listening through tcp on macOS, install socat and run the following command
 # socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
-host = "tcp://host.docker.internal:2375"
+url = "tcp://host.docker.internal:2375"
 # Docker imagee used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20210215"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
 #[server]
-#hostname = <ip-from-node-machine>
+#host = <ip-from-node-machine>
 #port = <port-from-node-machine>
 ```
 

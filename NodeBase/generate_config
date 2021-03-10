@@ -14,7 +14,7 @@ fi
 if [[ -z "${SE_NODE_HOST}" ]]; then
   echo "Setting up SE_NODE_HOST..."
 else
-  echo "hostname = \"${SE_NODE_HOST}\"" >> /opt/selenium/config.toml
+  echo "host = \"${SE_NODE_HOST}\"" >> /opt/selenium/config.toml
 fi
 
 if [[ -z "${SE_NODE_PORT}" ]]; then
@@ -24,6 +24,6 @@ else
 fi
 
 echo "[node]
-max-concurrent-sessions = ${SE_NODE_MAX_CONCURRENT_SESSIONS}
+max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> /opt/selenium/config.toml
 
