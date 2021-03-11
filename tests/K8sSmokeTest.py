@@ -14,7 +14,7 @@ sleep_interval = 10
 
 def get_grid_status():
     try:
-        response = urlopen('%s/status1' % (SELENIUM_GRID_URL))
+        response = urlopen('%s/status' % (SELENIUM_GRID_URL))
         print("Response code: " + str(response.getcode()))
         response = urlopen('%s/status' % (SELENIUM_GRID_URL))
         encoded_response = response.read()
