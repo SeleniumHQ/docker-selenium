@@ -25,7 +25,8 @@ spec:
     spec:
       containers:
         - name: selenium-event-bus
-          image: {{ printf "%s:%s" .Values.components.eventBus.imageName .Values.components.eventBus.imageTag }}
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.eventBus.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.eventBus.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.eventBus.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.components.eventBus.port }}

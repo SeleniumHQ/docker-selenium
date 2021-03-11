@@ -25,7 +25,8 @@ spec:
     spec:
       containers:
         - name: selenium-session-queuer
-          image: {{ printf "%s:%s" .Values.components.sessionQueuer.imageName .Values.components.sessionQueuer.imageTag }}
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionQueuer.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.sessionQueuer.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionQueuer.imagePullPolicy }}
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}

@@ -27,7 +27,8 @@ spec:
     spec:
       containers:
         - name: selenium-opera-node
-          image: {{ printf "%s:%s" .Values.operaNode.imageName .Values.operaNode.imageTag }}
+          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.operaNode.imageTag }}
+          image: {{ printf "%s:%s" .Values.operaNode.imageName $imageTag }}
           imagePullPolicy: {{ .Values.operaNode.imagePullPolicy }}
         {{- with .Values.operaNode.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
@@ -50,5 +51,7 @@ spec:
         {{- end }}
       volumes:
         - name: dshm
-          emptyDir: { "medium": "Memory" }
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ default "1Gi" .Values.operaNode.dshmVolumeSizeLimit }}
 {{- end }}

@@ -1,5 +1,12 @@
+global:
+  seleniumGrid:
+    # Image tag for all selenium components
+    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Image tag for browser's nodes
+    nodesImageTag: 4.0.0-beta-1-prerelease-20210114
+
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
-isolateComponents: false
+isolateComponents: true
 
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
@@ -15,8 +22,9 @@ components:
   router:
     # Router image name
     imageName: selenium/router
-    # Router image tag
-    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
+    # imageTag: 4.0.0-beta-1-prerelease-20210114
+
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Custom annotations for router pod
@@ -52,8 +60,9 @@ components:
   distributor:
     # Distributor image name
     imageName: selenium/distributor
-    # Distributor image tag
-    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
+    # imageTag: 4.0.0-beta-1-prerelease-20210114
+
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Custom annotations for Distributor pod
@@ -71,8 +80,9 @@ components:
   eventBus:
     # Event Bus image name
     imageName: selenium/event-bus
-    # Event Bus image tag
-    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
+    # imageTag: 4.0.0-beta-1-prerelease-20210114
+
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Custom annotations for Event Bus pod
@@ -94,8 +104,9 @@ components:
   sessionMap:
     # Session Map image name
     imageName: selenium/sessions
-    # Session Map image tag
-    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
+    # imageTag: 4.0.0-beta-1-prerelease-20210114
+
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Custom annotations for Session Map pod
@@ -112,8 +123,9 @@ components:
   sessionQueuer:
     # Session Queuer image name
     imageName: selenium/session-queuer
-    # Session Queuer image tag
-    imageTag: 4.0.0-beta-1-prerelease-20210114
+    # Session Queuer image tag (this overwrites global.seleniumGrid.imageTag parameter)
+    # imageTag: 4.0.0-beta-1-prerelease-20210114
+
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Custom annotations for Session Queuer pod
@@ -140,7 +152,7 @@ components:
 hub:
   # Selenium Hub image name
   imageName: selenium/hub
-  # Selenium Hub image tag
+  # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
   imageTag: 4.0.0-beta-1-prerelease-20210114
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
@@ -194,8 +206,8 @@ chromeNode:
   replicas: 1
   # Image of chrome nodes
   imageName: selenium/node-chrome
-  # Image of chrome nodes
-  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
+  # imageTag: 4.0.0-beta-1-prerelease-20210114
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -224,6 +236,16 @@ chromeNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Service configuration
+  service:
+    # Create a service for node
+    enabled: true
+    # Service type
+    type: ClusterIP
+    # Custom annotations for service
+    annotations: {}
+  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
+  dshmVolumeSizeLimit: 1Gi
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -233,8 +255,8 @@ firefoxNode:
   replicas: 1
   # Image of firefox nodes
   imageName: selenium/node-firefox
-  # Image of firefox nodes
-  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
+  # imageTag: 4.0.0-beta-1-prerelease-20210114
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -263,6 +285,16 @@ firefoxNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Service configuration
+  service:
+    # Create a service for node
+    enabled: true
+    # Service type
+    type: ClusterIP
+    # Custom annotations for service
+    annotations: {}
+  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
+  dshmVolumeSizeLimit: 1Gi
 
 # Configuration for opera nodes
 operaNode:
@@ -272,8 +304,8 @@ operaNode:
   replicas: 1
   # Image of opera nodes
   imageName: selenium/node-opera
-  # Image of opera nodes
-  imageTag: 4.0.0-beta-1-prerelease-20210114
+  # Image of opera nodes (this overwrites global.seleniumGrid.nodesImageTag)
+  # imageTag: 4.0.0-beta-1-prerelease-20210114
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   ports:
@@ -301,6 +333,17 @@ operaNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Service configuration
+  service:
+    # Create a service for node
+    enabled: true
+    # Service type
+    type: ClusterIP
+    # Custom annotations for service
+    annotations:
+      hello: world
+  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
+  dshmVolumeSizeLimit: 1Gi
 
 # Custom labels for k8s resources
 customLabels: {}

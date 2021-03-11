@@ -1,3 +1,4 @@
+{{- if and .Values.chromeNode.enabled .Values.chromeNode.service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -6,7 +7,12 @@ metadata:
   labels:
     name: selenium-chrome-node
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.chromeNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  type: {{ .Values.chromeNode.service.type }}
   selector:
     app: selenium-chrome-node
   ports:
@@ -14,3 +20,4 @@ spec:
       protocol: TCP
       port: {{ .Values.chromeNode.seleniumServicePort }}
       targetPort: {{ .Values.chromeNode.seleniumPort }}
+{{- end }}

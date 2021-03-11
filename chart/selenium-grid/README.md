@@ -35,6 +35,13 @@ helm uninstall selenium-grid
 
 ## Configuration
 
+For now, global configuration supported is:
+
+| Parameter                           | Default                            | Description                           |
+| ----------------------------------- | ---------------------------------- | ------------------------------------- |
+| `global.seleniumGrid.imageTag`      | `4.0.0-beta-1-prerelease-20210114` | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag` | `4.0.0-beta-1-prerelease-20210114` | Image tag for browser's nodes         |
+
 This table contains the configuration parameters of the chart and their default values:
 
 | Parameter                               | Default                            | Description                                                                                                                |
@@ -53,6 +60,10 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
 | `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node container                                                                                        |
 | `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
+| `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
+| `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
+| `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
+| `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
@@ -64,6 +75,10 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
 | `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node container                                                                                       |
 | `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
+| `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
+| `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
+| `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `operaNode.enabled`                     | `true`                             | Enable opera nodes                                                                                                         |
 | `operaNode.replicas`                    | `1`                                | Number of opera nodes                                                                                                      |
 | `operaNode.imageName`                   | `selenium/node-opera`              | Image of opera nodes                                                                                                       |
@@ -75,6 +90,10 @@ This table contains the configuration parameters of the chart and their default 
 | `operaNode.annotations`                 | `{}`                               | Annotations for opera-node pods                                                                                            |
 | `operaNode.resources`                   | `See values.yaml`                  | Resources for opera-node container                                                                                         |
 | `operaNode.extraEnvironmentVariables`   | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `operaNode.service.enabled`             | `true`                             | Create a service for node                                                                                                  |
+| `operaNode.service.type`                | `ClusterIP`                        | Service type                                                                                                               |
+| `operaNode.service.annotations`         | `{}`                               | Custom annotations for service                                                                                             |
+| `operaNode.dshmVolumeSizeLimit`         | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 
@@ -82,71 +101,71 @@ This table contains the configuration parameters of the chart and their default 
 
 You can configure the Selenium Hub with this values:
 
-| Parameter                       | Default                            | Description                                                                                                                      |
-| ------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `hub.imageName`                 | `selenium/hub`                     | Selenium Hub image name                                                                                                          |
-| `hub.imageTag`                  | `4.0.0-beta-1-prerelease-20210114` | Selenium Hub image tag                                                                                                           |
-| `hub.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `hub.annotations`               | `{}`                               | Custom annotations for Selenium Hub pod                                                                                          |
-| `hub.publishPort`               | `4442`                             | Port where events are published                                                                                                  |
-| `hub.subscribePort`             | `4443`                             | Port where to subscribe for events                                                                                               |
-| `hub.port`                      | `4444`                             | Selenium Hub port                                                                                                                |
-| `hub.livenessProbe`             | `See values.yaml`                  | Liveness probe settings                                                                                                          |
-| `hub.readinessProbe`            | `See values.yaml`                  | Readiness probe settings                                                                                                         |
-| `hub.extraEnvironmentVariables` | `nil`                              | Custom environment variables for selenium-hub                                                                                    |
-| `hub.resources`                 | `{}`                               | Resources for selenium-hub container                                                                                             |
-| `hub.serviceType`               | `NodePort`                         | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `hub.serviceAnnotations`        | `{}`                               | Custom annotations for Selenium Hub service                                                                                      |
+| Parameter                       | Default           | Description                                                                                                                      |
+| ------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `hub.imageName`                 | `selenium/hub`    | Selenium Hub image name                                                                                                          |
+| `hub.imageTag`                  | `nil`             | Selenium Hub image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
+| `hub.imagePullPolicy`           | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                          |
+| `hub.publishPort`               | `4442`            | Port where events are published                                                                                                  |
+| `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                               |
+| `hub.port`                      | `4444`            | Selenium Hub port                                                                                                                |
+| `hub.livenessProbe`             | `See values.yaml` | Liveness probe settings                                                                                                          |
+| `hub.readinessProbe`            | `See values.yaml` | Readiness probe settings                                                                                                         |
+| `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
+| `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
+| `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `hub.serviceAnnotations`        | `{}`              | Custom annotations for Selenium Hub service                                                                                      |
 
 
 ### Configuration for isolated components
 
 If you implement selenium-grid with separate components (`isolateComponents: true`), you can configure all components via the following values:
 
-| Parameter                                     | Default                            | Description                                                                                                                      |
-| --------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `components.router.imageName`                 | `selenium/router`                  | Router image name                                                                                                                |
-| `components.router.imageTag`                  | `4.0.0-beta-1-prerelease-20210114` | Router image tag                                                                                                                 |
-| `components.router.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.router.annotations`               | `{}`                               | Custom annotations for router pod                                                                                                |
-| `components.router.port`                      | `4444`                             | Router port                                                                                                                      |
-| `components.router.livenessProbe`             | `See values.yaml`                  | Liveness probe settings                                                                                                          |
-| `components.router.readinessProbe`            | `See values.yaml`                  | Readiness probe settings                                                                                                         |
-| `components.router.resources`                 | `{}`                               | Resources for router container                                                                                                   |
-| `components.router.serviceType`               | `NodePort`                         | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.router.serviceAnnotations`        | `{}`                               | Custom annotations for router service                                                                                            |
-| `components.distributor.imageName`            | `selenium/distributor`             | Distributor image name                                                                                                           |
-| `components.distributor.imageTag`             | `4.0.0-beta-1-prerelease-20210114` | Distributor image tag                                                                                                            |
-| `components.distributor.imagePullPolicy`      | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.distributor.annotations`          | `{}`                               | Custom annotations for Distributor pod                                                                                           |
-| `components.distributor.port`                 | `5553`                             | Distributor port                                                                                                                 |
-| `components.distributor.resources`            | `{}`                               | Resources for Distributor container                                                                                              |
-| `components.distributor.serviceType`          | `ClusterIP`                        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.distributor.serviceAnnotations`   | `{}`                               | Custom annotations for Distributor service                                                                                       |
-| `components.eventBus.imageName`               | `selenium/event-bus`               | Event Bus image name                                                                                                             |
-| `components.eventBus.imageTag`                | `4.0.0-beta-1-prerelease-20210114` | Event Bus image tag                                                                                                              |
-| `components.eventBus.imagePullPolicy`         | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.eventBus.annotations`             | `{}`                               | Custom annotations for Event Bus pod                                                                                             |
-| `components.eventBus.port`                    | `5557`                             | Event Bus port                                                                                                                   |
-| `components.eventBus.publishPort`             | `4442`                             | Port where events are published                                                                                                  |
-| `components.eventBus.subscribePort`           | `4443`                             | Port where to subscribe for events                                                                                               |
-| `components.eventBus.resources`               | `{}`                               | Resources for event-bus container                                                                                                |
-| `components.eventBus.serviceType`             | `ClusterIP`                        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.eventBus.serviceAnnotations`      | `{}`                               | Custom annotations for Event Bus service                                                                                         |
-| `components.sessionMap.imageName`             | `selenium/sessions`                | Session Map image name                                                                                                           |
-| `components.sessionMap.imageTag`              | `4.0.0-beta-1-prerelease-20210114` | Session Map image tag                                                                                                            |
-| `components.sessionMap.imagePullPolicy`       | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.sessionMap.annotations`           | `{}`                               | Custom annotations for Session Map pod                                                                                           |
-| `components.sessionMap.resources`             | `{}`                               | Resources for event-bus container                                                                                                |
-| `components.sessionMap.serviceType`           | `ClusterIP`                        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.sessionMap.serviceAnnotations`    | `{}`                               | Custom annotations for Session Map service                                                                                       |
-| `components.sessionQueuer.imageName`          | `selenium/session-queuer`          | Session Queuer image name                                                                                                        |
-| `components.sessionQueuer.imageTag`           | `4.0.0-beta-1-prerelease-20210114` | Session Queuer image tag                                                                                                         |
-| `components.sessionQueuer.imagePullPolicy`    | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.sessionQueuer.annotations`        | `{}`                               | Custom annotations for Session Queuer pod                                                                                        |
-| `components.sessionQueuer.resources`          | `{}`                               | Resources for event-bus container                                                                                                |
-| `components.sessionQueuer.serviceType`        | `ClusterIP`                        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.sessionQueuer.serviceAnnotations` | `{}`                               | Custom annotations for Session Queuer service                                                                                    |
-| `components.extraEnvironmentVariables`        | `nil`                              | Custom environment variables for all components                                                                                  |
+| Parameter                                     | Default                   | Description                                                                                                                      |
+| --------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `components.router.imageName`                 | `selenium/router`         | Router image name                                                                                                                |
+| `components.router.imageTag`                  | `nil`                     | Router image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                         |
+| `components.router.imagePullPolicy`           | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.router.annotations`               | `{}`                      | Custom annotations for router pod                                                                                                |
+| `components.router.port`                      | `4444`                    | Router port                                                                                                                      |
+| `components.router.livenessProbe`             | `See values.yaml`         | Liveness probe settings                                                                                                          |
+| `components.router.readinessProbe`            | `See values.yaml`         | Readiness probe settings                                                                                                         |
+| `components.router.resources`                 | `{}`                      | Resources for router container                                                                                                   |
+| `components.router.serviceType`               | `NodePort`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.router.serviceAnnotations`        | `{}`                      | Custom annotations for router service                                                                                            |
+| `components.distributor.imageName`            | `selenium/distributor`    | Distributor image name                                                                                                           |
+| `components.distributor.imageTag`             | `nil`                     | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
+| `components.distributor.imagePullPolicy`      | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.distributor.annotations`          | `{}`                      | Custom annotations for Distributor pod                                                                                           |
+| `components.distributor.port`                 | `5553`                    | Distributor port                                                                                                                 |
+| `components.distributor.resources`            | `{}`                      | Resources for Distributor container                                                                                              |
+| `components.distributor.serviceType`          | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.distributor.serviceAnnotations`   | `{}`                      | Custom annotations for Distributor service                                                                                       |
+| `components.eventBus.imageName`               | `selenium/event-bus`      | Event Bus image name                                                                                                             |
+| `components.eventBus.imageTag`                | `nil`                     | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                     |
+| `components.eventBus.imagePullPolicy`         | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.eventBus.annotations`             | `{}`                      | Custom annotations for Event Bus pod                                                                                             |
+| `components.eventBus.port`                    | `5557`                    | Event Bus port                                                                                                                   |
+| `components.eventBus.publishPort`             | `4442`                    | Port where events are published                                                                                                  |
+| `components.eventBus.subscribePort`           | `4443`                    | Port where to subscribe for events                                                                                               |
+| `components.eventBus.resources`               | `{}`                      | Resources for event-bus container                                                                                                |
+| `components.eventBus.serviceType`             | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.eventBus.serviceAnnotations`      | `{}`                      | Custom annotations for Event Bus service                                                                                         |
+| `components.sessionMap.imageName`             | `selenium/sessions`       | Session Map image name                                                                                                           |
+| `components.sessionMap.imageTag`              | `nil`                     | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
+| `components.sessionMap.imagePullPolicy`       | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.sessionMap.annotations`           | `{}`                      | Custom annotations for Session Map pod                                                                                           |
+| `components.sessionMap.resources`             | `{}`                      | Resources for event-bus container                                                                                                |
+| `components.sessionMap.serviceType`           | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.sessionMap.serviceAnnotations`    | `{}`                      | Custom annotations for Session Map service                                                                                       |
+| `components.sessionQueuer.imageName`          | `selenium/session-queuer` | Session Queuer image name                                                                                                        |
+| `components.sessionQueuer.imageTag`           | `nil`                     | Session Queuer image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                |
+| `components.sessionQueuer.imagePullPolicy`    | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.sessionQueuer.annotations`        | `{}`                      | Custom annotations for Session Queuer pod                                                                                        |
+| `components.sessionQueuer.resources`          | `{}`                      | Resources for event-bus container                                                                                                |
+| `components.sessionQueuer.serviceType`        | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.sessionQueuer.serviceAnnotations` | `{}`                      | Custom annotations for Session Queuer service                                                                                    |
+| `components.extraEnvironmentVariables`        | `nil`                     | Custom environment variables for all components                                                                                  |
 
 See how to customize a helm chart installation in the [Helm Docs](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more information.

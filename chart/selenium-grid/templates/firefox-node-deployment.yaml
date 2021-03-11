@@ -27,7 +27,8 @@ spec:
     spec:
       containers:
         - name: selenium-firefox-node
-          image: {{ printf "%s:%s" .Values.firefoxNode.imageName .Values.firefoxNode.imageTag }}
+          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.firefoxNode.imageTag }}
+          image: {{ printf "%s:%s" .Values.firefoxNode.imageName $imageTag }}
           imagePullPolicy: {{ .Values.firefoxNode.imagePullPolicy }}
         {{- with .Values.firefoxNode.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
@@ -50,5 +51,7 @@ spec:
         {{- end }}
       volumes:
         - name: dshm
-          emptyDir: { "medium": "Memory" }
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ default "1Gi" .Values.firefoxNode.dshmVolumeSizeLimit }}
 {{- end }}

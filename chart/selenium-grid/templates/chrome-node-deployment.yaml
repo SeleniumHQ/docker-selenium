@@ -27,7 +27,8 @@ spec:
     spec:
       containers:
         - name: selenium-chrome-node
-          image: {{ printf "%s:%s" .Values.chromeNode.imageName .Values.chromeNode.imageTag }}
+          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.chromeNode.imageTag }}
+          image: {{ printf "%s:%s" .Values.chromeNode.imageName $imageTag }}
           imagePullPolicy: {{ .Values.chromeNode.imagePullPolicy }}
         {{- with .Values.chromeNode.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
@@ -50,5 +51,7 @@ spec:
         {{- end }}
       volumes:
         - name: dshm
-          emptyDir: { "medium": "Memory" }
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ default "1Gi" .Values.chromeNode.dshmVolumeSizeLimit }}
 {{- end }}
