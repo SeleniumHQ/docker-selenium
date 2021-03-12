@@ -14,15 +14,17 @@ sleep_interval = 10
 
 def get_grid_status():
     try:
-        response = urlopen('%s/status1' % (SELENIUM_GRID_URL))
+        response = urlopen('%s/status' % (SELENIUM_GRID_URL))
         print("Response code: " + str(response.getcode()))
         response = urlopen('%s/status' % (SELENIUM_GRID_URL))
         encoded_response = response.read()
         encoding = response.headers.get_content_charset('utf-8')
         decoded_response = encoded_response.decode(encoding)
+        print("Response: " + decoded_response)
         response_json = json.loads(decoded_response)
         return response_json['value']['ready']
     except Exception as e:
+        print(e)
         return False
 
 
