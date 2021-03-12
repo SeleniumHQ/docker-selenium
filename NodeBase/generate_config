@@ -5,7 +5,7 @@ publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
 subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
 " > /opt/selenium/config.toml
 
-if [[ -z "${SE_NODE_HOST}" ]] || [[ -z "${SE_NODE_PORT}" ]]; then
+if [[ -z "${SE_NODE_HOST}" ]] && [[ -z "${SE_NODE_PORT}" ]]; then
   echo "Configuring server..."
 else
   echo "[server]" >> /opt/selenium/config.toml
