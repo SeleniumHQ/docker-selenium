@@ -20,8 +20,8 @@ def get_grid_status():
         encoded_response = response.read()
         encoding = response.headers.get_content_charset('utf-8')
         decoded_response = encoded_response.decode(encoding)
+        print("Response: " + decoded_response)
         response_json = json.loads(decoded_response)
-        print("Response json: " + response_json)
         return response_json['value']['ready']
     except Exception as e:
         print(e)
