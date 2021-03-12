@@ -24,6 +24,7 @@ def get_grid_status():
         print("Response json: " + response_json)
         return response_json['value']['ready']
     except Exception as e:
+        print(e)
         return False
 
 
