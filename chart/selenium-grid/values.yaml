@@ -6,7 +6,7 @@ global:
     nodesImageTag: 4.0.0-beta-1-prerelease-20210114
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
-isolateComponents: true
+isolateComponents: false
 
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
