@@ -94,9 +94,7 @@ class FirefoxTests(SeleniumGenericTests):
 
 class OperaTests(SeleniumGenericTests):
     def setUp(self):
-        capabilities = DesiredCapabilities.CHROME
-        capabilities['browserName'] = 'opera'
         self.driver = webdriver.Remote(
-            desired_capabilities=capabilities,
+            desired_capabilities=DesiredCapabilities.OPERA,
             command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
