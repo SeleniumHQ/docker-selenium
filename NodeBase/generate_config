@@ -23,7 +23,15 @@ else
   echo "port = \"${SE_NODE_PORT}\"" >> /opt/selenium/config.toml
 fi
 
-echo "[node]
-max-sessions = ${SE_NODE_MAX_SESSIONS}
+echo "[node]" >> /opt/selenium/config.toml
+# String, Url where the Grid can be reached
+if [[ -z "${SE_NODE_GRID_URL}" ]]; then
+  echo "Setting up SE_NODE_GRID_URL..."
+else
+  echo "grid-url = \"${SE_NODE_GRID_URL}\"" >> /opt/selenium/config.toml
+fi
+echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> /opt/selenium/config.toml
+
+
 
