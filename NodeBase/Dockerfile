@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-beta-2-prerelease-20210315
+FROM selenium/base:4.0.0-beta-2-20210317
 LABEL authors=SeleniumHQ
 
 USER root
@@ -148,6 +148,8 @@ ENV START_XVFB true
 #========================
 # As integer, maps to "max-concurrent-sessions"
 ENV SE_NODE_MAX_SESSIONS 1
+# As integer, maps to "session-timeout" in seconds
+ENV SE_NODE_SESSION_TIMEOUT 300
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
