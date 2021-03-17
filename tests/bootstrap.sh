@@ -2,12 +2,12 @@
 cd tests || true
 
 if [ "${CI:-false}" = "false" ]; then
-  pip install virtualenv | grep -v 'Requirement already satisfied'
+  pip3 install virtualenv | grep -v 'Requirement already satisfied'
   virtualenv docker-selenium-tests
   source docker-selenium-tests/bin/activate
 fi
 
-python -m pip install selenium==4.0.0a6.post2 \
+python -m pip install selenium==4.0.0.a7 \
                       docker===4.2.0 \
                       | grep -v 'Requirement already satisfied'
 
