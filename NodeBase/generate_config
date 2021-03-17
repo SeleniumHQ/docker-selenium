@@ -30,6 +30,7 @@ if [[ -z "${SE_NODE_GRID_URL}" ]]; then
 else
   echo "grid-url = \"${SE_NODE_GRID_URL}\"" >> /opt/selenium/config.toml
 fi
+echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >> /opt/selenium/config.toml
 echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> /opt/selenium/config.toml
 
