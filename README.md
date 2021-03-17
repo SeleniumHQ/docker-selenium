@@ -404,6 +404,14 @@ environmental variables when starting the container.
 docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox
 ```
 
+### Grid Url and Session Timeout
+
+In some use cases you might need to set the Grid url to the Node, for example if you'd like to access the CDP endpoint. You
+can do that through the `SE_NODE_GRID_URL` environment variable. 
+
+Grid has a default session timeout of 300 seconds, where the session can be on a stale state until it is killed. You can use
+`SE_NODE_SESSION_TIMEOUT` to overwrite that value in seconds.
+
 ### Running in Headless mode
 
 [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), 
