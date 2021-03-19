@@ -12,3 +12,5 @@ COPY start-selenium-grid-standalone-docker.sh \
 
 COPY selenium-grid-standalone-docker.conf /etc/supervisor/conf.d/
 
+# Boolean value, maps "--relax-checks"
+ENV SE_RELAX_CHECKS true
