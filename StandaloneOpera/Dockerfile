@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-opera:4.0.0-beta-2-20210317
+FROM selenium/node-opera:4.0.0-beta-2-20210319
 LABEL authors=SeleniumHQ
 
 USER 1200
@@ -17,5 +17,10 @@ COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
 
+# Boolean value, maps "--relax-checks"
+ENV SE_RELAX_CHECKS true
+
 
 EXPOSE 4444
+
+
