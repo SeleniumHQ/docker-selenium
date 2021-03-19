@@ -10,5 +10,10 @@ COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
 
+# Boolean value, maps "--relax-checks"
+ENV SE_RELAX_CHECKS true
+
 
 EXPOSE 4444
+
+

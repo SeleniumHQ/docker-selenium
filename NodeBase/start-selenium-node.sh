@@ -27,6 +27,10 @@ if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   exit 1
 fi
 
+if [ ! -z "$SE_OPTS" ]; then
+  echo "Appending Selenium options: ${SE_OPTS}"
+fi
+
 /opt/bin/generate_config
 
 echo "Starting Selenium Grid Node with configuration: "
