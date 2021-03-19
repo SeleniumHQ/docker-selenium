@@ -8,6 +8,8 @@ node_modules/
 *.swp
 # Selenium Server Dev
 selenium_server_deploy.jar
+# assets directory
+assets
 
 # Ignoring generated files during the build process
 StandaloneC*/selenium.conf

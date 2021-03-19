@@ -238,7 +238,7 @@ $ docker stop selenium && docker rm selenium
 ```
 After the containers are stopped and removed, you should see a video file on your machine's `/tmp/videos` directory.
 
-Here is an example using a Hub and 3 Nodes (Chrome, Firefox, and Opera):
+Here is an example using a Hub and a few Nodes:
 
 [`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
 
@@ -273,7 +273,7 @@ configs = [
 # Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
 # To have Docker listening through tcp on macOS, install socat and run the following command
 # socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
-url = "tcp://host.docker.internal:2375"
+url = "http://host.docker.internal:2375"
 # Docker imagee used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20210319"
 
@@ -320,6 +320,13 @@ docker run --rm -ti --name selenium-docker -p 4444:4444 \
 ```
 
 To have the assets saved on your host, please mount your host path to `/opt/selenium/assets`.
+
+### Execution with Docker Compose
+
+Here is an example using a Hub and a Node:
+
+[`docker-compose-v3-dynamic-grid.yml`](docker-compose-v3-dynamic-grid.yml)
+
 
 ### Video recording, screen resolution, and time zones in a Dynamic Grid
 To record your WebDriver session, you need to add a `se:options` section to
