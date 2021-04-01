@@ -31,26 +31,22 @@ https://www.selenium.dev/support/
 1. Start a Docker container with Firefox
 
 ``` bash
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
 # OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4444:4444 -p 7900:7900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
 ```
 
 2. Point your WebDriver tests to http://localhost:4444/wd/hub
 
 3. That's it! 
 
-To inspect visually the browser activity, see the [Debugging](#debugging) section for details.
+4. (Optional) To see what is happening inside the container, head to http://localhost:7900 (password is `secret`).
+
+More details about visualising the container activity, check the [Debugging](#debugging) section.
 
 :point_up: When executing `docker run` for an image that contains a browser please either mount 
   `-v /dev/shm:/dev/shm` or use the flag `--shm-size=2g` to use the host's shared memory.
   
-> Why is `-v /dev/shm:/dev/shm` or `--shm-size 2g` necessary?
-> This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
-[Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
-The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
-to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
-
 :point_up: Always use a Docker image with a full tag to pin a specific browser and Grid version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
@@ -424,8 +420,8 @@ Grid has a default session timeout of 300 seconds, where the session can be on a
 ### Running in Headless mode
 
 [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), 
-[Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome) and 
-[Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) support running tests in the headless mode.
+[Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
+[Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) and Edge support running tests in the headless mode.
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
 To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
@@ -580,37 +576,34 @@ ___
 
 ## Debugging
 
-In the event you wish to see what the browser is doing, you can check what is going inside by connecting to the VNC 
-server running on port 5900 inside the browser container. 
+This project uses [x11vnc](https://github.com/LibVNC/x11vnc) as VNC server to allow users inspect what is happening
+inside the container. Users can connect to this server in two ways:
 
-You are free to map that port to any free external port that you wish. Keep in mind that you will only be able to run 
-one node per port. If you wish to include a second node (or more), you will have to use different ports.
+### Using a VNC client
 
-The internal 5900 port will need to remain the same because that is the configured port for the VNC server 
-running inside the container.
+The VNC server is listening to port 5900, you can use a VNC client and connect to it. Feel free to map port 5900 to 
+any free external port that you wish.
+
+The internal 5900 port remains the same because that is the configured port for the VNC server running inside the container.
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
 $ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-3-prerelease-20210329
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-prerelease-20210329
-$ docker run -d -p 4445:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
-$ docker run -d -p 4446:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4445:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4446:4444 -p 5903:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-prerelease-20210329
 ```
 
 Then, you would use in your VNC client:
 - Port 5900 to connect to the Chrome container
-- Port 5901 to connect to the Firefox container
-- Port 5902 to connect to the Opera container
+- Port 5901 to connect to the Edge container
+- Port 5902 to connect to the Firefox container
+- Port 5903 to connect to the Opera container
 
-In case you have [RealVNC](https://www.realvnc.com/) binary `vnc` in your path, you can always take a look, select view 
-only to avoid messing around your tests with an unintended mouse click or keyboard interrupt:
-``` bash
-$ ./bin/vncview 127.0.0.1:5900
-```
-
-When you are prompted for the password it is `secret`. If you wish to change this then you should either change 
+If you get a prompt asking for a password, it is: `secret`. If you wish to change this, you should either change 
 it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
 the posted ones which reconfigures it:
+
 ``` dockerfile
 #FROM selenium/node-chrome:4.0.0-beta-3-prerelease-20210329
 #FROM selenium/node-edge:4.0.0-beta-3-prerelease-20210329
@@ -622,6 +615,30 @@ RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
 
 If you want to run VNC without password authentication you can set the environment variable `VNC_NO_PASSWORD=1`.
+
+### Using your browser (no VNC client is needed)
+
+This project uses [noVNC](https://github.com/novnc/noVNC) to allow users inspect visually container activity with
+their browser. This might come handy if you cannot install a VNC client on your machine. Port 7900 is used to start
+noVNC, so you will need to connect to that port with your browser.
+
+Similarly to the previous section, feel free to map port 5900 to any free external port that you wish.
+
+Here is an example with the standalone images, the same concept applies to the node images.
+``` bash
+$ docker run -d -p 4444:4444 -p 7900:7900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4444:4444 -p 7901:7900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4445:4444 -p 7902:7900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210329
+$ docker run -d -p 4446:4444 -p 7903:7900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-prerelease-20210329
+```
+
+Then, you would use in your browser:
+- http://localhost:7900/ to connect to the Chrome container
+- http://localhost:7901/ to connect to the Edge container
+- http://localhost:7902/ to connect to the Firefox container
+- http://localhost:7903/ to the Opera container
+
+If you get a prompt asking for a password, it is: `secret`.
 
 ___
 
@@ -636,6 +653,15 @@ You can increase the log output by passing environment variable to the container
 ```
 SE_OPTS="--log-level FINE"
 ```
+
+### `-v /dev/shm:/dev/shm` or `--shm-size 2g`
+
+Why is `-v /dev/shm:/dev/shm` or `--shm-size 2g` necessary?
+> This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
+[Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
+The shm size of 2gb is arbitrary but known to work well, your specific use case might need a different value, it is recommended
+to tune this value according to your needs. Along the examples `-v /dev/shm:/dev/shm` will be used, but both are known to work.
+
 
 ### Headless
 
