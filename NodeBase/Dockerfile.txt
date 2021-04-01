@@ -92,6 +92,7 @@ RUN  wget -nv -O noVNC.zip \
        "https://github.com/novnc/noVNC/archive/${NOVNC_SHA}.zip" \
   && unzip -x noVNC.zip \
   && mv noVNC-${NOVNC_SHA} /opt/bin/noVNC \
+  && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
   && rm noVNC.zip \
   && wget -nv -O websockify.zip \
       "https://github.com/novnc/websockify/archive/${WEBSOCKIFY_SHA}.zip" \
