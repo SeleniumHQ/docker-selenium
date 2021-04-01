@@ -7,18 +7,18 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 ![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
 
 # :point_right: Status: Grid 4 is under development and on a [Beta stage](https://en.wikipedia.org/wiki/Software_release_life_cycle#Beta)
-We are doing prereleases on a regular basis to get early feedback. This means that all other Selenium components
-can be currently at a different alpha version (e.g. bindings on Beta 1, and Docker images on prerelease Beta 2).
+Prereleases are happening on a regular basis to get early feedback. This means that all other Selenium components
+can be currently at a different beta version (e.g. bindings on Beta 2, and Docker images on prerelease Beta 3).
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
-our [prereleases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-beta-3-prerelease-20210329)
+our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-beta-3-prerelease-20210329)
 
-To get notifications of new prereleases, add yourself as a watcher of "Releases only". 
+To get notifications of new prereleases, add yourself as a "Releases only" watcher. 
 
-Doubts or questions? Please get in touch through the different communication channels available in the **Community** section.
+Doubts? Questions? Get in touch through the different communication channels available in the **Community** section.
 
 Looking for Grid 3? Head to the [Selenium 3 branch](https://github.com/SeleniumHQ/docker-selenium/tree/selenium-3). This branch
-will be having new browser releases until Grid 4 has its major release.
+will be having new browser releases until Grid 4 has had its major release.
 
 ## Community
 
@@ -56,7 +56,9 @@ See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tag
 
 ___
 
-## Standalone
+## Execution modes
+
+### Standalone
 
 ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
 ``` bash
@@ -82,11 +84,11 @@ _Note: Only one Standalone container can run on port_ `4444` _at the same time._
 
 ___
 
-## Selenium Grid Hub and Nodes
+### Hub and Nodes
 
 There are different ways to run the images and create a Grid with a Hub and Nodes, check the following options.
 
-### Docker networking
+#### Docker networking
 The Hub and Nodes will be created in the same network and they will recognize each other by their container name.
 A Docker [network](https://docs.docker.com/engine/reference/commandline/network_create/) needs to be created as a first step.
 
@@ -122,7 +124,7 @@ When you are done using the Grid, and the containers have exited, the network ca
 $ docker network rm grid
 ```
 
-### Using different machines/VMs
+#### Using different machines/VMs
 The Hub and Nodes will be created on different machines/VMs, they need to know each other's IPs to
 communicate properly.
 
@@ -175,26 +177,26 @@ $ docker run -d -p 5555:5555
     selenium/node-opera:4.0.0-beta-3-prerelease-20210329
 ```
 
-### Docker Compose
+#### Docker Compose
 [Docker Compose](https://docs.docker.com/compose/) is the simplest way to start a Grid. Use the
 linked resources below, save them locally, and check the execution instructions on top of each file.
 
-#### Version 2
+##### Version 2
 [`docker-compose-v2.yml`](docker-compose-v2.yml)
 
-#### Version 3
+##### Version 3
 [`docker-compose-v3.yml`](docker-compose-v3.yml)
 
 To stop the Grid and cleanup the created containers, run `docker-compose down`.
 
-#### Version 3 with Swarm support 
+##### Version 3 with Swarm support 
 [`docker-compose-v3-swarm.yml`](docker-compose-v3-swarm.yml)
 
 ___
 
-## Selenium Grid - Router, Distributor, EventBus, SessionMap and Nodes
+### Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes
 
-It is possible to start a Selenium Grid with its five components apart. For simplicity, only an
+It is possible to start a Selenium Grid with all its components apart. For simplicity, only an
 example with docker-compose will be provided. Save the file locally, and check the execution 
 instructions on top of it.
 
@@ -204,7 +206,7 @@ ___
 
 ## Video recording ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
 
-It is possible to record your tests running in containers by using the `selenium/video:ffmpeg-4.3.1-20210329`
+Tests execution can be recorded by using the `selenium/video:ffmpeg-4.3.1-20210329`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -455,31 +457,6 @@ $ BUILD_ARGS="--build-arg http_proxy=http://acme:3128 --build-arg https_proxy=ht
 _Note: Omitting_ `VERSION=local` _will build the images with the released version but replacing the date for the 
 current one._
 
-## Using the images
-
-### Example: Spawn a container for testing in Firefox ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png)
-
-``` bash
-$ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.0.0-beta-3-prerelease-20210329
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm \
-    -v /e2e/uploads:/e2e/uploads selenium/node-firefox:4.0.0-beta-3-prerelease-20210329
-```
-
-_Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your 
-web app you will probably need to share a directory for this._
-
-This command line for Opera or Chrome is almost the same, only remember to replace the image name for 
-`node-opera` or `node-chrome`. Remember that the Selenium running container is able to launch either 
-Chrome, Opera or Firefox, the idea around having 3 separate containers, one for each browser is for convenience plus 
-avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
-
-_Note: Since a Docker container should not preserve state and spawning a new one takes less than 3 seconds you 
-will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your 
-Docker containers as single processes, not as running virtual machines._
-
 ___
 
 ## Waiting for the Grid to be ready
@@ -655,9 +632,9 @@ All output gets sent to stdout, so it can be inspected by running:
 $ docker logs -f <container-id|container-name>
 ```
 
-You can turn on debugging by passing environment variable to the hub and the nodes containers:
+You can increase the log output by passing environment variable to the containers:
 ```
-GRID_DEBUG=true
+SE_OPTS="--log-level FINE"
 ```
 
 ### Headless
