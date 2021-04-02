@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-opera:4.0.0-beta-3-prerelease-20210329
+FROM selenium/node-opera:4.0.0-beta-3-prerelease-20210402
 LABEL authors=SeleniumHQ
 
 USER 1200
