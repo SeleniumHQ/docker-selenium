@@ -636,7 +636,7 @@ This project uses [noVNC](https://github.com/novnc/noVNC) to allow users inspect
 their browser. This might come handy if you cannot install a VNC client on your machine. Port 7900 is used to start
 noVNC, so you will need to connect to that port with your browser.
 
-Similarly to the previous section, feel free to map port 5900 to any free external port that you wish.
+Similarly to the previous section, feel free to map port 7900 to any free external port that you wish.
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash

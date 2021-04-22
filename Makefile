@@ -371,13 +371,15 @@ release: tag_major_minor
 # video: this should be moved to release_latest when Selenium 4 is released
 
 test: test_chrome \
- test_edge \
  test_firefox \
  test_opera \
  test_chrome_standalone \
- test_edge_standalone \
  test_firefox_standalone \
  test_opera_standalone
+
+# Disabling Edge testing for this release as Dev seems unstable
+#  test_edge \
+#  test_edge_standalone \
 
 
 test_chrome:

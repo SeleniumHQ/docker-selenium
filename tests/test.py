@@ -175,7 +175,7 @@ if __name__ == '__main__':
             prune_networks()
             create_network("grid")
             hub_id = launch_hub("grid")
-            ports = {'5555': 5555}
+            ports = {'5555': 5555, '7900': 7900}
             if use_random_user_id:
                 test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
             else:
