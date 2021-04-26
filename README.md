@@ -36,11 +36,13 @@ $ docker run -d -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-fire
 $ docker run -d -p 4444:4444 -p 7900:7900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-prerelease-20210422
 ```
 
-2. Point your WebDriver tests to http://localhost:4444/wd/hub
+2. Point your WebDriver tests to http://localhost:4444 *
 
 3. That's it! 
 
 4. (Optional) To see what is happening inside the container, head to http://localhost:7900 (password is `secret`).
+
+* Grid 3 used "/wd/hub", while it should also work, it is no longer required
 
 More details about visualising the container activity, check the [Debugging](#debugging) section.
 
