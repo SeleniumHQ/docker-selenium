@@ -27,4 +27,4 @@ do
     esac
 done
 
-curl -sSL http://${HOST}:${PORT}/wd/hub/status | jq -r '.value.ready' | grep "true" || exit 1
+curl -sSL http://${HOST}:${PORT}/wd/hub/status | jq -r '.value.ready' | grep -q "true" || exit 1
