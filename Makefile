@@ -375,11 +375,9 @@ test: test_chrome \
  test_opera \
  test_chrome_standalone \
  test_firefox_standalone \
- test_opera_standalone
-
-# Disabling Edge testing for this release as Dev seems unstable
-#  test_edge \
-#  test_edge_standalone \
+ test_opera_standalone \
+ test_edge \
+ test_edge_standalone
 
 
 test_chrome:
@@ -410,7 +408,7 @@ test_opera_standalone:
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox opera edge
 	# Running a few tests with docker-compose to generate the videos
-	for node in NodeChrome NodeFirefox NodeOpera ; do \
+	for node in NodeChrome NodeFirefox NodeOpera NodeEdge ; do \
 			cd ./tests || true ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
