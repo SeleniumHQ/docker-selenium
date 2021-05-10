@@ -436,6 +436,7 @@ test_video: video hub chrome firefox opera edge
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/opera_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 .PHONY: \
 	all \
