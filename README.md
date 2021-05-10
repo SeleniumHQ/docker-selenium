@@ -313,7 +313,7 @@ $ docker network rm grid
 ### Execution with Standalone roles
 
 ```bash
-docker run --rm -ti --name selenium-docker -p 4444:4444 \
+docker run --rm --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v /path/on/your/host/machine:/opt/selenium/assets \
     selenium/standalone-docker:4.0.0-beta-3-20210426
