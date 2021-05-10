@@ -132,6 +132,7 @@ def launch_container(container, **kwargs):
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
                                          environment=environment,
+                                         shm_size="2G",
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
     return container_id
