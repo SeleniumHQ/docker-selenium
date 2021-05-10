@@ -377,10 +377,6 @@ test: test_chrome \
  test_firefox_standalone \
  test_opera_standalone
 
-# Disabling Edge testing for this release as Dev seems unstable
-#  test_edge \
-#  test_edge_standalone \
-
 
 test_chrome:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome

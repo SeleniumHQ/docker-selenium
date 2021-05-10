@@ -14,9 +14,6 @@ jobs:
     if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Test video recorded through Docker Selenium
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        use-random-user: [false, true]
     steps:
       - uses: actions/checkout@v1
       - name: Output Docker info
@@ -41,8 +38,6 @@ jobs:
         run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
       - name: Run Docker Compose to record video
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_video
-        env:
-          USE_RANDOM_USER: ${{ matrix.use-random-user }}
       - name: Upload recorded Chrome video
         uses: actions/upload-artifact@v2
         with:
