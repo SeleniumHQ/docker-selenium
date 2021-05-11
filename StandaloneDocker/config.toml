@@ -1,12 +1,9 @@
-[node]
-session-timeout = 30
 [docker]
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
     "selenium/standalone-firefox:4.0.0-beta-3-20210426", "{\"browserName\": \"firefox\"}",
     "selenium/standalone-chrome:4.0.0-beta-3-20210426", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-opera:4.0.0-beta-3-20210426", "{\"browserName\": \"opera\"}",
     "selenium/standalone-edge:4.0.0-beta-3-20210426", "{\"browserName\": \"MicrosoftEdge\"}"
     ]
 

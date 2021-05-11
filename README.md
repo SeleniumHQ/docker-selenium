@@ -68,11 +68,6 @@ $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-3-20210426
 ```
 
-![Opera](https://raw.githubusercontent.com/alrra/browser-logos/main/src/opera/opera_24x24.png) Opera 
-``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-20210426
-```
-
 ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Microsoft Edge
 ``` bash
 $ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-20210426
@@ -108,11 +103,6 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v /dev/shm:/dev/shm \
     selenium/node-firefox:4.0.0-beta-3-20210426
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v /dev/shm:/dev/shm \
-    selenium/node-opera:4.0.0-beta-3-20210426
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -162,17 +152,6 @@ $ docker run -d -p 5555:5555
     -e SE_NODE_HOST=<ip-from-machine-4> \
     -v /dev/shm:/dev/shm \
     selenium/node-firefox:4.0.0-beta-3-20210426
-```
-
-Node Opera - Machine/VM 5
-``` bash
-$ docker run -d -p 5555:5555 
-    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -e SE_NODE_HOST=<ip-from-machine-5> \
-    -v /dev/shm:/dev/shm \
-    selenium/node-opera:4.0.0-beta-3-20210426
 ```
 
 #### Docker Compose
@@ -264,7 +243,6 @@ You can save this file locally and name it, for example, `config.toml`.
 configs = [
     "selenium/standalone-firefox:4.0.0-beta-3-20210426", "{\"browserName\": \"firefox\"}",
     "selenium/standalone-chrome:4.0.0-beta-3-20210426", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-opera:4.0.0-beta-3-20210426", "{\"browserName\": \"operablink\"}",
     "selenium/standalone-edge:4.0.0-beta-3-20210426", "{\"browserName\": \"msedge\"}"
     ]
 
@@ -437,7 +415,6 @@ captured in the same video.
 
 [Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), 
 [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
-[Opera](https://forums.opera.com/topic/20375/opera-cli-switches-and-headless) and Edge support running tests in the headless mode.
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
 To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
@@ -539,7 +516,6 @@ $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:4.0.0-beta-3-20210426
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-edge:4.0.0-beta-3-20210426
 $ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:4.0.0-beta-3-20210426
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:4.0.0-beta-3-20210426
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
@@ -607,14 +583,12 @@ Here is an example with the standalone images, the same concept applies to the n
 $ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-3-20210426
 $ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-20210426
 $ docker run -d -p 4445:4444 -p 5902:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-20210426
-$ docker run -d -p 4446:4444 -p 5903:5900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-20210426
 ```
 
 Then, you would use in your VNC client:
 - Port 5900 to connect to the Chrome container
 - Port 5901 to connect to the Edge container
 - Port 5902 to connect to the Firefox container
-- Port 5903 to connect to the Opera container
 
 If you get a prompt asking for a password, it is: `secret`. If you wish to change this, you should either change 
 it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
@@ -624,7 +598,6 @@ the posted ones which reconfigures it:
 #FROM selenium/node-chrome:4.0.0-beta-3-20210426
 #FROM selenium/node-edge:4.0.0-beta-3-20210426
 #FROM selenium/node-firefox:4.0.0-beta-3-20210426
-#FROM selenium/node-opera:4.0.0-beta-3-20210426
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
@@ -645,14 +618,12 @@ Here is an example with the standalone images, the same concept applies to the n
 $ docker run -d -p 4444:4444 -p 7900:7900 -v /dev/shm:/dev/shm selenium/standalone-chrome:4.0.0-beta-3-20210426
 $ docker run -d -p 4444:4444 -p 7901:7900 -v /dev/shm:/dev/shm selenium/standalone-edge:4.0.0-beta-3-20210426
 $ docker run -d -p 4445:4444 -p 7902:7900 -v /dev/shm:/dev/shm selenium/standalone-firefox:4.0.0-beta-3-20210426
-$ docker run -d -p 4446:4444 -p 7903:7900 -v /dev/shm:/dev/shm selenium/standalone-opera:4.0.0-beta-3-20210426
 ```
 
 Then, you would use in your browser:
 - http://localhost:7900/ to connect to the Chrome container
 - http://localhost:7901/ to connect to the Edge container
 - http://localhost:7902/ to connect to the Firefox container
-- http://localhost:7903/ to the Opera container
 
 If you get a prompt asking for a password, it is: `secret`.
 
@@ -690,4 +661,4 @@ or
 `Message: unknown error: Chrome failed to start: exited abnormally`
 
 The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
-actually run Firefox, Chrome or Opera in the headless mode.
+actually run Firefox, Chrome or Edge in headless mode.

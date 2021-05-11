@@ -53,8 +53,3 @@ jobs:
         with:
           name: firefox_video
           path: ./tests/videos/firefox_video.mp4
-      - name: Upload recorded Opera video
-        uses: actions/upload-artifact@v2
-        with:
-          name: opera_video
-          path: ./tests/videos/opera_video.mp4
