@@ -150,49 +150,6 @@ firefox)
   done
 
   ;;
-opera)
-  OPERA_VERSION=$(docker run --rm selenium/node-opera:${TAG_VERSION} opera --version)
-  echo "Opera version -> "${OPERA_VERSION}
-  OPERA_SHORT_VERSION="$(short_version ${OPERA_VERSION})"
-  echo "Short Opera version -> "${OPERA_SHORT_VERSION}
-  OPERADRIVER_VERSION=$(docker run --rm selenium/node-opera:${TAG_VERSION} operadriver --version | awk 'NR==1{print $2}')
-  echo "OperaDriver version -> "${OPERADRIVER_VERSION}
-  OPERADRIVER_SHORT_VERSION="$(short_version ${OPERADRIVER_VERSION})"
-  echo "Short OperaDriver version -> "${OPERADRIVER_SHORT_VERSION}
-
-  OPERA_TAGS=(
-      ${OPERA_VERSION}-operadriver-${OPERADRIVER_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${OPERA_VERSION}-operadriver-${OPERADRIVER_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${OPERA_VERSION}-operadriver-${OPERADRIVER_VERSION}
-      # Browser version and build date
-      ${OPERA_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${OPERA_VERSION}
-      ## Short versions
-      ${OPERA_SHORT_VERSION}-operadriver-${OPERADRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${OPERA_SHORT_VERSION}-operadriver-${OPERADRIVER_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${OPERA_SHORT_VERSION}-operadriver-${OPERADRIVER_SHORT_VERSION}
-      # Browser version and build date
-      ${OPERA_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${OPERA_SHORT_VERSION}
-  )
-
-  for opera_tag in "${OPERA_TAGS[@]}"
-  do
-    docker tag ${NAMESPACE}/node-opera:${TAG_VERSION} ${NAMESPACE}/node-opera:${opera_tag}
-    docker tag ${NAMESPACE}/standalone-opera:${TAG_VERSION} ${NAMESPACE}/standalone-opera:${opera_tag}
-    if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-opera:${opera_tag}
-        docker push ${NAMESPACE}/standalone-opera:${opera_tag}
-    fi
-  done
-
-  ;;
 *)
   echo "Unknown browser!"
   ;;

@@ -42,19 +42,6 @@ services:
     ports:
       - "6902:5900"
 
-  opera:
-    image: selenium/node-opera:4.0.0-beta-3-20210426
-    volumes:
-      - /dev/shm:/dev/shm
-    depends_on:
-      - selenium-hub
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6903:5900"
-
   selenium-hub:
     image: selenium/hub:4.0.0-beta-3-20210426
     ports:
