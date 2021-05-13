@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-beta-3-20210426
+FROM selenium/node-base:4.0.0-beta-4-prerelease-20210513
 LABEL authors=SeleniumHQ
 
 USER root
@@ -11,9 +11,9 @@ USER root
 # Microsoft Edge
 #============================================
 # can specify versions by EDGE_VERSION;
-#  e.g. microsoft-edge-dev=88.0.692.0-1
+#  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
-ARG EDGE_VERSION="microsoft-edge-dev"
+ARG EDGE_VERSION="microsoft-edge-beta"
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
