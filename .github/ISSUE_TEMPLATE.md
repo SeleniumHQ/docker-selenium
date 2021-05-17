@@ -41,7 +41,7 @@ Issues without a reproduction script are likely to stall and eventually be close
 ## Environment
 
 OS: <!-- Windows 10? OSX? -->
-Docker-Selenium image version: <!-- 3, 3.141, 4.0.0-beta-4-prerelease-20210513 etc
+Docker-Selenium image version: <!-- 3, 3.141, 4.0.0-beta-4-prerelease-20210517 etc
 Also provide the docker image id 
 -->
 Docker version: 
