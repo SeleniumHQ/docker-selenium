@@ -30,13 +30,13 @@ if [[ -z "${SE_SESSIONS_MAP_PORT}" ]]; then
   exit 1
 fi
 
-if [[ -z "${SE_SESSION_QUEUER_HOST}" ]]; then
-  echo "SE_SESSION_QUEUER_HOST not set, exiting!" 1>&2
+if [[ -z "${SE_SESSION_QUEUE_HOST}" ]]; then
+  echo "SE_SESSION_QUEUE_HOST not set, exiting!" 1>&2
   exit 1
 fi
 
-if [[ -z "${SE_SESSION_QUEUER_PORT}" ]]; then
-  echo "SE_SESSION_QUEUER_PORT not set, exiting!" 1>&2
+if [[ -z "${SE_SESSION_QUEUE_PORT}" ]]; then
+  echo "SE_SESSION_QUEUE_PORT not set, exiting!" 1>&2
   exit 1
 fi
 
@@ -57,7 +57,7 @@ fi
 
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar distributor \
   --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port "${SE_SESSIONS_MAP_PORT}" \
-  --sessionqueuer-host "${SE_SESSION_QUEUER_HOST}" --sessionqueuer-port "${SE_SESSION_QUEUER_PORT}" \
+  --sessionqueue-host "${SE_SESSION_QUEUE_HOST}" --sessionqueue-port "${SE_SESSION_QUEUE_PORT}" \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_PUBLISH_PORT}" \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_SUBSCRIBE_PORT}" \
   --bind-bus false \

@@ -1,0 +1,12 @@
+USER 1200
+
+#========================
+# Selenium SessionQueue Configuration
+#========================
+
+EXPOSE 5559
+
+COPY start-selenium-grid-session-queue.sh \
+    /opt/bin/
+
+COPY selenium-grid-session-queue.conf /etc/supervisor/conf.d/

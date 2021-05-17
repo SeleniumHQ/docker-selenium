@@ -8,12 +8,12 @@ LABEL authors=SeleniumHQ
 USER 1200
 
 #========================
-# Selenium SessionQueuer Configuration
+# Selenium SessionQueue Configuration
 #========================
 
 EXPOSE 5559
 
-COPY start-selenium-grid-session-queuer.sh \
+COPY start-selenium-grid-session-queue.sh \
     /opt/bin/
 
-COPY selenium-grid-session-queuer.conf /etc/supervisor/conf.d/
+COPY selenium-grid-session-queue.conf /etc/supervisor/conf.d/

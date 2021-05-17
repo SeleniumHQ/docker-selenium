@@ -16,7 +16,7 @@ all: hub \
 	distributor \
 	router \
 	sessions \
-	sessionqueuer \
+	sessionqueue \
 	event_bus \
 	chrome \
 	edge \
@@ -33,7 +33,7 @@ generate_all:	\
 	generate_distributor \
 	generate_router \
 	generate_sessions \
-	generate_sessionqueuer \
+	generate_sessionqueue \
 	generate_event_bus \
 	generate_node_base \
 	generate_chrome \
@@ -76,11 +76,11 @@ generate_sessions:
 sessions: base generate_sessions
 	cd ./Sessions && docker build $(BUILD_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
 
-generate_sessionqueuer:
-	cd ./SessionQueuer && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+generate_sessionqueue:
+	cd ./SessionQueue && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-sessionqueuer: base generate_sessionqueuer
-	cd ./SessionQueuer && docker build $(BUILD_ARGS) -t $(NAME)/session-queuer:$(TAG_VERSION) .
+sessionqueue: base generate_sessionqueue
+	cd ./SessionQueue && docker build $(BUILD_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 generate_event_bus:
 	cd ./EventBus && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
@@ -165,7 +165,7 @@ tag_latest:
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:latest
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:latest
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:latest
-	docker tag $(NAME)/session-queuer:$(TAG_VERSION) $(NAME)/session-queuer:latest
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
@@ -183,7 +183,7 @@ release_latest:
 	docker push $(NAME)/distributor:latest
 	docker push $(NAME)/router:latest
 	docker push $(NAME)/sessions:latest
-	docker push $(NAME)/session-queuer:latest
+	docker push $(NAME)/session-queue:latest
 	docker push $(NAME)/event-bus:latest
 	docker push $(NAME)/node-base:latest
 	docker push $(NAME)/node-chrome:latest
@@ -201,7 +201,7 @@ tag_major_minor:
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR)
-	docker tag $(NAME)/session-queuer:$(TAG_VERSION) $(NAME)/session-queuer:$(MAJOR)
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:$(MAJOR)
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:$(MAJOR)
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR)
@@ -217,7 +217,7 @@ tag_major_minor:
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR).$(MINOR)
-	docker tag $(NAME)/session-queuer:$(TAG_VERSION) $(NAME)/session-queuer:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR).$(MINOR)
@@ -233,7 +233,7 @@ tag_major_minor:
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
-	docker tag $(NAME)/session-queuer:$(TAG_VERSION) $(NAME)/session-queuer:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
@@ -251,7 +251,7 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/router | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/router version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/sessions | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/sessions version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/session-queuer | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/session-queuer version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/session-queue | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/session-queue version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/event-bus | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/event-bus version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -267,7 +267,7 @@ release: tag_major_minor
 	docker push $(NAME)/distributor:$(TAG_VERSION)
 	docker push $(NAME)/router:$(TAG_VERSION)
 	docker push $(NAME)/sessions:$(TAG_VERSION)
-	docker push $(NAME)/session-queuer:$(TAG_VERSION)
+	docker push $(NAME)/session-queue:$(TAG_VERSION)
 	docker push $(NAME)/event-bus:$(TAG_VERSION)
 	docker push $(NAME)/node-base:$(TAG_VERSION)
 	docker push $(NAME)/node-chrome:$(TAG_VERSION)
@@ -283,7 +283,7 @@ release: tag_major_minor
 	docker push $(NAME)/distributor:$(MAJOR)
 	docker push $(NAME)/router:$(MAJOR)
 	docker push $(NAME)/sessions:$(MAJOR)
-	docker push $(NAME)/session-queuer:$(MAJOR)
+	docker push $(NAME)/session-queue:$(MAJOR)
 	docker push $(NAME)/event-bus:$(MAJOR)
 	docker push $(NAME)/node-base:$(MAJOR)
 	docker push $(NAME)/node-chrome:$(MAJOR)
@@ -299,7 +299,7 @@ release: tag_major_minor
 	docker push $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker push $(NAME)/router:$(MAJOR).$(MINOR)
 	docker push $(NAME)/sessions:$(MAJOR).$(MINOR)
-	docker push $(NAME)/session-queuer:$(MAJOR).$(MINOR)
+	docker push $(NAME)/session-queue:$(MAJOR).$(MINOR)
 	docker push $(NAME)/event-bus:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome:$(MAJOR).$(MINOR)
@@ -315,7 +315,7 @@ release: tag_major_minor
 	docker push $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/router:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
-	docker push $(NAME)/session-queuer:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/session-queue:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/event-bus:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
@@ -397,7 +397,7 @@ test_video: video hub chrome firefox edge
 	generate_distributor \
 	generate_router \
 	generate_sessions \
-	generate_sessionqueuer \
+	generate_sessionqueue \
 	generate_event_bus \
 	generate_node_base \
 	generate_chrome \
@@ -412,7 +412,7 @@ test_video: video hub chrome firefox edge
 	distributor \
 	router \
 	sessions \
-	sessionqueuer \
+	sessionqueue \
 	event_bus \
 	node_base \
 	release \
