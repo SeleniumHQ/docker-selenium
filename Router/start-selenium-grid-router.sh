@@ -25,13 +25,13 @@ if [[ -z "${SE_DISTRIBUTOR_PORT}" ]]; then
   exit 1
 fi
 
-if [[ -z "${SE_SESSION_QUEUER_HOST}" ]]; then
-  echo "SE_SESSION_QUEUER_HOST not set, exiting!" 1>&2
+if [[ -z "${SE_SESSION_QUEUE_HOST}" ]]; then
+  echo "SE_SESSION_QUEUE_HOST not set, exiting!" 1>&2
   exit 1
 fi
 
-if [[ -z "${SE_SESSION_QUEUER_PORT}" ]]; then
-  echo "SE_SESSION_QUEUER_PORT not set, exiting!" 1>&2
+if [[ -z "${SE_SESSION_QUEUE_PORT}" ]]; then
+  echo "SE_SESSION_QUEUE_PORT not set, exiting!" 1>&2
   exit 1
 fi
 
@@ -52,7 +52,7 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar router \
   --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port "${SE_SESSIONS_MAP_PORT}" \
   --distributor-host "${SE_DISTRIBUTOR_HOST}" --distributor-port "${SE_DISTRIBUTOR_PORT}" \
-  --sessionqueuer-host "${SE_SESSION_QUEUER_HOST}" --sessionqueuer-port "${SE_SESSION_QUEUER_PORT}" \
+  --sessionqueue-host "${SE_SESSION_QUEUE_HOST}" --sessionqueue-port "${SE_SESSION_QUEUE_PORT}" \
   --relax-checks true \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
