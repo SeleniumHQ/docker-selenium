@@ -243,7 +243,7 @@ You can save this file locally and name it, for example, `config.toml`.
 configs = [
     "selenium/standalone-firefox:4.0.0-beta-4-prerelease-20210513", "{\"browserName\": \"firefox\"}",
     "selenium/standalone-chrome:4.0.0-beta-4-prerelease-20210513", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-edge:4.0.0-beta-4-prerelease-20210513", "{\"browserName\": \"msedge\"}"
+    "selenium/standalone-edge:4.0.0-beta-4-prerelease-20210513", "{\"browserName\": \"MicrosoftEdge\"}"
     ]
 
 # URL for connecting to the docker daemon
