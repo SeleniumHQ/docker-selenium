@@ -6,36 +6,11 @@ function short_version() {
     echo "${__version_split[0]}.${__version_split[1]}"
 }
 
-echo "[events]
-publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
-subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
+echo "[network]
+relax-checks = ${SE_RELAX_CHECKS}
 " > /opt/selenium/config.toml
 
-if [[ -z "${SE_NODE_HOST}" ]] && [[ -z "${SE_NODE_PORT}" ]]; then
-  echo "Configuring server..."
-else
-  echo "[server]" >> /opt/selenium/config.toml
-fi
-
-if [[ -z "${SE_NODE_HOST}" ]]; then
-  echo "Setting up SE_NODE_HOST..."
-else
-  echo "host = \"${SE_NODE_HOST}\"" >> /opt/selenium/config.toml
-fi
-
-if [[ -z "${SE_NODE_PORT}" ]]; then
-  echo "Setting up SE_NODE_PORT..."
-else
-  echo "port = \"${SE_NODE_PORT}\"" >> /opt/selenium/config.toml
-fi
-
 echo "[node]" >> /opt/selenium/config.toml
-# String, Url where the Grid can be reached
-if [[ -z "${SE_NODE_GRID_URL}" ]]; then
-  echo "Setting up SE_NODE_GRID_URL..."
-else
-  echo "grid-url = \"${SE_NODE_GRID_URL}\"" >> /opt/selenium/config.toml
-fi
 echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >> /opt/selenium/config.toml
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >> /opt/selenium/config.toml
 echo "detect-drivers = false" >> /opt/selenium/config.toml

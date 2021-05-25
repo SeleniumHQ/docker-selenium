@@ -175,8 +175,4 @@ RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config
 
-# Generating a default config during build time
-RUN /opt/bin/generate_config
-
-
 EXPOSE 5900

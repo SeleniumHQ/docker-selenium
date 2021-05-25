@@ -33,9 +33,9 @@ fi
 
 /opt/bin/generate_config
 
-echo "Starting Selenium Grid Node with configuration: "
+echo "Selenium Grid Node configuration: "
 cat /opt/selenium/config.toml
-
+echo "Starting Selenium Grid Node..."
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
   --config /opt/selenium/config.toml \
   ${SE_OPTS}
