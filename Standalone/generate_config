@@ -18,7 +18,13 @@ echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> /opt/selenium/config.toml
 
 SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
-SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
+if [[ "${SE_NODE_BROWSER_NAME}" == "chrome" ]]; then
+    SE_NODE_BROWSER_VERSION=$(short_version $(google-chrome --version | awk '{print $3}'))
+elif [[ "${SE_NODE_BROWSER_NAME}" == "firefox" ]]; then
+    SE_NODE_BROWSER_VERSION=$(short_version $(firefox --version | awk '{print $3}'))
+elif [[ "${SE_NODE_BROWSER_NAME}" == "MicrosoftEdge" ]]; then
+    SE_NODE_BROWSER_VERSION=$(short_version $(microsoft-edge --version | awk '{print $3}'))
+fi
 
 SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\"}"
 echo "[[node.driver-configuration]]" >> /opt/selenium/config.toml

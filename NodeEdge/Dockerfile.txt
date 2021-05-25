@@ -45,5 +45,4 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
 #============================================
 # Dumping Browser name and version for config
 #============================================
-RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "MicrosoftEdge" > /opt/selenium/browser_name

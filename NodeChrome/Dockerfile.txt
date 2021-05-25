@@ -51,5 +51,4 @@ RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
 #============================================
 # Dumping Browser name and version for config
 #============================================
-RUN google-chrome --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "chrome" > /opt/selenium/browser_name

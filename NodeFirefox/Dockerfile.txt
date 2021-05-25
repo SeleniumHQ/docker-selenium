@@ -35,5 +35,4 @@ USER 1200
 #============================================
 # Dumping Browser name and version for config
 #============================================
-RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "firefox" > /opt/selenium/browser_name
