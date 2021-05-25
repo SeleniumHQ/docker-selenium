@@ -576,7 +576,8 @@ inside the container. Users can connect to this server in two ways:
 The VNC server is listening to port 5900, you can use a VNC client and connect to it. Feel free to map port 5900 to 
 any free external port that you wish.
 
-The internal 5900 port remains the same because that is the configured port for the VNC server running inside the container.
+The internal 5900 port remains the same because that is the configured port for the VNC server running inside the container. 
+You can override it with the `VNC_PORT` environment variable in case you want to use `--net=host`.
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
