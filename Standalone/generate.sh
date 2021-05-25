@@ -16,3 +16,4 @@ cat ./Dockerfile.txt >> ${FOLDER}/Dockerfile
 
 cp ./start-selenium-standalone.sh ${FOLDER}
 cp ./selenium.conf ${FOLDER}
+cp ./generate_config ${FOLDER}

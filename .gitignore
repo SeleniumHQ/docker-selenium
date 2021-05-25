@@ -14,10 +14,13 @@ assets
 # Ignoring generated files during the build process
 StandaloneC*/selenium.conf
 StandaloneF*/selenium.conf
-StandaloneO*/selenium.conf
+StandaloneE*/selenium.conf
 StandaloneC*/start-*.sh
 StandaloneF*/start-*.sh
-StandaloneO*/start-*.sh
+StandaloneE*/start-*.sh
+StandaloneC*/generate_config
+StandaloneF*/generate_config
+StandaloneE*/generate_config
 videos
 
 # Created by https://www.gitignore.io/api/virtualenv

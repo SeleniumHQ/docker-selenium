@@ -1,0 +1,31 @@
+#!/bin/bash
+
+function short_version() {
+    local __long_version=$1
+    local __version_split=( ${__long_version//./ } )
+    echo "${__version_split[0]}.${__version_split[1]}"
+}
+
+echo "[network]
+relax-checks = ${SE_RELAX_CHECKS}
+" > /opt/selenium/config.toml
+
+echo "[node]" >> /opt/selenium/config.toml
+echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >> /opt/selenium/config.toml
+echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >> /opt/selenium/config.toml
+echo "detect-drivers = false" >> /opt/selenium/config.toml
+echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
+" >> /opt/selenium/config.toml
+
+SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
+SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
+
+SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\"}"
+echo "[[node.driver-configuration]]" >> /opt/selenium/config.toml
+echo "name = \"${SE_NODE_BROWSER_NAME}\"" >> /opt/selenium/config.toml
+echo "stereotype = '${SE_NODE_STEREOTYPE}'" >> /opt/selenium/config.toml
+echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
+" >> /opt/selenium/config.toml
+
+
+
