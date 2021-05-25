@@ -38,3 +38,8 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
 USER 1200
+
+#============================================
+# Dumping Browser name and version for config
+#============================================
+RUN echo "firefox" > /opt/selenium/browser_name

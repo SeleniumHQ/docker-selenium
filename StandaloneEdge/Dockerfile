@@ -17,6 +17,12 @@ COPY start-selenium-standalone.sh /opt/bin/start-selenium-standalone.sh
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
 
+# Copying configuration script generator
+COPY generate_config /opt/bin/generate_config
+
+# Generating a default config during build time
+RUN /opt/bin/generate_config
+
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
 
