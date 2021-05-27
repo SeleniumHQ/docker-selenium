@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-chrome:4.0.0-beta-4-prerelease-20210517
+FROM selenium/node-chrome:4.0.0-beta-4-prerelease-20210527
 LABEL authors=SeleniumHQ
 
 USER 1200
@@ -20,12 +20,8 @@ COPY selenium.conf /etc/supervisor/conf.d/
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config
 
-# Generating a default config during build time
-RUN /opt/bin/generate_config
-
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
-
 
 EXPOSE 4444
 

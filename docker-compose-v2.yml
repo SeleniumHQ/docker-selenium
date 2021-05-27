@@ -4,7 +4,7 @@
 version: '2'
 services:
   chrome:
-    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -17,7 +17,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -30,7 +30,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -43,7 +43,7 @@ services:
       - "6902:5900"
 
   selenium-hub:
-    image: selenium/hub:4.0.0-beta-4-prerelease-20210517
+    image: selenium/hub:4.0.0-beta-4-prerelease-20210527
     ports:
       - "4442:4442"
       - "4443:4443"

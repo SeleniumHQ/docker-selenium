@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.0.0-beta-4-prerelease-20210517
+    image: selenium/event-bus:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-event-bus
@@ -14,7 +14,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.0.0-beta-4-prerelease-20210517
+    image: selenium/sessions:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-sessions
@@ -28,7 +28,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-session-queue:
-    image: selenium/session-queue:4.0.0-beta-4-prerelease-20210517
+    image: selenium/session-queue:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-session-queue
@@ -42,7 +42,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-distributor:
-    image: selenium/distributor:4.0.0-beta-4-prerelease-20210517
+    image: selenium/distributor:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-distributor
@@ -62,7 +62,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   selenium-router:
-    image: selenium/router:4.0.0-beta-4-prerelease-20210517
+    image: selenium/router:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-router
@@ -81,7 +81,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
-    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - /dev/shm:/dev/shm
@@ -95,7 +95,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - /dev/shm:/dev/shm
@@ -109,7 +109,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210527
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - /dev/shm:/dev/shm

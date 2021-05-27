@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.0.0-beta-4-prerelease-20210517
+    image: selenium/event-bus:4.0.0-beta-4-prerelease-20210527
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -12,7 +12,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.0.0-beta-4-prerelease-20210517
+    image: selenium/sessions:4.0.0-beta-4-prerelease-20210527
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -24,7 +24,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-session-queue:
-    image: selenium/session-queue:4.0.0-beta-4-prerelease-20210517
+    image: selenium/session-queue:4.0.0-beta-4-prerelease-20210527
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
@@ -36,7 +36,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-distributor:
-    image: selenium/distributor:4.0.0-beta-4-prerelease-20210517
+    image: selenium/distributor:4.0.0-beta-4-prerelease-20210527
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -54,7 +54,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   selenium-router:
-    image: selenium/router:4.0.0-beta-4-prerelease-20210517
+    image: selenium/router:4.0.0-beta-4-prerelease-20210527
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -71,7 +71,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
-    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-chrome:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -84,7 +84,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-edge:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -97,7 +97,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210517
+    image: selenium/node-firefox:4.0.0-beta-4-prerelease-20210527
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
