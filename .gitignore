@@ -10,6 +10,7 @@ node_modules/
 selenium_server_deploy.jar
 # assets directory
 assets
+.vscode
 
 # Ignoring generated files during the build process
 StandaloneC*/selenium.conf
