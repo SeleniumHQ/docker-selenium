@@ -31,3 +31,5 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor /videos
 
 ENTRYPOINT ["/opt/bin/entry_point.sh"]
 CMD ["/opt/bin/entry_point.sh"]
+
+EXPOSE 9000
