@@ -8,8 +8,7 @@ version: '3.7'
 services:
   chrome:
     image: selenium/node-chrome:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -20,8 +19,7 @@ services:
 
   edge:
     image: selenium/node-edge:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -32,8 +30,7 @@ services:
 
   firefox:
     image: selenium/node-firefox:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442

@@ -5,8 +5,7 @@ version: "3"
 services:
   browser:
     image: selenium/node-${BROWSER}:${TAG:-test-video}
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     depends_on:
       - selenium-hub
     environment:

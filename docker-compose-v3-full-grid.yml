@@ -72,8 +72,7 @@ services:
 
   chrome:
     image: selenium/node-chrome:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     depends_on:
       - selenium-event-bus
     environment:
@@ -85,8 +84,7 @@ services:
 
   edge:
     image: selenium/node-edge:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     depends_on:
       - selenium-event-bus
     environment:
@@ -98,8 +96,7 @@ services:
 
   firefox:
     image: selenium/node-firefox:4.0.0-rc-1-prerelease-20210618
-    volumes:
-      - /dev/shm:/dev/shm
+    shm_size: 2gb
     depends_on:
       - selenium-event-bus
     environment:

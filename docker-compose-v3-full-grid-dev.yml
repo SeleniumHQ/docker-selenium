@@ -82,9 +82,9 @@ services:
 
   chrome:
     image: selenium/node-chrome:4.0.0-rc-1-prerelease-20210618
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
@@ -96,9 +96,9 @@ services:
 
   edge:
     image: selenium/node-edge:4.0.0-rc-1-prerelease-20210618
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
@@ -110,9 +110,9 @@ services:
 
   firefox:
     image: selenium/node-firefox:4.0.0-rc-1-prerelease-20210618
+    shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - /dev/shm:/dev/shm
     depends_on:
       - selenium-event-bus
     environment:
