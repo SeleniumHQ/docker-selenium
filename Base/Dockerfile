@@ -78,6 +78,11 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
+#=========================================================================================================================================
+# Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
+#=========================================================================================================================================
+RUN chmod +x /dev/shm
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
