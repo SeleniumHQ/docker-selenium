@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM tester/base:4.0.0-beta-3-20210715
+FROM selenium/base:4.0.0-rc-1-prerelease-20210713
 LABEL authors=SeleniumHQ
 
 USER root
