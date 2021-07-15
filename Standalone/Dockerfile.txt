@@ -1,5 +1,7 @@
 USER 1200
 
+RUN sudo chmod +x /dev/shm
+
 #====================================
 # Scripts to run Selenium Standalone
 #====================================
