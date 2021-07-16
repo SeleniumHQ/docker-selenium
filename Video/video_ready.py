@@ -3,7 +3,7 @@ from os import environ
 import json
 import psutil
 
-video_ready_port = environ.get('VIDEO_READY_PORT', 9000)
+video_ready_port = int(environ.get('VIDEO_READY_PORT', 9000))
 
 class Handler(BaseHTTPRequestHandler):
 
