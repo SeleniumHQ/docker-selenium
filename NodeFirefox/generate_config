@@ -31,6 +31,6 @@ cat <<_EOF
   "unregisterIfStillDownAfter": $NODE_UNREGISTER_IF_STILL_DOWN_AFTER,
   "downPollingLimit": $NODE_DOWN_POLLING_LIMIT,
   "debug": $GRID_DEBUG,
-  "custom" : $NODE_CUSTOM
+  "custom": $NODE_CUSTOM
 }
 _EOF
