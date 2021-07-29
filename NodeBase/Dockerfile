@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:3.141.59-20210713
+FROM selenium/base:3.141.59-20210729
 LABEL authors=SeleniumHQ
 
 USER root
@@ -121,6 +121,8 @@ ENV NODE_UNREGISTER_IF_STILL_DOWN_AFTER 60000
 ENV NODE_DOWN_POLLING_LIMIT 2
 # As string, maps to "applicationName"
 ENV NODE_APPLICATION_NAME ""
+# As string, maps to "custom"
+ENV NODE_CUSTOM {}
 # Debug
 ENV GRID_DEBUG false
 
