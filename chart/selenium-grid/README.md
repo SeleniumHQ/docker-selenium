@@ -39,8 +39,8 @@ For now, global configuration supported is:
 
 | Parameter                           | Default                            | Description                           |
 | ----------------------------------- | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`      | `4.0.0-beta-1-prerelease-20210114` | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag` | `4.0.0-beta-1-prerelease-20210114` | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`      | `4.0.0-rc-1-prerelease-20210804` | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag` | `4.0.0-rc-1-prerelease-20210804` | Image tag for browser's nodes         |
 
 This table contains the configuration parameters of the chart and their default values:
 
@@ -52,7 +52,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.0.0-beta-1-prerelease-20210114` | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                   | `4.0.0-rc-1-prerelease-20210804` | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -67,7 +67,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.0.0-beta-1-prerelease-20210114` | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                  | `4.0.0-rc-1-prerelease-20210804` | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -82,7 +82,7 @@ This table contains the configuration parameters of the chart and their default 
 | `operaNode.enabled`                     | `true`                             | Enable opera nodes                                                                                                         |
 | `operaNode.replicas`                    | `1`                                | Number of opera nodes                                                                                                      |
 | `operaNode.imageName`                   | `selenium/node-opera`              | Image of opera nodes                                                                                                       |
-| `operaNode.imageTag`                    | `4.0.0-beta-1-prerelease-20210114` | Image of opera nodes                                                                                                       |
+| `operaNode.imageTag`                    | `4.0.0-rc-1-prerelease-20210804` | Image of opera nodes                                                                                                       |
 | `operaNode.imagePullPolicy`             | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `operaNode.ports`                       | `[5553]`                           | Port list to enable on container                                                                                           |
 | `operaNode.seleniumPort`                | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
