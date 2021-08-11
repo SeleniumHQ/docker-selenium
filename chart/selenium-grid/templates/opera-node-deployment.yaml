@@ -49,6 +49,9 @@ spec:
         {{- with .Values.operaNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- with .Values.operaNode.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
     {{- with .Values.operaNode.tolerations }}
       tolerations:
         {{ toYaml . | nindent 6 }}

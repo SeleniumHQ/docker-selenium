@@ -57,6 +57,8 @@ components:
     serviceAnnotations: {}
     # Tolerations for router container
     tolerations: {}
+    # Node selector for router container
+    nodeSelector: {}
 
   # Configuration for distributor component
   distributor:
@@ -79,6 +81,8 @@ components:
     serviceAnnotations: {}
     # Tolerations for Distributor container
     tolerations: {}
+    # Node selector for Distributor container
+    nodeSelector: {}
 
   # Configuration for Event Bus component
   eventBus:
@@ -105,6 +109,8 @@ components:
     serviceAnnotations: {}
     # Tolerations for Event Bus container
     tolerations: {}
+    # Node selector for Event Bus container
+    nodeSelector: {}
 
   # Configuration for Session Map component
   sessionMap:
@@ -126,6 +132,8 @@ components:
     serviceAnnotations: {}
     # Tolerations for Session Map container
     tolerations: {}
+    # Node selector for Session Map container
+    nodeSelector: {}
 
   # Configuration for Session Queuer component
   sessionQueuer:
@@ -147,6 +155,8 @@ components:
     serviceAnnotations: {}
     # Tolerations for Session Queuer container
     tolerations: {}
+    # Node selector for Session Queuer container
+    nodeSelector: {}
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -209,6 +219,8 @@ hub:
   serviceAnnotations: {}
   # Tolerations for selenium-hub container
   tolerations: {}
+  # Node selector for selenium-hub container
+  nodeSelector: {}
 
 # Configuration for chrome nodes
 chromeNode:
@@ -241,6 +253,8 @@ chromeNode:
       cpu: "1"
   # Tolerations for chrome-node container
   tolerations: {}
+  # Node selector for chrome-node container
+  nodeSelector: {}
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
     # - name: JAVA_OPTS
@@ -284,6 +298,8 @@ firefoxNode:
   annotations: {}
   # Tolerations for firefox-node container
   tolerations: {}
+  # Node selector for firefox-node container
+  nodeSelector: {}
   # Resources for firefox-node container
   resources:
     requests:
@@ -334,6 +350,8 @@ operaNode:
   annotations: {}
   # Tolerations for opera-node container
   tolerations: {}
+  # Node selector for opera-node container
+  nodeSelector: {}
   # Resources for opera-node container
   resources:
     requests:
