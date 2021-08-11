@@ -41,4 +41,8 @@ spec:
         {{- with .Values.components.eventBus.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- with .Values.components.eventBus.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}

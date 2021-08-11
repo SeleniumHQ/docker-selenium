@@ -49,4 +49,8 @@ spec:
         {{- with .Values.components.distributor.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- with .Values.components.distributor.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}

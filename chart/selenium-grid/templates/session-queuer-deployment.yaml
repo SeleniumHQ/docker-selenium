@@ -40,4 +40,8 @@ spec:
         {{- with .Values.components.sessionQueuer.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- with .Values.components.sessionQueuer.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}

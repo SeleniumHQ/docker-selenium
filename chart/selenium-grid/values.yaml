@@ -55,6 +55,8 @@ components:
     serviceType: NodePort
     # Custom annotations for router service
     serviceAnnotations: {}
+    # Tolerations for router container
+    tolerations: {}
 
   # Configuration for distributor component
   distributor:
@@ -75,6 +77,8 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Distributor service
     serviceAnnotations: {}
+    # Tolerations for Distributor container
+    tolerations: {}
 
   # Configuration for Event Bus component
   eventBus:
@@ -99,6 +103,8 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Event Bus service
     serviceAnnotations: {}
+    # Tolerations for Event Bus container
+    tolerations: {}
 
   # Configuration for Session Map component
   sessionMap:
@@ -112,12 +118,14 @@ components:
     # Custom annotations for Session Map pod
     annotations: {}
     port: 5556
-    # Resources for event-bus container
+    # Resources for Session Map container
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Map service
     serviceAnnotations: {}
+    # Tolerations for Session Map container
+    tolerations: {}
 
   # Configuration for Session Queuer component
   sessionQueuer:
@@ -131,12 +139,14 @@ components:
     # Custom annotations for Session Queuer pod
     annotations: {}
     port: 5559
-    # Resources for event-bus container
+    # Resources for Session Queuer container
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Queuer service
     serviceAnnotations: {}
+    # Tolerations for Session Queuer container
+    tolerations: {}
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -197,6 +207,8 @@ hub:
   serviceType: NodePort
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
+  # Tolerations for selenium-hub container
+  tolerations: {}
 
 # Configuration for chrome nodes
 chromeNode:
@@ -227,6 +239,8 @@ chromeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # Tolerations for chrome-node container
+  tolerations: {}
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
     # - name: JAVA_OPTS
@@ -268,6 +282,8 @@ firefoxNode:
   seleniumServicePort: 6900
   # Annotations for firefox-node pods
   annotations: {}
+  # Tolerations for firefox-node container
+  tolerations: {}
   # Resources for firefox-node container
   resources:
     requests:
@@ -316,6 +332,8 @@ operaNode:
   seleniumServicePort: 6900
   # Annotations for opera-node pods
   annotations: {}
+  # Tolerations for opera-node container
+  tolerations: {}
   # Resources for opera-node container
   resources:
     requests:

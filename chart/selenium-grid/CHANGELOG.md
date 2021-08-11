@@ -4,6 +4,9 @@ All notable changes to this helm chart will be documented in this file.
 
 ## :heavy_check_mark: 0.3.0
 
+### Added
+- Support for `tolerations`.
+
 ### Changed
 - Update image tag to 4.0.0-rc-1-prerelease-20210804
 

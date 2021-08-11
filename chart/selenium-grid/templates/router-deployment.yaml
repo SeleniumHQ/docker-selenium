@@ -72,4 +72,8 @@ spec:
         {{- with .Values.components.router.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- with .Values.components.router.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
 {{- end }}
