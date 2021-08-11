@@ -79,21 +79,6 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `operaNode.enabled`                     | `true`                             | Enable opera nodes                                                                                                         |
-| `operaNode.replicas`                    | `1`                                | Number of opera nodes                                                                                                      |
-| `operaNode.imageName`                   | `selenium/node-opera`              | Image of opera nodes                                                                                                       |
-| `operaNode.imageTag`                    | `4.0.0-rc-1-prerelease-20210804` | Image of opera nodes                                                                                                       |
-| `operaNode.imagePullPolicy`             | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `operaNode.ports`                       | `[5553]`                           | Port list to enable on container                                                                                           |
-| `operaNode.seleniumPort`                | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `operaNode.seleniumServicePort`         | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `operaNode.annotations`                 | `{}`                               | Annotations for opera-node pods                                                                                            |
-| `operaNode.resources`                   | `See values.yaml`                  | Resources for opera-node container                                                                                         |
-| `operaNode.extraEnvironmentVariables`   | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `operaNode.service.enabled`             | `true`                             | Create a service for node                                                                                                  |
-| `operaNode.service.type`                | `ClusterIP`                        | Service type                                                                                                               |
-| `operaNode.service.annotations`         | `{}`                               | Custom annotations for service                                                                                             |
-| `operaNode.dshmVolumeSizeLimit`         | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 

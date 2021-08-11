@@ -11,6 +11,9 @@ All notable changes to this helm chart will be documented in this file.
 ### Changed
 - Update image tag to 4.0.0-rc-1-prerelease-20210804
 
+### Removed
+- Opera nodes
+
 ## :heavy_check_mark: 0.2.0
 
 ### Added

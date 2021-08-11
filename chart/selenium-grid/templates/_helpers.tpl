@@ -64,10 +64,3 @@ Firefox node fullname
 {{- define "seleniumGrid.firefoxNode.fullname" -}}
 {{- default "selenium-firefox-node" .Values.firefoxNode.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-
-{{/*
-Opera node fullname
-*/}}
-{{- define "seleniumGrid.operaNode.fullname" -}}
-{{- default "selenium-opera-node" .Values.operaNode.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
