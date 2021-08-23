@@ -1,0 +1,23 @@
+{{- if and .Values.edgeNode.enabled .Values.edgeNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: selenium-edge-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.edgeNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.edgeNode.service.type }}
+  selector:
+    app: selenium-edge-node
+  ports:
+    - name: tcp-edge
+      protocol: TCP
+      port: {{ .Values.edgeNode.seleniumServicePort }}
+      targetPort: {{ .Values.edgeNode.seleniumPort }}
+{{- end }}

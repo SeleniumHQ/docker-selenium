@@ -52,7 +52,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.0.0-rc-1-prerelease-20210804` | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                   | `4.0.0-rc-1-prerelease-20210804`   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -67,7 +67,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.0.0-rc-1-prerelease-20210804` | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                  | `4.0.0-rc-1-prerelease-20210804`   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -79,6 +79,21 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                         |
+| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                      |
+| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                       |
+| `edgeNode.imageTag`                     | `4.0.0-rc-1-prerelease-20210804`   | Image of edge nodes                                                                                                       |
+| `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
+| `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
+| `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                            |
+| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node container                                                                                         |
+| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
+| `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
+| `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
+| `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 

@@ -328,5 +328,58 @@ firefoxNode:
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
 
+# Configuration for edge nodes
+edgeNode:
+  # Enable edge nodes
+  enabled: true
+  # Number of edge nodes
+  replicas: 1
+  # Image of edge nodes
+  imageName: selenium/node-edge
+  # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
+  # imageTag: 4.0.0-rc-1-prerelease-20210804
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  ports:
+    - 5553
+  # Selenium port (spec.ports[0].targetPort in kubernetes service)
+  seleniumPort: 5900
+  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
+  seleniumServicePort: 6900
+  # Annotations for edge-node pods
+  annotations: {}
+  # Tolerations for edge-node container
+  tolerations: []
+  # Node selector for edge-node container
+  nodeSelector: {}
+  # Resources for edge-node container
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  # Custom environment variables for firefox nodes
+  extraEnvironmentVariables:
+    # - name: JAVA_OPTS
+    #   value: "-Xmx512m"
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+  # Service configuration
+  service:
+    # Create a service for node
+    enabled: true
+    # Service type
+    type: ClusterIP
+    # Custom annotations for service
+    annotations:
+      hello: world
+  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
+  dshmVolumeSizeLimit: 1Gi
+
 # Custom labels for k8s resources
 customLabels: {}
