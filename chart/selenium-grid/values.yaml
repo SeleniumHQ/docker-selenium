@@ -56,7 +56,7 @@ components:
     # Custom annotations for router service
     serviceAnnotations: {}
     # Tolerations for router container
-    tolerations: {}
+    tolerations: []
     # Node selector for router container
     nodeSelector: {}
 
@@ -80,7 +80,7 @@ components:
     # Custom annotations for Distributor service
     serviceAnnotations: {}
     # Tolerations for Distributor container
-    tolerations: {}
+    tolerations: []
     # Node selector for Distributor container
     nodeSelector: {}
 
@@ -108,7 +108,7 @@ components:
     # Custom annotations for Event Bus service
     serviceAnnotations: {}
     # Tolerations for Event Bus container
-    tolerations: {}
+    tolerations: []
     # Node selector for Event Bus container
     nodeSelector: {}
 
@@ -131,7 +131,7 @@ components:
     # Custom annotations for Session Map service
     serviceAnnotations: {}
     # Tolerations for Session Map container
-    tolerations: {}
+    tolerations: []
     # Node selector for Session Map container
     nodeSelector: {}
 
@@ -154,7 +154,7 @@ components:
     # Custom annotations for Session Queuer service
     serviceAnnotations: {}
     # Tolerations for Session Queuer container
-    tolerations: {}
+    tolerations: []
     # Node selector for Session Queuer container
     nodeSelector: {}
 
@@ -218,7 +218,7 @@ hub:
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
   # Tolerations for selenium-hub container
-  tolerations: {}
+  tolerations: []
   # Node selector for selenium-hub container
   nodeSelector: {}
 
@@ -252,7 +252,7 @@ chromeNode:
       memory: "1Gi"
       cpu: "1"
   # Tolerations for chrome-node container
-  tolerations: {}
+  tolerations: []
   # Node selector for chrome-node container
   nodeSelector: {}
   # Custom environment variables for chrome nodes
@@ -297,7 +297,7 @@ firefoxNode:
   # Annotations for firefox-node pods
   annotations: {}
   # Tolerations for firefox-node container
-  tolerations: {}
+  tolerations: []
   # Node selector for firefox-node container
   nodeSelector: {}
   # Resources for firefox-node container
