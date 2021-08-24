@@ -8,6 +8,7 @@ All notable changes to this helm chart will be documented in this file.
 - Support for Edge nodes.
 - Support for `nodeSelector`.
 - Support for `tolerations`.
+- Allow to add additional labels to the hub, edge, firefox and chrome nodes.
 
 ### Changed
 - Update image tag to 4.0.0-rc-1-prerelease-20210804

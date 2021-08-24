@@ -178,6 +178,8 @@ hub:
   imagePullPolicy: IfNotPresent
   # Custom annotations for Selenium Hub pod
   annotations: {}
+  # Custom labels for Selenium Hub pod
+  labels: {}
   # Port where events are published
   publishPort: 4442
   # Port where to subscribe for events
@@ -243,6 +245,8 @@ chromeNode:
   seleniumServicePort: 6900
   # Annotations for chrome-node pods
   annotations: {}
+  # Labels for chrome-node pods
+  labels: {}
   # Resources for chrome-node container
   resources:
     requests:
@@ -296,6 +300,8 @@ firefoxNode:
   seleniumServicePort: 6900
   # Annotations for firefox-node pods
   annotations: {}
+  # Labels for firefox-node pods
+  labels: {}
   # Tolerations for firefox-node container
   tolerations: []
   # Node selector for firefox-node container
@@ -348,6 +354,8 @@ edgeNode:
   seleniumServicePort: 6900
   # Annotations for edge-node pods
   annotations: {}
+  # Labels for edge-node pods
+  labels: {}
   # Tolerations for edge-node container
   tolerations: []
   # Node selector for edge-node container

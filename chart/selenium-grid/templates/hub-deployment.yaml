@@ -8,6 +8,9 @@ metadata:
     app: selenium-hub
     app.kubernetes.io/name: selenium-hub
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.hub.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}

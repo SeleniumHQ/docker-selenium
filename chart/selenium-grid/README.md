@@ -58,7 +58,10 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
+| `chromeNode.labels`                     | `{}`                               | Labels for chrome-node pods                                                                                                |
 | `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node container                                                                                        |
+| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node container                                                                                      |
+| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node container                                                                                    |
 | `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
 | `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
 | `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
@@ -73,22 +76,28 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
+| `firefoxNode.labels`                    | `{}`                               | Labels for firefox-node pods                                                                                               |
 | `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node container                                                                                       |
+| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node container                                                                                     |
+| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node container                                                                                   |
 | `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
 | `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                         |
-| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                      |
-| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                       |
-| `edgeNode.imageTag`                     | `4.0.0-rc-1-prerelease-20210804`   | Image of edge nodes                                                                                                       |
+| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
+| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
+| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                     | `4.0.0-rc-1-prerelease-20210804`   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
 | `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                            |
-| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node container                                                                                         |
+| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
+| `edgeNode.labels`                       | `{}`                               | Labels for edge-node pods                                                                                                  |
+| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node container                                                                                          |
+| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node container                                                                                        |
+| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node container                                                                                      |
 | `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
 | `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
@@ -107,11 +116,14 @@ You can configure the Selenium Hub with this values:
 | `hub.imageTag`                  | `nil`             | Selenium Hub image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `hub.imagePullPolicy`           | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                          |
+| `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                               |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                  |
 | `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                               |
 | `hub.port`                      | `4444`            | Selenium Hub port                                                                                                                |
 | `hub.livenessProbe`             | `See values.yaml` | Liveness probe settings                                                                                                          |
 | `hub.readinessProbe`            | `See values.yaml` | Readiness probe settings                                                                                                         |
+| `hub.tolerations`               | `[]`              | Tolerations for selenium-hub container                                                                                           |
+| `hub.nodeSelector`              | `{}`              | Node Selector for selenium-hub container                                                                                         |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
 | `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
