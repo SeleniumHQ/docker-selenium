@@ -604,6 +604,8 @@ RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 
 If you want to run VNC without password authentication you can set the environment variable `VNC_NO_PASSWORD=1`.
 
+If you want to run VNC in view-only mode you can set the environment variable `VNC_VIEW_ONLY=1`.
+
 ### Using your browser (no VNC client is needed)
 
 This project uses [noVNC](https://github.com/novnc/noVNC) to allow users inspect visually container activity with
