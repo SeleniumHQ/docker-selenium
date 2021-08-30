@@ -6,8 +6,11 @@ mv "$WRAPPER_PATH" "$BASE_PATH"
 
 cat > "$WRAPPER_PATH" <<_EOF
 #!/bin/bash
-
+# --disable-gpu is temporal due to: 
+# https://github.com/SeleniumHQ/docker-selenium/issues/1346
+# https://bugs.chromium.org/p/chromium/issues/detail?id=1228625
+# we'll remove it when it is fixed
 # Note: exec -a below is a bashism.
-exec -a "\$0" "$BASE_PATH" --no-sandbox "\$@"
+exec -a "\$0" "$BASE_PATH" --no-sandbox --disable-gpu "\$@"
 _EOF
 chmod +x "$WRAPPER_PATH"
