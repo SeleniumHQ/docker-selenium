@@ -395,6 +395,18 @@ can do that through the `SE_NODE_GRID_URL` environment variable.
 Grid has a default session timeout of 300 seconds, where the session can be on a stale state until it is killed. You can use
 `SE_NODE_SESSION_TIMEOUT` to overwrite that value in seconds.
 
+
+### Session request timeout
+
+A new session request is placed in the Session Queue before it is processed, and the request sits in the queue until a matching
+slot is found across the registered Nodes. However, the new session request might timeout if no slot was found. By default, a 
+request will stay in the queue up to 300 seconds before it a timeout is reached. In addition, an attempt to process the request
+is done every 5 seconds (by default).
+
+It is possible to override those values through environment variables in the Hub and the SessionQueue (`SE_SESSION_REQUEST_TIMEOUT`
+and `SE_SESSION_RETRY_INTERVAL`). For example, a timeout of 500 seconds would be `SE_SESSION_REQUEST_TIMEOUT=500` and a retry 
+interval of 2 seconds would be `SE_SESSION_RETRY_INTERVAL=2`.
+
 ### Increasing session concurrency per container
 
 By default, only one session is configured to run per container through the `SE_NODE_MAX_SESSIONS` environment variable. It is
