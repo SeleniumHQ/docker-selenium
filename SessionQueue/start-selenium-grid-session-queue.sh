@@ -37,6 +37,8 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessionqueue \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
+  --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
+  --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}
