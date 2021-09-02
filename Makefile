@@ -233,7 +233,9 @@ release:
 test: test_chrome \
  test_firefox \
  test_chrome_standalone \
- test_firefox_standalone
+ test_firefox_standalone \
+ test_edge \
+ test_edge_standalone
 
 
 test_chrome:
@@ -258,7 +260,7 @@ test_firefox_standalone:
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
 	# Running a few tests with docker-compose to generate the videos
-	for node in NodeChrome NodeFirefox ; do \
+	for node in NodeChrome NodeFirefox NodeEdge ; do \
 			cd ./tests || true ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
@@ -281,6 +283,7 @@ test_video: video hub chrome firefox edge
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 .PHONY: \
 	all \
