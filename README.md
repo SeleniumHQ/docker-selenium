@@ -8,7 +8,7 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 
 # :point_right: Grid 4 is under development and is a [Release Candidate (RC)](https://en.wikipedia.org/wiki/Software_release_life_cycle#Release_candidate)
 Prereleases are happening on a regular basis to get early feedback. This means that all other Selenium components
-can be currently at a different RC or beta version (e.g. bindings on Beta 4, and Docker images on prerelease RC 1).
+can be currently at a different RC or beta version (e.g. bindings on RC 1, and Docker images on prerelease RC 2).
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
 our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-rc-1-prerelease-20210823)

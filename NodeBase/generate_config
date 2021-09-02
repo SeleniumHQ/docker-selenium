@@ -53,7 +53,7 @@ fi
 
 SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\"}"
 echo "[[node.driver-configuration]]" >> /opt/selenium/config.toml
-echo "name = \"${SE_NODE_BROWSER_NAME}\"" >> /opt/selenium/config.toml
+echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >> /opt/selenium/config.toml
 echo "stereotype = '${SE_NODE_STEREOTYPE}'" >> /opt/selenium/config.toml
 echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> /opt/selenium/config.toml
