@@ -53,6 +53,8 @@ java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar router \
   --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port "${SE_SESSIONS_MAP_PORT}" \
   --distributor-host "${SE_DISTRIBUTOR_HOST}" --distributor-port "${SE_DISTRIBUTOR_PORT}" \
   --sessionqueue-host "${SE_SESSION_QUEUE_HOST}" --sessionqueue-port "${SE_SESSION_QUEUE_PORT}" \
+  --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
+  --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
   --relax-checks true \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
