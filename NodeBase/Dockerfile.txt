@@ -160,6 +160,7 @@ ENV SCREEN_DPI 96
 ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
 ENV START_XVFB true
+ENV START_NO_VNC true
 
 #========================
 # Selenium Configuration
