@@ -625,6 +625,7 @@ their browser. This might come handy if you cannot install a VNC client on your 
 noVNC, so you will need to connect to that port with your browser.
 
 Similarly to the previous section, feel free to map port 7900 to any free external port that you wish.
+You can also override it with the `NO_VNC_PORT` environment variable in case you want to use `--net=host`.
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
