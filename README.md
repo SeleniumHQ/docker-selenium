@@ -37,21 +37,21 @@ Images included:
 
 Chrome
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-20210913
 #OR
-$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:3.141.59-20210830
+$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-chrome:3.141.59-20210913
 ```
 Firefox
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-20210913
 #OR
-$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.141.59-20210830
+$ docker run -d -p 4444:4444 --shm-size 2g selenium/standalone-firefox:3.141.59-20210913
 ```
 Opera
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-20210913
 #OR
-$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-opera:3.141.59-20210830
+$ docker run -d -p 4444:4444 --shm-size=2g selenium/standalone-opera:3.141.59-20210913
 ```
 This is a known workaround to avoid the browser crashing inside a docker container, here are the documented issues for
 [Chrome](https://code.google.com/p/chromium/issues/detail?id=519952) and [Firefox](https://bugzilla.mozilla.org/show_bug.cgi?id=1338771#c10).
@@ -62,11 +62,11 @@ to tune this value according to your needs. Along the examples `-v /dev/shm:/dev
 ### Standalone Chrome, Firefox and Opera
 
 ``` bash
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-opera:3.141.59-20210913
 ```
 
 _Note: Only one standalone image can run on port_ `4444` _at a time._
@@ -82,10 +82,10 @@ A docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210830
+$ docker run -d -p 4444:4444 --net grid --name selenium-hub selenium/hub:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210913
 ```
 
 When you are done using the grid and the containers have exited, the network can be removed with the following command:
@@ -109,7 +109,7 @@ snippet as your `docker-compose.yaml`, save it locally and in the same folder ru
 version: '2'
 services:
   chrome:
-    image: selenium/node-chrome:3.141.59-20210830
+    image: selenium/node-chrome:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -118,7 +118,7 @@ services:
       HUB_HOST: hub
 
   firefox:
-    image: selenium/node-firefox:3.141.59-20210830
+    image: selenium/node-firefox:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -127,7 +127,7 @@ services:
       HUB_HOST: hub
 
   opera:
-    image: selenium/node-opera:3.141.59-20210830
+    image: selenium/node-opera:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -136,7 +136,7 @@ services:
       HUB_HOST: hub
 
   hub:
-    image: selenium/hub:3.141.59-20210830
+    image: selenium/hub:3.141.59-20210913
     ports:
       - "4444:4444"
 ```
@@ -148,13 +148,13 @@ services:
 version: "3"
 services:
   selenium-hub:
-    image: selenium/hub:3.141.59-20210830
+    image: selenium/hub:3.141.59-20210913
     container_name: selenium-hub
     ports:
       - "4444:4444"
 
   chrome:
-    image: selenium/node-chrome:3.141.59-20210830
+    image: selenium/node-chrome:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -164,7 +164,7 @@ services:
       - HUB_PORT=4444
 
   firefox:
-    image: selenium/node-firefox:3.141.59-20210830
+    image: selenium/node-firefox:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -174,7 +174,7 @@ services:
       - HUB_PORT=4444
 
   opera:
-    image: selenium/node-opera:3.141.59-20210830
+    image: selenium/node-opera:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     depends_on:
@@ -196,12 +196,12 @@ version: '3.7'
 
 services:
   hub:
-   image: selenium/hub:3.141.59-20210830
+   image: selenium/hub:3.141.59-20210913
    ports:
      - "4444:4444"
 
   chrome:
-    image: selenium/node-chrome:3.141.59-20210830
+    image: selenium/node-chrome:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -212,7 +212,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   firefox:
-    image: selenium/node-firefox:3.141.59-20210830
+    image: selenium/node-firefox:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -223,7 +223,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="-host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   opera:
-    image: selenium/node-opera:3.141.59-20210830
+    image: selenium/node-opera:3.141.59-20210913
     volumes:
       - /dev/shm:/dev/shm
     environment:
@@ -240,10 +240,10 @@ for longer term usage since this is a docker [legacy feature](https://docs.docke
 It could serve you as an option for a proof of concept, and for simplicity it is used in the examples shown from now on.
 
 ``` bash
-$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.141.59-20210830
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210830
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210830
-$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210830
+$ docker run -d -p 4444:4444 --name selenium-hub selenium/hub:3.141.59-20210913
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210913
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210913
+$ docker run -d --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210913
 ```
 
 ### Deploying to Kubernetes
@@ -258,7 +258,7 @@ on how to deploy selenium hub and nodes on a Kubernetes cluster.
 You can pass `JAVA_OPTS` environment variable to java process.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:3.141.59-20210830
+$ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:3.141.59-20210913
 ```
 
 ### SE_OPTS Selenium Configuration Options
@@ -266,7 +266,7 @@ $ docker run -d -p 4444:4444 -e JAVA_OPTS=-Xmx512m --name selenium-hub selenium/
 You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:3.141.59-20210830
+$ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hub:3.141.59-20210913
 ```
 
 ### JAVA_CLASSPATH Java classpath
@@ -274,7 +274,7 @@ $ docker run -d -p 4444:4444 -e SE_OPTS="-debug" --name selenium-hub selenium/hu
 By default, `CLASSPATH` for Java is `/opt/selenium/*:.` but you can overwrite it with yours using `JAVA_CLASSPATH`. This is useful when you want to use your own JAR files. Note that `/opt/selenium/*` always needs to be included because the Selenium JAR file is in the directory.
 
 ```bash
-$ docker run -d -p 4444:4444 -v $(pwd):/mnt -e JAVA_CLASSPATH="/mnt/*:/opt/selenium/*:." -e SE_OPTS="-servlets com.example.your.AwesomeServlet" --name selenium-hub selenium/hub:3.141.59-20210830
+$ docker run -d -p 4444:4444 -v $(pwd):/mnt -e JAVA_CLASSPATH="/mnt/*:/opt/selenium/*:." -e SE_OPTS="-servlets com.example.your.AwesomeServlet" --name selenium-hub selenium/hub:3.141.59-20210913
 ```
 
 ### Selenium Hub and Node Configuration options
@@ -286,7 +286,7 @@ You can pass the `HUB_HOST` and `HUB_PORT` options to provide the hub address to
 
 ``` bash
 # Assuming a hub was already started on the default port
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:3.141.59-20210830
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 selenium/node-chrome:3.141.59-20210913
 ```
 
 Some network topologies might prevent the hub to reach the node through the url given at registration time, `REMOTE_HOST`
@@ -294,7 +294,7 @@ can be used to supply the hub a url where the node is reachable under your speci
 
 ``` bash
 # Assuming a hub was already started on the default port
-$ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 -e REMOTE_HOST="http://<node_ip|node_name>:<node_port>" selenium/node-firefox:3.141.59-20210830
+$ docker run -d -p <node_port>:5555 -e HUB_HOST=<hub_ip|hub_name> -e HUB_PORT=4444 -e REMOTE_HOST="http://<node_ip|node_name>:<node_port>" selenium/node-firefox:3.141.59-20210913
 ```
 
 ### Setting Screen Resolution
@@ -318,7 +318,7 @@ environment variable `NODE_MAX_INSTANCES`. For example, a Firefox node with 5 sl
 
 ``` bash
 # Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 selenium/node-firefox:3.141.59-20210830
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 selenium/node-firefox:3.141.59-20210913
 ```
 
 Don't forget to combine this with the environment variable `NODE_MAX_SESSION`, which sets the maximum amount of tests
@@ -327,7 +327,7 @@ should also be at least 5. Full example:
 
 ``` bash
 # Assuming a hub was already started
-$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 selenium/node-firefox:3.141.59-20210830
+$ docker run -d -e HUB_HOST=<hub_ip|hub_name> -e NODE_MAX_INSTANCES=5 -e NODE_MAX_SESSION=5 selenium/node-firefox:3.141.59-20210913
 ```
 
 ### Running in Headless mode
@@ -364,11 +364,11 @@ _Note: Omitting_ `VERSION=local` _will build the images with the current version
 ##### Example: Spawn a container for testing in Chrome:
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210830
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210913
 $ CH=$(docker run --rm --name=ch \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
     -v /dev/shm:/dev/shm \
-    selenium/node-chrome:3.141.59-20210830)
+    selenium/node-chrome:3.141.59-20210913)
 ```
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
@@ -378,11 +378,11 @@ _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing brow
 This command line is the same as for Chrome. Remember that the Selenium running container is able to launch either Chrome or Firefox, the idea around having 2 separate containers, one for each browser is for convenience plus avoiding certain `:focus` issues your web app may encounter during end-to-end test automation.
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210830
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210913
 $ FF=$(docker run --rm --name=fx \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
     -v /dev/shm:/dev/shm \
-    selenium/node-firefox:3.141.59-20210830)
+    selenium/node-firefox:3.141.59-20210913)
 ```
 
 _Note: Since a Docker container is not meant to preserve state and spawning a new one takes less than 3 seconds you will likely want to remove containers after each end-to-end test with_ `--rm` _command. You need to think of your Docker containers as single processes, not as running virtual machines, in case you are familiar with [Vagrant](https://www.vagrantup.com/)._
@@ -390,11 +390,11 @@ _Note: Since a Docker container is not meant to preserve state and spawning a ne
 ##### Example: Spawn a container for testing in Opera:
 
 ``` bash
-$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210830
+$ docker run -d --name selenium-hub -p 4444:4444 selenium/hub:3.141.59-20210913
 $ CH=$(docker run --rm --name=ch \
     --link selenium-hub:hub -v /e2e/uploads:/e2e/uploads \
     -v /dev/shm:/dev/shm \
-    selenium/node-opera:3.141.59-20210830)
+    selenium/node-opera:3.141.59-20210913)
 ```
 
 _Note:_ `-v /e2e/uploads:/e2e/uploads` _is optional in case you are testing browser uploads on your web app you will probably need to share a directory for this._
@@ -445,10 +445,10 @@ $ docker network create grid
 $ docker run -d -p 4444:4444 --net grid --name selenium-hub \
     --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
     --health-interval=15s --health-timeout=30s --health-retries=5 \
-    selenium/hub:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210830
-$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210830
+    selenium/hub:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-chrome:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-firefox:3.141.59-20210913
+$ docker run -d --net grid -e HUB_HOST=selenium-hub -v /dev/shm:/dev/shm selenium/node-opera:3.141.59-20210913
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
@@ -501,33 +501,33 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 
 In the event you wish to visually see what the browser is doing you will want to run the `debug` variant of node or standalone images. A VNC server will run on port 5900. You are free to map that to any free external port that you wish. Keep in mind that you will only be able to run one node per port so if you wish to include a second node, or more, you will have to use different ports, the 5900 as the internal port will have to remain the same though as thats the VNC service on the node. The second example below shows how to run multiple nodes and with different VNC ports open:
 ``` bash
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-20210830
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-20210830
-$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-20210830
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-20210913
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-20210913
+$ docker run -d -P -p <port4VNC>:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-20210913
 ```
 e.g.:
 ``` bash
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-20210830
-$ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-20210830
-$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-20210830
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-chrome-debug:3.141.59-20210913
+$ docker run -d -P -p 5901:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-firefox-debug:3.141.59-20210913
+$ docker run -d -P -p 5900:5900 --link selenium-hub:hub -v /dev/shm:/dev/shm selenium/node-opera-debug:3.141.59-20210913
 ```
 to connect to the Chrome node on 5900 and the Firefox node on 5901 (assuming those nodes are free, and reachable).
 
 And for standalone:
 ``` bash
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p <port4VNC>:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-20210913
 ```
 or
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-chrome-debug:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p 5901:5900 -v /dev/shm:/dev/shm selenium/standalone-firefox-debug:3.141.59-20210913
 # OR
-$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-20210830
+$ docker run -d -p 4444:4444 -p 5900:5900 -v /dev/shm:/dev/shm selenium/standalone-opera-debug:3.141.59-20210913
 ```
 
 You can acquire the port that the VNC server is exposed to by running:
@@ -546,9 +546,9 @@ If you are running [Boot2Docker](https://docs.docker.com/installation/mac/) on O
 
 When you are prompted for the password it is `secret`. If you wish to change this then you should either change it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from the posted ones which reconfigures it:
 ``` dockerfile
-#FROM selenium/node-chrome-debug:3.141.59-20210830
-#FROM selenium/node-firefox-debug:3.141.59-20210830
-#FROM selenium/node-opera-debug:3.141.59-20210830
+#FROM selenium/node-chrome-debug:3.141.59-20210913
+#FROM selenium/node-firefox-debug:3.141.59-20210913
+#FROM selenium/node-opera-debug:3.141.59-20210913
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd

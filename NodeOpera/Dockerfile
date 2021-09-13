@@ -5,7 +5,7 @@
 FROM ubuntu:bionic AS builder-codecs-ffmpeg
 RUN apt-get update -qqy && apt-get -qqy install chromium-codecs-ffmpeg-extra
 
-FROM selenium/node-base:3.141.59-20210830
+FROM selenium/node-base:3.141.59-20210913
 LABEL authors=SeleniumHQ
 
 USER root
@@ -53,9 +53,6 @@ USER 1200
 # can specify versions by OPERA_DRIVER_VERSION
 # Latest released version will be used by default
 #=====================
-# Use latest again when Opera 78 is available in Ubuntu.
-# https://api.github.com/repos/operasoftware/operachromiumdriver/releases/44342075
-# 91.0.4472.77
 ARG OPERA_DRIVER_VERSION
 RUN LATEST_VERSION=$(curl -s https://api.github.com/repos/operasoftware/operachromiumdriver/releases/latest | jq .name -r) \
   && [ -z "$OPERA_DRIVER_VERSION" ] && OPERA_DRIVER_VERSION=$LATEST_VERSION \
