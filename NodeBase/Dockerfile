@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-rc-2-prerelease-20210908
+FROM selenium/base:4.0.0-rc-2-prerelease-20210914
 LABEL authors=SeleniumHQ
 
 USER root
@@ -167,6 +167,7 @@ ENV SCREEN_DPI 96
 ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
 ENV START_XVFB true
+ENV START_NO_VNC true
 
 #========================
 # Selenium Configuration
