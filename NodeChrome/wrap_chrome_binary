@@ -6,6 +6,7 @@ mv "$WRAPPER_PATH" "$BASE_PATH"
 
 cat > "$WRAPPER_PATH" <<_EOF
 #!/bin/bash
+umask 002
 # Note: exec -a below is a bashism.
 exec -a "\$0" "$BASE_PATH" --no-sandbox "\$@"
 _EOF
