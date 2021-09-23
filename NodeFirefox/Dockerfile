@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.0.0-rc-2-prerelease-20210916
+FROM selenium/node-base:4.0.0-rc-2-prerelease-20210923
 LABEL authors=SeleniumHQ
 
 USER root
@@ -27,7 +27,7 @@ RUN FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERS
 # GeckoDriver
 #============
 ARG GECKODRIVER_VERSION=latest
-RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.29.1"; else echo $GECKODRIVER_VERSION; fi) \
+RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.30.0"; else echo $GECKODRIVER_VERSION; fi) \
   && echo "Using GeckoDriver version: "$GK_VERSION \
   && wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GK_VERSION/geckodriver-v$GK_VERSION-linux64.tar.gz \
   && rm -rf /opt/geckodriver \
