@@ -1,5 +1,5 @@
 NAME := $(or $(NAME),$(NAME),selenium)
-VERSION := $(or $(VERSION),$(VERSION),3.141.59-20210913)
+VERSION := $(or $(VERSION),$(VERSION),3.141.59-20210929)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PLATFORM := $(shell uname -s)
@@ -8,7 +8,7 @@ MAJOR := $(word 1,$(subst ., ,$(VERSION)))
 MINOR := $(word 2,$(subst ., ,$(VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(VERSION)))
 
-all: hub chrome firefox opera chrome_debug firefox_debug opera_debug standalone_chrome standalone_firefox standalone_opera standalone_chrome_debug standalone_firefox_debug standalone_opera_debug
+all: hub chrome firefox chrome_debug firefox_debug standalone_chrome standalone_firefox standalone_chrome_debug standalone_firefox_debug
 
 generate_all:	\
 	generate_hub \
@@ -277,17 +277,12 @@ release: tag_major_minor
 
 test: test_chrome \
  test_firefox \
- test_opera \
  test_chrome_debug \
  test_firefox_debug \
- test_opera_debug \
  test_chrome_standalone \
  test_firefox_standalone \
- test_opera_standalone \
  test_chrome_standalone_debug \
- test_firefox_standalone_debug \
- test_opera_standalone_debug
-
+ test_firefox_standalone_debug
 
 test_chrome:
 	VERSION=$(VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChrome
