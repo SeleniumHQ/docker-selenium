@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-rc-2-prerelease-20210923
-LABEL authors=SeleniumHQ
+FROM local-seleniarm/base:4.0.0-rc-2-prerelease-20210930
+LABEL authors=james
 
 USER root
 
@@ -28,7 +28,7 @@ ENV LANG ${LANGUAGE}
 # Layer size: small: ~9 MB MB (with --no-install-recommends)
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    language-pack-en \
+    #language-pack-en \
     tzdata \
     locales \
   && locale-gen ${LANGUAGE} \
@@ -84,7 +84,7 @@ RUN apt-get -qqy update \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    ttf-ubuntu-font-family \
+    # ttf-ubuntu-font-family \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
 
