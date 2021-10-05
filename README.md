@@ -305,8 +305,9 @@ Here is an example using a Hub and a Node:
 
 
 ### Video recording, screen resolution, and time zones in a Dynamic Grid
-To record your WebDriver session, you need to add a `se:options` section to
-your capabilities and inside it, configure the desired settings, for example:
+To record your WebDriver session, you need to add a `se:recordVideo` 
+field set to `true`. You can also set a time zone and a screen resolution,
+for example:
 
 ```json
 {
