@@ -176,6 +176,7 @@ tag_latest:
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
+	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 
 release_latest:
 	docker push $(NAME)/base:latest
@@ -194,6 +195,7 @@ release_latest:
 	docker push $(NAME)/standalone-edge:latest
 	docker push $(NAME)/standalone-firefox:latest
 	docker push $(NAME)/standalone-docker:latest
+	docker push $(NAME)/video:latest
 
 tag_major_minor:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR)
