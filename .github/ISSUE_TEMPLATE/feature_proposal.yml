@@ -20,7 +20,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: feature-description
+    id: feature-example
     attributes:
       label: Usage example
       description: |
