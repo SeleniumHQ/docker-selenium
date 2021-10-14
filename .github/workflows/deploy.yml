@@ -62,6 +62,10 @@ jobs:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
+      - name: Tag images as latest
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
+      - name: Deploy latest tag
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
       - name: Create release notes (release_notes.md)
@@ -77,9 +81,3 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: ${{ env.PRERELEASE }}
-
-# Enable this part when Selenium 4 is released
-#      - name: Deploy tag latest
-#        run: VERSION="${TRAVIS_TAG}" make tag_latest
-#      - name: Deploy release latest
-#        run: VERSION="${TRAVIS_TAG}" make release_latest
