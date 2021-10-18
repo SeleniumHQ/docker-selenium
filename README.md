@@ -1,6 +1,6 @@
 # Docker images for Selenium, built for Debian ARM64
 
-At this point, I've only updated the images for Chromium 90, the latest ARM64 build for Debian ARM64.
+At this point, I've only updated the images for Chromium 93, the latest ARM64 build for Debian ARM64.
 
 ## Only Building the Images
 
