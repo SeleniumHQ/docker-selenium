@@ -1,0 +1,60 @@
+name: 🐛 Bug Report
+description: File a bug report
+title: "[🐛 Bug]: "
+labels: [bug, needs-triaging]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: |
+        Describe clearly and concisely the bug including instructions showing how to reproduce it.
+      placeholder: |
+        Please add as many details as possible to avoid assumptions from our side. How do you
+        trigger this bug? What did you expect to happen? Please walk us through it step by step.
+    validations:
+      required: true
+  - type: textarea
+    id: repro-command
+    attributes:
+      label: Command used to start Selenium Grid with Docker
+      description: |
+        What command do you use to start Selenium Grid with Docker?
+      placeholder: |
+        Please share the script or docker-compose file used. This will be automatically
+        formatted into code, so no need for backticks.
+        Be sure to include an SSCCE (Short, Self Contained, Correct 
+        [compilable] example) http://sscce.org/
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: |
+        Please copy and paste any relevant log output. This will be automatically formatted
+        into code, so no need for backticks.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: What host operating system are you using to run docker-selenium?
+      placeholder: Windows 10? macOS BigSur? Ubuntu?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Docker Selenium version (tag)
+      description: What version of Docker Selenium are you using?
+      placeholder: 4.0.0-20211013? Please use the full tag, avoid "latest"
+    validations:
+      required: true
