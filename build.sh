@@ -1,8 +1,8 @@
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.0.0-rc-2-prerelease
-CHROMIUM=94.0.4606.54
+VERSION=4.0.0
+CHROMIUM=93.0.4577.82  # Not yet used at this time. Edit in NodeChromium/Dockerfile.txt
 NAMESPACE=local-seleniarm
-AUTHORS=james
+AUTHORS=SeleniumHQ,sj26,jamesmortensen
 
 cd ./Base && docker buildx build --platform linux/arm64 -t $NAMESPACE/base:$VERSION-$BUILD_DATE .
 echo $PWD
