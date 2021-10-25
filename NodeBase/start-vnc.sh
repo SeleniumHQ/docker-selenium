@@ -23,7 +23,7 @@ if [ "${START_XVFB}" = true ] ; then
 
   if [ ! -z $VNC_VIEW_ONLY ]; then
       echo "Starting VNC server with viewonly option"
-      X11VNC_OPTS=${X11VNC_OPTS} -viewonly
+      X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
   fi
 
   for i in $(seq 1 10)
