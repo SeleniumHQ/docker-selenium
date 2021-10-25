@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.0.0-20211013
+FROM selenium/base:4.0.0-20211025
 LABEL authors=SeleniumHQ
 
 USER root
@@ -105,6 +105,7 @@ RUN  wget -nv -O noVNC.zip \
       "https://github.com/novnc/websockify/archive/${WEBSOCKIFY_SHA}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
+  && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
   && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
 
 #=========================================================================================================================================
