@@ -11,7 +11,7 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
 our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.0.0-20211025)
 
-To get notifications of new prereleases, add yourself as a "Releases only" watcher. 
+To get notifications of new releases, add yourself as a "Releases only" watcher. 
 
 Doubts? Questions? Get in touch through the different communication channels available in the **Community** section.
 
@@ -676,3 +676,43 @@ or
 
 The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
 actually run Firefox, Chrome or Edge in headless mode.
+
+### Mounting volumes to retrieve downloaded files
+
+A common scenario is mounting a volume to the browser 
+container in order to retrieve downloaded files. This
+works well in Windows and macOS but not without 
+workarounds in Linux. For more details, check this
+well documented [issue](https://github.com/SeleniumHQ/docker-selenium/issues/1095).
+
+For example, while using Linux, you might be starting a
+container in the following way:
+
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -v /home/ubuntu/files:/home/seluser/files \
+  selenium/standalone-chrome:4.0.0-20211025
+```
+
+That will mount the host `/home/ubuntu/files` directory
+to the `/home/seluser/files` inside the container. The
+problem happens because the volume will be mounted as
+`root`, and therefore the browser cannot write a file to
+that directory because it is running under the user 
+`seluser`. This happens because that is how Docker mounts
+volumes in Linux, more details in the [issue](https://github.com/moby/moby/issues/2259).
+
+A workaround for this is to create the directory on the
+host and change its permissions before mounting. Depending
+on your user permissions, you might need to use `sudo` for
+some of these commands:
+
+```bash
+mkdir /home/ubuntu/files
+chown 1200:1201 /home/ubuntu/files
+```
+
+After doing this, you should be able to download files
+to the mounted directory. If you have a better workaround,
+please send us a pull request! 
+
