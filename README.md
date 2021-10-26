@@ -700,12 +700,12 @@ problem happens because the volume will be mounted as
 `root`, and therefore the browser cannot write a file to
 that directory because it is running under the user 
 `seluser`. This happens because that is how Docker mounts
-volumes in Linux, more details in the [issue](https://github.com/moby/moby/issues/2259).
+volumes in Linux, more details in this [issue](https://github.com/moby/moby/issues/2259).
 
 A workaround for this is to create the directory on the
-host and change its permissions before mounting. Depending
-on your user permissions, you might need to use `sudo` for
-some of these commands:
+host and change its permissions **before mounting the volume**. 
+Depending on your user permissions, you might need to use 
+`sudo` for some of these commands:
 
 ```bash
 mkdir /home/ubuntu/files
