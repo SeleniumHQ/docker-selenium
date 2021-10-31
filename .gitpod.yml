@@ -4,8 +4,10 @@ tasks:
       sudo docker pull registry.jetbrains.team/p/prj/containers/projector-idea-u
     command: |
       sudo mkdir -p .jetbrains; sudo touch .jetbrains/.gitkeep; sudo chown -R 1000:1000 .jetbrains
+      # Community Edition
+      sudo docker run --rm -p 8887:8887 -v /workspace/template-jetbrains-intellij-idea/.jetbrains:/home/projector-user -it registry.jetbrains.team/p/prj/containers/projector-idea-c
       # Ultimate Edition
-      #sudo docker run --rm -p 8887:8887 -v /workspace/docker-selenium/.jetbrains:/home/projector-user -it registry.jetbrains.team/p/prj/containers/projector-idea-u
+      #sudo docker run --rm -p 8887:8887 -v /workspace/template-jetbrains-intellij-idea/.jetbrains:/home/projector-user -it registry.jetbrains.team/p/prj/containers/projector-idea-u
 ports:
   - port: 8887
     visibility: private
