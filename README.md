@@ -716,3 +716,7 @@ After doing this, you should be able to download files
 to the mounted directory. If you have a better workaround,
 please send us a pull request! 
 
+
+---
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SeleniumHQ/docker-selenium>)
