@@ -11,10 +11,6 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
-# create directories in case of mounted emptyDir
-mkdir -p /var/run/supervisor
-mkdir -p /var/log/supervisor
-
 /usr/bin/supervisord --configuration /etc/supervisord.conf &
 
 SUPERVISOR_PID=$!
