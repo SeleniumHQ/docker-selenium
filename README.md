@@ -293,6 +293,51 @@ docker run --rm --name selenium-docker -p 4444:4444 \
     selenium/standalone-docker:4.0.0-20211102
 ```
 
+### Using Dynamic Grid in different machines/VMs
+
+Hub - Machine/VM 1
+``` bash
+$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.0.0-20211102
+```
+
+Node Chrome - Machine/VM 2
+``` bash
+$ docker run -d -p 5555:5555 \
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/assets:/opt/selenium/assets \
+    selenium/node-docker:4.0.0-20211102
+```
+
+Complete the `[server]` section in the `config.toml` file.
+```toml
+[docker]
+# Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
+# start a container with the given image.
+configs = [
+    "selenium/standalone-firefox:4.0.0-20211102", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.0.0-20211102", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-edge:4.0.0-20211102", "{\"browserName\": \"MicrosoftEdge\"}"
+    ]
+
+# URL for connecting to the docker daemon
+# host.docker.internal works for macOS and Windows.
+# Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
+# To have Docker listening through tcp on macOS, install socat and run the following command
+# socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
+url = "http://host.docker.internal:2375"
+# Docker imagee used for video recording
+video-image = "selenium/video:ffmpeg-4.3.1-20211102"
+
+# Uncomment the following section if you are running the node on a separate VM
+# Fill out the placeholders with appropriate values
+[server]
+host = <ip-from-node-machine>
+port = <port-from-node-machine>
+```
+
 To have the assets saved on your host, please mount your host path to `/opt/selenium/assets`.
 
 ### Execution with Docker Compose
