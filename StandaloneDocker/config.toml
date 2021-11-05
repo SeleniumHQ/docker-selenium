@@ -2,9 +2,9 @@
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.1.0-prerelease-20211105", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.1.0-prerelease-20211105", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-edge:4.1.0-prerelease-20211105", "{\"browserName\": \"MicrosoftEdge\"}"
+    "selenium/standalone-firefox:4.0.0-20211102", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.0.0-20211102", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-edge:4.0.0-20211102", "{\"browserName\": \"MicrosoftEdge\"}"
     ]
 
 # URL for connecting to the docker daemon
