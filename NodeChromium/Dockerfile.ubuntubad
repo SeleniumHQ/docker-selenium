@@ -1,0 +1,38 @@
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
+# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FROM local-seleniarm/node-base:4.0.0-rc-2-prerelease-20210930
+LABEL authors=james
+
+USER root
+
+RUN apt-get update && apt-get install curl wget \
+   && curl http://ftp.cn.debian.org/debian/pool/main/c/chromium/chromium_90.0.4430.212-1_arm64.deb -o chromium.deb
+   
+RUN ls chromium.deb && apt install -f ./chromium.deb
+
+# Install Chromium Arm64
+#RUN echo "deb http://http.us.debian.org/debian/ testing non-free contrib main" >> /etc/apt/sources.list \
+#RUN 
+#  && apt-get update -qqy \
+  # && apt-get -qqy install chromium=89.0.4389.82-1 \
+#  && apt-get -qqy install chromium=94.0.4606.54 \
+#  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#=================================
+# Chromium Launch Script Wrapper
+#=================================
+COPY wrap_chromium_binary /opt/bin/wrap_chromium_binary
+RUN /opt/bin/wrap_chromium_binary
+
+#============================================
+# Chromium webdriver
+#============================================
+RUN apt-get update -qqy \
+  && apt-get -qqy install chromium-driver \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+
+USER 1200
+

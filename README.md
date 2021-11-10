@@ -1,3 +1,40 @@
+# Docker images for Selenium, built for Debian ARM64
+
+At this point, I've only updated the images for Chromium 93, the latest ARM64 build for Debian ARM64.
+
+## Only Building the Images
+
+If you want to build the images locally, without pushing to any registry, then use the build.sh script in the root of the project directory.
+
+The Standalone folder is the base for all Standalone${browser} images and includes a script that starts the selenium server in standalone mode. 
+The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
+
+Inside build.sh are environment variables which are used to tag the built images. If changing the Selenium version, note that you must also edit the Base/Dockerfile and change which selenium-server version is downloaded via wget.  The Chromium version is set in NodeChromium/Dockerfile.txt.
+
+To build the images, run build.sh from the root directory of this repo:
+
+```
+$ sh build.sh
+```
+
+I have not pushed any images to the Docker registry. If you wish to push them to a registry, you may do so.  For more information on older ARM64 Selenium images, see https://github.com/sj26/docker-selenium and https://hub.docker.com/u/seleniarm
+
+the primary motivation for creating this fork and updating the images is so I can use the noVNC client on Selenium 4.0.0. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
+
+To start the container image, run:
+
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 3g local-seleniarm/standalone-chromium:latest
+```
+
+Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
+
+
+----
+The official documentation from seleniumHQ begins here:
+----
+
+
 # Docker images for the Selenium Grid Server
 
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, 
