@@ -31,11 +31,13 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-/opt/bin/generate_config
-
+if [ "$GENERATE_CONFIG" = true ]; then
+  echo "Generating Selenium Config"
+  /opt/bin/generate_config
+fi
 echo "Selenium Grid Node configuration: "
-cat /opt/selenium/config.toml
+cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
-  --config /opt/selenium/config.toml \
+  --config "$CONFIG_FILE" \
   ${SE_OPTS}

@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM local-seleniarm/base:4.0.0-20211110
+FROM local-seleniarm/base:4.0.0-20211111
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
@@ -169,6 +169,9 @@ ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
 ENV START_XVFB true
 ENV START_NO_VNC true
+# Path to the Configfile
+ENV CONFIG_FILE=/opt/selenium/config.toml
+ENV GENERATE_CONFIG true
 
 #========================
 # Selenium Configuration

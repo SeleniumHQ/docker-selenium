@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-edge:4.0.0-20211025
+FROM selenium/node-edge:4.1.0-prerelease-20211105
 LABEL authors=SeleniumHQ
 
 USER 1200
