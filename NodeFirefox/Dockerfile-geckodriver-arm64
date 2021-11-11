@@ -1,0 +1,47 @@
+FROM local-seleniarm/node-base:latest
+LABEL authors=SeleniumHQ,sj26,jamesmortensen
+
+##### tags
+# local-seleniarm/geckodriver-arm64:4.0.0-$(build_date)
+#####
+USER root
+
+
+#===========
+# Debugging
+#===========
+WORKDIR /opt
+RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+  && apt-get update -qqy \
+  && apt install gcc build-essential git vim cargo -y \
+  && curl https://sh.rustup.rs -sSf | bash -s -- -y \
+  && git clone https://github.com/mozilla/geckodriver.git && cd geckodriver \
+  && git checkout v0.30.0 
+
+RUN echo "alias l='ls -ltrSha'" >> /home/seluser/.bashrc 
+
+COPY build-geckodriver-arm64.sh /opt/geckodriver/
+
+RUN chown seluser /opt/geckodriver/build-geckodriver-arm64.sh \
+ && chmod 755 /opt/geckodriver/build-geckodriver-arm64.sh \
+ && sudo chown -R seluser /home/seluser/.rustup /home/seluser/.cargo /opt/geckodriver
+
+# COPY geckodriver /usr/local/bin/
+# USER seluser 
+# RUN sudo chown -R seluser /home/seluser/.rustup /home/seluser/.cargo /opt/geckodriver \
+#   && cd /opt/geckodriver \
+#   && cargo build \
+#   && sudo cp target/debug/geckodriver /usr/local/bin/ \
+#   && sudo apt remove gcc build-essential cargo
+
+# WORKDIR /
+
+#============
+# GeckoDriver
+#============
+# For arm64 we're sniffing a compatible binary out of an ubuntu package, don't look too hard!
+#RUN echo "Downloading Arm64 geckodriver..." 
+    # curl http://ports.ubuntu.com/pool/universe/f/firefox/firefox-geckodriver_75.0+build3-0ubuntu1_arm64.deb | dpkg-deb --fsys-tarfile - | tar -C / -x ./usr/bin/geckodriver;
+    # curl http://ports.ubuntu.com/pool/universe/f/firefox/firefox-geckodriver_93.0+build1-0ubuntu3_arm64.deb | dpkg-deb --fsys-tarfile - | tar -C / -x ./usr/bin/geckodriver;
+
+USER 1200
