@@ -11,7 +11,7 @@ USER root
 # Debugging
 #===========
 WORKDIR /opt
-RUN echo "deb http://http.us.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt install gcc build-essential git vim cargo -y \
   && curl https://sh.rustup.rs -sSf | bash -s -- -y \

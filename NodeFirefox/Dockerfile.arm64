@@ -1,12 +1,12 @@
-FROM local-seleniarm/node-base:4.0.0-20211018
-LABEL authors=SeleniumHQ,sj26,jamesmortensen
+#FROM local-seleniarm/node-base:4.0.0-20211018
+#LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
 
 #=========
 # Firefox
 #=========
-RUN echo "deb http://http.us.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt-get -qqy install firefox-esr libavcodec-extra \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
@@ -15,3 +15,8 @@ RUN echo "deb http://http.us.debian.org/debian/ sid main" >> /etc/apt/sources.li
 COPY geckodriver /usr/local/bin/
 
 USER 1200
+
+#============================================
+# Dumping Browser name and version for config
+#============================================
+RUN echo "firefox" > /opt/selenium/browser_name
