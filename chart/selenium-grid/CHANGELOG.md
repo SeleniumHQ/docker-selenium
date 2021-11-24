@@ -11,7 +11,7 @@ All notable changes to this helm chart will be documented in this file.
 - Allow to add additional labels to the hub, edge, firefox and chrome nodes.
 
 ### Changed
-- Update image tag to 4.0.0-20211025
+- Update image tag to 4.1.0-20211123
 
 ### Removed
 - Opera nodes
