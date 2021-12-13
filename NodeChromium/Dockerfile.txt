@@ -22,7 +22,7 @@ RUN apt-get update -qqy \
   && apt-get -qqy install chromium-driver \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-RUN echo "chrome" > /opt/selenium/browser_name
+RUN echo "chromium" > /opt/selenium/browser_name
 
 USER 1200
 
