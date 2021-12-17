@@ -22,6 +22,7 @@ java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar hub \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
   --relax-checks ${SE_RELAX_CHECKS} \
+  --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}

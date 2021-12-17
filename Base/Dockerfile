@@ -81,5 +81,9 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 #===================================================
 USER 1200:1201
 
+# Boolean value, maps "--bind-host"
+ENV SE_BIND_HOST false
+
+
 
 CMD ["/opt/bin/entry_point.sh"]

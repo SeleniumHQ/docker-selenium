@@ -17,5 +17,6 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar standalone \
   --relax-checks ${SE_RELAX_CHECKS} \
   --detect-drivers false \
+  --bind-host ${SE_BIND_HOST} \
   --config /opt/bin/config.toml \
   ${SE_GRID_URL} ${SE_OPTS}
