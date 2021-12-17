@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM local-seleniarm/node-base:4.0.0-20211111
+FROM local-seleniarm/node-base:4.1.0-20211217
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
@@ -29,7 +29,7 @@ RUN apt-get update -qqy \
   && apt-get -qqy install chromium-driver \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-RUN echo "chrome" > /opt/selenium/browser_name
+RUN echo "chromium" > /opt/selenium/browser_name
 
 USER 1200
 

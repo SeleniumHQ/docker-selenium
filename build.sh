@@ -1,5 +1,5 @@
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.1.0-prerelease
+VERSION=4.1.0
 CHROMIUM=93.0.4577.82  # Not yet used at this time. Edit in NodeChromium/Dockerfile.txt
 NAMESPACE=local-seleniarm
 AUTHORS=SeleniumHQ,sj26,jamesmortensen

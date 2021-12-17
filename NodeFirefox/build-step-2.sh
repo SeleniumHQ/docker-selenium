@@ -13,7 +13,7 @@ fi
 
 echo 'Generate the Dockerfile.arm64...'
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.0.0
+VERSION=4.1.0
 NAMESPACE=local-seleniarm
 AUTHORS=SeleniumHQ,sj26,jamesmortensen
 
