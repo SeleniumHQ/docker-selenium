@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM local-seleniarm/base:4.1.0-20211217
+FROM seleniarm/base:4.1.0-alpha-20211218
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
@@ -139,13 +139,15 @@ COPY selenium.conf /etc/supervisor/conf.d/
 RUN mkdir -p ${HOME}/.vnc \
   && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
 
+USER root
 #==========
 # Relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN sudo chmod -R 777 ${HOME} \
-  && sudo chgrp -R 0 ${HOME} \
-  && sudo chmod -R g=u ${HOME}
+RUN  chmod -R 777 ${HOME} \
+  &&  chgrp -R 0 ${HOME} \
+  &&  chmod -R g=u ${HOME}
 
+USER 1200
 #==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
@@ -186,8 +188,11 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
+USER root
 # Creating base directory for Xvfb
-RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
+RUN  mkdir -p /tmp/.X11-unix &&  chmod 1777 /tmp/.X11-unix
+
+USER 1200
 
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config

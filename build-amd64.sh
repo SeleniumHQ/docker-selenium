@@ -1,8 +1,8 @@
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.0.0-beta-2
+VERSION=4.1.0
 CHROMIUM=91.0.4472.124
 NAMESPACE=local-selenium
-AUTHORS=james
+AUTHORS=SeleniumHQ,sj26,jamesmortensen
 
 cd ./Base && docker buildx build --platform linux/amd64 -t $NAMESPACE/base:$VERSION-$BUILD_DATE .
 echo $PWD

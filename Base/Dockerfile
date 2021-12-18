@@ -11,10 +11,12 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 #  && echo "deb http://archive.ubuntu.com/ubuntu focal-updates main universe\n" >> /etc/apt/sources.list \
 #  && echo "deb http://security.ubuntu.com/ubuntu focal-security main universe\n" >> /etc/apt/sources.list
 
+ARG TARGETARCH
+
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true \
-    ARCH=arm64
+    ARCH=$TARGETARCH
 
 #========================
 # Miscellaneous packages
@@ -33,8 +35,9 @@ RUN apt-get -qqy update \
     curl \
     supervisor \
     gnupg2 \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-11-openjdk-$ARCH/conf/security/java.security
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
+
+RUN echo $ARCH && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-11-openjdk-$ARCH/conf/security/java.security
 
 #===================
 # Timezone settings

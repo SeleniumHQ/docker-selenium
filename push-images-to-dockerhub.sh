@@ -1,15 +1,15 @@
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.0.0
+VERSION=4.1.0
 NAMESPACE=seleniarm
 
 
-docker push seleniarm/base:4.0.0-$BUILD_DATE
-docker push seleniarm/hub:4.0.0-$BUILD_DATE
-docker push seleniarm/node-base:4.0.0-$BUILD_DATE
-docker push seleniarm/node-chromium:4.0.0-$BUILD_DATE
-docker push seleniarm/node-firefox:4.0.0-$BUILD_DATE
-docker push seleniarm/standalone-chromium:4.0.0-$BUILD_DATE
-docker push seleniarm/standalone-firefox:4.0.0-$BUILD_DATE
+docker push seleniarm/base:$VERSION-$BUILD_DATE
+docker push seleniarm/hub:$VERSION-$BUILD_DATE
+docker push seleniarm/node-base:$VERSION-$BUILD_DATE
+docker push seleniarm/node-chromium:$VERSION-$BUILD_DATE
+docker push seleniarm/node-firefox:$VERSION-$BUILD_DATE
+docker push seleniarm/standalone-chromium:$VERSION-$BUILD_DATE
+docker push seleniarm/standalone-firefox:$VERSION-$BUILD_DATE
 
 docker push seleniarm/base:latest
 docker push seleniarm/hub:latest
