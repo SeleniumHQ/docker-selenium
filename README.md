@@ -177,7 +177,7 @@ instructions on top of it.
 
 ___
 
-## Video recording ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
+## Video recording
 
 Tests execution can be recorded by using the `selenium/video:ffmpeg-4.3.1-20211217`
 Docker image. One container is needed per each container where a browser is running. This means if you are
@@ -219,7 +219,7 @@ Here is an example using a Hub and a few Nodes:
 
 ___
 
-## Dynamic Grid ![BETA](https://img.shields.io/badge/beta!-blue?style=for-the-badge)
+## Dynamic Grid
 
 Grid 4 has the ability to start Docker containers on demand, this means that it starts
 a Docker container in the background for each new session request, the test gets executed
