@@ -16,7 +16,7 @@ ARG TARGETARCH
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true \
-    ARCH=$TARGETARCH
+    ARCH=armhf
 
 #========================
 # Miscellaneous packages
