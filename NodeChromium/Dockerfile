@@ -2,18 +2,19 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM seleniarm/node-base:4.1.0-alpha-20211218
+FROM local-seleniarm/node-base:4.1.1-20220119
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
 
-# Install Chromium Arm64
+# Install Chromium 
 # RUN echo "deb http://http.us.debian.org/debian/ stable non-free contrib main" >> /etc/apt/sources.list \
 RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   # && apt-get -qqy install chromium=89.0.4389.82-1 \
   # && apt-get -qqy install chromium=90.0.4430.212-1 \
-  && apt-get -qqy install chromium=93.0.4577.82-1 \
+  # && apt-get -qqy install chromium=93.0.4577.82-1 \
+  && apt-get -qqy install chromium=97.0.4692.71-0.1 \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================

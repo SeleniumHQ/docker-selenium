@@ -1,6 +1,14 @@
-# Docker images for Selenium, built for Debian ARM64
+# Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64
 
-At this point, I've only updated the images for Chromium 93, the latest ARM64 build for Debian ARM64.
+Selenium container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
+
+- [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
+- [Standalone Firefox - ARM64 only](https://hub.docker.com/r/seleniarm/standalone-firefox)
+- [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
+- [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
+- [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
+
+For other images, see the next section to build them yourself.
 
 ## Only Building the Images
 
@@ -11,15 +19,19 @@ The NodeBase folder is the base for all Node${browser} images and includes a scr
 
 Inside build.sh are environment variables which are used to tag the built images. If changing the Selenium version, note that you must also edit the Base/Dockerfile and change which selenium-server version is downloaded via wget.  The Chromium version is set in NodeChromium/Dockerfile.txt.
 
-To build the images, run build.sh from the root directory of this repo:
+The build.sh script only builds the standalone images, node images, and the hub.  You are welcome to try and build and test the other images, if you need them.
+
+To build the images, run build.sh from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
 
 ```
-$ sh build.sh
+$ ./build.sh arm64    # or arm/v7 or amd64
 ```
 
-I have not pushed any images to the Docker registry. If you wish to push them to a registry, you may do so.  For more information on older ARM64 Selenium images, see https://github.com/sj26/docker-selenium and https://hub.docker.com/u/seleniarm
+This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium).  
 
-the primary motivation for creating this fork and updating the images is so I can use the noVNC client on Selenium 4.0.0. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
+Multi-arch images are located at https://hub.docker.com/u/seleniarm
+
+The primary motivation for creating this fork and updating the images is so I can use the noVNC client on Selenium 4.0.0 on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
 
 To start the container image, run:
 
