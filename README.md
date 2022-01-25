@@ -110,7 +110,8 @@ $ docker network rm grid
 
 #### Using different machines/VMs
 The Hub and Nodes will be created on different machines/VMs, they need to know each other's IPs to
-communicate properly.
+communicate properly. If more than one node will be running on the same Machine/VM, they must be
+configured to expose different ports.
 
 Hub - Machine/VM 1
 ``` bash
@@ -148,6 +149,18 @@ $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
     selenium/node-firefox:4.1.1-20220121
+```
+
+Node Chrome - Machine/VM 4
+``` bash
+$ docker run -d -p 5556:5556 \
+    --shm-size="2g" \
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    -e SE_NODE_HOST=<ip-from-machine-4> \
+    -e SE_NODE_PORT=5556 \
+    selenium/node-chrome:4.1.1-20220121
 ```
 
 #### Docker Compose
