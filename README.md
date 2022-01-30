@@ -248,7 +248,7 @@ configs = [
 # To have Docker listening through tcp on macOS, install socat and run the following command
 # socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
 url = "http://host.docker.internal:2375"
-# Docker imagee used for video recording
+# Docker image used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20220121"
 
 # Uncomment the following section if you are running the node on a separate VM
@@ -328,7 +328,7 @@ configs = [
 # To have Docker listening through tcp on macOS, install socat and run the following command
 # socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
 url = "http://host.docker.internal:2375"
-# Docker imagee used for video recording
+# Docker image used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20220121"
 
 # Uncomment the following section if you are running the node on a separate VM
