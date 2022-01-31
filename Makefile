@@ -329,9 +329,6 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
-	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
-	docker push $(NAME)/video:latest
-# video: this should be moved to release_latest when Selenium 4 is released
 
 test: test_chrome \
  test_firefox \
