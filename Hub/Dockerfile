@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.1.2-20220130
+FROM selenium/base:4.1.2-20220131
 LABEL authors=SeleniumHQ
 
 USER 1200
@@ -18,7 +18,7 @@ EXPOSE 4444
 # In seconds, maps to "--session-request-timeout"
 ENV SE_SESSION_REQUEST_TIMEOUT 300
 # In seconds, maps to "--session-retry-interval"
-ENV SE_SESSION_RETRY_INTERVAL 5
+ENV SE_SESSION_RETRY_INTERVAL 0
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
 
