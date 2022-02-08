@@ -6,17 +6,15 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 ![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
 ![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
 
-# Selenium Grid 4 is out!
+# Selenium Grid 4
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
 our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.1.2-20220131)
 
 To get notifications of new releases, add yourself as a "Releases only" watcher. 
 
-Doubts? Questions? Get in touch through the different communication channels available in the **Community** section.
-
-Looking for Grid 3? Head to the [Selenium 3 branch](https://github.com/SeleniumHQ/docker-selenium/tree/selenium-3). This branch
-will be kept for a while but won't receive any updates anymore.
+Looking for Grid 3? Head to the [Selenium 3 branch](https://github.com/SeleniumHQ/docker-selenium/tree/selenium-3). 
+This branch will be kept for a while but won't receive any updates anymore.
 
 ## Community
 
@@ -28,17 +26,17 @@ https://www.selenium.dev/support/
 
 1. Start a Docker container with Firefox
 
-``` bash
-$ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220131
+```bash
+docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220131
 ```
 
-2. Point your WebDriver tests to http://localhost:4444 *
+2. Point your WebDriver tests to http://localhost:4444
 
 3. That's it! 
 
 4. (Optional) To see what is happening inside the container, head to http://localhost:7900 (password is `secret`).
 
-* Grid 3 used "/wd/hub", while it should also work, it is no longer required
+*Grid 3 used `/wd/hub`, while it should also work, it is no longer required*
 
 More details about visualising the container activity, check the [Debugging](#debugging) section.
 
@@ -55,18 +53,18 @@ ___
 ### Standalone
 
 ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
-``` bash
-$ docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220131
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220131
 ```
 
 ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
-``` bash
-$ docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:4.1.2-20220131
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:4.1.2-20220131
 ```
 
-![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Microsoft Edge
-``` bash
-$ docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-edge:4.1.2-20220131
+![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Edge
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-edge:4.1.2-20220131
 ```
 
 _Note: Only one Standalone container can run on port_ `4444` _at the same time._
@@ -81,7 +79,9 @@ There are different ways to run the images and create a Grid with a Hub and Node
 The Hub and Nodes will be created in the same network and they will recognize each other by their container name.
 A Docker [network](https://docs.docker.com/engine/reference/commandline/network_create/) needs to be created as a first step.
 
-``` bash
+##### macOS/Linux
+
+```bash
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.1.2-20220131
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
@@ -101,6 +101,28 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     selenium/node-firefox:4.1.2-20220131
 ```
 
+##### Windows PowerShell
+
+```powershell
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.1.2-20220131
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    selenium/node-chrome:4.1.2-20220131
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    selenium/node-edge:4.1.2-20220131
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    selenium/node-firefox:4.1.2-20220131
+```
+
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
 
 ``` bash
@@ -113,13 +135,16 @@ The Hub and Nodes will be created on different machines/VMs, they need to know e
 communicate properly. If more than one node will be running on the same Machine/VM, they must be
 configured to expose different ports.
 
-Hub - Machine/VM 1
-``` bash
+##### Hub - Machine/VM 1
+```bash
 $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.1.2-20220131
 ```
 
-Node Chrome - Machine/VM 2
-``` bash
+##### Node Chrome - Machine/VM 2
+
+###### macOS/Linux
+
+```bash
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
@@ -129,8 +154,24 @@ $ docker run -d -p 5555:5555 \
     selenium/node-chrome:4.1.2-20220131
 ```
 
-Node Edge - Machine/VM 3
-``` bash
+###### Windows PowerShell
+
+```powershell
+$ docker run -d -p 5555:5555 `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -e SE_NODE_HOST=<ip-from-machine-2> `
+    selenium/node-chrome:4.1.2-20220131
+```
+
+
+##### Node Edge - Machine/VM 3
+
+###### macOS/Linux
+
+```bash
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
@@ -140,8 +181,23 @@ $ docker run -d -p 5555:5555 \
     selenium/node-edge:4.1.2-20220131
 ```
 
-Node Firefox - Machine/VM 4
-``` bash
+###### Windows PowerShell
+
+```powershell
+$ docker run -d -p 5555:5555 `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -e SE_NODE_HOST=<ip-from-machine-3> `
+    selenium/node-edge:4.1.2-20220131
+```
+
+##### Node Firefox - Machine/VM 4
+
+###### macOS/Linux
+
+```bash
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
@@ -151,7 +207,22 @@ $ docker run -d -p 5555:5555 \
     selenium/node-firefox:4.1.2-20220131
 ```
 
-Node Chrome - Machine/VM 4
+###### Windows PowerShell
+
+```powershell
+$ docker run -d -p 5555:5555 `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -e SE_NODE_HOST=<ip-from-machine-4> `
+    selenium/node-firefox:4.1.2-20220131
+```
+
+##### Node Chrome - Machine/VM 4
+
+###### macOS/Linux
+
 ``` bash
 $ docker run -d -p 5556:5556 \
     --shm-size="2g" \
@@ -160,6 +231,19 @@ $ docker run -d -p 5556:5556 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
     -e SE_NODE_PORT=5556 \
+    selenium/node-chrome:4.1.2-20220131
+```
+
+###### Windows PowerShell
+
+```powershell
+$ docker run -d -p 5556:5556 `
+    --shm-size="2g" `
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -e SE_NODE_HOST=<ip-from-machine-4> `
+    -e SE_NODE_PORT=5556 `
     selenium/node-chrome:4.1.2-20220131
 ```
 
@@ -256,11 +340,14 @@ configs = [
     ]
 
 # URL for connecting to the docker daemon
-# host.docker.internal works for macOS and Windows.
-# Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
-# To have Docker listening through tcp on macOS, install socat and run the following command
-# socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
-url = "http://host.docker.internal:2375"
+# Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
+# 127.0.0.1 is used because interally the container uses socat when /var/run/docker.sock is mounted 
+# If var/run/docker.sock is not mounted: 
+# Windows: make sure Docker Desktop exposes the daemon via tcp, and use http://host.docker.internal:2375.
+# macOS: install socat and run the following command, socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock,
+# then use http://host.docker.internal:2375.
+# Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
+url = "http://127.0.0.1:2375"
 # Docker image used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20220131"
 
@@ -277,14 +364,29 @@ This can be expanded to a full Grid deployment, all components deployed individu
 idea is to have the Hub in one virtual machine, and each of the Nodes in separate and more powerful
 virtual machines. 
 
-``` bash
+#### macOS/Linux
+
+```bash
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.1.2-20220131
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    -v /path/on/your/host/machine:/opt/selenium/assets \
+    -v ${PWD}/assets:/opt/selenium/assets \
+    selenium/node-docker:4.1.2-20220131
+```
+
+#### Windows PowerShell
+
+```powershell
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.1.2-20220131
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/assets:/opt/selenium/assets `
     selenium/node-docker:4.1.2-20220131
 ```
 
@@ -299,28 +401,55 @@ $ docker network rm grid
 
 ### Execution with Standalone roles
 
+#### macOS/Linux
+
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
-    -v /path/on/your/host/machine:/opt/selenium/assets \
+    -v ${PWD}/assets:/opt/selenium/assets \
+    selenium/standalone-docker:4.1.2-20220131
+```
+
+#### Windows PowerShell
+
+```bash
+docker run --rm --name selenium-docker -p 4444:4444 `
+    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/assets:/opt/selenium/assets `
     selenium/standalone-docker:4.1.2-20220131
 ```
 
 ### Using Dynamic Grid in different machines/VMs
 
-Hub - Machine/VM 1
-``` bash
+#### Hub - Machine/VM 1
+
+```bash
 $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.1.2-20220131
 ```
 
-Node Chrome - Machine/VM 2
-``` bash
+#### Node Chrome - Machine/VM 2
+
+#### macOS/Linux
+
+```bash
 $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
+    selenium/node-docker:4.1.2-20220131
+```
+
+#### Windows PowerShell
+
+```bash
+$ docker run -d -p 5555:5555 `
+    -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
+    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/assets:/opt/selenium/assets `
     selenium/node-docker:4.1.2-20220131
 ```
 
@@ -336,11 +465,14 @@ configs = [
     ]
 
 # URL for connecting to the docker daemon
-# host.docker.internal works for macOS and Windows.
-# Linux could use --net=host in the `docker run` instruction or 172.17.0.1 in the URI below.
-# To have Docker listening through tcp on macOS, install socat and run the following command
-# socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
-url = "http://host.docker.internal:2375"
+# Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
+# 127.0.0.1 is used because interally the container uses socat when /var/run/docker.sock is mounted 
+# If var/run/docker.sock is not mounted: 
+# Windows: make sure Docker Desktop exposes the daemon via tcp, and use http://host.docker.internal:2375.
+# macOS: install socat and run the following command, socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock,
+# then use http://host.docker.internal:2375.
+# Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
+url = "http://127.0.0.1:2375"
 # Docker image used for video recording
 video-image = "selenium/video:ffmpeg-4.3.1-20220131"
 
@@ -376,7 +508,7 @@ for example:
 ```
 
 After running a test, check the path you mounted to the Docker container, 
-(`/path/on/your/host/machine`), and you should see videos and session information. 
+(`${PWD}/assets`), and you should see videos and session information. 
 ___
 
 ## Deploying to Kubernetes
