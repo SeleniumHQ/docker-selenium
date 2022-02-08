@@ -121,7 +121,7 @@ docker: base generate_docker
 generate_standalone_docker:
 	cd ./StandaloneDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_docker: base generate_standalone_docker
+standalone_docker: docker generate_standalone_docker
 	cd ./StandaloneDocker && docker build $(BUILD_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 generate_standalone_firefox:
