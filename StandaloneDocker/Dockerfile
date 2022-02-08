@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.1.2-20220131
+FROM selenium/node-docker:4.1.2-20220208
 LABEL authors=SeleniumHQ
 
 USER 1200
@@ -13,11 +13,7 @@ USER 1200
 
 EXPOSE 4444
 
-COPY start-selenium-grid-standalone-docker.sh \
-    config.toml \
-    /opt/bin/
-
-COPY selenium-grid-standalone-docker.conf /etc/supervisor/conf.d/
+COPY start-selenium-grid-docker.sh /opt/bin/
 
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
