@@ -13,7 +13,7 @@ git clone https://github.com/pedrodotmc/docker-selenium.git
 # Install basic grid
 helm install selenium-grid docker-selenium/chart/selenium-grid/.
 
-# Or install full grid (Router, Distributor, EventBus, SessionMap and SessionQueuer components separated)
+# Or install full grid (Router, Distributor, EventBus, SessionMap and SessionQueue components separated)
 helm install selenium-grid --set isolateComponents=true docker-selenium/chart/selenium-grid/.
 ```
 
@@ -171,13 +171,13 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionMap.resources`             | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionMap.serviceType`           | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionMap.serviceAnnotations`    | `{}`                      | Custom annotations for Session Map service                                                                                       |
-| `components.sessionQueuer.imageName`          | `selenium/session-queuer` | Session Queuer image name                                                                                                        |
-| `components.sessionQueuer.imageTag`           | `nil`                     | Session Queuer image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                |
-| `components.sessionQueuer.imagePullPolicy`    | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
-| `components.sessionQueuer.annotations`        | `{}`                      | Custom annotations for Session Queuer pod                                                                                        |
-| `components.sessionQueuer.resources`          | `{}`                      | Resources for event-bus container                                                                                                |
-| `components.sessionQueuer.serviceType`        | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
-| `components.sessionQueuer.serviceAnnotations` | `{}`                      | Custom annotations for Session Queuer service                                                                                    |
+| `components.sessionQueue.imageName`           | `selenium/session-queue`  | Session Queue image name                                                                                                         |
+| `components.sessionQueue.imageTag`            | `nil`                     | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                 |
+| `components.sessionQueue.imagePullPolicy`     | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.sessionQueue.annotations`         | `{}`                      | Custom annotations for Session Queue pod                                                                                         |
+| `components.sessionQueue.resources`           | `{}`                      | Resources for event-bus container                                                                                                |
+| `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.sessionQueue.serviceAnnotations`  | `{}`                      | Custom annotations for Session Queue service                                                                                     |
 | `components.extraEnvironmentVariables`        | `nil`                     | Custom environment variables for all components                                                                                  |
 
 See how to customize a helm chart installation in the [Helm Docs](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more information.

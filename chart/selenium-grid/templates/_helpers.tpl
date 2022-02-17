@@ -45,10 +45,10 @@ SessionMap fullname
 {{- end -}}
 
 {{/*
-SessionQueuer fullname
+SessionQueue fullname
 */}}
-{{- define "seleniumGrid.sessionQueuer.fullname" -}}
-{{- default "selenium-session-queuer" .Values.components.sessionQueuer.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "seleniumGrid.sessionQueue.fullname" -}}
+{{- default "selenium-session-queue" .Values.components.sessionQueue.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

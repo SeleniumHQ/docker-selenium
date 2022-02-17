@@ -9,6 +9,7 @@ All notable changes to this helm chart will be documented in this file.
 - Support for `nodeSelector`.
 - Support for `tolerations`.
 - Allow to add additional labels to the hub, edge, firefox and chrome nodes.
+- Fix queue component name (#1290)
 
 ### Changed
 - Update image tag to 4.1.2-20220208

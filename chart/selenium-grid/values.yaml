@@ -135,27 +135,27 @@ components:
     # Node selector for Session Map container
     nodeSelector: {}
 
-  # Configuration for Session Queuer component
-  sessionQueuer:
-    # Session Queuer image name
-    imageName: selenium/session-queuer
-    # Session Queuer image tag (this overwrites global.seleniumGrid.imageTag parameter)
+  # Configuration for Session Queue component
+  sessionQueue:
+    # Session Queue image name
+    imageName: selenium/session-queue
+    # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
     # imageTag: 4.1.2-20220208
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
-    # Custom annotations for Session Queuer pod
+    # Custom annotations for Session Queue pod
     annotations: {}
     port: 5559
-    # Resources for Session Queuer container
+    # Resources for Session Queue container
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
-    # Custom annotations for Session Queuer service
+    # Custom annotations for Session Queue service
     serviceAnnotations: {}
-    # Tolerations for Session Queuer container
+    # Tolerations for Session Queue container
     tolerations: []
-    # Node selector for Session Queuer container
+    # Node selector for Session Queue container
     nodeSelector: {}
 
   # Custom environment variables for all components

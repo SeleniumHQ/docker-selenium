@@ -37,10 +37,10 @@ spec:
               value: {{ template "seleniumGrid.sessionMap.fullname" . }}
             - name: SE_SESSIONS_MAP_PORT
               value: {{ .Values.components.sessionMap.port | quote }}
-            - name: SE_SESSION_QUEUER_HOST
-              value: {{ template "seleniumGrid.sessionQueuer.fullname" . }}
-            - name: SE_SESSION_QUEUER_PORT
-              value: {{ .Values.components.sessionQueuer.port | quote }}
+            - name: SE_SESSION_QUEUE_HOST
+              value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+            - name: SE_SESSION_QUEUE_PORT
+              value: {{ .Values.components.sessionQueue.port | quote }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}

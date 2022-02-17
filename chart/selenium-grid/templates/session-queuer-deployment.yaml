@@ -2,11 +2,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "seleniumGrid.sessionQueuer.fullname" . }}
+  name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
   namespace: {{ .Release.Namespace }}
-  labels: &session_queuer_labels
-    app: selenium-session-queuer
-    app.kubernetes.io/name: selenium-session-queuer
+  labels: &session_queue_labels
+    app: selenium-session-queue
+    app.kubernetes.io/name: selenium-session-queue
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
@@ -15,19 +15,19 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-session-queuer
+      app: selenium-session-queue
   template:
     metadata:
-      labels: *session_queuer_labels
-    {{- with .Values.components.sessionQueuer.annotations }}
+      labels: *session_queue_labels
+    {{- with .Values.components.sessionQueue.annotations }}
       annotations: {{- toYaml . | nindent 8 }}
     {{- end }}
     spec:
       containers:
-        - name: selenium-session-queuer
-          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionQueuer.imageTag }}
-          image: {{ printf "%s:%s" .Values.components.sessionQueuer.imageName $imageTag }}
-          imagePullPolicy: {{ .Values.components.sessionQueuer.imagePullPolicy }}
+        - name: selenium-session-queue
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionQueue.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.sessionQueue.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.sessionQueue.imagePullPolicy }}
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
@@ -35,15 +35,15 @@ spec:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
           ports:
-            - containerPort: {{ .Values.components.sessionQueuer.port }}
+            - containerPort: {{ .Values.components.sessionQueue.port }}
               protocol: TCP
-        {{- with .Values.components.sessionQueuer.resources }}
+        {{- with .Values.components.sessionQueue.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
-    {{- with .Values.components.sessionQueuer.nodeSelector }}
+    {{- with .Values.components.sessionQueue.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.components.sessionQueuer.tolerations }}
+    {{- with .Values.components.sessionQueue.tolerations }}
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
