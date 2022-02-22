@@ -3,7 +3,7 @@
 Selenium container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
 
 - [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
-- [Standalone Firefox - ARM64 only](https://hub.docker.com/r/seleniarm/standalone-firefox)
+- [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
 - [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
 - [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
 - [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
