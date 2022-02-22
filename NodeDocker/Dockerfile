@@ -2,8 +2,17 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.1.0-20211209
+FROM selenium/base:4.1.2-20220217
 LABEL authors=SeleniumHQ
+
+USER root
+
+#==============
+# Socat to proxy docker.sock when mounted
+#==============
+RUN apt-get update -qqy \
+  && apt-get -qqy install socat \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 USER 1200
 
@@ -13,9 +22,10 @@ USER 1200
 
 EXPOSE 4444
 
-COPY start-selenium-grid-node-docker.sh \
+COPY start-selenium-grid-docker.sh \
     config.toml \
+    start-socat.sh \
     /opt/bin/
 
-COPY selenium-grid-node-docker.conf /etc/supervisor/conf.d/
+COPY selenium-grid-docker.conf /etc/supervisor/conf.d/
 

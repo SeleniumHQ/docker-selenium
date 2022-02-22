@@ -1,7 +1,7 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-VERSION := $(or $(VERSION),$(VERSION),4.0.0-beta-3)
+VERSION := $(or $(VERSION),$(VERSION),4.1.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
@@ -121,7 +121,7 @@ docker: base generate_docker
 generate_standalone_docker:
 	cd ./StandaloneDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_docker: base generate_standalone_docker
+standalone_docker: docker generate_standalone_docker
 	cd ./StandaloneDocker && docker build $(BUILD_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 generate_standalone_firefox:
@@ -329,9 +329,6 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
-	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
-	docker push $(NAME)/video:latest
-# video: this should be moved to release_latest when Selenium 4 is released
 
 test: test_chrome \
  test_firefox \

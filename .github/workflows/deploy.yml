@@ -45,6 +45,35 @@ jobs:
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Deploy new images
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
+      - name: Tag images as latest
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
+      - name: Deploy latest tag
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
+      - name: Tag browser images
+        uses: nick-invision/retry@v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
       - name: Commit files
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
@@ -55,19 +84,6 @@ jobs:
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           branch: trunk
-      - name: Login Docker Hub
-        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        env:
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      - name: Deploy new images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
-      - name: Tag images as latest
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
-      - name: Deploy latest tag
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
-      - name: Tag browser images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release

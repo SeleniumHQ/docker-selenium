@@ -2,8 +2,13 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+<<<<<<< HEAD
 FROM local-seleniarm/node-firefox:4.1.0-20211217
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
+=======
+FROM selenium/node-firefox:4.1.2-20220217
+LABEL authors=SeleniumHQ
+>>>>>>> 655026371fd7958b4aec2dd551a0b9af0cc5f4b3
 
 USER 1200
 

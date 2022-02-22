@@ -20,6 +20,7 @@ if [ ! -z "$SE_OPTS" ]; then
 fi
 
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar event-bus \
+  --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}

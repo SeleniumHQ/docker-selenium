@@ -32,6 +32,7 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
+  --bind-host ${SE_BIND_HOST} \
   --detect-drivers false \
   --config /opt/bin/config.toml \
   ${SE_GRID_URL} ${SE_OPTS}

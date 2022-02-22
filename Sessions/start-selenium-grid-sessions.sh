@@ -37,6 +37,7 @@ fi
 java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessions \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
+  --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}

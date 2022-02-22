@@ -60,6 +60,7 @@ java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar distributor \
   --sessionqueue-host "${SE_SESSION_QUEUE_HOST}" --sessionqueue-port "${SE_SESSION_QUEUE_PORT}" \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_PUBLISH_PORT}" \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_SUBSCRIBE_PORT}" \
+  --bind-host ${SE_BIND_HOST} \
   --bind-bus false \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
