@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM seleniarm/base:4.1.0-alpha-20211218
+FROM local-seleniarm/base:latest
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
 
 USER root
@@ -139,15 +139,21 @@ COPY selenium.conf /etc/supervisor/conf.d/
 RUN mkdir -p ${HOME}/.vnc \
   && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
 
-USER root
+# Added to avoid the following sudo error while running multi-arch builds:
+# "sudo: effective uid is not 0, is /usr/bin/sudo on a file system with 
+#   the 'nosuid' option set or an NFS file system without root privileges?"
+USER root 
+
 #==========
 # Relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN  chmod -R 777 ${HOME} \
-  &&  chgrp -R 0 ${HOME} \
-  &&  chmod -R g=u ${HOME}
+RUN chmod -R 777 ${HOME} \
+  && chgrp -R 0 ${HOME} \
+  && chmod -R g=u ${HOME}
 
+# Added to avoid sudo-related multi-arch build errors
 USER 1200
+
 #==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
@@ -188,10 +194,13 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
+# Added to avoid sudo-related multi-arch build errors
 USER root
-# Creating base directory for Xvfb
-RUN  mkdir -p /tmp/.X11-unix &&  chmod 1777 /tmp/.X11-unix
 
+# Creating base directory for Xvfb
+RUN  mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
+
+# Added to avoid sudo-related multi-arch build errors
 USER 1200
 
 # Copying configuration script generator
