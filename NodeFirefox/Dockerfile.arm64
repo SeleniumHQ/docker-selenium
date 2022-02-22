@@ -8,7 +8,8 @@ USER root
 #=========
 RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
-  && apt-get -qqy install firefox-esr libavcodec-extra \
+  # && apt-get -qqy install firefox-esr libavcodec-extra \
+  && apt-get -qqy install firefox libavcodec-extra \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 # geckodriver was built using the local-seleniarm/geckodriver-arm64 Debian image
