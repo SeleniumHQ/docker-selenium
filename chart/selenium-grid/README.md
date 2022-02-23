@@ -8,7 +8,7 @@ To install the selenium-grid helm chart, you can run:
 
 ```bash
 # Clone the project
-git clone https://github.com/pedrodotmc/docker-selenium.git
+git clone https://github.com/seleniumhq/docker-selenium.git
 
 # Install basic grid
 helm install selenium-grid docker-selenium/chart/selenium-grid/.
