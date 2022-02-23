@@ -789,8 +789,8 @@ You can override it with the `VNC_PORT` environment variable in case you want to
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
 $ docker run -d -p 4444:4444 -p 5900:5900 --shm-size="2g" selenium/standalone-chrome:4.1.2-20220217
-$ docker run -d -p 4444:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-edge:4.1.2-20220217
-$ docker run -d -p 4445:4444 -p 5902:5900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220217
+$ docker run -d -p 4445:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-edge:4.1.2-20220217
+$ docker run -d -p 4446:4444 -p 5902:5900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220217
 ```
 
 Then, you would use in your VNC client:
@@ -827,8 +827,8 @@ You can also override it with the `NO_VNC_PORT` environment variable in case you
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
 $ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.1.2-20220217
-$ docker run -d -p 4444:4444 -p 7901:7900 --shm-size="2g" selenium/standalone-edge:4.1.2-20220217
-$ docker run -d -p 4445:4444 -p 7902:7900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220217
+$ docker run -d -p 4445:4444 -p 7901:7900 --shm-size="2g" selenium/standalone-edge:4.1.2-20220217
+$ docker run -d -p 4446:4444 -p 7902:7900 --shm-size="2g" selenium/standalone-firefox:4.1.2-20220217
 ```
 
 Then, you would use in your browser:
