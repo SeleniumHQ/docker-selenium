@@ -1,0 +1,25 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.router.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-router
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.router.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: selenium-router
+  type: {{ .Values.components.router.serviceType }}
+  ports:
+    - name: tcp-router
+      protocol: TCP
+      port: {{ .Values.components.router.port }}
+      targetPort: {{ .Values.components.router.port }}
+{{- end }}

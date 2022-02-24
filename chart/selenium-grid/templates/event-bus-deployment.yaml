@@ -1,0 +1,51 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.eventBus.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &event_bus_labels
+    app: selenium-event-bus
+    app.kubernetes.io/name: selenium-event-bus
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-event-bus
+  template:
+    metadata:
+      labels: *event_bus_labels
+    {{- with .Values.components.eventBus.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      containers:
+        - name: selenium-event-bus
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.eventBus.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.eventBus.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.eventBus.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.components.eventBus.port }}
+              protocol: TCP
+            - containerPort: {{ .Values.components.eventBus.publishPort }}
+              protocol: TCP
+            - containerPort: {{ .Values.components.eventBus.subscribePort }}
+              protocol: TCP
+        {{- with .Values.components.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+        {{- with .Values.components.eventBus.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.components.eventBus.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.components.eventBus.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

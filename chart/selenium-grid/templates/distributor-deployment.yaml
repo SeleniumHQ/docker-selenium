@@ -1,0 +1,59 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.distributor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &distributor_labels
+    app: selenium-distributor
+    app.kubernetes.io/name: selenium-distributor
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-distributor
+  template:
+    metadata:
+      labels: *distributor_labels
+    {{- with .Values.components.distributor.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      containers:
+        - name: selenium-distributor
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.distributor.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.distributor.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
+          env:
+            - name: SE_SESSIONS_MAP_HOST
+              value: {{ template "seleniumGrid.sessionMap.fullname" . }}
+            - name: SE_SESSIONS_MAP_PORT
+              value: {{ .Values.components.sessionMap.port | quote }}
+            - name: SE_SESSION_QUEUE_HOST
+              value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+            - name: SE_SESSION_QUEUE_PORT
+              value: {{ .Values.components.sessionQueue.port | quote }}
+          {{- with .Values.components.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+          ports:
+            - containerPort: {{ .Values.components.distributor.port }}
+              protocol: TCP
+        {{- with .Values.components.distributor.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.components.distributor.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.components.distributor.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

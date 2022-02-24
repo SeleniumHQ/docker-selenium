@@ -1,0 +1,67 @@
+{{- if .Values.edgeNode.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &edge_node_labels
+    app: selenium-edge-node
+    app.kubernetes.io/name: selenium-edge-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.edgeNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.edgeNode.replicas }}
+  selector:
+    matchLabels:
+      app: selenium-edge-node
+  template:
+    metadata:
+      labels: *edge_node_labels
+      annotations:
+        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
+        {{- with .Values.edgeNode.annotations }}
+          {{ toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      containers:
+        - name: selenium-edge-node
+          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.edgeNode.imageTag }}
+          image: {{ printf "%s:%s" .Values.edgeNode.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.edgeNode.imagePullPolicy }}
+        {{- with .Values.edgeNode.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+        {{- if gt (len .Values.edgeNode.ports) 0 }}
+          ports:
+          {{- range .Values.edgeNode.ports }}
+            - containerPort: {{ . }}
+              protocol: TCP
+          {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+        {{- with .Values.edgeNode.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.edgeNode.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.edgeNode.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: {{ default "1Gi" .Values.edgeNode.dshmVolumeSizeLimit }}
+{{- end }}
