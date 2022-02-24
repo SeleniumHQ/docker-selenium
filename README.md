@@ -518,23 +518,9 @@ After running a test, check the path you mounted to the Docker container,
 ___
 
 ## Deploying to Kubernetes
-Here are the steps to deploy the Grid 4 to a Kubernetes cluster.
-``` bash
-# Deploying all the grid components to kubernetes
-$ kubectl apply -f k8s-deployment-full-grid.yaml
 
-# Exposing the router
-$ kubectl expose deployment selenium-router-deployment --type=NodePort --port=4444
-
-# Get the router URL to access the grid from outside K8s cluster
-$ minikube service selenium-router-deployment --url
-
-# To list all the Grid componenets
-$ kubectl get all -l component=selenium-grid-4
-```
-
-Check out [the Kubernetes examples](https://github.com/kubernetes/examples/tree/master/staging/selenium)
-on how to deploy selenium hub and nodes on a Kubernetes cluster.
+We offer a Helm chart to deploy these Docker images to Kubernetes.
+Read more details at the Helm [readme](./chart/selenium-grid/README.md).
 
 ___
 
