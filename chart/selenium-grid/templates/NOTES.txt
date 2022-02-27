@@ -1,0 +1,22 @@
+Selenium Grid Server deployed succesfully.
+
+1. Get the URL FOR WebDriver tests by running these commands:
+
+    {{- $appName := ternary "selenium-router" "selenium-hub" .Values.isolateComponents }}
+    {{- $serviceType := ternary .Values.components.router.serviceType .Values.hub.serviceType .Values.isolateComponents }}
+    {{- $port := ternary .Values.components.router.port .Values.hub.port .Values.isolateComponents }}
+    {{- $localUrl := ternary "http://localhost:PORT" "http://localhost:PORT/wd/hub" .Values.isolateComponents }}
+    {{- if contains "NodePort" $serviceType }}
+    export NODE_PORT=$(kubectl get -n {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" svc {{ include "seleniumGrid.router.fullname" . }})
+    export NODE_IP=$(kubectl get nodes -n {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+    echo http://$NODE_IP:$NODE_PORT
+    {{- else if contains "LoadBalancer" $serviceType }}
+        NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+            You can watch the status of by running 'kubectl get -n {{ .Release.Namespace }} svc -w {{ include "seleniumGrid.router.fullname" . }}'
+    export SERVICE_IP=$(kubectl get svc -n {{ .Release.Namespace }} {{ include "seleniumGrid.router.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+    echo http://$SERVICE_IP:{{ $port }}
+    {{- else if contains "ClusterIP" $serviceType }}
+    export POD_NAME=$(kubectl get pods -n {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ $appName }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+    echo "Point your WebDriver tests to {{ $localUrl | replace "PORT" (toString $port) }}"
+    kubectl -n {{ .Release.Namespace }} port-forward $POD_NAME {{ $port }}:{{ $port }}
+    {{- end }}

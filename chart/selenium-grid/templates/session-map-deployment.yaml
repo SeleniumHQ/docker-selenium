@@ -1,0 +1,50 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.sessionMap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &session_map_labels
+    app: selenium-session-map
+    app.kubernetes.io/name: selenium-session-map
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-session-map
+  template:
+    metadata:
+      labels: *session_map_labels
+    {{- with .Values.components.sessionMap.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      containers:
+        - name: selenium-session-map
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionMap.imageTag }}
+          image: {{ printf "%s:%s" .Values.components.sessionMap.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
+        {{- with .Values.components.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+          ports:
+            - containerPort: {{ .Values.components.sessionMap.port }}
+              protocol: TCP
+        {{- with .Values.components.sessionMap.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.components.sessionMap.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.components.sessionMap.tolerations }}
+      tolerations:
+        {{ toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,23 @@
+{{- if and .Values.firefoxNode.enabled .Values.firefoxNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: selenium-firefox-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.firefoxNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.firefoxNode.service.type }}
+  selector:
+    app: selenium-firefox-node
+  ports:
+    - name: tcp-firefox
+      protocol: TCP
+      port: {{ .Values.firefoxNode.seleniumServicePort }}
+      targetPort: {{ .Values.firefoxNode.seleniumPort }}
+{{- end }}

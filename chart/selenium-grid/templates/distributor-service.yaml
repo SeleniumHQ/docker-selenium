@@ -1,0 +1,25 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.distributor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-distributor
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.distributor.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: selenium-distributor
+  type: {{ .Values.components.distributor.serviceType }}
+  ports:
+    - name: tcp-dist
+      protocol: TCP
+      port: {{ .Values.components.distributor.port }}
+      targetPort: {{ .Values.components.distributor.port }}
+{{- end }}
