@@ -2,8 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM seleniarm/node-base:4.1.2-20220227
-LABEL authors=SeleniumHQ,sj26,jamesmortensen
+FROM local-seleniarm/node-base:4.1.2-20220302
+LABEL authors=SeleniumHQ
 
 #FROM local-seleniarm/node-base:4.0.0-20211018
 #LABEL authors=SeleniumHQ,sj26,jamesmortensen
@@ -22,27 +22,30 @@ RUN echo "deb http://ftp.hk.debian.org/debian/ sid main" >> /etc/apt/sources.lis
   && apt-get -qqy install firefox libavcodec-extra \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# geckodriver-arm64 was built using the local-seleniarm/geckodriver-arm64 Debian image
-COPY geckodriver /opt/geckodriver-bin/geckodriver-arm64
-
+#=============
+# geckodriver
+#=============
 RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
        export ARCH=armhf ; \
     else \
        export ARCH=$TARGETARCH ; \
     fi ; \
+    if [ -z "$ARCH" ]; then \
+       echo "*** BUILD ERROR: \$TARGETARCH must be arm64, amd64, or arm with \$TARGETVARIANT set to v7... exiting..." ; \
+       exit 1 ; \
+    fi ; \
     if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "armhf" ]; then \
-       echo "Symlinking pre-built ARM geckodriver to /usr/local/bin/geckodriver" ; \
-       ln -s /opt/geckodriver-bin/geckodriver-arm64 /usr/local/bin/geckodriver ; \
-       chmod 755 /usr/local/bin/geckodriver ; \
+       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/jamesmortensen/geckodriver-arm-binaries/releases/download/v0.30.0/geckodriver-v0.30.0-linux-aarch64.tar.gz ; \
     else \
        wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz ; \
-       tar -C /tmp -zxf /tmp/geckodriver.tar.gz ; \
-       rm /tmp/geckodriver.tar.gz ; \
-       mv /tmp/geckodriver /opt/geckodriver-bin/geckodriver-amd64 ; \
-       echo "Symlinking AMD64 geckodriver to /usr/local/bin/geckodriver" ; \
-       ln -s /opt/geckodriver-bin/geckodriver-amd64 /usr/local/bin/geckodriver ; \
-       chmod 755 /usr/local/bin/geckodriver ; \
-    fi
+    fi ; \
+    tar -C /tmp -zxf /tmp/geckodriver.tar.gz ; \
+    rm /tmp/geckodriver.tar.gz ; \
+    mkdir -p /opt/geckodriver-bin ; \
+    mv /tmp/geckodriver /opt/geckodriver-bin/geckodriver ; \
+    echo "Symlinking geckodriver to /usr/local/bin/geckodriver" ; \
+    ln -s /opt/geckodriver-bin/geckodriver /usr/local/bin/geckodriver ; \
+    chmod 755 /usr/local/bin/geckodriver
 
 USER 1200
 

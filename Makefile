@@ -11,6 +11,7 @@ MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-4.3.1)
+ARCH := $(or $(ARCH),$(ARCH),arm64)
 
 all: hub \
 	distributor \
@@ -145,6 +146,59 @@ standalone_edge: edge generate_standalone_edge
 video:
 	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
+# Generate and build multi-arch images
+all_multi: base_multi \
+    hub_multi \
+	chromium_multi \
+	firefox_multi \
+	standalone_chromium_multi \
+	standalone_firefox_multi
+
+generate_all_multi:  \
+	generate_hub \
+	generate_node_base \
+	generate_chromium_multi \
+	generate_firefox_multi \
+	generate_standalone_chromium_multi \
+	generate_standalone_firefox_multi
+
+build_multi: all_multi
+
+ci_multi: build_multi test_multi_arch
+
+base_multi:
+	cd ./Base && docker build --build-arg TARGETARCH=$(ARCH) -t $(NAME)/base:$(TAG_VERSION) .
+
+hub_multi: base_multi generate_hub
+	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+
+node_base_multi: base_multi generate_node_base
+	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+
+generate_chromium_multi:
+	cd ./NodeChromium && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+chromium_multi: node_base_multi generate_chromium_multi
+	cd ./NodeChromium && docker build $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
+
+# TODO: Need to make sure arguments are passed into the script to override defaults.
+generate_firefox_multi:
+	cd ./NodeFirefox && ./build-step-2.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+firefox_multi: node_base_multi generate_firefox_multi
+	cd ./NodeFirefox && docker build --build-arg TARGETARCH=$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+
+generate_standalone_firefox_multi:
+	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+standalone_firefox_multi: firefox_multi generate_standalone_firefox_multi
+	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+
+generate_standalone_chromium_multi:
+	cd ./Standalone && ./generate.sh StandaloneChromium node-chromium $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+standalone_chromium_multi: chromium_multi generate_standalone_chromium_multi
+	cd ./StandaloneChromium && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
@@ -355,6 +409,27 @@ test_firefox:
 
 test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
+
+
+# Test multi-arch container images
+test_multi_arch: test_chromium_multi \
+ test_firefox_multi \
+ test_chromium_standalone_multi \
+ test_firefox_standalone_multi
+
+
+test_chromium_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromium
+
+test_chromium_standalone_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromium
+
+test_firefox_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
+
+test_firefox_standalone_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
+
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.

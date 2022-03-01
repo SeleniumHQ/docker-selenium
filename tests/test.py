@@ -21,6 +21,7 @@ RUN_IN_DOCKER_COMPOSE = os.environ.get('RUN_IN_DOCKER_COMPOSE')
 http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
+SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
 
 IMAGE_NAME_MAP = {
     # Hub
@@ -37,6 +38,10 @@ IMAGE_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
+
+    # Chromium Images
+    'NodeChromium': 'node-chromium',
+    'StandaloneChromium': 'standalone-chromium',
 }
 
 TEST_NAME_MAP = {
@@ -51,6 +56,10 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+
+    # Chrome Images
+    'NodeChromium': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
 }
 
 
@@ -103,12 +112,16 @@ def launch_container(container, **kwargs):
     :param container:
     :return: the container ID
     """
-    # Build the container if it doesn't exist
-    logger.info("Building %s container..." % container)
-    client.images.build(path='../%s' % container,
-                        tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                        rm=True)
-    logger.info("Done building %s" % container)
+    skip_building_images = SKIP_BUILD == 'true'
+    if skip_building_images:
+        logger.info("SKIP_BUILD is true...not rebuilding images...")
+    else:
+        # Build the container if it doesn't exist
+        logger.info("Building %s container..." % container)
+        client.images.build(path='../%s' % container,
+                            tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                            rm=True)
+        logger.info("Done building %s" % container)
 
     # Run the container
     logger.info("Running %s container..." % container)

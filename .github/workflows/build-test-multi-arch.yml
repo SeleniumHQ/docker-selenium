@@ -1,0 +1,49 @@
+name: Build & test multi-arch
+
+on:
+  push:
+    branches:
+      - multi-arch-tests
+  pull_request:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+jobs:
+  build-and-test-multi-arch:
+    # Skip job based on the commit message, only works in push to branches for now
+    if: contains(toJson(github.event.commits), '[skip ci]') == false
+    name: Build & test multi-arch Docker images with random user
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        use-random-user: [false, true]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Output Docker info
+        run: docker info
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Get branch name (only for push to branch)
+        if: github.event_name == 'push'
+        run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          PUSH_BRANCH: ${{ github.ref }}
+      - name: Get target branch name (only for PRs)
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH=$(echo ${TARGET_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+      - name: Output branch name
+        run: echo ${BRANCH}
+      - name: Sets build date
+        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+      - name: Build Docker images
+        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=amd64 make build_multi
+      - name: Test Docker images
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=amd64 SKIP_BUILD=true make test_multi_arch
+        env:
+          USE_RANDOM_USER: ${{ matrix.use-random-user }}
+
