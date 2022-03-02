@@ -6,6 +6,20 @@ and made the source code freely available under the [Apache License 2.0](LICENSE
 ![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
 ![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
 
+## Images published to Docker Hub registry
+
+These images are published to the Docker Hub registry at [Selenium Docker Hub](https://hub.docker.com/u/selenium).
+
+## Experimental Mult-Arch aarch64/armhf/amd64 Images
+
+For experimental docker container images, which run on platforms such as the Mac M1 or Raspberry Pi, see the community repository hosted at [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).  These images are built for three separate architectures:  linux/arm64 (aarch64), linux/arm/v7 (armhf), and linux/amd64. 
+
+Furthermore, these experimental container images are published on [Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
+
+See [Issue #1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
+
+If you're working on an Intel or AMD64 architecture, we recommend using the container images in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
+
 # Selenium Grid 4
 
 Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
