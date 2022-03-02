@@ -1,40 +1,22 @@
+![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
+![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
+
 # Docker images for the Selenium Grid Server
 
 The project is made possible by volunteer contributors who have put in thousands of hours of their own time, 
 and made the source code freely available under the [Apache License 2.0](LICENSE.md).
 
-![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
-![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
-
-## Images published to Docker Hub registry
-
-These images are published to the Docker Hub registry at [Selenium Docker Hub](https://hub.docker.com/u/selenium).
-
-## Experimental Mult-Arch aarch64/armhf/amd64 Images
-
-For experimental docker container images, which run on platforms such as the Mac M1 or Raspberry Pi, see the community repository hosted at [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).  These images are built for three separate architectures:  linux/arm64 (aarch64), linux/arm/v7 (armhf), and linux/amd64. 
-
-Furthermore, these experimental container images are published on [Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
-
-See [Issue #1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
-
-If you're working on an Intel or AMD64 architecture, we recommend using the container images in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
-
-# Selenium Grid 4
-
-Docker images for Grid 4 come with a handful of tags to simplify its usage, have a look at them in one of 
-our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.1.2-20220217)
+These Docker images come with a handful of tags to simplify its usage, have a look at them in one of 
+our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.1.2-20220217).
 
 To get notifications of new releases, add yourself as a "Releases only" watcher. 
 
-Looking for Grid 3? Head to the [Selenium 3 branch](https://github.com/SeleniumHQ/docker-selenium/tree/selenium-3). 
-This branch will be kept for a while but won't receive any updates anymore.
+These images are published to the Docker Hub registry at [Selenium Docker Hub](https://hub.docker.com/u/selenium).
 
 ## Community
 
 Do you need help to use these Docker images?
-All the contact points for the different Selenium projects can be seen at:
-https://www.selenium.dev/support/
+Talk to us at https://www.selenium.dev/support/
 
 ## Quick start
 
@@ -50,8 +32,6 @@ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-fire
 
 4. (Optional) To see what is happening inside the container, head to http://localhost:7900 (password is `secret`).
 
-*Grid 3 used `/wd/hub`, while it should also work, it is no longer required*
-
 More details about visualising the container activity, check the [Debugging](#debugging) section.
 
 :point_up: When executing `docker run` for an image that contains a browser please use 
@@ -59,6 +39,24 @@ the flag `--shm-size=2g` to use the host's shared memory.
   
 :point_up: Always use a Docker image with a full tag to pin a specific browser and Grid version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
+
+___
+
+## Experimental Mult-Arch aarch64/armhf/amd64 Images
+
+For experimental docker container images, which run on platforms such as the Mac M1 or Raspberry Pi, 
+see the community driven repository hosted at 
+[seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).
+These images are built for three separate architectures: linux/arm64 (aarch64), linux/arm/v7 (armhf), 
+and linux/amd64. 
+
+Furthermore, these experimental container images are published on 
+[Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
+
+See issue [#1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
+
+If you're working on an Intel or AMD64 architecture, we recommend using the container images 
+in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
 
 ___
 
