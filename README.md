@@ -18,6 +18,41 @@ These images are published to the Docker Hub registry at [Selenium Docker Hub](h
 Do you need help to use these Docker images?
 Talk to us at https://www.selenium.dev/support/
 
+## Contents
+
+* [Quick start](#quick-start)
+* [Experimental Mult-Arch aarch64/armhf/amd64 Images](#experimental-mult-arch-aarch64armhfamd64-images)
+* [Execution modes](#execution-modes)
+  + [Standalone](#standalone)
+  + [Hub and Nodes](#hub-and-nodes)
+    - [Docker networking](#docker-networking)
+    - [Using different machines/VMs](#using-different-machinesvms)
+    - [Docker Compose](#docker-compose)
+  + [Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes](#fully-distributed-mode---router-queue-distributor-eventbus-sessionmap-and-nodes)
+* [Video recording](#video-recording)
+* [Dynamic Grid](#dynamic-grid)
+  + [Configuration example](#configuration-example)
+  + [Execution with Hub & Node roles](#execution-with-hub--node-roles)
+  + [Execution with Standalone roles](#execution-with-standalone-roles)
+  + [Using Dynamic Grid in different machines/VMs](#using-dynamic-grid-in-different-machinesvms)
+  + [Execution with Docker Compose](#execution-with-docker-compose)
+  + [Video recording, screen resolution, and time zones in a Dynamic Grid](#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid)
+* [Kubernetes](#deploying-to-kubernetes)
+* [Configuring the containers](#configuring-the-containers)
+  + [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
+  + [JAVA_OPTS Java Environment Options](#java_opts-java-environment-options)
+  + [Node configuration options](#node-configuration-options)
+  + [Setting Screen Resolution](#setting-screen-resolution)
+  + [Grid Url and Session Timeout](#grid-url-and-session-timeout)
+  + [Session request timeout](#session-request-timeout)
+  + [Increasing session concurrency per container](#increasing-session-concurrency-per-container)
+  + [Running in Headless mode](#running-in-headless-mode)
+* [Building the images](#building-the-images)
+* [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
+* [Debugging](#debugging)
+* [Troubleshooting](#troubleshooting)
+
+
 ## Quick start
 
 1. Start a Docker container with Firefox
