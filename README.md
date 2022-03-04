@@ -836,9 +836,9 @@ it in the `/NodeBase/Dockerfile` and build the images yourself, or you can defin
 the posted ones which reconfigures it:
 
 ``` dockerfile
-#FROM selenium/node-chrome:4.1.2-20220217
-#FROM selenium/node-edge:4.1.2-20220217
-#FROM selenium/node-firefox:4.1.2-20220217
+#FROM selenium/node-chrome-debug:latest
+#FROM selenium/node-edge-debug:latest
+#FROM selenium/node-firefox-debug:latest
 #Choose the FROM statement that works for you.
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
