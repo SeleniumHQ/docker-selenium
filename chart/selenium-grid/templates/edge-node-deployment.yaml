@@ -39,6 +39,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
+            {{- with .Values.edgeNode.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
         {{- if gt (len .Values.edgeNode.ports) 0 }}
           ports:
           {{- range .Values.edgeNode.ports }}

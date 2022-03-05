@@ -63,6 +63,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node container                                                                                      |
 | `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node container                                                                                    |
 | `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
+| `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
 | `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
 | `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
 | `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
@@ -81,6 +82,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node container                                                                                     |
 | `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node container                                                                                   |
 | `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
 | `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
@@ -99,6 +101,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node container                                                                                        |
 | `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node container                                                                                      |
 | `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
 | `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
@@ -125,6 +128,7 @@ You can configure the Selenium Hub with this values:
 | `hub.tolerations`               | `[]`              | Tolerations for selenium-hub container                                                                                           |
 | `hub.nodeSelector`              | `{}`              | Node Selector for selenium-hub container                                                                                         |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
+| `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
 | `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `hub.serviceAnnotations`        | `{}`              | Custom annotations for Selenium Hub service                                                                                      |
@@ -179,5 +183,6 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionQueue.serviceAnnotations`  | `{}`                      | Custom annotations for Session Queue service                                                                                     |
 | `components.extraEnvironmentVariables`        | `nil`                     | Custom environment variables for all components                                                                                  |
+| `components.extraEnvFrom`                     | `nil`                     | Custom environment variables taken from `configMap` or `secret` for all components                                               |
 
 See how to customize a helm chart installation in the [Helm Docs](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more information.

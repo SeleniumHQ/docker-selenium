@@ -168,6 +168,13 @@ components:
     #       name: secret-name
     #       key: secret-key
 
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for all components
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
+
 # Configuration for selenium hub deployment (applied only if `isolateComponents: false`)
 hub:
   # Selenium Hub image name
@@ -213,6 +220,12 @@ hub:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Resources for selenium-hub container
   resources: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -268,6 +281,12 @@ chromeNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
@@ -323,6 +342,12 @@ firefoxNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
@@ -368,7 +393,7 @@ edgeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
-  # Custom environment variables for firefox nodes
+  # Custom environment variables for edge nodes
   extraEnvironmentVariables:
     # - name: JAVA_OPTS
     #   value: "-Xmx512m"
@@ -377,6 +402,12 @@ edgeNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
