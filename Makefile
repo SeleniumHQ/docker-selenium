@@ -146,6 +146,13 @@ standalone_edge: edge generate_standalone_edge
 video:
 	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
+
+# Register linux/arm64 and linux/arm/v7 architectures for building with BuildKit
+# docker run --rm --privileged aptman/qus -s -- -p  # for actions
+qemu_user_static:
+	docker run --rm --privileged aptman/qus -- -r ; \
+	docker run --rm --privileged -v /home/debian/qemu-binfmt/qemu-binfmt-conf.sh:/qus/qemu-binfmt-conf.sh  aptman/qus -s -- -p
+
 # Generate and build multi-arch images
 all_multi: base_multi \
     hub_multi \
@@ -166,8 +173,11 @@ build_multi: all_multi
 
 ci_multi: build_multi test_multi_arch
 
-base_multi:
+base_multi_old:
 	cd ./Base && docker build --build-arg TARGETARCH=$(ARCH) -t $(NAME)/base:$(TAG_VERSION) .
+
+base_multi: qemu_user_static
+	cd ./Base && docker buildx build --load --platform linux/$(ARCH) -t $(NAME)/base:$(TAG_VERSION)-$(ARCH) .
 
 hub_multi: base_multi generate_hub
 	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
