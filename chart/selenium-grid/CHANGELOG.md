@@ -12,7 +12,7 @@ All notable changes to this helm chart will be documented in this file.
 - Fix queue component name (#1290)
 
 ### Changed
-- Update image tag to 4.1.2-20220217
+- Update image tag to 4.1.2-20220317
 
 ### Removed
 - Opera nodes
