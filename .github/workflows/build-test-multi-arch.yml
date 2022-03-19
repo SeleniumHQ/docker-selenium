@@ -14,7 +14,7 @@ jobs:
   build-and-test-multi-arch:
     # Skip job based on the commit message, only works in push to branches for now
     if: contains(toJson(github.event.commits), '[skip ci]') == false
-    name: Build & test multi-arch Docker images with random user
+    name: Build & test multi-arch
     runs-on: ubuntu-20.04
     strategy:
       matrix:
