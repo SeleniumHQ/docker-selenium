@@ -20,6 +20,8 @@ jobs:
       matrix:
         use-random-user: [false, true]
         arch: [amd64, arm64]
+      fail-fast: false
+      
     steps:
       - uses: actions/checkout@v1
       - name: Output Docker info
