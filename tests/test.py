@@ -169,24 +169,24 @@ if __name__ == '__main__':
             """
             Standalone Configuration
             """
-            ports = {'4444': 4444}
-            if use_random_user_id:
-                test_container_id = launch_container(image, ports=ports, user=random_user_id)
-            else:
-                test_container_id = launch_container(image, ports=ports)
+            #ports = {'4444': 4444}
+            #if use_random_user_id:
+            #    test_container_id = launch_container(image, ports=ports, user=random_user_id)
+            #else:
+            #    test_container_id = launch_container(image, ports=ports)
         else:
             """
             Hub / Node Configuration
             """
-            prune_networks()
-            create_network("grid")
-            hub_id = launch_hub("grid")
-            ports = {'5555': 5555, '7900': 7900}
-            if use_random_user_id:
-                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
-            else:
-                test_container_id = launch_container(image, network='grid', ports=ports)
-            prune_networks()
+            #prune_networks()
+            #create_network("grid")
+            #hub_id = launch_hub("grid")
+            #ports = {'5555': 5555, '7900': 7900}
+            #if use_random_user_id:
+            #    test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
+            #else:
+            #    test_container_id = launch_container(image, network='grid', ports=ports)
+            #prune_networks()
 
         logger.info('========== / Containers ready to go ==========')
 
@@ -218,18 +218,18 @@ if __name__ == '__main__':
     if not run_in_docker_compose:
         logger.info("Cleaning up...")
 
-        test_container = client.containers.get(test_container_id)
-        test_container.kill()
-        test_container.remove()
-
-        if standalone:
-            logger.info("Standalone Cleaned up")
-        else:
-            # Kill the launched hub
-            hub = client.containers.get(hub_id)
-            hub.kill()
-            hub.remove()
-            logger.info("Hub / Node Cleaned up")
+        #test_container = client.containers.get(test_container_id)
+        #test_container.kill()
+        #test_container.remove()
+#
+        #if standalone:
+        #    logger.info("Standalone Cleaned up")
+        #else:
+        #    # Kill the launched hub
+        #    hub = client.containers.get(hub_id)
+        #    hub.kill()
+        #    hub.remove()
+        #    logger.info("Hub / Node Cleaned up")
 
     if failed:
         exit(1)
