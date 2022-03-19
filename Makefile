@@ -178,7 +178,7 @@ base_multi_old:
 	cd ./Base && docker build --build-arg TARGETARCH=$(ARCH) -t $(NAME)/base:$(TAG_VERSION) .
 
 base_multi: qemu_user_static
-	cd ./Base && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION)-$(ARCH) .
+	cd ./Base && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub_multi_old: base_multi generate_hub
 	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
