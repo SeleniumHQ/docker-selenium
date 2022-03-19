@@ -151,7 +151,8 @@ video:
 # docker run --rm --privileged aptman/qus -s -- -p  # for actions
 qemu_user_static:
 	docker run --rm --privileged aptman/qus -- -r ; \
-	docker run --rm --privileged -v /home/debian/qemu-binfmt/qemu-binfmt-conf.sh:/qus/qemu-binfmt-conf.sh  aptman/qus -s -- -p
+	docker run --rm --privileged aptman/qus -s -- -p
+	#docker run --rm --privileged -v /home/debian/qemu-binfmt/qemu-binfmt-conf.sh:/qus/qemu-binfmt-conf.sh  aptman/qus -s -- -p
 
 # Generate and build multi-arch images
 all_multi: base_multi \
@@ -177,38 +178,56 @@ base_multi_old:
 	cd ./Base && docker build --build-arg TARGETARCH=$(ARCH) -t $(NAME)/base:$(TAG_VERSION) .
 
 base_multi: qemu_user_static
-	cd ./Base && docker buildx build --load --platform linux/$(ARCH) -t $(NAME)/base:$(TAG_VERSION)-$(ARCH) .
+	cd ./Base && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION)-$(ARCH) .
 
-hub_multi: base_multi generate_hub
+hub_multi_old: base_multi generate_hub
 	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
-node_base_multi: base_multi generate_node_base
+hub_multi: base_multi generate_hub
+	cd ./Hub && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+
+node_base_multi_old: base_multi generate_node_base
 	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+
+node_base_multi: base_multi generate_node_base
+	cd ./NodeBase && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
 
 generate_chromium_multi:
 	cd ./NodeChromium && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-chromium_multi: node_base_multi generate_chromium_multi
+chromium_multi_old: node_base_multi generate_chromium_multi
 	cd ./NodeChromium && docker build $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
+
+chromium_multi: node_base_multi generate_chromium_multi
+	cd ./NodeChromium && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
 # TODO: Need to make sure arguments are passed into the script to override defaults.
 generate_firefox_multi:
 	cd ./NodeFirefox && ./build-step-2.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-firefox_multi: node_base_multi generate_firefox_multi
+firefox_multi_old: node_base_multi generate_firefox_multi
 	cd ./NodeFirefox && docker build --build-arg TARGETARCH=$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+
+firefox_multi: node_base_multi generate_firefox_multi
+	cd ./NodeFirefox && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 generate_standalone_firefox_multi:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_firefox_multi: firefox_multi generate_standalone_firefox_multi
+standalone_firefox_multi_old: firefox_multi generate_standalone_firefox_multi
 	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+
+standalone_firefox_multi: firefox_multi generate_standalone_firefox_multi
+	cd ./StandaloneFirefox && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 generate_standalone_chromium_multi:
 	cd ./Standalone && ./generate.sh StandaloneChromium node-chromium $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_chromium_multi: chromium_multi generate_standalone_chromium_multi
+standalone_chromium_multi_old: chromium_multi generate_standalone_chromium_multi
 	cd ./StandaloneChromium && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
+
+standalone_chromium_multi: chromium_multi generate_standalone_chromium_multi
+	cd ./StandaloneChromium && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - multi-arch-tests
+      - qemu-user-static
   pull_request:
     branches:
       - trunk
@@ -18,6 +19,7 @@ jobs:
     strategy:
       matrix:
         use-random-user: [false, true]
+        arch: [amd64, arm64]
     steps:
       - uses: actions/checkout@v1
       - name: Output Docker info
@@ -41,9 +43,10 @@ jobs:
       - name: Sets build date
         run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
       - name: Build Docker images
-        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=amd64 make build_multi
+        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - name: Test Docker images
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=amd64 SKIP_BUILD=true make test_multi_arch
+        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
+          ARCH: ${{ matrix.arch }}
 
