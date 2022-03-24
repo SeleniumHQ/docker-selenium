@@ -46,14 +46,14 @@ jobs:
         run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
-        if: ${{ matrix.arch }} == 'arm64' && ${{ matrix.use-random-user }} == 'false'
+        if: matrix.arch == 'arm64' && matrix.use-random-user == 'false'
       - name: Test Docker images
         run: |
-          docker run -d --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-firefox:${BRANCH}-${BUILD_DATE}
+          docker run -d --platform linux/${ARCH} --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-firefox:${BRANCH}-${BUILD_DATE}
           USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_firefox_standalone_multi
           #USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_chromium_standalone_multi
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
           ARCH: ${{ matrix.arch }}
-        if: ${{ matrix.arch }} == 'arm64' && ${{ matrix.use-random-user }} == 'false'
+        if: matrix.arch == 'arm64' && matrix.use-random-user == 'false'
 
