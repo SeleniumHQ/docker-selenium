@@ -46,7 +46,7 @@ jobs:
             $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
             $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
       - save_cache:
-          key: {{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
           paths: 
             - multi-arch-images.tar
 
@@ -59,7 +59,7 @@ jobs:
       NAMESPACE: seleniarm
     steps:
       - restore_cache:
-          keys: {{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          keys: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run: uname -a
       - run: docker info
       - run: |
