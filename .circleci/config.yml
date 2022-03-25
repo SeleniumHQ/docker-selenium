@@ -17,7 +17,6 @@ jobs:
       image: ubuntu-2004:current
     resource_class: arm-medium
     environment:
-      BRANCH: qemu-user-static
       NAMESPACE: seleniarm
     steps:
       - run: uname -a
@@ -26,7 +25,7 @@ jobs:
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
-          git checkout qemu-user-static
+          git checkout $CIRCLE_BRANCH
           echo $PWD
       - run: |
           echo "Build Docker images"
@@ -34,6 +33,7 @@ jobs:
           echo $PWD
           export BUILD_DATE=$(date '+%Y%m%d')
           export ARCH=`dpkg --print-architecture`
+          export BRANCH=$CIRCLE_BRANCH
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
@@ -46,7 +46,7 @@ jobs:
             $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
             $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
       - save_cache:
-          key: multi-arch-images-$CIRCLE_WORKFLOW_ID
+          key: {{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
           paths: 
             - multi-arch-images.tar
 
@@ -56,27 +56,25 @@ jobs:
         type: executor
     executor: << parameters.machine-type >>
     environment:
-      ARCH: arm64
-      BRANCH: qemu-user-static
       NAMESPACE: seleniarm
     steps:
-      # - restore_cache:
-      #     keys: multi-arch-images-$CIRCLE_WORKFLOW_ID
+      - restore_cache:
+          keys: {{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run: uname -a
       - run: docker info
       - run: |
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           echo "Load built images"
-          #docker load -i multi-arch-images.tar
-          docker pull seleniarm/standalone-chromium:4.1.2-20220227
-          docker pull seleniarm/standalone-firefox:4.1.2-20220227
-          docker pull seleniarm/node-chromium:4.1.2-20220227
-          docker pull seleniarm/node-firefox:4.1.2-20220227
-          docker pull seleniarm/hub:4.1.2-20220227
+          docker load -i multi-arch-images.tar
+          # docker pull seleniarm/standalone-chromium:4.1.2-20220227
+          # docker pull seleniarm/standalone-firefox:4.1.2-20220227
+          # docker pull seleniarm/node-chromium:4.1.2-20220227
+          # docker pull seleniarm/node-firefox:4.1.2-20220227
+          # docker pull seleniarm/hub:4.1.2-20220227
       - run: |
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
-          git checkout multi-arch-tests
+          git checkout $CIRCLE_BRANCH
           echo $PWD
       - run: |
           echo "Use Python3 and pip3 instead of Python2.7"
@@ -89,9 +87,8 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export USE_RANDOM_USER=false
-          #export BUILD_DATE=$(date '+%Y%m%d')
-          export BUILD_DATE=20220227
-          export BRANCH=4.1.2
+          export BUILD_DATE=$(date '+%Y%m%d')
+          export BRANCH=$CIRCLE_BRANCH
           export ARCH=`dpkg --print-architecture`
           USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
 
