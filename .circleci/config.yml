@@ -17,7 +17,6 @@ jobs:
       image: ubuntu-2004:current
     resource_class: arm-medium
     environment:
-      ARCH: arm64
       BRANCH: qemu-user-static
       NAMESPACE: seleniarm
     steps:
@@ -100,7 +99,9 @@ workflows:
   build:
     jobs:
       - test-multi-arch:
+          requires: build-multi-arch
           machine-type: ubuntu2004arm64
       - test-multi-arch:
+          requires: build-multi-arch
           machine-type: ubuntu2004amd64
               
