@@ -18,7 +18,7 @@ jobs:
     resource_class: arm-medium
     environment:
       ARCH: arm64
-      BRANCH: multi-arch-tests
+      BRANCH: qemu-user-static
       NAMESPACE: seleniarm
     steps:
       - run: uname -a
@@ -27,7 +27,7 @@ jobs:
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
-          git checkout multi-arch-tests
+          git checkout qemu-user-static
           echo $PWD
       - run: |
           echo "Build Docker images"
@@ -58,7 +58,7 @@ jobs:
     executor: << parameters.machine-type >>
     environment:
       ARCH: arm64
-      BRANCH: multi-arch-tests
+      BRANCH: qemu-user-static
       NAMESPACE: seleniarm
     steps:
       # - restore_cache:
@@ -90,7 +90,9 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export USE_RANDOM_USER=false
-          export BUILD_DATE=$(date '+%Y%m%d')
+          #export BUILD_DATE=$(date '+%Y%m%d')
+          export BUILD_DATE=20220227
+          export BRANCH=4.1.2
           export ARCH=`dpkg --print-architecture`
           USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
 
