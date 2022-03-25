@@ -37,6 +37,13 @@ jobs:
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
+          echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
+          echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
           docker save -o multi-arch-images.tar \
             $NAMESPACE/base:$VERSION-$BUILD_DATE \
             $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
