@@ -18,6 +18,7 @@ jobs:
     resource_class: arm-medium
     environment:
       NAMESPACE: seleniarm
+      BUILD_DATE: today
     steps:
       - run: uname -a
       - run: docker info
@@ -31,12 +32,14 @@ jobs:
           echo "Build Docker images"
           cd docker-seleniarm
           echo $PWD
-          export BUILD_DATE=$(date '+%Y%m%d')
+          #export BUILD_DATE=$(date '+%Y%m%d')
           export ARCH=`dpkg --print-architecture`
           export BRANCH=$CIRCLE_BRANCH
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
+          #export BUILD_DATE=$(date '+%Y%m%d')
+          export VERSION=$CIRCLE_BRANCH
           echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
           echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
           echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
@@ -64,6 +67,7 @@ jobs:
     executor: << parameters.machine-type >>
     environment:
       NAMESPACE: seleniarm
+      BUILD_DATE: today
     steps:
       - restore_cache:
           keys: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
@@ -94,7 +98,7 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export USE_RANDOM_USER=false
-          export BUILD_DATE=$(date '+%Y%m%d')
+          #export BUILD_DATE=$(date '+%Y%m%d')
           export BRANCH=$CIRCLE_BRANCH
           export ARCH=`dpkg --print-architecture`
           USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
