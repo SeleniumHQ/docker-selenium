@@ -2,16 +2,19 @@
 version: 2.1
 
 executors:
-  ubuntu-2004-arm64:
+  ubuntu2004-arm64:
     machine:
       image: ubuntu-2004:current
-      resource_class: arm-medium
-  ubuntu-2004-amd64:
+    resource_class: arm-medium
+  ubuntu2004-amd64:
     machine:
       image: ubuntu-2004:current
 
 jobs:
   build-multi-arch:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm-medium
     environment:
       ARCH: arm64
       BRANCH: multi-arch-tests
@@ -20,6 +23,7 @@ jobs:
       - run: uname -a
       - run: docker info
       - run: |
+          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
           git checkout multi-arch-tests
@@ -29,6 +33,7 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export BUILD_DATE=$(date '+%Y%m%d')
+          export ARCH=`dpkg --print-architecture`
           NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
@@ -41,27 +46,26 @@ jobs:
             $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
             $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
       - save_cache:
-        key: multi-arch-images
-        paths: 
-          - multi-arch-images.tar
+          key: multi-arch-images-$CIRCLE_WORKFLOW_ID
+          paths: 
+            - multi-arch-images.tar
 
   test-multi-arch:
-    parameters: 
-      machine-arch: 
+    parameters:
+      machine-type:
         type: executor
-      arch:
-        type: string
-    executor: << parameters.machine-arch >>
+    executor: << parameters.machine-type >>
     environment:
-      ARCH: << parameters.arch >>
+      ARCH: arm64
       BRANCH: multi-arch-tests
       NAMESPACE: seleniarm
     steps:
-      - restore_cache:
-          keys: multi-arch-images
+      # - restore_cache:
+      #     keys: multi-arch-images-$CIRCLE_WORKFLOW_ID
       - run: uname -a
       - run: docker info
       - run: |
+          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           #echo "Load built images"
           #docker load -i multi-arch-images.tar
           docker pull seleniarm/standalone-chromium:4.1.2-20220227
@@ -85,12 +89,15 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export USE_RANDOM_USER=false
+          export BUILD_DATE=$(date '+%Y%m%d')
+          export ARCH=`dpkg --print-architecture`
           USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
 
 workflows:
   build:
     jobs:
-      - test-multi-arch
-        matrix:
-          parameters:
-            executor: [ubuntu-2004-arm64, ubuntu-2004-amd64]
+      - test-multi-arch:
+          matrix:
+            parameters:
+              machine-type: [ubuntu2004-arm64, ubuntu2004-amd64]
+              
