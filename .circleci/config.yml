@@ -66,7 +66,7 @@ jobs:
       - run: docker info
       - run: |
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          #echo "Load built images"
+          echo "Load built images"
           #docker load -i multi-arch-images.tar
           docker pull seleniarm/standalone-chromium:4.1.2-20220227
           docker pull seleniarm/standalone-firefox:4.1.2-20220227
