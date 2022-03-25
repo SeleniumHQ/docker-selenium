@@ -1,0 +1,96 @@
+# .circleci/config.yml
+version: 2.1
+
+executors:
+  ubuntu-2004-arm64:
+    machine:
+      image: ubuntu-2004:current
+      resource_class: arm-medium
+  ubuntu-2004-amd64:
+    machine:
+      image: ubuntu-2004:current
+
+jobs:
+  build-multi-arch:
+    environment:
+      ARCH: arm64
+      BRANCH: multi-arch-tests
+      NAMESPACE: seleniarm
+    steps:
+      - run: uname -a
+      - run: docker info
+      - run: |
+          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
+          cd docker-seleniarm
+          git checkout multi-arch-tests
+          echo $PWD
+      - run: |
+          echo "Build Docker images"
+          cd docker-seleniarm
+          echo $PWD
+          export BUILD_DATE=$(date '+%Y%m%d')
+          NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
+      - run: |
+          echo "Save Docker Images in Cache"
+          docker save -o multi-arch-images.tar \
+            $NAMESPACE/base:$VERSION-$BUILD_DATE \
+            $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
+            $NAMESPACE/hub:$VERSION-$BUILD_DATE \
+            $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
+            $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
+            $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
+            $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
+      - save_cache:
+        key: multi-arch-images
+        paths: 
+          - multi-arch-images.tar
+
+  test-multi-arch:
+    parameters: 
+      machine-arch: 
+        type: executor
+      arch:
+        type: string
+    executor: << parameters.machine-arch >>
+    environment:
+      ARCH: << parameters.arch >>
+      BRANCH: multi-arch-tests
+      NAMESPACE: seleniarm
+    steps:
+      - restore_cache:
+          keys: multi-arch-images
+      - run: uname -a
+      - run: docker info
+      - run: |
+          #echo "Load built images"
+          #docker load -i multi-arch-images.tar
+          docker pull seleniarm/standalone-chromium:4.1.2-20220227
+          docker pull seleniarm/standalone-firefox:4.1.2-20220227
+          docker pull seleniarm/node-chromium:4.1.2-20220227
+          docker pull seleniarm/node-firefox:4.1.2-20220227
+          docker pull seleniarm/hub:4.1.2-20220227
+      - run: |
+          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
+          cd docker-seleniarm
+          git checkout multi-arch-tests
+          echo $PWD
+      - run: |
+          echo "Use Python3 and pip3 instead of Python2.7"
+          cd docker-seleniarm
+          sed -i 's/pip /pip3 /g' tests/bootstrap.sh
+          sed -i 's/python /python3 /g' tests/bootstrap.sh
+          sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
+      - run: |
+          echo "Test Docker images"
+          cd docker-seleniarm
+          echo $PWD
+          export USE_RANDOM_USER=false
+          USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} SKIP_BUILD=true make test_multi_arch
+
+workflows:
+  build:
+    jobs:
+      - test-multi-arch
+        matrix:
+          parameters:
+            executor: [ubuntu-2004-arm64, ubuntu-2004-amd64]

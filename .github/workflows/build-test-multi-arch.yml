@@ -1,13 +1,13 @@
 name: Build & test multi-arch
 
 on:
-  push:
-    branches:
-      - multi-arch-tests
-      - qemu-user-static
-  pull_request:
-    branches:
-      - trunk
+  # push:
+  #   branches:
+  #     - multi-arch-tests
+  #     - qemu-user-static
+  # pull_request:
+  #   branches:
+  #     - trunk
   workflow_dispatch:
 
 jobs:
