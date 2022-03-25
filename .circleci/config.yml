@@ -70,7 +70,8 @@ jobs:
       BUILD_DATE: today
     steps:
       - restore_cache:
-          keys: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          keys: 
+            - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run: uname -a
       - run: docker info
       - run: |
