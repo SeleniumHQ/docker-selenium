@@ -11,7 +11,7 @@ MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-4.3.1)
-ARCH := $(or $(ARCH),$(ARCH),arm64)
+PLATFORMS := $(or $(PLATFORMS),$(PLATFORMS),linux/arm64)
 
 all: hub \
 	distributor \
@@ -174,60 +174,39 @@ build_multi: all_multi
 
 ci_multi: build_multi test_multi_arch
 
-base_multi_old:
-	cd ./Base && docker build --build-arg TARGETARCH=$(ARCH) -t $(NAME)/base:$(TAG_VERSION) .
-
 base_multi: qemu_user_static
-	cd ./Base && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION) .
-
-hub_multi_old: base_multi generate_hub
-	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub_multi: base_multi generate_hub
-	cd ./Hub && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
-
-node_base_multi_old: base_multi generate_node_base
-	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
 node_base_multi: base_multi generate_node_base
-	cd ./NodeBase && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
 
 generate_chromium_multi:
 	cd ./NodeChromium && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-chromium_multi_old: node_base_multi generate_chromium_multi
-	cd ./NodeChromium && docker build $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
-
 chromium_multi: node_base_multi generate_chromium_multi
-	cd ./NodeChromium && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
+	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
 # TODO: Need to make sure arguments are passed into the script to override defaults.
 generate_firefox_multi:
 	cd ./NodeFirefox && ./build-step-2.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-firefox_multi_old: node_base_multi generate_firefox_multi
-	cd ./NodeFirefox && docker build --build-arg TARGETARCH=$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
-
 firefox_multi: node_base_multi generate_firefox_multi
-	cd ./NodeFirefox && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 generate_standalone_firefox_multi:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_firefox_multi_old: firefox_multi generate_standalone_firefox_multi
-	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
-
 standalone_firefox_multi: firefox_multi generate_standalone_firefox_multi
-	cd ./StandaloneFirefox && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+	cd ./StandaloneFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 generate_standalone_chromium_multi:
 	cd ./Standalone && ./generate.sh StandaloneChromium node-chromium $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
-standalone_chromium_multi_old: chromium_multi generate_standalone_chromium_multi
-	cd ./StandaloneChromium && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
-
 standalone_chromium_multi: chromium_multi generate_standalone_chromium_multi
-	cd ./StandaloneChromium && docker buildx build --platform linux/$(ARCH) $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
+	cd ./StandaloneChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
