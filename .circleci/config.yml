@@ -97,9 +97,7 @@ workflows:
   build:
     jobs:
       - test-multi-arch:
-          matrix:
-            parameters:
-              machine-type: 
-                - "ubuntu2004arm64"
-                - "ubuntu2004amd64"
+          machine-type: ubuntu2004arm64
+      - test-multi-arch:
+          machine-type: ubuntu2004amd64
               
