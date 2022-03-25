@@ -34,7 +34,7 @@ jobs:
           echo $PWD
           export BUILD_DATE=$(date '+%Y%m%d')
           export ARCH=`dpkg --print-architecture`
-          NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
+          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} ARCH=${ARCH} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
           docker save -o multi-arch-images.tar \
