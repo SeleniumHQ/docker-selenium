@@ -13,12 +13,12 @@ executors:
 
 jobs:
   build-multi-arch:
-    machine:
-      image: ubuntu-2004:current
-    resource_class: arm-medium
     parameters:
       platforms: 
         type: string
+      machine-type:
+        type: executor
+    executor: << parameters.machine-type >>
     environment:
       NAMESPACE: seleniarm
       BUILD_DATE: today
@@ -65,7 +65,7 @@ jobs:
             $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
             $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
       - save_cache:
-          key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+          key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
           paths: 
             - multi-arch-images.tar
 
@@ -80,18 +80,13 @@ jobs:
     steps:
       - restore_cache:
           keys: 
-            - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}
+            - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
       - run: uname -a
       - run: docker info
       - run: |
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo "Load built images"
+          echo "Load built images into Docker"
           docker load -i multi-arch-images.tar
-          # docker pull seleniarm/standalone-chromium:4.1.2-20220227
-          # docker pull seleniarm/standalone-firefox:4.1.2-20220227
-          # docker pull seleniarm/node-chromium:4.1.2-20220227
-          # docker pull seleniarm/node-firefox:4.1.2-20220227
-          # docker pull seleniarm/hub:4.1.2-20220227
       - run: |
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
@@ -118,9 +113,11 @@ workflows:
     jobs:
       - build-multi-arch:
           platforms: linux/arm64
+          machine-type: ubuntu2004arm64
           name: build-multi-arch-arm64
       - build-multi-arch:
           platforms: linux/amd64
+          machine-type: ubuntu2004amd64
           name: build-multi-arch-amd64
       - test-multi-arch:
           requires: [build-multi-arch-arm64]
@@ -128,4 +125,5 @@ workflows:
       - test-multi-arch:
           requires: [build-multi-arch-amd64]
           machine-type: ubuntu2004amd64
+          
               
