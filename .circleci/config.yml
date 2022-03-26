@@ -126,6 +126,6 @@ workflows:
           requires: [build-multi-arch-arm64]
           machine-type: ubuntu2004arm64
       - test-multi-arch:
-          requires: [build-multi-arch]
+          requires: [build-multi-arch-amd64]
           machine-type: ubuntu2004amd64
               
