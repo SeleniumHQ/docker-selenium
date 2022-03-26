@@ -116,10 +116,10 @@ jobs:
 workflows:
   build:
     jobs:
-      - build-multi-arch
+      - build-multi-arch:
           platforms: linux/arm64
           name: build-multi-arch-arm64
-      - build-multi-arch
+      - build-multi-arch:
           platforms: linux/amd64
           name: build-multi-arch-amd64
       - test-multi-arch:
