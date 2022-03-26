@@ -11,8 +11,8 @@ USER root
 #=========
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
-  # && apt-get -qqy install firefox-esr libavcodec-extra \
-  && apt-get -qqy install firefox libavcodec-extra \
+  && apt-get -qqy install firefox-esr libavcodec-extra \
+  # && apt-get -qqy install firefox libavcodec-extra \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=============
