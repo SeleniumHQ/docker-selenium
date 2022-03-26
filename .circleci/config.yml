@@ -100,32 +100,36 @@ jobs:
           sed -i 's/pip /pip3 /g' tests/bootstrap.sh
           sed -i 's/python /python3 /g' tests/bootstrap.sh
           sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
-      - run: |
-          echo "Test Docker images"
-          cd docker-seleniarm
-          echo $PWD
-          export USE_RANDOM_USER=false
-          #export BUILD_DATE=$(date '+%Y%m%d')
-          export BRANCH=$CIRCLE_BRANCH
-          #export ARCH=`dpkg --print-architecture`
-          USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
+      - run: 
+          no_output_timeout: 2m
+          command: |
+            echo "Test Docker images"
+            cd docker-seleniarm
+            echo $PWD
+            export USE_RANDOM_USER=false
+            #export BUILD_DATE=$(date '+%Y%m%d')
+            export BRANCH=$CIRCLE_BRANCH
+            #export ARCH=`dpkg --print-architecture`
+            USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
 
 workflows:
   build:
     jobs:
       - build-multi-arch:
+          name: build-multi-arch-arm64
           platforms: linux/arm64
           machine-type: ubuntu2004arm64
-          name: build-multi-arch-arm64
       - build-multi-arch:
+          name: build-multi-arch-amd64
           platforms: linux/amd64
           machine-type: ubuntu2004amd64
-          name: build-multi-arch-amd64
       - test-multi-arch:
+          name: test-multi-arch-arm64
           requires: [build-multi-arch-arm64]
           platforms: linux/arm64
           machine-type: ubuntu2004arm64
       - test-multi-arch:
+          name: test-multi-arch-amd64
           requires: [build-multi-arch-amd64]
           platforms: linux/amd64
           machine-type: ubuntu2004amd64
