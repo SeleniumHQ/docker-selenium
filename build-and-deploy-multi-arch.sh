@@ -1,9 +1,10 @@
 BUILD_DATE=$(date +'%Y%m%d')
-VERSION=4.1.2
-CHROMIUM=93.0.4577.82  # Not yet used at this time. Edit in NodeChromium/Dockerfile.txt
-NAMESPACE=seleniarm
+VERSION="${VERSION:-4.1.2}"
+NAMESPACE="${NAMESPACE:-seleniarm}"
 AUTHORS=SeleniumHQ,sj26,jamesmortensen
 ARCH=linux/arm64,linux/amd64,linux/arm/v7
+
+echo "Build multi-arch images and push to Docker Hub...\n"
 
 cd ./Base && docker buildx build --push --platform $ARCH -t $NAMESPACE/base:$VERSION-$BUILD_DATE .
 echo $PWD
@@ -15,14 +16,22 @@ cd ../NodeBase && sh generate.sh $VERSION-$BUILD_DATE $NAMESPACE $AUTHORS \
 # && sed 's/chromium=.*/chromium=91.0.4472.124/' Dockerfile > Dockerfile \
 cd ../NodeChromium && sh generate.sh $VERSION-$BUILD_DATE $NAMESPACE $AUTHORS \
    && docker buildx build --push --platform $ARCH -t $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE .
+cd ../NodeFirefox && sh generate.sh $VERSION-$BUILD_DATE $NAMESPACE $AUTHORS \
+   && docker buildx build --push --platform $ARCH -t $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE .
 
 cd ../Standalone && sh generate.sh StandaloneChromium node-chromium $VERSION-$BUILD_DATE $NAMESPACE $AUTHORS \
    && cd ../StandaloneChromium \
    && docker buildx build --push --platform $ARCH -t $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE .
 
+cd ../Standalone && sh generate.sh StandaloneFirefox node-firefox $VERSION-$BUILD_DATE $NAMESPACE $AUTHORS \
+   && cd ../StandaloneFirefox \
+   && docker buildx build --push --platform $ARCH -t $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE .
+
+cd ..
+
 echo "multi-arch: $ARCH"
-echo "Build node-hub, node-chromium, and standalone-chromium...\n"
-echo "Tagging builds...\n"
+echo "Build base, node-base, hub, node-chromium, node-firefox, standalone-chromium, and standalone-firefox...\n"
+#echo "Tagging builds...\n"
 
 # docker tag $NAMESPACE/base:$VERSION-$BUILD_DATE $NAMESPACE/base:latest
 # docker tag $NAMESPACE/hub:$VERSION-$BUILD_DATE $NAMESPACE/hub:latest
