@@ -150,7 +150,6 @@ video:
 # Register linux/arm64 and linux/arm/v7 architectures for building with BuildKit
 # docker run --rm --privileged aptman/qus -s -- -p  # for actions
 qemu_user_static:
-	docker run --privileged --rm tonistiigi/binfmt --install all ; \
 	docker run --rm --privileged aptman/qus -- -r ; \
 	docker run --rm --privileged aptman/qus -s -- -p
 	#docker run --rm --privileged -v /home/debian/qemu-binfmt/qemu-binfmt-conf.sh:/qus/qemu-binfmt-conf.sh  aptman/qus -s -- -p

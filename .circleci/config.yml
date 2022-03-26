@@ -16,9 +16,13 @@ jobs:
     machine:
       image: ubuntu-2004:current
     resource_class: arm-medium
+    parameters:
+      platforms: 
+        type: string
     environment:
       NAMESPACE: seleniarm
       BUILD_DATE: today
+      PLATFORMS: << parameters.platforms >>
     steps:
       - run: uname -a
       - run: docker info
@@ -29,11 +33,18 @@ jobs:
           git checkout $CIRCLE_BRANCH
           echo $PWD
       - run: |
+          echo "Install QEMU binaries"
+          curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
+            && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
+            && echo "export PATH=~/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
+            && source ~/.bashrc \
+            && qemu-system-aarch64 --version
+      - run: |
           echo "Build Docker images"
           cd docker-seleniarm
           echo $PWD
           export BRANCH=$CIRCLE_BRANCH
-          export PLATFORMS=linux/arm64,linux/amd64
+          #export PLATFORMS=
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
@@ -106,8 +117,13 @@ workflows:
   build:
     jobs:
       - build-multi-arch
+          platforms: linux/arm64
+          name: build-multi-arch-arm64
+      - build-multi-arch
+          platforms: linux/amd64
+          name: build-multi-arch-amd64
       - test-multi-arch:
-          requires: [build-multi-arch]
+          requires: [build-multi-arch-arm64]
           machine-type: ubuntu2004arm64
       - test-multi-arch:
           requires: [build-multi-arch]
