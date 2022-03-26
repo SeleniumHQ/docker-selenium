@@ -191,7 +191,7 @@ chromium_multi: node_base_multi generate_chromium_multi
 
 # TODO: Need to make sure arguments are passed into the script to override defaults.
 generate_firefox_multi:
-	cd ./NodeFirefox && ./build-step-2.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+	cd ./NodeFirefox && ./generate-arm.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
 firefox_multi: node_base_multi generate_firefox_multi
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
