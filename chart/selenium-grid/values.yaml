@@ -1,9 +1,9 @@
 global:
   seleniumGrid:
     # Image tag for all selenium components
-    imageTag: 4.1.2-20220217
+    imageTag: 4.1.2-20220317
     # Image tag for browser's nodes
-    nodesImageTag: 4.1.2-20220217
+    nodesImageTag: 4.1.2-20220317
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
@@ -23,7 +23,7 @@ components:
     # Router image name
     imageName: selenium/router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.2-20220217
+    # imageTag: 4.1.2-20220317
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -65,7 +65,7 @@ components:
     # Distributor image name
     imageName: selenium/distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.2-20220217
+    # imageTag: 4.1.2-20220317
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -89,7 +89,7 @@ components:
     # Event Bus image name
     imageName: selenium/event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.2-20220217
+    # imageTag: 4.1.2-20220317
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -117,7 +117,7 @@ components:
     # Session Map image name
     imageName: selenium/sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.2-20220217
+    # imageTag: 4.1.2-20220317
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -140,7 +140,7 @@ components:
     # Session Queue image name
     imageName: selenium/session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.2-20220217
+    # imageTag: 4.1.2-20220317
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -168,12 +168,19 @@ components:
     #       name: secret-name
     #       key: secret-key
 
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for all components
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
+
 # Configuration for selenium hub deployment (applied only if `isolateComponents: false`)
 hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  imageTag: 4.1.2-20220217
+  imageTag: 4.1.2-20220317
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Custom annotations for Selenium Hub pod
@@ -213,6 +220,12 @@ hub:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Resources for selenium-hub container
   resources: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -233,7 +246,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: selenium/node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.2-20220217
+  # imageTag: 4.1.2-20220317
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -268,6 +281,12 @@ chromeNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
@@ -288,7 +307,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: selenium/node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.2-20220217
+  # imageTag: 4.1.2-20220317
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -323,6 +342,12 @@ firefoxNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
@@ -343,7 +368,7 @@ edgeNode:
   # Image of edge nodes
   imageName: selenium/node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.2-20220217
+  # imageTag: 4.1.2-20220317
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   ports:
@@ -368,7 +393,7 @@ edgeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
-  # Custom environment variables for firefox nodes
+  # Custom environment variables for edge nodes
   extraEnvironmentVariables:
     # - name: JAVA_OPTS
     #   value: "-Xmx512m"
@@ -377,6 +402,12 @@ edgeNode:
     #     secretKeyRef:
     #       name: secret-name
     #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
   # Service configuration
   service:
     # Create a service for node
