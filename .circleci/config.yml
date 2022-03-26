@@ -113,7 +113,7 @@ jobs:
             USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
 
 workflows:
-  build:
+  build-and-test-multi-arch:
     jobs:
       - build-multi-arch:
           name: build-multi-arch-arm64
