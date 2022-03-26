@@ -121,9 +121,11 @@ workflows:
           name: build-multi-arch-amd64
       - test-multi-arch:
           requires: [build-multi-arch-arm64]
+          platforms: linux/arm64
           machine-type: ubuntu2004arm64
       - test-multi-arch:
           requires: [build-multi-arch-amd64]
+          platforms: linux/amd64
           machine-type: ubuntu2004amd64
-          
+
               
