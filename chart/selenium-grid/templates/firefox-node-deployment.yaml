@@ -39,6 +39,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
+            {{- with .Values.firefoxNode.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
         {{- if gt (len .Values.firefoxNode.ports) 0 }}
           ports:
           {{- range .Values.firefoxNode.ports }}

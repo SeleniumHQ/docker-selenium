@@ -43,6 +43,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
+            {{- with .Values.components.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - containerPort: {{ .Values.components.distributor.port }}
               protocol: TCP
