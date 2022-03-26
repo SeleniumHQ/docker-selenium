@@ -19,7 +19,6 @@ jobs:
     environment:
       NAMESPACE: seleniarm
       BUILD_DATE: today
-      PLATFORMS: linux/arm64,linux/amd64
     steps:
       - run: uname -a
       - run: docker info
@@ -34,6 +33,7 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export BRANCH=$CIRCLE_BRANCH
+          export PLATFORMS=linux/arm64,linux/amd64
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} make build_multi
       - run: |
           echo "Save Docker Images in Cache"
