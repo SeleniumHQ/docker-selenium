@@ -71,6 +71,8 @@ jobs:
 
   test-multi-arch:
     parameters:
+      platforms: 
+        type: string
       machine-type:
         type: executor
     executor: << parameters.machine-type >>
