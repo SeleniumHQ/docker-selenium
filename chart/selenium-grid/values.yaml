@@ -34,7 +34,7 @@ components:
     # Liveness probe settings
     livenessProbe:
       enabled: true
-      path: /status
+      path: /readyz
       initialDelaySeconds: 10
       failureThreshold: 10
       timeoutSeconds: 10
@@ -43,7 +43,7 @@ components:
     # Readiness probe settings
     readinessProbe:
       enabled: true
-      path: /status
+      path: /readyz
       initialDelaySeconds: 12
       failureThreshold: 10
       timeoutSeconds: 10
@@ -196,7 +196,7 @@ hub:
   # Liveness probe settings
   livenessProbe:
     enabled: true
-    path: /wd/hub/status
+    path: /readyz
     initialDelaySeconds: 10
     failureThreshold: 10
     timeoutSeconds: 10
@@ -205,7 +205,7 @@ hub:
   # Readiness probe settings
   readinessProbe:
     enabled: true
-    path: /wd/hub/status
+    path: /readyz
     initialDelaySeconds: 12
     failureThreshold: 10
     timeoutSeconds: 10
