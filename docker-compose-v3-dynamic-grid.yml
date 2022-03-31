@@ -8,6 +8,7 @@ services:
     volumes:
       - ./assets:/opt/selenium/assets
       - ./NodeDocker/config.toml:/opt/bin/config.toml
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - selenium-hub
     environment:
