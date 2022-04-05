@@ -38,7 +38,7 @@ jobs:
           echo "Check if branch is deployable... (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           cd docker-seleniarm
           export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
-          if [ -z $CI_DEPLOY ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+          if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
             echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
             circleci-agent step halt
           else 
