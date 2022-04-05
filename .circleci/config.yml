@@ -43,6 +43,7 @@ jobs:
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           git clone https://github.com/seleniumhq-community/docker-seleniarm.git
           cd docker-seleniarm
+          echo $CIRCLE_BRANCH
           git checkout $CIRCLE_BRANCH
           echo $PWD
       - run: |
