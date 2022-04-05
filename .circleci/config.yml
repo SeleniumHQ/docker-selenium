@@ -36,18 +36,21 @@ jobs:
           echo $PWD
       - run: |
           echo "Check if branch is deployable... (contains [deploy] in commit msg on $DEPLOY_BRANCH"
-          cd docker-seleniarm
-          export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
-          if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
-            echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
-            circleci-agent step halt
-          else 
-            echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
-          fi
-          if [ "$CIRCLE_BRANCH" = "$DEPLOY_BRANCH" ] ; then
-              circleci-agent step halt
-          fi
           echo "Job name = " $CIRCLE_JOB
+          if [ "$CIRCLE_JOB" = "build-multi-arch-job" ]; then
+            cd docker-seleniarm
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+            # if [ "$CIRCLE_BRANCH" = "$DEPLOY_BRANCH" ] ; then
+            #     circleci-agent step halt
+            # fi
+          fi
+          
       - run: |
           echo "Install QEMU binaries"
           curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
