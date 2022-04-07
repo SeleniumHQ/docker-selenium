@@ -8,6 +8,9 @@ on:
     branches:
       - trunk
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     # Skip job based on the commit message, only works in push to branches for now
