@@ -24,7 +24,6 @@ jobs:
       BUILD_DATE: today
       PLATFORMS: << parameters.platforms >>
       DEPLOY_BRANCH: deploy-to-dockerhub
-      BUILD_ARGS: << parameters.build_args >>
     steps:
       - run: uname -a
       - run: docker info
