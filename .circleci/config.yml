@@ -168,7 +168,7 @@ jobs:
           git checkout $CIRCLE_BRANCH
           echo $PWD
           export LATEST_TAG=$(git describe --tags --abbrev=0)
-          sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+          sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH 4.1.3 20220409
           cat release_notes.md
       - run: |
           echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
