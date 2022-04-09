@@ -167,6 +167,9 @@ jobs:
           cd docker-seleniarm
           git checkout $CIRCLE_BRANCH
           echo $PWD
+          export LATEST_TAG=$(git describe --tags --abbrev=0)
+          sh generate_multi-arch-release_notes.sh LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+          cat release_notes.md
       - run: |
           echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           echo "Job name = " $CIRCLE_JOB
@@ -191,12 +194,18 @@ jobs:
           echo $PWD
           echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
           docker buildx use `docker buildx create`
-          export BUILD_DATE=$(date '+%Y%m%d')
-          export BRANCH=4.1.3   # find a better place to control this.
+          echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+          echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
           docker buildx ls
           docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
-
+      - run: |
+          echo "Generate release notes"
+          cd docker-seleniarm
+          echo $PWD
+          export LATEST_TAG=$(git describe --tags --abbrev=0)
+          sh generate_multi-arch-release_notes.sh LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+          cat release_notes.md
 
 workflows:
   # build-and-test-multi-arch:
