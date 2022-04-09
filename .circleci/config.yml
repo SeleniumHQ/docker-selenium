@@ -67,6 +67,7 @@ jobs:
           export BRANCH=$CIRCLE_BRANCH
           if [ "$CIRCLE_JOB" = "build-multi-arch-all" ]; then
             export BUILD_ARGS=--load
+            docker buildx ls
           fi
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run: |
