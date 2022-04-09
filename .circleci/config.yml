@@ -198,6 +198,7 @@ jobs:
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run: |
           echo "Generate release notes"
+          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
           export LATEST_TAG=$(git describe --tags --abbrev=0)
           sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
           cat release_notes.md
