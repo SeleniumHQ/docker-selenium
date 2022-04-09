@@ -187,6 +187,7 @@ jobs:
           docker buildx use `docker buildx create`
           echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
           echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
+          echo BRANCH="$BRANCH"
           docker buildx ls
           docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
