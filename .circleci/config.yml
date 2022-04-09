@@ -157,17 +157,19 @@ jobs:
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       DEPLOY_BRANCH: deploy-to-dockerhub
-    working_directory: ~/docker-seleniarm
+    #working_directory: docker-seleniarm
     steps:
+      - checkout
       - run: uname -a
       - run: docker info
       - run: |
           echo "Clone repo and checkout $CIRCLE_BRANCH branch"
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
-          cd docker-seleniarm
-          git checkout $CIRCLE_BRANCH
+          # git clone https://github.com/seleniumhq-community/docker-seleniarm.git
+          # cd docker-seleniarm
+          # git checkout $CIRCLE_BRANCH
           echo $PWD
+          ls -ltrSha
       - run: |
           echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           echo "Job name = " $CIRCLE_JOB
