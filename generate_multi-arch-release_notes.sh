@@ -11,11 +11,17 @@ echo "" >> release_notes.md
 echo "### Changelog" > release_notes.md
 git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq-community/docker-seleniarm/commit/%H) - %s :: %an" --reverse >> release_notes.md
 
+# Pull the other images so we populate the release notes
+docker pull seleniarm/base:${TAG_VERSION}
+docker pull seleniarm/hub:${TAG_VERSION}
+docker pull seleniarm/node-base:${TAG_VERSION}
+docker pull seleniarm/standalone-chromium:${TAG_VERSION}
+docker pull seleniarm/standalone-firefox:${TAG_VERSION}
+
 CHROMIUM_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
 CHROMEDRIVER_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 FIREFOX_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
-
 
 
 echo "" >> release_notes.md
