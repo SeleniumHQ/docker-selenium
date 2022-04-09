@@ -45,8 +45,6 @@ jobs:
               circleci-agent step halt
             else 
               echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
-              export BUILDX_BUILDER=`docker buildx create`
-              docker buildx use $BUILDX_BUILDER
             fi
             # if [ "$CIRCLE_BRANCH" = "$DEPLOY_BRANCH" ] ; then
             #     circleci-agent step halt
@@ -66,29 +64,38 @@ jobs:
           echo $PWD
           export BRANCH=$CIRCLE_BRANCH
           if [ "$CIRCLE_JOB" = "build-multi-arch-all" ]; then
-            export BUILD_ARGS=--load
+            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+            export BUILDX_BUILDER=`docker buildx create`
+            docker buildx use $BUILDX_BUILDER
+            export BUILD_ARGS=--push
+            export BUILD_DATE=$(date '+%Y%m%d')
+            export BRANCH=4.1.3   # find a better place to control this.
             docker buildx ls
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
           fi
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run: |
-          echo "Save Docker Images in Cache"
-          export VERSION=$CIRCLE_BRANCH
-          echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
-          docker save -o multi-arch-images.tar \
-            $NAMESPACE/base:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
-            $NAMESPACE/hub:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
-            $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
-            $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
+          if [ "$CIRCLE_JOB" != "build-multi-arch-all" ]; then
+            echo "Save Docker Images in Cache"
+            export VERSION=$CIRCLE_BRANCH
+            echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
+            docker save -o multi-arch-images.tar \
+              $NAMESPACE/base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/hub:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
+          fi
       - save_cache:
+          when: equal: [ "build-multi-arch-all", $CIRCLE_JOB]
           key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
           paths: 
             - multi-arch-images.tar
