@@ -35,9 +35,9 @@ jobs:
           git checkout $CIRCLE_BRANCH
           echo $PWD
       - run: |
-          echo "Check if branch is deployable... (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           echo "Job name = " $CIRCLE_JOB
-          if [ "$CIRCLE_JOB" = "build-multi-arch-all" ]; then
+          if [ "$CIRCLE_JOB" = "deploy-multi-arch" ]; then
             cd docker-seleniarm
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
             if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
@@ -46,11 +46,7 @@ jobs:
             else 
               echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
             fi
-            # if [ "$CIRCLE_BRANCH" = "$DEPLOY_BRANCH" ] ; then
-            #     circleci-agent step halt
-            # fi
-          fi
-          
+          fi      
       - run: |
           echo "Install QEMU binaries"
           curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
@@ -63,7 +59,7 @@ jobs:
           cd docker-seleniarm
           echo $PWD
           export BRANCH=$CIRCLE_BRANCH
-          if [ "$CIRCLE_JOB" = "build-multi-arch-all" ]; then
+          if [ "$CIRCLE_JOB" = "deploy-multi-arch" ]; then
             echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
             export BUILDX_BUILDER=`docker buildx create`
             docker buildx use $BUILDX_BUILDER
@@ -75,7 +71,7 @@ jobs:
           fi
           NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run: |
-          if [ "$CIRCLE_JOB" != "build-multi-arch-all" ]; then
+          if [ "$CIRCLE_JOB" != "deploy-multi-arch" ]; then
             echo "Save Docker Images in Cache"
             export VERSION=$CIRCLE_BRANCH
             echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
@@ -96,7 +92,8 @@ jobs:
           fi
       - when: 
           condition:
-            equal: [ "build-multi-arch-all", $CIRCLE_JOB]
+            not:
+              equal: [ "deploy-multi-arch", $CIRCLE_JOB]
           steps:
             save_cache:
               key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
@@ -155,15 +152,53 @@ jobs:
     executor: << parameters.machine-type >>
     environment:
       NAMESPACE: seleniarm
-      BUILD_DATE: today
+      BUILD_DATE: $(date '+%Y%m%d')
       PLATFORMS: << parameters.platforms >>
+      DEPLOY_BRANCH: deploy-to-dockerhub
     steps:
       - run: uname -a
       - run: docker info
       - run: |
+          echo "Clone repo and checkout $CIRCLE_BRANCH branch"
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo "Rebuild images as single manifest and publish to Docker Hub"
-
+          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
+          cd docker-seleniarm
+          git checkout $CIRCLE_BRANCH
+          echo $PWD
+      - run: |
+          echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          echo "Job name = " $CIRCLE_JOB
+          if [ "$CIRCLE_JOB" = "deploy-multi-arch" ]; then
+            cd docker-seleniarm
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+          fi      
+      - run: |
+          echo "Install QEMU binaries"
+          curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
+            && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
+            && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
+            && source ~/.bashrc \
+            && qemu-system-aarch64 --version
+      - run: |
+          echo "Build Docker images"
+          cd docker-seleniarm
+          echo $PWD
+          export BRANCH=$CIRCLE_BRANCH
+          echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+          export BUILDX_BUILDER=`docker buildx create`
+          docker buildx use $BUILDX_BUILDER
+          export BUILD_ARGS=--push
+          export BUILD_DATE=$(date '+%Y%m%d')
+          export BRANCH=4.1.3   # find a better place to control this.
+          docker buildx ls
+          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
 
 
 workflows:
@@ -190,8 +225,8 @@ workflows:
   
   deploy-multi-arch:
     jobs:
-      - build-multi-arch:
-          name: build-multi-arch-all
+      - deploy-multi-arch:
+          name: deploy-multi-arch
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           machine-type: ubuntu2004arm64
           filters: 
