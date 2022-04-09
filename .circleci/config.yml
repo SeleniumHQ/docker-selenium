@@ -151,7 +151,7 @@ jobs:
       - run: docker info
       - run: |
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo "Rebuild images as single manifest and publish to Docker Hub"
+          echo "Rebuild images as single manifest and publish to Docker Hub..."
 
 
 
