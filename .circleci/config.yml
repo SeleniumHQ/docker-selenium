@@ -169,7 +169,7 @@ jobs:
           source $BASH_ENV
           echo BRANCH="$BRANCH"
           echo "Generate release notes"
-          apt-get update -y && apt-get install python3-venv
+          sudo apt-get update -y && sudo apt-get install python3-venv
           go get github.com/github-release/github-release
           export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
           GITHUB_USER=seleniumhq-community GITHUB_REPO=docker-seleniarm ~/go/bin/github-release release --tag seleniarm-v4.1.3-20220409 --name seleniarm-v4.1.3-20220409 --description "Test Test"
