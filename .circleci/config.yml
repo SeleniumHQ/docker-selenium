@@ -157,22 +157,25 @@ jobs:
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       DEPLOY_BRANCH: deploy-to-dockerhub
+      GITHUB_USER: seleniumhq-community
+      GITHUB_REPO: docker-seleniarm 
     steps:
+      - run:
+          echo "Prepare workflow environment variables"
+          echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
+          echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
+          echo 'export GITHUB_USER="CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
+          echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
       - checkout
       - run: uname -a
       - run: docker info
       - run: |
           echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
           echo $PWD
-          echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-          echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
+          
+          
           source $BASH_ENV
           echo BRANCH="$BRANCH"
-          echo "Generate release notes"
-          sudo apt-get update -y && sudo apt-get install python3-venv
-          go install github.com/github-release/github-release@v0.10.0
-          export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
-          GITHUB_USER=seleniumhq-community GITHUB_REPO=docker-seleniarm github-release release --tag seleniarm-v4.1.3-20220409 --name seleniarm-v4.1.3-20220409 --description "Test Test"
       - run: |
           echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           echo "Job name = " $CIRCLE_JOB
@@ -206,6 +209,11 @@ jobs:
           export LATEST_TAG=$(git describe --tags --abbrev=0)
           sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
           cat release_notes.md
+          sudo apt-get update -y && sudo apt-get install python3-venv
+          go install github.com/github-release/github-release@v0.10.0
+          export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
+          export RELEASE_TAG=seleniarm-v$BRANCH-$BUILD_DATE
+          github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
 workflows:
   # build-and-test-multi-arch:
