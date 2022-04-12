@@ -158,13 +158,14 @@ jobs:
       BUILD_ARGS: << parameters.build-args >>
       DEPLOY_BRANCH: deploy-to-dockerhub
       GITHUB_USER: seleniumhq-community
-      GITHUB_REPO: docker-seleniarm 
+      GITHUB_REPO: docker-seleniarm
+      SELENIUM_VERSION: 4.1.3
     steps:
       - run:
           name: "Prepare workflow environment variables"
           command: |
             echo "Prepare workflow environment variables"
-            echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
+            echo 'export BRANCH="$SELENIUM_VERSION"' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
             echo 'export GITHUB_USER="CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
@@ -173,49 +174,44 @@ jobs:
       - checkout
       - run: uname -a
       - run: docker info
-      - run: |
-          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo $PWD
-          echo $RELEASE_TAG
-          echo BRANCH="$BRANCH"
-      - run: |
-          echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
-          echo "Job name = " $CIRCLE_JOB
-          export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
-          if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
-            echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
-            circleci-agent step halt
-          else 
-            echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
-          fi
-      - run: |
-          echo "Install QEMU binaries"
+      - run:
+          name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          command: |
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+      # - run: |
+          #echo "Install QEMU binaries"
           # curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
           #   && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
           #   && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
           #   && source ~/.bashrc \
           #   && qemu-system-aarch64 --version
-      - run: |
-          echo "Build and Push Docker images"
-          echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
-          docker buildx use `docker buildx create`
-          #echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-          #echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
-          echo BRANCH="$BRANCH"
-          docker buildx ls
-          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
-      - run: |
-          echo "Generate release notes"
-          #NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
-          export LATEST_TAG=$(git describe --tags --abbrev=0)
-          sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
-          cat release_notes.md
-          sudo apt-get update -y && sudo apt-get install python3-venv
-          go install github.com/github-release/github-release@v0.10.0
-          export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
-          
-          github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
+      - run:
+          name: "Build and Push Docker images"
+          command: |
+            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+            docker buildx use `docker buildx create`
+            #echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            #echo 'export BRANCH=4.1.3' >> $BASH_ENV     # find a better place to control this.
+            echo BRANCH="$BRANCH"
+            docker buildx ls
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Generate release notes"
+          command: |
+            export LATEST_TAG=$(git describe --tags --abbrev=0)
+            sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+            cat release_notes.md
+            sudo apt-get update -y && sudo apt-get install python3-venv
+            go install github.com/github-release/github-release@v0.10.0
+            export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
+            github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
 workflows:
   # build-and-test-multi-arch:
