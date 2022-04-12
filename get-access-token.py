@@ -10,6 +10,14 @@ github_installation_id = os.environ.get('GITHUB_INSTALLATION_ID')
 private_key = os.environ.get('GITHUB_APP_PEM')
 private_key = private_key.replace("\\n", "\n")
 
+standard_error_msg = 'Seleniarm GitHub App installation environment variables are not set. '
+if github_app_id == '':
+  raise Exception(standard_error_msg + 'Valid GITHUB_APP_ID is required to obtain an access token.')
+if github_installation_id == '':
+  raise Exception(standard_error_msg + 'Valid GITHUB_INSTALLATION_ID is required to obtain an access token.')
+if private_key == '':
+  raise Exception(standard_error_msg + 'Valid GITHUB_APP_PEM token is required to obtain an access token.')
+
 
 time_since_epoch_in_seconds = int(time.time())
     
