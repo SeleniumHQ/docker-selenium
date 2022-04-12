@@ -169,7 +169,7 @@ jobs:
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
             echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-            echo 'export RELEASE_TAG="seleniarm-v"`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
