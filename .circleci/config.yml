@@ -181,6 +181,8 @@ jobs:
             echo PLATFORMS="$PLATFORMS"
             echo BUILD_ARGS="$BUILD_ARGS"
             echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
+            git tag test-tag
+            git push origin test-tag
       - checkout
       - run: uname -a
       - run: docker info
@@ -214,9 +216,9 @@ jobs:
           command: |
             export LATEST_TAG=$(git describe --tags --abbrev=0)
             sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
-            cat release_notes.md
             sudo apt-get update -y && sudo apt-get install python3-venv
             go install github.com/github-release/github-release@v0.10.0
+            cat release_notes.md
             export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
             github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
