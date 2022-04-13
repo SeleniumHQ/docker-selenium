@@ -44,7 +44,9 @@ jobs:
             && qemu-system-aarch64 --version
       - run:
           name: "Build Docker images"
-          command: NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+          command: |
+            echo "Branch is $BRANCH and Version is $VERSION"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run:
           name: "Save Docker Images in Cache"
           command: |  
