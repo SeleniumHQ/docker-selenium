@@ -42,8 +42,8 @@ jobs:
             && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
             && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
             && source ~/.bashrc \
-            && source $BASH_ENV \
             && qemu-system-aarch64 --version \
+          source $BASH_ENV
       - run:
           name: "Build Docker images"
           command: |
