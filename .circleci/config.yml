@@ -43,6 +43,7 @@ jobs:
             && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
             && source ~/.bashrc \
             && qemu-system-aarch64 --version \
+          cat $BASH_ENV
           source $BASH_ENV
       - run:
           name: "Build Docker images"
