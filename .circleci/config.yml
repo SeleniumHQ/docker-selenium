@@ -23,30 +23,19 @@ jobs:
       NAMESPACE: seleniarm
       BUILD_DATE: today
       PLATFORMS: << parameters.platforms >>
-      DEPLOY_BRANCH: deploy-to-dockerhub
     steps:
       - run: uname -a
       - run: docker info
-      - run: |
-          echo "Clone repo and checkout $CIRCLE_BRANCH branch"
-          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
-          cd docker-seleniarm
-          git checkout $CIRCLE_BRANCH
-          echo $PWD
-      - run: |
-          echo "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
-          echo "Job name = " $CIRCLE_JOB
-          if [ "$CIRCLE_JOB" = "deploy-multi-arch" ]; then
-            cd docker-seleniarm
-            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo $CI_DEPLOY
-            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
-              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
-              circleci-agent step halt
-            else 
-              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
-            fi
-          fi      
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo "Prepare workflow environment variables"
+            echo 'export BRANCH="$CIRCLE_BRANCH"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo BRANCH="$BRANCH"
+      - checkout
       - run: |
           echo "Install QEMU binaries"
           curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
@@ -54,25 +43,12 @@ jobs:
             && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
             && source ~/.bashrc \
             && qemu-system-aarch64 --version
-      - run: |
-          echo "Build Docker images"
-          cd docker-seleniarm
-          echo $PWD
-          export BRANCH=$CIRCLE_BRANCH
-          if [ "$CIRCLE_JOB" = "deploy-multi-arch" ]; then
-            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
-            export BUILDX_BUILDER=`docker buildx create`
-            docker buildx use $BUILDX_BUILDER
-            export BUILD_ARGS=--push
-            export BUILD_DATE=$(date '+%Y%m%d')
-            export BRANCH=4.1.3   # find a better place to control this.
-            docker buildx ls
-            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-          fi
-          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
-      - run: |
-          if [ "$CIRCLE_JOB" != "deploy-multi-arch" ]; then
-            echo "Save Docker Images in Cache"
+      - run:
+          name: "Build Docker images"
+          command: NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Save Docker Images in Cache"
+          command: |  
             export VERSION=$CIRCLE_BRANCH
             echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
             echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
@@ -89,16 +65,10 @@ jobs:
               $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
               $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
               $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
-          fi
-      - when: 
-          condition:
-            not:
-              equal: [ "deploy-multi-arch", $CIRCLE_JOB]
-          steps:
-            save_cache:
-              key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
-              paths: 
-                - multi-arch-images.tar
+      - save_cache:
+          key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
+          paths: 
+            - multi-arch-images.tar
 
   test-multi-arch:
     parameters:
@@ -156,7 +126,7 @@ jobs:
       NAMESPACE: seleniarm
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
-      DEPLOY_BRANCH: deploy-to-dockerhub
+      DEPLOY_BRANCH: trunk
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
       SELENIUM_VERSION: 4.1.3
@@ -187,8 +157,6 @@ jobs:
       - run:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
-            git tag test-tag
-            git push origin test-tag
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
             if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
               echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
@@ -223,26 +191,26 @@ jobs:
             github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
 workflows:
-  # build-and-test-multi-arch:
-  #   jobs:
-  #     - build-multi-arch:
-  #         name: build-multi-arch-arm64
-  #         platforms: linux/arm64
-  #         machine-type: ubuntu2004arm64
-  #     - build-multi-arch:
-  #         name: build-multi-arch-amd64
-  #         platforms: linux/amd64
-  #         machine-type: ubuntu2004amd64
-  #     - test-multi-arch:
-  #         name: test-multi-arch-arm64
-  #         requires: [build-multi-arch-arm64]
-  #         platforms: linux/arm64
-  #         machine-type: ubuntu2004arm64
-  #     - test-multi-arch:
-  #         name: test-multi-arch-amd64
-  #         requires: [build-multi-arch-amd64]
-  #         platforms: linux/amd64
-  #         machine-type: ubuntu2004amd64
+  build-and-test-multi-arch:
+    jobs:
+      - build-multi-arch:
+          name: build-multi-arch-arm64
+          platforms: linux/arm64
+          machine-type: ubuntu2004arm64
+      - build-multi-arch:
+          name: build-multi-arch-amd64
+          platforms: linux/amd64
+          machine-type: ubuntu2004amd64
+      - test-multi-arch:
+          name: test-multi-arch-arm64
+          requires: [build-multi-arch-arm64]
+          platforms: linux/arm64
+          machine-type: ubuntu2004arm64
+      - test-multi-arch:
+          name: test-multi-arch-amd64
+          requires: [build-multi-arch-amd64]
+          platforms: linux/amd64
+          machine-type: ubuntu2004amd64
   
   deploy-multi-arch:
     jobs:
@@ -254,7 +222,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - deploy-to-dockerhub
+                - trunk
 
 
 
