@@ -50,7 +50,8 @@ jobs:
       - run:
           name: "Save Docker Images in Cache"
           command: |  
-            export VERSION=$CIRCLE_BRANCH
+            #export VERSION=$CIRCLE_BRANCH
+            
             echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
             echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
             echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
