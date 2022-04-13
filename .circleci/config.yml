@@ -24,17 +24,16 @@ jobs:
       BUILD_DATE: today
       PLATFORMS: << parameters.platforms >>
     steps:
-      - run: uname -a
-      - run: docker info
       - run:
           name: "Prepare workflow environment variables"
           command: |
-            echo "Prepare workflow environment variables"
             echo 'export BRANCH="$CIRCLE_BRANCH"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
-            echo BRANCH="$BRANCH"
+            echo $BRANCH
+      - run: uname -a
+      - run: docker info
       - checkout
       - run: |
           echo "Install QEMU binaries"
