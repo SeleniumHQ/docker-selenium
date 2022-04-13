@@ -36,6 +36,7 @@ jobs:
       - run: docker info
       - checkout
       - run: |
+          echo "Branch " $BRANCH
           echo "Install QEMU binaries"
           curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
             && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
@@ -50,8 +51,7 @@ jobs:
       - run:
           name: "Save Docker Images in Cache"
           command: |  
-            #export VERSION=$CIRCLE_BRANCH
-            
+            export VERSION=$CIRCLE_BRANCH
             echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
             echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
             echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
