@@ -75,12 +75,12 @@ jobs:
       NAMESPACE: seleniarm
       BUILD_DATE: today
     steps:
+      - checkout
       - restore_cache:
           keys: 
             - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
       - run: uname -a
       - run: docker info
-      - checkout
       - run:
           name: "Load built images from cache into Docker"
           command: |
