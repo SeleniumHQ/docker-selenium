@@ -30,7 +30,7 @@ jobs:
             echo 'export BRANCH="$CIRCLE_BRANCH"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
-            echo "Workflow environment variables:"
+            echo "Workflow environment variables"
             echo $BRANCH
       - run: uname -a
       - run: docker info
