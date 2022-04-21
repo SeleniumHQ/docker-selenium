@@ -80,12 +80,12 @@ jobs:
             - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
       - run: uname -a
       - run: docker info
+      - checkout
       - run:
           name: "Load built images from cache into Docker"
           command: |
             echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
             docker load -i multi-arch-images.tar
-      - checkout
       - run:
           name: "Use Python3 and pip3 instead of Python2.7"
           command: |
