@@ -30,26 +30,15 @@ jobs:
             echo 'export BRANCH="$CIRCLE_BRANCH"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
-            echo "Workflow environment variables"
+            echo "Workflow environment variables:"
             echo $BRANCH
       - run: uname -a
       - run: docker info
       - checkout
-      - run: |
-          echo "Branch " $BRANCH
-          # echo "Install QEMU binaries"
-          # curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-          #   && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-          #   && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
-          #   && source ~/.bashrc \
-          #   && qemu-system-aarch64 --version \
-          # cat $BASH_ENV
-          # source $BASH_ENV
-          # echo "Branch after " $BRANCH
       - run:
           name: "Build Docker images"
           command: |
-            echo "Branch is $BRANCH and Version is $VERSION"
+            echo "Branch is $BRANCH"
             NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run:
           name: "Save Docker Images in Cache"
@@ -113,9 +102,7 @@ jobs:
             cd docker-seleniarm
             echo $PWD
             export USE_RANDOM_USER=false
-            #export BUILD_DATE=$(date '+%Y%m%d')
             export BRANCH=$CIRCLE_BRANCH
-            #export ARCH=`dpkg --print-architecture`
             USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
 
   deploy-multi-arch:
@@ -169,13 +156,6 @@ jobs:
             else 
               echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
             fi
-      # - run: |
-          #echo "Install QEMU binaries"
-          # curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-          #   && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-          #   && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
-          #   && source ~/.bashrc \
-          #   && qemu-system-aarch64 --version
       - run:
           name: "Build and Push Docker images"
           command: |
