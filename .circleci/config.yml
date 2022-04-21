@@ -45,6 +45,7 @@ jobs:
             && qemu-system-aarch64 --version \
           cat $BASH_ENV
           source $BASH_ENV
+          echo "Branch after " $BRANCH
       - run:
           name: "Build Docker images"
           command: |
