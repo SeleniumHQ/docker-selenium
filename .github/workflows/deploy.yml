@@ -1,9 +1,9 @@
 name: Deploys
 
-#on:
-#  push:
-#    branches:
-#      - trunk
+on:
+  push:
+    branches:
+      - trunk
 
 jobs:
   deploy:
