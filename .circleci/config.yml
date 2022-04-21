@@ -80,27 +80,23 @@ jobs:
             - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
       - run: uname -a
       - run: docker info
-      - run: |
-          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo "Load built images into Docker"
-          docker load -i multi-arch-images.tar
-      - run: |
-          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
-          cd docker-seleniarm
-          git checkout $CIRCLE_BRANCH
-          echo $PWD
-      - run: |
-          echo "Use Python3 and pip3 instead of Python2.7"
-          cd docker-seleniarm
-          sed -i 's/pip /pip3 /g' tests/bootstrap.sh
-          sed -i 's/python /python3 /g' tests/bootstrap.sh
-          sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
+      - run:
+          name: "Load built images from cache into Docker"
+          command: |
+            echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
+            docker load -i multi-arch-images.tar
+      - checkout
+      - run:
+          name: "Use Python3 and pip3 instead of Python2.7"
+          command: |
+            echo "Use Python3 and pip3 instead of Python2.7"
+            sed -i 's/pip /pip3 /g' tests/bootstrap.sh
+            sed -i 's/python /python3 /g' tests/bootstrap.sh
+            sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
       - run: 
+          name: "Test Docker images"
           no_output_timeout: 2m
           command: |
-            echo "Test Docker images"
-            cd docker-seleniarm
-            echo $PWD
             export USE_RANDOM_USER=false
             export BRANCH=$CIRCLE_BRANCH
             USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
