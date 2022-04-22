@@ -24,46 +24,41 @@ jobs:
       BUILD_DATE: today
       PLATFORMS: << parameters.platforms >>
     steps:
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo 'export BRANCH="$CIRCLE_BRANCH"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo $BRANCH
       - run: uname -a
       - run: docker info
-      - run: |
-          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
-          cd docker-seleniarm
-          git checkout $CIRCLE_BRANCH
-          echo $PWD
-      - run: |
-          echo "Install QEMU binaries"
-          curl -L  https://github.com/xpack-dev-tools/qemu-arm-xpack/releases/download/v6.2.0-2/xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz -o xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-            && tar xvfz xpack-qemu-arm-6.2.0-2-linux-$(uname -m | sed 's/x86_64/x64/' | sed 's/aarch64/arm64/').tar.gz \
-            && echo "export PATH=$PWD/xpack-qemu-arm-6.2.0-2/bin:$PATH" > ~/.bashrc \
-            && source ~/.bashrc \
-            && qemu-system-aarch64 --version
-      - run: |
-          echo "Build Docker images"
-          cd docker-seleniarm
-          echo $PWD
-          export BRANCH=$CIRCLE_BRANCH
-          #export PLATFORMS=
-          NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} make build_multi
-      - run: |
-          echo "Save Docker Images in Cache"
-          export VERSION=$CIRCLE_BRANCH
-          echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
-          echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
-          docker save -o multi-arch-images.tar \
-            $NAMESPACE/base:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
-            $NAMESPACE/hub:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
-            $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
-            $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
-            $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
+      - checkout
+      - run:
+          name: "Build Docker images"
+          command: |
+            echo "Branch is $BRANCH"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Save Docker Images in Cache"
+          command: |  
+            export VERSION=$CIRCLE_BRANCH
+            echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
+            docker save -o multi-arch-images.tar \
+              $NAMESPACE/base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/hub:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
       - save_cache:
           key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
           paths: 
@@ -80,37 +75,101 @@ jobs:
       NAMESPACE: seleniarm
       BUILD_DATE: today
     steps:
+      - checkout
       - restore_cache:
           keys: 
             - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
       - run: uname -a
       - run: docker info
-      - run: |
-          echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
-          echo "Load built images into Docker"
-          docker load -i multi-arch-images.tar
-      - run: |
-          git clone https://github.com/seleniumhq-community/docker-seleniarm.git
-          cd docker-seleniarm
-          git checkout $CIRCLE_BRANCH
-          echo $PWD
-      - run: |
-          echo "Use Python3 and pip3 instead of Python2.7"
-          cd docker-seleniarm
-          sed -i 's/pip /pip3 /g' tests/bootstrap.sh
-          sed -i 's/python /python3 /g' tests/bootstrap.sh
-          sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
+      - run:
+          name: "Load built images from cache into Docker"
+          command: |
+            echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
+            docker load -i multi-arch-images.tar
+      - run:
+          name: "Use Python3 and pip3 instead of Python2.7"
+          command: |
+            echo "Use Python3 and pip3 instead of Python2.7"
+            sed -i 's/pip /pip3 /g' tests/bootstrap.sh
+            sed -i 's/python /python3 /g' tests/bootstrap.sh
+            sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
       - run: 
+          name: "Test Docker images"
           no_output_timeout: 2m
           command: |
-            echo "Test Docker images"
-            cd docker-seleniarm
-            echo $PWD
             export USE_RANDOM_USER=false
-            #export BUILD_DATE=$(date '+%Y%m%d')
             export BRANCH=$CIRCLE_BRANCH
-            #export ARCH=`dpkg --print-architecture`
             USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
+
+  deploy-multi-arch:
+    parameters:
+      platforms: 
+        type: string
+      build-args:
+        type: string
+      machine-type:
+        type: executor
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: seleniarm
+      PLATFORMS: << parameters.platforms >>
+      BUILD_ARGS: << parameters.build-args >>
+      DEPLOY_BRANCH: trunk
+      GITHUB_USER: seleniumhq-community
+      GITHUB_REPO: docker-seleniarm
+      SELENIUM_VERSION: 4.1.3
+    steps:
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo "Prepare workflow environment variables"
+            echo 'export BRANCH="$SELENIUM_VERSION"' >> $BASH_ENV
+            echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
+            echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
+            echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo BRANCH="$BRANCH"
+            echo GITHUB_REPO="$GITHUB_REPO"
+            echo GITHUB_USER="$GITHUB_USER"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            echo PLATFORMS="$PLATFORMS"
+            echo BUILD_ARGS="$BUILD_ARGS"
+            echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
+      - checkout
+      - run: uname -a
+      - run: docker info
+      - run:
+          name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          command: |
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+      - run:
+          name: "Build and Push Docker images"
+          command: |
+            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+            docker buildx use `docker buildx create`
+            docker buildx ls
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Generate release notes"
+          command: |
+            export LATEST_TAG=$(git describe --tags --abbrev=0)
+            sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+            sudo apt-get update -y && sudo apt-get install python3-venv
+            go install github.com/github-release/github-release@v0.10.0
+            cat release_notes.md
+            export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
+            github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
 workflows:
   build-and-test-multi-arch:
@@ -133,5 +192,19 @@ workflows:
           requires: [build-multi-arch-amd64]
           platforms: linux/amd64
           machine-type: ubuntu2004amd64
+  
+  deploy-multi-arch:
+    jobs:
+      - deploy-multi-arch:
+          name: deploy-multi-arch
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          machine-type: ubuntu2004arm64
+          filters: 
+            branches: 
+              only: 
+                - trunk
+
+
 
               
