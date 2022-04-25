@@ -1,5 +1,7 @@
 # Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64
 
+[![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](<LINK>)
+
 Selenium container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
 
 - [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
