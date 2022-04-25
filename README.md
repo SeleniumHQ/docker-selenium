@@ -1,6 +1,6 @@
 # Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64
 
-[![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](<LINK>)
+[![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](https://app.circleci.com/pipelines/github/seleniumhq-community/docker-seleniarm)
 
 Selenium container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
 
@@ -29,7 +29,7 @@ To build the images, run build.sh from the root directory of this repo, and spec
 $ ./build.sh arm64    # or arm/v7 or amd64
 ```
 
-This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium).  
+This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium) and [rows/docker-selenium](https://github.com/rows/docker-selenium).
 
 Multi-arch images are located at https://hub.docker.com/u/seleniarm
 
