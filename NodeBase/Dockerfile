@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.1.3-20220427
+FROM selenium/base:4.1.4-20220427
 LABEL authors=SeleniumHQ
 
 USER root
@@ -172,6 +172,9 @@ ENV START_NO_VNC true
 # Path to the Configfile
 ENV CONFIG_FILE=/opt/selenium/config.toml
 ENV GENERATE_CONFIG true
+# Drain the Node after N sessions. 
+# A value higher than zero enables the feature
+ENV DRAIN_AFTER_SESSION_COUNT 0
 
 #========================
 # Selenium Configuration
