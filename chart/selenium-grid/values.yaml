@@ -1,9 +1,9 @@
 global:
   seleniumGrid:
     # Image tag for all selenium components
-    imageTag: 4.1.3-20220405
+    imageTag: 4.1.3-20220427
     # Image tag for browser's nodes
-    nodesImageTag: 4.1.3-20220405
+    nodesImageTag: 4.1.3-20220427
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
@@ -23,7 +23,7 @@ components:
     # Router image name
     imageName: selenium/router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.3-20220405
+    # imageTag: 4.1.3-20220427
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -65,7 +65,7 @@ components:
     # Distributor image name
     imageName: selenium/distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.3-20220405
+    # imageTag: 4.1.3-20220427
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -89,7 +89,7 @@ components:
     # Event Bus image name
     imageName: selenium/event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.3-20220405
+    # imageTag: 4.1.3-20220427
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -117,7 +117,7 @@ components:
     # Session Map image name
     imageName: selenium/sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.3-20220405
+    # imageTag: 4.1.3-20220427
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -140,7 +140,7 @@ components:
     # Session Queue image name
     imageName: selenium/session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.1.3-20220405
+    # imageTag: 4.1.3-20220427
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -180,7 +180,7 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  imageTag: 4.1.3-20220405
+  imageTag: 4.1.3-20220427
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Custom annotations for Selenium Hub pod
@@ -246,7 +246,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: selenium/node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.3-20220405
+  # imageTag: 4.1.3-20220427
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -307,7 +307,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: selenium/node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.3-20220405
+  # imageTag: 4.1.3-20220427
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -368,7 +368,7 @@ edgeNode:
   # Image of edge nodes
   imageName: selenium/node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.1.3-20220405
+  # imageTag: 4.1.3-20220427
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   ports:
