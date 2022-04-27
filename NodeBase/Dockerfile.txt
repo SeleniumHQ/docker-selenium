@@ -165,6 +165,9 @@ ENV START_NO_VNC true
 # Path to the Configfile
 ENV CONFIG_FILE=/opt/selenium/config.toml
 ENV GENERATE_CONFIG true
+# Drain the Node after N sessions. 
+# A value higher than zero enables the feature
+ENV DRAIN_AFTER_SESSION_COUNT 0
 
 #========================
 # Selenium Configuration

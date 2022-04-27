@@ -602,7 +602,8 @@ variables.
 Here is an example with the default values of these environment variables:
 
 ```bash
-$ docker run -d -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size="2g" selenium/node-chrome:4.1.3-20220427
+$ docker run -d -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 \ 
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size="2g" selenium/node-chrome:4.1.3-20220427
 ```
 
 ### Setting Screen Resolution
@@ -612,7 +613,7 @@ These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `S
 environmental variables when starting the container.
 
 ``` bash
-docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox:4.1.3-20220427
 ```
 
 ### Grid Url and Session Timeout
@@ -661,10 +662,25 @@ To avoid starting the server you can set the `START_XVFB` environment variable t
 (or any other value than `true`), for example:
 
 ``` bash
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false --shm-size="2g" selenium/node-chrome
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false --shm-size="2g" selenium/node-chrome:4.1.3-20220427
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
+
+### Stopping the Node/Standalone after N sessions have been executed
+
+In some environments, like Docker Swarm or Kubernetes, it is useful to shut down the Node or Standalone
+container after N tests have been executed. For example, this can be used in Kubernetes to terminate the
+pod and then scale a new one after N sessions. Set the environment variable `DRAIN_AFTER_SESSION_COUNT` to
+a value higher than zero to enable this behaviour. 
+
+``` bash
+$ docker run -e DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.1.3-20220427
+```
+
+With the previous command, the Standalone container will shutdown after 5 sessions have been executed.
+
 ___
 
 ## Building the images
