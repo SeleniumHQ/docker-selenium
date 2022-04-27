@@ -26,6 +26,7 @@ fi
 echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >> "$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >> "$FILENAME"
 echo "detect-drivers = false" >> "$FILENAME"
+echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT}" >> "$FILENAME"
 echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> "$FILENAME"
 
