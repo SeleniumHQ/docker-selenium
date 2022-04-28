@@ -17,11 +17,11 @@ USER root
   # && apt-get -qqy install firefox libavcodec-extra \
   # && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Temporarily installing Firefox 96.0.3 from snapshots since 98.0.2 is broken on arm64
+# Pulling Firefox from Debian Snapshots so we can control which version we use as latest
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt-get install libavcodec-extra -y \
-  && wget https://snapshot.debian.org/archive/debian/20220209T093507Z/pool/main/f/firefox/firefox_96.0.3-1_`dpkg --print-architecture`.deb -O firefox.deb \
+  && wget https://snapshot.debian.org/archive/debian/20220418T084218Z/pool/main/f/firefox/firefox_99.0-1_`dpkg --print-architecture`.deb -O firefox.deb \
   && apt install ./firefox.deb -y \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ./firefox.deb
 
