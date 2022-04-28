@@ -240,6 +240,24 @@ tag_latest:
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 
+# Additional tags for browser images
+tag_and_push_multi_arch_browser_images: tag_and_push_multi_arch_chromium_images tag_and_push_multi_arch_firefox_images
+
+tag_and_push_multi_arch_chromium_images:
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium
+
+tag_and_push_multi_arch_firefox_images:
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
+
+tag_multi_arch_latest:
+	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
+	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:latest
+	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
+	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
+	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
+	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
+	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
+
 release_latest:
 	docker push $(NAME)/base:latest
 	docker push $(NAME)/hub:latest
