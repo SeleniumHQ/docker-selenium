@@ -8,6 +8,9 @@ on:
     branches:
       - trunk
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     # Skip job based on the commit message, only works in push to branches for now
@@ -18,11 +21,11 @@ jobs:
       matrix:
         use-random-user: [false, true]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Output Docker info
         run: docker info
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: 3.8
       - name: Get branch name (only for push to branch)

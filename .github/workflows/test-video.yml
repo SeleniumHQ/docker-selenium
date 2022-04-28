@@ -8,6 +8,9 @@ on:
     branches:
       - trunk
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     # Skip job based on the commit message, only works in push to branches for now
@@ -15,11 +18,11 @@ jobs:
     name: Test video recorded through Docker Selenium
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
       - name: Output Docker info
         run: docker info
       - name: Set up Python 3.8
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3.1.2
         with:
           python-version: 3.8
       - name: Get branch name (only for push to branch)
@@ -39,17 +42,17 @@ jobs:
       - name: Run Docker Compose to record video
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_video
       - name: Upload recorded Chrome video
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: chrome_video
           path: ./tests/videos/chrome_video.mp4
       - name: Upload recorded Edge video
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: edge_video
           path: ./tests/videos/edge_video.mp4
       - name: Upload recorded Firefox video
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: firefox_video
           path: ./tests/videos/firefox_video.mp4
