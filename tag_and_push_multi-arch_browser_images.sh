@@ -5,6 +5,7 @@ BUILD_DATE=$2
 NAMESPACE=$3
 PUSH_IMAGE="${4:-false}"
 BROWSER=$5
+PLATFORMS=$6
 
 TAG_VERSION=${VERSION}-${BUILD_DATE}
 
@@ -52,16 +53,21 @@ chromium)
       ${CHROME_SHORT_VERSION}      
   )
 
+  cd NodeChromium
+  NODE_CHROMIUM_TAGS=""
+  STANDALONE_CHROMIUM_TAGS=""
   for chrome_tag in "${CHROME_TAGS[@]}"
   do
-    docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chrome_tag}
-    docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chrome_tag}
-    if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-chromium:${chrome_tag}
-        docker push ${NAMESPACE}/standalone-chromium:${chrome_tag}
-    fi
+    #docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chrome_tag}
+    #docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chrome_tag}
+    NODE_CHROMIUM_TAGS+=" -t ${NAME}/node-chromium:${chrome_tag}"
+    STANDALONE_CHROMIUM_TAGS+=" -t ${NAME}/standalone-chromium:${chrome_tag}"
   done
-
+  if [ "${PUSH_IMAGE}" = true ]; then
+      cd ../NodeChromium && docker buildx build --platform ${PLATFORMS} --push ${NODE_CHROMIUM_TAGS} .
+      cd ../StandaloneChromium && docker buildx build --platform ${PLATFORMS} --push ${STANDALONE_CHROMIUM_TAGS} .  
+  fi
+  
   ;;
 firefox)
   FIREFOX_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
@@ -95,13 +101,18 @@ firefox)
       ${FIREFOX_SHORT_VERSION}      
   )
 
+  #cd NodeFirefox
+  NODE_FIREFOX_TAGS=""
+  STANDALONE_FIREFOX_TAGS=""
   for firefox_tag in "${FIREFOX_TAGS[@]}"
   do
-    docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
-    docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
+    #docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
+    #docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
+    NODE_FIREFOX_TAGS+=" -t ${NAME}/node-firefox:${firefox_tag}"
+    STANDALONE_FIREFOX_TAGS+=" -t ${NAME}/standalone-firefox:${firefox_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-firefox:${firefox_tag}
-        docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}
+        cd ../NodeFirefox && docker buildx build --platform ${PLATFORMS} --push ${NODE_FIREFOX_TAGS} .
+        cd ../StandaloneFirefox && docker buildx build --platform ${PLATFORMS} --push ${STANDALONE_FIREFOX_TAGS} .
     fi
   done
 

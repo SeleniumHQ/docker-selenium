@@ -244,10 +244,10 @@ tag_latest:
 tag_and_push_multi_arch_browser_images: tag_and_push_multi_arch_chromium_images tag_and_push_multi_arch_firefox_images
 
 tag_and_push_multi_arch_chromium_images:
-	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium $(PLATFORMS)
 
 tag_and_push_multi_arch_firefox_images:
-	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox $(PLATFORMS)
 
 tag_multi_arch_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
