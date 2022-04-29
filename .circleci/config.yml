@@ -163,7 +163,7 @@ jobs:
       - run:
           name: "Tag browser images and update latest tag"
           command: |
-            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true PLATFORMS=${PLATFORMS} make tag_and_push_multi_arch_browser_images
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_multi_arch_browser_images
             NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make tag_multi_arch_latest
       - run:
           name: "Generate release notes"
