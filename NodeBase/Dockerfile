@@ -2,13 +2,8 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-<<<<<<< HEAD
 FROM seleniarm/base:4.1.3-20220331
 LABEL authors=SeleniumHQ,sj26,jamesmortensen
-=======
-FROM selenium/base:4.1.4-20220427
-LABEL authors=SeleniumHQ
->>>>>>> 379c1ff51523d6ac236f1331de7261c0c732451e
 
 USER root
 
