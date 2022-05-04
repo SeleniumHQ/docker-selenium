@@ -8,6 +8,19 @@ global:
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
 
+# Configure the ingress resource to access the Grid installation.
+ingress:
+  # Enable or disable ingress resource
+  enabled: true
+  # Name of ingress class to select which controller will implement ingress resource
+  className: ""
+  # Custom annotations for ingress resource
+  annotations: {}
+  # Default host for the ingress resource
+  hostname: selenium-grid.local
+  # TLS backend configuration for ingress resource
+  tls: []
+
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
   # Name of the configmap
@@ -52,7 +65,7 @@ components:
     # Resources for router container
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
-    serviceType: NodePort
+    serviceType: ClusterIP
     # Custom annotations for router service
     serviceAnnotations: {}
     # Tolerations for router container
@@ -229,7 +242,7 @@ hub:
   # Resources for selenium-hub container
   resources: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
-  serviceType: NodePort
+  serviceType: ClusterIP
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
   # Tolerations for selenium-hub container

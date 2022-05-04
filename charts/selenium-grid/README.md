@@ -24,6 +24,9 @@ helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents
 
 # Or install specified version
 helm install selenium-grid docker-selenium/selenium-grid --version 0.3.1
+
+# In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
+helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 ```
 
 ## Updating Selenium-Grid release
@@ -57,6 +60,11 @@ This table contains the configuration parameters of the chart and their default 
 | --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `isolateComponents`                     | `false`                            | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
 | `busConfigMap.name`                     | `selenium-event-bus-config`        | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
+| `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
+| `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
+| `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
+| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
+| `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |

@@ -2,6 +2,14 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.4.0
+
+### Added
+- Expose the Hub or the Router by default with ingress resource.
+
+### Changed
+- Set the default serviceType of the Hub and the Router to ClusterIP
+
 ## :heavy_check_mark: 0.3.1
 
 ### Added
