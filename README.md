@@ -858,12 +858,13 @@ FROM selenium/node-edge:latest
 
 USER root
 
-COPY certs/ /etc/certs
+COPY certs/ /etc/certs # copy over the certificate file
 
 RUN mkdir -p -m755 /home/seluser/.pki/nssdb \ #create nssdb folder
     && certutil -d sql:/home/seluser/.pki/nssdb N --empty-password \ # create new db without password
     && certutil -d sql:/home/seluser/.pki/nssdb -A -t "C,," -n companyca -i /etc/certs/companeca.pem \ #trust company CA
-    && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert
+    && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert # client certificate install
+    
 ```
 This way the certificates will be installed and the node will start automatically as before.
 
