@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [[ -z "$CONFIG_FILE" ]]; then
+FILENAME="/opt/selenium/config.toml"
+else
+FILENAME="$CONFIG_FILE"
+fi
+
+echo "[events]
+publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
+subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
+" > "$FILENAME"
+
+echo "[relay]
+url = \"${SE_RELAY_HUB}\"
+status-endpoint = \"${SE_RELAY_STATUS_ENDPOINT}\"
+" >> "$FILENAME"
+
+echo "configs = ${SE_RELAY_CONFIGS}" >> "$FILENAME"

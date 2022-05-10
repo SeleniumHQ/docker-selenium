@@ -22,6 +22,7 @@ all: hub \
 	edge \
 	firefox \
 	docker \
+	relay \
 	standalone_chrome \
 	standalone_edge \
 	standalone_firefox \
@@ -40,6 +41,7 @@ generate_all:	\
 	generate_edge \
 	generate_firefox \
 	generate_docker \
+	generate_relay \
 	generate_standalone_firefox \
 	generate_standalone_chrome \
 	generate_standalone_edge \
@@ -118,6 +120,12 @@ generate_docker:
 docker: base generate_docker
 	cd ./NodeDocker && docker build $(BUILD_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
 
+generate_relay:
+	cd ./NodeRelay && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
+
+relay: base generate_relay
+	cd ./NodeRelay && docker build $(BUILD_ARGS) -t $(NAME)/node-relay:$(TAG_VERSION) .
+
 generate_standalone_docker:
 	cd ./StandaloneDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
@@ -168,6 +176,7 @@ tag_latest:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
+	docker tag $(NAME)/node-relay:$(TAG_VERSION) $(NAME)/node-relay:latest
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
@@ -187,6 +196,7 @@ release_latest:
 	docker push $(NAME)/session-queue:latest
 	docker push $(NAME)/event-bus:latest
 	docker push $(NAME)/node-base:latest
+	docker push $(NAME)/node-relay:latest
 	docker push $(NAME)/node-chrome:latest
 	docker push $(NAME)/node-edge:latest
 	docker push $(NAME)/node-firefox:latest
@@ -206,6 +216,7 @@ tag_major_minor:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:$(MAJOR)
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:$(MAJOR)
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR)
+	docker tag $(NAME)/node-relay:$(TAG_VERSION) $(NAME)/node-relay:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR)
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR)
@@ -256,6 +267,7 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/session-queue | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/session-queue version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/event-bus | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/event-bus version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-relay | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-relay version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -272,6 +284,7 @@ release: tag_major_minor
 	docker push $(NAME)/session-queue:$(TAG_VERSION)
 	docker push $(NAME)/event-bus:$(TAG_VERSION)
 	docker push $(NAME)/node-base:$(TAG_VERSION)
+	docker push $(NAME)/node-relay:$(TAG_VERSION)
 	docker push $(NAME)/node-chrome:$(TAG_VERSION)
 	docker push $(NAME)/node-edge:$(TAG_VERSION)
 	docker push $(NAME)/node-firefox:$(TAG_VERSION)
@@ -390,12 +403,14 @@ test_video: video hub chrome firefox edge
 	base \
 	build \
 	ci \
+	relay \
 	chrome \
 	edge \
 	firefox \
 	docker \
 	generate_all \
 	generate_hub \
+	relay \
 	generate_distributor \
 	generate_router \
 	generate_sessions \

@@ -1,0 +1,11 @@
+ENV CONFIG_FILE=/opt/selenium/config.toml
+ENV GENERATE_CONFIG true
+
+USER 1200
+
+# Copying configuration script generator
+COPY generate_config /opt/bin/generate_config
+
+COPY start-selenium-relay.sh /opt/bin/
+
+COPY selenium-relay.conf /etc/supervisor/conf.d/
