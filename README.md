@@ -846,6 +846,27 @@ certutil -d sql:$HOME/.pki/nssdb -A -t ",," -n <certificate nickname> -i <certif
 ```
 
 You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
+
+Usage example:
+
+If your company has internal CA you can create your own dockerimage from selenium node image.
+You can then install all required internal certificates in your Dockerfile like this:
+
+
+```bash
+FROM selenium/node-edge:latest
+
+USER root
+
+COPY certs/ /etc/certs
+
+RUN mkdir -p -m755 /home/seluser/.pki/nssdb \ #create nssdb folder
+    && certutil -d sql:/home/seluser/.pki/nssdb N --empty-password \ # create new db without password
+    && certutil -d sql:/home/seluser/.pki/nssdb -A -t "C,," -n companyca -i /etc/certs/companeca.pem \ #trust company CA
+    && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert
+```
+This way the certificates will be installed and the node will start automatically as before.
+
 ___
 
 ## Debugging
