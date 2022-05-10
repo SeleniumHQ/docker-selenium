@@ -47,6 +47,15 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+#=========
+# libnss3-tools
+# Network Security Service tools
+# Manage certificates in nssdb (certutil, pk12util, modutil, shlibsign, signtool, ssltap)
+#=========
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    libnss3-tools \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 #================
 # Font libraries
 #================

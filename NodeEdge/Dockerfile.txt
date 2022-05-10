@@ -11,7 +11,6 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
   && apt-get -qqy install ${EDGE_VERSION} \
-  && apt-get -qqy install libnss3-tools \
   && rm /etc/apt/sources.list.d/microsoft-edge.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
