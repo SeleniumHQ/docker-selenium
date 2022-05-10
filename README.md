@@ -49,6 +49,7 @@ Talk to us at https://www.selenium.dev/support/
   + [Running in Headless mode](#running-in-headless-mode)
 * [Building the images](#building-the-images)
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
+* [Install certificates](#install-certificates)
 * [Debugging](#debugging)
 * [Troubleshooting](#troubleshooting)
 
@@ -820,6 +821,31 @@ $ ./wait-for-grid.sh mvn clean test
 
 Like this, the script will poll until the Grid is ready, and then your tests will start.
 
+___
+
+## Install cerificates
+
+If you need to install custom certificates, CA, intermediate CA, client certificates (for exmample enterprise internaöl CA)
+you can use the different utils come from libnss3-tools.
+
+Chromium based browser uses nssdb as certificate store
+
+Create new nssdb:  
+```bash
+certutil -d sql:$HOME/.pki/nssdb -N
+```
+
+For example, to trust a root CA certificate for issuing SSL server certificates, use
+```bash
+certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n <certificate nickname> -i <certificate filename>
+```
+
+To import an intermediate CA certificate, use
+```bash
+certutil -d sql:$HOME/.pki/nssdb -A -t ",," -n <certificate nickname> -i <certificate filename>
+```
+
+You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
 ___
 
 ## Debugging
