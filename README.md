@@ -49,7 +49,7 @@ Talk to us at https://www.selenium.dev/support/
   + [Running in Headless mode](#running-in-headless-mode)
 * [Building the images](#building-the-images)
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
-* [Install certificates](#install-certificates)
+* [Install cerificates for Chromium based browsers](#install-cerificates-for-Chromium-based-browsers)
 * [Debugging](#debugging)
 * [Troubleshooting](#troubleshooting)
 
@@ -823,9 +823,9 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 
 ___
 
-## Install cerificates
+## Install cerificates for Chromium based browsers
 
-If you need to install custom certificates, CA, intermediate CA, client certificates (for exmample enterprise internaöl CA)
+If you need to install custom certificates, CA, intermediate CA, client certificates (for exmample enterprise internal CA)
 you can use the different utils come from libnss3-tools.
 
 Chromium based browser uses nssdb as certificate store
