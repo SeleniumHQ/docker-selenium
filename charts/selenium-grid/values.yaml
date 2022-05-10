@@ -298,6 +298,17 @@ chromeNode:
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
 
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+
 # Configuration for firefox nodes
 firefoxNode:
   # Enable firefox nodes
@@ -359,6 +370,17 @@ firefoxNode:
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
 
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+
 # Configuration for edge nodes
 edgeNode:
   # Enable edge nodes
@@ -419,6 +441,17 @@ edgeNode:
       hello: world
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
+
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
 
 # Custom labels for k8s resources
 customLabels: {}

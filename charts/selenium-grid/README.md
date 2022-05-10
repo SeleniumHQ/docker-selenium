@@ -77,6 +77,8 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
 | `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
 | `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
@@ -96,6 +98,8 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
@@ -115,6 +119,8 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
 | `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 
