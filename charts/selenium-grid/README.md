@@ -7,10 +7,10 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
 If you want to install the latest master version of Selenium Grid onto your cluster you can do that by using the helm charts repository located at https://www.selenium.dev/docker-selenium.
 
 ```bash
-# Add Selenium Grid helm repository
+# Add docker-selenium helm repository
 helm repo add docker-selenium https://www.selenium.dev/docker-selenium
 
-# Update charts
+# Update charts from docker-selenium repo
 helm repo update
 
 # List all versions present in the docker-selenium repo
@@ -23,7 +23,7 @@ helm install selenium-grid docker-selenium/selenium-grid
 helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents=true
 
 # Or install specified version
-helm install selenium-grid docker-selenium/selenium-grid --version "<some-version>"
+helm install selenium-grid docker-selenium/selenium-grid --version 0.3.0
 ```
 
 ## Updating Selenium-Grid release
