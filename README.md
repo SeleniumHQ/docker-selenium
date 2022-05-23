@@ -567,7 +567,7 @@ ___
 ## Deploying to Kubernetes
 
 We offer a Helm chart to deploy these Docker images to Kubernetes.
-Read more details at the Helm [readme](./chart/selenium-grid/README.md).
+Read more details at the Helm [readme](./charts/selenium-grid/README.md).
 
 ___
 
