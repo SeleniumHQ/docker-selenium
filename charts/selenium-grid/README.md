@@ -1,6 +1,6 @@
 # Selenium-Grid Helm Chart
 
-This chart enables the creation of a Selenium grid server in Kubernetes.
+This chart enables the creation of a Selenium Grid Server in Kubernetes.
 
 ## Installing the chart
 
