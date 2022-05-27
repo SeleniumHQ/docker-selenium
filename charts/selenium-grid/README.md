@@ -23,7 +23,7 @@ helm install selenium-grid docker-selenium/selenium-grid
 helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents=true
 
 # Or install specified version
-helm install selenium-grid docker-selenium/selenium-grid --version 20220527
+helm install selenium-grid docker-selenium/selenium-grid --version 0.3.0
 ```
 
 ## Updating Selenium-Grid release
