@@ -5,7 +5,7 @@ on:
     branches:
       - trunk
     paths:
-      - 'charts/**'
+      - 'charts/selenium-grid/Chart.yaml'
 
 jobs:
   release:
