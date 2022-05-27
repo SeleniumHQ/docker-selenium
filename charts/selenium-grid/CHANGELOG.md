@@ -2,6 +2,14 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.3.1
+
+### Added
+- Helm charts repo to GitHub Pages - https://www.selenium.dev/docker-selenium
+
+### Changed
+- Update image tag to 4.2.0-20220527
+
 ## :heavy_check_mark: 0.3.0
 
 ### Added
@@ -12,7 +20,7 @@ All notable changes to this helm chart will be documented in this file.
 - Fix queue component name (#1290)
 
 ### Changed
-- Update image tag to 4.2.0-20220527
+- Update image tag to 4.1.4-20220427
 
 ### Removed
 - Opera nodes
