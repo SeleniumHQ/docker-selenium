@@ -52,6 +52,9 @@ spec:
           volumeMounts:
             - name: dshm
               mountPath: /dev/shm
+          {{- if .Values.chromeNode.extraVolumeMounts }}
+            {{- toYaml .Values.chromeNode.extraVolumeMounts | nindent 12 }}
+          {{- end }}
         {{- with .Values.chromeNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -67,4 +70,7 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: {{ default "1Gi" .Values.chromeNode.dshmVolumeSizeLimit }}
+      {{- if .Values.chromeNode.extraVolumes }}
+        {{ toYaml .Values.chromeNode.extraVolumes | nindent 8 }}
+      {{- end }}
 {{- end }}
