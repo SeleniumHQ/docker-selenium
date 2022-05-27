@@ -2,7 +2,7 @@
 
 All notable changes to this helm chart will be documented in this file.
 
-## :heavy_check_mark: 0.3.0
+## :heavy_check_mark: 20220527
 
 ### Added
 - Support for Edge nodes.
