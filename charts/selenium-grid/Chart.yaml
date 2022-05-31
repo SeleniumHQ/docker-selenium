@@ -3,4 +3,4 @@ name: selenium-grid
 description: A Helm chart for creating a Selenium Grid Server in Kubernetes
 type: application
 version: 0.3.1
-appVersion: 4.2.0-20220527
+appVersion: 4.2.1-20220531
