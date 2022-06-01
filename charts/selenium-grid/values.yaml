@@ -71,6 +71,8 @@ components:
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
+    # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+    loadBalancerIP: ""
     # Custom annotations for router service
     serviceAnnotations: {}
     # Tolerations for router pods
@@ -273,6 +275,8 @@ hub:
   resources: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
   serviceType: ClusterIP
+  # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+  loadBalancerIP: ""
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
   # Tolerations for selenium-hub pods

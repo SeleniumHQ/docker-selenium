@@ -17,6 +17,9 @@ spec:
   selector:
     app: selenium-router
   type: {{ .Values.components.router.serviceType }}
+  {{- if and (eq .Values.components.router.serviceType "LoadBalancer") (.Values.components.router.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.components.router.loadBalancerIP }}
+  {{- end }}
   ports:
     - name: tcp-router
       protocol: TCP

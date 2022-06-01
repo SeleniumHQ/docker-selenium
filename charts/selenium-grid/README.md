@@ -166,6 +166,7 @@ You can configure the Selenium Hub with this values:
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
 | `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `hub.loadBalancerIP`            | `nil`             | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `hub.serviceAnnotations`        | `{}`              | Custom annotations for Selenium Hub service                                                                                      |
 
 
@@ -185,6 +186,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.readinessProbe`            | `See values.yaml`         | Readiness probe settings                                                                                                         |
 | `components.router.resources`                 | `{}`                      | Resources for router container                                                                                                   |
 | `components.router.serviceType`               | `NodePort`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.router.loadBalancerIP`            | `nil`                     | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `components.router.serviceAnnotations`        | `{}`                      | Custom annotations for router service                                                                                            |
 | `components.router.tolerations`               | `[]`                      | Tolerations for router pods                                                                                                      |
 | `components.router.nodeSelector`              | `{}`                      | Node Selector for router pods                                                                                                    |
