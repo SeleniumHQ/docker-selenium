@@ -55,8 +55,8 @@ chromium)
   for chrome_tag in "${CHROME_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAME node-chromium ${chrome_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAME standalone-chromium ${chrome_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
     fi
   done
   
@@ -96,8 +96,8 @@ firefox)
   for firefox_tag in "${FIREFOX_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAME node-firefox ${firefox_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAME standalone-firefox ${firefox_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
     fi
   done
 
