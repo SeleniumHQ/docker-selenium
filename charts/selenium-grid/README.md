@@ -1,20 +1,29 @@
 # Selenium-Grid Helm Chart
 
-This chart enables the creation of a Selenium grid server in Kubernetes.
+This chart enables the creation of a Selenium Grid Server in Kubernetes.
 
 ## Installing the chart
 
-To install the selenium-grid helm chart, you can run:
+If you want to install the latest master version of Selenium Grid onto your cluster you can do that by using the helm charts repository located at https://www.selenium.dev/docker-selenium.
 
 ```bash
-# Clone the project
-git clone https://github.com/seleniumhq/docker-selenium.git
+# Add docker-selenium helm repository
+helm repo add docker-selenium https://www.selenium.dev/docker-selenium
 
-# Install basic grid
-helm install selenium-grid docker-selenium/chart/selenium-grid/.
+# Update charts from docker-selenium repo
+helm repo update
+
+# List all versions present in the docker-selenium repo
+helm search repo docker-selenium --versions
+
+# Install basic grid latest version
+helm install selenium-grid docker-selenium/selenium-grid
 
 # Or install full grid (Router, Distributor, EventBus, SessionMap and SessionQueue components separated)
-helm install selenium-grid --set isolateComponents=true docker-selenium/chart/selenium-grid/.
+helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents=true
+
+# Or install specified version
+helm install selenium-grid docker-selenium/selenium-grid --version 0.3.1
 ```
 
 ## Updating Selenium-Grid release
@@ -22,7 +31,7 @@ helm install selenium-grid --set isolateComponents=true docker-selenium/chart/se
 Once you have a new chart version, you can update your selenium-grid running:
 
 ```bash
-helm upgrade selenium-grid docker-selenium/chart/selenium-grid/.
+helm upgrade selenium-grid docker-selenium/selenium-grid
 ```
 
 ## Uninstalling Selenium Grid release
@@ -39,8 +48,8 @@ For now, global configuration supported is:
 
 | Parameter                           | Default                            | Description                           |
 | ----------------------------------- | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`      | `4.1.4-20220427`                   | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag` | `4.1.4-20220427`                   | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`      | `4.2.1-20220531`                   | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag` | `4.2.1-20220531`                   | Image tag for browser's nodes         |
 
 This table contains the configuration parameters of the chart and their default values:
 
@@ -52,7 +61,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.1.4-20220427`                   | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                   | `4.2.1-20220531`                   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -71,7 +80,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.1.4-20220427`                   | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                  | `4.2.1-20220531`                   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -90,7 +99,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.1.4-20220427`                   | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                     | `4.2.1-20220531`                   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
 | `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |

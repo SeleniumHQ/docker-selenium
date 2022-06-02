@@ -1,6 +1,0 @@
-apiVersion: v2
-name: selenium-grid
-description: A Helm chart for creating a Selenium grid server in Kubernetes
-type: application
-version: 0.3.0
-appVersion: 4.1.4-20220427
