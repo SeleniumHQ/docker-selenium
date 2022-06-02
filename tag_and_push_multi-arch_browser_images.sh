@@ -54,14 +54,12 @@ chromium)
 
   for chrome_tag in "${CHROME_TAGS[@]}"
   do
-    docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chrome_tag}
-    docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chrome_tag}
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-chromium:${chrome_tag}
-        docker push ${NAMESPACE}/standalone-chromium:${chrome_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
     fi
   done
-
+  
   ;;
 firefox)
   FIREFOX_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
@@ -97,11 +95,9 @@ firefox)
 
   for firefox_tag in "${FIREFOX_TAGS[@]}"
   do
-    docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
-    docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-firefox:${firefox_tag}
-        docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
+        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
     fi
   done
 

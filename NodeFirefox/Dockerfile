@@ -2,11 +2,13 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM seleniarm/node-base:4.1.3-20220331
-LABEL authors=SeleniumHQ,sj26,jamesmortensen
+FROM seleniarm/node-base:4.1.4-20220429
+LABEL authors=SeleniumHQ
 
 ARG TARGETARCH
 ARG TARGETVARIANT
+
+ARG GECKODRIVER_VERSION=0.31.0
 
 USER root
 
@@ -19,11 +21,11 @@ USER root
   # && apt-get -qqy install firefox libavcodec-extra \
   # && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Temporarily installing Firefox 96.0.3 from snapshots since 98.0.2 is broken on arm64
+# Pulling Firefox from Debian Snapshots so we can control which version we use as latest
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt-get install libavcodec-extra -y \
-  && wget https://snapshot.debian.org/archive/debian/20220209T093507Z/pool/main/f/firefox/firefox_96.0.3-1_`dpkg --print-architecture`.deb -O firefox.deb \
+  && wget https://snapshot.debian.org/archive/debian/20220418T084218Z/pool/main/f/firefox/firefox_99.0-1_`dpkg --print-architecture`.deb -O firefox.deb \
   && apt install ./firefox.deb -y \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ./firefox.deb
 
@@ -40,11 +42,11 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
        exit 1 ; \
     fi ; \
     if [ "$ARCH" = "arm64" ]; then \ 
-       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/jamesmortensen/geckodriver-arm-binaries/releases/download/v0.30.0/geckodriver-v0.30.0-linux-aarch64.tar.gz ; \
+       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/jamesmortensen/geckodriver-arm-binaries/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux-aarch64.tar.gz ; \
     elif [ "$ARCH" = "armhf" ]; then \
-       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/jamesmortensen/geckodriver-arm-binaries/releases/download/v0.30.0/geckodriver-v0.30.0-linux-armv7l.tar.gz ; \
+       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/jamesmortensen/geckodriver-arm-binaries/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux-armv7l.tar.gz ; \
     else \
-       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz ; \
+       wget --no-verbose -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v$GECKODRIVER_VERSION/geckodriver-v$GECKODRIVER_VERSION-linux64.tar.gz ; \
     fi ; \
     tar -C /tmp -zxf /tmp/geckodriver.tar.gz ; \
     rm /tmp/geckodriver.tar.gz ; \
