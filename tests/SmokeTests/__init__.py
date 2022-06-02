@@ -14,7 +14,7 @@ SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
         current_attempts = 0
-        max_attempts = 3
+        max_attempts = int(os.environ.get('GRID_STATUS_MAX_ATTEMPTS', 3))
         sleep_interval = 3
         status_fetched = False
         status_json = None

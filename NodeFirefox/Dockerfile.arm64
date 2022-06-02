@@ -21,7 +21,7 @@ USER root
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt-get install libavcodec-extra -y \
-  && wget https://snapshot.debian.org/archive/debian/20220418T084218Z/pool/main/f/firefox/firefox_99.0-1_`dpkg --print-architecture`.deb -O firefox.deb \
+  && wget https://snapshot.debian.org/archive/debian/20220602T030029Z/pool/main/f/firefox/firefox_100.0.2-1_`dpkg --print-architecture`.deb -O firefox.deb \
   && apt install ./firefox.deb -y \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ./firefox.deb
 

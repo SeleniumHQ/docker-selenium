@@ -5,9 +5,6 @@
 FROM seleniarm/node-base:4.1.4-20220429
 LABEL authors=SeleniumHQ
 
-#FROM local-seleniarm/node-base:4.0.0-20211018
-#LABEL authors=SeleniumHQ,sj26,jamesmortensen
-
 ARG TARGETARCH
 ARG TARGETVARIANT
 

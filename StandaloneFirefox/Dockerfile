@@ -2,7 +2,11 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+<<<<<<< HEAD
 FROM seleniarm/node-firefox:4.1.4-20220429
+=======
+FROM selenium/node-firefox:4.2.1-20220531
+>>>>>>> trunk
 LABEL authors=SeleniumHQ
 
 USER 1200
