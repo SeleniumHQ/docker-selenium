@@ -1,0 +1,35 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ template "seleniumGrid.router.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+{{ $.Values.ingress.annotations | toYaml | indent 4 }}
+spec:
+  rules:
+    {{- range $key := $.Values.ingress.hosts }}
+    - host: {{ tpl $key $ }}
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            backend:
+            {{- if $.Values.isolateComponents }}
+              service:
+                name: {{ template "seleniumGrid.router.fullname" $ }}
+                port:
+                  name: tcp-router
+            {{- else }}
+              service:
+                name: {{ template "seleniumGrid.hub.fullname" $ }}
+                port:
+                  name: http-hub
+            {{- end }}
+    {{- end }}
+  tls:
+    - hosts:
+        {{- range $key := $.Values.ingress.hosts }}
+        - {{ tpl $key $ }}
+        {{- end }}
+      secretName: {{ .Release.Name}}-tls
+{{- end }}
