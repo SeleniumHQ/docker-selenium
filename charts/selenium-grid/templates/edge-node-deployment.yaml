@@ -28,6 +28,9 @@ spec:
           {{ toYaml . | nindent 8 }}
         {{- end }}
     spec:
+    {{- with .Values.edgeNode.hostAliases }}
+      hostAliases: {{ toYaml . | nindent 8 }}
+    {{- end }}
       containers:
         - name: selenium-edge-node
           {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.edgeNode.imageTag }}

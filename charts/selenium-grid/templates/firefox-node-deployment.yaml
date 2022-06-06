@@ -28,6 +28,9 @@ spec:
           {{ toYaml . | nindent 8 }}
         {{- end }}
     spec:
+    {{- with .Values.firefoxNode.hostAliases }}
+      hostAliases: {{ toYaml . | nindent 8 }}
+    {{- end }}
       containers:
         - name: selenium-firefox-node
           {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.firefoxNode.imageTag }}

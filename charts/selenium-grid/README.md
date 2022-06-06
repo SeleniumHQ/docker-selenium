@@ -71,6 +71,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node container                                                                                        |
 | `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node container                                                                                      |
 | `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node container                                                                                    |
+| `chromeNode.hostAliases`                | `nil`                              | Custom host aliases for chrome nodes                                                                                       |
 | `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
 | `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
 | `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
@@ -90,6 +91,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node container                                                                                       |
 | `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node container                                                                                     |
 | `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node container                                                                                   |
+| `firefoxNode.hostAliases`               | `nil`                              | Custom host aliases for firefox nodes                                                                                      |
 | `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
 | `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
 | `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
@@ -109,8 +111,9 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node container                                                                                          |
 | `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node container                                                                                        |
 | `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node container                                                                                      |
-| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
+| `edgeNode.hostAliases`                  | `nil`                              | Custom host aliases for edge nodes                                                                                         |
+| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for edge nodes                                                                                |
+| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for edge nodes                                             |
 | `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
