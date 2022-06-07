@@ -50,6 +50,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Building the images](#building-the-images)
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
 * [Debugging](#debugging)
+* [Install cerificates for Chromium based browsers](#install-cerificates-for-Chromium-based-browsers)
 * [Troubleshooting](#troubleshooting)
 
 
@@ -819,6 +820,52 @@ $ ./wait-for-grid.sh mvn clean test
 ```
 
 Like this, the script will poll until the Grid is ready, and then your tests will start.
+
+___
+
+## Install cerificates for Chromium based browsers
+
+If you need to install custom certificates, CA, intermediate CA, client certificates (for exmample enterprise internal CA)
+you can use the different utils come from libnss3-tools.
+Chromium based browser uses nssdb as certificate store
+Create new nssdb:  
+```bash
+certutil -d sql:$HOME/.pki/nssdb -N
+diemol marked this conversation as resolved.
+```
+For example, to trust a root CA certificate for issuing SSL server certificates, use
+```bash
+certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n <certificate nickname> -i <certificate filename>
+```
+To import an intermediate CA certificate, use
+```bash
+certutil -d sql:$HOME/.pki/nssdb -A -t ",," -n <certificate nickname> -i <certificate filename>
+```
+You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
+Usage example:
+If your company has internal CA you can create your own dockerimage from selenium node image.
+You can then install all required internal certificates in your Dockerfile like this:
+```bash
+FROM selenium/node-edge:latest
+USER root
+COPY certs/ /etc/certs # copy over the certificate file
+
+#=========
+# libnss3-tools
+# Network Security Service tools
+# Manage certificates in nssdb (certutil, pk12util, modutil, shlibsign, signtool, ssltap)
+#=========
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    libnss3-tools \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN mkdir -p -m755 /home/seluser/.pki/nssdb \ #create nssdb folder
+    && certutil -d sql:/home/seluser/.pki/nssdb -N --empty-password \ # create new db without password
+    && certutil -d sql:/home/seluser/.pki/nssdb -A -t "C,," -n companyca -i /etc/certs/companeca.pem \ #trust company CA
+    && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert # client certificate install
+```
+This way the certificates will be installed and the node will start automatically as before.
 
 ___
 
