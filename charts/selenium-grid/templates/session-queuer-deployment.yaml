@@ -50,4 +50,7 @@ spec:
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.components.sessionQueue.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
 {{- end }}

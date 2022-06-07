@@ -52,4 +52,7 @@ spec:
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.components.eventBus.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
 {{- end }}
