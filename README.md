@@ -831,7 +831,6 @@ Chromium based browser uses nssdb as certificate store
 Create new nssdb:  
 ```bash
 certutil -d sql:$HOME/.pki/nssdb -N
-diemol marked this conversation as resolved.
 ```
 For example, to trust a root CA certificate for issuing SSL server certificates, use
 ```bash
