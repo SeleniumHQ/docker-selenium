@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20.04
+FROM ubuntu:focal
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 #================================================
