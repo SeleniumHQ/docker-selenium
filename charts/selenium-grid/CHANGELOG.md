@@ -2,6 +2,12 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.4.1
+
+### Changed
+- Update image tag to 4.2.1-20220608
+
+
 ## :heavy_check_mark: 0.4.0
 
 ### Added
@@ -16,7 +22,7 @@ All notable changes to this helm chart will be documented in this file.
 - Helm charts repo to GitHub Pages - https://www.selenium.dev/docker-selenium
 
 ### Changed
-- Update image tag to 4.2.1-20220608
+- Update image tag to 4.2.1-20220531
 
 ## :heavy_check_mark: 0.3.0
 
