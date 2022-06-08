@@ -76,6 +76,10 @@ the flag `--shm-size=2g` to use the host's shared memory.
 :point_up: Always use a Docker image with a full tag to pin a specific browser and Grid version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
+Try them out in a ready to use GitPod environment!
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SeleniumHQ/docker-selenium)
+
 ___
 
 ## Experimental Mult-Arch aarch64/armhf/amd64 Images
@@ -1009,6 +1013,3 @@ to the mounted directory. If you have a better workaround,
 please send us a pull request! 
 
 
----
-
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SeleniumHQ/docker-selenium)

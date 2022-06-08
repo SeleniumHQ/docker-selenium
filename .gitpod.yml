@@ -1,0 +1,6 @@
+tasks:
+  - name: Show README link
+    before: echo "Try out Selenium Grid in Docker by following https://github.com/SeleniumHQ/docker-selenium#execution-modes"
+  - name: Build instructions
+    before: echo "To build all images, run 'make all'. See more instructions at https://github.com/SeleniumHQ/docker-selenium/wiki/Building-your-own-images"
+
