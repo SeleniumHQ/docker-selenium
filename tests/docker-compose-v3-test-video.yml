@@ -22,8 +22,8 @@ services:
     depends_on:
       - browser
     environment:
-      - DISPLAY_CONTAINER_NAME=browser
-      - FILE_NAME=${VIDEO_FILE_NAME}
+      - SE_DISPLAY_CONTAINER_NAME=browser
+      - SE_FILE_NAME=${VIDEO_FILE_NAME}
 
   selenium-hub:
     image: selenium/hub:${TAG:-test-video}

@@ -40,8 +40,8 @@ services:
     depends_on:
       - chrome
     environment:
-      - DISPLAY_CONTAINER_NAME=chrome
-      - FILE_NAME=chrome_video.mp4
+      - SE_DISPLAY_CONTAINER_NAME=chrome
+      - SE_FILE_NAME=chrome_video.mp4
 
   edge_video:
     image: selenium/video:ffmpeg-4.3.1-20220609
@@ -50,8 +50,8 @@ services:
     depends_on:
       - edge
     environment:
-      - DISPLAY_CONTAINER_NAME=edge
-      - FILE_NAME=edge_video.mp4
+      - SE_DISPLAY_CONTAINER_NAME=edge
+      - SE_FILE_NAME=edge_video.mp4
 
   firefox_video:
     image: selenium/video:ffmpeg-4.3.1-20220609
@@ -60,8 +60,8 @@ services:
     depends_on:
       - firefox
     environment:
-      - DISPLAY_CONTAINER_NAME=firefox
-      - FILE_NAME=firefox_video.mp4
+      - SE_DISPLAY_CONTAINER_NAME=firefox
+      - SE_FILE_NAME=firefox_video.mp4
 
   selenium-hub:
     image: selenium/hub:4.2.2-20220609

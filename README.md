@@ -347,7 +347,7 @@ all the information requested on the template.
 - Video recording tends to use considerable amounts of CPU. Normally you should estimate 1CPU per video container, 
 and 1 CPU per browser container.
 - Videos are stored in the `/videos` directory inside the video container. Map a local directory to get the videos.
-- If you are running more than one video container, be sure to overwrite the video file name through the `FILE_NAME`
+- If you are running more than one video container, be sure to overwrite the video file name through the `SE_FILE_NAME`
 environment variable to avoid unexpected results.
 
 This example shows how to start the containers manually:
