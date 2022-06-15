@@ -34,7 +34,7 @@ if [ ! -z "$SE_SESSION_QUEUE_PORT" ]; then
   PORT_CONFIG="--port ${SE_SESSION_QUEUE_PORT}"
 fi
 
-java ${JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessionqueue \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -jar /opt/selenium/selenium-server.jar sessionqueue \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \

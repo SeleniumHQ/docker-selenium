@@ -32,4 +32,7 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor /videos
 ENTRYPOINT ["/opt/bin/entry_point.sh"]
 CMD ["/opt/bin/entry_point.sh"]
 
+ENV SE_DISPLAY :99.0
+ENV SE_DISPLAY_NUM 99
+
 EXPOSE 9000

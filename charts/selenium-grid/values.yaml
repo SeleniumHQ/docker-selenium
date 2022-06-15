@@ -173,7 +173,7 @@ components:
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -226,7 +226,7 @@ hub:
     successThreshold: 1
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name: SECRET_VARIABLE
     #   valueFrom:
@@ -287,7 +287,7 @@ chromeNode:
   nodeSelector: {}
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -359,7 +359,7 @@ firefoxNode:
       cpu: "1"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -430,7 +430,7 @@ edgeNode:
       cpu: "1"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
