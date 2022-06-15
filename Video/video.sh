@@ -2,7 +2,6 @@
 
 VIDEO_SIZE="${SE_SCREEN_WIDTH}""x""${SE_SCREEN_HEIGHT}"
 DISPLAY_CONTAINER_NAME=${DISPLAY_CONTAINER_NAME:-$SE_DISPLAY_CONTAINER_NAME}
-DISPLAY=${DISPLAY:-$SE_DISPLAY}
 DISPLAY_NUM=${DISPLAY_NUM:-$SE_DISPLAY_NUM}
 FILE_NAME=${FILE_NAME:-$SE_FILE_NAME}
 FRAME_RATE=${FRAME_RATE:-$SE_FRAME_RATE}
@@ -14,7 +13,7 @@ max_attempts=50
 attempts=0
 echo 'Checking if the display is open...'
 until [ $return_code -eq 0 -o $attempts -eq $max_attempts ]; do
-	xset -display ${DISPLAY_CONTAINER_NAME}:${DISPLAY} b off > /dev/null 2>&1
+	xset -display ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM} b off > /dev/null 2>&1
 	return_code=$?
 	if [ $return_code -ne 0 ]; then
 		echo 'Waiting before next display check...'
@@ -24,5 +23,5 @@ until [ $return_code -eq 0 -o $attempts -eq $max_attempts ]; do
 done
 
 # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
-exec ffmpeg -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "/videos/$FILE_NAME"
+exec ffmpeg -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "/videos/$FILE_NAME"
 
