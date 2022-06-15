@@ -52,6 +52,9 @@ spec:
           volumeMounts:
             - name: dshm
               mountPath: /dev/shm
+          {{- if .Values.edgeNode.extraVolumeMounts }}
+            {{- toYaml .Values.edgeNode.extraVolumeMounts | nindent 12 }}
+          {{- end }}
         {{- with .Values.edgeNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -67,4 +70,7 @@ spec:
           emptyDir:
             medium: Memory
             sizeLimit: {{ default "1Gi" .Values.edgeNode.dshmVolumeSizeLimit }}
+      {{- if .Values.edgeNode.extraVolumes }}
+        {{ toYaml .Values.edgeNode.extraVolumes | nindent 8 }}
+      {{- end }}
 {{- end }}

@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.5.0
+
+### Added
+- Added ability to mount arbitrary volumes into browser nodes
+
 ## :heavy_check_mark: 0.4.2
 
 ### Changed
@@ -11,7 +16,6 @@ All notable changes to this helm chart will be documented in this file.
 
 ### Changed
 - Update image tag to 4.2.1-20220608
-
 
 ## :heavy_check_mark: 0.4.0
 
