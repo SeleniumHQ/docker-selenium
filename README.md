@@ -614,11 +614,11 @@ $ docker run -d -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_B
 ### Setting Screen Resolution
 
 By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits and a dpi of 96. 
-These settings can be adjusted by specifying `SE_SCREEN_WIDTH`, `SE_SCREEN_HEIGHT`, `SE_SCREEN_DEPTH`, and/or `SE_SCREEN_DPI` 
+These settings can be adjusted by specifying `SCREEN_WIDTH`, `SCREEN_HEIGHT`, `SCREEN_DEPTH`, and/or `SCREEN_DPI` 
 environmental variables when starting the container.
 
 ``` bash
-docker run -d -e SE_SCREEN_WIDTH=1366 -e SE_SCREEN_HEIGHT=768 -e SE_SCREEN_DEPTH=24 -e SE_SCREEN_DPI=74 selenium/standalone-firefox:4.2.2-20220609
+docker run -d -e SCREEN_WIDTH=1366 -e SCREEN_HEIGHT=768 -e SCREEN_DEPTH=24 -e SCREEN_DPI=74 selenium/standalone-firefox:4.2.2-20220609
 ```
 
 ### Grid Url and Session Timeout
@@ -663,12 +663,12 @@ captured in the same video.
 [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
-To avoid starting the server you can set the `SE_START_XVFB` environment variable to `false` 
+To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
 (or any other value than `true`), for example:
 
 ``` bash
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.2.2-20220609
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false --shm-size="2g" selenium/node-chrome:4.2.2-20220609
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
@@ -677,11 +677,11 @@ For more information, see this GitHub [issue](https://github.com/SeleniumHQ/dock
 
 In some environments, like Docker Swarm or Kubernetes, it is useful to shut down the Node or Standalone
 container after N tests have been executed. For example, this can be used in Kubernetes to terminate the
-pod and then scale a new one after N sessions. Set the environment variable `SE_DRAIN_AFTER_SESSION_COUNT` to
+pod and then scale a new one after N sessions. Set the environment variable `DRAIN_AFTER_SESSION_COUNT` to
 a value higher than zero to enable this behaviour. 
 
 ``` bash
-$ docker run -e SE_DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.2.2-20220609
+$ docker run -e DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.2.2-20220609
 ```
 
 With the previous command, the Standalone container will shutdown after 5 sessions have been executed.
@@ -970,7 +970,7 @@ or
 
 `Message: unknown error: Chrome failed to start: exited abnormally`
 
-The reason _might_ be that you've set the `SE_START_XVFB` environment variable to "false", but forgot to 
+The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
 actually run Firefox, Chrome or Edge in headless mode.
 
 ### Mounting volumes to retrieve downloaded files
