@@ -550,6 +550,38 @@ Here is an example using a Hub and a Node:
 [`docker-compose-v3-dynamic-grid.yml`](docker-compose-v3-dynamic-grid.yml)
 
 
+### Configuring the child containers
+
+Containers can be further configured through environment variables, such as `SE_NODE_SESSION_TIMEOUT`
+and `SE_OPTS`. When a child container is created, all environment variables prefixed with `SE_` will
+be forwared and set in the container. You can set the desired environment variables in the 
+`standalone-docker` or `node-docker` containers. The following example sets the session timeout to
+700 seconds for all sessions:
+
+#### macOS/Linux
+
+```bash
+docker run --rm --name selenium-docker -p 4444:4444 \
+    -e SE_NODE_SESSION_TIMEOUT=700 \
+    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/assets:/opt/selenium/assets \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    selenium/standalone-docker:4.2.2-20220609
+```
+
+#### Windows PowerShell
+
+```bash
+docker run --rm --name selenium-docker -p 4444:4444 `
+    -e SE_NODE_SESSION_TIMEOUT=700 `
+    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/assets:/opt/selenium/assets `
+    -v /var/run/docker.sock:/var/run/docker.sock `
+    selenium/standalone-docker:4.2.2-20220609
+```
+
+
+
 ### Video recording, screen resolution, and time zones in a Dynamic Grid
 To record your WebDriver session, you need to add a `se:recordVideo` 
 field set to `true`. You can also set a time zone and a screen resolution,
