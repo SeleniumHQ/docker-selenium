@@ -32,10 +32,10 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor /videos
 ENTRYPOINT ["/opt/bin/entry_point.sh"]
 CMD ["/opt/bin/entry_point.sh"]
 
-ENV SE_DISPLAY_NUM 99
+ENV DISPLAY_NUM 99
+ENV DISPLAY_CONTAINER_NAME selenium
 ENV SE_SCREEN_WIDTH 1360
 ENV SE_SCREEN_HEIGHT 1020
-ENV SE_DISPLAY_CONTAINER_NAME selenium
 ENV SE_FILE_NAME video.mp4
 ENV SE_FRAME_RATE 15
 ENV SE_CODEC libx264

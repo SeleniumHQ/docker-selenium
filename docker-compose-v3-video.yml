@@ -40,7 +40,7 @@ services:
     depends_on:
       - chrome
     environment:
-      - SE_DISPLAY_CONTAINER_NAME=chrome
+      - DISPLAY_CONTAINER_NAME=chrome
       - SE_FILE_NAME=chrome_video.mp4
 
   edge_video:
@@ -50,7 +50,7 @@ services:
     depends_on:
       - edge
     environment:
-      - SE_DISPLAY_CONTAINER_NAME=edge
+      - DISPLAY_CONTAINER_NAME=edge
       - SE_FILE_NAME=edge_video.mp4
 
   firefox_video:
@@ -60,7 +60,7 @@ services:
     depends_on:
       - firefox
     environment:
-      - SE_DISPLAY_CONTAINER_NAME=firefox
+      - DISPLAY_CONTAINER_NAME=firefox
       - SE_FILE_NAME=firefox_video.mp4
 
   selenium-hub:

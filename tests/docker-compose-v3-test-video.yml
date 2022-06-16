@@ -22,7 +22,7 @@ services:
     depends_on:
       - browser
     environment:
-      - SE_DISPLAY_CONTAINER_NAME=browser
+      - DISPLAY_CONTAINER_NAME=browser
       - SE_FILE_NAME=${VIDEO_FILE_NAME}
 
   selenium-hub:
