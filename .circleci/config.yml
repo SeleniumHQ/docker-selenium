@@ -123,7 +123,7 @@ jobs:
       - run:
           name: "Prepare workflow environment variables"
           command: |
-            export SELENIUM_VERSION=`cat Base/Dockerfile | grep selenium-server | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1`
+            export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
             echo 'export BRANCH="$SELENIUM_VERSION"' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
