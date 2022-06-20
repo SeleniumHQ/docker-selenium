@@ -117,11 +117,13 @@ jobs:
       DEPLOY_BRANCH: trunk
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
-      SELENIUM_VERSION: 4.2.1
+        #SELENIUM_VERSION: 4.2.1
     steps:
+      - checkout
       - run:
           name: "Prepare workflow environment variables"
           command: |
+            export SELENIUM_VERSION=`cat Base/Dockerfile | grep selenium-server | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1`
             echo "Prepare workflow environment variables"
             echo 'export BRANCH="$SELENIUM_VERSION"' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
@@ -139,7 +141,6 @@ jobs:
             echo PLATFORMS="$PLATFORMS"
             echo BUILD_ARGS="$BUILD_ARGS"
             echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
-      - checkout
       - run: uname -a
       - run: docker info
       - run:
