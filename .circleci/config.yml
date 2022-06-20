@@ -210,7 +210,5 @@ workflows:
             branches: 
               only: 
                 - trunk
+                - selenium-version-scrape 
 
-
-
-              
