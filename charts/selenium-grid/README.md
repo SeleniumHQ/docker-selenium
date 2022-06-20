@@ -24,6 +24,9 @@ helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents
 
 # Or install specified version
 helm install selenium-grid docker-selenium/selenium-grid --version 0.3.1
+
+# In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
+helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 ```
 
 ## Updating Selenium-Grid release
@@ -48,8 +51,8 @@ For now, global configuration supported is:
 
 | Parameter                           | Default                            | Description                           |
 | ----------------------------------- | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`      | `4.2.1-20220531`                   | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag` | `4.2.1-20220531`                   | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`      | `4.2.2-20220609`                   | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag` | `4.2.2-20220609`                   | Image tag for browser's nodes         |
 
 This table contains the configuration parameters of the chart and their default values:
 
@@ -57,11 +60,16 @@ This table contains the configuration parameters of the chart and their default 
 | --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `isolateComponents`                     | `false`                            | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
 | `busConfigMap.name`                     | `selenium-event-bus-config`        | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
+| `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
+| `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
+| `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
+| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
+| `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.2.1-20220531`                   | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                   | `4.2.2-20220609`                   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -77,10 +85,12 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
 | `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
 | `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.2.1-20220531`                   | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                  | `4.2.2-20220609`                   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -96,10 +106,12 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.2.1-20220531`                   | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                     | `4.2.2-20220609`                   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
 | `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
@@ -115,6 +127,8 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
 | `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 

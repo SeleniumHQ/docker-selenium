@@ -2,7 +2,7 @@
 #
 # IMPORTANT: Change this file only in directory NodeBase!
 
-if [ "${START_XVFB}" = true ] ; then
+if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
   # Centering wallpaper
   for i in $(seq 1 10)
   do
@@ -14,6 +14,7 @@ if [ "${START_XVFB}" = true ] ; then
     fi    
   done  
 
+  VNC_NO_PASSWORD=${VNC_NO_PASSWORD:-$SE_VNC_NO_PASSWORD}
   if [ ! -z $VNC_NO_PASSWORD ]; then
       echo "Starting VNC server without password authentication"
       X11VNC_OPTS=
@@ -21,6 +22,7 @@ if [ "${START_XVFB}" = true ] ; then
       X11VNC_OPTS=-usepw
   fi
 
+  VNC_VIEW_ONLY=${VNC_VIEW_ONLY:-$SE_VNC_VIEW_ONLY}
   if [ ! -z $VNC_VIEW_ONLY ]; then
       echo "Starting VNC server with viewonly option"
       X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
@@ -36,7 +38,7 @@ if [ "${START_XVFB}" = true ] ; then
     echo "Waiting for Xvfb..."
   done
 
-  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport ${VNC_PORT:-5900} -rfbportv6 ${VNC_PORT:-5900} -display ${DISPLAY}
+  x11vnc ${X11VNC_OPTS} -forever -shared -rfbport ${VNC_PORT:-$SE_VNC_PORT} -rfbportv6 ${VNC_PORT:-$SE_VNC_PORT} -display ${DISPLAY}
 else
   echo "Vnc won't start because Xvfb is configured to not start."
 fi
