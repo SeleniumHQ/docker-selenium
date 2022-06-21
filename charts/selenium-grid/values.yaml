@@ -303,7 +303,7 @@ chromeNode:
 
   # Port list to enable on container
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -361,6 +361,26 @@ chromeNode:
   # Priority class name for chrome-node pods
   priorityClassName: ""
 
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -389,7 +409,7 @@ firefoxNode:
 
   # Port list to enable on container
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -447,6 +467,26 @@ firefoxNode:
   # Priority class name for firefox-node pods
   priorityClassName: ""
 
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -474,7 +514,7 @@ edgeNode:
   imagePullSecret: ""
 
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -532,6 +572,26 @@ edgeNode:
   dshmVolumeSizeLimit: 1Gi
   # Priority class name for edge-node pods
   priorityClassName: ""
+
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
 
   extraVolumeMounts: []
   # - name: my-extra-volume
