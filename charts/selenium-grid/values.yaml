@@ -1,12 +1,25 @@
 global:
   seleniumGrid:
     # Image tag for all selenium components
-    imageTag: 4.2.1-20220531
+    imageTag: 4.2.2-20220609
     # Image tag for browser's nodes
-    nodesImageTag: 4.2.1-20220531
+    nodesImageTag: 4.2.2-20220609
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
+
+# Configure the ingress resource to access the Grid installation.
+ingress:
+  # Enable or disable ingress resource
+  enabled: true
+  # Name of ingress class to select which controller will implement ingress resource
+  className: ""
+  # Custom annotations for ingress resource
+  annotations: {}
+  # Default host for the ingress resource
+  hostname: selenium-grid.local
+  # TLS backend configuration for ingress resource
+  tls: []
 
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
@@ -23,7 +36,7 @@ components:
     # Router image name
     imageName: selenium/router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.2.1-20220531
+    # imageTag: 4.2.2-20220609
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -52,7 +65,7 @@ components:
     # Resources for router container
     resources: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
-    serviceType: NodePort
+    serviceType: ClusterIP
     # Custom annotations for router service
     serviceAnnotations: {}
     # Tolerations for router container
@@ -65,7 +78,7 @@ components:
     # Distributor image name
     imageName: selenium/distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.2.1-20220531
+    # imageTag: 4.2.2-20220609
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -89,7 +102,7 @@ components:
     # Event Bus image name
     imageName: selenium/event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.2.1-20220531
+    # imageTag: 4.2.2-20220609
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -117,7 +130,7 @@ components:
     # Session Map image name
     imageName: selenium/sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.2.1-20220531
+    # imageTag: 4.2.2-20220609
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -140,7 +153,7 @@ components:
     # Session Queue image name
     imageName: selenium/session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.2.1-20220531
+    # imageTag: 4.2.2-20220609
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -160,7 +173,7 @@ components:
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -180,7 +193,7 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  imageTag: 4.2.1-20220531
+  imageTag: 4.2.2-20220609
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Custom annotations for Selenium Hub pod
@@ -213,7 +226,7 @@ hub:
     successThreshold: 1
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name: SECRET_VARIABLE
     #   valueFrom:
@@ -229,7 +242,7 @@ hub:
   # Resources for selenium-hub container
   resources: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
-  serviceType: NodePort
+  serviceType: ClusterIP
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
   # Tolerations for selenium-hub container
@@ -246,7 +259,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: selenium/node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.2.1-20220531
+  # imageTag: 4.2.2-20220609
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -283,7 +296,7 @@ chromeNode:
     #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -307,6 +320,17 @@ chromeNode:
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
 
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+
 # Configuration for firefox nodes
 firefoxNode:
   # Enable firefox nodes
@@ -316,7 +340,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: selenium/node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.2.1-20220531
+  # imageTag: 4.2.2-20220609
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Port list to enable on container
@@ -353,7 +377,7 @@ firefoxNode:
     #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -377,6 +401,17 @@ firefoxNode:
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
 
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+
 # Configuration for edge nodes
 edgeNode:
   # Enable edge nodes
@@ -386,7 +421,7 @@ edgeNode:
   # Image of edge nodes
   imageName: selenium/node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.2.1-20220531
+  # imageTag: 4.2.2-20220609
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   ports:
@@ -422,7 +457,7 @@ edgeNode:
     #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-    # - name: JAVA_OPTS
+    # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
     #   valueFrom:
@@ -446,6 +481,17 @@ edgeNode:
       hello: world
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
+
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
 
 # Custom labels for k8s resources
 customLabels: {}
