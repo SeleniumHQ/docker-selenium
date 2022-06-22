@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.6.0
+
+### Added
+- Added ability to set hostAliases on browser node deployments
+
 ## :heavy_check_mark: 0.5.0
 
 ### Added

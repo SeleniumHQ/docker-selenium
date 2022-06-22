@@ -285,6 +285,15 @@ chromeNode:
   tolerations: []
   # Node selector for chrome-node container
   nodeSelector: {}
+  # Custom host aliases for chrome nodes
+  hostAliases:
+    # - ip: "198.51.100.0"
+    #   hostnames:
+    #     - "example.com"
+    #     - "example.net"
+    # - ip: "203.0.113.0"
+    #   hostnames:
+    #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
@@ -357,6 +366,15 @@ firefoxNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # Custom host aliases for firefox nodes
+  hostAliases:
+    # - ip: "198.51.100.0"
+    #   hostnames:
+    #     - "example.com"
+    #     - "example.net"
+    # - ip: "203.0.113.0"
+    #   hostnames:
+    #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
@@ -428,6 +446,15 @@ edgeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # Custom host aliases for edge nodes
+  hostAliases:
+    # - ip: "198.51.100.0"
+    #   hostnames:
+    #     - "example.com"
+    #     - "example.net"
+    # - ip: "203.0.113.0"
+    #   hostnames:
+    #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
