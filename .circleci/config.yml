@@ -124,7 +124,7 @@ jobs:
           command: |
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
-            echo 'export BRANCH="$SELENIUM_VERSION"' >> $BASH_ENV
+            echo 'export BRANCH=$SELENIUM_VERSION' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
             echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
@@ -146,6 +146,9 @@ jobs:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
             echo "BRANCH =" $BRANCH
+            echo "BUILD_DATE = " $BUILD_DATE
+            echo "BUILD_ARGS = " $BUILD_ARGS
+            echo "GITHUB_REPO = " $GITHUB_REPO
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
             if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
               echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
