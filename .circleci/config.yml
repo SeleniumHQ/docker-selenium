@@ -124,15 +124,15 @@ jobs:
           command: |
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
-            echo 'export BRANCH=$SELENIUM_VERSION' >> $BASH_ENV
+            echo 'export BRANCHH=$SELENIUM_VERSION' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
             echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCHH`-`echo $BUILD_DATE`"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
-            echo BRANCH="$BRANCH"
+            echo BRANCHH="$BRANCHH"
             echo GITHUB_REPO="$GITHUB_REPO"
             echo GITHUB_USER="$GITHUB_USER"
             echo BUILD_DATE="$BUILD_DATE"
@@ -145,7 +145,7 @@ jobs:
       - run:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
-            echo "BRANCH =" $BRANCH
+            echo "BRANCHH =" $BRANCHH
             echo "BUILD_DATE = " $BUILD_DATE
             echo "BUILD_ARGS = " $BUILD_ARGS
             echo "GITHUB_REPO = " $GITHUB_REPO
