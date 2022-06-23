@@ -111,10 +111,10 @@ jobs:
         type: executor
     executor: << parameters.machine-type >>
     environment:
-      NAMESPACE: seleniarm
+      NAMESPACE: jamesmortensen1
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
-      DEPLOY_BRANCH: trunk
+      DEPLOY_BRANCH: selenium-version-scrape 
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
     steps:
@@ -159,7 +159,7 @@ jobs:
             echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
             docker buildx use `docker buildx create`
             docker buildx ls
-            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            docker login -u="$DOCKER_TEST_USERNAME" -p="$DOCKER_TEST_PASSWORD"
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
@@ -179,7 +179,7 @@ jobs:
             go install github.com/github-release/github-release@v0.10.0
             cat release_notes.md
             export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
-            github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
+            #github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
 
 workflows:
   build-and-test-multi-arch:
