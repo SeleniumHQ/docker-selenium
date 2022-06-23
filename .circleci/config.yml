@@ -117,7 +117,6 @@ jobs:
       DEPLOY_BRANCH: trunk
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
-        #SELENIUM_VERSION: 4.2.1
     steps:
       - checkout
       - run:
@@ -210,5 +209,4 @@ workflows:
             branches: 
               only: 
                 - trunk
-                - selenium-version-scrape 
 
