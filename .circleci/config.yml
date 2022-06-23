@@ -134,7 +134,7 @@ jobs:
             source $BASH_ENV
             echo "Workflow environment variables:"
             echo BRANCHH="$BRANCHH"
-            echo GITHUB_REPO="$GITHUB_REPO"
+            echo GITHUB_REPO="$GITHUB_REPO"2y
             echo GITHUB_USER="$GITHUB_USER"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
@@ -147,8 +147,10 @@ jobs:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
             echo "BRANCHH =" $BRANCHH
+            cat $BASH_ENV
             source $BASH_ENV
             echo "BRANCHH =" $BRANCHH
+            echo "SELENIUM_VERSION =" $SELENIUM_VERSION
             echo "BUILD_DATE = " $BUILD_DATE
             echo "BUILD_ARGS = " $BUILD_ARGS
             echo "GITHUB_REPO = " $GITHUB_REPO
