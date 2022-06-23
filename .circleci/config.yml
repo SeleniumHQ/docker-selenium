@@ -124,39 +124,28 @@ jobs:
           command: |
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
-            echo 'export SELENIUM_VERSION=`echo $SELENIUM_VERSION`' >> $BASH_ENV
-            echo 'export BRANCHH='$SELENIUM_VERSION >> $BASH_ENV
-            echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
-            echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
+            echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCHH`-`echo $BUILD_DATE`"' >> $BASH_ENV
-            echo $BASH_ENV
-            cat $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
-            echo BRANCHH="$BRANCHH"
-            echo GITHUB_REPO="$GITHUB_REPO"
-            echo GITHUB_USER="$GITHUB_USER"
+            echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
+            echo NAMESPACE="$NAMESPACE"
             echo PLATFORMS="$PLATFORMS"
             echo BUILD_ARGS="$BUILD_ARGS"
             echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
+            echo GITHUB_USER="$GITHUB_USER"
+            echo GITHUB_REPO="$GITHUB_REPO"
       - run: uname -a
       - run: docker info
       - run:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
-            echo "BRANCHH =" $BRANCHH
-            echo $BASH_ENV
-            cat $BASH_ENV
-            source $BASH_ENV
-            echo "BRANCHH =" $BRANCHH
-            echo "SELENIUM_VERSION =" $SELENIUM_VERSION
-            echo "BUILD_DATE = " $BUILD_DATE
-            echo "BUILD_ARGS = " $BUILD_ARGS
-            echo "GITHUB_REPO = " $GITHUB_REPO
-            echo "RELEASE_TAG= " $RELEASE_TAG
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
             if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
               echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
@@ -171,7 +160,10 @@ jobs:
             docker buildx use `docker buildx create`
             docker buildx ls
             docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-            echo "DEBUG BRANCH=" $BRANCH
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
             NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
       - run:
           name: "Tag browser images and update latest tag"
