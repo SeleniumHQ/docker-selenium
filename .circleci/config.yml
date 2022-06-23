@@ -149,6 +149,7 @@ jobs:
             echo "BUILD_DATE = " $BUILD_DATE
             echo "BUILD_ARGS = " $BUILD_ARGS
             echo "GITHUB_REPO = " $GITHUB_REPO
+            echo "RELEASE_TAG= " $RELEASE_TAG
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
             if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
               echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
