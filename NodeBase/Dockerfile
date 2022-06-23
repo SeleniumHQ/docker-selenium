@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.2.2-20220609
+FROM selenium/base:4.2.2-20220622
 LABEL authors=SeleniumHQ
 
 USER root
@@ -169,20 +169,24 @@ COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
 #============================
 # Some configuration options
 #============================
-ENV SCREEN_WIDTH 1360
-ENV SCREEN_HEIGHT 1020
-ENV SCREEN_DEPTH 24
-ENV SCREEN_DPI 96
+ENV SE_SCREEN_WIDTH 1360
+ENV SE_SCREEN_HEIGHT 1020
+ENV SE_SCREEN_DEPTH 24
+ENV SE_SCREEN_DPI 96
+ENV SE_START_XVFB true
+ENV SE_START_NO_VNC true
+ENV SE_NO_VNC_PORT 7900
+ENV SE_VNC_PORT 5900
 ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
-ENV START_XVFB true
-ENV START_NO_VNC true
 # Path to the Configfile
 ENV CONFIG_FILE=/opt/selenium/config.toml
 ENV GENERATE_CONFIG true
 # Drain the Node after N sessions. 
 # A value higher than zero enables the feature
-ENV DRAIN_AFTER_SESSION_COUNT 0
+ENV SE_DRAIN_AFTER_SESSION_COUNT 0
+
+
 
 #========================
 # Selenium Configuration
