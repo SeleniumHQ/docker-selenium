@@ -124,7 +124,7 @@ jobs:
           command: |
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
-            echo 'export BRANCHH=$SELENIUM_VERSION' >> $BASH_ENV
+            echo 'export BRANCHH=$(echo $SELENIUM_VERSION)' >> $BASH_ENV
             echo 'export GITHUB_REPO="$CIRCLE_PROJECT_REPONAME"' >> $BASH_ENV
             echo 'export GITHUB_USER="$CIRCLE_PROJECT_USERNAME"' >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
