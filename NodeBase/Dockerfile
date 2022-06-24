@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.2.2-20220622
+FROM selenium/base:4.3.0-20220624
 LABEL authors=SeleniumHQ
 
 USER root
@@ -174,6 +174,8 @@ ENV SE_SCREEN_HEIGHT 1020
 ENV SE_SCREEN_DEPTH 24
 ENV SE_SCREEN_DPI 96
 ENV SE_START_XVFB true
+# Temporal fix for https://github.com/SeleniumHQ/docker-selenium/issues/1610
+ENV START_XVFB true
 ENV SE_START_NO_VNC true
 ENV SE_NO_VNC_PORT 7900
 ENV SE_VNC_PORT 5900
