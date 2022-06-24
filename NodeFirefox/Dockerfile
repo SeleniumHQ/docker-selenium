@@ -4,7 +4,7 @@
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 FROM selenium/node-base:4.3.0-20220624
 LABEL authors=SeleniumHQ
- 
+
 ARG TARGETARCH
 ARG TARGETVARIANT
 
