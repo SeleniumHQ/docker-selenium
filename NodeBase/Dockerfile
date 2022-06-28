@@ -2,7 +2,7 @@
 # NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
 # PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.3.0-20220624
+FROM selenium/base:4.3.0-20220628
 LABEL authors=SeleniumHQ
 
 USER root
@@ -70,10 +70,11 @@ RUN apt-get update -qqy \
 # Removed packages:
 # xfonts-100dpi            ~6 MB
 # xfonts-75dpi             ~6 MB
+# fonts-noto-color-emoji   ~10 MB
 # Regarding fonts-liberation see:
 #  https://github.com/SeleniumHQ/docker-selenium/issues/383#issuecomment-278367069
-# Layer size: small: 36.28 MB (with --no-install-recommends)
-# Layer size: small: 36.28 MB
+# Layer size: small: 50.3 MB (with --no-install-recommends)
+# Layer size: small: 50.3 MB
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
@@ -85,6 +86,7 @@ RUN apt-get -qqy update \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
     ttf-ubuntu-font-family \
+    fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
 
