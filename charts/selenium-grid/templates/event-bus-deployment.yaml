@@ -38,10 +38,10 @@ spec:
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.extraEnvFrom }}
           envFrom:
-            {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-            {{- end }}
+        {{- end }}
         {{- with .Values.components.eventBus.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -51,5 +51,8 @@ spec:
     {{- with .Values.components.eventBus.tolerations }}
       tolerations:
         {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.components.eventBus.priorityClassName }}
+      priorityClassName: {{ . }}
     {{- end }}
 {{- end }}

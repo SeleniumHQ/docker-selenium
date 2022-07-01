@@ -63,10 +63,10 @@ spec:
         {{- with .Values.hub.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
+        {{- with .Values.hub.extraEnvFrom }}
           envFrom:
-            {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-            {{- end }}
+        {{- end }}
         {{- with .Values.hub.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -76,5 +76,8 @@ spec:
     {{- with .Values.hub.tolerations }}
       tolerations:
         {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.hub.priorityClassName }}
+      priorityClassName: {{ . }}
     {{- end }}
 {{- end }}

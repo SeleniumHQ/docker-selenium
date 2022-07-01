@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.6.2
+
+### Added
+- Pod PriorityClasses
+
 ## :heavy_check_mark: 0.6.1
 
 ### Changed

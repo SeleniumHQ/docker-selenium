@@ -76,10 +76,11 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
 | `chromeNode.labels`                     | `{}`                               | Labels for chrome-node pods                                                                                                |
-| `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node container                                                                                        |
-| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node container                                                                                      |
-| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node container                                                                                    |
+| `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node pods                                                                                             |
+| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node pods                                                                                           |
+| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node pods                                                                                         |
 | `chromeNode.hostAliases`                | `nil`                              | Custom host aliases for chrome nodes                                                                                       |
+| `chromeNode.priorityClassName`          | `""`                               | Priority class name for chrome-node pods                                                                                   |
 | `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
 | `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
 | `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
@@ -98,10 +99,11 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
 | `firefoxNode.labels`                    | `{}`                               | Labels for firefox-node pods                                                                                               |
-| `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node container                                                                                       |
-| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node container                                                                                     |
-| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node container                                                                                   |
+| `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node pods                                                                                            |
+| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node pods                                                                                          |
+| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node pods                                                                                        |
 | `firefoxNode.hostAliases`               | `nil`                              | Custom host aliases for firefox nodes                                                                                      |
+| `firefoxNode.priorityClassName`         | `""`                               | Priority class name for firefox-node pods                                                                                  |
 | `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
 | `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
 | `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
@@ -120,12 +122,13 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
 | `edgeNode.labels`                       | `{}`                               | Labels for edge-node pods                                                                                                  |
-| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node container                                                                                          |
-| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node container                                                                                        |
-| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node container                                                                                      |
+| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node pods                                                                                               |
+| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node pods                                                                                             |
+| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node pods                                                                                           |
 | `edgeNode.hostAliases`                  | `nil`                              | Custom host aliases for edge nodes                                                                                         |
-| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for edge nodes                                                                                |
-| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for edge nodes                                             |
+| `edgeNode.priorityClassName`            | `""`                               | Priority class name for edge-node pods                                                                                     |
+| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
+| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
 | `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
@@ -151,8 +154,9 @@ You can configure the Selenium Hub with this values:
 | `hub.port`                      | `4444`            | Selenium Hub port                                                                                                                |
 | `hub.livenessProbe`             | `See values.yaml` | Liveness probe settings                                                                                                          |
 | `hub.readinessProbe`            | `See values.yaml` | Readiness probe settings                                                                                                         |
-| `hub.tolerations`               | `[]`              | Tolerations for selenium-hub container                                                                                           |
-| `hub.nodeSelector`              | `{}`              | Node Selector for selenium-hub container                                                                                         |
+| `hub.tolerations`               | `[]`              | Tolerations for selenium-hub pods                                                                                                |
+| `hub.nodeSelector`              | `{}`              | Node Selector for selenium-hub pods                                                                                              |
+| `hub.priorityClassName`         | `""`              | Priority class name for selenium-hub pods                                                                                        |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
@@ -176,6 +180,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.resources`                 | `{}`                      | Resources for router container                                                                                                   |
 | `components.router.serviceType`               | `NodePort`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.router.serviceAnnotations`        | `{}`                      | Custom annotations for router service                                                                                            |
+| `components.router.tolerations`               | `[]`                      | Tolerations for router pods                                                                                                      |
+| `components.router.nodeSelector`              | `{}`                      | Node Selector for router pods                                                                                                    |
+| `components.router.priorityClassName`         | `""`                      | Priority class name for router pods                                                                                              |
 | `components.distributor.imageName`            | `selenium/distributor`    | Distributor image name                                                                                                           |
 | `components.distributor.imageTag`             | `nil`                     | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `components.distributor.imagePullPolicy`      | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
@@ -184,6 +191,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.resources`            | `{}`                      | Resources for Distributor container                                                                                              |
 | `components.distributor.serviceType`          | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.distributor.serviceAnnotations`   | `{}`                      | Custom annotations for Distributor service                                                                                       |
+| `components.distributor.tolerations`          | `[]`                      | Tolerations for Distributor pods                                                                                                 |
+| `components.distributor.nodeSelector`         | `{}`                      | Node Selector for Distributor pods                                                                                               |
+| `components.distributor.priorityClassName`    | `""`                      | Priority class name for Distributor pods                                                                                         |
 | `components.eventBus.imageName`               | `selenium/event-bus`      | Event Bus image name                                                                                                             |
 | `components.eventBus.imageTag`                | `nil`                     | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                     |
 | `components.eventBus.imagePullPolicy`         | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
@@ -194,6 +204,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.resources`               | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.eventBus.serviceType`             | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.eventBus.serviceAnnotations`      | `{}`                      | Custom annotations for Event Bus service                                                                                         |
+| `components.eventBus.tolerations`             | `[]`                      | Tolerations for Event Bus pods                                                                                                   |
+| `components.eventBus.nodeSelector`            | `{}`                      | Node Selector for Event Bus pods                                                                                                 |
+| `components.eventBus.priorityClassName`       | `""`                      | Priority class name for Event Bus pods                                                                                           |
 | `components.sessionMap.imageName`             | `selenium/sessions`       | Session Map image name                                                                                                           |
 | `components.sessionMap.imageTag`              | `nil`                     | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `components.sessionMap.imagePullPolicy`       | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
@@ -201,6 +214,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionMap.resources`             | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionMap.serviceType`           | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionMap.serviceAnnotations`    | `{}`                      | Custom annotations for Session Map service                                                                                       |
+| `components.sessionMap.tolerations`           | `[]`                      | Tolerations for Session Map pods                                                                                                 |
+| `components.sessionMap.nodeSelector`          | `{}`                      | Node Selector for Session Map pods                                                                                               |
+| `components.sessionMap.priorityClassName`     | `""`                      | Priority class name for Session Map pods                                                                                         |
 | `components.sessionQueue.imageName`           | `selenium/session-queue`  | Session Queue image name                                                                                                         |
 | `components.sessionQueue.imageTag`            | `nil`                     | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                 |
 | `components.sessionQueue.imagePullPolicy`     | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
@@ -208,6 +224,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.resources`           | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionQueue.serviceAnnotations`  | `{}`                      | Custom annotations for Session Queue service                                                                                     |
+| `components.sessionQueue.tolerations`         | `[]`                      | Tolerations for Session Queue pods                                                                                               |
+| `components.sessionQueue.nodeSelector`        | `{}`                      | Node Selector for Session Queue pods                                                                                             |
+| `components.sessionQueue.priorityClassName`   | `""`                      | Priority class name for Session Queue pods                                                                                       |
 | `components.extraEnvironmentVariables`        | `nil`                     | Custom environment variables for all components                                                                                  |
 | `components.extraEnvFrom`                     | `nil`                     | Custom environment variables taken from `configMap` or `secret` for all components                                               |
 
