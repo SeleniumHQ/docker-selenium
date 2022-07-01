@@ -77,4 +77,8 @@ spec:
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
+    {{- end }}
 {{- end }}
