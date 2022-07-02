@@ -45,7 +45,7 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
-    # Custom annotations for router pod
+    # Custom annotations for router pods
     annotations: {}
     # Router port
     port: 4444
@@ -73,10 +73,12 @@ components:
     serviceType: ClusterIP
     # Custom annotations for router service
     serviceAnnotations: {}
-    # Tolerations for router container
+    # Tolerations for router pods
     tolerations: []
-    # Node selector for router container
+    # Node selector for router pods
     nodeSelector: {}
+    # Priority class name for router pods
+    priorityClassName: ""
 
   # Configuration for distributor component
   distributor:
@@ -90,7 +92,7 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
-    # Custom annotations for Distributor pod
+    # Custom annotations for Distributor pods
     annotations: {}
     # Distributor port
     port: 5553
@@ -100,10 +102,12 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Distributor service
     serviceAnnotations: {}
-    # Tolerations for Distributor container
+    # Tolerations for Distributor pods
     tolerations: []
-    # Node selector for Distributor container
+    # Node selector for Distributor pods
     nodeSelector: {}
+    # Priority class name for Distributor pods
+    priorityClassName: ""
 
   # Configuration for Event Bus component
   eventBus:
@@ -117,7 +121,7 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
-    # Custom annotations for Event Bus pod
+    # Custom annotations for Event Bus pods
     annotations: {}
     # Event Bus port
     port: 5557
@@ -131,10 +135,12 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Event Bus service
     serviceAnnotations: {}
-    # Tolerations for Event Bus container
+    # Tolerations for Event Bus pods
     tolerations: []
-    # Node selector for Event Bus container
+    # Node selector for Event Bus pods
     nodeSelector: {}
+    # Priority class name for Event Bus pods
+    priorityClassName: ""
 
   # Configuration for Session Map component
   sessionMap:
@@ -148,7 +154,7 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
-    # Custom annotations for Session Map pod
+    # Custom annotations for Session Map pods
     annotations: {}
     port: 5556
     # Resources for Session Map container
@@ -157,10 +163,12 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Session Map service
     serviceAnnotations: {}
-    # Tolerations for Session Map container
+    # Tolerations for Session Map pods
     tolerations: []
-    # Node selector for Session Map container
+    # Node selector for Session Map pods
     nodeSelector: {}
+    # Priority class name for Session Map pods
+    priorityClassName: ""
 
   # Configuration for Session Queue component
   sessionQueue:
@@ -174,7 +182,7 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
-    # Custom annotations for Session Queue pod
+    # Custom annotations for Session Queue pods
     annotations: {}
     port: 5559
     # Resources for Session Queue container
@@ -183,10 +191,12 @@ components:
     serviceType: ClusterIP
     # Custom annotations for Session Queue service
     serviceAnnotations: {}
-    # Tolerations for Session Queue container
+    # Tolerations for Session Queue pods
     tolerations: []
-    # Node selector for Session Queue container
+    # Node selector for Session Queue pods
     nodeSelector: {}
+    # Priority class name for Session Queue pods
+    priorityClassName: ""
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -210,15 +220,15 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  imageTag: 4.3.0-20220628
+  # imageTag: 4.3.0-20220628
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  # Custom annotations for Selenium Hub pod
+  # Custom annotations for Selenium Hub pods
   annotations: {}
-  # Custom labels for Selenium Hub pod
+  # Custom labels for Selenium Hub pods
   labels: {}
   # Port where events are published
   publishPort: 4442
@@ -265,10 +275,12 @@ hub:
   serviceType: ClusterIP
   # Custom annotations for Selenium Hub service
   serviceAnnotations: {}
-  # Tolerations for selenium-hub container
+  # Tolerations for selenium-hub pods
   tolerations: []
-  # Node selector for selenium-hub container
+  # Node selector for selenium-hub pods
   nodeSelector: {}
+  # Priority class name for selenium-hub pods
+  priorityClassName: ""
 
 # Configuration for chrome nodes
 chromeNode:
@@ -304,9 +316,9 @@ chromeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
-  # Tolerations for chrome-node container
+  # Tolerations for chrome-node pods
   tolerations: []
-  # Node selector for chrome-node container
+  # Node selector for chrome-node pods
   nodeSelector: {}
   # Custom host aliases for chrome nodes
   hostAliases:
@@ -342,6 +354,8 @@ chromeNode:
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
+  # Priority class name for chrome-node pods
+  priorityClassName: ""
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -380,9 +394,9 @@ firefoxNode:
   annotations: {}
   # Labels for firefox-node pods
   labels: {}
-  # Tolerations for firefox-node container
+  # Tolerations for firefox-node pods
   tolerations: []
-  # Node selector for firefox-node container
+  # Node selector for firefox-node pods
   nodeSelector: {}
   # Resources for firefox-node container
   resources:
@@ -426,6 +440,8 @@ firefoxNode:
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
+  # Priority class name for firefox-node pods
+  priorityClassName: ""
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -463,9 +479,9 @@ edgeNode:
   annotations: {}
   # Labels for edge-node pods
   labels: {}
-  # Tolerations for edge-node container
+  # Tolerations for edge-node pods
   tolerations: []
-  # Node selector for edge-node container
+  # Node selector for edge-node pods
   nodeSelector: {}
   # Resources for edge-node container
   resources:
@@ -510,6 +526,8 @@ edgeNode:
       hello: world
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
   dshmVolumeSizeLimit: 1Gi
+  # Priority class name for edge-node pods
+  priorityClassName: ""
 
   extraVolumeMounts: []
   # - name: my-extra-volume

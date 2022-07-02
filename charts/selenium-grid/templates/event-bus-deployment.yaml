@@ -38,10 +38,10 @@ spec:
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.extraEnvFrom }}
           envFrom:
-            {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-            {{- end }}
+        {{- end }}
         {{- with .Values.components.eventBus.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -55,5 +55,8 @@ spec:
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.eventBus.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.eventBus.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.components.eventBus.priorityClassName }}
+      priorityClassName: {{ . }}
     {{- end }}
 {{- end }}

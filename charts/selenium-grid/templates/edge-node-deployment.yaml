@@ -72,6 +72,9 @@ spec:
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.edgeNode.imagePullSecret }}
     {{- end }}
+    {{- with .Values.edgeNode.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
       volumes:
         - name: dshm
           emptyDir:

@@ -72,6 +72,9 @@ spec:
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.firefoxNode.imagePullSecret }}
     {{- end }}
+    {{- with .Values.firefoxNode.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
       volumes:
         - name: dshm
           emptyDir:

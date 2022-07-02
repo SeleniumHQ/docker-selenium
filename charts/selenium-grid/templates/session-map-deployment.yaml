@@ -54,4 +54,7 @@ spec:
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionMap.imagePullSecret }}
     {{- end }}
+    {{- with .Values.components.sessionMap.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
 {{- end }}

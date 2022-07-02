@@ -44,10 +44,10 @@ spec:
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
+          {{- with .Values.components.extraEnvFrom }}
           envFrom:
-            {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- end }}
           ports:
             - containerPort: {{ .Values.components.router.port }}
               protocol: TCP
@@ -86,5 +86,8 @@ spec:
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.router.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.router.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.components.router.priorityClassName }}
+      priorityClassName: {{ . }}
     {{- end }}
 {{- end }}
