@@ -50,6 +50,10 @@ spec:
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionQueue.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionQueue.imagePullSecret }}
+    {{- end }}
     {{- with .Values.components.sessionQueue.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}

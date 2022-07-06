@@ -61,6 +61,10 @@ spec:
         {{- with .Values.chromeNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
+    {{- end }}
     {{- with .Values.chromeNode.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
