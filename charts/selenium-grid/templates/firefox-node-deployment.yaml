@@ -68,6 +68,10 @@ spec:
       tolerations:
         {{ toYaml . | nindent 6 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.firefoxNode.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.firefoxNode.imagePullSecret }}
+    {{- end }}
     {{- with .Values.firefoxNode.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}

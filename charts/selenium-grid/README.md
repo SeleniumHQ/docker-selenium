@@ -49,10 +49,11 @@ helm uninstall selenium-grid
 
 For now, global configuration supported is:
 
-| Parameter                           | Default                            | Description                           |
-| ----------------------------------- | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`      | `4.3.0-20220628`                   | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag` | `4.3.0-20220628`                   | Image tag for browser's nodes         |
+| Parameter                             | Default                            | Description                           |
+| -----------------------------------   | ---------------------------------- | ------------------------------------- |
+| `global.seleniumGrid.imageTag`        | `4.3.0-20220628`                   | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.3.0-20220628`                   | Image tag for browser's nodes         |
+| `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
 
 This table contains the configuration parameters of the chart and their default values:
 
@@ -71,6 +72,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
 | `chromeNode.imageTag`                   | `4.3.0-20220628`                   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
@@ -94,6 +96,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imageTag`                  | `4.3.0-20220628`                   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
@@ -117,6 +120,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
 | `edgeNode.imageTag`                     | `4.3.0-20220628`                   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
 | `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
@@ -147,6 +151,7 @@ You can configure the Selenium Hub with this values:
 | `hub.imageName`                 | `selenium/hub`    | Selenium Hub image name                                                                                                          |
 | `hub.imageTag`                  | `nil`             | Selenium Hub image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `hub.imagePullPolicy`           | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `hub.imagePullSecret`           | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                          |
 | `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                               |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                  |
@@ -173,6 +178,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.imageName`                 | `selenium/router`         | Router image name                                                                                                                |
 | `components.router.imageTag`                  | `nil`                     | Router image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                         |
 | `components.router.imagePullPolicy`           | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.router.imagePullSecret`           | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.router.annotations`               | `{}`                      | Custom annotations for router pod                                                                                                |
 | `components.router.port`                      | `4444`                    | Router port                                                                                                                      |
 | `components.router.livenessProbe`             | `See values.yaml`         | Liveness probe settings                                                                                                          |
@@ -186,6 +192,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.imageName`            | `selenium/distributor`    | Distributor image name                                                                                                           |
 | `components.distributor.imageTag`             | `nil`                     | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `components.distributor.imagePullPolicy`      | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.distributor.imagePullSecret`      | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.distributor.annotations`          | `{}`                      | Custom annotations for Distributor pod                                                                                           |
 | `components.distributor.port`                 | `5553`                    | Distributor port                                                                                                                 |
 | `components.distributor.resources`            | `{}`                      | Resources for Distributor container                                                                                              |
@@ -197,6 +204,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.imageName`               | `selenium/event-bus`      | Event Bus image name                                                                                                             |
 | `components.eventBus.imageTag`                | `nil`                     | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                     |
 | `components.eventBus.imagePullPolicy`         | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.eventBus.imagePullSecret`         | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.eventBus.annotations`             | `{}`                      | Custom annotations for Event Bus pod                                                                                             |
 | `components.eventBus.port`                    | `5557`                    | Event Bus port                                                                                                                   |
 | `components.eventBus.publishPort`             | `4442`                    | Port where events are published                                                                                                  |
@@ -210,6 +218,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionMap.imageName`             | `selenium/sessions`       | Session Map image name                                                                                                           |
 | `components.sessionMap.imageTag`              | `nil`                     | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                   |
 | `components.sessionMap.imagePullPolicy`       | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.sessionMap.imagePullSecret`       | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.sessionMap.annotations`           | `{}`                      | Custom annotations for Session Map pod                                                                                           |
 | `components.sessionMap.resources`             | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionMap.serviceType`           | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
@@ -220,6 +229,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.imageName`           | `selenium/session-queue`  | Session Queue image name                                                                                                         |
 | `components.sessionQueue.imageTag`            | `nil`                     | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                 |
 | `components.sessionQueue.imagePullPolicy`     | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
+| `components.sessionQueue.imagePullSecret`     | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.sessionQueue.annotations`         | `{}`                      | Custom annotations for Session Queue pod                                                                                         |
 | `components.sessionQueue.resources`           | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |

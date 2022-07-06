@@ -4,6 +4,8 @@ global:
     imageTag: 4.3.0-20220628
     # Image tag for browser's nodes
     nodesImageTag: 4.3.0-20220628
+    # Pull secret for all components, can be overridden individually
+    imagePullSecret: ""
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
@@ -40,6 +42,9 @@ components:
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
+    # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+    imagePullSecret: ""
+
     # Custom annotations for router pods
     annotations: {}
     # Router port
@@ -84,6 +89,9 @@ components:
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
+    # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+    imagePullSecret: ""
+
     # Custom annotations for Distributor pods
     annotations: {}
     # Distributor port
@@ -110,6 +118,9 @@ components:
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
+    # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+    imagePullSecret: ""
+
     # Custom annotations for Event Bus pods
     annotations: {}
     # Event Bus port
@@ -140,6 +151,9 @@ components:
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
+    # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+    imagePullSecret: ""
+
     # Custom annotations for Session Map pods
     annotations: {}
     port: 5556
@@ -165,6 +179,9 @@ components:
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
+    # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+    imagePullSecret: ""
+
     # Custom annotations for Session Queue pods
     annotations: {}
     port: 5559
@@ -203,9 +220,12 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  imageTag: 4.3.0-20220628
+  # imageTag: 4.3.0-20220628
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+
   # Custom annotations for Selenium Hub pods
   annotations: {}
   # Custom labels for Selenium Hub pods
@@ -274,6 +294,9 @@ chromeNode:
   # imageTag: 4.3.0-20220628
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+
   # Port list to enable on container
   ports:
     - 5553
@@ -357,6 +380,9 @@ firefoxNode:
   # imageTag: 4.3.0-20220628
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+
   # Port list to enable on container
   ports:
     - 5553
@@ -440,6 +466,9 @@ edgeNode:
   # imageTag: 4.3.0-20220628
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+
   ports:
     - 5553
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
