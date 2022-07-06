@@ -15,7 +15,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.6.1
 
 ### Changed
-- Update image tag to 4.3.0-20220628
+- Update image tag to 4.3.0-20220706
 
 ## :heavy_check_mark: 0.6.0
 
