@@ -35,6 +35,8 @@ Multi-arch images are located at https://hub.docker.com/u/seleniarm
 
 The primary motivation for creating this fork and updating the images is so I can use the noVNC client on Selenium 4.0.0 on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
 
+The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
+
 To start the container image, run:
 
 ```
