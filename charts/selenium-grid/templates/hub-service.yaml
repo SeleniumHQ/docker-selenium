@@ -17,6 +17,9 @@ spec:
   selector:
     app: selenium-hub
   type: {{ .Values.hub.serviceType }}
+  {{- if and (eq .Values.hub.serviceType "LoadBalancer") ( .Values.hub.loadBalancerIP ) }}
+  loadBalancerIP: {{ .Values.hub.loadBalancerIP }}
+  {{- end }}
   ports:
     - name: http-hub
       protocol: TCP
