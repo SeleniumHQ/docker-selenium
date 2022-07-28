@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.8.0
+
+### Added
+- Added support of loadBalancerIP for hub and router services
+
 ## :heavy_check_mark: 0.7.0
 
 ### Added
@@ -15,7 +20,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.6.1
 
 ### Changed
-- Update image tag to 4.3.0-20220706
+- Update image tag to 4.3.0-20220726
 
 ## :heavy_check_mark: 0.6.0
 
