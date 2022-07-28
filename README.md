@@ -1,4 +1,4 @@
-# Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64 
+# Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64
 
 [![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](https://app.circleci.com/pipelines/github/seleniumhq-community/docker-seleniarm)
 
