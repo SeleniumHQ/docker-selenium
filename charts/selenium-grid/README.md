@@ -73,7 +73,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.imageTag`                   | `4.3.0-20220726`                   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `chromeNode.ports`                      | `[5553]`                           | Port list to enable on container                                                                                           |
+| `chromeNode.ports`                      | `[5555]`                           | Port list to enable on container                                                                                           |
 | `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
@@ -89,6 +89,9 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
 | `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
 | `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `chromeNode.startupProbe`               | `{}`                               | Probe to check pod is started successfully                                                                                 |
+| `chromeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
+| `chromeNode.lifecycle`                  | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
@@ -97,7 +100,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.imageTag`                  | `4.3.0-20220726`                   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `firefoxNode.ports`                     | `[5553]`                           | Port list to enable on container                                                                                           |
+| `firefoxNode.ports`                     | `[5555]`                           | Port list to enable on container                                                                                           |
 | `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
@@ -113,6 +116,9 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
 | `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `firefoxNode.startupProbe`              | `{}`                               | Probe to check pod is started successfully                                                                                 |
+| `firefoxNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                       |
+| `firefoxNode.lifecycle`                 | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
@@ -121,7 +127,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.imageTag`                     | `4.3.0-20220726`                   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `edgeNode.ports`                        | `[5553]`                           | Port list to enable on container                                                                                           |
+| `edgeNode.ports`                        | `[5555]`                           | Port list to enable on container                                                                                           |
 | `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
 | `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
 | `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
@@ -137,6 +143,9 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
 | `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
 | `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.startupProbe`                 | `{}`                               | Probe to check pod is started successfully                                                                                 |
+| `edgeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
+| `edgeNode.lifecycle`                    | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |

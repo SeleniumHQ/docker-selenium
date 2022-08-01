@@ -61,6 +61,12 @@ spec:
         {{- with .Values.chromeNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.chromeNode.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.chromeNode.startupProbe }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
@@ -75,6 +81,7 @@ spec:
     {{- with .Values.chromeNode.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.chromeNode.terminationGracePeriodSeconds }}
       volumes:
         - name: dshm
           emptyDir:

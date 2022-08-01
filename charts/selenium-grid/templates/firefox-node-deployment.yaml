@@ -61,6 +61,12 @@ spec:
         {{- with .Values.firefoxNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.firefoxNode.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.firefoxNode.startupProbe }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.firefoxNode.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -75,6 +81,7 @@ spec:
     {{- with .Values.firefoxNode.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.firefoxNode.terminationGracePeriodSeconds }}
       volumes:
         - name: dshm
           emptyDir:

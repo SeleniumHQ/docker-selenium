@@ -61,6 +61,12 @@ spec:
         {{- with .Values.edgeNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.edgeNode.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.edgeNode.startupProbe }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.edgeNode.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -75,6 +81,7 @@ spec:
     {{- with .Values.edgeNode.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
+      terminationGracePeriodSeconds: {{ .Values.edgeNode.terminationGracePeriodSeconds }}
       volumes:
         - name: dshm
           emptyDir:
