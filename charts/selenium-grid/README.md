@@ -23,7 +23,7 @@ helm install selenium-grid docker-selenium/selenium-grid
 helm install selenium-grid docker-selenium/selenium-grid --set isolateComponents=true
 
 # Or install specified version
-helm install selenium-grid docker-selenium/selenium-grid --version 0.3.1
+helm install selenium-grid docker-selenium/selenium-grid --version <version>
 
 # In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
