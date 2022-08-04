@@ -51,25 +51,25 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        uses: nick-invision/retry@0f986c438bbaefa5175ed096471df46c6fc185da # v2
+        uses: nick-invision/retry@616fa81820c9b34fd44f4a0cfeda436b4b8338d3 # v2
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
-        uses: nick-invision/retry@0f986c438bbaefa5175ed096471df46c6fc185da # v2
+        uses: nick-invision/retry@616fa81820c9b34fd44f4a0cfeda436b4b8338d3 # v2
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
       - name: Deploy latest tag
-        uses: nick-invision/retry@0f986c438bbaefa5175ed096471df46c6fc185da # v2
+        uses: nick-invision/retry@616fa81820c9b34fd44f4a0cfeda436b4b8338d3 # v2
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
-        uses: nick-invision/retry@0f986c438bbaefa5175ed096471df46c6fc185da # v2
+        uses: nick-invision/retry@616fa81820c9b34fd44f4a0cfeda436b4b8338d3 # v2
         with:
           timeout_minutes: 20
           max_attempts: 3
