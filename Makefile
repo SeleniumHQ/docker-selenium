@@ -7,7 +7,7 @@ NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
 FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS)
-BUILD_ARGS := $(BUILD_ARGS) $(FROM_IMAGE_ARGS)
+BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
@@ -38,49 +38,49 @@ base:
 	cd ./Base && docker build $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub: base
-	cd ./Hub && docker build $(BUILD_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+	cd ./Hub && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
 distributor: base
-	cd ./Distributor && docker build $(BUILD_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+	cd ./Distributor && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
 
 router: base
-	cd ./Router && docker build $(BUILD_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+	cd ./Router && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
 
 sessions: base
-	cd ./Sessions && docker build $(BUILD_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+	cd ./Sessions && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue: base
-	cd ./SessionQueue && docker build $(BUILD_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
+	cd ./SessionQueue && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 event_bus: base
-	cd ./EventBus && docker build $(BUILD_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
+	cd ./EventBus && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
 
 node_base: base
-	cd ./NodeBase && docker build $(BUILD_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+	cd ./NodeBase && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
 
 chrome: node_base
-	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
+	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
 edge: node_base
-	cd ./NodeEdge && docker build $(BUILD_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
+	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
 
 firefox: node_base
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 docker: base
-	cd ./NodeDocker && docker build $(BUILD_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
+	cd ./NodeDocker && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
 
 standalone_docker: docker
-	cd ./StandaloneDocker && docker build $(BUILD_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
+	cd ./StandaloneDocker && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 standalone_firefox: firefox
-	cd ./Standalone && docker build --build-arg BASE=node-firefox $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 standalone_chrome: chrome
-	cd ./Standalone && docker build --build-arg BASE=node-chrome $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 
 standalone_edge: edge
-	cd ./Standalone && docker build --build-arg BASE=node-edge $(BUILD_ARGS) -t $(NAME)/standalone-edge:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge -t $(NAME)/standalone-edge:$(TAG_VERSION) .
 
 video:
 	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .

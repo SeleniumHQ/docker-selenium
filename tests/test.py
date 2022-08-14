@@ -3,6 +3,7 @@ import os
 import random
 import sys
 import unittest
+import re
 
 import docker
 from docker.errors import NotFound
@@ -109,7 +110,9 @@ def launch_container(container, **kwargs):
     """
     # Build the container if it doesn't exist
     logger.info("Building %s container..." % container)
-    client.images.build(path='../%s' % container,
+    set_from_image_base_for_standalone(container)
+    build_path = get_build_path(container)
+    client.images.build(path='../%s' % build_path,
                         tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                         rm=True,
                         buildargs=FROM_IMAGE_ARGS)
@@ -133,6 +136,24 @@ def launch_container(container, **kwargs):
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
     return container_id
+
+
+def set_from_image_base_for_standalone(container):
+    match = standalone_browser_container_matches(container)
+    if match != None:
+      FROM_IMAGE_ARGS['BASE'] = 'node-' + match.group(2).lower()
+
+
+def get_build_path(container):
+    match = standalone_browser_container_matches(container)
+    if match == None:
+      return container
+    else:
+      return match.group(1)
+
+
+def standalone_browser_container_matches(container):
+    return re.match("(Standalone)(Chrome|Firefox|Edge)", container)
 
 
 if __name__ == '__main__':
