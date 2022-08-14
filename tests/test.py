@@ -53,6 +53,10 @@ TEST_NAME_MAP = {
     'StandaloneFirefox': 'FirefoxTests',
 }
 
+FROM_IMAGE_ARGS = {
+    'NAMESPACE': NAMESPACE,
+    'VERSION': VERSION
+}
 
 def launch_hub(network_name):
     """
@@ -107,7 +111,8 @@ def launch_container(container, **kwargs):
     logger.info("Building %s container..." % container)
     client.images.build(path='../%s' % container,
                         tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                        rm=True)
+                        rm=True,
+                        buildargs=FROM_IMAGE_ARGS)
     logger.info("Done building %s" % container)
 
     # Run the container
