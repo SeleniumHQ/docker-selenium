@@ -2,6 +2,16 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.9.0
+
+### Added
+- Add lifecycle preStop hook & startupProbe, fix port number
+
+## :heavy_check_mark: 0.8.1
+
+### Changed
+- Update image tag to 4.4.0-20220812
+
 ## :heavy_check_mark: 0.8.0
 
 ### Added
@@ -20,7 +30,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.6.1
 
 ### Changed
-- Update image tag to 4.3.0-20220726
+- Update image tag to 4.3.0-20220706
 
 ## :heavy_check_mark: 0.6.0
 

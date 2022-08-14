@@ -1,9 +1,9 @@
 global:
   seleniumGrid:
     # Image tag for all selenium components
-    imageTag: 4.3.0-20220726
+    imageTag: 4.4.0-20220812
     # Image tag for browser's nodes
-    nodesImageTag: 4.3.0-20220726
+    nodesImageTag: 4.4.0-20220812
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
 
@@ -38,7 +38,7 @@ components:
     # Router image name
     imageName: selenium/router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.3.0-20220726
+    # imageTag: 4.4.0-20220812
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -87,7 +87,7 @@ components:
     # Distributor image name
     imageName: selenium/distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.3.0-20220726
+    # imageTag: 4.4.0-20220812
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -116,7 +116,7 @@ components:
     # Event Bus image name
     imageName: selenium/event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.3.0-20220726
+    # imageTag: 4.4.0-20220812
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -149,7 +149,7 @@ components:
     # Session Map image name
     imageName: selenium/sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.3.0-20220726
+    # imageTag: 4.4.0-20220812
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -177,7 +177,7 @@ components:
     # Session Queue image name
     imageName: selenium/session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.3.0-20220726
+    # imageTag: 4.4.0-20220812
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -222,7 +222,7 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.3.0-20220726
+  # imageTag: 4.4.0-20220812
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -295,7 +295,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: selenium/node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.3.0-20220726
+  # imageTag: 4.4.0-20220812
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -303,7 +303,7 @@ chromeNode:
 
   # Port list to enable on container
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -361,6 +361,26 @@ chromeNode:
   # Priority class name for chrome-node pods
   priorityClassName: ""
 
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -381,7 +401,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: selenium/node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.3.0-20220726
+  # imageTag: 4.4.0-20220812
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -389,7 +409,7 @@ firefoxNode:
 
   # Port list to enable on container
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -447,6 +467,26 @@ firefoxNode:
   # Priority class name for firefox-node pods
   priorityClassName: ""
 
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -467,14 +507,14 @@ edgeNode:
   # Image of edge nodes
   imageName: selenium/node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.3.0-20220726
+  # imageTag: 4.4.0-20220812
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
   ports:
-    - 5553
+    - 5555
   # Selenium port (spec.ports[0].targetPort in kubernetes service)
   seleniumPort: 5900
   # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
@@ -532,6 +572,26 @@ edgeNode:
   dshmVolumeSizeLimit: 1Gi
   # Priority class name for edge-node pods
   priorityClassName: ""
+
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+    # failureThreshold: 120
+    # periodSeconds: 5
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  # Allow pod correctly shutdown
+  lifecycle: {}
+    # preStop:
+    #   exec:
+    #     command:
+    #       - bash
+    #       - -c
+    #       - |
+    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+    #         while curl 127.0.0.1:5555/status; do sleep 1; done
 
   extraVolumeMounts: []
   # - name: my-extra-volume
