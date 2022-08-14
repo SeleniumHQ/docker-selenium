@@ -1,9 +1,8 @@
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
-# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.3.0-20220726
-LABEL authors=SeleniumHQ
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+FROM ${NAMESPACE}/base:${VERSION}
+LABEL authors=${AUTHORS}
 
 USER root
 

@@ -1,9 +1,9 @@
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
-# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-edge:4.3.0-20220726
-LABEL authors=SeleniumHQ
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+ARG BASE
+FROM ${NAMESPACE}/${BASE}:${VERSION}
+LABEL authors=${AUTHORS}
 
 USER 1200
 
