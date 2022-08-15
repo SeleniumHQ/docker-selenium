@@ -69,7 +69,7 @@ edge)
   EDGE_SHORT_VERSION="$(short_version ${EDGE_VERSION})"
   echo "Short Edge version -> "${EDGE_SHORT_VERSION}
 
-  EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $2}')
+  EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
   echo "EdgeDriver version -> "${EDGEDRIVER_VERSION}
   EDGEDRIVER_SHORT_VERSION="$(short_version ${EDGEDRIVER_VERSION})"
   echo "Short EdgeDriver version -> "${EDGEDRIVER_SHORT_VERSION}
