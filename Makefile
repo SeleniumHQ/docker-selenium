@@ -19,12 +19,16 @@ all: hub \
 	sessionqueue \
 	event_bus \
 	chrome \
+	chrome_beta \
 	edge \
 	firefox \
+	firefox_beta \
 	docker \
 	standalone_chrome \
+	standalone_chrome_beta \
 	standalone_edge \
 	standalone_firefox \
+	standalone_firefox_beta \
 	standalone_docker \
 	video
 
@@ -100,6 +104,9 @@ generate_chrome:
 chrome: node_base generate_chrome
 	cd ./NodeChrome && docker build $(BUILD_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
+chrome_beta: node_base generate_chrome
+	cd ./NodeChrome && docker build $(BUILD_ARGS) --build-arg CHROME_VERSION=google-chrome-beta -t $(NAME)/node-chrome:$(TAG_VERSION)-beta .
+
 generate_edge:
 	cd ./NodeEdge && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
@@ -111,6 +118,9 @@ generate_firefox:
 
 firefox: node_base generate_firefox
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+
+firefox_beta: node_base generate_firefox
+	cd ./NodeFirefox && docker build $(BUILD_ARGS) --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:$(TAG_VERSION)-beta .
 
 generate_docker:
 	cd ./NodeDocker && ./generate.sh $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
@@ -127,14 +137,26 @@ standalone_docker: docker generate_standalone_docker
 generate_standalone_firefox:
 	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
+generate_standalone_firefox_beta:
+	cd ./Standalone && ./generate.sh StandaloneFirefox node-firefox $(TAG_VERSION)-beta $(NAMESPACE) $(AUTHORS)
+
 standalone_firefox: firefox generate_standalone_firefox
 	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+
+standalone_firefox_beta: firefox generate_standalone_firefox_beta
+	cd ./StandaloneFirefox && docker build $(BUILD_ARGS) -t $(NAME)/standalone-firefox:$(TAG_VERSION)-beta .
 
 generate_standalone_chrome:
 	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
 
+generate_standalone_chrome_beta:
+	cd ./Standalone && ./generate.sh StandaloneChrome node-chrome $(TAG_VERSION)-beta $(NAMESPACE) $(AUTHORS)
+
 standalone_chrome: chrome generate_standalone_chrome
 	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
+
+standalone_chrome_beta: chrome generate_standalone_chrome_beta
+	cd ./StandaloneChrome && docker build $(BUILD_ARGS) -t $(NAME)/standalone-chrome:$(TAG_VERSION)-beta .
 
 generate_standalone_edge:
 	cd ./Standalone && ./generate.sh StandaloneEdge node-edge $(TAG_VERSION) $(NAMESPACE) $(AUTHORS)
@@ -391,8 +413,10 @@ test_video: video hub chrome firefox edge
 	build \
 	ci \
 	chrome \
+	chrome_beta \
 	edge \
 	firefox \
+	firefox_beta \
 	docker \
 	generate_all \
 	generate_hub \
@@ -407,8 +431,10 @@ test_video: video hub chrome firefox edge
 	generate_firefox \
 	generate_docker \
 	generate_standalone_chrome \
+	generate_standalone_chrome_beta \
 	generate_standalone_edge \
 	generate_standalone_firefox \
+	generate_standalone_firefox_beta \
 	generate_standalone_docker \
 	hub \
 	distributor \
@@ -419,8 +445,10 @@ test_video: video hub chrome firefox edge
 	node_base \
 	release \
 	standalone_chrome \
+	standalone_chrome_beta \
 	standalone_edge \
 	standalone_firefox \
+	standalone_firefox_beta \
 	standalone_docker \
 	tag_latest \
 	tag_and_push_browser_images \
