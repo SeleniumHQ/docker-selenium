@@ -279,12 +279,16 @@ release: tag_major_minor
 	@if ! docker images $(NAME)/event-bus | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/event-bus version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION)-beta; then echo "$(NAME)/node-chrome version $(TAG_VERSION)-beta is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION)-beta; then echo "$(NAME)/node-firefox version $(TAG_VERSION)-beta is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION)-beta; then echo "$(NAME)/standalone-chrome version $(TAG_VERSION)-beta is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION)-beta; then echo "$(NAME)/standalone-firefox version $(TAG_VERSION)-beta is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)/base:$(TAG_VERSION)
 	docker push $(NAME)/hub:$(TAG_VERSION)
@@ -295,12 +299,16 @@ release: tag_major_minor
 	docker push $(NAME)/event-bus:$(TAG_VERSION)
 	docker push $(NAME)/node-base:$(TAG_VERSION)
 	docker push $(NAME)/node-chrome:$(TAG_VERSION)
+	docker push $(NAME)/node-chrome:$(TAG_VERSION)-beta
 	docker push $(NAME)/node-edge:$(TAG_VERSION)
 	docker push $(NAME)/node-firefox:$(TAG_VERSION)
+	docker push $(NAME)/node-firefox:$(TAG_VERSION)-beta
 	docker push $(NAME)/node-docker:$(TAG_VERSION)
 	docker push $(NAME)/standalone-chrome:$(TAG_VERSION)
+	docker push $(NAME)/standalone-chrome:$(TAG_VERSION)-beta
 	docker push $(NAME)/standalone-edge:$(TAG_VERSION)
 	docker push $(NAME)/standalone-firefox:$(TAG_VERSION)
+	docker push $(NAME)/standalone-firefox:$(TAG_VERSION)-beta
 	docker push $(NAME)/standalone-docker:$(TAG_VERSION)
 	docker push $(NAME)/base:$(MAJOR)
 	docker push $(NAME)/hub:$(MAJOR)
