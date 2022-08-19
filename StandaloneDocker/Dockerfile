@@ -1,9 +1,8 @@
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
-# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-docker:4.4.0-20220812
-LABEL authors=SeleniumHQ
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+FROM ${NAMESPACE}/node-docker:${VERSION}
+LABEL authors=${AUTHORS}
 
 USER 1200
 

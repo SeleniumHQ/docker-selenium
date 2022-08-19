@@ -1,5 +1,8 @@
-#FROM local-seleniarm/node-base:4.0.0-20211018
-#LABEL authors=SeleniumHQ,sj26,jamesmortensen
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+FROM ${NAMESPACE}/node-base:${VERSION}
+LABEL authors=${AUTHORS}
 
 ARG TARGETARCH
 ARG TARGETVARIANT
