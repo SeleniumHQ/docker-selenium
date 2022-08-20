@@ -23,14 +23,32 @@ jobs:
     - name: Build the Dev/Beta Docker container images
       run: |
         VERSION=$SELENIUM_VERSION make \
+          chrome_dev firefox_dev edge_dev \
           chrome_beta firefox_beta edge_beta \
-          standalone_chrome_beta standalone_firefox_beta standalone_edge_beta
+          standalone_chrome_dev standalone_firefox_dev standalone_edge_dev \
+          standalone_chrome_beta standalone_firefox_beta standalone_edge_beta \
+          hub
 
-    - name: Test the Docker container images
+    - name: Make it easier to test the node beta images by tagging node-base and hub with beta/dev
       run: |
-        # Make it easier to build the node beta images by tagging node-base with beta
+        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:dev
         docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:beta
-        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeChrome
-        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeFirefox
-        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeEdge
-#        VERSION=beta NAMESPACE=$NAME ./tests/bootstrap.sh StandaloneChrome
+        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:dev
+        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:beta
+
+    - name: Test the Dev/Beta Docker container images
+      run: |
+        export NAMESPACE=$NAME
+        VERSION=dev ./tests/bootstrap.sh NodeChrome
+        VERSION=dev ./tests/bootstrap.sh NodeFirefox
+        VERSION=dev ./tests/bootstrap.sh NodeEdge
+        VERSION=beta ./tests/bootstrap.sh NodeChrome
+        VERSION=beta ./tests/bootstrap.sh NodeFirefox
+        VERSION=beta ./tests/bootstrap.sh NodeEdge
+        VERSION=dev ./tests/bootstrap.sh StandaloneChrome
+        VERSION=dev ./tests/bootstrap.sh StandaloneFirefox
+        VERSION=dev ./tests/bootstrap.sh StandaloneEdge
+        VERSION=beta ./tests/bootstrap.sh StandaloneChrome
+        VERSION=beta ./tests/bootstrap.sh StandaloneFirefox
+        VERSION=beta ./tests/bootstrap.sh StandaloneEdge
+
