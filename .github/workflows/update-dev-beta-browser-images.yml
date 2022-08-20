@@ -8,8 +8,8 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env: |
-        NAME: selenium
+    env:
+      NAME: selenium
 
     steps:
     - uses: actions/checkout@v3
