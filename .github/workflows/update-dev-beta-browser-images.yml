@@ -17,10 +17,14 @@ jobs:
       run: |
         export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
-        VERSION=$SELENIUM_VERSION make chrome_beta firefox_beta standalone_chrome_beta standalone_firefox_beta
+        VERSION=$SELENIUM_VERSION make \
+          chrome_beta firefox_beta edge_beta \
+          standalone_chrome_beta standalone_firefox_beta standalone_edge_beta
+
     - name: Test the Docker container images
       run: |
         NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeChrome
         NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeFirefox
+        NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeEdge
 #        VERSION=beta NAMESPACE=$NAME ./tests/bootstrap.sh StandaloneChrome
 
