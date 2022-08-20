@@ -70,7 +70,7 @@ edge: node_base
 firefox: node_base
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
-firefox_beta: node_base generate_firefox
+firefox_beta: node_base
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:beta .
 
 docker: base
