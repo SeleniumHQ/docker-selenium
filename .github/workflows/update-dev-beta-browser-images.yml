@@ -13,18 +13,24 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Dev/Beta Docker container images
+    - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
+        export BUILD_DATE=$(date '+%Y%m%d')
+        echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
+        
+    - name: Build the Dev/Beta Docker container images
+      run: |
         VERSION=$SELENIUM_VERSION make \
           chrome_beta firefox_beta edge_beta \
           standalone_chrome_beta standalone_firefox_beta standalone_edge_beta
 
     - name: Test the Docker container images
       run: |
-        NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeChrome
-        NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeFirefox
-        NAMESPACE=$NAME VERSION=$SELENIUM_VERSION ./tests/bootstrap.sh NodeEdge
+        # Make it easier to build the node beta images by tagging node-base with beta
+        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:beta
+        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeChrome
+        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeFirefox
+        NAMESPACE=$NAME VERSION=beta ./tests/bootstrap.sh NodeEdge
 #        VERSION=beta NAMESPACE=$NAME ./tests/bootstrap.sh StandaloneChrome
-
