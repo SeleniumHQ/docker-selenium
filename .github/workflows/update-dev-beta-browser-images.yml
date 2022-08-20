@@ -1,0 +1,24 @@
+name: Update Dev/Beta Browser Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    env: |
+        NAME: selenium
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Dev/Beta Docker container images
+      run: |
+        make chrome_beta firefox_beta standalone_chrome_beta standalone_firefox_beta
+    - name: Test the Docker container images
+      run: |
+        NAMESPACE=$NAME ./tests/bootstrap.sh NodeChrome
+        NAMESPACE=$NAME ./tests/bootstrap.sh NodeFirefox
+#        VERSION=beta NAMESPACE=$NAME ./tests/bootstrap.sh StandaloneChrome
+
