@@ -15,6 +15,8 @@ jobs:
         channel: [dev,beta]
     env:
       NAME: selenium
+      BROWSER: ${{ matrix.browser }}
+      CHANNEL: ${{ matrix.channel }}
 
     steps:
     - uses: actions/checkout@v3
@@ -32,9 +34,6 @@ jobs:
         docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
         
     - name: Build the Dev/Beta Docker container images
-      env:
-        BROWSER: ${{ matrix.browser }}
-        CHANNEL: ${{ matrix.channel }}
       run: |
         VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_$BROWSER_$CHANNEL
         # Need to check for an older Chromedriver by 1 major version vefore failing.
