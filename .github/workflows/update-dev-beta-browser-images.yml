@@ -26,6 +26,8 @@ jobs:
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
         export BUILD_DATE=$(date '+%Y%m%d')
         echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
+        echo "BROWSER is $BROWSER"
+        echo "CHANNEL is $CHANNEL"
 
     - name: Temporarily pull node-base as it is faster
       run: |
