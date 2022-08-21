@@ -42,7 +42,13 @@ USER 1200
 ARG CHROME_DRIVER_VERSION
 RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
   then CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
-    && CHROME_DRIVER_VERSION=$(wget --no-verbose -O - "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"); \
+    && NO_SUCH_KEY=`curl -ls https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | head -n 1 | grep -oe NoSuchKey` \
+    && if [ -z "$NO_SUCH_KEY" ]; then \
+      && CHROME_DRIVER_VERSION=$(wget --no-verbose -O - "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"); \
+    else \
+      && echo "No Chromedriver for version $CHROME_DRIVER_VERSION. Use previous major version instead" \
+      && CHROME_DRIVER_VERSION=$(expr $CHROME_MAJOR_VERSION - 1); \
+    fi \
   fi \
   && echo "Using chromedriver version: "$CHROME_DRIVER_VERSION \
   && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \

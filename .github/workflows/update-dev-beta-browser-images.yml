@@ -8,6 +8,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix:
+        browser: [chrome,firefox,edge]
+        channel: [dev,beta]
     env:
       NAME: selenium
 
@@ -19,36 +24,30 @@ jobs:
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
         export BUILD_DATE=$(date '+%Y%m%d')
         echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
+
+    - name: Temporarily pull node-base as it is faster
+      run: |
+        docker pull $NAME/node-base:latest
+        docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
+        docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
         
     - name: Build the Dev/Beta Docker container images
+      env:
+        BROWSER: ${{ matrix.browser }}
+        CHANNEL: ${{ matrix.channel }}
       run: |
-        VERSION=$SELENIUM_VERSION make \
-          chrome_dev firefox_dev edge_dev \
-          chrome_beta firefox_beta edge_beta \
-          standalone_chrome_dev standalone_firefox_dev standalone_edge_dev \
-          standalone_chrome_beta standalone_firefox_beta standalone_edge_beta \
-          hub
+        VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_$BROWSER_$CHANNEL
+        # Need to check for an older Chromedriver by 1 major version vefore failing.
 
-    - name: Make it easier to test the node beta images by tagging node-base and hub with beta/dev
+    - name: Make it easier to test the node dev/beta images by tagging node-base and hub with dev/beta
       run: |
-        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:dev
-        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:beta
-        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:dev
-        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:beta
+        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:$CHANNEL
+        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:$CHANNEL
 
     - name: Test the Dev/Beta Docker container images
       run: |
         export NAMESPACE=$NAME
-        VERSION=dev ./tests/bootstrap.sh NodeChrome
-        VERSION=dev ./tests/bootstrap.sh NodeFirefox
-        VERSION=dev ./tests/bootstrap.sh NodeEdge
-        VERSION=beta ./tests/bootstrap.sh NodeChrome
-        VERSION=beta ./tests/bootstrap.sh NodeFirefox
-        VERSION=beta ./tests/bootstrap.sh NodeEdge
-        VERSION=dev ./tests/bootstrap.sh StandaloneChrome
-        VERSION=dev ./tests/bootstrap.sh StandaloneFirefox
-        VERSION=dev ./tests/bootstrap.sh StandaloneEdge
-        VERSION=beta ./tests/bootstrap.sh StandaloneChrome
-        VERSION=beta ./tests/bootstrap.sh StandaloneFirefox
-        VERSION=beta ./tests/bootstrap.sh StandaloneEdge
-
+        $BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)"` $BROWSER
+        VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
+        VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
+        
