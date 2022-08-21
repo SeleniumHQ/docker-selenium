@@ -14,7 +14,7 @@ jobs:
         browser: [chrome,firefox,edge]
         channel: [dev,beta]
     env:
-      NAME: selenium
+      NAME: jamesmortensen1
       BROWSER: ${{ matrix.browser }}
       CHANNEL: ${{ matrix.channel }}
 
@@ -48,8 +48,19 @@ jobs:
         
     - name: Test the Dev/Beta Docker container images
       run: |
+        export SKIP_BUILD=true
         export NAMESPACE=$NAME
         export BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
         VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
         VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
-        
+
+    - name: Login Docker Hub
+      run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      env:
+        DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}  
+
+    - name: Deploy Dev/Beta Docker container images  
+      run: |
+        docker push $NAME/node-$BROWSER:$CHANNEL
+        docker push $NAME/standalone-$BROWSER:$CHANNEL
