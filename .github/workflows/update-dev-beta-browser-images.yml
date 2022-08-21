@@ -40,11 +40,12 @@ jobs:
         echo VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_"$BROWSER"_"$CHANNEL"
         VERSION=$SELENIUM_VERSION make hub "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
 
-    - name: Make it easier to test the node dev/beta images by tagging node-base and hub with dev/beta
+    - name: Make it easier to test the node dev/beta images by tagging base, node-base and hub with dev/beta
       run: |
-        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:$CHANNEL
+        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/base:$CHANNEL
         docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:$CHANNEL
-
+        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:$CHANNEL
+        
     - name: Test the Dev/Beta Docker container images
       run: |
         export NAMESPACE=$NAME
