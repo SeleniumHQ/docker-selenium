@@ -48,7 +48,7 @@ jobs:
     - name: Test the Dev/Beta Docker container images
       run: |
         export NAMESPACE=$NAME
-        $BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)"` $BROWSER
+        $BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
         VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
         VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
         
