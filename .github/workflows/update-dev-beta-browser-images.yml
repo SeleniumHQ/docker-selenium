@@ -37,8 +37,8 @@ jobs:
         
     - name: Build the Dev/Beta Docker container images
       run: |
+        echo "VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_$BROWSER_$CHANNEL"
         VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_$BROWSER_$CHANNEL
-        # Need to check for an older Chromedriver by 1 major version vefore failing.
 
     - name: Make it easier to test the node dev/beta images by tagging node-base and hub with dev/beta
       run: |
