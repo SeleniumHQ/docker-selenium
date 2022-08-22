@@ -22,6 +22,7 @@ RUN_IN_DOCKER_COMPOSE = os.environ.get('RUN_IN_DOCKER_COMPOSE')
 http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
+SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
 
 IMAGE_NAME_MAP = {
     # Hub
@@ -108,15 +109,19 @@ def launch_container(container, **kwargs):
     :param container:
     :return: the container ID
     """
-    # Build the container if it doesn't exist
-    logger.info("Building %s container..." % container)
-    set_from_image_base_for_standalone(container)
-    build_path = get_build_path(container)
-    client.images.build(path='../%s' % build_path,
-                        tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                        rm=True,
-                        buildargs=FROM_IMAGE_ARGS)
-    logger.info("Done building %s" % container)
+    skip_building_images = SKIP_BUILD == 'true'
+    if skip_building_images:
+        logger.info("SKIP_BUILD is true...not rebuilding images...")
+    else:
+        # Build the container if it doesn't exist
+        logger.info("Building %s container..." % container)
+        set_from_image_base_for_standalone(container)
+        build_path = get_build_path(container)
+        client.images.build(path='../%s' % build_path,
+                            tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                            rm=True,
+                            buildargs=FROM_IMAGE_ARGS)
+        logger.info("Done building %s" % container)
 
     # Run the container
     logger.info("Running %s container..." % container)
