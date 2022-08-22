@@ -2,10 +2,13 @@ name: Update Dev/Beta Browser Images
 
 on:
   workflow_dispatch:
+  schedule:
+    # Trigger build every 2 days
+    - cron: '0 2 */2 * *'
 
 jobs:
 
-  build:
+  deploy:
 
     runs-on: ubuntu-latest
     strategy: 
@@ -14,7 +17,7 @@ jobs:
         browser: [chrome,firefox,edge]
         channel: [dev,beta]
     env:
-      NAME: selenium
+      NAME: jamesmortensen1
       BROWSER: ${{ matrix.browser }}
       CHANNEL: ${{ matrix.channel }}
 
@@ -26,6 +29,10 @@ jobs:
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
         export BUILD_DATE=$(date '+%Y%m%d')
         echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
+        export BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
+        echo "BROWSER_CAPS="$BROWSER_CAPS >> $GITHUB_ENV
+        export CHANNEL_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $CHANNEL`
+        echo "CHANNEL_CAPS="$CHANNEL_CAPS >> $GITHUB_ENV
         echo "BROWSER is $BROWSER"
         echo "CHANNEL is $CHANNEL"
         echo "SELENIUM_VERSION is $SELENIUM_VERSION"
@@ -49,7 +56,6 @@ jobs:
       run: |
         export SKIP_BUILD=true
         export NAMESPACE=$NAME
-        export BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
         VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
         VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
 
@@ -74,7 +80,7 @@ jobs:
           export BROWSER_VERSION_COMMAND="microsoft-edge -version"
         fi
         echo "Push to Docker Hub completed"
-        echo "$BROWSER $CHANNEL version:"
+        echo "$BROWSER_CAPS $CHANNEL_CAPS browser version:"
         docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$BROWSER_VERSION_COMMAND"
-        echo "$BROWSER $CHANNEL WebDriver version:"
+        echo "$BROWSER_CAPS $CHANNEL_CAPS WebDriver version:"
         docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$DRIVER_VERSION_COMMAND"
