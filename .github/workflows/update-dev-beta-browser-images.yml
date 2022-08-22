@@ -1,6 +1,7 @@
 name: Update Dev/Beta Browser Images
 
 on:
+  workflow_dispatch:
   schedule:
     # Trigger build every 2 days
     - cron: '0 2 */2 * *'
