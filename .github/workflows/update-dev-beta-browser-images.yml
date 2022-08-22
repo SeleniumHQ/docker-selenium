@@ -29,22 +29,25 @@ jobs:
         echo "BROWSER is $BROWSER"
         echo "CHANNEL is $CHANNEL"
 
-    - name: Temporarily pull node-base as it is faster
+    - name: Pull hub and node-base and tag them for faster building and testing
       run: |
+        docker pull $NAME/hub:latest
         docker pull $NAME/node-base:latest
+        docker tag $NAME/hub:latest $NAME/hub:$CHANNEL
         docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
-        docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
+        docker tag $NAME/hub:latest $NAME/hub:"$SELENIUM_VERSION"-"$BUILD_DATE"
+        docker tag $NAME/node-base:latest $NAME/node-base:"$SELENIUM_VERSION"-"$BUILD_DATE"
         
     - name: Build the Dev/Beta Docker container images
       run: |
-        echo VERSION=$SELENIUM_VERSION make hub $BROWSER_$CHANNEL standalone_"$BROWSER"_"$CHANNEL"
-        VERSION=$SELENIUM_VERSION make hub "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
+        echo VERSION=$SELENIUM_VERSION make $BROWSER_$CHANNEL standalone_"$BROWSER"_"$CHANNEL"
+        VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
 
-    - name: Make it easier to test the node dev/beta images by tagging base, node-base and hub with dev/beta
-      run: |
-        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/base:$CHANNEL
-        docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:$CHANNEL
-        docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:$CHANNEL
+    # - name: Make it easier to test the node dev/beta images by tagging base, node-base and hub with dev/beta
+    #   run: |
+    #     # docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/base:$CHANNEL
+    #     # docker tag $NAME/hub:$SELENIUM_VERSION-$BUILD_DATE $NAME/hub:$CHANNEL
+    #     # docker tag $NAME/node-base:$SELENIUM_VERSION-$BUILD_DATE $NAME/node-base:$CHANNEL
         
     - name: Test the Dev/Beta Docker container images
       run: |
@@ -64,3 +67,18 @@ jobs:
       run: |
         docker push $NAME/node-$BROWSER:$CHANNEL
         docker push $NAME/standalone-$BROWSER:$CHANNEL
+        if [ "$BROWSER" = "firefox" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/geckodriver --version"
+          export BROWSER_VERSION_COMMAND="firefox -version"
+        elif [ "$BROWSER" = "chrome" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/chromedriver -version"
+          export BROWSER_VERSION_COMMAND="google-chrome -version"
+        elif [ "$BROWSER" = "edge" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/msedgedriver -version"
+          export BROWSER_VERSION_COMMAND="microsoft-edge -version"
+        fi
+        echo "Push to Docker Hub completed"
+        echo "$BROWSER $CHANNEL version:"
+        docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$BROWSER_VERSION_COMMAND"
+        echo "$BROWSER $CHANNEL WebDriver version:"
+        docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$DRIVER_VERSION_COMMAND"
