@@ -28,6 +28,8 @@ jobs:
         echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
         echo "BROWSER is $BROWSER"
         echo "CHANNEL is $CHANNEL"
+        echo "SELENIUM_VERSION is $SELENIUM_VERSION"
+        echo "BUILD_DATE is $BUILD_DATE"
 
     - name: Pull hub and node-base and tag them for faster building and testing
       run: |
@@ -41,7 +43,7 @@ jobs:
     - name: Build the Dev/Beta Docker container images
       run: |
         echo VERSION=$SELENIUM_VERSION make $BROWSER_$CHANNEL standalone_"$BROWSER"_"$CHANNEL"
-        VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
+        VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"        
 
     # - name: Make it easier to test the node dev/beta images by tagging base, node-base and hub with dev/beta
     #   run: |

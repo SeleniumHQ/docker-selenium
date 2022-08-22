@@ -61,28 +61,28 @@ node_base: base
 chrome: node_base
 	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
-chrome_dev: node_base
+chrome_dev:
 	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-unstable -t $(NAME)/node-chrome:dev .
 
-chrome_beta: node_base
+chrome_beta:
 	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-beta -t $(NAME)/node-chrome:beta .
 
 edge: node_base
 	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
 
-edge_dev: node_base
+edge_dev:
 	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-dev -t $(NAME)/node-edge:dev .
 
-edge_beta: node_base
+edge_beta:
 	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-beta -t $(NAME)/node-edge:beta .
 
 firefox: node_base
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
-firefox_dev: node_base
+firefox_dev:
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=devedition-latest -t $(NAME)/node-firefox:dev .
 
-firefox_beta: node_base
+firefox_beta:
 	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:beta .
 
 docker: base
