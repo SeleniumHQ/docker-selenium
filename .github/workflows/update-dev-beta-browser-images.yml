@@ -70,7 +70,7 @@ jobs:
         docker push $NAME/node-$BROWSER:$CHANNEL
         docker push $NAME/standalone-$BROWSER:$CHANNEL
         if [ "$BROWSER" = "firefox" ]; then
-          export DRIVER_VERSION_COMMAND="/usr/bin/geckodriver --version"
+          export DRIVER_VERSION_COMMAND="/usr/bin/geckodriver --version | head -n 1"
           export BROWSER_VERSION_COMMAND="firefox -version"
         elif [ "$BROWSER" = "chrome" ]; then
           export DRIVER_VERSION_COMMAND="/usr/bin/chromedriver -version"
