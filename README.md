@@ -783,10 +783,12 @@ In some cases, for example if you want to tag a node, it might be necessary to s
 sets the stereotype entry in the node's `config.toml`. An example config.toml file can be found here: [Setting custom capabilities for matching specific Nodes](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes).
 
 Here is an example with the default values of these environment variables:
-
 ```bash
-$ docker run -d -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> -e SE_EVENT_BUS_PUBLISH_PORT=4442 \ 
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size="2g" selenium/node-chrome:4.4.0-20220812
+$ docker run -d \
+  -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
+  -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\",\"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\",\"platformName\": \"Linux\"}" \
+  --shm-size="2g" selenium/node-chrome:4.4.0-20220812
 ```
 
 ### Setting Screen Resolution
