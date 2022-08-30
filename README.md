@@ -779,6 +779,9 @@ In both cases, it is necessary to tell the Node where the Event Bus is, so it ca
 the purpose of the `SE_EVENT_BUS_HOST`, `SE_EVENT_BUS_PUBLISH_PORT` and `SE_EVENT_BUS_SUBSCRIBE_PORT` environment
 variables.
 
+In some cases, for example if you want to tag a node, it might be necessary to supply a custom stereotype to the node config. The environement variable `SE_NODE_STEREOTYPE`
+sets the stereotype entry in the node's `config.toml`. An example config.toml file can be found here: [Setting custom capabilities for matching specific Nodes](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes).
+
 Here is an example with the default values of these environment variables:
 
 ```bash
