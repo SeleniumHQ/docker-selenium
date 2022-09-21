@@ -15,6 +15,7 @@ spec:
   type: {{ .Values.chromeNode.service.type }}
   selector:
     app: selenium-chrome-node
+    app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - name: tcp-chrome
       protocol: TCP

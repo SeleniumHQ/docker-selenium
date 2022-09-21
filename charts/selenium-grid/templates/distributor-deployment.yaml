@@ -16,6 +16,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-distributor
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *distributor_labels

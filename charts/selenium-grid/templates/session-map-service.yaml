@@ -16,6 +16,7 @@ metadata:
 spec:
   selector:
     app: selenium-session-map
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.sessionMap.serviceType }}
   ports:
     - name: tcp-ssn-map
