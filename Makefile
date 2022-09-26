@@ -135,8 +135,15 @@ all_multi: base_multi \
     hub_multi \
 	chromium_multi \
 	firefox_multi \
+        docker_multi \
 	standalone_chromium_multi \
-	standalone_firefox_multi
+	standalone_firefox_multi \
+        standalone_docker_multi \
+        distributor_multi \
+	router_multi \
+	sessions_multi \
+	sessionqueue_multi \
+	event_bus_multi \
 
 build_multi: all_multi
 
@@ -147,6 +154,21 @@ base_multi: qemu_user_static
 
 hub_multi: base_multi
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+
+distributor_multi:
+        cd ./Distributor && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+
+router_multi:
+        cd ./Router && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+
+sessions_multi:
+        cd ./Sessions && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+
+sessionqueue_multi:
+        cd ./SessionQueue && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+
+event_bus_multi: base_multi
+	cd ./EventBus && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
 
 node_base_multi: base_multi
 	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
