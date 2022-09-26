@@ -165,10 +165,10 @@ sessions_multi:
         cd ./Sessions && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue_multi:
-        cd ./SessionQueue && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+        cd ./SessionQueue && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 event_bus_multi: base_multi
-	cd ./EventBus && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+	cd ./EventBus && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
 
 node_base_multi: base_multi
 	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
@@ -179,11 +179,17 @@ chromium_multi: node_base_multi
 firefox_multi: node_base_multi
 	cd ./NodeFirefox && docker buildx build -f Dockerfile.arm64 --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
+docker_multi: base_multi
+        cd ./NodeDocker && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
+
 standalone_firefox_multi: firefox_multi
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 standalone_chromium_multi: chromium_multi
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
+
+standalone_docker_multi: docker_multi
+        cd ./StandaloneDocker && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
