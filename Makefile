@@ -128,9 +128,8 @@ video:
 qemu_user_static:
 	docker run --rm --privileged aptman/qus -- -r ; \
 	docker run --rm --privileged aptman/qus -s -- -p
-	#docker run --rm --privileged -v /home/debian/qemu-binfmt/qemu-binfmt-conf.sh:/qus/qemu-binfmt-conf.sh  aptman/qus -s -- -p
 
-# Generate and build multi-arch images
+# Build multi-arch images
 all_multi: base_multi \
     hub_multi \
 	chromium_multi \
@@ -156,19 +155,19 @@ hub_multi: base_multi
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
 distributor_multi:
-        cd ./Distributor && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
 
 router_multi:
-        cd ./Router && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
 
 sessions_multi:
-        cd ./Sessions && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue_multi:
-        cd ./SessionQueue && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
+	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 event_bus_multi: base_multi
-	cd ./EventBus && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
+	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
 
 node_base_multi: base_multi
 	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
@@ -180,7 +179,7 @@ firefox_multi: node_base_multi
 	cd ./NodeFirefox && docker buildx build -f Dockerfile.arm64 --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 docker_multi: base_multi
-        cd ./NodeDocker && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
+	cd ./NodeDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
 
 standalone_firefox_multi: firefox_multi
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
@@ -189,7 +188,7 @@ standalone_chromium_multi: chromium_multi
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
 standalone_docker_multi: docker_multi
-        cd ./StandaloneDocker && docker buildx build --platform linux/arm64,linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
+	cd ./StandaloneDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
