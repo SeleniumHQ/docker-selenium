@@ -94,6 +94,7 @@ RUN apt-get -qqy update \
 ########################################
 # Download https://github.com/novnc/noVNC dated 2021-03-30 commit 84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0
 # Download https://github.com/novnc/websockify dated 2021-03-22 commit c5d365dd1dbfee89881f1c1c02a2ac64838d645f
+# Install procps as noVNC's launch.sh depends on it to launch websockify properly
 ENV NOVNC_SHA="84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0" \
     WEBSOCKIFY_SHA="c5d365dd1dbfee89881f1c1c02a2ac64838d645f"
 RUN  wget -nv -O noVNC.zip \
@@ -107,7 +108,11 @@ RUN  wget -nv -O noVNC.zip \
   && unzip -x websockify.zip \
   && rm websockify.zip \
   && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
-  && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
+  && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify \
+  && apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install procps \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get -qqy clean
 
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
