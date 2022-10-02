@@ -45,7 +45,11 @@ spec:
     - http:
       {{- end }}
         paths:
+            {{- if $.Values.ingress.path }}
+          - path: {{ .Values.ingress.path }}
+            {{- else }}
           - path: /
+            {{- end }}  
             pathType: Prefix
             backend:
               service:

@@ -22,6 +22,7 @@ ingress:
   hostname: selenium-grid.local
   # TLS backend configuration for ingress resource
   tls: []
+  path: /
 
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
@@ -258,6 +259,8 @@ hub:
     successThreshold: 1
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--log-level INFO --structured-logs true --http-logs true --plain-logs false"
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name: SECRET_VARIABLE
@@ -335,6 +338,24 @@ chromeNode:
     #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
+    - name: LOG_FILE_NAME
+      value: /tmp/chrome.log
+    - name: SE_OPTS
+      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
+    - name: SE_JAVA_OPTS
+      value: -Dwebdriver.chrome.logfile=$(LOG_FILE_NAME) -Dwebdriver.chrome.verboseLogging=true
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: UPLOAD_TO_S3
+      value: "false"
+    - name: S3_VIDEOS_BUCKET
+      value: s3://selenium-grid/videos/
+    - name: S3_LOGS_BUCKET
+      value: s3://selenium-grid/logs/
+    - name: S3_FULL_LOGS_BUCKET
+      value: s3://selenium-grid/fulllogs/
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -357,7 +378,7 @@ chromeNode:
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  dshmVolumeSizeLimit: 2Gi
   # Priority class name for chrome-node pods
   priorityClassName: ""
 
@@ -369,17 +390,17 @@ chromeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -391,6 +412,17 @@ chromeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+
+  automountServiceAccountToken: false
+  serviceAccount: ""
+
+  # Keda scaled object configuration
+  maxReplicaCount: 8
+  hpa:
+    url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here
+    browserName: chrome
+    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
+    unsafeSsl : 'true' # Optional
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -441,6 +473,28 @@ firefoxNode:
     #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
+    - name: LOG_FILE_NAME
+      value: /tmp/firefox.log
+    - name: SE_OPTS
+      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
+    - name: SE_JAVA_OPTS
+      value: -Dwebdriver.firefox.logfile=$(LOG_FILE_NAME)
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name    
+    - name: UPLOAD_TO_S3
+      value: "false"
+    - name: S3_VIDEOS_BUCKET
+      value: s3://selenium-grid/videos/
+    - name: S3_LOGS_BUCKET
+      value: s3://selenium-grid/logs/
+    - name: S3_FULL_LOGS_BUCKET
+      value: s3://selenium-grid/fulllogs/
+    # - name: MOZ_LOG
+    #   value: raw,timestamp,nsHttp:5 #,cache2:5,nsSocketTransport:5,nsHostResolver:5,cookie:5
+    # - name: MOZ_LOG_FILE
+    #   value: /tmp/firefox_network
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -463,7 +517,7 @@ firefoxNode:
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  dshmVolumeSizeLimit: 2Gi
   # Priority class name for firefox-node pods
   priorityClassName: ""
 
@@ -475,17 +529,17 @@ firefoxNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -497,6 +551,13 @@ firefoxNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  automountServiceAccountToken: false
+  serviceAccount: ""
+  # Keda scaled object configuration
+  maxReplicaCount: 8
+  hpa:
+    url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here
+    browserName: firefox
 
 # Configuration for edge nodes
 edgeNode:
@@ -546,8 +607,24 @@ edgeNode:
     #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-    # - name: SE_JAVA_OPTS
-    #   value: "-Xmx512m"
+    - name: LOG_FILE_NAME
+      value: /tmp/edge.log
+    - name: SE_OPTS
+      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
+    - name: SE_JAVA_OPTS
+      value: -Dwebdriver.edge.logfile=$(LOG_FILE_NAME) -Dwebdriver.edge.verboseLogging=true
+    - name: POD_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+    - name: UPLOAD_TO_S3
+      value: "false"
+    - name: S3_VIDEOS_BUCKET
+      value: s3://selenium-grid/videos/
+    - name: S3_LOGS_BUCKET
+      value: s3://selenium-grid/logs/
+    - name: S3_FULL_LOGS_BUCKET
+      value: s3://selenium-grid/fulllogs/
     # - name:
     #   valueFrom:
     #     secretKeyRef:
@@ -569,7 +646,7 @@ edgeNode:
     annotations:
       hello: world
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  dshmVolumeSizeLimit: 2Gi
   # Priority class name for edge-node pods
   priorityClassName: ""
 
@@ -581,17 +658,17 @@ edgeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -603,6 +680,13 @@ edgeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  automountServiceAccountToken: false
+  serviceAccount: ""
+  # Keda scaled object configuration
+  maxReplicaCount: 8
+  hpa:
+    url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here
+    browserName: MicrosoftEdge
 
 # Custom labels for k8s resources
 customLabels: {}

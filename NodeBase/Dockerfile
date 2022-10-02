@@ -53,6 +53,15 @@ RUN apt-get update -qqy \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+#=========
+# ffmpeg
+# A fast, lightweight and responsive window manager
+#=========
+RUN apt-get update -qqy \
+  && apt-get -qqy install \
+    ffmpeg \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
 #================
 # Font libraries
 #================
@@ -109,6 +118,13 @@ RUN  wget -nv -O noVNC.zip \
   && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
   && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
 
+#===================================================
+# Install aws cli
+#===================================================
+RUN wget -O awscliv2.zip "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"\
+  && unzip awscliv2.zip \
+  && sudo ./aws/install
+
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
 #=========================================================================================================================================
@@ -125,6 +141,8 @@ USER 1200
 #==============================
 COPY start-selenium-node.sh \
       start-xvfb.sh \
+      start-video-recorder.sh \
+      start-s3-uploader.sh \
       /opt/bin/
 
 #==============================
@@ -180,8 +198,13 @@ ENV GENERATE_CONFIG true
 # Drain the Node after N sessions. 
 # A value higher than zero enables the feature
 ENV SE_DRAIN_AFTER_SESSION_COUNT 0
-
-
+ENV DISPLAY_CONTAINER_NAME ""
+ENV SE_SCREEN_WIDTH 1360
+ENV SE_SCREEN_HEIGHT 1020
+ENV SE_FRAME_RATE 15
+ENV SE_CODEC libx264
+ENV SE_PRESET "-preset ultrafast"
+ENV FILE_NAME video.mp4
 
 #========================
 # Selenium Configuration

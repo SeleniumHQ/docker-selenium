@@ -28,6 +28,12 @@ spec:
           {{ toYaml . | nindent 8 }}
         {{- end }}
     spec:
+    {{- if .Values.firefoxNode.automountServiceAccountToken }}
+      automountServiceAccountToken: {{ .Values.firefoxNode.automountServiceAccountToken }}
+    {{- end }}
+    {{- if .Values.firefoxNode.serviceAccount }}
+      serviceAccount: {{ .Values.firefoxNode.serviceAccount }}
+    {{- end }}
     {{- with .Values.firefoxNode.hostAliases }}
       hostAliases: {{ toYaml . | nindent 8 }}
     {{- end }}
