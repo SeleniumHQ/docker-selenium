@@ -38,7 +38,7 @@ The hpa.url value is configured to work for grid installed in `default` namespac
 To enable video recording you can set `RECORD_VIDEO` env variable in the browser node container to `"true"`. You can specify the location to store the recorded video using `VIDEO_LOCATION` env variable. The videos will have name format of `<session id>.mp4`.
 
 ## Upload recorded videos to AWS S3
-If you have enabled video recording, you can also enable uploading them to S3 by setting `UPLOAD_TO_S3` env variable to `"true"`. You can specify the S3 bucket in 'S3_VIDEOS_BUCKET' env variable.
+If you have enabled video recording, you can also enable uploading them to S3 by setting `UPLOAD_TO_S3` env variable to `"true"`. You can specify the S3 bucket in 'S3_VIDEOS_BUCKET' env variable. You can specify your AWS credentials directly using the `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and 'AWS_DEFAULT_REGION' env variables. If you use [IRSA](https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html) based authentication, you can specify the service account using `serviceAccount` variable in the charts.
 
 ## Updating Selenium-Grid release
 
