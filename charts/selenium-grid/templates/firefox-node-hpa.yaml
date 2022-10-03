@@ -1,4 +1,4 @@
-{{- if .Values.firefoxNode.enabled }}
+{{- if and .Values.firefoxNode.enabled .Values.firefoxNode.autoscalingEnabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:

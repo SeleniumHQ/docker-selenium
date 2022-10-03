@@ -1,4 +1,4 @@
-{{- if .Values.chromeNode.enabled }}
+{{- if and .Values.chromeNode.enabled .Values.chromeNode.autoscalingEnabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:

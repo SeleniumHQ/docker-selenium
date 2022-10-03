@@ -338,24 +338,16 @@ chromeNode:
     #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
-    - name: LOG_FILE_NAME
-      value: /tmp/chrome.log
-    - name: SE_OPTS
-      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
-    - name: SE_JAVA_OPTS
-      value: -Dwebdriver.chrome.logfile=$(LOG_FILE_NAME) -Dwebdriver.chrome.verboseLogging=true
-    - name: POD_NAME
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name
+    - name: VIDEO_LOCATION
+      value: /tmp
+    - name: RECORD_VIDEO
+      value: "false"
     - name: UPLOAD_TO_S3
       value: "false"
     - name: S3_VIDEOS_BUCKET
       value: s3://selenium-grid/videos/
-    - name: S3_LOGS_BUCKET
-      value: s3://selenium-grid/logs/
-    - name: S3_FULL_LOGS_BUCKET
-      value: s3://selenium-grid/fulllogs/
+    # - name: SE_OPTS
+    #   value: "--log-level OFF"
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -417,6 +409,7 @@ chromeNode:
   serviceAccount: ""
 
   # Keda scaled object configuration
+  autoscalingEnabled: false
   maxReplicaCount: 8
   hpa:
     url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here
@@ -473,24 +466,16 @@ firefoxNode:
     #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
-    - name: LOG_FILE_NAME
-      value: /tmp/firefox.log
-    - name: SE_OPTS
-      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
-    - name: SE_JAVA_OPTS
-      value: -Dwebdriver.firefox.logfile=$(LOG_FILE_NAME)
-    - name: POD_NAME
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name    
+    - name: VIDEO_LOCATION
+      value: /tmp
+    - name: RECORD_VIDEO
+      value: "false"
     - name: UPLOAD_TO_S3
       value: "false"
     - name: S3_VIDEOS_BUCKET
       value: s3://selenium-grid/videos/
-    - name: S3_LOGS_BUCKET
-      value: s3://selenium-grid/logs/
-    - name: S3_FULL_LOGS_BUCKET
-      value: s3://selenium-grid/fulllogs/
+    # - name: SE_OPTS
+    #   value: "--log-level OFF"
     # - name: MOZ_LOG
     #   value: raw,timestamp,nsHttp:5 #,cache2:5,nsSocketTransport:5,nsHostResolver:5,cookie:5
     # - name: MOZ_LOG_FILE
@@ -554,6 +539,7 @@ firefoxNode:
   automountServiceAccountToken: false
   serviceAccount: ""
   # Keda scaled object configuration
+  autoscalingEnabled: false
   maxReplicaCount: 8
   hpa:
     url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here
@@ -607,24 +593,16 @@ edgeNode:
     #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-    - name: LOG_FILE_NAME
-      value: /tmp/edge.log
-    - name: SE_OPTS
-      value: "--log-level OFF --structured-logs true --http-logs true --plain-logs false"
-    - name: SE_JAVA_OPTS
-      value: -Dwebdriver.edge.logfile=$(LOG_FILE_NAME) -Dwebdriver.edge.verboseLogging=true
-    - name: POD_NAME
-      valueFrom:
-        fieldRef:
-          fieldPath: metadata.name
+    - name: VIDEO_LOCATION
+      value: /tmp
+    - name: RECORD_VIDEO
+      value: "false"
     - name: UPLOAD_TO_S3
       value: "false"
     - name: S3_VIDEOS_BUCKET
       value: s3://selenium-grid/videos/
-    - name: S3_LOGS_BUCKET
-      value: s3://selenium-grid/logs/
-    - name: S3_FULL_LOGS_BUCKET
-      value: s3://selenium-grid/fulllogs/
+    # - name: SE_OPTS
+    #   value: "--log-level OFF"
     # - name:
     #   valueFrom:
     #     secretKeyRef:
@@ -683,6 +661,7 @@ edgeNode:
   automountServiceAccountToken: false
   serviceAccount: ""
   # Keda scaled object configuration
+  autoscalingEnabled: false
   maxReplicaCount: 8
   hpa:
     url: http://selenium-hub.default:4444/graphql # Repalce your http graphql url here

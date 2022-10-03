@@ -1,4 +1,4 @@
-{{- if .Values.edgeNode.enabled }}
+{{- if and .Values.edgeNode.enabled .Values.edgeNode.autoscalingEnabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
