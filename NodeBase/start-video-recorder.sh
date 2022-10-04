@@ -32,23 +32,23 @@ then
 		echo $session_id
 		if [ $session_id != "null" -a $session_id != "" ] && [ $recording_started = "false" ];
 		then
-			echo 'Starting to record video'
+			echo "Starting to record video"
 			video_file_name="${VIDEO_LOCATION}/$session_id.mp4"
 			ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file_name &
 			recording_started="true"
-			echo 'Video recording started'
+			echo "Video recording started"
 		elif [ $session_id = "null" -o $session_id = "" ] && [ $recording_started = "true" ];
 		then
-			echo 'Stopping to record video'
+			echo "Stopping to record video"
 			pkill --signal INT ffmpeg
     	./opt/bin/start-s3-uploader.sh $video_file_name &
 			recording_started="false"
-			echo 'Video recording stopped'
+			echo "Video recording stopped"
 		elif [ $recording_started = "true" ];
 		then
-			echo 'Video recording in progress'
+			echo "Video recording in progress"
 		else
-			echo 'No session in progress'
+			echo "No session in progress"
 		fi
 		sleep 1
 	done
