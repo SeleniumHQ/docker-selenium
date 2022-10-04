@@ -41,13 +41,7 @@ then
 		then
 			echo 'Stopping to record video'
 			pkill --signal INT ffmpeg
-			export VIDEO_FILE_NAME=$video_file_name
-			if [ ${UPLOAD_TO_S3} = "true" ];
-			then
-				./opt/bin/start-s3-uploader.sh &
-			else
-				echo 'Uploading to s3 disabled'
-			fi
+    	./opt/bin/start-s3-uploader.sh $video_file_name &
 			recording_started="false"
 			echo 'Video recording stopped'
 		elif [ $recording_started = "true" ];
