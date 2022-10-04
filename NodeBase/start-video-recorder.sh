@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [ ${RECORD_VIDEO} = "true" ];
+if [ "${RECORD_VIDEO}" = "true" ];
 then 
 	VIDEO_SIZE="${SE_SCREEN_WIDTH}""x""${SE_SCREEN_HEIGHT}"
 	DISPLAY_CONTAINER_NAME=${DISPLAY_CONTAINER_NAME}

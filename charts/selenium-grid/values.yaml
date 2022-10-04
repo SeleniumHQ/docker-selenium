@@ -392,7 +392,7 @@ chromeNode:
           - -c
           - |
             curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
+            while curl 127.0.0.1:5555/status || pidof -x "start-s3-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -524,7 +524,7 @@ firefoxNode:
           - -c
           - |
             curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
+            while curl 127.0.0.1:5555/status || pidof -x "start-s3-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -646,7 +646,7 @@ edgeNode:
           - -c
           - |
             curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-            while curl 127.0.0.1:5555/status; do sleep 1; done; sleep 30;
+            while curl 127.0.0.1:5555/status || pidof -x "start-s3-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
