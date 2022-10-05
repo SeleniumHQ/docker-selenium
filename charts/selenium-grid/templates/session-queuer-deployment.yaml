@@ -31,6 +31,10 @@ spec:
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.extraEnvFrom }}
+          envFrom:
+              {{- toYaml . | nindent 12 }}
+        {{- end }}
           ports:
             - containerPort: {{ .Values.components.sessionQueue.port }}
               protocol: TCP
