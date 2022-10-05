@@ -28,12 +28,6 @@ services:
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
-    depends_on:
-      - selenium-event-bus
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-distributor:
     image: selenium/distributor:4.5.0-20220929
