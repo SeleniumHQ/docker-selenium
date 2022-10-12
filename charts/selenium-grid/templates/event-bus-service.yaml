@@ -16,6 +16,7 @@ metadata:
 spec:
   selector:
     app: selenium-event-bus
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.eventBus.serviceType }}
   ports:
     - name: http-evtbus

@@ -16,6 +16,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-event-bus
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *event_bus_labels

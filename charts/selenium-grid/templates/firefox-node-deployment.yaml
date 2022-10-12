@@ -19,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-firefox-node
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *firefox_node_labels
