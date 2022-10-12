@@ -2,6 +2,14 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.11.0
+
+### Added
+- Adds helm-chart releaseName to all selectors in resources
+
+### Changed
+- Update image tag to 4.5.0-20221004
+
 ## :heavy_check_mark: 0.10.0
 
 ### Changed
@@ -15,7 +23,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.8.1
 
 ### Changed
-- Update image tag to  4.4.0-20220831
+- Update image tag to 4.4.0-20220831
 
 ## :heavy_check_mark: 0.8.0
 
