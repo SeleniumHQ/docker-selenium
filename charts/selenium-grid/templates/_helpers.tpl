@@ -71,3 +71,11 @@ Edge node fullname
 {{- define "seleniumGrid.edgeNode.fullname" -}}
 {{- default "selenium-edge-node" .Values.edgeNode.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+
+{{/*
+Ingress fullname
+*/}}
+{{- define "seleniumGrid.ingress.fullname" -}}
+{{- default "selenium-ingress" .Values.ingress.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}

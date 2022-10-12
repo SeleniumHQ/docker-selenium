@@ -19,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-chrome-node
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *chrome_node_labels

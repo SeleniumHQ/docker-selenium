@@ -16,6 +16,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-session-queue
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *session_queue_labels

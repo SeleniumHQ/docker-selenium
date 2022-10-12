@@ -15,6 +15,7 @@ spec:
   type: {{ .Values.edgeNode.service.type }}
   selector:
     app: selenium-edge-node
+    app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - name: tcp-edge
       protocol: TCP
