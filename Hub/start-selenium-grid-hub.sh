@@ -18,6 +18,7 @@ if [ ! -z "$SE_HUB_PORT" ]; then
 fi
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client -Djdk.httpclient.allowRestrictedHeaders=connection \
+  -Djdk.httpclient.allowRestrictedHeaders=host \
   -jar /opt/selenium/selenium-server.jar \
   --ext /opt/selenium/selenium-http-jdk-client.jar hub \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \

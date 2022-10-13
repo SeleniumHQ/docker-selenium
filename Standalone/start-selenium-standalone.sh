@@ -13,6 +13,7 @@ cat /opt/selenium/config.toml
 echo "Starting Selenium Grid Standalone..."
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client -Djdk.httpclient.allowRestrictedHeaders=connection \
+  -Djdk.httpclient.allowRestrictedHeaders=host \
   -jar /opt/selenium/selenium-server.jar \
   --ext /opt/selenium/selenium-http-jdk-client.jar standalone \
   --bind-host ${SE_BIND_HOST} \
