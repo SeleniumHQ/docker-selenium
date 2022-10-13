@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.12.0
+
+### Changed
+- Remove EventBus from SessionQueue environment variables
+
 ## :heavy_check_mark: 0.11.0
 
 ### Added
