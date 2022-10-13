@@ -14,8 +14,7 @@ if [ ! -z "$SE_NODE_GRID_URL" ]; then
   SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client -Djdk.httpclient.allowRestrictedHeaders=connection \
-  -Djdk.httpclient.allowRestrictedHeaders=host \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   -jar /opt/selenium/selenium-server.jar \
   --ext /opt/selenium/selenium-http-jdk-client.jar standalone \
   --relax-checks ${SE_RELAX_CHECKS} \

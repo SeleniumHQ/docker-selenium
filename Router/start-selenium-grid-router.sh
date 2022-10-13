@@ -49,8 +49,7 @@ if [ ! -z "$SE_ROUTER_PORT" ]; then
   PORT_CONFIG="--port ${SE_ROUTER_PORT}"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client -Djdk.httpclient.allowRestrictedHeaders=connection \
-  -Djdk.httpclient.allowRestrictedHeaders=host \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   -jar /opt/selenium/selenium-server.jar \
   --ext /opt/selenium/selenium-http-jdk-client.jar router \
   --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port "${SE_SESSIONS_MAP_PORT}" \

@@ -34,8 +34,7 @@ if [ ! -z "$SE_SESSIONS_PORT" ]; then
   PORT_CONFIG="--port ${SE_SESSIONS_PORT}"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client -Djdk.httpclient.allowRestrictedHeaders=connection \
-  -Djdk.httpclient.allowRestrictedHeaders=host \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   -jar /opt/selenium/selenium-server.jar \
   --ext /opt/selenium/selenium-http-jdk-client.jar sessions \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
