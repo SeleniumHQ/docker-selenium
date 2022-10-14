@@ -174,7 +174,7 @@ You can configure the Selenium Hub with this values:
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
-| `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `hub.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `hub.loadBalancerIP`            | `nil`             | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `hub.serviceAnnotations`        | `{}`              | Custom annotations for Selenium Hub service                                                                                      |
 
@@ -194,7 +194,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.livenessProbe`             | `See values.yaml`         | Liveness probe settings                                                                                                          |
 | `components.router.readinessProbe`            | `See values.yaml`         | Readiness probe settings                                                                                                         |
 | `components.router.resources`                 | `{}`                      | Resources for router container                                                                                                   |
-| `components.router.serviceType`               | `NodePort`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.router.serviceType`               | `ClusterIP`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)|
 | `components.router.loadBalancerIP`            | `nil`                     | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `components.router.serviceAnnotations`        | `{}`                      | Custom annotations for router service                                                                                            |
 | `components.router.tolerations`               | `[]`                      | Tolerations for router pods                                                                                                      |
@@ -242,6 +242,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.imagePullPolicy`     | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
 | `components.sessionQueue.imagePullSecret`     | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.sessionQueue.annotations`         | `{}`                      | Custom annotations for Session Queue pod                                                                                         |
+| `components.sessionQueue.port`                | `5559`                    | Session Queue Port                                                                                                               |
 | `components.sessionQueue.resources`           | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionQueue.serviceAnnotations`  | `{}`                      | Custom annotations for Session Queue service                                                                                     |
