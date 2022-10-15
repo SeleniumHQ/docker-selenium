@@ -15,6 +15,7 @@ spec:
   type: {{ .Values.firefoxNode.service.type }}
   selector:
     app: selenium-firefox-node
+    app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - name: tcp-firefox
       protocol: TCP

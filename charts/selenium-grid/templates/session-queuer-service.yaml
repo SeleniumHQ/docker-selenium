@@ -16,6 +16,7 @@ metadata:
 spec:
   selector:
     app: selenium-session-queue
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.sessionQueue.serviceType }}
   ports:
     - name: tcp-ssn-que

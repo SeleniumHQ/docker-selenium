@@ -19,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-hub
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *hub_labels

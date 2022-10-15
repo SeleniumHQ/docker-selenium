@@ -16,6 +16,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-session-queue
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *session_queue_labels
@@ -31,12 +32,10 @@ spec:
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.extraEnvFrom }}
           envFrom:
-            - configMapRef:
-                name: {{ .Values.busConfigMap.name }}
-            {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-            {{- end }}
+        {{- end }}
           ports:
             - containerPort: {{ .Values.components.sessionQueue.port }}
               protocol: TCP
