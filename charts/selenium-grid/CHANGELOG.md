@@ -13,7 +13,7 @@ All notable changes to this helm chart will be documented in this file.
 - Adds helm-chart releaseName to all selectors in resources
 
 ### Changed
-- Update image tag to 4.5.0-20221004
+- Update image tag to 4.5.0-20221017
 
 ## :heavy_check_mark: 0.10.0
 
