@@ -71,7 +71,7 @@ Use your traditional VNC client via port 5900, and noVNC in the browser via port
 
 
 ----
-The official documentation from seleniumHQ begins here:
+# -- The official documentation from seleniumHQ begins here --
 ----
 
 
