@@ -37,7 +37,7 @@ The following multi-arch Seleniarm container images are available on [Docker Hub
 
 The other upstream images are not yet supported for multi-arch, but you can try and build them yourself.
 
-> NOTE: Google does not build Chrome for ARM. Instead, we use Chromium ARM.
+> NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
 
 ## Building the ARM Images
 
