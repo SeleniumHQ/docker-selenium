@@ -6,7 +6,28 @@ This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/doc
 
 NOTE: If you only need the Intel/amd64 images, please see the official upstream [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) repository for best results.
 
-These multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
+## Running the ARM Container Images
+
+The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
+
+The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
+
+To start the standalone container images, run:
+
+![Chromium](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chromium/chromium_24x24.png) Chromium
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
+```
+> NOTE: Google does not build Chrome for Linux ARM platforms. Instead, docker-seleniarm uses the open source Chromium browser instead, which _is_ built for ARM.
+
+![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox:latest
+```
+
+Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
+
+The following multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
 
 - [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
 - [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
@@ -16,6 +37,7 @@ These multi-arch Seleniarm container images are available on [Docker Hub](https:
 
 The other upstream images are not yet supported for multi-arch, but you can try and build them yourself.
 
+> NOTE: Google does not build Chrome for ARM. Instead, we use Chromium ARM.
 
 ## Building the ARM Images
 
@@ -54,21 +76,6 @@ To build for armv7l/armhf, replace PLATFORMS environment variable with `linux/ar
 ```
 $ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm/v7 BUILD_ARGS=--load make standalone_chromium_multi
 ```
-
-## Running the ARM Container Images
-
-The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
-
-The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
-
-To start the container image, run:
-
-```
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
-```
-
-Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
-
 
 ----
 # -- The official documentation from seleniumHQ begins here --
