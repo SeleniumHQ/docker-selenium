@@ -155,7 +155,7 @@ chromium_multi: node_base_multi
 	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
 firefox_multi: node_base_multi
-	cd ./NodeFirefox && docker buildx build -f Dockerfile.arm64 --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./NodeFirefox && docker buildx build -f Dockerfile.multi-arch --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 standalone_firefox_multi: firefox_multi
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
