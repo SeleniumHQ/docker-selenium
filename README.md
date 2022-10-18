@@ -950,13 +950,26 @@ and it retries up to 5 times until the container is marked as unhealthy. Please 
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 --net grid --name selenium-hub \
-    --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
-    --health-interval=15s --health-timeout=30s --health-retries=5 \
-    selenium/hub:4.5.0-20221017
-$ docker run -d --net grid -e HUB_HOST=selenium-hub --shm-size="2g" selenium/node-chrome:4.5.0-20221017
-$ docker run -d --net grid -e HUB_HOST=selenium-hub --shm-size="2g" selenium/node-edge:4.5.0-20221017
-$ docker run -d --net grid -e HUB_HOST=selenium-hub --shm-size="2g" selenium/node-firefox:4.5.0-20221017
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub \
+  --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
+  --health-interval=15s --health-timeout=30s --health-retries=5 \
+  selenium/hub:4.5.0-20221017
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-chrome:4.5.0-20221017
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-edge:4.5.0-20221017
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-firefox:4.5.0-20221017
+
 ```
 **Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
 
