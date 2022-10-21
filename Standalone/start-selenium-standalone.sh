@@ -11,7 +11,10 @@ fi
 echo "Selenium Grid Standalone configuration: "
 cat /opt/selenium/config.toml
 echo "Starting Selenium Grid Standalone..."
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -jar /opt/selenium/selenium-server.jar standalone \
+
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+  -jar /opt/selenium/selenium-server.jar \
+  --ext /opt/selenium/selenium-http-jdk-client.jar standalone \
   --bind-host ${SE_BIND_HOST} \
   --config /opt/selenium/config.toml \
   ${SE_OPTS}

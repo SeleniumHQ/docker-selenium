@@ -19,7 +19,9 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -jar /opt/selenium/selenium-server.jar event-bus \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+  -jar /opt/selenium/selenium-server.jar \
+  --ext /opt/selenium/selenium-http-jdk-client.jar event-bus \
   --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
