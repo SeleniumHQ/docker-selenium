@@ -85,7 +85,7 @@ USER 1200:1201
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
-ENV SE_DOCKER = true
+ENV SE_DOCKER true
 
 
 
