@@ -71,8 +71,10 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.5.0/selenium-server-4.5.0.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.5.0/selenium-server-4.5.2.jar \
     -O /opt/selenium/selenium-server.jar \
+  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.5.2/selenium-http-jdk-client-4.5.2.jar \
+    -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
@@ -83,6 +85,7 @@ USER 1200:1201
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
+ENV SE_DOCKER true
 
 
 
