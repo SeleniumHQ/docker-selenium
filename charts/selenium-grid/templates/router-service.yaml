@@ -16,6 +16,7 @@ metadata:
 spec:
   selector:
     app: selenium-router
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.router.serviceType }}
   {{- if and (eq .Values.components.router.serviceType "LoadBalancer") (.Values.components.router.loadBalancerIP) }}
   loadBalancerIP: {{ .Values.components.router.loadBalancerIP }}

@@ -19,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: selenium-edge-node
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels: *edge_node_labels

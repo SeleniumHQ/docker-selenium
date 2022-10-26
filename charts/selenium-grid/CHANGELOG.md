@@ -2,6 +2,29 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.12.1
+
+### Changed
+- Update image tag to 4.5.3-20221024
+
+## :heavy_check_mark: 0.12.0
+
+### Changed
+- Remove EventBus from SessionQueue environment variables
+
+## :heavy_check_mark: 0.11.0
+
+### Added
+- Adds helm-chart releaseName to all selectors in resources
+
+### Changed
+- Update image tag to 4.5.0-20221004
+
+## :heavy_check_mark: 0.10.0
+
+### Changed
+- Bump version chart
+
 ## :heavy_check_mark: 0.9.0
 
 ### Added
@@ -10,7 +33,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.8.1
 
 ### Changed
-- Update image tag to 4.5.0-20220929
+- Update image tag to 4.4.0-20220831
 
 ## :heavy_check_mark: 0.8.0
 

@@ -16,6 +16,7 @@ metadata:
 spec:
   selector:
     app: selenium-distributor
+    app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.distributor.serviceType }}
   ports:
     - name: tcp-dist

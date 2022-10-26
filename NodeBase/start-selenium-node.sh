@@ -38,7 +38,10 @@ fi
 echo "Selenium Grid Node configuration: "
 cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -jar /opt/selenium/selenium-server.jar node \
+
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+  -jar /opt/selenium/selenium-server.jar \
+  --ext /opt/selenium/selenium-http-jdk-client.jar node \
   --bind-host ${SE_BIND_HOST} \
   --config "$CONFIG_FILE" \
   ${SE_OPTS}

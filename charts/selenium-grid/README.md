@@ -51,8 +51,8 @@ For now, global configuration supported is:
 
 | Parameter                             | Default                            | Description                           |
 | -----------------------------------   | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`        | `4.5.0-20220929`                   | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.5.0-20220929`                   | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`        | `4.5.3-20221024`                   | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.5.3-20221024`                   | Image tag for browser's nodes         |
 | `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
 
 This table contains the configuration parameters of the chart and their default values:
@@ -70,7 +70,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.5.0-20220929`                   | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                   | `4.5.3-20221024`                   | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                      | `[5555]`                           | Port list to enable on container                                                                                           |
@@ -97,7 +97,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.5.0-20220929`                   | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                  | `4.5.3-20221024`                   | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                     | `[5555]`                           | Port list to enable on container                                                                                           |
@@ -124,7 +124,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.5.0-20220929`                   | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                     | `4.5.3-20221024`                   | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                        | `[5555]`                           | Port list to enable on container                                                                                           |
@@ -174,7 +174,7 @@ You can configure the Selenium Hub with this values:
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
-| `hub.serviceType`               | `NodePort`        | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `hub.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `hub.loadBalancerIP`            | `nil`             | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `hub.serviceAnnotations`        | `{}`              | Custom annotations for Selenium Hub service                                                                                      |
 
@@ -194,7 +194,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.livenessProbe`             | `See values.yaml`         | Liveness probe settings                                                                                                          |
 | `components.router.readinessProbe`            | `See values.yaml`         | Readiness probe settings                                                                                                         |
 | `components.router.resources`                 | `{}`                      | Resources for router container                                                                                                   |
-| `components.router.serviceType`               | `NodePort`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| `components.router.serviceType`               | `ClusterIP`                | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)|
 | `components.router.loadBalancerIP`            | `nil`                     | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | `components.router.serviceAnnotations`        | `{}`                      | Custom annotations for router service                                                                                            |
 | `components.router.tolerations`               | `[]`                      | Tolerations for router pods                                                                                                      |
@@ -242,6 +242,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.imagePullPolicy`     | `IfNotPresent`            | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                   |
 | `components.sessionQueue.imagePullSecret`     | `""`                      | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                     |
 | `components.sessionQueue.annotations`         | `{}`                      | Custom annotations for Session Queue pod                                                                                         |
+| `components.sessionQueue.port`                | `5559`                    | Session Queue Port                                                                                                               |
 | `components.sessionQueue.resources`           | `{}`                      | Resources for event-bus container                                                                                                |
 | `components.sessionQueue.serviceType`         | `ClusterIP`               | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | `components.sessionQueue.serviceAnnotations`  | `{}`                      | Custom annotations for Session Queue service                                                                                     |
