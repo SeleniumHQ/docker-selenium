@@ -54,6 +54,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
 * [Debugging](#debugging)
 * [Install certificates for Chromium based browsers](#install-certificates-for-Chromium-based-browsers)
+* [Tracing in Grid](#tracing-in-grid)
 * [Troubleshooting](#troubleshooting)
 
 
@@ -1130,6 +1131,46 @@ Then, you would use in your browser:
 
 If you get a prompt asking for a password, it is: `secret`.
 
+___
+
+## Tracing in Grid
+
+In order to enable tracing in Selenium Grid container, the following commands can be executed:
+
+```bash
+docker network create grid
+docker run -d -p 16686:16686 -p 14250:14250 --net grid --name jaeger jaegertracing/all-in-one:1.17
+docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.5.3-20221024
+docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+	-e SE_ENABLE_TRACING=true \
+	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-hub" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-chrome:4.5.3-20221024
+docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+	-e SE_ENABLE_TRACING=true \
+	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-edge" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-edge:4.5.3-20221024
+docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="2g" \
+	-e SE_ENABLE_TRACING=true \
+	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-firefox" \
+    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+    selenium/node-firefox:4.5.3-20221024
+```
+
+You can also refer to the below docker-compose yaml files to be able to start a simple grid (or) a dynamic grid.
+
+* Simple Grid [v3 yaml file](docker-compose-v3-tracing.yml)
+* Simple Grid [v2 yaml file](docker-compose-v2-tracing.yml)
+* Dynamic Grid [v3 yaml file](docker-compose-v3-full-grid-tracing.yml)
+
+You can view the [Jaegar UI](http://localhost:16686/) and trace your request.
 ___
 
 ## Troubleshooting
