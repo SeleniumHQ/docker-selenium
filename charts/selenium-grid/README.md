@@ -68,6 +68,7 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
+| `chromeNode.deploymentEnabled`          | `true`                             | Enable creation of Deployment for chrome nodes                                                                             |
 | `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
 | `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
 | `chromeNode.imageTag`                   | `4.5.3-20221024`                   | Image of chrome nodes                                                                                                      |
@@ -95,6 +96,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
+| `firefoxNode.deploymentEnabled`         | `true`                             | Enable creation of Deployment for firefox nodes                                                                            |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
 | `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imageTag`                  | `4.5.3-20221024`                   | Image of firefox nodes                                                                                                     |
@@ -122,6 +124,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
+| `edgeNode.deploymentEnabled`            | `true`                             | Enable creation of Deployment for edge nodes                                                                               |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
 | `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
 | `edgeNode.imageTag`                     | `4.5.3-20221024`                   | Image of edge nodes                                                                                                        |

@@ -290,6 +290,12 @@ hub:
 chromeNode:
   # Enable chrome nodes
   enabled: true
+
+  # Enable creation of Deployment
+  # true (default) - if you want long living pods
+  # false - for provisioning your own custom type such as Jobs
+  deploymentEnabled: true
+
   # Number of chrome nodes
   replicas: 1
   # Image of chrome nodes
@@ -396,6 +402,12 @@ chromeNode:
 firefoxNode:
   # Enable firefox nodes
   enabled: true
+
+  # Enable creation of Deployment
+  # true (default) - if you want long living pods
+  # false - for provisioning your own custom type such as Jobs
+  deploymentEnabled: true
+
   # Number of firefox nodes
   replicas: 1
   # Image of firefox nodes
@@ -502,6 +514,12 @@ firefoxNode:
 edgeNode:
   # Enable edge nodes
   enabled: true
+
+  # Enable creation of Deployment
+  # true (default) - if you want long living pods
+  # false - for provisioning your own custom type such as Jobs
+  deploymentEnabled: true
+
   # Number of edge nodes
   replicas: 1
   # Image of edge nodes

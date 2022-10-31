@@ -1,4 +1,4 @@
-{{- if .Values.firefoxNode.enabled }}
+{{- if and .Values.firefoxNode.enabled .Values.firefoxNode.deploymentEnabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

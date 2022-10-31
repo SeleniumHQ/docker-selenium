@@ -1,4 +1,4 @@
-{{- if .Values.edgeNode.enabled }}
+{{- if and .Values.edgeNode.enabled .Values.edgeNode.deploymentEnabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
