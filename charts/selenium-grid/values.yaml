@@ -341,6 +341,14 @@ chromeNode:
     #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
+    # - name: VIDEO_LOCATION
+    #   value: /tmp
+    # - name: RECORD_VIDEO
+    #   value: "false"
+    # - name: UPLOAD_TO_S3
+    #   value: "false"
+    # - name: S3_VIDEOS_BUCKET
+    #   value: s3://selenium-grid/videos/
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -375,17 +383,17 @@ chromeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status || pidof -x "start-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -397,6 +405,9 @@ chromeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+
+  automountServiceAccountToken: false
+  serviceAccount: ""
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -453,6 +464,14 @@ firefoxNode:
     #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
+    # - name: VIDEO_LOCATION
+    #   value: /tmp
+    # - name: RECORD_VIDEO
+    #   value: "false"
+    # - name: UPLOAD_TO_S3
+    #   value: "false"
+    # - name: S3_VIDEOS_BUCKET
+    #   value: s3://selenium-grid/videos/
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -487,17 +506,17 @@ firefoxNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status || pidof -x "start-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -509,6 +528,9 @@ firefoxNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  automountServiceAccountToken: false
+  serviceAccount: ""
+
 
 # Configuration for edge nodes
 edgeNode:
@@ -564,8 +586,14 @@ edgeNode:
     #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-    # - name: SE_JAVA_OPTS
-    #   value: "-Xmx512m"
+    # - name: VIDEO_LOCATION
+    #   value: /tmp
+    # - name: RECORD_VIDEO
+    #   value: "false"
+    # - name: UPLOAD_TO_S3
+    #   value: "false"
+    # - name: S3_VIDEOS_BUCKET
+    #   value: s3://selenium-grid/videos/
     # - name:
     #   valueFrom:
     #     secretKeyRef:
@@ -599,17 +627,17 @@ edgeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 30
+  terminationGracePeriodSeconds: 3600
   # Allow pod correctly shutdown
-  lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
+  lifecycle: 
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status || pidof -x "start-uploader.sh" >/dev/null; do sleep 1; done;
 
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -621,6 +649,8 @@ edgeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  automountServiceAccountToken: false
+  serviceAccount: ""
 
 # Custom labels for k8s resources
 customLabels: {}
