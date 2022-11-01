@@ -88,6 +88,13 @@ Service Account fullname
 {{- end -}}
 
 {{/*
+Video ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.video.fullname" -}}
+{{- default "selenium-video" .Values.videoRecorder.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Is autoscaling using KEDA enabled
 */}}
 {{- define "seleniumGrid.useKEDA" -}}
@@ -168,6 +175,74 @@ template:
     {{- if .node.sidecars }}
       {{- toYaml .node.sidecars | nindent 6 }}
     {{- end }}
+    {{- if .Values.videoRecorder.enabled }}
+      - name: video
+        image: {{ printf "%s:%s" .Values.videoRecorder.imageName .Values.videoRecorder.imageTag }}
+        imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
+        env:
+        - name: UPLOAD_DESTINATION_PREFIX
+          value: {{ .Values.videoRecorder.uploadDestinationPrefix }}
+      {{- with .Values.videoRecorder.extraEnvironmentVariables }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.busConfigMap.name }}
+      {{- with .Values.videoRecorder.extraEnvFrom }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if gt (len .Values.videoRecorder.ports) 0 }}
+        ports:
+      {{- range .Values.videoRecorder.ports }}
+        - containerPort: {{ . }}
+          protocol: TCP
+      {{- end }}
+      {{- end }}
+        volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
+        - name: video-scripts
+          mountPath: /opt/bin/video.sh
+          subPath: video.sh
+        - name: video
+          mountPath: /videos
+      {{- if .Values.videoRecorder.extraVolumeMounts }}
+        {{- toYaml .Values.videoRecorder.extraVolumeMounts | nindent 8 }}
+      {{- end }}
+      {{- with .Values.videoRecorder.resources }}
+        resources: {{- toYaml . | nindent 10 }}
+      {{- end }}
+    {{- if .uploader }}
+      - name: uploader
+        image: {{ printf "%s:%s" .uploader.imageName .uploader.imageTag }}
+        imagePullPolicy: {{ .uploader.imagePullPolicy }}
+      {{- with .uploader.command }}
+        command: {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .uploader.args }}
+        args: {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+      {{- with .uploader.extraEnvironmentVariables }}
+        env: {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- end }}
+        {{- with .uploader.extraEnvFrom }}
+        envFrom:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - name: video
+          mountPath: /videos
+      {{- if .uploader.extraVolumeMounts }}
+        {{- toYaml .uploader.extraVolumeMounts | nindent 8 }}
+      {{- end }}
+      {{- with .uploader.resources }}
+        resources: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .uploader.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+      {{- end }}
+    {{- end }}
+    {{- end }}
   {{- if or .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
     imagePullSecrets:
       - name: {{ default .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
@@ -191,6 +266,14 @@ template:
     {{- if .node.extraVolumes }}
       {{ toYaml .node.extraVolumes | nindent 6 }}
     {{- end }}
+    {{- if .Values.videoRecorder.enabled }}
+      - name: video-scripts
+        configMap:
+          name: {{ template "seleniumGrid.video.fullname" . }}
+          defaultMode: 0500
+      - name: video
+      {{- toYaml .Values.videoRecorder.volume | nindent 8 }}
+  {{- end }}
 {{- end -}}
 
 {{/*

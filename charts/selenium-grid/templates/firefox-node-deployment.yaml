@@ -25,5 +25,6 @@ spec:
 {{- $podScope := deepCopy . -}}
 {{- $_ := set $podScope "name" "selenium-firefox-node" -}}
 {{- $_ =  set $podScope "node" .Values.firefoxNode  -}}
+{{- $_ =  set $podScope "uploader" (get .Values.videoRecorder .Values.videoRecorder.uploader) -}}
 {{- include "seleniumGrid.podTemplate" $podScope | nindent 2 }}
 {{- end }}

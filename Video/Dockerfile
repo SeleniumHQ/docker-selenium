@@ -17,7 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #========================
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils python3-pip \
+    supervisor x11-xserver-utils x11-utils curl jq python3-pip \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #======================================
