@@ -78,6 +78,19 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
+#=====
+# Download observability related jaegar jars and make them available in a separate directory
+# so that the container can skip downloading them everytime it comes up
+#=====
+RUN curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > /tmp/cs \
+  && chmod +x /tmp/cs \
+  && mkdir -p /external_jars \
+  && chmod -R 777 /external_jars
+
+RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.19.0 io.grpc:grpc-netty:1.50.2 > /external_jars/.classpath.txt
+
+RUN chmod 777 /external_jars/.classpath.txt
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
@@ -85,7 +98,5 @@ USER 1200:1201
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
-
-
 
 CMD ["/opt/bin/entry_point.sh"]
