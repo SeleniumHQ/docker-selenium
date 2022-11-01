@@ -1,0 +1,18 @@
+{{- if and .Values.edgeNode.enabled .Values.edgeNode.autoscalingEnabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-edge-scaledobject
+  namespace: {{ .Release.Namespace }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
+spec:
+  maxReplicaCount: {{ .Values.edgeNode.maxReplicaCount }}
+  scaleTargetRef:
+    name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  triggers:
+    - type: selenium-grid
+    {{- with .Values.edgeNode.hpa }}
+      metadata: {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
