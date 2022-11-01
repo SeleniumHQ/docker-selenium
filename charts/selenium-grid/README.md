@@ -29,6 +29,11 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 ```
 
+## Enable Selenium Grid Autoscaling
+Selenium Grid has the ability to autoscale browser nodes up/down based on the requests pending in session queue. You can enable it setting 'autoscalingEnabled' to `true`. You need to install KEDA by following the [instructions](https://keda.sh/docs/2.8/deploy/#helm) in order for autoscaling to work. 
+
+The hpa.url value is configured to work for grid installed in `default` namespace. If you are installing the grid in some other namespace make sure to update the value of hpa.url accordingly. 
+
 ## Updating Selenium-Grid release
 
 Once you have a new chart version, you can update your selenium-grid running:
@@ -66,6 +71,7 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
 | `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
 | `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
+| `ingress.path`                          | `/`                                | Default path for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
 | `chromeNode.deploymentEnabled`          | `true`                             | Enable creation of Deployment for chrome nodes                                                                             |
@@ -95,6 +101,11 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.lifecycle`                  | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `chromeNode.autoscalingEnabled`         | `false`                            | Enable/Disable autoscaling of browser nodes |
+| `chromeNode.hpa.url`                    | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
+| `chromeNode.hpa.browserName`            | `chrome`                           | BrowserName from the capability |
+| `chromeNode.hpa.browserVersion`         | ``                                 | BrowserVersion from the capability |
+| `chromeNode.maxReplicaCount`            | `8`                                | Max number of replicas that this browsernode can auto scale up to |
 | `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
 | `firefoxNode.deploymentEnabled`         | `true`                             | Enable creation of Deployment for firefox nodes                                                                            |
 | `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
@@ -123,6 +134,11 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.lifecycle`                 | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `firefoxNode.autoscalingEnabled`        | `false`                            | Enable/Disable autoscaling of browser nodes |
+| `firefoxNode.hpa.url`                   | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
+| `firefoxNode.hpa.browserName`           | `firefox`                          | BrowserName from the capability |
+| `firefoxNode.hpa.browserVersion`        | ``                                 | BrowserVersion from the capability |
+| `firefoxNode.maxReplicaCount`           | `8`                                | Max number of replicas that this browsernode can auto scale up to |
 | `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
 | `edgeNode.deploymentEnabled`            | `true`                             | Enable creation of Deployment for edge nodes                                                                               |
 | `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
@@ -151,6 +167,11 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.lifecycle`                    | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
 | `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `edgeNode.autoscalingEnabled`          | `false`                            | Enable/Disable autoscaling of browser nodes |
+| `edgeNode.hpa.url`                     | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
+| `edgeNode.hpa.browserName`             | `edge`                           | BrowserName from the capability |
+| `edgeNode.hpa.browserVersion`          | ``                               | BrowserVersion from the capability |
+| `edgeNode.maxReplicaCount`             | `8`                                | Max number of replicas that this browsernode can auto scale up to |
 | `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
 
 

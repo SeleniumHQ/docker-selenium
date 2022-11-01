@@ -1,0 +1,18 @@
+{{- if and .Values.chromeNode.enabled .Values.chromeNode.autoscalingEnabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-chrome-scaledobject
+  namespace: {{ .Release.Namespace }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.chromeNode.fullname" . }}
+spec:
+  maxReplicaCount: {{ .Values.chromeNode.maxReplicaCount }}
+  scaleTargetRef:
+    name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+  triggers:
+    - type: selenium-grid
+    {{- with .Values.chromeNode.hpa }}
+      metadata: {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if and .Values.firefoxNode.enabled .Values.firefoxNode.autoscalingEnabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-firefox-scaledobject
+  namespace: {{ .Release.Namespace }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+spec:
+  maxReplicaCount: {{ .Values.firefoxNode.maxReplicaCount }}
+  scaleTargetRef:
+    name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  triggers:
+    - type: selenium-grid
+    {{- with .Values.firefoxNode.hpa }}
+      metadata: {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
