@@ -1,4 +1,4 @@
-{{- if .Values.chromeNode.enabled }}
+{{- if and .Values.chromeNode.enabled .Values.chromeNode.deploymentEnabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
