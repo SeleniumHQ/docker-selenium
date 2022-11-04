@@ -101,14 +101,18 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
-RUN curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > /tmp/cs \
+RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
+    curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
-  && chmod -R 777 /external_jars
+  && chmod -R 777 /external_jars ; \
+    fi
 
-RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.19.0 io.grpc:grpc-netty:1.50.2 > /external_jars/.classpath.txt
+RUN if [ -f "/tmp/cs" ]; then \
+    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.19.0 io.grpc:grpc-netty:1.50.2 > /external_jars/.classpath.txt ; \
+    fi
 
-RUN chmod 777 /external_jars/.classpath.txt
+RUN if [ -f "/tmp/cs" ]; then chmod 777 /external_jars/.classpath.txt ; fi
 
 #===================================================
 # Run the following commands as non-privileged user
