@@ -82,7 +82,7 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
-RUN curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > /tmp/cs \
+RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
   && chmod -R 777 /external_jars
