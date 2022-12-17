@@ -71,9 +71,9 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.7.0/selenium-server-4.7.1.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.7.0/selenium-server-4.7.2.jar \
     -O /opt/selenium/selenium-server.jar \
-  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.7.1/selenium-http-jdk-client-4.7.1.jar \
+  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.7.2/selenium-http-jdk-client-4.7.2.jar \
     -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
@@ -82,7 +82,7 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
-RUN curl -fL https://github.com/coursier/launchers/raw/master/cs-x86_64-pc-linux.gz | gzip -d > /tmp/cs \
+RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
   && chmod -R 777 /external_jars
