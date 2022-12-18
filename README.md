@@ -70,7 +70,7 @@ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-fire
 
 3. That's it! 
 
-4. (Optional) To see what is happening inside the container, head to http://localhost:7900 (password is `secret`).
+4. (Optional) To see what is happening inside the container, head to <http://localhost:7900/?autoconnect=1&password=secret>.
 
 More details about visualising the container activity, check the [Debugging](#debugging) section.
 
