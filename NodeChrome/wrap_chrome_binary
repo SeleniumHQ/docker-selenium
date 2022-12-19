@@ -14,3 +14,11 @@ umask 002
 exec -a "\$0" "$BASE_PATH" --no-sandbox "\$@"
 _EOF
 chmod +x "$WRAPPER_PATH"
+
+# Debian/Ubuntu seems to not respect --lang, it instead needs to be a LANGUAGE environment var
+# See: https://stackoverflow.com/a/41893197/359999
+for var in "$@"; do
+   if [[ $var == --lang=* ]]; then
+      export LANGUAGE=${var//--lang=}
+   fi
+done
