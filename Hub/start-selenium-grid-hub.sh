@@ -36,6 +36,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
   --relax-checks ${SE_RELAX_CHECKS} \
   --bind-host ${SE_BIND_HOST} \
+  --config /opt/selenium/config.toml \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SE_OPTS}
