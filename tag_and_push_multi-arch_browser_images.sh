@@ -14,6 +14,8 @@ function short_version() {
     echo "${__version_split[0]}.${__version_split[1]}"
 }
 
+MAJOR=$(cut -d. -f1 <<<"${VERSION}")
+MAJOR_MINOR=$(cut -d. -f1-2 <<<"${VERSION}")
 
 echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BUILD_DATE}, namespace ${NAMESPACE}"
 
@@ -50,6 +52,10 @@ chromium)
       ${CHROME_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
       ${CHROME_SHORT_VERSION}      
+      # Plain version tags
+      ${VERSION}
+      ${MAJOR_MINOR}
+      ${MAJOR}
   )
 
   for chrome_tag in "${CHROME_TAGS[@]}"
@@ -91,6 +97,10 @@ firefox)
       ${FIREFOX_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
       ${FIREFOX_SHORT_VERSION}      
+      # Plain version tags
+      ${VERSION}
+      ${MAJOR_MINOR}
+      ${MAJOR}
   )
 
   for firefox_tag in "${FIREFOX_TAGS[@]}"

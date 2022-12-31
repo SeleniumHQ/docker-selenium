@@ -19,9 +19,20 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+
+if [ ! -z "$SE_ENABLE_TRACING" ]; then
+  EXTERNAL_JARS=$(</external_jars/.classpath.txt)
+  EXTRA_LIBS=${EXTRA_LIBS}:${EXTERNAL_JARS}
+  echo "Tracing is enabled"
+  echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
+else
+  echo "Tracing is disabled"
+fi
+
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   -jar /opt/selenium/selenium-server.jar \
-  --ext /opt/selenium/selenium-http-jdk-client.jar event-bus \
+  --ext ${EXTRA_LIBS} event-bus \
   --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
