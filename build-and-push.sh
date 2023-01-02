@@ -1,3 +1,5 @@
+#!/bin/bash
+
 NAME="${NAME:-jamesmortensen1}"
 VERSION="${VERSION:-4.7.2}"
 BUILD_DATE="${BUILD_DATE:-$(date '+%Y%m%d')}"
@@ -12,11 +14,14 @@ echo $START
 
 echo "Build and push images for target $1"
 
+docker run --rm --privileged aptman/qus -- -r
+docker run --rm --privileged aptman/qus -s -- -p
+
 if [ "$1" = "base_multi" ]; then
     #docker run --rm --privileged aptman/qus -- -r
     #docker run --rm --privileged aptman/qus -s -- -p
-    #cd ./Base && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} -t ${NAME}/base:${TAG_VERSION} .
-    make base_multi
+    cd ./Base && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} -t ${NAME}/base:${TAG_VERSION} .
+    #make base_multi
 
 elif [ "$1" = "grid_multi" ]; then
     cd ./Hub && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/hub:${TAG_VERSION} .
