@@ -131,14 +131,14 @@ qemu_user_static:
 
 # Build multi-arch images
 all_multi: base_multi \
-    hub_multi \
+	hub_multi \
 	chromium_multi \
 	firefox_multi \
-        docker_multi \
+	docker_multi \
 	standalone_chromium_multi \
 	standalone_firefox_multi \
-        standalone_docker_multi \
-        distributor_multi \
+	standalone_docker_multi \
+	distributor_multi \
 	router_multi \
 	sessions_multi \
 	sessionqueue_multi \
