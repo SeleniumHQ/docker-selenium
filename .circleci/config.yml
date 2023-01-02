@@ -330,7 +330,6 @@ workflows:
           requires: [deploy-multi-arch-base]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
-          #make-targets: hub_multi docker_multi standalone_docker_multi router_multi sessions_multi sessionqueue_multi event_bus_multi
           make-targets: grid_multi
           machine-type: ubuntu2004arm64
           filters: 
