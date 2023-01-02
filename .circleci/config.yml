@@ -315,7 +315,7 @@ workflows:
 
   deploy-multi-arch-full-grid:
     jobs:
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-base
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
@@ -325,7 +325,7 @@ workflows:
             branches: 
               only: 
                 - full-grid
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-full-grid
           requires: [deploy-multi-arch-base]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
@@ -336,7 +336,7 @@ workflows:
             branches: 
               only: 
                 - full-grid
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-node-base
           requires: [deploy-multi-arch-base]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
@@ -347,7 +347,7 @@ workflows:
             branches: 
               only: 
                 - full-grid
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-firefox
           requires: [deploy-multi-arch-node-base]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
@@ -358,7 +358,7 @@ workflows:
             branches: 
               only: 
                 - full-grid
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-chromium
           requires: [deploy-multi-arch-node-base]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
@@ -369,7 +369,7 @@ workflows:
             branches: 
               only: 
                 - full-grid
-      - deploy-multi-arch:
+      - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
           requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
