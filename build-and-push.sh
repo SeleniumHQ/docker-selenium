@@ -10,6 +10,8 @@ TAG_VERSION=$VERSION-$BUILD_DATE
 START=$(date +'%s')
 echo $START
 
+echo "Build and push images for target $1"
+
 if [ "$1" = "base_multi" ]; then
     #cd ./Base && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} -t ${NAME}/base:${TAG_VERSION} .
     make base_multi
@@ -23,6 +25,7 @@ elif [ "$1" = "grid_multi" ]; then
     cd ../EventBus && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/event-bus:${TAG_VERSION} .
     cd ../Router && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/router:${TAG_VERSION} .
     cd ../Distributor && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/distributor:${TAG_VERSION} .
+
 elif [ "$1" = "node_base_multi" ]; then
     cd ./NodeBase && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-base:${TAG_VERSION} .
 
@@ -37,7 +40,7 @@ elif [ "$1" = "chromium_multi" ]; then
     cd ../Standalone && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-chromium:${TAG_VERSION} .
 
 else
-    echo "Not found. Options are 'base', 'grid', 'node-base', 'firefox', and 'chromium'"
+    echo "$1 not found. Options are 'base', 'grid', 'node-base', 'firefox', and 'chromium'"
 fi
 
 STOP=$(date +'%s')
