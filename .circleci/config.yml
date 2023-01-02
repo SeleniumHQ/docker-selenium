@@ -207,7 +207,9 @@ jobs:
       - checkout
       - run:
           name: Debug
-          command: echo $CIRCLE_JOB
+          command: |
+            echo $CIRCLE_JOB
+            echo << parameters.circle-job >>
       - when:
           condition:
             equal: [ deploy-multi-arch-release-notes, << parameters.circle-job >> ]

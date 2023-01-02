@@ -43,7 +43,12 @@ elif [ "$1" = "chromium_multi" ]; then
 
 else
     echo "$1 not found. Options are 'base_multi', 'grid_multi', 'node_base_multi', 'firefox_multi', and 'chromium_multi'"
+    SE_BUILD_CODE=1
 fi
+
+SE_BUILD_CODE=${SE_BUILD_CODE:-$(echo $?)}
 
 STOP=$(date +'%s')
 echo $(( $STOP - $START )) seconds
+
+exit $SE_BUILD_CODE
