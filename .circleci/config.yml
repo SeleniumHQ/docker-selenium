@@ -209,10 +209,10 @@ jobs:
           name: Debug
           command: |
             echo $CIRCLE_JOB
-            echo << parameters.circle-job >>
+            echo ${<< parameters.circle-job >>}
       - when:
           condition:
-            equal: [ deploy-multi-arch-release-notes, << parameters.circle-job >> ]
+            equal: [ deploy-multi-arch-release-notes, ${<< parameters.circle-job >>} ]
           steps:
             - run: echo "CIRCLE_JOB name is release notes, so we proceed
       - run:
@@ -263,7 +263,7 @@ jobs:
             NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} sh build-and-push.sh $MAKE_TARGETS
       - when:
           condition:
-            equal: [ deploy-multi-arch-release-notes, << parameters.circle-job >> ]
+            equal: [ deploy-multi-arch-release-notes, ${<< parameters.circle-job >>} ]
           steps:
             - run:
                 name: "Tag browser images and update latest tag"

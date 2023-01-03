@@ -46,6 +46,10 @@ elif [ "$1" = "chromium_multi" ]; then
     cd ./NodeChromium && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-chromium:${TAG_VERSION} .
     cd ../Standalone && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-chromium:${TAG_VERSION} .
 
+elif [ "$1" = "tag_and_push_multi_arch_browser_images" ]; then
+    #make tag_and_push_multi_arch_browser_images
+    echo "Tag images and generate release notes"
+
 else
     echo "$1 not found. Options are 'base_multi', 'grid_multi', 'node_base_multi', 'firefox_multi', and 'chromium_multi'"
     SE_BUILD_CODE=1
