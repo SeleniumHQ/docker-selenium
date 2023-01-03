@@ -10,6 +10,10 @@ executors:
     machine:
       image: ubuntu-2004:current
     resource_class: medium
+  ubuntu2004arm64large:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm-large
 
 jobs:
   build-multi-arch:
@@ -212,7 +216,12 @@ jobs:
             echo ${<< parameters.circle-job >>}
       - when:
           condition:
-            equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
+            equal: [ deploy-multi-arch-base, "${<< parameters.circle-job >>}" ]
+          steps:
+            - run: echo "CIRCLE_JOB name is deploy-multi-arch-base
+      - when:
+          condition:
+            equal: [ deploy-multi-arch-release-notes, "${<< parameters.circle-job >>}" ]
           steps:
             - run: echo "CIRCLE_JOB name is release notes, so we proceed
       - run:
@@ -263,7 +272,7 @@ jobs:
             NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} sh build-and-push.sh $MAKE_TARGETS
       - when:
           condition:
-            equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
+            equal: [ deploy-multi-arch-release-notes, "${<< parameters.circle-job >>}" ]
           steps:
             - run:
                 name: "Tag browser images and update latest tag"
@@ -322,7 +331,7 @@ workflows:
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: base_multi
-          machine-type: ubuntu2004arm64
+          machine-type: ubuntu2004arm64large
           filters: 
             branches: 
               only: 
@@ -344,7 +353,7 @@ workflows:
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: node_base_multi
-          machine-type: ubuntu2004arm64
+          machine-type: ubuntu2004arm64large
           filters: 
             branches: 
               only: 
@@ -355,7 +364,7 @@ workflows:
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: firefox_multi
-          machine-type: ubuntu2004arm64
+          machine-type: ubuntu2004arm64large
           filters: 
             branches: 
               only: 
@@ -366,7 +375,7 @@ workflows:
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: chromium_multi
-          machine-type: ubuntu2004arm64
+          machine-type: ubuntu2004arm64large
           filters: 
             branches: 
               only: 
