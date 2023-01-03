@@ -218,12 +218,12 @@ jobs:
           condition:
             equal: [ base_multi, << parameters.make-targets >> ]
           steps:
-            - run: echo "CIRCLE_JOB name is deploy-multi-arch-base
+            - run: echo "CIRCLE_JOB name is deploy-multi-arch-base"
       - when:
           condition:
             equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
           steps:
-            - run: echo "CIRCLE_JOB name is release notes, so we proceed
+            - run: echo "CIRCLE_JOB name is release notes, so we proceed"
       - run:
           name: "Prepare workflow environment variables"
           command: |
