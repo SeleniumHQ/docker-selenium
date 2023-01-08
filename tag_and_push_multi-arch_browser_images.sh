@@ -22,12 +22,12 @@ echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BU
 case "${BROWSER}" in
 
 chromium)
-  CHROMIUM_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
+  CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
   echo "Chromium version -> "${CHROMIUM_VERSION}
   CHROME_SHORT_VERSION="$(short_version ${CHROMIUM_VERSION})"
   echo "Short Chromium version -> "${CHROME_SHORT_VERSION}
 
-  CHROMEDRIVER_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+  CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
   echo "ChromeDriver version -> "${CHROMEDRIVER_VERSION}
   CHROMEDRIVER_SHORT_VERSION="$(short_version ${CHROMEDRIVER_VERSION})"
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
@@ -68,11 +68,11 @@ chromium)
   
   ;;
 firefox)
-  FIREFOX_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
+  FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
   echo "Firefox version -> "${FIREFOX_VERSION}
   FIREFOX_SHORT_VERSION="$(short_version ${FIREFOX_VERSION})"
   echo "Short Firefox version -> "${FIREFOX_SHORT_VERSION}
-  GECKODRIVER_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
+  GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
   echo "GeckoDriver version -> "${GECKODRIVER_VERSION}
   GECKODRIVER_SHORT_VERSION="$(short_version ${GECKODRIVER_VERSION})"
   echo "Short GeckoDriver version -> "${GECKODRIVER_SHORT_VERSION}

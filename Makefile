@@ -231,6 +231,18 @@ tag_and_push_multi_arch_chromium_images:
 tag_and_push_multi_arch_firefox_images:
 	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
 
+tag_major_minor_multi_arch:
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) base
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) hub
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) node-base
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) node-docker
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) standalone-docker
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) sessions
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) session-queue
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) event-bus
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) router
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) distributor
+
 tag_multi_arch_latest:
 	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) base latest
 	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) hub latest
@@ -239,6 +251,13 @@ tag_multi_arch_latest:
 	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-firefox latest
 	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-chromium latest
 	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-firefox latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-docker latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-docker latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) sessions latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) session-queue latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) event-bus latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) router latest
+	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) distributor latest
 
 release_latest:
 	docker push $(NAME)/base:latest
