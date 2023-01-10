@@ -13,7 +13,8 @@ for related_tag in "${RELATED_TAGS[@]}"
   do
     echo ${related_tag}
     if [ "$NO_PULL" != "--no-pull" ]; then
-      docker pull $NAMESPACE/$IMAGE:$related_tag
+      #docker pull $NAMESPACE/$IMAGE:$related_tag
+      docker tag $NAMESPACE/$IMAGE:$TAG $NAMESPACE/$IMAGE:$related_tag 
     fi
   done
 
