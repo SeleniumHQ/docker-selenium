@@ -33,6 +33,12 @@ chromium)
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
 
   CHROME_TAGS=(
+      # Major Selenium version (X)
+      ${MAJOR}
+      # Major-minor Selenium version (X.Y)
+      ${MAJOR_MINOR}
+      # Full Selenium version (X.Y.X)
+      ${VERSION}
       ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
       # Browser version and browser driver version plus build date
       ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
@@ -51,11 +57,7 @@ chromium)
       # Browser version and build date
       ${CHROME_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
-      ${CHROME_SHORT_VERSION}      
-      # Plain version tags
-      ${VERSION}
-      ${MAJOR_MINOR}
-      ${MAJOR}
+      ${CHROME_SHORT_VERSION}
   )
 
   for chrome_tag in "${CHROME_TAGS[@]}"
@@ -78,6 +80,12 @@ firefox)
   echo "Short GeckoDriver version -> "${GECKODRIVER_SHORT_VERSION}
 
   FIREFOX_TAGS=(
+      # Major Selenium version (X)
+      ${MAJOR}
+      # Major-minor Selenium version (X.Y)
+      ${MAJOR_MINOR}
+      # Full Selenium version (X.Y.X)
+      ${VERSION}
       ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-grid-${TAG_VERSION}
       # Browser version and browser driver version plus build date
       ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-${BUILD_DATE}
@@ -96,11 +104,7 @@ firefox)
       # Browser version and build date
       ${FIREFOX_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
-      ${FIREFOX_SHORT_VERSION}      
-      # Plain version tags
-      ${VERSION}
-      ${MAJOR_MINOR}
-      ${MAJOR}
+      ${FIREFOX_SHORT_VERSION}
   )
 
   for firefox_tag in "${FIREFOX_TAGS[@]}"

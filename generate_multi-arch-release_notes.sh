@@ -12,7 +12,11 @@ echo "" >> release_notes.md
 echo "### Changelog" > release_notes.md
 git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq-community/docker-seleniarm/commit/%H) - %s :: %an" --reverse >> release_notes.md
 
-# Pull the other images so we populate the release notes
+##############################################################
+# Pull the images so we can populate the release notes
+# We'll pull using the TAG_VERSION and then add the other
+# related tags separately to avoid exceeding the rate limits.
+##############################################################
 docker pull ${NAMESPACE}/base:${TAG_VERSION}
 docker pull ${NAMESPACE}/hub:${TAG_VERSION}
 docker pull ${NAMESPACE}/node-base:${TAG_VERSION}
@@ -29,20 +33,25 @@ docker pull ${NAMESPACE}/event-bus:${TAG_VERSION}
 docker pull ${NAMESPACE}/router:${TAG_VERSION}
 docker pull ${NAMESPACE}/distributor:${TAG_VERSION}
 
-bash docker-pull-related-tags.sh base ${TAG_VERSION}
-bash docker-pull-related-tags.sh hub ${TAG_VERSION}
-bash docker-pull-related-tags.sh node-base ${TAG_VERSION}
-bash docker-pull-related-tags.sh standalone-chromium ${TAG_VERSION}
-bash docker-pull-related-tags.sh standalone-firefox ${TAG_VERSION}
-bash docker-pull-related-tags.sh node-chromium ${TAG_VERSION}
-bash docker-pull-related-tags.sh node-firefox ${TAG_VERSION}
-bash docker-pull-related-tags.sh node-docker ${TAG_VERSION}
-bash docker-pull-related-tags.sh standalone-docker ${TAG_VERSION}
-bash docker-pull-related-tags.sh sessions ${TAG_VERSION}
-bash docker-pull-related-tags.sh session-queue ${TAG_VERSION}
-bash docker-pull-related-tags.sh event-bus ${TAG_VERSION}
-bash docker-pull-related-tags.sh router ${TAG_VERSION}
-bash docker-pull-related-tags.sh distributor ${TAG_VERSION}
+######################################################################
+# Tags are already pushed to Docker Hub, but we need them set locally
+# to generate release notes. Since we know the tags, we can set
+# them locally to avoid exceeding the docker pull rate-limit.
+######################################################################
+bash docker-add-related-tags.sh base ${TAG_VERSION}
+bash docker-add-related-tags.sh hub ${TAG_VERSION}
+bash docker-add-related-tags.sh node-base ${TAG_VERSION}
+bash docker-add-related-tags.sh standalone-chromium ${TAG_VERSION}
+bash docker-add-related-tags.sh standalone-firefox ${TAG_VERSION}
+bash docker-add-related-tags.sh node-chromium ${TAG_VERSION}
+bash docker-add-related-tags.sh node-firefox ${TAG_VERSION}
+bash docker-add-related-tags.sh node-docker ${TAG_VERSION}
+bash docker-add-related-tags.sh standalone-docker ${TAG_VERSION}
+bash docker-add-related-tags.sh sessions ${TAG_VERSION}
+bash docker-add-related-tags.sh session-queue ${TAG_VERSION}
+bash docker-add-related-tags.sh event-bus ${TAG_VERSION}
+bash docker-add-related-tags.sh router ${TAG_VERSION}
+bash docker-add-related-tags.sh distributor ${TAG_VERSION}
 
 CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
 CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')

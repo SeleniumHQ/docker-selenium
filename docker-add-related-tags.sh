@@ -11,10 +11,7 @@ RELATED_TAGS=(`go run get-related-tags.go https://hub.docker.com/v2/repositories
 
 for related_tag in "${RELATED_TAGS[@]}"
   do
-    echo ${related_tag}
-    if [ "$NO_PULL" != "--no-pull" ]; then
-      #docker pull $NAMESPACE/$IMAGE:$related_tag
-      docker tag $NAMESPACE/$IMAGE:$TAG $NAMESPACE/$IMAGE:$related_tag 
-    fi
+    echo Add tag $NAMESPACE/$IMAGE:${related_tag}
+    docker tag $NAMESPACE/$IMAGE:$TAG $NAMESPACE/$IMAGE:$related_tag
   done
 

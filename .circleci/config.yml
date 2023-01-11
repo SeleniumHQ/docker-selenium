@@ -246,6 +246,37 @@ jobs:
       - run: uname -a
       - run: docker info
       - run:
+          name: Debug pull images
+          command: |
+            docker pull jamesmortensen1/base:latest
+            docker pull jamesmortensen1/node-base:latest
+            docker pull jamesmortensen1/hub:latest
+            docker pull jamesmortensen1/node-docker:latest
+            docker pull jamesmortensen1/standalone-docker:latest
+            docker pull jamesmortensen1/node-chromium:latest
+            docker pull jamesmortensen1/standalone-chromium:latest
+            docker pull jamesmortensen1/node-firefox:latest
+            docker pull jamesmortensen1/standalone-firefox:latest
+            docker pull jamesmortensen1/sessions:latest
+            docker pull jamesmortensen1/session-queue:latest
+            docker pull jamesmortensen1/router:latest
+            docker pull jamesmortensen1/distributor:latest
+            docker pull jamesmortensen1/event-bus:latest
+            docker tag jamesmortensen1/base:latest
+            docker tag jamesmortensen1/node-base:latest jamesmortensen1/node-base:20230110
+            docker tag jamesmortensen1/hub:latest jamesmortensen1/hub:20230110
+            docker tag jamesmortensen1/node-docker:latest jamesmortensen1/node-docker:20230110
+            docker tag jamesmortensen1/standalone-docker:latest jamesmortensen1/standalone-docker:20230110
+            docker tag jamesmortensen1/node-chromium:latest jamesmortensen1/node-chromium:20230110
+            docker tag jamesmortensen1/standalone-chromium:latest jamesmortensen1/standalone-chromium:20230110
+            docker tag jamesmortensen1/node-firefox:latest jamesmortensen1/node-firefox:20230110
+            docker tag jamesmortensen1/standalone-firefox:latest jamesmortensen1/standalone-firefox:20230110
+            docker tag jamesmortensen1/sessions:latest jamesmortensen1/sessions:20230110
+            docker tag jamesmortensen1/session-queue:latest jamesmortensen1/session-queue:20230110
+            docker tag jamesmortensen1/router:latest jamesmortensen1/router:20230110
+            docker tag jamesmortensen1/distributor:latest jamesmortensen1/distributor:20230110
+            docker tag jamesmortensen1/event-bus:latest jamesmortensen1/event-bus:20230110
+      - run:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
             echo BRANCH="$BRANCH"
@@ -275,12 +306,12 @@ jobs:
             equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
           steps:
             - run:
-                name: "Tag browser images and update latest tag"
+                name: "Push major/minor and browser tags to Docker Hub and update latest tag"
                 command: |
                   NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_multi_arch_browser_images
                   NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make tag_multi_arch_latest
             - run:
-                name: "Tag major/minor for non-browser images"
+                name: "Push major/minor tags to Docker Hub for non-browser images"
                 command: |
                   NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_major_minor_multi_arch
             - run:
@@ -330,63 +361,63 @@ workflows:
 
   deploy-multi-arch-full-grid:
     jobs:
-      - deploy-multi-arch-full-grid:
-          name: deploy-multi-arch-base
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          make-targets: base_multi
-          machine-type: ubuntu2004arm64large
-          filters: 
-            branches: 
-              only: 
-                - full-grid
-      - deploy-multi-arch-full-grid:
-          name: deploy-multi-arch-full-grid
-          requires: [deploy-multi-arch-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          make-targets: grid_multi
-          machine-type: ubuntu2004arm64
-          filters: 
-            branches: 
-              only: 
-                - full-grid
-      - deploy-multi-arch-full-grid:
-          name: deploy-multi-arch-node-base
-          requires: [deploy-multi-arch-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          make-targets: node_base_multi
-          machine-type: ubuntu2004arm64large
-          filters: 
-            branches: 
-              only: 
-                - full-grid
-      - deploy-multi-arch-full-grid:
-          name: deploy-multi-arch-firefox
-          requires: [deploy-multi-arch-node-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          make-targets: firefox_multi
-          machine-type: ubuntu2004arm64large
-          filters: 
-            branches: 
-              only: 
-                - full-grid
-      - deploy-multi-arch-full-grid:
-          name: deploy-multi-arch-chromium
-          requires: [deploy-multi-arch-node-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          make-targets: chromium_multi
-          machine-type: ubuntu2004arm64large
-          filters: 
-            branches: 
-              only: 
-                - full-grid
+      # - deploy-multi-arch-full-grid:
+      #     name: deploy-multi-arch-base
+      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
+      #     build-args: --push
+      #     make-targets: base_multi
+      #     machine-type: ubuntu2004arm64large
+      #     filters: 
+      #       branches: 
+      #         only: 
+      #           - full-grid
+      # - deploy-multi-arch-full-grid:
+      #     name: deploy-multi-arch-full-grid
+      #     requires: [deploy-multi-arch-base]
+      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
+      #     build-args: --push
+      #     make-targets: grid_multi
+      #     machine-type: ubuntu2004arm64
+      #     filters: 
+      #       branches: 
+      #         only: 
+      #           - full-grid
+      # - deploy-multi-arch-full-grid:
+      #     name: deploy-multi-arch-node-base
+      #     requires: [deploy-multi-arch-base]
+      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
+      #     build-args: --push
+      #     make-targets: node_base_multi
+      #     machine-type: ubuntu2004arm64large
+      #     filters: 
+      #       branches: 
+      #         only: 
+      #           - full-grid
+      # - deploy-multi-arch-full-grid:
+      #     name: deploy-multi-arch-firefox
+      #     requires: [deploy-multi-arch-node-base]
+      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
+      #     build-args: --push
+      #     make-targets: firefox_multi
+      #     machine-type: ubuntu2004arm64large
+      #     filters: 
+      #       branches: 
+      #         only: 
+      #           - full-grid
+      # - deploy-multi-arch-full-grid:
+      #     name: deploy-multi-arch-chromium
+      #     requires: [deploy-multi-arch-node-base]
+      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
+      #     build-args: --push
+      #     make-targets: chromium_multi
+      #     machine-type: ubuntu2004arm64large
+      #     filters: 
+      #       branches: 
+      #         only: 
+      #           - full-grid
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
-          requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
+          # requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: tag_and_push_multi_arch_browser_images
