@@ -230,7 +230,8 @@ jobs:
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
-            echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            #echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            echo 'export BUILD_DATE=20230110' >> $BASH_ENV
             echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
@@ -245,37 +246,37 @@ jobs:
             echo GITHUB_REPO="$GITHUB_REPO"
       - run: uname -a
       - run: docker info
-      - run:
-          name: Debug pull images
-          command: |
-            docker pull jamesmortensen1/base:latest
-            docker pull jamesmortensen1/node-base:latest
-            docker pull jamesmortensen1/hub:latest
-            docker pull jamesmortensen1/node-docker:latest
-            docker pull jamesmortensen1/standalone-docker:latest
-            docker pull jamesmortensen1/node-chromium:latest
-            docker pull jamesmortensen1/standalone-chromium:latest
-            docker pull jamesmortensen1/node-firefox:latest
-            docker pull jamesmortensen1/standalone-firefox:latest
-            docker pull jamesmortensen1/sessions:latest
-            docker pull jamesmortensen1/session-queue:latest
-            docker pull jamesmortensen1/router:latest
-            docker pull jamesmortensen1/distributor:latest
-            docker pull jamesmortensen1/event-bus:latest
-            docker tag jamesmortensen1/base:latest jamesmortensen1/base:$BUILD_DATE
-            docker tag jamesmortensen1/node-base:latest jamesmortensen1/node-base:$BUILD_DATE
-            docker tag jamesmortensen1/hub:latest jamesmortensen1/hub:$BUILD_DATE
-            docker tag jamesmortensen1/node-docker:latest jamesmortensen1/node-docker:$BUILD_DATE
-            docker tag jamesmortensen1/standalone-docker:latest jamesmortensen1/standalone-docker:$BUILD_DATE
-            docker tag jamesmortensen1/node-chromium:latest jamesmortensen1/node-chromium:$BUILD_DATE
-            docker tag jamesmortensen1/standalone-chromium:latest jamesmortensen1/standalone-chromium:$BUILD_DATE
-            docker tag jamesmortensen1/node-firefox:latest jamesmortensen1/node-firefox:$BUILD_DATE
-            docker tag jamesmortensen1/standalone-firefox:latest jamesmortensen1/standalone-firefox:$BUILD_DATE
-            docker tag jamesmortensen1/sessions:latest jamesmortensen1/sessions:$BUILD_DATE
-            docker tag jamesmortensen1/session-queue:latest jamesmortensen1/session-queue:$BUILD_DATE
-            docker tag jamesmortensen1/router:latest jamesmortensen1/router:$BUILD_DATE
-            docker tag jamesmortensen1/distributor:latest jamesmortensen1/distributor:$BUILD_DATE
-            docker tag jamesmortensen1/event-bus:latest jamesmortensen1/event-bus:$BUILD_DATE
+      # - run:
+      #     name: Debug pull images
+      #     command: |
+      #       docker pull jamesmortensen1/base:latest
+      #       docker pull jamesmortensen1/node-base:latest
+      #       docker pull jamesmortensen1/hub:latest
+      #       docker pull jamesmortensen1/node-docker:latest
+      #       docker pull jamesmortensen1/standalone-docker:latest
+      #       docker pull jamesmortensen1/node-chromium:latest
+      #       docker pull jamesmortensen1/standalone-chromium:latest
+      #       docker pull jamesmortensen1/node-firefox:latest
+      #       docker pull jamesmortensen1/standalone-firefox:latest
+      #       docker pull jamesmortensen1/sessions:latest
+      #       docker pull jamesmortensen1/session-queue:latest
+      #       docker pull jamesmortensen1/router:latest
+      #       docker pull jamesmortensen1/distributor:latest
+      #       docker pull jamesmortensen1/event-bus:latest
+      #       docker tag jamesmortensen1/base:latest jamesmortensen1/base:$BUILD_DATE
+      #       docker tag jamesmortensen1/node-base:latest jamesmortensen1/node-base:$BUILD_DATE
+      #       docker tag jamesmortensen1/hub:latest jamesmortensen1/hub:$BUILD_DATE
+      #       docker tag jamesmortensen1/node-docker:latest jamesmortensen1/node-docker:$BUILD_DATE
+      #       docker tag jamesmortensen1/standalone-docker:latest jamesmortensen1/standalone-docker:$BUILD_DATE
+      #       docker tag jamesmortensen1/node-chromium:latest jamesmortensen1/node-chromium:$BUILD_DATE
+      #       docker tag jamesmortensen1/standalone-chromium:latest jamesmortensen1/standalone-chromium:$BUILD_DATE
+      #       docker tag jamesmortensen1/node-firefox:latest jamesmortensen1/node-firefox:$BUILD_DATE
+      #       docker tag jamesmortensen1/standalone-firefox:latest jamesmortensen1/standalone-firefox:$BUILD_DATE
+      #       docker tag jamesmortensen1/sessions:latest jamesmortensen1/sessions:$BUILD_DATE
+      #       docker tag jamesmortensen1/session-queue:latest jamesmortensen1/session-queue:$BUILD_DATE
+      #       docker tag jamesmortensen1/router:latest jamesmortensen1/router:$BUILD_DATE
+      #       docker tag jamesmortensen1/distributor:latest jamesmortensen1/distributor:$BUILD_DATE
+      #       docker tag jamesmortensen1/event-bus:latest jamesmortensen1/event-bus:$BUILD_DATE
       - run:
           name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
           command: |
