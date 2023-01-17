@@ -70,7 +70,7 @@ COPY supervisord.conf /etc
 #==========
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
-  && chmod -R 644 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
+  && chmod -R 664 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
   && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.7.0/selenium-server-4.7.2.jar \
     -O /opt/selenium/selenium-server.jar \
   && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.7.2/selenium-http-jdk-client-4.7.2.jar \
@@ -85,11 +85,11 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
-  && chmod -R 644 /external_jars
+  && chmod -R 664 /external_jars
 
 RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.19.0 io.grpc:grpc-netty:1.50.2 > /external_jars/.classpath.txt
 
-RUN chmod 755 /external_jars/.classpath.txt
+RUN chmod 775 /external_jars/.classpath.txt
 
 #===================================================
 # Run the following commands as non-privileged user
