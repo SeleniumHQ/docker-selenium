@@ -143,7 +143,7 @@ RUN mkdir -p ${HOME}/.vnc \
 #==========
 # Relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN sudo chmod -R 644 ${HOME} \
+RUN sudo chmod -R 664 ${HOME} \
   && sudo chgrp -R 0 ${HOME} \
   && sudo chmod -R g=u ${HOME}
 
