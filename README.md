@@ -1095,14 +1095,23 @@ If you get a prompt asking for a password, it is: `secret`. If you wish to chang
 it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
 the posted ones which reconfigures it:
 
+Dockerfile example that extends the `node-chrome:4.7.2-20221219`. You can choose another browser image or a Standalone
+browser image.
+
 ``` dockerfile
-#FROM selenium/node-chrome:4.7.2-20221219
-#FROM selenium/node-edge:4.7.2-20221219
-#FROM selenium/node-firefox:4.7.2-20221219
-#Choose the FROM statement that works for you.
+FROM selenium/node-chrome:4.7.2-20221219
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
+
+Save the `Dockerfile` as `DockerfileVNCPasswordChanged`, open a terminal and on the same directory run:
+
+```shell
+docker build -t selenium/node-chrome-vnc-password-changed:4.7.2-20221219 -f DockerfileVNCPasswordChanged .
+```
+
+And from now on, instead of using `node-chrome:4.7.2-20221219` in your scripts or docker-compose files, use
+`selenium/node-chrome-vnc-password-changed:4.7.2-20221219`.
 
 If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
 
