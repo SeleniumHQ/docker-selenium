@@ -230,8 +230,8 @@ jobs:
             export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
-            #echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
-            echo 'export BUILD_DATE=20230110' >> $BASH_ENV
+            echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            #echo 'export BUILD_DATE=20230110' >> $BASH_ENV
             echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
             source $BASH_ENV
             echo "Workflow environment variables:"
@@ -331,63 +331,63 @@ workflows:
 
   deploy-multi-arch-full-grid:
     jobs:
-      # - deploy-multi-arch-full-grid:
-      #     name: deploy-multi-arch-base
-      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
-      #     build-args: --push
-      #     make-targets: base_multi
-      #     machine-type: ubuntu2004arm64large
-      #     filters: 
-      #       branches: 
-      #         only: 
-      #           - full-grid
-      # - deploy-multi-arch-full-grid:
-      #     name: deploy-multi-arch-full-grid
-      #     requires: [deploy-multi-arch-base]
-      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
-      #     build-args: --push
-      #     make-targets: grid_multi
-      #     machine-type: ubuntu2004arm64
-      #     filters: 
-      #       branches: 
-      #         only: 
-      #           - full-grid
-      # - deploy-multi-arch-full-grid:
-      #     name: deploy-multi-arch-node-base
-      #     requires: [deploy-multi-arch-base]
-      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
-      #     build-args: --push
-      #     make-targets: node_base_multi
-      #     machine-type: ubuntu2004arm64large
-      #     filters: 
-      #       branches: 
-      #         only: 
-      #           - full-grid
-      # - deploy-multi-arch-full-grid:
-      #     name: deploy-multi-arch-firefox
-      #     requires: [deploy-multi-arch-node-base]
-      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
-      #     build-args: --push
-      #     make-targets: firefox_multi
-      #     machine-type: ubuntu2004arm64large
-      #     filters: 
-      #       branches: 
-      #         only: 
-      #           - full-grid
-      # - deploy-multi-arch-full-grid:
-      #     name: deploy-multi-arch-chromium
-      #     requires: [deploy-multi-arch-node-base]
-      #     platforms: linux/arm64,linux/amd64,linux/arm/v7
-      #     build-args: --push
-      #     make-targets: chromium_multi
-      #     machine-type: ubuntu2004arm64large
-      #     filters: 
-      #       branches: 
-      #         only: 
-      #           - full-grid
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-base
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          make-targets: base_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - full-grid
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-full-grid
+          requires: [deploy-multi-arch-base]
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          make-targets: grid_multi
+          machine-type: ubuntu2004arm64
+          filters: 
+            branches: 
+              only: 
+                - full-grid
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-node-base
+          requires: [deploy-multi-arch-base]
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          make-targets: node_base_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - full-grid
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-firefox
+          requires: [deploy-multi-arch-node-base]
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          make-targets: firefox_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - full-grid
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-chromium
+          requires: [deploy-multi-arch-node-base]
+          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          build-args: --push
+          make-targets: chromium_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - full-grid
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
-          # requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
+          requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
           platforms: linux/arm64,linux/amd64,linux/arm/v7
           build-args: --push
           make-targets: tag_and_push_multi_arch_browser_images
