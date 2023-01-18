@@ -18,6 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #========================
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
+    acl \
     bzip2 \
     ca-certificates \
     openjdk-11-jre-headless \
