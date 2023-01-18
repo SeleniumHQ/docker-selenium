@@ -925,12 +925,12 @@ captured in the same video.
 [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
-To avoid starting the server you can set the `SE_START_XVFB` environment variable to `false` 
+To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
 (or any other value than `true`), for example:
 
 ``` bash
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.7.2-20221219
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false --shm-size="2g" selenium/node-chrome:4.7.2-20221219
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
@@ -1176,14 +1176,23 @@ If you get a prompt asking for a password, it is: `secret`. If you wish to chang
 it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
 the posted ones which reconfigures it:
 
+Dockerfile example that extends the `node-chrome:4.7.2-20221219`. You can choose another browser image or a Standalone
+browser image.
+
 ``` dockerfile
-#FROM selenium/node-chrome:4.7.2-20221219
-#FROM selenium/node-edge:4.7.2-20221219
-#FROM selenium/node-firefox:4.7.2-20221219
-#Choose the FROM statement that works for you.
+FROM selenium/node-chrome:4.7.2-20221219
 
 RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
 ```
+
+Save the `Dockerfile` as `DockerfileVNCPasswordChanged`, open a terminal and on the same directory run:
+
+```shell
+docker build -t selenium/node-chrome-vnc-password-changed:4.7.2-20221219 -f DockerfileVNCPasswordChanged .
+```
+
+And from now on, instead of using `node-chrome:4.7.2-20221219` in your scripts or docker-compose files, use
+`selenium/node-chrome-vnc-password-changed:4.7.2-20221219`.
 
 If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
 
@@ -1285,7 +1294,7 @@ or
 
 `Message: unknown error: Chrome failed to start: exited abnormally`
 
-The reason _might_ be that you've set the `SE_START_XVFB` environment variable to "false", but forgot to 
+The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
 actually run Firefox, Chrome or Edge in headless mode.
 
 ### Mounting volumes to retrieve downloaded files
