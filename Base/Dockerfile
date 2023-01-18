@@ -78,7 +78,7 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
     -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && setfacl -mR u:seluser:rwx file /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
+  && setfacl -Rm u:seluser:rwx /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
 #=====
 # Download observability related jaegar jars and make them available in a separate directory
