@@ -200,7 +200,7 @@ jobs:
         type: string
     executor: << parameters.machine-type >>
     environment:
-      NAMESPACE: jamesmortensen1
+      NAMESPACE: seleniarm
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
@@ -265,7 +265,7 @@ jobs:
             echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
             docker buildx use `docker buildx create`
             docker buildx ls
-            docker login -u="$DOCKER_TEST_USERNAME" -p="$DOCKER_TEST_PASSWORD"
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
@@ -317,17 +317,17 @@ workflows:
           platforms: linux/amd64
           machine-type: ubuntu2004amd64
   
-  deploy-multi-arch:
-    jobs:
-      - deploy-multi-arch:
-          name: deploy-multi-arch
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
-          build-args: --push
-          machine-type: ubuntu2004arm64
-          filters: 
-            branches: 
-              only: 
-                - trunk
+  # deploy-multi-arch:
+  #   jobs:
+  #     - deploy-multi-arch:
+  #         name: deploy-multi-arch
+  #         platforms: linux/arm64,linux/amd64,linux/arm/v7
+  #         build-args: --push
+  #         machine-type: ubuntu2004arm64
+  #         filters: 
+  #           branches: 
+  #             only: 
+  #               - trunk
 
   deploy-multi-arch-full-grid:
     jobs:

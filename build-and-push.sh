@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME="${NAME:-jamesmortensen1}"
+NAME="${NAME:-seleniarm}"
 VERSION="${VERSION:-4.7.2}"
 BUILD_DATE="${BUILD_DATE:-$(date '+%Y%m%d')}"
 PLATFORMS="${PLATFORMS:-linux/arm64,linux/arm/v7,linux/amd64}"
