@@ -22,13 +22,13 @@ if [ "$1" = "base_multi" ]; then
 
 elif [ "$1" = "grid_multi" ]; then
     cd ./Hub && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/hub:${TAG_VERSION} .
-    cd ../NodeDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-docker:${TAG_VERSION} .
-    cd ../StandaloneDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-docker:${TAG_VERSION} .
+    cd ../Distributor && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/distributor:${TAG_VERSION} .
+    cd ../Router && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/router:${TAG_VERSION} .
     cd ../Sessions && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/sessions:${TAG_VERSION} .
     cd ../SessionQueue && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/session-queue:${TAG_VERSION} .
     cd ../EventBus && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/event-bus:${TAG_VERSION} .
-    cd ../Router && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/router:${TAG_VERSION} .
-    cd ../Distributor && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/distributor:${TAG_VERSION} .
+    cd ../NodeDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-docker:${TAG_VERSION} .
+    cd ../StandaloneDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-docker:${TAG_VERSION} .
 
 elif [ "$1" = "node_base_multi" ]; then
     cd ./NodeBase && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-base:${TAG_VERSION} .
