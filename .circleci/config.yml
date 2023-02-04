@@ -265,7 +265,10 @@ jobs:
             echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
             docker buildx use `docker buildx create`
             docker buildx ls
-            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            # For release notes, we'll pull images anonymously without login.
+            if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
+              docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            fi
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
