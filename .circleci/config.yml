@@ -266,9 +266,9 @@ jobs:
             docker buildx use `docker buildx create`
             docker buildx ls
             # For release notes, we'll pull images anonymously without login.
-            if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
-              docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-            fi
+            # if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            # fi
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
@@ -290,6 +290,7 @@ jobs:
             - run:
                 name: "Generate release notes"
                 command: |
+                  docker logout
                   export LATEST_TAG=$(git describe --tags --abbrev=0)
                   sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
                   sudo apt-get update -y && sudo apt-get install python3-venv
