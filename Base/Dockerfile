@@ -111,7 +111,7 @@ RUN if [ `arch` = "aarch64" ]; then \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then \
-    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.19.0 io.grpc:grpc-netty:1.50.2 > /external_jars/.classpath.txt ; \
+    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.22.0 io.grpc:grpc-netty:1.52.1 > /external_jars/.classpath.txt ; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then chmod 777 /external_jars/.classpath.txt ; fi
