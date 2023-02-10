@@ -92,22 +92,20 @@ RUN apt-get -qqy update \
 ########################################
 # noVNC exposes VNC through a web page #
 ########################################
-# Download https://github.com/novnc/noVNC dated 2021-03-30 commit 84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0
-# Download https://github.com/novnc/websockify dated 2021-03-22 commit c5d365dd1dbfee89881f1c1c02a2ac64838d645f
-ENV NOVNC_SHA="84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0" \
-    WEBSOCKIFY_SHA="c5d365dd1dbfee89881f1c1c02a2ac64838d645f"
+ENV NOVNC_VERSION="1.4.0" \
+    WEBSOCKIFY_VERSION="0.11.0"
 RUN  wget -nv -O noVNC.zip \
-       "https://github.com/novnc/noVNC/archive/${NOVNC_SHA}.zip" \
+       "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
-  && mv noVNC-${NOVNC_SHA} /opt/bin/noVNC \
+  && mv noVNC-${NOVNC_VERSION} /opt/bin/noVNC \
   && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
   && rm noVNC.zip \
   && wget -nv -O websockify.zip \
-      "https://github.com/novnc/websockify/archive/${WEBSOCKIFY_SHA}.zip" \
+      "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
-  && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
-  && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
+  && rm -rf websockify-${WEBSOCKIFY_VERSION}/tests \
+  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify
 
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
