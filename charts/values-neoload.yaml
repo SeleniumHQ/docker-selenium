@@ -1,0 +1,24 @@
+# helm install selenium-grid ./selenium-grid -f values-neoload.yaml
+# helm uninstall selenium-grid
+
+# Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
+isolateComponents: true
+
+ingress:
+  # Default host for the ingress resource
+  hostname: selenium-grid.openshift.prod.neotys.com
+
+# Configuration for chrome nodes
+chromeNode:
+  # Number of chrome nodes
+  replicas: 6
+
+# Configuration for firefox nodes
+firefoxNode:
+  # Enable firefox nodes
+  enabled: false
+
+# Configuration for edge nodes
+edgeNode:
+  # Enable edge nodes
+  enabled: false
