@@ -18,3 +18,5 @@ data:
   SE_EVENT_BUS_HOST: {{ $eventBusHost }}
   SE_EVENT_BUS_PUBLISH_PORT: {{ $eventBusPublishPort | quote }}
   SE_EVENT_BUS_SUBSCRIBE_PORT: {{ $eventBusSubscribePort | quote }}
+  JAVA_OPTS: "-Djdk.httpclient.websocket.intermediateBufferSize=3000000"
+  SE_NODE_GRID_URL: http://{{ .Values.ingress.hostname }}
