@@ -18,6 +18,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #========================
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
+    acl \
     bzip2 \
     ca-certificates \
     openjdk-11-jre-headless \
@@ -76,7 +77,8 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
   && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.8.1/selenium-http-jdk-client-4.8.1.jar \
     -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
+  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm u:seluser:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
 #=====
 # Download observability related jaegar jars and make them available in a separate directory
@@ -85,11 +87,11 @@ RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/su
 RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
-  && chmod -R 777 /external_jars
+  && chmod -R 775 /external_jars
 
 RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.22.0 io.grpc:grpc-netty:1.52.1 > /external_jars/.classpath.txt
 
-RUN chmod 777 /external_jars/.classpath.txt
+RUN chmod 664 /external_jars/.classpath.txt
 
 #===================================================
 # Run the following commands as non-privileged user
