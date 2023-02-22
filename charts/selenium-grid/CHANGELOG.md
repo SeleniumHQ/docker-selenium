@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.15.3
+
+### Changed
+- Make ingress compatible with format prior to 1.19-0 k8s version
+
 ## :heavy_check_mark: 0.15.2
 
 ### Changed
