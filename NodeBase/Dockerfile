@@ -146,12 +146,9 @@ USER root
 #==========
 # Relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN chmod -R 777 ${HOME} \
-  && chgrp -R 0 ${HOME} \
-  && chmod -R g=u ${HOME}
-
-# Added to avoid sudo-related multi-arch build errors
-USER 1200
+RUN sudo chmod -R 775 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}
 
 #==============================
 # Scripts to run fluxbox, x11vnc and noVNC
