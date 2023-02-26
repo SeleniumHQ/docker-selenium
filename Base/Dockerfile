@@ -28,6 +28,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 #========================
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
+    acl \
     bzip2 \
     ca-certificates \
     openjdk-11-jre-headless \
@@ -90,12 +91,13 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.8.0/selenium-server-4.8.0.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.8.0/selenium-server-4.8.1.jar \
     -O /opt/selenium/selenium-server.jar \
-  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.8.0/selenium-http-jdk-client-4.8.0.jar \
+  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.8.1/selenium-http-jdk-client-4.8.1.jar \
     -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
+  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm u:seluser:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
 #=====
 # Download observability related jaegar jars and make them available in a separate directory
@@ -107,14 +109,14 @@ RUN if [ `arch` = "aarch64" ]; then \
     curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
-  && chmod -R 777 /external_jars ; \
+  && chmod -R 775 /external_jars ; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then \
     /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.22.0 io.grpc:grpc-netty:1.52.1 > /external_jars/.classpath.txt ; \
     fi
 
-RUN if [ -f "/tmp/cs" ]; then chmod 777 /external_jars/.classpath.txt ; fi
+RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
 
 #===================================================
 # Run the following commands as non-privileged user

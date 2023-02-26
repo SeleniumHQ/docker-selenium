@@ -44,6 +44,7 @@ spec:
       {{- else }}
     - http:
       {{- end }}
+      {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.Version }}
         paths:
           - path: /
             pathType: Prefix
@@ -58,4 +59,16 @@ spec:
                 port:
                   number: {{ $.Values.hub.port }}
                 {{- end }}
+      {{- else }}
+        paths:
+          - path: /
+            backend:
+              {{- if $.Values.isolateComponents }}
+              serviceName: {{ template "seleniumGrid.router.fullname" $ }}
+              servicePort: {{ $.Values.components.router.port }}
+              {{- else }}
+              serviceName: {{ template "seleniumGrid.hub.fullname" $ }}
+              servicePort: {{ $.Values.hub.port }}
+              {{- end }}
+      {{- end }}
 {{- end }}
