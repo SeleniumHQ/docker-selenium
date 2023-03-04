@@ -244,20 +244,35 @@ tag_major_minor_multi_arch:
 	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) distributor
 
 tag_multi_arch_latest:
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) base latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) hub latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-base latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-chromium latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-firefox latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-chromium latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-firefox latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-docker latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-docker latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) sessions latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) session-queue latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) event-bus latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) router latest
-	./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) distributor latest
+	docker buildx imagetools create -t ${NAMESPACE}/base:latest ${NAMESPACE}/base:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/hub:latest ${NAMESPACE}/hub:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-base:latest ${NAMESPACE}/node-base:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-chomium:latest ${NAMESPACE}/node-chomium:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-firefox:latest ${NAMESPACE}/node-firefox:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-chromium:latest ${NAMESPACE}/standalone-chromium:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-firefox:latest ${NAMESPACE}/standalone-firefox:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-docker:latest ${NAMESPACE}/node-docker:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-docker:latest ${NAMESPACE}/standalone-docker:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/sessions:latest ${NAMESPACE}/sessions:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/session-queue:latest ${NAMESPACE}/session-queue:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/event-bus:latest ${NAMESPACE}/event-bus:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/router:latest ${NAMESPACE}/router:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/distributor:latest ${NAMESPACE}/distributor:${TAG_VERSION}
+
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) base latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) hub latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-base latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-chromium latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-firefox latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-chromium latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-firefox latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-docker latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-docker latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) sessions latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) session-queue latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) event-bus latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) router latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) distributor latest
 
 release_latest:
 	docker push $(NAME)/base:latest

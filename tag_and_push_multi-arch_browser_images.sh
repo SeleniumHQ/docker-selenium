@@ -63,8 +63,10 @@ chromium)
   for chrome_tag in "${CHROME_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
+        docker buildx imagetools create -t ${NAMESPACE}/node-chromium:${chrome_tag} ${NAMESPACE}/node-chromium:${TAG_VERSION}
+        docker buildx imagetools create -t ${NAMESPACE}/standalone-chromium:${chrome_tag} ${NAMESPACE}/standalone-chromium:${TAG_VERSION}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
     fi
   done
   
@@ -110,8 +112,10 @@ firefox)
   for firefox_tag in "${FIREFOX_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
+        docker buildx imagetools create -t ${NAMESPACE}/node-firefox:${firefox_tag} ${NAMESPACE}/node-firefox:${TAG_VERSION}
+        docker buildx imagetools create -t ${NAMESPACE}/standalone-firefox:${firefox_tag} ${NAMESPACE}/standalone-firefox:${TAG_VERSION}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
     fi
   done
 

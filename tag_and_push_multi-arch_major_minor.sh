@@ -20,6 +20,7 @@ TAGS=(
 for tag in "${TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE $IMAGE ${tag}
+        docker buildx imagetools create -t ${NAMESPACE}/${IMAGE}:${tag} ${NAMESPACE}/${IMAGE}:${TAG_VERSION}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE $IMAGE ${tag}
     fi
   done
