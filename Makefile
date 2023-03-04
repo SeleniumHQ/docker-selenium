@@ -247,7 +247,7 @@ tag_multi_arch_latest:
 	docker buildx imagetools create -t ${NAMESPACE}/base:latest ${NAMESPACE}/base:${TAG_VERSION}
 	docker buildx imagetools create -t ${NAMESPACE}/hub:latest ${NAMESPACE}/hub:${TAG_VERSION}
 	docker buildx imagetools create -t ${NAMESPACE}/node-base:latest ${NAMESPACE}/node-base:${TAG_VERSION}
-	docker buildx imagetools create -t ${NAMESPACE}/node-chomium:latest ${NAMESPACE}/node-chomium:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-chromium:latest ${NAMESPACE}/node-chromium:${TAG_VERSION}
 	docker buildx imagetools create -t ${NAMESPACE}/node-firefox:latest ${NAMESPACE}/node-firefox:${TAG_VERSION}
 	docker buildx imagetools create -t ${NAMESPACE}/standalone-chromium:latest ${NAMESPACE}/standalone-chromium:${TAG_VERSION}
 	docker buildx imagetools create -t ${NAMESPACE}/standalone-firefox:latest ${NAMESPACE}/standalone-firefox:${TAG_VERSION}
