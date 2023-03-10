@@ -4,6 +4,7 @@
 #FROM ubuntu:focal-20220302
 #FROM ubuntu:focal-20220415
 #FROM ubuntu:focal-20220531
+#FROM ubuntu:focal-20230301
 FROM debian:latest
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
