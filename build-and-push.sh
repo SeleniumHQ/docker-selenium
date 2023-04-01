@@ -1,7 +1,8 @@
 #!/bin/bash
 
+SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
 NAME="${NAME:-seleniarm}"
-VERSION="${VERSION:-4.7.2}"
+VERSION="${VERSION:-$SELENIUM_VERSION}"
 BUILD_DATE="${BUILD_DATE:-$(date '+%Y%m%d')}"
 PLATFORMS="${PLATFORMS:-linux/arm64,linux/arm/v7,linux/amd64}"
 BUILD_ARGS=--push
