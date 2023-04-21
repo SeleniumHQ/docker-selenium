@@ -3,9 +3,10 @@
 function short_version() {
     local __long_version=$1
     local __version_split=( ${__long_version//./ } )
-    echo "${__version_split[0]}.${__version_split[1]}"
+    local __major=${__version_split[0]}
+    local __minor=${__version_split[1]}
+    echo "${__major}.${__minor:0:1}"
 }
-
 
 if [[ -z "$CONFIG_FILE" ]]; then
 FILENAME="/opt/selenium/config.toml"
