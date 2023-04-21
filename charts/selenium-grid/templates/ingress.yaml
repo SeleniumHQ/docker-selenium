@@ -46,7 +46,7 @@ spec:
       {{- end }}
       {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.Version }}
         paths:
-          - path: /
+          - path: {{ default / $.Values.ingress.path }}
             pathType: Prefix
             backend:
               service:
