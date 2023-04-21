@@ -64,10 +64,8 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
 | `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource
-                                                 |
-| `ingress.path`                          | `/`                                | Default host path for the ingress resource
-                                                  |
+| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
+| `ingress.path`                          | `/`                                | Default host path for the ingress resource                                                                                 |
 | `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
