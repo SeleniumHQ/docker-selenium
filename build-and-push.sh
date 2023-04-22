@@ -27,8 +27,10 @@ elif [ "$1" = "grid_multi" ]; then
     cd ../Router && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/router:${TAG_VERSION} .
     cd ../Sessions && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/sessions:${TAG_VERSION} .
     cd ../SessionQueue && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/session-queue:${TAG_VERSION} .
-    cd ../EventBus && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/event-bus:${TAG_VERSION} .
     cd ../NodeDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-docker:${TAG_VERSION} .
+    cd ../EventBus && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/event-bus:${TAG_VERSION} .
+    # Prevent "failed to solve" errors by adding delay between NodeDocker and StandaloneDocker
+    # by building EventBus in between them.
     cd ../StandaloneDocker && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-docker:${TAG_VERSION} .
 
 elif [ "$1" = "node_base_multi" ]; then
@@ -37,11 +39,13 @@ elif [ "$1" = "node_base_multi" ]; then
 elif [ "$1" = "firefox_multi" ]; then
     FROM_IMAGE_ARGS="$FROM_IMAGE_ARGS --build-arg BASE=node-firefox"
     cd ./NodeFirefox && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -f Dockerfile.multi-arch -t ${NAME}/node-firefox:${TAG_VERSION} .
+    sleep 5   # Prevent "failed to solve" errors when trying to pull NodeFirefox dependency
     cd ../Standalone && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-firefox:${TAG_VERSION} .
 
 elif [ "$1" = "chromium_multi" ]; then
     FROM_IMAGE_ARGS="$FROM_IMAGE_ARGS --build-arg BASE=node-chromium"
     cd ./NodeChromium && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/node-chromium:${TAG_VERSION} .
+    sleep 5   # Prevent "failed to solve" errors when trying to pull NodeChromium dependency
     cd ../Standalone && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/standalone-chromium:${TAG_VERSION} .
 
 elif [ "$1" = "tag_and_push_multi_arch_browser_images" ]; then
