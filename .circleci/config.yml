@@ -273,7 +273,16 @@ jobs:
             echo BUILD_DATE="$BUILD_DATE"
             echo RELEASE_TAG="$RELEASE_TAG"
             export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
-            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} sh build-and-push.sh $MAKE_TARGETS
+            #NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} sh build-and-push.sh $MAKE_TARGETS
+            
+            export NAME=${NAMESPACE}
+            export VERSION=${BRANCH}
+            export BUILD_DATE=${BUILD_DATE}
+            export PLATFORMS=${PLATFORMS}
+            export BUILD_ARGS=${BUILD_ARGS}
+            # If there are build errors, let's retry
+            max=5; until sh build-and-push.sh $MAKE_TARGETS; do if [ $((--max)) = 0 ]; then echo Giving up; break; fi; done
+
       - when:
           condition:
             equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
