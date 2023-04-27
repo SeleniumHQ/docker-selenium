@@ -17,9 +17,9 @@ if [ ! -z "$SE_HUB_PORT" ]; then
   PORT_CONFIG="--port ${SE_HUB_PORT}"
 fi
 
-if [ ! -z "$SE_HUB_SUB_PATH" ]; then
-  echo "Using SE_HUB_SUB_PATH: ${SE_HUB_SUB_PATH}"
-  SUB_PATH_CONFIG="--sub-path ${SE_HUB_SUB_PATH}"
+if [ ! -z "$SE_SUB_PATH" ]; then
+  echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
+  SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
 fi
 
 EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"

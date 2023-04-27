@@ -35,6 +35,11 @@ if [[ -z "${SE_SESSION_QUEUE_PORT}" ]]; then
   exit 1
 fi
 
+if [ ! -z "$SE_SUB_PATH" ]; then
+  echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
+  SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
+fi
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
@@ -72,4 +77,5 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
   --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
+  ${SUB_PATH_CONFIG} \
   ${SE_OPTS}

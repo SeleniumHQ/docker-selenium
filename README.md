@@ -45,6 +45,7 @@ Talk to us at https://www.selenium.dev/support/
   + [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
   + [SE_JAVA_OPTS Java Environment Options](#se_java_opts-java-environment-options)
   + [Node configuration options](#node-configuration-options)
+  + [Setting Sub Path](#setting-sub-path)
   + [Setting Screen Resolution](#setting-screen-resolution)
   + [Grid Url and Session Timeout](#grid-url-and-session-timeout)
   + [Session request timeout](#session-request-timeout)
@@ -790,6 +791,15 @@ $ docker run -d \
   -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
   -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\",\"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\",\"platformName\": \"Linux\"}" \
   --shm-size="2g" selenium/node-chrome:4.9.0-20230421
+```
+
+### Setting Sub Path
+
+By default, Selenium is reachable at `http://127.0.0.1:4444/`. Selenium can be configured to use a custom sub path by specifying the `SE_SUB_PATH`
+environmental variable. In the example below Selenium is reachable at `http://127.0.0.1:4444/selenium-grid/`
+
+```bash
+$ docker run -d -p 4444:4444 -e SE_SUB_PATH=/selenium-grid/ --name selenium-hub selenium/hub:4.9.0-20230421
 ```
 
 ### Setting Screen Resolution
