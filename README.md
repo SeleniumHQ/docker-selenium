@@ -520,7 +520,8 @@ there, and when the test completes, the container gets thrown away.
 
 This execution mode can be used either in the Standalone or Node roles. The "dynamic"
 execution mode needs to be told what Docker images to use when the containers get started.
-Additionally, the Grid needs to know the URI of the Docker daemon.
+Additionally, the Grid needs to know the URI of the Docker daemon. This configuration can
+be placed in a local `toml` file.
 
 ### Configuration example
 
@@ -530,14 +531,14 @@ You can save this file locally and name it, for example, `config.toml`.
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.9.0-20230421", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.9.0-20230421", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-edge:4.9.0-20230421", "{\"browserName\": \"MicrosoftEdge\"}"
-    ]
+    "selenium/standalone-firefox:4.9.0-20230421", '{"browserName": "firefox"}',
+    "selenium/standalone-chrome:4.9.0-20230421", '{"browserName": "chrome"}',
+    "selenium/standalone-edge:4.9.0-20230421", '{"browserName": "MicrosoftEdge"}'
+]
 
 # URL for connecting to the docker daemon
 # Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
-# 127.0.0.1 is used because interally the container uses socat when /var/run/docker.sock is mounted 
+# 127.0.0.1 is used because internally the container uses socat when /var/run/docker.sock is mounted 
 # If var/run/docker.sock is not mounted: 
 # Windows: make sure Docker Desktop exposes the daemon via tcp, and use http://host.docker.internal:2375.
 # macOS: install socat and run the following command, socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock,
