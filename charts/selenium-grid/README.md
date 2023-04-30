@@ -30,10 +30,15 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 ```
 
 ## Enable Selenium Grid Autoscaling
-Selenium Grid has the ability to autoscale browser nodes up/down based on the requests pending in session queue. You can enable it setting 'autoscalingEnabled' to `true`. You need to install KEDA by following the [instructions](https://keda.sh/docs/2.8/deploy/#helm) in order for autoscaling to work. 
+Selenium Grid has the ability to autoscale browser nodes up/down based on the pending requests in the 
+session queue. 
+The `hpa.url` value is configured to work for Grid when installed in the `default` namespace. If you are installing
+the Grid in some other namespace make sure to update the value of `hpa.url` accordingly. 
+[instructions](https://keda.sh/docs/2.8/deploy/#helm) in order for autoscaling to work. 
 
 The hpa.url value is configured to work for grid installed in `default` namespace. If you are installing the grid in some other namespace make sure to update the value of hpa.url accordingly. 
 
+The `terminationGracePeriodSeconds` is set to 30 seconds by default. When scaling down, pods are choosen randomly by HPA. If the chosen pod is currently executing a test rather than being idle, then there is 30 seconds before the test is expected to complete. If your test is still executing after 30 seconds, it would result in failure as the pod will be killed. If you want to give more time for your tests to complete, you may set `terminationGracePeriodSeconds` to value upto 3600 seconds.
 ## Updating Selenium-Grid release
 
 Once you have a new chart version, you can update your selenium-grid running:

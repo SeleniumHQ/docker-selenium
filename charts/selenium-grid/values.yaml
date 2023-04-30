@@ -364,7 +364,7 @@ chromeNode:
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 2Gi
+  dshmVolumeSizeLimit: 1Gi
   # Priority class name for chrome-node pods
   priorityClassName: ""
 
@@ -376,7 +376,7 @@ chromeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 3600
+  terminationGracePeriodSeconds: 30
   # Allow pod correctly shutdown
   lifecycle: 
     preStop:
@@ -485,7 +485,7 @@ firefoxNode:
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 2Gi
+  dshmVolumeSizeLimit: 1Gi
   # Priority class name for firefox-node pods
   priorityClassName: ""
 
@@ -497,7 +497,7 @@ firefoxNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 3600
+  terminationGracePeriodSeconds: 30
   # Allow pod correctly shutdown
   lifecycle: 
     preStop:
@@ -603,7 +603,7 @@ edgeNode:
     annotations:
       hello: world
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 2Gi
+  dshmVolumeSizeLimit: 1Gi
   # Priority class name for edge-node pods
   priorityClassName: ""
 
@@ -615,7 +615,7 @@ edgeNode:
     # failureThreshold: 120
     # periodSeconds: 5
   # Time to wait for pod termination
-  terminationGracePeriodSeconds: 3600
+  terminationGracePeriodSeconds: 30
   # Allow pod correctly shutdown
   lifecycle: 
     preStop:
