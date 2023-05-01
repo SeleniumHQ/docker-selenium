@@ -4,7 +4,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 
@@ -67,14 +69,14 @@ class SeleniumGenericTests(unittest.TestCase):
 class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
-            desired_capabilities=DesiredCapabilities.CHROME,
+            options=ChromeOptions(),
             command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
-            desired_capabilities=DesiredCapabilities.EDGE,
+            options=EdgeOptions(),
             command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 
@@ -82,7 +84,7 @@ class EdgeTests(SeleniumGenericTests):
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
-            desired_capabilities=DesiredCapabilities.FIREFOX,
+            options=FirefoxOptions(),
             command_executor="http://%s:4444" % SELENIUM_GRID_HOST
         )
 

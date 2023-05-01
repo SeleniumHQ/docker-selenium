@@ -2,11 +2,7 @@ name: Test video files
 
 on:
   push:
-    branches:
-      - trunk
   pull_request:
-    branches:
-      - trunk
 
 permissions:
   contents: read
@@ -22,7 +18,7 @@ jobs:
       - name: Output Docker info
         run: docker info
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v4.6.0
         with:
           python-version: 3.8
       - name: Get branch name (only for push to branch)

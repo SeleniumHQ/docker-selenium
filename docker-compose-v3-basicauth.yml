@@ -1,7 +1,7 @@
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v2.yml up`
+# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v2.yml down`
-version: '2'
+# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3.yml down`
+version: "3"
 services:
   chrome:
     image: selenium/node-chrome:4.9.0-20230421
@@ -12,8 +12,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6900:5900"
 
   edge:
     image: selenium/node-edge:4.9.0-20230421
@@ -24,8 +22,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6901:5900"
 
   firefox:
     image: selenium/node-firefox:4.9.0-20230421
@@ -36,12 +32,13 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-    ports:
-      - "6902:5900"
 
   selenium-hub:
     image: selenium/hub:4.9.0-20230421
+    container_name: selenium-hub
     ports:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+    volumes:
+      - ./Hub/example-config.toml:/opt/selenium/config.toml
