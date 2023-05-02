@@ -28,6 +28,12 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
         X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
     fi
 
+    VNC_PASSWORD=${VNC_PASSWORD:-$SE_VNC_PASSWORD}
+    if [ ! -z $VNC_PASSWORD ]; then
+      echo "Starting VNC server with custom password"
+      x11vnc -storepasswd ${VNC_PASSWORD} ${HOME}/.vnc/passwd
+    fi
+
     for i in $(seq 1 10)
     do
       sleep 1
