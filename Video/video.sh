@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 VIDEO_SIZE="${SE_SCREEN_WIDTH}""x""${SE_SCREEN_HEIGHT}"
 DISPLAY_CONTAINER_NAME=${DISPLAY_CONTAINER_NAME}
@@ -22,6 +22,38 @@ until [ $return_code -eq 0 -o $attempts -eq $max_attempts ]; do
 	attempts=$((attempts+1))
 done
 
-# exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
-exec ffmpeg -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "/videos/$FILE_NAME"
-
+video_location_default=/videos
+if [ "${SESSION_VIDEO}" = "true" ];
+then
+	recording_started="false"
+	video_file_name=""
+	while true;
+	do
+		session_id=$(curl -s --request GET 'http://'${DISPLAY_CONTAINER_NAME}':'${DISPLAY_CONTAINER_PORT}'/status' | jq -r '.[]?.node?.slots | .[0]?.session?.sessionId')
+		echo $session_id
+		if [ "$session_id" != "null" -a "$session_id" != "" ] && [ $recording_started = "false" ];
+		then
+			echo "Starting to record video"
+			video_file_name="${VIDEO_LOCATION:-$video_location_default}/$session_id.mp4"
+			ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file_name &
+			recording_started="true"
+			echo "Video recording started"
+		elif [ "$session_id" = "null" -o "$session_id" = "" ] && [ $recording_started = "true" ];
+		then
+			echo "Stopping to record video"
+			pkill --signal INT ffmpeg
+			# ./opt/bin/start-uploader.sh $video_file_name &
+			recording_started="false"
+			echo "Video recording stopped"
+		elif [ $recording_started = "true" ];
+		then
+			echo "Video recording in progress"
+		else
+			echo "No session in progress"
+		fi
+		sleep 1
+	done
+else
+	# exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
+	exec ffmpeg -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "${VIDEO_LOCATION:-$video_location_default}/$FILE_NAME"
+fi
