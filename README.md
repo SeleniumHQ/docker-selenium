@@ -1092,27 +1092,8 @@ Then, you would use in your VNC client:
 - Port 5901 to connect to the Edge container
 - Port 5902 to connect to the Firefox container
 
-If you get a prompt asking for a password, it is: `secret`. If you wish to change this, you should either change 
-it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
-the posted ones which reconfigures it:
-
-Dockerfile example that extends the `node-chrome:4.9.0-20230421`. You can choose another browser image or a Standalone
-browser image.
-
-``` dockerfile
-FROM selenium/node-chrome:4.9.0-20230421
-
-RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
-```
-
-Save the `Dockerfile` as `DockerfileVNCPasswordChanged`, open a terminal and on the same directory run:
-
-```shell
-docker build -t selenium/node-chrome-vnc-password-changed:4.9.0-20230421 -f DockerfileVNCPasswordChanged .
-```
-
-And from now on, instead of using `node-chrome:4.9.0-20230421` in your scripts or docker-compose files, use
-`selenium/node-chrome-vnc-password-changed:4.9.0-20230421`.
+If you get a prompt asking for a password, it is: `secret`. If you wish to change this, 
+you can set the environment variable `SE_VNC_PASSWORD`.
 
 If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
 
