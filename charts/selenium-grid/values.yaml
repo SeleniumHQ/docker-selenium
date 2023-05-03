@@ -202,6 +202,9 @@ components:
     # Priority class name for Session Queue pods
     priorityClassName: ""
 
+  # Custom sub path for all components
+  subPath: /
+
   # Custom environment variables for all components
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
@@ -258,6 +261,8 @@ hub:
     timeoutSeconds: 10
     periodSeconds: 10
     successThreshold: 1
+  # Custom sub path for the hub deployment
+  subPath: /
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS

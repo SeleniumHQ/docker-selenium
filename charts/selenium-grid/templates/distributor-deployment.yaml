@@ -38,6 +38,8 @@ spec:
               value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
+            - name: SE_SUB_PATH
+              value: {{ .Values.components.subPath }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
