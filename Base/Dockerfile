@@ -101,4 +101,4 @@ USER 1200:1201
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
 
-CMD ["/opt/bin/entry_point.sh"]
+ENTRYPOINT ["/opt/bin/entry_point.sh"]
