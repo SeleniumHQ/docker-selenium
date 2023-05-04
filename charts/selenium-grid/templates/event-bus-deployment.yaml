@@ -36,12 +36,9 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.components.eventBus.subscribePort }}
               protocol: TCP
-          env:
-            - name: SE_SUB_PATH
-              value: {{ .Values.components.subPath }}
-          {{- with .Values.components.extraEnvironmentVariables }}
-            {{- tpl (toYaml .) $ | nindent 12 }}
-          {{- end }}
+        {{- with .Values.components.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
         {{- with .Values.components.extraEnvFrom }}
           envFrom:
               {{- toYaml . | nindent 12 }}

@@ -29,12 +29,9 @@ spec:
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionMap.imageTag }}
           image: {{ printf "%s:%s" .Values.components.sessionMap.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
-          env:
-            - name: SE_SUB_PATH
-              value: {{ .Values.components.subPath }}
-          {{- with .Values.components.extraEnvironmentVariables }}
-            {{- tpl (toYaml .) $ | nindent 12 }}
-          {{- end }}
+        {{- with .Values.components.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
