@@ -1,10 +1,10 @@
-{{- if and .Values.edgeNode.enabled .Values.edgeNode.deploymentEnabled }}
+{{- if and .Values.edgeNode.enabled ((eq (include "seleniumGrid.useKEDA" .) "true") | ternary (eq .Values.autoscaling.scalingType "deployment") .Values.edgeNode.deploymentEnabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "seleniumGrid.edgeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
-  labels: &edge_node_labels
+  labels:
     app: selenium-edge-node
     app.kubernetes.io/name: selenium-edge-node
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
@@ -20,81 +20,8 @@ spec:
     matchLabels:
       app: selenium-edge-node
       app.kubernetes.io/instance: {{ .Release.Name }}
-  template:
-    metadata:
-      labels: *edge_node_labels
-      annotations:
-        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
-        {{- with .Values.edgeNode.annotations }}
-          {{ toYaml . | nindent 8 }}
-        {{- end }}
-    spec:
-    {{- with .Values.edgeNode.hostAliases }}
-      hostAliases: {{ toYaml . | nindent 8 }}
-    {{- end }}
-      containers:
-        - name: selenium-edge-node
-          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.edgeNode.imageTag }}
-          image: {{ printf "%s:%s" .Values.edgeNode.imageName $imageTag }}
-          imagePullPolicy: {{ .Values.edgeNode.imagePullPolicy }}
-        {{- with .Values.edgeNode.extraEnvironmentVariables }}
-          env: {{- tpl (toYaml .) $ | nindent 12 }}
-        {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ .Values.busConfigMap.name }}
-            {{- with .Values.edgeNode.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
-        {{- if gt (len .Values.edgeNode.ports) 0 }}
-          ports:
-          {{- range .Values.edgeNode.ports }}
-            - containerPort: {{ . }}
-              protocol: TCP
-          {{- end }}
-        {{- end }}
-          volumeMounts:
-            - name: dshm
-              mountPath: /dev/shm
-          {{- if .Values.edgeNode.extraVolumeMounts }}
-            {{- toYaml .Values.edgeNode.extraVolumeMounts | nindent 12 }}
-          {{- end }}
-        {{- with .Values.edgeNode.resources }}
-          resources: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.edgeNode.securityContext }}
-          securityContext: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.edgeNode.lifecycle }}
-          lifecycle: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.edgeNode.startupProbe }}
-          startupProbe: {{- toYaml . | nindent 12 }}
-        {{- end }}
-    {{- with .Values.edgeNode.nodeSelector }}
-      nodeSelector: {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- if or .Values.global.seleniumGrid.affinity .Values.edgeNode.affinity }}
-      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.edgeNode.affinity }}
-      affinity: {{- toYaml $affinityYaml | nindent 8 }}
-    {{- end }}    
-    {{- with .Values.edgeNode.tolerations }}
-      tolerations: {{ toYaml . | nindent 6 }}
-    {{- end }}
-    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.edgeNode.imagePullSecret }}
-      imagePullSecrets:
-        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.edgeNode.imagePullSecret }}
-    {{- end }}
-    {{- with .Values.edgeNode.priorityClassName }}
-      priorityClassName: {{ . }}
-    {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.edgeNode.terminationGracePeriodSeconds }}
-      volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
-            sizeLimit: {{ default "1Gi" .Values.edgeNode.dshmVolumeSizeLimit }}
-      {{- if .Values.edgeNode.extraVolumes }}
-        {{ toYaml .Values.edgeNode.extraVolumes | nindent 8 }}
-      {{- end }}
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" "selenium-edge-node" -}}
+{{- $_ =  set $podScope "node" .Values.edgeNode  -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 2 }}
 {{- end }}

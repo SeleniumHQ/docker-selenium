@@ -1,0 +1,35 @@
+{{- if and .Values.edgeNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-edge-node
+    app.kubernetes.io/name: selenium-edge-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.edgeNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  maxReplicaCount: {{ .Values.edgeNode.maxReplicaCount }}
+  {{- with .Values.autoscaling.scaledJobOptions -}}
+    {{ toYaml . | nindent 2 }}
+  {{- end }}
+  triggers:
+    - type: selenium-grid
+    {{- with .Values.edgeNode.hpa }}
+      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
+  jobTargetRef:
+    parallelism: 1
+    completions: 1
+    backoffLimit: 0
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" "selenium-edge-node" -}}
+{{- $_ =  set $podScope "node" .Values.edgeNode  -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 4 }}
+{{- end }}

@@ -30,15 +30,29 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 ```
 
 ## Enable Selenium Grid Autoscaling
+
 Selenium Grid has the ability to autoscale browser nodes up/down based on the pending requests in the 
-session queue. 
-The `hpa.url` value is configured to work for Grid when installed in the `default` namespace. If you are installing
-the Grid in some other namespace make sure to update the value of `hpa.url` accordingly. 
-[instructions](https://keda.sh/docs/2.8/deploy/#helm) in order for autoscaling to work. 
+session queue.
 
-The hpa.url value is configured to work for grid installed in `default` namespace. If you are installing the grid in some other namespace make sure to update the value of hpa.url accordingly. 
+To do this [KEDA](https://keda.sh/docs/2.10/scalers/selenium-grid-scaler/) is used. When enabling
+autoscaling using `autoscaling.enabling` KEDA is installed automatically. To instead use an existing
+installation of KEDA you can enable autoscaling with `autoscaling.enableWithExistingKEDA` instead.
 
-The `terminationGracePeriodSeconds` is set to 30 seconds by default. When scaling down, pods are choosen randomly by HPA. If the chosen pod is currently executing a test rather than being idle, then there is 30 seconds before the test is expected to complete. If your test is still executing after 30 seconds, it would result in failure as the pod will be killed. If you want to give more time for your tests to complete, you may set `terminationGracePeriodSeconds` to value upto 3600 seconds.
+KEDA can scale either with
+[deployments](https://keda.sh/docs/2.10/concepts/scaling-deployments/#scaling-of-deployments-and-statefulsets)
+or [jobs](https://keda.sh/docs/2.10/concepts/scaling-jobs/) and the charts support both types. This
+chart support both modes.  It is controlled with `autoscaling.scalingType` that can be set to either
+job (default) or deployment.
+
+### Settings when scaling with deployments 
+
+The `terminationGracePeriodSeconds` is set to 30 seconds by default. When scaling using deployments
+the HPA choose pods to terminate randomly. If the chosen pod is currently executing a test rather
+than being idle, then there is 30 seconds before the test is expected to complete. If your test is
+still executing after 30 seconds, it would result in failure as the pod will be killed. If you want
+to give more time for your tests to complete, you may set `terminationGracePeriodSeconds` to value
+upto 3600 seconds.
+
 ## Updating Selenium-Grid release
 
 Once you have a new chart version, you can update your selenium-grid running:
@@ -69,328 +83,134 @@ For now, global configuration supported is:
 
 This table contains the configuration parameters of the chart and their default values:
 
-| Parameter                               | Default                            | Description                                                                                                                |
-| --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `isolateComponents`                     | `false`                            | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
-| `busConfigMap.name`                     | `selenium-event-bus-config`        | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
-| `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
-| `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
-| `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
-| `ingress.path`                          | `/`                                | Default path for ingress resource                                                                             |
-| `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
-| `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
-| `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
-| `chromeNode.deploymentEnabled`          | `true`                             | Enable creation of Deployment for chrome nodes                                                                             |
-| `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
-| `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.9.1-20230508`                   | Image of chrome nodes                                                                                                      |
-| `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `chromeNode.ports`                      | `[5555]`                           | Port list to enable on container                                                                                           |
-| `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
-| `chromeNode.labels`                     | `{}`                               | Labels for chrome-node pods                                                                                                |
-| `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node pods                                                                                             |
-| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node pods                                                                                           |
-| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node pods                                                                                         |
-| `chromeNode.hostAliases`                | `nil`                              | Custom host aliases for chrome nodes                                                                                       |
-| `chromeNode.priorityClassName`          | `""`                               | Priority class name for chrome-node pods                                                                                   |
-| `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
-| `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
-| `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
-| `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
-| `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
-| `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `chromeNode.startupProbe`               | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `chromeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `chromeNode.lifecycle`                  | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `chromeNode.autoscalingEnabled`         | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `chromeNode.hpa.url`                    | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `chromeNode.hpa.browserName`            | `chrome`                           | BrowserName from the capability |
-| `chromeNode.hpa.browserVersion`         | ``                                 | BrowserVersion from the capability |
-| `chromeNode.maxReplicaCount`            | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
-| `firefoxNode.deploymentEnabled`         | `true`                             | Enable creation of Deployment for firefox nodes                                                                            |
-| `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
-| `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.9.1-20230508`                   | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `firefoxNode.ports`                     | `[5555]`                           | Port list to enable on container                                                                                           |
-| `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
-| `firefoxNode.labels`                    | `{}`                               | Labels for firefox-node pods                                                                                               |
-| `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node pods                                                                                            |
-| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node pods                                                                                          |
-| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node pods                                                                                        |
-| `firefoxNode.hostAliases`               | `nil`                              | Custom host aliases for firefox nodes                                                                                      |
-| `firefoxNode.priorityClassName`         | `""`                               | Priority class name for firefox-node pods                                                                                  |
-| `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
-| `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
-| `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
-| `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
-| `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `firefoxNode.startupProbe`              | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `firefoxNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                       |
-| `firefoxNode.lifecycle`                 | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `firefoxNode.autoscalingEnabled`        | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `firefoxNode.hpa.url`                   | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `firefoxNode.hpa.browserName`           | `firefox`                          | BrowserName from the capability |
-| `firefoxNode.hpa.browserVersion`        | ``                                 | BrowserVersion from the capability |
-| `firefoxNode.maxReplicaCount`           | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
-| `edgeNode.deploymentEnabled`            | `true`                             | Enable creation of Deployment for edge nodes                                                                               |
-| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
-| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.9.1-20230508`                   | Image of edge nodes                                                                                                        |
-| `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `edgeNode.ports`                        | `[5555]`                           | Port list to enable on container                                                                                           |
-| `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
-| `edgeNode.labels`                       | `{}`                               | Labels for edge-node pods                                                                                                  |
-| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node pods                                                                                               |
-| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node pods                                                                                             |
-| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node pods                                                                                           |
-| `edgeNode.hostAliases`                  | `nil`                              | Custom host aliases for edge nodes                                                                                         |
-| `edgeNode.priorityClassName`            | `""`                               | Priority class name for edge-node pods                                                                                     |
-| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
-| `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
-| `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
-| `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
-| `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `edgeNode.startupProbe`                 | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `edgeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `edgeNode.lifecycle`                    | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `edgeNode.autoscalingEnabled`          | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `edgeNode.hpa.url`                     | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `edgeNode.hpa.browserName`             | `edge`                           | BrowserName from the capability |
-| `edgeNode.hpa.browserVersion`          | ``                               | BrowserVersion from the capability |
-| `edgeNode.maxReplicaCount`             | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
-| `customLabels`                              | `{}`                        | Custom labels for k8s resources                                                                                            |
->>>>>>> variant B
-| Parameter                               | Default                            | Description                                                                                                                |
-| --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `isolateComponents`                     | `false`                            | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
-| `busConfigMap.name`                     | `selenium-event-bus-config`        | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
-| `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
-| `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
-| `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
-| `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
-| `ingress.path`                          | `/`                                | Default path for ingress resource                                                                             |
-| `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
-| `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
-| `chromeNode.deploymentEnabled`          | `true`                             | Enable creation of Deployment for chrome nodes                                                                             |
-| `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
-| `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.9.0-20230421`                   | Image of chrome nodes                                                                                                      |
-| `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `chromeNode.ports`                      | `[5555]`                           | Port list to enable on container                                                                                           |
-| `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
-| `chromeNode.labels`                     | `{}`                               | Labels for chrome-node pods                                                                                                |
-| `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node pods                                                                                             |
-| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node pods                                                                                           |
-| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node pods                                                                                         |
-| `chromeNode.hostAliases`                | `nil`                              | Custom host aliases for chrome nodes                                                                                       |
-| `chromeNode.priorityClassName`          | `""`                               | Priority class name for chrome-node pods                                                                                   |
-| `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
-| `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
-| `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
-| `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
-| `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
-| `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `chromeNode.startupProbe`               | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `chromeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `chromeNode.lifecycle`                  | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `chromeNode.autoscalingEnabled`         | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `chromeNode.hpa.url`                    | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `chromeNode.hpa.browserName`            | `chrome`                           | BrowserName from the capability |
-| `chromeNode.hpa.browserVersion`         | ``                                 | BrowserVersion from the capability |
-| `chromeNode.maxReplicaCount`            | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
-| `firefoxNode.deploymentEnabled`         | `true`                             | Enable creation of Deployment for firefox nodes                                                                            |
-| `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
-| `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.9.0-20230421`                   | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `firefoxNode.ports`                     | `[5555]`                           | Port list to enable on container                                                                                           |
-| `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
-| `firefoxNode.labels`                    | `{}`                               | Labels for firefox-node pods                                                                                               |
-| `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node pods                                                                                            |
-| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node pods                                                                                          |
-| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node pods                                                                                        |
-| `firefoxNode.hostAliases`               | `nil`                              | Custom host aliases for firefox nodes                                                                                      |
-| `firefoxNode.priorityClassName`         | `""`                               | Priority class name for firefox-node pods                                                                                  |
-| `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
-| `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
-| `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
-| `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
-| `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `firefoxNode.startupProbe`              | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `firefoxNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                       |
-| `firefoxNode.lifecycle`                 | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `firefoxNode.autoscalingEnabled`        | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `firefoxNode.hpa.url`                   | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `firefoxNode.hpa.browserName`           | `firefox`                          | BrowserName from the capability |
-| `firefoxNode.hpa.browserVersion`        | ``                                 | BrowserVersion from the capability |
-| `firefoxNode.maxReplicaCount`           | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
-| `edgeNode.deploymentEnabled`            | `true`                             | Enable creation of Deployment for edge nodes                                                                               |
-| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
-| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.9.0-20230421`                   | Image of edge nodes                                                                                                        |
-| `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `edgeNode.ports`                        | `[5555]`                           | Port list to enable on container                                                                                           |
-| `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
-| `edgeNode.labels`                       | `{}`                               | Labels for edge-node pods                                                                                                  |
-| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node pods                                                                                               |
-| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node pods                                                                                             |
-| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node pods                                                                                           |
-| `edgeNode.hostAliases`                  | `nil`                              | Custom host aliases for edge nodes                                                                                         |
-| `edgeNode.priorityClassName`            | `""`                               | Priority class name for edge-node pods                                                                                     |
-| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
-| `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
-| `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
-| `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
-| `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `edgeNode.startupProbe`                 | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `edgeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `edgeNode.lifecycle`                    | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `edgeNode.autoscalingEnabled`          | `false`                            | Enable/Disable autoscaling of browser nodes |
-| `edgeNode.hpa.url`                     | `http://selenium-hub.default:4444/graphql` | Graphql Url of the hub or the router |
-| `edgeNode.hpa.browserName`             | `edge`                           | BrowserName from the capability |
-| `edgeNode.hpa.browserVersion`          | ``                               | BrowserVersion from the capability |
-| `edgeNode.maxReplicaCount`             | `8`                                | Max number of replicas that this browsernode can auto scale up to |
-| `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
-####### Ancestor
-| Parameter                               | Default                            | Description                                                                                                                |
-| --------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `isolateComponents`                     | `false`                            | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
-| `busConfigMap.name`                     | `selenium-event-bus-config`        | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
-| `ingress.enabled`                       | `true`                             | Enable or disable ingress resource                                                                                         |
-| `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
-| `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
-| `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
-| `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
-| `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
-| `chromeNode.deploymentEnabled`          | `true`                             | Enable creation of Deployment for chrome nodes                                                                             |
-| `chromeNode.replicas`                   | `1`                                | Number of chrome nodes                                                                                                     |
-| `chromeNode.imageName`                  | `selenium/node-chrome`             | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                   | `4.9.0-20230421`                   | Image of chrome nodes                                                                                                      |
-| `chromeNode.imagePullPolicy`            | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `chromeNode.imagePullSecret`            | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `chromeNode.ports`                      | `[5555]`                           | Port list to enable on container                                                                                           |
-| `chromeNode.seleniumPort`               | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `chromeNode.seleniumServicePort`        | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `chromeNode.annotations`                | `{}`                               | Annotations for chrome-node pods                                                                                           |
-| `chromeNode.labels`                     | `{}`                               | Labels for chrome-node pods                                                                                                |
-| `chromeNode.resources`                  | `See values.yaml`                  | Resources for chrome-node pods                                                                                             |
-| `chromeNode.tolerations`                | `[]`                               | Tolerations for chrome-node pods                                                                                           |
-| `chromeNode.nodeSelector`               | `{}`                               | Node Selector for chrome-node pods                                                                                         |
-| `chromeNode.hostAliases`                | `nil`                              | Custom host aliases for chrome nodes                                                                                       |
-| `chromeNode.priorityClassName`          | `""`                               | Priority class name for chrome-node pods                                                                                   |
-| `chromeNode.extraEnvironmentVariables`  | `nil`                              | Custom environment variables for chrome nodes                                                                              |
-| `chromeNode.extraEnvFrom`               | `nil`                              | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
-| `chromeNode.service.enabled`            | `true`                             | Create a service for node                                                                                                  |
-| `chromeNode.service.type`               | `ClusterIP`                        | Service type                                                                                                               |
-| `chromeNode.service.annotations`        | `{}`                               | Custom annotations for service                                                                                             |
-| `chromeNode.dshmVolumeSizeLimit`        | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `chromeNode.startupProbe`               | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `chromeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `chromeNode.lifecycle`                  | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `chromeNode.extraVolumeMounts`          | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `chromeNode.extraVolumes`               | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `firefoxNode.enabled`                   | `true`                             | Enable firefox nodes                                                                                                       |
-| `firefoxNode.deploymentEnabled`         | `true`                             | Enable creation of Deployment for firefox nodes                                                                            |
-| `firefoxNode.replicas`                  | `1`                                | Number of firefox nodes                                                                                                    |
-| `firefoxNode.imageName`                 | `selenium/node-firefox`            | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                  | `4.9.0-20230421`                   | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imagePullPolicy`           | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `firefoxNode.imagePullSecret`           | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `firefoxNode.ports`                     | `[5555]`                           | Port list to enable on container                                                                                           |
-| `firefoxNode.seleniumPort`              | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `firefoxNode.seleniumServicePort`       | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `firefoxNode.annotations`               | `{}`                               | Annotations for firefox-node pods                                                                                          |
-| `firefoxNode.labels`                    | `{}`                               | Labels for firefox-node pods                                                                                               |
-| `firefoxNode.resources`                 | `See values.yaml`                  | Resources for firefox-node pods                                                                                            |
-| `firefoxNode.tolerations`               | `[]`                               | Tolerations for firefox-node pods                                                                                          |
-| `firefoxNode.nodeSelector`              | `{}`                               | Node Selector for firefox-node pods                                                                                        |
-| `firefoxNode.hostAliases`               | `nil`                              | Custom host aliases for firefox nodes                                                                                      |
-| `firefoxNode.priorityClassName`         | `""`                               | Priority class name for firefox-node pods                                                                                  |
-| `firefoxNode.extraEnvironmentVariables` | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `firefoxNode.extraEnvFrom`              | `nil`                              | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
-| `firefoxNode.service.enabled`           | `true`                             | Create a service for node                                                                                                  |
-| `firefoxNode.service.type`              | `ClusterIP`                        | Service type                                                                                                               |
-| `firefoxNode.service.annotations`       | `{}`                               | Custom annotations for service                                                                                             |
-| `firefoxNode.dshmVolumeSizeLimit`       | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `firefoxNode.startupProbe`              | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `firefoxNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                       |
-| `firefoxNode.lifecycle`                 | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `firefoxNode.extraVolumeMounts`         | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `firefoxNode.extraVolumes`              | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `edgeNode.enabled`                      | `true`                             | Enable edge nodes                                                                                                          |
-| `edgeNode.deploymentEnabled`            | `true`                             | Enable creation of Deployment for edge nodes                                                                               |
-| `edgeNode.replicas`                     | `1`                                | Number of edge nodes                                                                                                       |
-| `edgeNode.imageName`                    | `selenium/node-edge`               | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                     | `4.9.0-20230421`                   | Image of edge nodes                                                                                                        |
-| `edgeNode.imagePullPolicy`              | `IfNotPresent`                     | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `edgeNode.imagePullSecret`              | `""`                               | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `edgeNode.ports`                        | `[5555]`                           | Port list to enable on container                                                                                           |
-| `edgeNode.seleniumPort`                 | `5900`                             | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `edgeNode.seleniumServicePort`          | `6900`                             | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
-| `edgeNode.annotations`                  | `{}`                               | Annotations for edge-node pods                                                                                             |
-| `edgeNode.labels`                       | `{}`                               | Labels for edge-node pods                                                                                                  |
-| `edgeNode.resources`                    | `See values.yaml`                  | Resources for edge-node pods                                                                                               |
-| `edgeNode.tolerations`                  | `[]`                               | Tolerations for edge-node pods                                                                                             |
-| `edgeNode.nodeSelector`                 | `{}`                               | Node Selector for edge-node pods                                                                                           |
-| `edgeNode.hostAliases`                  | `nil`                              | Custom host aliases for edge nodes                                                                                         |
-| `edgeNode.priorityClassName`            | `""`                               | Priority class name for edge-node pods                                                                                     |
-| `edgeNode.extraEnvironmentVariables`    | `nil`                              | Custom environment variables for firefox nodes                                                                             |
-| `edgeNode.extraEnvFrom`                 | `nil`                              | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
-| `edgeNode.service.enabled`              | `true`                             | Create a service for node                                                                                                  |
-| `edgeNode.service.type`                 | `ClusterIP`                        | Service type                                                                                                               |
-| `edgeNode.service.annotations`          | `{}`                               | Custom annotations for service                                                                                             |
-| `edgeNode.dshmVolumeSizeLimit`          | `1Gi`                              | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `edgeNode.startupProbe`                 | `{}`                               | Probe to check pod is started successfully                                                                                 |
-| `edgeNode.terminationGracePeriodSeconds` | `30`                            | Time to graceful terminate container (default: 30s)                                                                        |
-| `edgeNode.lifecycle`                    | `{}`                               | hooks to make pod correctly shutdown or started                                                                            |
-| `edgeNode.extraVolumeMounts`            | `[]`                               | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `edgeNode.extraVolumes`                 | `[]`                               | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `customLabels`                          | `{}`                               | Custom labels for k8s resources                                                                                            |
-======= end
+| Parameter                                   | Default                                     | Description                                                                                                                |
+| ---------------------------------------     | ----------------------------------          | -------------------------------------------------------------------------------------------------------------------------- |
+| `isolateComponents`                         | `false`                                     | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
+| `busConfigMap.name`                         | `selenium-event-bus-config`                 | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
+| `ingress.enabled`                           | `true`                                      | Enable or disable ingress resource                                                                                         |
+| `ingress.className`                         | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
+| `ingress.annotations`                       | `{}`                                        | Custom annotations for ingress resource                                                                                    |
+| `ingress.hostname`                          | `selenium-grid.local`                       | Default host for the ingress resource                                                                                      |
+| `ingress.path`                              | `/`                                         | Default host path for the ingress resource                                                                                 |
+| `ingress.tls`                               | `[]`                                        | TLS backend configuration for ingress resource                                                                             |
+| `busConfigMap.annotations`                  | `{}`                                        | Custom annotations for configmap                                                                                           |
+| `autoscaling.enableWithExistingKEDA`        | `false`                                     | Enable autoscaling of browser nodes.                                                                                       |
+| `autoscaling.enabled`                       | `false`                                     | Same as above plus installation of KEDA                                                                                    |
+| `autoscaling.scalingType`                   | `job`                                       | Which typ of KEDA scaling to use: job or deployment                                                                        |
+| `autoscaling.scaledJobOptions`              | See `values.yaml`                           | Options for KEDA ScaledJobs                                                                                                |
+| `autoscaling.deregisterLifecycle            | See `values.yaml`                           | Lifecycle applied to pods of deployments controlled by KEDA. Makes the node deregister from selenium hub                   |
+| `chromeNode.enabled`                        | `true`                                      | Enable chrome nodes                                                                                                        |
+| `chromeNode.deploymentEnabled`              | `true`                                      | Enable creation of Deployment for chrome nodes                                                                             |
+| `chromeNode.replicas`                       | `1`                                         | Number of chrome nodes                                                                                                     |
+| `chromeNode.imageName`                      | `selenium/node-chrome`                      | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                       | `4.9.1-20230508`                            | Image of chrome nodes                                                                                                      |
+| `chromeNode.imagePullPolicy`                | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `chromeNode.imagePullSecret`                | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
+| `chromeNode.ports`                          | `[5555]`                                    | Port list to enable on container                                                                                           |
+| `chromeNode.seleniumPort`                   | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
+| `chromeNode.seleniumServicePort`            | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `chromeNode.annotations`                    | `{}`                                        | Annotations for chrome-node pods                                                                                           |
+| `chromeNode.labels`                         | `{}`                                        | Labels for chrome-node pods                                                                                                |
+| `chromeNode.resources`                      | `See values.yaml`                           | Resources for chrome-node pods                                                                                             |
+| `chromeNode.securityContext`                | `See values.yaml`                           | Security context for chrome-node pods                                                                                      |
+| `chromeNode.tolerations`                    | `[]`                                        | Tolerations for chrome-node pods                                                                                           |
+| `chromeNode.nodeSelector`                   | `{}`                                        | Node Selector for chrome-node pods                                                                                         |
+| `chromeNode.affinity`                       | `{}`                                        | Affinity for chrome-node pods                                                                                              |
+| `chromeNode.hostAliases`                    | `nil`                                       | Custom host aliases for chrome nodes                                                                                       |
+| `chromeNode.priorityClassName`              | `""`                                        | Priority class name for chrome-node pods                                                                                   |
+| `chromeNode.extraEnvironmentVariables`      | See `values.yaml`                           | Environment variables for chrome nodes                                                                                     |
+| `chromeNode.extraEnvFrom`                   | `nil`                                       | Custom environment taken from `configMap` or `secret` variables for chrome nodes                                           |
+| `chromeNode.service.enabled`                | `true`                                      | Create a service for node                                                                                                  |
+| `chromeNode.service.type`                   | `ClusterIP`                                 | Service type                                                                                                               |
+| `chromeNode.service.annotations`            | `{}`                                        | Custom annotations for service                                                                                             |
+| `chromeNode.dshmVolumeSizeLimit`            | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `chromeNode.startupProbe`                   | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `chromeNode.terminationGracePeriodSeconds`  | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
+| `chromeNode.lifecycle`                      | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
+| `chromeNode.extraVolumeMounts`              | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `chromeNode.extraVolumes`                   | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `chromeNode.hpa.url`                        | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
+| `chromeNode.hpa.browserName`                | `chrome`                                    | BrowserName from the capability                                                                                            |
+| `chromeNode.hpa.browserVersion`             | ``                                          | BrowserVersion from the capability                                                                                         |
+| `chromeNode.maxReplicaCount`                | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `firefoxNode.enabled`                       | `true`                                      | Enable firefox nodes                                                                                                       |
+| `firefoxNode.deploymentEnabled`             | `true`                                      | Enable creation of Deployment for firefox nodes                                                                            |
+| `firefoxNode.replicas`                      | `1`                                         | Number of firefox nodes                                                                                                    |
+| `firefoxNode.imageName`                     | `selenium/node-firefox`                     | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                      | `4.9.1-20230508`                            | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `firefoxNode.imagePullSecret`               | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
+| `firefoxNode.ports`                         | `[5555]`                                    | Port list to enable on container                                                                                           |
+| `firefoxNode.seleniumPort`                  | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
+| `firefoxNode.seleniumServicePort`           | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `firefoxNode.annotations`                   | `{}`                                        | Annotations for firefox-node pods                                                                                          |
+| `firefoxNode.labels`                        | `{}`                                        | Labels for firefox-node pods                                                                                               |
+| `firefoxNode.resources`                     | `See values.yaml`                           | Resources for firefox-node pods                                                                                            |
+| `firefoxNode.securityContext`               | `See values.yaml`                           | Security context for firefox-node pods                                                                                     |
+| `firefoxNode.tolerations`                   | `[]`                                        | Tolerations for firefox-node pods                                                                                          |
+| `firefoxNode.nodeSelector`                  | `{}`                                        | Node Selector for firefox-node pods                                                                                        |
+| `firefoxNode.affinity`                      | `{}`                                        | Affinity for firefox-node pods                                                                                             |
+| `firefoxNode.hostAliases`                   | `nil`                                       | Custom host aliases for firefox nodes                                                                                      |
+| `firefoxNode.priorityClassName`             | `""`                                        | Priority class name for firefox-node pods                                                                                  |
+| `firefoxNode.extraEnvironmentVariables`     | See `values.yaml`                           | Environment variables for firefox nodes                                                                                    |
+| `firefoxNode.extraEnvFrom`                  | `nil`                                       | Custom environment variables taken from `configMap` or `secret` for firefox nodes                                          |
+| `firefoxNode.service.enabled`               | `true`                                      | Create a service for node                                                                                                  |
+| `firefoxNode.service.type`                  | `ClusterIP`                                 | Service type                                                                                                               |
+| `firefoxNode.service.annotations`           | `{}`                                        | Custom annotations for service                                                                                             |
+| `firefoxNode.dshmVolumeSizeLimit`           | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `firefoxNode.startupProbe`                  | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `firefoxNode.terminationGracePeriodSeconds` | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
+| `firefoxNode.lifecycle`                     | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
+| `firefoxNode.extraVolumeMounts`             | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `firefoxNode.extraVolumes`                  | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `firefoxNode.hpa.url`                       | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
+| `firefoxNode.hpa.browserName`               | `firefox`                                   | BrowserName from the capability                                                                                            |
+| `firefoxNode.hpa.browserVersion`            | ``                                          | BrowserVersion from the capability                                                                                         |
+| `firefoxNode.maxReplicaCount`               | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `edgeNode.enabled`                          | `true`                                      | Enable edge nodes                                                                                                          |
+| `edgeNode.deploymentEnabled`                | `true`                                      | Enable creation of Deployment for edge nodes                                                                               |
+| `edgeNode.replicas`                         | `1`                                         | Number of edge nodes                                                                                                       |
+| `edgeNode.imageName`                        | `selenium/node-edge`                        | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                         | `4.9.1-20230508`                            | Image of edge nodes                                                                                                        |
+| `edgeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
+| `edgeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
+| `edgeNode.ports`                            | `[5555]`                                    | Port list to enable on container                                                                                           |
+| `edgeNode.seleniumPort`                     | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
+| `edgeNode.seleniumServicePort`              | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `edgeNode.annotations`                      | `{}`                                        | Annotations for edge-node pods                                                                                             |
+| `edgeNode.labels`                           | `{}`                                        | Labels for edge-node pods                                                                                                  |
+| `edgeNode.resources`                        | `See values.yaml`                           | Resources for edge-node pods                                                                                               |
+| `edgeNode.securityContext`                  | `See values.yaml`                           | Security context for edge-node pods                                                                                        |
+| `edgeNode.tolerations`                      | `[]`                                        | Tolerations for edge-node pods                                                                                             |
+| `edgeNode.nodeSelector`                     | `{}`                                        | Node Selector for edge-node pods                                                                                           |
+| `edgeNode.affinity`                         | `{}`                                        | Affinity for edge-node pods                                                                                                |
+| `edgeNode.hostAliases`                      | `nil`                                       | Custom host aliases for edge nodes                                                                                         |
+| `edgeNode.priorityClassName`                | `""`                                        | Priority class name for edge-node pods                                                                                     |
+| `edgeNode.extraEnvironmentVariables`        | See `values.yaml`                           | Environment variables for firefox nodes                                                                                    |
+| `edgeNode.extraEnvFrom`                     | `nil`                                       | Custom environment taken from `configMap` or `secret` variables for firefox nodes                                          |
+| `edgeNode.service.enabled`                  | `true`                                      | Create a service for node                                                                                                  |
+| `edgeNode.service.type`                     | `ClusterIP`                                 | Service type                                                                                                               |
+| `edgeNode.service.annotations`              | `{}`                                        | Custom annotations for service                                                                                             |
+| `edgeNode.dshmVolumeSizeLimit`              | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.startupProbe`                     | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `edgeNode.terminationGracePeriodSeconds`    | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
+| `edgeNode.lifecycle`                        | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
+| `edgeNode.extraVolumeMounts`                | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `edgeNode.extraVolumes`                     | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `edgeNode.hpa.url`                          | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
+| `edgeNode.hpa.browserName`                  | `edge`                                      | BrowserName from the capability                                                                                            |
+| `edgeNode.hpa.browserVersion`               | ``                                          | BrowserVersion from the capability                                                                                         |
+| `edgeNode.maxReplicaCount`                  | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
+| `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
 
+
+### Configuration of KEDA
+
+If you are setting `autoscaling.enabled` to `true` KEDA is installed and can be configured with
+values with the prefix `keda`. So you can for example set `keda.prometheus.metricServer.enabled` to
+`true` to enable the metrics server for KEDA.  See
+https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
 
 ### Configuration for Selenium-Hub
 

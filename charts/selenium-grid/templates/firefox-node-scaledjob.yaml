@@ -1,0 +1,35 @@
+{{- if and .Values.firefoxNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: selenium-firefox-node
+    app.kubernetes.io/name: selenium-firefox-node
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.firefoxNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  maxReplicaCount: {{ .Values.firefoxNode.maxReplicaCount }}
+  {{- with .Values.autoscaling.scaledJobOptions -}}
+    {{ toYaml . | nindent 2 }}
+  {{- end }}
+  triggers:
+    - type: selenium-grid
+    {{- with .Values.firefoxNode.hpa }}
+      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
+  jobTargetRef:
+    parallelism: 1
+    completions: 1
+    backoffLimit: 0
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" "selenium-firefox-node" -}}
+{{- $_ =  set $podScope "node" .Values.firefoxNode  -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 4 }}
+{{- end }}
