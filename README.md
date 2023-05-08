@@ -609,7 +609,8 @@ there, and when the test completes, the container gets thrown away.
 
 This execution mode can be used either in the Standalone or Node roles. The "dynamic"
 execution mode needs to be told what Docker images to use when the containers get started.
-Additionally, the Grid needs to know the URI of the Docker daemon.
+Additionally, the Grid needs to know the URI of the Docker daemon. This configuration can
+be placed in a local `toml` file.
 
 ### Configuration example
 
@@ -619,14 +620,14 @@ You can save this file locally and name it, for example, `config.toml`.
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.9.0-20230421", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.9.0-20230421", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-edge:4.9.0-20230421", "{\"browserName\": \"MicrosoftEdge\"}"
-    ]
+    "selenium/standalone-firefox:4.9.0-20230421", '{"browserName": "firefox"}',
+    "selenium/standalone-chrome:4.9.0-20230421", '{"browserName": "chrome"}',
+    "selenium/standalone-edge:4.9.0-20230421", '{"browserName": "MicrosoftEdge"}'
+]
 
 # URL for connecting to the docker daemon
 # Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
-# 127.0.0.1 is used because interally the container uses socat when /var/run/docker.sock is mounted 
+# 127.0.0.1 is used because internally the container uses socat when /var/run/docker.sock is mounted 
 # If var/run/docker.sock is not mounted: 
 # Windows: make sure Docker Desktop exposes the daemon via tcp, and use http://host.docker.internal:2375.
 # macOS: install socat and run the following command, socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock,
@@ -1180,27 +1181,8 @@ Then, you would use in your VNC client:
 - Port 5901 to connect to the Edge container
 - Port 5902 to connect to the Firefox container
 
-If you get a prompt asking for a password, it is: `secret`. If you wish to change this, you should either change 
-it in the `/NodeBase/Dockerfile` and build the images yourself, or you can define a Docker image that derives from 
-the posted ones which reconfigures it:
-
-Dockerfile example that extends the `node-chrome:4.9.0-20230421`. You can choose another browser image or a Standalone
-browser image.
-
-``` dockerfile
-FROM selenium/node-chrome:4.9.0-20230421
-
-RUN x11vnc -storepasswd <your-password-here> /home/seluser/.vnc/passwd
-```
-
-Save the `Dockerfile` as `DockerfileVNCPasswordChanged`, open a terminal and on the same directory run:
-
-```shell
-docker build -t selenium/node-chrome-vnc-password-changed:4.9.0-20230421 -f DockerfileVNCPasswordChanged .
-```
-
-And from now on, instead of using `node-chrome:4.9.0-20230421` in your scripts or docker-compose files, use
-`selenium/node-chrome-vnc-password-changed:4.9.0-20230421`.
+If you get a prompt asking for a password, it is: `secret`. If you wish to change this, 
+you can set the environment variable `SE_VNC_PASSWORD`.
 
 If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
 
