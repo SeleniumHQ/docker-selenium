@@ -65,6 +65,7 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.className`                     | `""`                               | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                   | `{}`                               | Custom annotations for ingress resource                                                                                    |
 | `ingress.hostname`                      | `selenium-grid.local`              | Default host for the ingress resource                                                                                      |
+| `ingress.path`                          | `/`                                | Default host path for the ingress resource                                                                                 |
 | `ingress.tls`                           | `[]`                               | TLS backend configuration for ingress resource                                                                             |
 | `busConfigMap.annotations`              | `{}`                               | Custom annotations for configmap                                                                                           |
 | `chromeNode.enabled`                    | `true`                             | Enable chrome nodes                                                                                                        |
@@ -174,6 +175,7 @@ You can configure the Selenium Hub with this values:
 | `hub.tolerations`               | `[]`              | Tolerations for selenium-hub pods                                                                                                |
 | `hub.nodeSelector`              | `{}`              | Node Selector for selenium-hub pods                                                                                              |
 | `hub.priorityClassName`         | `""`              | Priority class name for selenium-hub pods                                                                                        |
+| `hub.subPath`                   | `/`               | Custom sub path for the hub deployment                                                                                           |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                 |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                             |
@@ -252,6 +254,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.tolerations`         | `[]`                      | Tolerations for Session Queue pods                                                                                               |
 | `components.sessionQueue.nodeSelector`        | `{}`                      | Node Selector for Session Queue pods                                                                                             |
 | `components.sessionQueue.priorityClassName`   | `""`                      | Priority class name for Session Queue pods                                                                                       |
+| `components.subPath`                          | `/`                       | Custom sub path for all components                                                                                               |
 | `components.extraEnvironmentVariables`        | `nil`                     | Custom environment variables for all components                                                                                  |
 | `components.extraEnvFrom`                     | `nil`                     | Custom environment variables taken from `configMap` or `secret` for all components                                               |
 
