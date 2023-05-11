@@ -2,10 +2,20 @@
 
 All notable changes to this helm chart will be documented in this file.
 
-## :heavy_check_mark: 0.15.8
+## :heavy_check_mark: 0.16.1
 
 ### Changed
 - Update image tag to 4.9.1-20230508
+
+## :heavy_check_mark: 0.16.0
+
+### Added
+- Custom Ingress Path for Helm Chart (#1834) 
+
+## :heavy_check_mark: 0.15.8
+
+### Changed
+- Update image tag to 4.9.0-20230421
 
 ## :heavy_check_mark: 0.15.7
 
