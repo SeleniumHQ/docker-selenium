@@ -9,7 +9,7 @@ services:
       - "16686:16686"
       - "14250:14250"
   selenium-event-bus:
-    image: selenium/event-bus:4.9.0-20230421
+    image: selenium/event-bus:4.9.1-20230508
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -21,7 +21,7 @@ services:
       - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-event-bus
   selenium-sessions:
-    image: selenium/sessions:4.9.0-20230421
+    image: selenium/sessions:4.9.1-20230508
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -34,7 +34,7 @@ services:
       - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-sessions
   selenium-session-queue:
-    image: selenium/session-queue:4.9.0-20230421
+    image: selenium/session-queue:4.9.1-20230508
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
@@ -42,7 +42,7 @@ services:
       - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-session-queue
   selenium-distributor:
-    image: selenium/distributor:4.9.0-20230421
+    image: selenium/distributor:4.9.1-20230508
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -61,7 +61,7 @@ services:
       - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-distributor
   selenium-router:
-    image: selenium/router:4.9.0-20230421
+    image: selenium/router:4.9.1-20230508
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -79,7 +79,7 @@ services:
       - SE_ENABLE_TRACING=true      
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-router
   chrome:
-    image: selenium/node-chrome:4.9.0-20230421
+    image: selenium/node-chrome:4.9.1-20230508
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -90,7 +90,7 @@ services:
       - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chrome      
   edge:
-    image: selenium/node-edge:4.9.0-20230421
+    image: selenium/node-edge:4.9.1-20230508
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -101,7 +101,7 @@ services:
       - SE_ENABLE_TRACING=true      
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-edge
   firefox:
-    image: selenium/node-firefox:4.9.0-20230421
+    image: selenium/node-firefox:4.9.1-20230508
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
