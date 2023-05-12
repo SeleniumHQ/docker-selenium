@@ -46,6 +46,9 @@ spec:
         {{- with .Values.components.eventBus.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.eventBus.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.components.eventBus.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
