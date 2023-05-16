@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.17.0
+
+### Added
+- Make deployment securityContext configurable via values.yaml (#1845) 
+
 ## :heavy_check_mark: 0.16.1
 
 ### Changed
