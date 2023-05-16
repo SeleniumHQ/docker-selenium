@@ -71,6 +71,8 @@ components:
       successThreshold: 1
     # Resources for router container
     resources: {}
+    # SecurityContext for router container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -102,6 +104,8 @@ components:
     port: 5553
     # Resources for Distributor container
     resources: {}
+    # SecurityContext for Distributor container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Distributor service
@@ -135,6 +139,8 @@ components:
     subscribePort: 4443
     # Resources for event-bus container
     resources: {}
+    # SecurityContext for event-bus container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Event Bus service
@@ -163,6 +169,8 @@ components:
     port: 5556
     # Resources for Session Map container
     resources: {}
+    # SecurityContext for Session Map container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Map service
@@ -191,6 +199,8 @@ components:
     port: 5559
     # Resources for Session Queue container
     resources: {}
+    # SecurityContext for Session Queue container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Queue service
@@ -280,6 +290,8 @@ hub:
     #   name: mysecret
   # Resources for selenium-hub container
   resources: {}
+  # SecurityContext for selenium-hub container
+  securityContext: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
   serviceType: ClusterIP
   # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -333,6 +345,8 @@ chromeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for chrome-node container
+  securityContext: {}
   # Tolerations for chrome-node pods
   tolerations: []
   # Node selector for chrome-node pods
@@ -449,6 +463,8 @@ firefoxNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for firefox-node container
+  securityContext: {}
   # Custom host aliases for firefox nodes
   hostAliases:
     # - ip: "198.51.100.0"
@@ -560,6 +576,8 @@ edgeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for edge-node container
+  securityContext: {}
   # Custom host aliases for edge nodes
   hostAliases:
     # - ip: "198.51.100.0"

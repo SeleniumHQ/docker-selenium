@@ -62,6 +62,9 @@ spec:
         {{- with .Values.firefoxNode.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.firefoxNode.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
         {{- with .Values.firefoxNode.lifecycle }}
           lifecycle: {{- toYaml . | nindent 12 }}
         {{- end }}

@@ -53,6 +53,9 @@ spec:
         {{- with .Values.components.distributor.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.distributor.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
