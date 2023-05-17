@@ -1034,9 +1034,9 @@ ___
 
 ## Install certificates for Chromium based browsers
 
-If you need to install custom certificates, CA, intermediate CA, client certificates (for exmample enterprise internal CA)
+If you need to install custom certificates, CA, intermediate CA, client certificates (for example enterprise internal CA)
 you can use the different utils come from libnss3-tools.
-Chromium based browser uses nssdb as certificate store
+Chromium based browser uses nssdb as certificate store.
 Create new nssdb:  
 ```bash
 certutil -d sql:$HOME/.pki/nssdb -N
