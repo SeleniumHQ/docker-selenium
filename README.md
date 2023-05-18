@@ -1104,9 +1104,9 @@ COPY --from=build /seluser/ /home/seluser/
 USER seluser
 ```
 
-Example for Chromium based browsers (Firefox):
+Example for Firefox:
 ```
-# Get a standard image for creating nssdb file
+# Get a standard image for working on
 FROM rockylinux:8.6 as build
 RUN mkdir -p "/distribution" "/certs" && \
     cp /etc/pki/ca-trust/source/anchors/YOUR_CA*.pem /certs/ && \
