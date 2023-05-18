@@ -1078,16 +1078,19 @@ ___
 
 ## Alternative method: Add certificates to existing Selenium based images for browsers
 
-As an alternative, you can add youe certificate files to existing Selenium images. This practical example
+As an alternative, you can add your certificate files to existing Selenium images. This practical example
 assumes you have a known image to use as a build image and have a way to publish new images to your local
 docker registry.
 
-This also assumes you are using a redhat based image as *build* _with_ your internal CA already added.
-(default location for rocky linux is /etc/pki/ca-trust/source/anchors/YOUR_CA.pem)
+This example uses a RedHat based distro as build image (Rocky Linux) but it can be *any* linux image of your choice.
+Please note that build instrutions will vary between distributions. You can check instructions for Ubuntu
+in previous example.
 
-(tested working 2023-05-17, based on images from Selenium 4.9.1 release)
+The example also assumes your internal CA is already in */etc/pki/ca-trust/source/anchors/YOUR_CA.pem*,
+the default location for Rocky Linux. Alternatively, you can also provide these files from your host and 
+copy them into build image.
 
-Example for Chromium based browsers (Chrome and Edge):
+For Chrome and Edge browsers, the recipe is the same, just adapt image name (node-chrome or node-edge):
 ```
 # Get a standard image for creating nssdb file
 FROM rockylinux:8.6 as build
@@ -1098,7 +1101,7 @@ RUN mkdir -p -m755 /seluser/.pki/nssdb \
     && chown -R 1200:1201 /seluser
 
 # Start from Selenium image and add relevant files from build image
-FROM selenium/node-chrome:4.9.1
+FROM selenium/node-chrome:4.9.1-20230508
 USER root
 COPY --from=build /seluser/ /home/seluser/
 USER seluser
@@ -1113,7 +1116,7 @@ RUN mkdir -p "/distribution" "/certs" && \
     echo '{ "policies": { "Certificates": { "Install": ["/opt/firefox-latest/YOUR_CA.pem"] }} }' >"/distribution/policies.json"
 
 # Start from Selenium image and add relevant files from build image
-FROM selenium/node-firefox:4.9.1
+FROM selenium/node-firefox:4.9.1-20230508
 USER root
 COPY --from=build /certs /opt/firefox-latest
 COPY --from=build /distribution /opt/firefox-latest/distribution
