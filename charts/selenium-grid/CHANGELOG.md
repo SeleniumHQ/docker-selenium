@@ -2,6 +2,13 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+
+
+## :heavy_check_mark: 0.18.0
+
+### Added
+- Add affinity to helm charts (#1851) 
+
 ## :heavy_check_mark: 0.17.0
 
 ### Added

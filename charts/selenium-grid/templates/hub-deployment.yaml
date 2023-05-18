@@ -80,9 +80,12 @@ spec:
     {{- with .Values.hub.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
     {{- with .Values.hub.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
       imagePullSecrets:
