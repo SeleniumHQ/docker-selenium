@@ -78,9 +78,12 @@ spec:
     {{- with .Values.chromeNode.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.chromeNode.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.chromeNode.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}    
     {{- with .Values.chromeNode.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }} 
     {{- end }}
     {{- with .Values.chromeNode.priorityClassName }}
       priorityClassName: {{ . }}

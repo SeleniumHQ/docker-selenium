@@ -54,6 +54,8 @@ For now, global configuration supported is:
 | `global.seleniumGrid.imageTag`        | `4.9.1-20230508`                   | Image tag for all selenium components |
 | `global.seleniumGrid.nodesImageTag`   | `4.9.1-20230508`                   | Image tag for browser's nodes         |
 | `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
+| `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
+| `global.seleniumGrid.affinity`        | `{}`                               | Affinity assigned globally |
 
 This table contains the configuration parameters of the chart and their default values:
 
@@ -84,6 +86,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.securityContext`                | `See values.yaml`           | Security context for chrome-node pods                                                                                      |
 | `chromeNode.tolerations`                    | `[]`                        | Tolerations for chrome-node pods                                                                                           |
 | `chromeNode.nodeSelector`                   | `{}`                        | Node Selector for chrome-node pods                                                                                         |
+| `chromeNode.affinity`                       | `{}`                        | Affinity for chrome-node pods                                                                                         |
 | `chromeNode.hostAliases`                    | `nil`                       | Custom host aliases for chrome nodes                                                                                       |
 | `chromeNode.priorityClassName`              | `""`                        | Priority class name for chrome-node pods                                                                                   |
 | `chromeNode.extraEnvironmentVariables`      | `nil`                       | Custom environment variables for chrome nodes                                                                              |
@@ -113,6 +116,8 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.securityContext`               | `See values.yaml`           | Security context for firefox-node pods                                                                                      |
 | `firefoxNode.tolerations`                   | `[]`                        | Tolerations for firefox-node pods                                                                                          |
 | `firefoxNode.nodeSelector`                  | `{}`                        | Node Selector for firefox-node pods                                                                                        |
+| `firefoxNode.affinity`                      | `{}`                        | Affinity for 
+firefox-node pods                                                                                         |
 | `firefoxNode.hostAliases`                   | `nil`                       | Custom host aliases for firefox nodes                                                                                      |
 | `firefoxNode.priorityClassName`             | `""`                        | Priority class name for firefox-node pods                                                                                  |
 | `firefoxNode.extraEnvironmentVariables`     | `nil`                       | Custom environment variables for firefox nodes                                                                             |
@@ -142,6 +147,9 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.securityContext`                  | `See values.yaml`           | Security context for edge-node pods                                                                                        |
 | `edgeNode.tolerations`                      | `[]`                        | Tolerations for edge-node pods                                                                                             |
 | `edgeNode.nodeSelector`                     | `{}`                        | Node Selector for edge-node pods                                                                                           |
+| `edgeNode.affinity`                         | `{}`                        | Affinity for 
+edge-node 
+pods                                                                                         |
 | `edgeNode.hostAliases`                      | `nil`                       | Custom host aliases for edge nodes                                                                                         |
 | `edgeNode.priorityClassName`                | `""`                        | Priority class name for edge-node pods                                                                                     |
 | `edgeNode.extraEnvironmentVariables`        | `nil`                       | Custom environment variables for firefox nodes                                                                             |
@@ -177,6 +185,9 @@ You can configure the Selenium Hub with this values:
 | `hub.readinessProbe`            | `See values.yaml`  | Readiness probe settings                                                                                                                         |
 | `hub.tolerations`               | `[]`               | Tolerations for selenium-hub pods                                                                                                                |
 | `hub.nodeSelector`              | `{}`               | Node Selector for selenium-hub pods                                                                                                              |
+| `hub.affinity`                  | `{}`                        | Affinity for 
+selenium-hub 
+pods                                                                                         |
 | `hub.priorityClassName`         | `""`               | Priority class name for selenium-hub pods                                                                                                        |
 | `hub.subPath`                   | `/`                | Custom sub path for the hub deployment                                                                                                           |
 | `hub.extraEnvironmentVariables` | `nil`              | Custom environment variables for selenium-hub                                                                                                    |
@@ -209,6 +220,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.serviceAnnotations`       | `{}`                     | Custom annotations for router service                                                                                                            |
 | `components.router.tolerations`              | `[]`                     | Tolerations for router pods                                                                                                                      |
 | `components.router.nodeSelector`             | `{}`                     | Node Selector for router pods                                                                                                                    |
+| `components.router.affinity`                 | `{}`                        | Affinity for 
+router 
+pods                                                                                         |
 | `components.router.priorityClassName`        | `""`                     | Priority class name for router pods                                                                                                              |
 | `components.distributor.imageName`           | `selenium/distributor`   | Distributor image name                                                                                                                           |
 | `components.distributor.imageTag`            | `nil`                    | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
@@ -222,6 +236,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.serviceAnnotations`  | `{}`                     | Custom annotations for Distributor service                                                                                                       |
 | `components.distributor.tolerations`         | `[]`                     | Tolerations for Distributor pods                                                                                                                 |
 | `components.distributor.nodeSelector`        | `{}`                     | Node Selector for Distributor pods                                                                                                               |
+| `components.distributor.affinity`                 | `{}`                        | Affinity for 
+Distributor 
+pods                                                                                         |
 | `components.distributor.priorityClassName`   | `""`                     | Priority class name for Distributor pods                                                                                                         |
 | `components.eventBus.imageName`              | `selenium/event-bus`     | Event Bus image name                                                                                                                             |
 | `components.eventBus.imageTag`               | `nil`                    | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                     |
@@ -237,6 +254,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.serviceAnnotations`     | `{}`                     | Custom annotations for Event Bus service                                                                                                         |
 | `components.eventBus.tolerations`            | `[]`                     | Tolerations for Event Bus pods                                                                                                                   |
 | `components.eventBus.nodeSelector`           | `{}`                     | Node Selector for Event Bus pods                                                                                                                 |
+| `components.eventBus.affinity`               | `{}`                        | Affinity for 
+Event Bus 
+pods                                                                                         |
 | `components.eventBus.priorityClassName`      | `""`                     | Priority class name for Event Bus pods                                                                                                           |
 | `components.sessionMap.imageName`            | `selenium/sessions`      | Session Map image name                                                                                                                           |
 | `components.sessionMap.imageTag`             | `nil`                    | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
@@ -249,6 +269,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionMap.serviceAnnotations`   | `{}`                     | Custom annotations for Session Map service                                                                                                       |
 | `components.sessionMap.tolerations`          | `[]`                     | Tolerations for Session Map pods                                                                                                                 |
 | `components.sessionMap.nodeSelector`         | `{}`                     | Node Selector for Session Map pods                                                                                                               |
+| `components.sessionMap.affinity`             | `{}`                        | Affinity for 
+Session Map 
+pods                                                                                         |
 | `components.sessionMap.priorityClassName`    | `""`                     | Priority class name for Session Map pods                                                                                                         |
 | `components.sessionQueue.imageName`          | `selenium/session-queue` | Session Queue image name                                                                                                                         |
 | `components.sessionQueue.imageTag`           | `nil`                    | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                 |
@@ -262,6 +285,9 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.serviceAnnotations` | `{}`                     | Custom annotations for Session Queue service                                                                                                     |
 | `components.sessionQueue.tolerations`        | `[]`                     | Tolerations for Session Queue pods                                                                                                               |
 | `components.sessionQueue.nodeSelector`       | `{}`                     | Node Selector for Session Queue pods                                                                                                             |
+| `components.sessionQueue.affinity`             | `{}`                        | Affinity for 
+Session Queue 
+pods                                                                                         |
 | `components.sessionQueue.priorityClassName`  | `""`                     | Priority class name for Session Queue pods                                                                                                       |
 | `components.subPath`                         | `/`                      | Custom sub path for all components                                                                                                               |
 | `components.extraEnvironmentVariables`       | `nil`                    | Custom environment variables for all components                                                                                                  |
