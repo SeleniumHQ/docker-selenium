@@ -1074,7 +1074,54 @@ RUN mkdir -p -m755 /home/seluser/.pki/nssdb \ #create nssdb folder
     && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert # client certificate install
 ```
 This way the certificates will be installed and the node will start automatically as before.
+___
 
+## Alternative method: Add certificates to existing Selenium based images for browsers
+
+As an alternative, you can add your certificate files to existing Selenium images. This practical example
+assumes you have a known image to use as a build image and have a way to publish new images to your local
+docker registry.
+
+This example uses a RedHat based distro as build image (Rocky Linux) but it can be *any* linux image of your choice.
+Please note that build instrutions will vary between distributions. You can check instructions for Ubuntu
+in previous example.
+
+The example also assumes your internal CA is already in */etc/pki/ca-trust/source/anchors/YOUR_CA.pem*,
+the default location for Rocky Linux. Alternatively, you can also provide these files from your host and 
+copy them into build image.
+
+For Chrome and Edge browsers, the recipe is the same, just adapt image name (node-chrome or node-edge):
+```
+# Get a standard image for creating nssdb file
+FROM rockylinux:8.6 as build
+RUN yum install -y nss-tools
+RUN mkdir -p -m755 /seluser/.pki/nssdb \
+    && certutil -d sql:/seluser/.pki/nssdb -N --empty-password \
+    && certutil -d sql:/seluser/.pki/nssdb -A -t "C,," -n YOUR_CA -i /etc/pki/ca-trust/source/anchors/YOUR_CA.pem \
+    && chown -R 1200:1201 /seluser
+
+# Start from Selenium image and add relevant files from build image
+FROM selenium/node-chrome:4.9.1-20230508
+USER root
+COPY --from=build /seluser/ /home/seluser/
+USER seluser
+```
+
+Example for Firefox:
+```
+# Get a standard image for working on
+FROM rockylinux:8.6 as build
+RUN mkdir -p "/distribution" "/certs" && \
+    cp /etc/pki/ca-trust/source/anchors/YOUR_CA*.pem /certs/ && \
+    echo '{ "policies": { "Certificates": { "Install": ["/opt/firefox-latest/YOUR_CA.pem"] }} }' >"/distribution/policies.json"
+
+# Start from Selenium image and add relevant files from build image
+FROM selenium/node-firefox:4.9.1-20230508
+USER root
+COPY --from=build /certs /opt/firefox-latest
+COPY --from=build /distribution /opt/firefox-latest/distribution
+USER seluser
+```
 ___
 
 ## Debugging
