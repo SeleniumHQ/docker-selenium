@@ -27,22 +27,24 @@ if [ "${SESSION_VIDEO}" = "true" ];
 then
 	recording_started="false"
 	video_file_name=""
+	video_file=""
 	while true;
 	do
-		session_id=$(curl -s --request GET 'http://'${DISPLAY_CONTAINER_NAME}':'${DISPLAY_CONTAINER_PORT}'/status' | jq -r '.[]?.node?.slots | .[0]?.session?.sessionId')
+		session_id=$(curl -s --request GET 'http://'${DISPLAY_CONTAINER_NAME:-localhost}':'${DISPLAY_CONTAINER_PORT}'/status' | jq -r '.[]?.node?.slots | .[0]?.session?.sessionId')
 		echo $session_id
 		if [ "$session_id" != "null" -a "$session_id" != "" ] && [ $recording_started = "false" ];
 		then
 			echo "Starting to record video"
-			video_file_name="${VIDEO_LOCATION:-$video_location_default}/$session_id.mp4"
-			ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file_name &
+			video_file_name="$session_id.mp4"
+			video_file="${VIDEO_LOCATION:-$video_location_default}/$video_file_name"
+			ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file &
 			recording_started="true"
 			echo "Video recording started"
 		elif [ "$session_id" = "null" -o "$session_id" = "" ] && [ $recording_started = "true" ];
 		then
 			echo "Stopping to record video"
 			pkill --signal INT ffmpeg
-			# ./opt/bin/start-uploader.sh $video_file_name &
+			/opt/bin/start_uploader.sh $video_file $video_file_name &
 			recording_started="false"
 			echo "Video recording stopped"
 		elif [ $recording_started = "true" ];

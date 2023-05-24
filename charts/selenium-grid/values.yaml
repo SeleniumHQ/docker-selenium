@@ -652,5 +652,73 @@ edgeNode:
   automountServiceAccountToken: false
   serviceAccount: ""
 
+# Configuration for video recorder
+videoRecorder:
+  # Image of video recorder
+  imageName: selenium/video
+  chromeNode:
+    enabled: false
+  firefoxNode:
+    enabled: false
+  edgeNode:
+    enabled: false
+
+  # Image of video recorder
+  imageTag: ffmpeg-4.3.1-20230522
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+
+  ports:
+    - 5666
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  extraEnvironmentVariables:
+    - name: VIDEO_LOCATION
+      value: /tmp
+    - name: UPLOAD_TO_S3
+      value: "true"
+    - name: S3_VIDEOS_BUCKET
+      value: s3_bucket_name
+    - name: SESSION_VIDEO
+      value: "true"
+    - name: DISPLAY_CONTAINER_NAME
+      value: localhost
+    - name: DISPLAY_CONTAINER_PORT
+      value: "5900"
+    - name: AWS_ACCESS_KEY_ID
+      value: aws_access_key_id
+    - name: AWS_SECRET_ACCESS_KEY
+      value: aws_secret_access_key
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
+  # Wait for pod startup
+  terminationGracePeriodSeconds: 3600
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+  automountServiceAccountToken: false
+  serviceAccount: ""
+
 # Custom labels for k8s resources
 customLabels: {}

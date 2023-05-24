@@ -24,8 +24,8 @@ RUN apt-get -qqy update \
 # Add Supervisor configuration files
 #======================================
 COPY supervisord.conf /etc
-COPY entry_point.sh video.sh video_ready.py /opt/bin/
-RUN cd /opt/bin && pip install psutil
+COPY entry_point.sh video.sh video_ready.py start_uploader.sh /opt/bin/
+RUN cd /opt/bin && pip install psutil s3cmd
 
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor /videos
 

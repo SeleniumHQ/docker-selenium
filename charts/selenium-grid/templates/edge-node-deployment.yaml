@@ -74,6 +74,37 @@ spec:
         {{- with .Values.edgeNode.startupProbe }}
           startupProbe: {{- toYaml . | nindent 12 }}
         {{- end }}
+      {{- if .Values.videoRecorder.edgeNode.enabled }}
+        - name: selenium-edge-node-video
+          {{- $imageTag := .Values.videoRecorder.imageTag }}
+          image: {{ printf "%s:%s" .Values.videoRecorder.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
+        {{- with .Values.videoRecorder.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+            {{- with .Values.videoRecorder.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+        {{- if gt (len .Values.videoRecorder.ports) 0 }}
+          ports:
+          {{- range .Values.videoRecorder.ports }}
+            - containerPort: {{ . }}
+              protocol: TCP
+          {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: dshm
+              mountPath: /dev/shm
+          {{- if .Values.videoRecorder.extraVolumeMounts }}
+            {{- toYaml .Values.videoRecorder.extraVolumeMounts | nindent 12 }}
+          {{- end }}
+        {{- with .Values.videoRecorder.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+      {{- end }}
     {{- with .Values.edgeNode.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
