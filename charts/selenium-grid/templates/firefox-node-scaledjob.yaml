@@ -4,6 +4,10 @@ kind: ScaledJob
 metadata:
   name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     app: selenium-firefox-node
     app.kubernetes.io/name: selenium-firefox-node

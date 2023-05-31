@@ -4,6 +4,10 @@ kind: ScaledObject
 metadata:
   name: selenium-grid-firefox-scaledobject
   namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     deploymentName: {{ template "seleniumGrid.firefoxNode.fullname" . }}
 spec:

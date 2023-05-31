@@ -314,6 +314,9 @@ autoscaling:
   enableWithExistingKEDA: false
   # Which typ of KEDA scaling to use: job or deployment
   scalingType: job
+  # Annotations for KEDA resources: ScaledObject and ScaledJob
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
   # Options for KEDA ScaledJobs
   scaledJobOptions:
     pollingInterval: 10

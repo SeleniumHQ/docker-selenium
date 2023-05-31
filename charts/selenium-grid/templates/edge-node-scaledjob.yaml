@@ -4,6 +4,10 @@ kind: ScaledJob
 metadata:
   name: {{ template "seleniumGrid.edgeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     app: selenium-edge-node
     app.kubernetes.io/name: selenium-edge-node

@@ -4,6 +4,10 @@ kind: ScaledJob
 metadata:
   name: {{ template "seleniumGrid.chromeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     app: selenium-chrome-node
     app.kubernetes.io/name: selenium-chrome-node

@@ -4,6 +4,10 @@ kind: ScaledObject
 metadata:
   name: selenium-grid-edge-scaledobject
   namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
   labels:
     deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
 spec:
