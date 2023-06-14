@@ -2,6 +2,31 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.18.1
+
+### Changed
+- Update image tag to 4.10.0-20230607
+
+## :heavy_check_mark: 0.18.0
+
+### Added
+- Add affinity to helm charts (#1851) 
+
+## :heavy_check_mark: 0.17.0
+
+### Added
+- Make deployment securityContext configurable via values.yaml (#1845) 
+
+## :heavy_check_mark: 0.16.1
+
+### Changed
+- Update image tag to  4.9.1-20230508
+
+## :heavy_check_mark: 0.16.0
+
+### Added
+- Custom Ingress Path for Helm Chart (#1834) 
+
 ## :heavy_check_mark: 0.15.8
 
 ### Changed

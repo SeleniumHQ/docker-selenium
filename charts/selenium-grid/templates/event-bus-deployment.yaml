@@ -46,12 +46,18 @@ spec:
         {{- with .Values.components.eventBus.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.eventBus.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.components.eventBus.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.eventBus.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.eventBus.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
     {{- with .Values.components.eventBus.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.eventBus.imagePullSecret }}
       imagePullSecrets:

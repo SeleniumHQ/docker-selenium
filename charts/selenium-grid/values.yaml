@@ -1,9 +1,9 @@
 global:
   seleniumGrid:
     # Image tag for all selenium components
-    imageTag: 4.9.0-20230421
+    imageTag: 4.10.0-20230607
     # Image tag for browser's nodes
-    nodesImageTag: 4.9.0-20230421
+    nodesImageTag: 4.10.0-20230607
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
 
@@ -20,6 +20,8 @@ ingress:
   annotations: {}
   # Default host for the ingress resource
   hostname: selenium-grid.local
+  # Default host path for the ingress resource
+  path: /
   # TLS backend configuration for ingress resource
   tls: []
 
@@ -38,7 +40,7 @@ components:
     # Router image name
     imageName: selenium/router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.9.0-20230421
+    # imageTag: 4.10.0-20230607
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -69,6 +71,8 @@ components:
       successThreshold: 1
     # Resources for router container
     resources: {}
+    # SecurityContext for router container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -87,7 +91,7 @@ components:
     # Distributor image name
     imageName: selenium/distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.9.0-20230421
+    # imageTag: 4.10.0-20230607
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -100,6 +104,8 @@ components:
     port: 5553
     # Resources for Distributor container
     resources: {}
+    # SecurityContext for Distributor container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Distributor service
@@ -116,7 +122,7 @@ components:
     # Event Bus image name
     imageName: selenium/event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.9.0-20230421
+    # imageTag: 4.10.0-20230607
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -133,6 +139,8 @@ components:
     subscribePort: 4443
     # Resources for event-bus container
     resources: {}
+    # SecurityContext for event-bus container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Event Bus service
@@ -149,7 +157,7 @@ components:
     # Session Map image name
     imageName: selenium/sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.9.0-20230421
+    # imageTag: 4.10.0-20230607
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -161,6 +169,8 @@ components:
     port: 5556
     # Resources for Session Map container
     resources: {}
+    # SecurityContext for Session Map container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Map service
@@ -177,7 +187,7 @@ components:
     # Session Queue image name
     imageName: selenium/session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.9.0-20230421
+    # imageTag: 4.10.0-20230607
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -189,6 +199,8 @@ components:
     port: 5559
     # Resources for Session Queue container
     resources: {}
+    # SecurityContext for Session Queue container
+    securityContext: {}
     # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # Custom annotations for Session Queue service
@@ -199,6 +211,9 @@ components:
     nodeSelector: {}
     # Priority class name for Session Queue pods
     priorityClassName: ""
+
+  # Custom sub path for all components
+  subPath: /
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -222,7 +237,7 @@ hub:
   # Selenium Hub image name
   imageName: selenium/hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.9.0-20230421
+  # imageTag: 4.10.0-20230607
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -256,6 +271,8 @@ hub:
     timeoutSeconds: 10
     periodSeconds: 10
     successThreshold: 1
+  # Custom sub path for the hub deployment
+  subPath: /
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
@@ -273,6 +290,8 @@ hub:
     #   name: mysecret
   # Resources for selenium-hub container
   resources: {}
+  # SecurityContext for selenium-hub container
+  securityContext: {}
   # Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
   serviceType: ClusterIP
   # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -301,7 +320,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: selenium/node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.9.0-20230421
+  # imageTag: 4.10.0-20230607
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -326,6 +345,8 @@ chromeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for chrome-node container
+  securityContext: {}
   # Tolerations for chrome-node pods
   tolerations: []
   # Node selector for chrome-node pods
@@ -413,7 +434,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: selenium/node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.9.0-20230421
+  # imageTag: 4.10.0-20230607
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -442,6 +463,8 @@ firefoxNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for firefox-node container
+  securityContext: {}
   # Custom host aliases for firefox nodes
   hostAliases:
     # - ip: "198.51.100.0"
@@ -525,7 +548,7 @@ edgeNode:
   # Image of edge nodes
   imageName: selenium/node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.9.0-20230421
+  # imageTag: 4.10.0-20230607
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -553,6 +576,8 @@ edgeNode:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for edge-node container
+  securityContext: {}
   # Custom host aliases for edge nodes
   hostAliases:
     # - ip: "198.51.100.0"

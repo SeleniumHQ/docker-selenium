@@ -42,12 +42,18 @@ spec:
         {{- with .Values.components.sessionQueue.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.sessionQueue.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.components.sessionQueue.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.sessionQueue.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.sessionQueue.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
     {{- with .Values.components.sessionQueue.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionQueue.imagePullSecret }}
       imagePullSecrets:

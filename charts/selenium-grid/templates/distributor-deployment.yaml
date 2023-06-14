@@ -53,6 +53,9 @@ spec:
         {{- with .Values.components.distributor.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.distributor.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
@@ -60,9 +63,12 @@ spec:
     {{- with .Values.components.distributor.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.distributor.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.distributor.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}     
     {{- with .Values.components.distributor.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- with .Values.components.distributor.priorityClassName }}
       priorityClassName: {{ . }}
