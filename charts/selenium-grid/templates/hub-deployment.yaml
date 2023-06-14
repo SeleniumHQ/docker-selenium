@@ -61,9 +61,12 @@ spec:
             successThreshold: {{ .Values.hub.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.hub.readinessProbe.failureThreshold }}
         {{- end }}
-        {{- with .Values.hub.extraEnvironmentVariables }}
-          env: {{- tpl (toYaml .) $ | nindent 12 }}
-        {{- end }}
+          env:
+            - name: SE_SUB_PATH
+              value: {{ .Values.hub.subPath }}
+          {{- with .Values.hub.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
         {{- with .Values.hub.extraEnvFrom }}
           envFrom:
               {{- toYaml . | nindent 12 }}
@@ -71,12 +74,18 @@ spec:
         {{- with .Values.hub.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.hub.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.hub.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
     {{- with .Values.hub.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
       imagePullSecrets:

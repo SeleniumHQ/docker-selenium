@@ -42,6 +42,8 @@ spec:
               value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
+            - name: SE_SUB_PATH
+              value: {{ .Values.components.subPath }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
@@ -77,12 +79,18 @@ spec:
         {{- with .Values.components.router.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.components.router.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- with .Values.components.router.nodeSelector }}
       nodeSelector: {{- toYaml . | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.router.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.router.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
     {{- with .Values.components.router.tolerations }}
-      tolerations:
-        {{ toYaml . | nindent 6 }}
+      tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}
     {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.router.imagePullSecret }}
       imagePullSecrets:
