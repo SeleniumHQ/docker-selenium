@@ -97,3 +97,27 @@ jobs:
           body_path: release_notes.md
           draft: false
           prerelease: ${{ env.PRERELEASE }}
+      - name: Make changes for helm chart
+        run: |
+          IMAGE_VERSION=${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          CURRENT_CHART_VERSION=$(sed "5q;d" charts/selenium-grid/CHANGELOG.md | tr ":" "\n" | awk 'FNR == 3{print}' | xargs)
+          CHART_VERSION=$(echo ${CURRENT_CHART_VERSION} | awk -F. -v OFS=. '{$NF += 1 ; print}')
+
+          cd charts/selenium-grid
+
+          awk -v CHART_VERSION="$CHART_VERSION" -v IMAGE_VERSION="$IMAGE_VERSION" \
+          'NR==5{print "## :heavy_check_mark: " CHART_VERSION "\n\n### Changed\n- Update image tag to " IMAGE_VERSION "\n"}1' CHANGELOG.md > awk_out && mv awk_out CHANGELOG.md
+          awk -v IMAGE_VERSION="$IMAGE_VERSION" '{gsub(/appVersion:.*/,"appVersion: " IMAGE_VERSION);}1' Chart.yaml > awk_out && mv awk_out Chart.yaml
+          awk -v CHART_VERSION="$CHART_VERSION" '{gsub(/version:.*/,"version: " CHART_VERSION);}1' Chart.yaml > awk_out && mv awk_out Chart.yaml
+      - name: Commit files
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update CHANGELOG and chart.yaml for helm charts [skip ci]" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@40bf560936a8022e68a3c00e7d2abefaf01305a6
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: trunk
+
+
