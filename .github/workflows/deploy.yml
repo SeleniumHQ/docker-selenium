@@ -100,15 +100,16 @@ jobs:
       - name: Make changes for helm chart
         run: |
           IMAGE_VERSION=${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          CURRENT_CHART_VERSION=$(sed "5q;d" charts/selenium-grid/CHANGELOG.md | tr ":" "\n" | awk 'FNR == 3{print}' | xargs)
-          CHART_VERSION=$(echo ${CURRENT_CHART_VERSION} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 
           cd charts/selenium-grid
-
+          CURRENT_CHART_VERSION=$(yq -r .version Chart.yaml)
+          CHART_VERSION=$(echo ${CURRENT_CHART_VERSION} | awk -F. -v OFS=. '{$NF += 1 ; print}')
           awk -v CHART_VERSION="$CHART_VERSION" -v IMAGE_VERSION="$IMAGE_VERSION" \
           'NR==5{print "## :heavy_check_mark: " CHART_VERSION "\n\n### Changed\n- Update image tag to " IMAGE_VERSION "\n"}1' CHANGELOG.md > awk_out && mv awk_out CHANGELOG.md
           awk -v IMAGE_VERSION="$IMAGE_VERSION" '{gsub(/appVersion:.*/,"appVersion: " IMAGE_VERSION);}1' Chart.yaml > awk_out && mv awk_out Chart.yaml
           awk -v CHART_VERSION="$CHART_VERSION" '{gsub(/version:.*/,"version: " CHART_VERSION);}1' Chart.yaml > awk_out && mv awk_out Chart.yaml
+
+          git diff
       - name: Commit files
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
