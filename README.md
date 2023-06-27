@@ -73,7 +73,7 @@ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-fire
 
 4. (Optional) To see what is happening inside the container, head to <http://localhost:7900/?autoconnect=1&resize=scale&password=secret>.
 
-More details about visualising the container activity, check the [Debugging](#debugging) section.
+For more details about visualising the container activity, check the [Debugging](#debugging) section.
 
 :point_up: When executing `docker run` for an image that contains a browser please use 
 the flag `--shm-size=2g` to use the host's shared memory.
@@ -81,7 +81,7 @@ the flag `--shm-size=2g` to use the host's shared memory.
 :point_up: Always use a Docker image with a full tag to pin a specific browser and Grid version.
 See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention) for details.
 
-### Try them out in a ready to use GitPod environment!
+### Try them out in a ready-to-use GitPod environment!
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/SeleniumHQ/docker-selenium)
 
@@ -90,7 +90,7 @@ ___
 ## Experimental Mult-Arch aarch64/armhf/amd64 Images
 
 For experimental docker container images, which run on platforms such as the Mac M1 or Raspberry Pi, 
-see the community driven repository hosted at 
+see the community-driven repository hosted at 
 [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).
 These images are built for three separate architectures: linux/arm64 (aarch64), linux/arm/v7 (armhf), 
 and linux/amd64. 
@@ -446,7 +446,7 @@ $ docker run -d -p 5556:5556 `
 
 #### Docker Compose
 [Docker Compose](https://docs.docker.com/compose/) is the simplest way to start a Grid. Use the
-linked resources below, save them locally, and check the execution instructions on top of each file.
+linked resources below, save them locally and check the execution instructions on top of each file.
 
 ##### Version 2
 [`docker-compose-v2.yml`](docker-compose-v2.yml)
@@ -477,7 +477,7 @@ Tests execution can be recorded by using the `selenium/video:ffmpeg-4.3.1-202306
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
-Currently, the only way to do this mapping is manually (either starting the containers manually, or through
+Currently, the only way to do this mapping is manually (either starting the containers manually or through
 `docker-compose`). We are iterating on this process and probably this setup will be more simple in the future.
 
 The video Docker image we provide is based on the ffmpeg Ubuntu image provided by the 
@@ -758,7 +758,7 @@ ___
 
 ### SE_OPTS Selenium Configuration Options
 
-You can pass `SE_OPTS` variable with additional commandline parameters for starting a hub or a node.
+You can pass `SE_OPTS` variable with additional command line parameters for starting a hub or a node.
 
 ``` bash
 $ docker run -d -p 4444:4444 -e SE_OPTS="--log-level FINE" --name selenium-hub selenium/hub:4.10.0-20230607
@@ -766,7 +766,7 @@ $ docker run -d -p 4444:4444 -e SE_OPTS="--log-level FINE" --name selenium-hub s
 
 ### SE_JAVA_OPTS Java Environment Options
 
-You can pass `SE_JAVA_OPTS` environment variable to java process.
+You can pass `SE_JAVA_OPTS` environment variable to the Java process.
 
 ``` bash
 $ docker run -d -p 4444:4444 -e SE_JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.10.0-20230607
@@ -782,7 +782,7 @@ In both cases, it is necessary to tell the Node where the Event Bus is, so it ca
 the purpose of the `SE_EVENT_BUS_HOST`, `SE_EVENT_BUS_PUBLISH_PORT` and `SE_EVENT_BUS_SUBSCRIBE_PORT` environment
 variables.
 
-In some cases, for example if you want to tag a node, it might be necessary to supply a custom stereotype to the node config. The environement variable `SE_NODE_STEREOTYPE`
+In some cases, for example, if you want to tag a node, it might be necessary to supply a custom stereotype to the node config. The environment variable `SE_NODE_STEREOTYPE`
 sets the stereotype entry in the node's `config.toml`. An example config.toml file can be found here: [Setting custom capabilities for matching specific Nodes](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes).
 
 Here is an example with the default values of these environment variables:
@@ -796,7 +796,7 @@ $ docker run -d \
 
 ### Setting Sub Path
 
-By default, Selenium is reachable at `http://127.0.0.1:4444/`. Selenium can be configured to use a custom sub path by specifying the `SE_SUB_PATH`
+By default, Selenium is reachable at `http://127.0.0.1:4444/`. Selenium can be configured to use a custom subpath by specifying the `SE_SUB_PATH`
 environmental variable. In the example below Selenium is reachable at `http://127.0.0.1:4444/selenium-grid/`
 
 ```bash
@@ -815,12 +815,12 @@ docker run -d -e SE_SCREEN_WIDTH=1366 -e SE_SCREEN_HEIGHT=768 -e SE_SCREEN_DEPTH
 
 ### Grid Url and Session Timeout
 
-In some use cases you might need to set the Grid url to the Node, for example if you'd like to access the BiDi/CDP endpoint. 
+In some use cases, you might need to set the Grid URL to the Node, for example, if you'd like to access the BiDi/CDP endpoint. 
 This is also needed when you want to use the new `RemoteWebDriver.builder()` or `Augmenter()` present in Selenium 4 
 (since they setup the BiDi/CDP connection implicitly). You can do that through the `SE_NODE_GRID_URL` environment 
 variable. Setting this env var is needed if you want to see the live view while sessions are executing.
 
-Grid has a default session timeout of 300 seconds, where the session can be on a stale state until it is killed. You can use
+Grid has a default session timeout of 300 seconds, where the session can be in a stale state until it is killed. You can use
 `SE_NODE_SESSION_TIMEOUT` to overwrite that value in seconds.
 
 
@@ -828,7 +828,7 @@ Grid has a default session timeout of 300 seconds, where the session can be on a
 
 A new session request is placed in the Session Queue before it is processed, and the request sits in the queue until a matching
 slot is found across the registered Nodes. However, the new session request might timeout if no slot was found. By default, a 
-request will stay in the queue up to 300 seconds before it a timeout is reached. In addition, an attempt to process the request
+request will stay in the queue for up to 300 seconds before it a timeout is reached. In addition, an attempt to process the request
 is done every 5 seconds (by default).
 
 It is possible to override those values through environment variables in the Hub and the SessionQueue (`SE_SESSION_REQUEST_TIMEOUT`
@@ -846,7 +846,7 @@ override the maximum limit by setting both `SE_NODE_MAX_SESSIONS` to a desired n
 `true`. Nevertheless, running more browser sessions than the available processors is not recommended since you will be overloading
 the resources.
 
-Overriding this setting has a undesired side effect when video recording is enabled, since more than one browser session might be
+Overriding this setting has an undesired side effect when video recording is enabled since more than one browser session might be
 captured in the same video.
 
 ### Running in Headless mode
@@ -876,7 +876,7 @@ a value higher than zero to enable this behaviour.
 $ docker run -e SE_DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.10.0-20230607
 ```
 
-With the previous command, the Standalone container will shutdown after 5 sessions have been executed.
+With the previous command, the Standalone container will shut down after 5 sessions have been executed.
 
 ___
 
@@ -888,7 +888,7 @@ Clone the repo and from the project directory root you can build everything by r
 $ VERSION=local make build
 ```
 
-If you need to configure environment variable in order to build the image (http proxy for instance), 
+If you need to configure environment variables in order to build the image (http proxy for instance), 
 simply set an environment variable `BUILD_ARGS` that contains the additional variables to pass to the 
 docker context (this will only work with docker >= 1.9)
 
@@ -905,7 +905,7 @@ ___
 
 It is a good practice to check first if the Grid is up and ready to receive requests, this can be done by checking the `/wd/hub/status` endpoint.
 
-A Grid that is ready, composed by a hub and two nodes, could look like this:
+A Grid that is ready, composed of a hub and two nodes, could look like this:
 
 ```json
 {
@@ -983,7 +983,7 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     selenium/node-firefox:4.10.0-20230607
 
 ```
-**Note:** The `\` line delimiter won't work on Windows based terminals, try either `^` or a backtick.
+**Note:** The `\` line delimiter won't work on Windows-based terminals, try either `^` or a backtick.
 
 The container health status can be checked by doing `docker ps` and verifying the `(healthy)|(unhealthy)` status or by
 inspecting it in the following way:
@@ -1032,12 +1032,12 @@ Like this, the script will poll until the Grid is ready, and then your tests wil
 
 ___
 
-## Install certificates for Chromium based browsers
+## Install certificates for Chromium-based browsers
 
-If you need to install custom certificates, CA, intermediate CA, client certificates (for example enterprise internal CA)
-you can use the different utils come from libnss3-tools.
-Chromium based browser uses nssdb as certificate store.
-Create new nssdb:  
+If you need to install custom certificates, CA, intermediate CA, or client certificates (for example enterprise internal CA)
+you can use the different utils that come from libnss3-tools.
+The chromium-based browser uses nssdb as a certificate store.
+Create a new nssdb:  
 ```bash
 certutil -d sql:$HOME/.pki/nssdb -N
 ```
@@ -1051,7 +1051,7 @@ certutil -d sql:$HOME/.pki/nssdb -A -t ",," -n <certificate nickname> -i <certif
 ```
 You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
 Usage example:
-If your company has internal CA you can create your own dockerimage from selenium node image.
+If your company has an internal CA you can create your own dockerimage from selenium node image.
 You can then install all required internal certificates in your Dockerfile like this:
 ```bash
 FROM selenium/node-edge:latest
@@ -1082,15 +1082,15 @@ As an alternative, you can add your certificate files to existing Selenium image
 assumes you have a known image to use as a build image and have a way to publish new images to your local
 docker registry.
 
-This example uses a RedHat based distro as build image (Rocky Linux) but it can be *any* linux image of your choice.
-Please note that build instrutions will vary between distributions. You can check instructions for Ubuntu
-in previous example.
+This example uses a RedHat-based distro as a build image (Rocky Linux) but it can be *any* Linux image of your choice.
+Please note that build instruction will vary between distributions. You can check the instructions for Ubuntu
+in the previous example.
 
 The example also assumes your internal CA is already in */etc/pki/ca-trust/source/anchors/YOUR_CA.pem*,
 the default location for Rocky Linux. Alternatively, you can also provide these files from your host and 
-copy them into build image.
+copy them into the build image.
 
-For Chrome and Edge browsers, the recipe is the same, just adapt image name (node-chrome or node-edge):
+For Chrome and Edge browsers, the recipe is the same, just adapt the image name (node-chrome or node-edge):
 ```
 # Get a standard image for creating nssdb file
 FROM rockylinux:8.6 as build
@@ -1126,7 +1126,7 @@ ___
 
 ## Debugging
 
-This project uses [x11vnc](https://github.com/LibVNC/x11vnc) as VNC server to allow users inspect what is happening
+This project uses [x11vnc](https://github.com/LibVNC/x11vnc) as a VNC server to allow users to inspect what is happening
 inside the container. Users can connect to this server in two ways:
 
 ### Using a VNC client
@@ -1158,8 +1158,8 @@ If you want to run VNC in view-only mode you can set the environment variable `S
 
 ### Using your browser (no VNC client is needed)
 
-This project uses [noVNC](https://github.com/novnc/noVNC) to allow users inspect visually container activity with
-their browser. This might come handy if you cannot install a VNC client on your machine. Port 7900 is used to start
+This project uses [noVNC](https://github.com/novnc/noVNC) to allow users to inspect visually container activity with
+their browser. This might come in handy if you cannot install a VNC client on your machine. Port 7900 is used to start
 noVNC, so you will need to connect to that port with your browser.
 
 Similarly to the previous section, feel free to map port 7900 to any free external port that you wish.
@@ -1179,11 +1179,17 @@ Then, you would use in your browser:
 
 If you get a prompt asking for a password, it is: `secret`.
 
+### Disabling VNC
+If You are running low on resources, or simply don't need to inspect running sessions, it is possible to not run VNC at all.
+Just set 
+```SE_START_VNC=false```
+environment variable on the grid startup.
+
 ___
 
 ## Tracing in Grid
 
-In order to enable tracing in Selenium Grid container, the following commands can be executed:
+In order to enable tracing in the Selenium Grid container, the following commands can be executed:
 
 ```bash
 docker network create grid
@@ -1261,7 +1267,7 @@ A common scenario is mounting a volume to the browser
 container in order to retrieve downloaded files. This
 works well in Windows and macOS but not without 
 workarounds in Linux. For more details, check this
-well documented [issue](https://github.com/SeleniumHQ/docker-selenium/issues/1095).
+well-documented [issue](https://github.com/SeleniumHQ/docker-selenium/issues/1095).
 
 For example, while using Linux, you might be starting a
 container in the following way:
@@ -1275,12 +1281,12 @@ docker run -d -p 4444:4444 --shm-size="2g" \
 That will mount the host `/home/ubuntu/files` directory
 to the `/home/seluser/files` inside the container. The
 problem happens because the volume will be mounted as
-`root`, and therefore the browser cannot write a file to
+`root`; therefore, the browser cannot write a file to
 that directory because it is running under the user 
 `seluser`. This happens because that is how Docker mounts
 volumes in Linux, more details in this [issue](https://github.com/moby/moby/issues/2259).
 
-A workaround for this is to create the directory on the
+A workaround for this is to create a directory on the
 host and change its permissions **before mounting the volume**. 
 Depending on your user permissions, you might need to use 
 `sudo` for some of these commands:
