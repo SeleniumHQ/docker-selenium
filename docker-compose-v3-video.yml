@@ -4,7 +4,7 @@
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:4.9.1-20230508
+    image: selenium/node-chrome:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -14,7 +14,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:4.9.1-20230508
+    image: selenium/node-edge:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -24,7 +24,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.9.1-20230508
+    image: selenium/node-firefox:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -34,7 +34,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:ffmpeg-4.3.1-20230508
+    image: selenium/video:ffmpeg-4.3.1-20230607
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -44,7 +44,7 @@ services:
       - FILE_NAME=chrome_video.mp4
 
   edge_video:
-    image: selenium/video:ffmpeg-4.3.1-20230508
+    image: selenium/video:ffmpeg-4.3.1-20230607
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -54,7 +54,7 @@ services:
       - FILE_NAME=edge_video.mp4
 
   firefox_video:
-    image: selenium/video:ffmpeg-4.3.1-20230508
+    image: selenium/video:ffmpeg-4.3.1-20230607
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -64,7 +64,7 @@ services:
       - FILE_NAME=firefox_video.mp4
 
   selenium-hub:
-    image: selenium/hub:4.9.1-20230508
+    image: selenium/hub:4.10.0-20230607
     container_name: selenium-hub
     ports:
       - "4442:4442"

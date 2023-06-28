@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.9.1-20230508
+    image: selenium/event-bus:4.10.0-20230607
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -12,7 +12,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.9.1-20230508
+    image: selenium/sessions:4.10.0-20230607
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -24,13 +24,13 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-session-queue:
-    image: selenium/session-queue:4.9.1-20230508
+    image: selenium/session-queue:4.10.0-20230607
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
 
   selenium-distributor:
-    image: selenium/distributor:4.9.1-20230508
+    image: selenium/distributor:4.10.0-20230607
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -48,7 +48,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   selenium-router:
-    image: selenium/router:4.9.1-20230508
+    image: selenium/router:4.10.0-20230607
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -65,7 +65,7 @@ services:
       - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
-    image: selenium/node-chrome:4.9.1-20230508
+    image: selenium/node-chrome:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -75,7 +75,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:4.9.1-20230508
+    image: selenium/node-edge:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -85,7 +85,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.9.1-20230508
+    image: selenium/node-firefox:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-event-bus

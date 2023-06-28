@@ -9,7 +9,7 @@ services:
       - "16686:16686"
       - "14250:14250"
   chrome:
-    image: selenium/node-chrome:4.9.1-20230508
+    image: selenium/node-chrome:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -21,7 +21,7 @@ services:
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chrome
 
   edge:
-    image: selenium/node-edge:4.9.1-20230508
+    image: selenium/node-edge:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -33,7 +33,7 @@ services:
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-edge
 
   firefox:
-    image: selenium/node-firefox:4.9.1-20230508
+    image: selenium/node-firefox:4.10.0-20230607
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -45,7 +45,7 @@ services:
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-firefox
 
   selenium-hub:
-    image: selenium/hub:4.9.1-20230508
+    image: selenium/hub:4.10.0-20230607
     container_name: selenium-hub
     ports:
       - "4442:4442"
