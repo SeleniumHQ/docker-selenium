@@ -125,6 +125,8 @@ template:
         envFrom:
           - configMapRef:
               name: {{ .Values.busConfigMap.name }}
+          - configMapRef:
+              name: {{ .Values.nodeConfigMap.name }}
           {{- with .node.extraEnvFrom }}
             {{- toYaml . | nindent 10 }}
           {{- end }}

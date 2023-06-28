@@ -33,6 +33,12 @@ busConfigMap:
   # Custom annotations for configmap
   annotations: {}
 
+# ConfigMap that contains common environment variables for browser nodes
+nodeConfigMap:
+  name: selenium-node-config
+  # Custom annotations for configmap
+  annotations: {}
+
 # Configuration for isolated components (applied only if `isolateComponents: true`)
 components:
 
@@ -390,10 +396,6 @@ chromeNode:
     #     - "example.org"
   # Custom environment variables for chrome nodes
   extraEnvironmentVariables:
-  - name: DRAIN_AFTER_SESSION_COUNT
-    value: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
-  - name: SE_NODE_GRID_URL
-    value: '{{ include "seleniumGrid.url" .}}'
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -506,10 +508,6 @@ firefoxNode:
     #     - "example.org"
   # Custom environment variables for firefox nodes
   extraEnvironmentVariables:
-  - name: DRAIN_AFTER_SESSION_COUNT
-    value: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
-  - name: SE_NODE_GRID_URL
-    value: '{{ include "seleniumGrid.url" .}}'
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -618,10 +616,6 @@ edgeNode:
     #     - "example.org"
   # Custom environment variables for edge nodes
   extraEnvironmentVariables:
-  - name: DRAIN_AFTER_SESSION_COUNT
-    value: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
-  - name: SE_NODE_GRID_URL
-    value: '{{ include "seleniumGrid.url" .}}'
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
