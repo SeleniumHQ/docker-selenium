@@ -2,6 +2,11 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.19.0
+
+### Added
+-  Autoscaling selenium grid on kubernetes with scaledjobs (#1854) 
+
 ## :heavy_check_mark: 0.18.1
 
 ### Changed
