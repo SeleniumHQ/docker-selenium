@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.nodeConfigMap.name }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.nodeConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
+  SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'

@@ -24,11 +24,18 @@ ingress:
   path: /
   # TLS backend configuration for ingress resource
   tls: []
+  path: /
 
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
   # Name of the configmap
   name: selenium-event-bus-config
+  # Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains common environment variables for browser nodes
+nodeConfigMap:
+  name: selenium-node-config
   # Custom annotations for configmap
   annotations: {}
 
@@ -305,11 +312,38 @@ hub:
   # Priority class name for selenium-hub pods
   priorityClassName: ""
 
+# Keda scaled object configuration
+autoscaling:
+  # Enable autoscaling. Implies installing KEDA
+  enabled: false
+  # Enable autoscaling without automatically installing KEDA
+  enableWithExistingKEDA: false
+  # Which typ of KEDA scaling to use: job or deployment
+  scalingType: job
+  # Annotations for KEDA resources: ScaledObject and ScaledJob
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+  # Options for KEDA ScaledJobs
+  scaledJobOptions:
+    pollingInterval: 10
+    scalingStrategy:
+      strategy: accurate
+  deregisterLifecycle:
+    preStop:
+      exec:
+        command:
+          - bash
+          - -c
+          - |
+            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
+            while curl 127.0.0.1:5555/status; do sleep 1; done;
+
 # Configuration for chrome nodes
 chromeNode:
   # Enable chrome nodes
   enabled: true
 
+  # NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
   # true (default) - if you want long living pods
   # false - for provisioning your own custom type such as Jobs
@@ -397,17 +431,7 @@ chromeNode:
     # periodSeconds: 5
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
-  # Allow pod correctly shutdown
   lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
-
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -419,11 +443,19 @@ chromeNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
 
+  maxReplicaCount: 8
+  hpa:
+    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    browserName: chrome
+    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
+    unsafeSsl : 'true' # Optional
+
 # Configuration for firefox nodes
 firefoxNode:
   # Enable firefox nodes
   enabled: true
 
+  # NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
   # true (default) - if you want long living pods
   # false - for provisioning your own custom type such as Jobs
@@ -511,17 +543,7 @@ firefoxNode:
     # periodSeconds: 5
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
-  # Allow pod correctly shutdown
   lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
-
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -532,12 +554,17 @@ firefoxNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  maxReplicaCount: 8
+  hpa:
+    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    browserName: firefox
 
 # Configuration for edge nodes
 edgeNode:
   # Enable edge nodes
   enabled: true
 
+  # NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
   # true (default) - if you want long living pods
   # false - for provisioning your own custom type such as Jobs
@@ -625,17 +652,7 @@ edgeNode:
     # periodSeconds: 5
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
-  # Allow pod correctly shutdown
   lifecycle: {}
-    # preStop:
-    #   exec:
-    #     command:
-    #       - bash
-    #       - -c
-    #       - |
-    #         curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-    #         while curl 127.0.0.1:5555/status; do sleep 1; done
-
   extraVolumeMounts: []
   # - name: my-extra-volume
   #   mountPath: /home/seluser/Downloads
@@ -646,6 +663,11 @@ edgeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
+  maxReplicaCount: 8
+  hpa:
+    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    browserName: MicrosoftEdge
+    sessionBrowserName: 'msedge'
 
 # Custom labels for k8s resources
 customLabels: {}

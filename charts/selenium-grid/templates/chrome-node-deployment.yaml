@@ -1,10 +1,10 @@
-{{- if and .Values.chromeNode.enabled .Values.chromeNode.deploymentEnabled }}
+{{- if and .Values.chromeNode.enabled ((eq (include "seleniumGrid.useKEDA" .) "true") | ternary (eq .Values.autoscaling.scalingType "deployment") .Values.chromeNode.deploymentEnabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "seleniumGrid.chromeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
-  labels: &chrome_node_labels
+  labels:
     app: selenium-chrome-node
     app.kubernetes.io/name: selenium-chrome-node
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
@@ -20,81 +20,8 @@ spec:
     matchLabels:
       app: selenium-chrome-node
       app.kubernetes.io/instance: {{ .Release.Name }}
-  template:
-    metadata:
-      labels: *chrome_node_labels
-      annotations:
-        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
-        {{- with .Values.chromeNode.annotations }}
-          {{ toYaml . | nindent 8 }}
-        {{- end }}
-    spec:
-    {{- with .Values.chromeNode.hostAliases }}
-      hostAliases: {{ toYaml . | nindent 8 }}
-    {{- end }}
-      containers:
-        - name: selenium-chrome-node
-          {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .Values.chromeNode.imageTag }}
-          image: {{ printf "%s:%s" .Values.chromeNode.imageName $imageTag }}
-          imagePullPolicy: {{ .Values.chromeNode.imagePullPolicy }}
-        {{- with .Values.chromeNode.extraEnvironmentVariables }}
-          env: {{- tpl (toYaml .) $ | nindent 12 }}
-        {{- end }}
-          envFrom:
-            - configMapRef:
-                name: {{ .Values.busConfigMap.name }}
-            {{- with .Values.chromeNode.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
-        {{- if gt (len .Values.chromeNode.ports) 0 }}
-          ports:
-          {{- range .Values.chromeNode.ports }}
-            - containerPort: {{ . }}
-              protocol: TCP
-          {{- end }}
-        {{- end }}
-          volumeMounts:
-            - name: dshm
-              mountPath: /dev/shm
-          {{- if .Values.chromeNode.extraVolumeMounts }}
-            {{- toYaml .Values.chromeNode.extraVolumeMounts | nindent 12 }}
-          {{- end }}
-        {{- with .Values.chromeNode.resources }}
-          resources: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.chromeNode.securityContext }}
-          securityContext: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.chromeNode.lifecycle }}
-          lifecycle: {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.chromeNode.startupProbe }}
-          startupProbe: {{- toYaml . | nindent 12 }}
-        {{- end }}
-    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
-      imagePullSecrets:
-        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.chromeNode.imagePullSecret }}
-    {{- end }}
-    {{- with .Values.chromeNode.nodeSelector }}
-      nodeSelector: {{- toYaml . | nindent 8 }}
-    {{- end }}
-    {{- if or .Values.global.seleniumGrid.affinity .Values.chromeNode.affinity }}
-      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.chromeNode.affinity }}
-      affinity: {{- toYaml $affinityYaml | nindent 8 }}
-    {{- end }}    
-    {{- with .Values.chromeNode.tolerations }}
-      tolerations: {{ toYaml . | nindent 6 }} 
-    {{- end }}
-    {{- with .Values.chromeNode.priorityClassName }}
-      priorityClassName: {{ . }}
-    {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.chromeNode.terminationGracePeriodSeconds }}
-      volumes:
-        - name: dshm
-          emptyDir:
-            medium: Memory
-            sizeLimit: {{ default "1Gi" .Values.chromeNode.dshmVolumeSizeLimit }}
-      {{- if .Values.chromeNode.extraVolumes }}
-        {{ toYaml .Values.chromeNode.extraVolumes | nindent 8 }}
-      {{- end }}
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" "selenium-chrome-node" -}}
+{{- $_ =  set $podScope "node" .Values.chromeNode  -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 2 }}
 {{- end }}
