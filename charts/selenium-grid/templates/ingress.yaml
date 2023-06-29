@@ -70,5 +70,5 @@ spec:
               serviceName: {{ template "seleniumGrid.hub.fullname" $ }}
               servicePort: {{ $.Values.hub.port }}
               {{- end }}
-      {{- end }}
+        {{- end }}
 {{- end }}
