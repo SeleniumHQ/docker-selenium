@@ -12,6 +12,9 @@ ingress:
 chromeNode:
   # Number of chrome nodes
   replicas: 6
+  extraEnvironmentVariables:
+    - name: TZ
+      value: "Europe/Paris"
 
 # Configuration for firefox nodes
 firefoxNode:
