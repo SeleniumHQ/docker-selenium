@@ -15,6 +15,16 @@ chromeNode:
   extraEnvironmentVariables:
     - name: TZ
       value: "Europe/Paris"
+    - name: SE_JAVA_OPTS
+      value: "-Xmx2g"
+  # Resources for chrome-node container
+  resources:
+    requests:
+      memory: "2Gi"
+      cpu: "1"
+    limits:
+      memory: "3Gi"
+      cpu: "2"
 
 # Configuration for firefox nodes
 firefoxNode:
