@@ -34,8 +34,18 @@ The following multi-arch Seleniarm container images are available on [Docker Hub
 - [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
 - [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
 - [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
+- [Distributor](https://hub.docker.com/r/seleniarm/distributor)
+- [Router](https://hub.docker.com/r/seleniarm/router)
+- [Node Docker](https://hub.docker.com/r/seleniarm/node-docker)
+- [Standalone Docker](https://hub.docker.com/r/seleniarm/standalone-docker)
+- [Event Bus](https://hub.docker.com/r/seleniarm/event-bus)
+- [Session Queue](https://hub.docker.com/r/seleniarm/session-queue)
+- [Sessions](https://hub.docker.com/r/seleniarm/sessions)
+- [NodeBase](https://hub.docker.com/r/seleniarm/node-base)
+- [Base](https://hub.docker.com/r/seleniarm/base)
 
-The other upstream images are not yet supported for multi-arch, but you can try and build them yourself.
+
+All of the images are here in order to run in standalone mode, full grid mode, and dynamic grid mode. However, browser binaries are only available for Chromium and Firefox.
 
 > NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
 
@@ -49,8 +59,6 @@ The entire build process is managed via a Makefile. If you want to build the ima
 - The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
 
 To build with a different version of Chromium, change it in NodeChromium/Dockerfile.
-
-The multi-arch Seleniarm images are only built for the standalone and node browser images, and the hub.  You are welcome to try and build and test the other images, if you need them.
 
 To build the images, run the following make command from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
 

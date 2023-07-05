@@ -22,17 +22,23 @@ echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BU
 case "${BROWSER}" in
 
 chromium)
-  CHROMIUM_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
+  CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
   echo "Chromium version -> "${CHROMIUM_VERSION}
   CHROME_SHORT_VERSION="$(short_version ${CHROMIUM_VERSION})"
   echo "Short Chromium version -> "${CHROME_SHORT_VERSION}
 
-  CHROMEDRIVER_VERSION=$(docker run --rm seleniarm/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+  CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
   echo "ChromeDriver version -> "${CHROMEDRIVER_VERSION}
   CHROMEDRIVER_SHORT_VERSION="$(short_version ${CHROMEDRIVER_VERSION})"
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
 
   CHROME_TAGS=(
+      # Major Selenium version (X)
+      ${MAJOR}
+      # Major-minor Selenium version (X.Y)
+      ${MAJOR_MINOR}
+      # Full Selenium version (X.Y.X)
+      ${VERSION}
       ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
       # Browser version and browser driver version plus build date
       ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
@@ -51,33 +57,37 @@ chromium)
       # Browser version and build date
       ${CHROME_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
-      ${CHROME_SHORT_VERSION}      
-      # Plain version tags
-      ${VERSION}
-      ${MAJOR_MINOR}
-      ${MAJOR}
+      ${CHROME_SHORT_VERSION}
   )
 
   for chrome_tag in "${CHROME_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
+        docker buildx imagetools create -t ${NAMESPACE}/node-chromium:${chrome_tag} ${NAMESPACE}/node-chromium:${TAG_VERSION}
+        docker buildx imagetools create -t ${NAMESPACE}/standalone-chromium:${chrome_tag} ${NAMESPACE}/standalone-chromium:${TAG_VERSION}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-chromium ${chrome_tag}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-chromium ${chrome_tag}
     fi
   done
   
   ;;
 firefox)
-  FIREFOX_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
+  FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
   echo "Firefox version -> "${FIREFOX_VERSION}
   FIREFOX_SHORT_VERSION="$(short_version ${FIREFOX_VERSION})"
   echo "Short Firefox version -> "${FIREFOX_SHORT_VERSION}
-  GECKODRIVER_VERSION=$(docker run --rm seleniarm/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
+  GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
   echo "GeckoDriver version -> "${GECKODRIVER_VERSION}
   GECKODRIVER_SHORT_VERSION="$(short_version ${GECKODRIVER_VERSION})"
   echo "Short GeckoDriver version -> "${GECKODRIVER_SHORT_VERSION}
 
   FIREFOX_TAGS=(
+      # Major Selenium version (X)
+      ${MAJOR}
+      # Major-minor Selenium version (X.Y)
+      ${MAJOR_MINOR}
+      # Full Selenium version (X.Y.X)
+      ${VERSION}
       ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-grid-${TAG_VERSION}
       # Browser version and browser driver version plus build date
       ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-${BUILD_DATE}
@@ -96,18 +106,16 @@ firefox)
       # Browser version and build date
       ${FIREFOX_SHORT_VERSION}-${BUILD_DATE}
       # Browser version
-      ${FIREFOX_SHORT_VERSION}      
-      # Plain version tags
-      ${VERSION}
-      ${MAJOR_MINOR}
-      ${MAJOR}
+      ${FIREFOX_SHORT_VERSION}
   )
 
   for firefox_tag in "${FIREFOX_TAGS[@]}"
   do
     if [ "${PUSH_IMAGE}" = true ]; then
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
-        sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
+        docker buildx imagetools create -t ${NAMESPACE}/node-firefox:${firefox_tag} ${NAMESPACE}/node-firefox:${TAG_VERSION}
+        docker buildx imagetools create -t ${NAMESPACE}/standalone-firefox:${firefox_tag} ${NAMESPACE}/standalone-firefox:${TAG_VERSION}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE node-firefox ${firefox_tag}
+        #sh tag-and-push-multi-arch-image.sh $VERSION $BUILD_DATE $NAMESPACE standalone-firefox ${firefox_tag}
     fi
   done
 
