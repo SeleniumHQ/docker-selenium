@@ -64,6 +64,12 @@ spec:
           env:
             - name: SE_SUB_PATH
               value: {{ .Values.hub.subPath }}
+            {{- if eq .Values.basicAuth.enabled true}}
+            - name: ROUTER_USERNAME
+              value: {{ .Values.basicAuth.username }}
+            - name: ROUTER_PASSWORD
+              value: {{ .Values.basicAuth.username }}
+            {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
