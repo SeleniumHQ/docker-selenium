@@ -999,23 +999,35 @@ A common problem known in docker is that a running container does not always mea
 A simple way to tackle this is by using a "wait-for-it" script, more information can be seen [here](https://docs.docker.com/compose/startup-order/).
 
 The following script is an example of how this can be done using bash, but the same principle applies if you want to do this with the programming language used to write the tests.
+In the example below, the script will poll the status endpoint every second. If the grid does not become ready within 30 seconds, the script will exit with an error code.
 
 ```bash
 #!/bin/bash
 # wait-for-grid.sh
 
 set -e
+url="http://localhost:4444/wd/hub/status"
+wait_interval_in_seconds=1
+max_wait_time_in_seconds=30
+end_time=$((SECONDS + max_wait_time_in_seconds))
+time_left=$max_wait_time_in_seconds
 
-cmd="$@"
-
-while ! curl -sSL "http://localhost:4444/wd/hub/status" 2>&1 \
-        | jq -r '.value.ready' 2>&1 | grep "true" >/dev/null; do
-    echo 'Waiting for the Grid'
-    sleep 1
+while [ $SECONDS -lt $end_time ]; do
+    response=$(curl -sL "$url" | jq -r '.value.ready')
+    if [ -n "$response"  ]  && [ "$response" ]; then
+        echo "Selenium Grid is up - executing tests"
+        break
+    else
+        echo "Waiting for the Grid. Sleeping for $wait_interval_in_seconds second(s). $time_left seconds left until timeout."
+        sleep $wait_interval_in_seconds
+        time_left=$((time_left - wait_interval_in_seconds))
+    fi
 done
 
->&2 echo "Selenium Grid is up - executing tests"
-exec $cmd
+if [ $SECONDS -ge $end_time ]; then
+    echo "Timeout: The Grid was not started within $max_wait_time_in_seconds seconds."
+    exit 1
+fi
 ```
 > Will require `jq` installed via `apt-get`, else the script will keep printing `Waiting` without completing the execution.
 
