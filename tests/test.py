@@ -12,9 +12,6 @@ from docker.errors import NotFound
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Docker Client
-client = docker.from_env()
-
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
 USE_RANDOM_USER_ID = os.environ.get('USE_RANDOM_USER_ID')
@@ -23,6 +20,11 @@ http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
 SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
+
+try:
+    client = docker.from_env()
+except:
+    client = None
 
 IMAGE_NAME_MAP = {
     # Hub
