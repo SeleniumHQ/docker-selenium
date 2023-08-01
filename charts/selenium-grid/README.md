@@ -127,6 +127,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.annotations`            | `{}`                                        | Custom annotations for service                                                                                             |
 | `chromeNode.dshmVolumeSizeLimit`            | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `chromeNode.startupProbe`                   | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `chromeNode.livenessProbe`                  | `{}`                                        | Liveness probe settings                                                                                                    |
 | `chromeNode.terminationGracePeriodSeconds`  | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `chromeNode.lifecycle`                      | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `chromeNode.extraVolumeMounts`              | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -161,6 +162,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.annotations`           | `{}`                                        | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`           | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `firefoxNode.startupProbe`                  | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `firefoxNode.livenessProbe`                 | `{}`                                        | Liveness probe settings                                                                                                    |
 | `firefoxNode.terminationGracePeriodSeconds` | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `firefoxNode.lifecycle`                     | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `firefoxNode.extraVolumeMounts`             | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -195,6 +197,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.annotations`              | `{}`                                        | Custom annotations for service                                                                                             |
 | `edgeNode.dshmVolumeSizeLimit`              | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
 | `edgeNode.startupProbe`                     | `{}`                                        | Probe to check pod is started successfully                                                                                 |
+| `edgeNode.livenessProbe`                    | `{}`                                        | Liveness probe settings                                                                                                    |
 | `edgeNode.terminationGracePeriodSeconds`    | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `edgeNode.lifecycle`                        | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `edgeNode.extraVolumeMounts`                | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -238,6 +241,8 @@ You can configure the Selenium Hub with this values:
 | `hub.subPath`                   | `/`               | Custom sub path for the hub deployment                                                                                                           |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                                 |
+| `hub.extraVolumeMounts`         | `[]`              | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `hub.extraVolumes`              | `[]`              | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                                             |
 | `hub.securityContext`           | `See values.yaml` | Security context for selenium-hub container                                                                                                      |
 | `hub.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
