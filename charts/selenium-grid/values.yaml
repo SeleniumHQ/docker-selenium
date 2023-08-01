@@ -439,6 +439,10 @@ chromeNode:
     #   port: 5555
     # failureThreshold: 120
     # periodSeconds: 5
+
+  # Liveness probe settings
+  livenessProbe: {}
+
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
   lifecycle: {}
@@ -551,6 +555,10 @@ firefoxNode:
     #   port: 5555
     # failureThreshold: 120
     # periodSeconds: 5
+
+  # Liveness probe settings
+  livenessProbe: {}
+
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
   lifecycle: {}
@@ -660,6 +668,10 @@ edgeNode:
     #   port: 5555
     # failureThreshold: 120
     # periodSeconds: 5
+
+  # Liveness probe settings
+  livenessProbe: {}
+
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
   lifecycle: {}
