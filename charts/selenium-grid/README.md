@@ -241,6 +241,8 @@ You can configure the Selenium Hub with this values:
 | `hub.subPath`                   | `/`               | Custom sub path for the hub deployment                                                                                                           |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                                 |
+| `hub.extraVolumeMounts`         | `[]`              | Extra mounts of declared ExtraVolumes into pod                                                                             |
+| `hub.extraVolumes`              | `[]`              | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                                             |
 | `hub.securityContext`           | `See values.yaml` | Security context for selenium-hub container                                                                                                      |
 | `hub.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |

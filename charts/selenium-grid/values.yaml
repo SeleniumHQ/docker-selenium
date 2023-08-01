@@ -295,6 +295,16 @@ hub:
     #   name: proxy-settings
     # - secretRef:
     #   name: mysecret
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
   # Resources for selenium-hub container
   resources: {}
   # SecurityContext for selenium-hub container
