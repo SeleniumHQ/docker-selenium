@@ -146,6 +146,9 @@ template:
       {{- with .node.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
+      {{- with .node.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+      {{- end }}
       {{- include "seleniumGrid.lifecycle" . | nindent 8 -}}
       {{- with .node.startupProbe }}
         startupProbe: {{- toYaml . | nindent 10 }}
