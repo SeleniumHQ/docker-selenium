@@ -8,7 +8,7 @@ if [ "${CI:-false}" = "false" ]; then
 fi
 
 python -m pip install selenium==4.11.2 \
-                      docker===4.2.0 \
+                      docker===6.1.3 \
                       | grep -v 'Requirement already satisfied'
 
 python test.py $1
