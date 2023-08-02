@@ -41,7 +41,7 @@ USER 1200
 #============================================
 ARG CHROME_DRIVER_VERSION
 RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
-  then CHROME_DRIVER_URL=https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chrome-linux64.zip ; \
+  then CHROME_DRIVER_URL=https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chromedriver-linux64.zip ; \
   else echo "Geting ChromeDriver binary from https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
     && CFT_URL=https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
     && CFT_CHANNEL="Stable" \
