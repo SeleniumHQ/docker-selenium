@@ -77,6 +77,10 @@ spec:
           envFrom:
               {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.hub.extraVolumeMounts }}
+          volumeMounts:
+            {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
         {{- with .Values.hub.resources }}
           resources: {{- toYaml . | nindent 12 }}
         {{- end }}
@@ -99,5 +103,9 @@ spec:
     {{- end }}
     {{- with .Values.hub.priorityClassName }}
       priorityClassName: {{ . }}
+    {{- end }}
+    {{- with .Values.hub.extraVolumes }}
+      volumes:
+        {{- tpl (toYaml .) $ | nindent 8 }}
     {{- end }}
 {{- end }}
