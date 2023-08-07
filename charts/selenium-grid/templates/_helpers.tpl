@@ -186,9 +186,9 @@ Get the url of the grid. If the external url can be figured out from the ingress
 */}}
 {{- define "seleniumGrid.url" -}}
 {{- if and .Values.ingress.enabled .Values.ingress.hostname (ne .Values.ingress.hostname "selenium-grid.local") -}}
-http{{if .Values.ingress.tls}}s{{end}}://{{.Values.ingress.hostname}}
+http{{if .Values.ingress.tls}}s{{end}}://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{.Values.ingress.hostname}}
 {{- else -}}
-http://{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}
+http://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}
 {{- end }}
 {{- end -}}
 
@@ -196,7 +196,7 @@ http://{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.ful
 Graphql Url of the hub or the router
 */}}
 {{- define "seleniumGrid.graphqlURL" -}}
-http://{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}/graphql
+http://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}/graphql
 {{- end -}}
 
 {{/*

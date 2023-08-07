@@ -5,7 +5,16 @@ global:
     # Image tag for browser's nodes
     nodesImageTag: 4.11.0-20230801
     # Pull secret for all components, can be overridden individually
-    imagePullSecret: ""
+    imagePullSecret: ""    
+
+# Basic auth settings for Selenium Grid
+basicAuth:
+      # Enable or disable basic auth
+      enabled: true
+      # Username for basic auth
+      username: admin
+      # Password for basic auth
+      password: admin    
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
