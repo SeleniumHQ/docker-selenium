@@ -68,7 +68,7 @@ spec:
             - name: ROUTER_USERNAME
               value: {{ .Values.basicAuth.username }}
             - name: ROUTER_PASSWORD
-              value: {{ .Values.basicAuth.username }}
+              value: {{ .Values.basicAuth.password }}
             {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
