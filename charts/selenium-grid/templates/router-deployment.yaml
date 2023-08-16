@@ -44,6 +44,12 @@ spec:
               value: {{ .Values.components.sessionQueue.port | quote }}
             - name: SE_SUB_PATH
               value: {{ .Values.components.subPath }}
+            {{- if eq .Values.basicAuth.enabled true}}
+            - name: ROUTER_USERNAME
+              value: {{ .Values.basicAuth.username }}
+            - name: ROUTER_PASSWORD
+              value: {{ .Values.basicAuth.password }}
+            {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
