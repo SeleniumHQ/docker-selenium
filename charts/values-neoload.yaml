@@ -8,6 +8,11 @@ ingress:
   # Default host for the ingress resource
   hostname: selenium-grid.openshift.prod.neotys.com
 
+# Basic auth settings for Selenium Grid
+basicAuth:
+  # Enable or disable basic auth
+  enabled: false
+
 # Configuration for chrome nodes
 chromeNode:
   # Number of chrome nodes
