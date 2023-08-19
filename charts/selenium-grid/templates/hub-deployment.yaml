@@ -64,12 +64,22 @@ spec:
           env:
             - name: SE_SUB_PATH
               value: {{ .Values.hub.subPath }}
+            {{- if eq .Values.basicAuth.enabled true}}
+            - name: ROUTER_USERNAME
+              value: {{ .Values.basicAuth.username }}
+            - name: ROUTER_PASSWORD
+              value: {{ .Values.basicAuth.password }}
+            {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
         {{- with .Values.hub.extraEnvFrom }}
           envFrom:
               {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.hub.extraVolumeMounts }}
+          volumeMounts:
+            {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
         {{- with .Values.hub.resources }}
           resources: {{- toYaml . | nindent 12 }}
@@ -93,5 +103,9 @@ spec:
     {{- end }}
     {{- with .Values.hub.priorityClassName }}
       priorityClassName: {{ . }}
+    {{- end }}
+    {{- with .Values.hub.extraVolumes }}
+      volumes:
+        {{- tpl (toYaml .) $ | nindent 8 }}
     {{- end }}
 {{- end }}
