@@ -19,6 +19,12 @@ basicAuth:
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
 
+# Service Account for all components
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
 # Configure the ingress resource to access the Grid installation.
 ingress:
   # Enable or disable ingress resource
