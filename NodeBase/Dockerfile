@@ -177,6 +177,8 @@ ENV GENERATE_CONFIG true
 # Drain the Node after N sessions. 
 # A value higher than zero enables the feature
 ENV SE_DRAIN_AFTER_SESSION_COUNT 0
+# Setting Selenium Manager to work offline
+ENV SE_OFFLINE true
 
 
 
