@@ -73,19 +73,22 @@ helm uninstall selenium-grid
 
 For now, global configuration supported is:
 
-| Parameter                             | Default                            | Description                           |
-| -----------------------------------   | ---------------------------------- | ------------------------------------- |
-| `global.seleniumGrid.imageTag`        | `4.11.0-20230801`                  | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.11.0-20230801`                  | Image tag for browser's nodes         |
-| `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
-| `global.seleniumGrid.imagePullSecret` | `""`                               | Pull secret to be used for all images |
-| `global.seleniumGrid.affinity`        | `{}`                               | Affinity assigned globally            |
+| Parameter                             | Default           | Description                           |
+|---------------------------------------|-------------------|---------------------------------------|
+| `global.seleniumGrid.imageTag`        | `4.11.0-20230801` | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.11.0-20230801` | Image tag for browser's nodes         |
+| `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
+| `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
+| `global.seleniumGrid.affinity`        | `{}`              | Affinity assigned globally            |
 
 This table contains the configuration parameters of the chart and their default values:
 
 | Parameter                                   | Default                                     | Description                                                                                                                |
-| ---------------------------------------     | ----------------------------------          | -------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------------------------|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | `isolateComponents`                         | `false`                                     | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
+| `serviceAccount.create`                     | `true`                                      | Enable or disable creation of service account (if `false`, `serviceAccount.name` MUST be specified                         |
+| `serviceAccount.name`                       | `""`                                        | Name of the service account to be made or existing service account to use for all deployments and jobs                     |
+| `serviceAccount.annotations`                | `{}`                                        | Custom annotations for service account                                                                                     |
 | `busConfigMap.name`                         | `selenium-event-bus-config`                 | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
 | `busConfigMap.annotations`                  | `{}`                                        | Custom annotations for configmap                                                                                           |
 | `nodeConfigMap.name`                        | `selenium-node-config`                      | Name of the configmap that contains common environment variables for browser nodes                                         |
@@ -219,7 +222,7 @@ https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
 
 ### Configuration for Selenium-Hub
 
-You can configure the Selenium Hub with this values:
+You can configure the Selenium Hub with these values:
 
 | Parameter                       | Default           | Description                                                                                                                                      |
 |---------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -241,8 +244,8 @@ You can configure the Selenium Hub with this values:
 | `hub.subPath`                   | `/`               | Custom sub path for the hub deployment                                                                                                           |
 | `hub.extraEnvironmentVariables` | `nil`             | Custom environment variables for selenium-hub                                                                                                    |
 | `hub.extraEnvFrom`              | `nil`             | Custom environment variables for selenium taken from `configMap` or `secret`-hub                                                                 |
-| `hub.extraVolumeMounts`         | `[]`              | Extra mounts of declared ExtraVolumes into pod                                                                             |
-| `hub.extraVolumes`              | `[]`              | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
+| `hub.extraVolumeMounts`         | `[]`              | Extra mounts of declared ExtraVolumes into pod                                                                                                   |
+| `hub.extraVolumes`              | `[]`              | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)                           |
 | `hub.resources`                 | `{}`              | Resources for selenium-hub container                                                                                                             |
 | `hub.securityContext`           | `See values.yaml` | Security context for selenium-hub container                                                                                                      |
 | `hub.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |

@@ -81,6 +81,13 @@ Ingress fullname
 {{- end -}}
 
 {{/*
+Service Account fullname
+*/}}
+{{- define "seleniumGrid.serviceAccount.fullname" -}}
+{{- .Values.serviceAccount.name | default "selenium-serviceaccount" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Is autoscaling using KEDA enabled
 */}}
 {{- define "seleniumGrid.useKEDA" -}}
@@ -110,6 +117,8 @@ template:
         {{ toYaml . | nindent 6 }}
       {{- end }}
   spec:
+    serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+    serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
     restartPolicy: {{ and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "Never" "Always" }}
   {{- with .node.hostAliases }}
     hostAliases: {{ toYaml . | nindent 6 }}

@@ -24,6 +24,8 @@ spec:
       annotations: {{- toYaml . | nindent 8 }}
     {{- end }}
     spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       containers:
         - name: selenium-event-bus
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.eventBus.imageTag }}
