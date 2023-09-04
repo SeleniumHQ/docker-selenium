@@ -2,8 +2,12 @@
 
 All notable changes to this helm chart will be documented in this file.
 
-## :heavy_check_mark: 0.20.0
+## :heavy_check_mark: 0.20.1
 
+### Changed
+- Update image tag to 4.12.1-20230904
+
+## :heavy_check_mark: 0.20.0
 
 ### Added
 - fix missing securityContext in nodes (#1907) :: balazs92117
@@ -11,7 +15,7 @@ All notable changes to this helm chart will be documented in this file.
 - helm chart VolumeMounts & Volumes for Selenium hub (#1893) :: Yoga Yu
 
 ### Changed
-- Update image tag to 4.12.1-20230904
+- Update image tag to 4.11.0-20230801
 
 ## :heavy_check_mark: 0.19.0
 
