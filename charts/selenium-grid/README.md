@@ -139,6 +139,8 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.hpa.browserName`                | `chrome`                                    | BrowserName from the capability                                                                                            |
 | `chromeNode.hpa.browserVersion`             | ``                                          | BrowserVersion from the capability                                                                                         |
 | `chromeNode.maxReplicaCount`                | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `chromeNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
+| `chromeNode.idleReplicaCount`                | `1`                                         | Number of replicas that this browsernode has when no jobs are running                                                          |
 | `firefoxNode.enabled`                       | `true`                                      | Enable firefox nodes                                                                                                       |
 | `firefoxNode.deploymentEnabled`             | `true`                                      | Enable creation of Deployment for firefox nodes                                                                            |
 | `firefoxNode.replicas`                      | `1`                                         | Number of firefox nodes                                                                                                    |
@@ -174,6 +176,8 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.hpa.browserName`               | `firefox`                                   | BrowserName from the capability                                                                                            |
 | `firefoxNode.hpa.browserVersion`            | ``                                          | BrowserVersion from the capability                                                                                         |
 | `firefoxNode.maxReplicaCount`               | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `chromeNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
+| `chromeNode.idleReplicaCount`                | `1`                                         | Number of replicas that this browsernode has when no jobs are running                                                          |
 | `edgeNode.enabled`                          | `true`                                      | Enable edge nodes                                                                                                          |
 | `edgeNode.deploymentEnabled`                | `true`                                      | Enable creation of Deployment for edge nodes                                                                               |
 | `edgeNode.replicas`                         | `1`                                         | Number of edge nodes                                                                                                       |
@@ -209,6 +213,8 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.hpa.browserName`                  | `edge`                                      | BrowserName from the capability                                                                                            |
 | `edgeNode.hpa.browserVersion`               | ``                                          | BrowserVersion from the capability                                                                                         |
 | `edgeNode.maxReplicaCount`                  | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `chromeNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
+| `chromeNode.idleReplicaCount`                | `1`                                         | Number of replicas that this browsernode has when no jobs are running                                                          |
 | `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
 | `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
 

@@ -12,6 +12,8 @@ metadata:
     deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
 spec:
   maxReplicaCount: {{ .Values.edgeNode.maxReplicaCount }}
+  minReplicaCount: {{ .Values.edgeNode.minReplicaCount }}
+  idleReplicaCount: {{ .Values.edgeNode.idleReplicaCount }}
   scaleTargetRef:
     name: {{ template "seleniumGrid.edgeNode.fullname" . }}
   triggers:

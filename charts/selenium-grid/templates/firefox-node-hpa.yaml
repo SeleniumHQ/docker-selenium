@@ -12,6 +12,8 @@ metadata:
     deploymentName: {{ template "seleniumGrid.firefoxNode.fullname" . }}
 spec:
   maxReplicaCount: {{ .Values.firefoxNode.maxReplicaCount }}
+  minReplicaCount: {{ .Values.firefoxNode.minReplicaCount }}
+  idleReplicaCount: {{ .Values.firefoxNode.idleReplicaCount }}
   scaleTargetRef:
     name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
   triggers:
