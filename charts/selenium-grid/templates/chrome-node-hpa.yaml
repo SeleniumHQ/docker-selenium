@@ -13,7 +13,6 @@ metadata:
 spec:
   maxReplicaCount: {{ .Values.chromeNode.maxReplicaCount }}
   minReplicaCount: {{ .Values.chromeNode.minReplicaCount }}
-  idleReplicaCount: {{ .Values.chromeNode.idleReplicaCount }}
   scaleTargetRef:
     name: {{ template "seleniumGrid.chromeNode.fullname" . }}
   triggers:
