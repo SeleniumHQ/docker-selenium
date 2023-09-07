@@ -92,9 +92,9 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.11.0/selenium-server-4.11.0.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.12.0/selenium-server-4.12.1.jar \
     -O /opt/selenium/selenium-server.jar \
-  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.11.0/selenium-http-jdk-client-4.11.0.jar \
+  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.12.1/selenium-http-jdk-client-4.12.1.jar \
     -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
@@ -114,7 +114,7 @@ RUN if [ `arch` = "aarch64" ]; then \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then \
-    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.26.0 io.grpc:grpc-netty:1.55.1 > /external_jars/.classpath.txt ; \
+    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.28.0 io.grpc:grpc-netty:1.57.1 > /external_jars/.classpath.txt ; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
