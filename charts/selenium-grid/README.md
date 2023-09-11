@@ -61,6 +61,14 @@ Once you have a new chart version, you can update your selenium-grid running:
 helm upgrade selenium-grid docker-selenium/selenium-grid
 ```
 
+If needed, you can add sidecars for your browser nodes by running:
+
+```bash
+helm upgrade selenium-grid docker-selenium/selenium-grid --set 'firefoxNode.enabled=true' --set-json 'firefoxNode.sidecars=[{"name":"my-sidecar","image":"my-sidecar:latest","imagePullPolicy":"IfNotPresent","ports":[{"containerPort":8080, "protocol":"TCP"}],"resources":{"limits":{"memory": "128Mi"},"requests":{"cpu": "100m"}}}]'
+```
+
+Note: the parameter used for --set-json is just an example, please refer to [Container Spec](https://www.devspace.sh/component-chart/docs/configuration/containers) for an overview of usable parameters.
+
 ## Uninstalling Selenium Grid release
 
 To uninstall:
