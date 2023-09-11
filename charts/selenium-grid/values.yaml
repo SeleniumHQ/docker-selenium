@@ -472,6 +472,7 @@ chromeNode:
   #     claimName: my-pv-claim
 
   maxReplicaCount: 8
+  minReplicaCount: 1
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
@@ -587,6 +588,7 @@ firefoxNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
   maxReplicaCount: 8
+  minReplicaCount: 1
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
@@ -700,6 +702,7 @@ edgeNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
   maxReplicaCount: 8
+  minReplicaCount: 1
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
