@@ -2,6 +2,12 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.21.0
+
+### Added
+- feat: Add option to inject sidecars into Node Pods (#1938) 
+- Add minReplicaCount, remove replicas if autoscaling is enabled (#1932) 
+
 ## :heavy_check_mark: 0.20.1
 
 ### Changed
