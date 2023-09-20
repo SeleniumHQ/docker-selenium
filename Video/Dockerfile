@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Supervisor
 #========================
 RUN apt-get -qqy update \
+  && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
     supervisor x11-xserver-utils python3-pip \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
