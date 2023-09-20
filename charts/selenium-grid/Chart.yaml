@@ -2,7 +2,7 @@ apiVersion: v2
 name: selenium-grid
 description: A Helm chart for creating a Selenium Grid Server in Kubernetes
 type: application
-version: 0.21.1
+version: 0.21.2
 appVersion: 4.12.1-20230920
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
