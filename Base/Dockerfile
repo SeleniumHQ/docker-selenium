@@ -28,6 +28,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
 RUN apt-get -qqy update \
+  && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
     acl \
     bzip2 \
@@ -114,7 +115,7 @@ RUN if [ `arch` = "aarch64" ]; then \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then \
-    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-jaeger:1.28.0 io.grpc:grpc-netty:1.57.1 > /external_jars/.classpath.txt ; \
+    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-otlp:1.28.0 io.opentelemetry:opentelemetry-exporter-jaeger:1.28.0 io.grpc:grpc-netty:1.57.1 > /external_jars/.classpath.txt ; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi

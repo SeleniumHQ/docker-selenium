@@ -61,6 +61,14 @@ Once you have a new chart version, you can update your selenium-grid running:
 helm upgrade selenium-grid docker-selenium/selenium-grid
 ```
 
+If needed, you can add sidecars for your browser nodes by running:
+
+```bash
+helm upgrade selenium-grid docker-selenium/selenium-grid --set 'firefoxNode.enabled=true' --set-json 'firefoxNode.sidecars=[{"name":"my-sidecar","image":"my-sidecar:latest","imagePullPolicy":"IfNotPresent","ports":[{"containerPort":8080, "protocol":"TCP"}],"resources":{"limits":{"memory": "128Mi"},"requests":{"cpu": "100m"}}}]'
+```
+
+Note: the parameter used for --set-json is just an example, please refer to [Container Spec](https://www.devspace.sh/component-chart/docs/configuration/containers) for an overview of usable parameters.
+
 ## Uninstalling Selenium Grid release
 
 To uninstall:
@@ -75,8 +83,8 @@ For now, global configuration supported is:
 
 | Parameter                             | Default           | Description                           |
 |---------------------------------------|-------------------|---------------------------------------|
-| `global.seleniumGrid.imageTag`        | `4.12.1-20230904` | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.12.1-20230904` | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`        | `4.12.1-20230920` | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.12.1-20230920` | Image tag for browser's nodes         |
 | `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
 | `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
 | `global.seleniumGrid.affinity`        | `{}`              | Affinity assigned globally            |
@@ -106,9 +114,9 @@ This table contains the configuration parameters of the chart and their default 
 | `autoscaling.deregisterLifecycle`           | See `values.yaml`                           | Lifecycle applied to pods of deployments controlled by KEDA. Makes the node deregister from selenium hub                   |
 | `chromeNode.enabled`                        | `true`                                      | Enable chrome nodes                                                                                                        |
 | `chromeNode.deploymentEnabled`              | `true`                                      | Enable creation of Deployment for chrome nodes                                                                             |
-| `chromeNode.replicas`                       | `1`                                         | Number of chrome nodes                                                                                                     |
+| `chromeNode.replicas`                       | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                                                     |
 | `chromeNode.imageName`                      | `selenium/node-chrome`                      | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                       | `4.12.1-20230904`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                       | `4.12.1-20230920`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                          | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -139,11 +147,12 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.hpa.browserName`                | `chrome`                                    | BrowserName from the capability                                                                                            |
 | `chromeNode.hpa.browserVersion`             | ``                                          | BrowserVersion from the capability                                                                                         |
 | `chromeNode.maxReplicaCount`                | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `chromeNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
 | `firefoxNode.enabled`                       | `true`                                      | Enable firefox nodes                                                                                                       |
 | `firefoxNode.deploymentEnabled`             | `true`                                      | Enable creation of Deployment for firefox nodes                                                                            |
-| `firefoxNode.replicas`                      | `1`                                         | Number of firefox nodes                                                                                                    |
+| `firefoxNode.replicas`                      | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                                                                    |
 | `firefoxNode.imageName`                     | `selenium/node-firefox`                     | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                      | `4.12.1-20230904`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                      | `4.12.1-20230920`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`               | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                         | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -174,11 +183,12 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.hpa.browserName`               | `firefox`                                   | BrowserName from the capability                                                                                            |
 | `firefoxNode.hpa.browserVersion`            | ``                                          | BrowserVersion from the capability                                                                                         |
 | `firefoxNode.maxReplicaCount`               | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `firefoxNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
 | `edgeNode.enabled`                          | `true`                                      | Enable edge nodes                                                                                                          |
 | `edgeNode.deploymentEnabled`                | `true`                                      | Enable creation of Deployment for edge nodes                                                                               |
-| `edgeNode.replicas`                         | `1`                                         | Number of edge nodes                                                                                                       |
+| `edgeNode.replicas`                         | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                                                       |
 | `edgeNode.imageName`                        | `selenium/node-edge`                        | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                         | `4.12.1-20230904`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                         | `4.12.1-20230920`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                            | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -209,6 +219,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.hpa.browserName`                  | `edge`                                      | BrowserName from the capability                                                                                            |
 | `edgeNode.hpa.browserVersion`               | ``                                          | BrowserVersion from the capability                                                                                         |
 | `edgeNode.maxReplicaCount`                  | `8`                                         | Max number of replicas that this browsernode can auto scale up to                                                          |
+| `edgeNode.minReplicaCount`                | `1`                                         | Min number of replicas that this browsernode has when jobs are running                                                          |
 | `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
 | `customLabels`                              | `{}`                                        | Custom labels for k8s resources                                                                                            |
 

@@ -15,7 +15,9 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
+  {{- if and (not .Values.autoscaling.enabled) (not .Values.autoscaling.enableWithExistingKEDA) }}
   replicas: {{ .Values.edgeNode.replicas }}
+  {{end}}
   selector:
     matchLabels:
       app: selenium-edge-node

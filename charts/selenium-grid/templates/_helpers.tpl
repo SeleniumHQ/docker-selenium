@@ -165,6 +165,9 @@ template:
       {{- with .node.livenessProbe }}
         livenessProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
+    {{- if .node.sidecars }}
+      {{- toYaml .node.sidecars | nindent 6 }}
+    {{- end }}
   {{- if or .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
     imagePullSecrets:
       - name: {{ default .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
