@@ -83,8 +83,8 @@ For now, global configuration supported is:
 
 | Parameter                             | Default           | Description                           |
 |---------------------------------------|-------------------|---------------------------------------|
-| `global.seleniumGrid.imageTag`        | `4.12.1-20230920` | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.12.1-20230920` | Image tag for browser's nodes         |
+| `global.seleniumGrid.imageTag`        | `4.13.0-20230926` | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.13.0-20230926` | Image tag for browser's nodes         |
 | `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
 | `global.seleniumGrid.imagePullSecret` | `""`              | Pull secret to be used for all images |
 | `global.seleniumGrid.affinity`        | `{}`              | Affinity assigned globally            |
@@ -116,7 +116,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.deploymentEnabled`              | `true`                                      | Enable creation of Deployment for chrome nodes                                                                             |
 | `chromeNode.replicas`                       | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                                                     |
 | `chromeNode.imageName`                      | `selenium/node-chrome`                      | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                       | `4.12.1-20230920`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                       | `4.13.0-20230926`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                          | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -152,7 +152,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.deploymentEnabled`             | `true`                                      | Enable creation of Deployment for firefox nodes                                                                            |
 | `firefoxNode.replicas`                      | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                                                                    |
 | `firefoxNode.imageName`                     | `selenium/node-firefox`                     | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                      | `4.12.1-20230920`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                      | `4.13.0-20230926`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`               | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                         | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -188,7 +188,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.deploymentEnabled`                | `true`                                      | Enable creation of Deployment for edge nodes                                                                               |
 | `edgeNode.replicas`                         | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                                                       |
 | `edgeNode.imageName`                        | `selenium/node-edge`                        | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                         | `4.12.1-20230920`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                         | `4.13.0-20230926`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                            | `[5555]`                                    | Port list to enable on container                                                                                           |
