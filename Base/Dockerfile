@@ -61,6 +61,8 @@ ENV HOME=/home/seluser
 # Add Grid check script
 #======================================
 COPY check-grid.sh entry_point.sh /opt/bin/
+# change right for /opt/bin*.sh file
+RUN chmod 775 /opt/bin/*.sh
 
 #======================================
 # Add Supervisor configuration file
@@ -72,7 +74,10 @@ COPY supervisord.conf /etc
 #==========
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
-  && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
+  # && chown seluser:seluser /var/run/supervisor /var/log/supervisor /opt/selenium /etc/passwd \
+  && chown seluser:seluser /var/run/supervisor /var/log/supervisor /opt/selenium \
+  && chmod -R 775 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
+  && chmod -R 644 /etc/supervisord.conf \
   && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.13.0/selenium-server-4.13.0.jar \
     -O /opt/selenium/selenium-server.jar \
   && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.13.0/selenium-http-jdk-client-4.13.0.jar \
