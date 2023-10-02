@@ -129,6 +129,10 @@ COPY start-selenium-node.sh \
 # Supervisor configuration file
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
+USER root
+RUN chmod 644 /etc/supervisor/conf.d/selenium.conf
+USER 1200
+
 
 #==============================
 # Generating the VNC password as seluser
@@ -200,5 +204,10 @@ RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
 
 # Copying configuration script generator
 COPY generate_config /opt/bin/generate_config
+
+# change right for /opt/bin*.sh file
+USER root
+RUN chmod 775 /opt/bin/*.sh
+USER 1200
 
 EXPOSE 5900
