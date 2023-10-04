@@ -7,6 +7,6 @@ appVersion: 4.13.0-20230926
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.10.2
+  version: 2.12.0
   name: keda
   condition: autoscaling.enabled
