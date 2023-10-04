@@ -14,6 +14,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ template "seleniumGrid.ingress.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
