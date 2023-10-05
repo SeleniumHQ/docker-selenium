@@ -2,10 +2,19 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.22.0
+
+### Added
+-  feat(keda): bumped up keda 2.12.0 (#1960) :: Amar Deep Singh
+-  Add missing Ingress namespace field (#1966) :: Cody Lent
+
+### Changed
+- Update image tag to 4.13.0-20231004
+
 ## :heavy_check_mark: 0.21.3
 
 ### Changed
-- Update image tag to 4.13.0-20230926
+- Update image tag to  4.13.0-20230926
 
 ## :heavy_check_mark: 0.21.2
 
