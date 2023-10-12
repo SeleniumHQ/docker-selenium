@@ -175,6 +175,9 @@ template:
   {{- with .node.nodeSelector }}
     nodeSelector: {{- toYaml . | nindent 6 }}
   {{- end }}
+  {{- with .node.affinity }}
+    affinity: {{- toYaml . | nindent 6 }}
+  {{- end }}
   {{- with .node.tolerations }}
     tolerations:
       {{ toYaml . | nindent 4 }}
