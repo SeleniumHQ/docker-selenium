@@ -9,7 +9,7 @@ All notable changes to this helm chart will be documented in this file.
 -  Add missing Ingress namespace field (#1966) :: Cody Lent
 
 ### Changed
-- Update image tag to 4.14.1-20231020
+- Update image tag to 4.14.1-20231025
 
 ## :heavy_check_mark: 0.21.3
 
