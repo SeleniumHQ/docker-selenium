@@ -11,7 +11,7 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
-FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-4.3.1)
+FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-6.0)
 
 all: hub \
 	distributor \
@@ -357,9 +357,9 @@ test_video: video hub chrome firefox edge
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 .PHONY: \
 	all \

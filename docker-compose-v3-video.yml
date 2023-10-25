@@ -34,7 +34,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:ffmpeg-4.3.1-20231020
+    image: selenium/video:ffmpeg-6.0-20231020
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -44,7 +44,7 @@ services:
       - FILE_NAME=chrome_video.mp4
 
   edge_video:
-    image: selenium/video:ffmpeg-4.3.1-20231020
+    image: selenium/video:ffmpeg-6.0-20231020
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -54,7 +54,7 @@ services:
       - FILE_NAME=edge_video.mp4
 
   firefox_video:
-    image: selenium/video:ffmpeg-4.3.1-20231020
+    image: selenium/video:ffmpeg-6.0-20231020
     volumes:
       - /tmp/videos:/videos
     depends_on:
