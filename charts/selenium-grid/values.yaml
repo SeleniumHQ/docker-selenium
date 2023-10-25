@@ -24,6 +24,7 @@ serviceAccount:
   create: true
   name: ""
   annotations: {}
+  #  eks.amazonaws.com/role-arn: "arn:aws:iam::12345678:role/video-bucket-permissions"
 
 # Configure the ingress resource to access the Grid installation.
 ingress:
@@ -723,6 +724,80 @@ edgeNode:
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
+
+videoRecorder:
+  # Image of video recorder
+  imageName: selenium/video
+  enabled: false
+  # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
+  uploadDestinationPrefix: ""
+  # What uploader to use. See .videRecorder.s3 for how to create a new one.
+  uploader: s3
+
+  # Image of video recorder
+  imageTag: latest
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+
+  ports:
+    - 5666
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  extraEnvironmentVariables: []
+  # - name: VIDEO_LOCATION
+  #   value: /videos
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
+  extraEnvFrom:
+    # - configMapRef:
+    #   name: proxy-settings
+    # - secretRef:
+    #   name: mysecret
+  # Wait for pod startup
+  terminationGracePeriodSeconds: 30
+  volume:
+    emptyDir: {}
+  s3:
+    imageName: public.ecr.aws/bitnami/aws-cli
+    imageTag: "2"
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      runAsUser: 0
+    command:
+    - /bin/sh
+    args:
+    - -c
+    - |
+      while ! [ -p /videos/uploadpipe ]
+      do
+          echo Waiting for /videos/uploadpipe to be created
+          sleep 1
+      done
+      echo Waiting for files to upload
+      while read FILE DESTINATION < /videos/uploadpipe
+      do
+          if [ "$FILE" = "exit" ]
+          then
+              break
+          else
+              aws s3 cp --no-progress $FILE $DESTINATION
+          fi
+      done
+  # extraEnvironmentVariables:
+  # - name: AWS_ACCESS_KEY_ID
+  #   value: aws_access_key_id
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   value: aws_secret_access_key
+  # - name:
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: secret-name
+  #       key: secret-key
+
 
 # Custom labels for k8s resources
 customLabels: {}

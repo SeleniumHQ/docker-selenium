@@ -18,10 +18,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils python3-pip \
+    supervisor x11-xserver-utils x11-utils curl jq python3-pip \
   && python3 -m pip install --upgrade pip \
   && python3 -m pip install --upgrade setuptools \
-  && python3 -m pip install --upgrade wheel \    
+  && python3 -m pip install --upgrade wheel \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #======================================
