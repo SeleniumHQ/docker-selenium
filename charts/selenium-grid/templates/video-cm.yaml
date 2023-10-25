@@ -64,7 +64,7 @@ data:
         if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" ]]
         then
             video_file_name="$session_id.mp4"
-            video_file="${VIDEO_LOCATION:-/videos}/$video_file_name"
+            video_file="${SE_VIDEO_FOLDER:-/videos}/$video_file_name"
             echo "Starting to record video"
             ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file &
             recording_started="true"
@@ -74,9 +74,12 @@ data:
             echo "Stopping to record video"
             kill -INT %1
             fg || echo ffmpeg exited with code $?
-            upload_destination=${UPLOAD_DESTINATION_PREFIX}${video_file_name}
-            echo "Uploading video to $upload_destination"
-            echo $video_file $upload_destination > /videos/uploadpipe &
+            if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]]
+            then
+              upload_destination=${UPLOAD_DESTINATION_PREFIX}${video_file_name}
+              echo "Uploading video to $upload_destination"
+              echo $video_file $upload_destination > /videos/uploadpipe &
+            fi
             recording_started="false"
         elif [[ $recording_started = "true" ]]
         then
