@@ -2,6 +2,17 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.23.0
+
+### Added
+
+- Update tag in docs and files [skip ci] :: Selenium CI Bot
+- feat: video recording with pluggable upload container (#1881) :: Mårten Svantesson
+- Update Video/Dockerfile with based image ffmpeg:6.0-alpine (#1981) :: Viet Nguyen Duc
+
+### Changed
+- Update image tag to 4.14.1-20231025
+
 ## :heavy_check_mark: 0.22.0
 
 ### Added
@@ -9,7 +20,7 @@ All notable changes to this helm chart will be documented in this file.
 -  Add missing Ingress namespace field (#1966) :: Cody Lent
 
 ### Changed
-- Update image tag to 4.14.1-20231025
+- Update image tag to 4.13.0-20231004
 
 ## :heavy_check_mark: 0.21.3
 
