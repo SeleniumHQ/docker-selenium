@@ -181,7 +181,7 @@ template:
         imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
         env:
         - name: UPLOAD_DESTINATION_PREFIX
-          value: {{ .Values.videoRecorder.uploadDestinationPrefix }}
+          value: {{ .Values.videoRecorder.uploadDestinationPrefix | quote }}
       {{- with .Values.videoRecorder.extraEnvironmentVariables }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}

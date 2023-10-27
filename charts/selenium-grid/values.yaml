@@ -730,9 +730,10 @@ videoRecorder:
   imageName: selenium/video
   enabled: false
   # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
-  uploadDestinationPrefix: ""
+  uploadDestinationPrefix: false
   # What uploader to use. See .videRecorder.s3 for how to create a new one.
-  uploader: s3
+  # uploader: s3
+  uploader: false
 
   # Image of video recorder
   imageTag: latest
@@ -749,7 +750,7 @@ videoRecorder:
       memory: "1Gi"
       cpu: "1"
   extraEnvironmentVariables: []
-  # - name: VIDEO_LOCATION
+  # - name: SE_VIDEO_FOLDER
   #   value: /videos
   # Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
   extraEnvFrom:
@@ -761,6 +762,7 @@ videoRecorder:
   terminationGracePeriodSeconds: 30
   volume:
     emptyDir: {}
+  # Container spec for the uploader if above it is defined as "uploader: s3"
   s3:
     imageName: public.ecr.aws/bitnami/aws-cli
     imageTag: "2"
