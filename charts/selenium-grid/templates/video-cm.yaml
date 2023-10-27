@@ -20,7 +20,10 @@ data:
     return_code=1
     max_attempts=600
     attempts=0
-    mkfifo /videos/uploadpipe
+    if [ ! -p /videos/uploadpipe ];
+    then
+      mkfifo /videos/uploadpipe
+    fi
     if [[ "$UPLOAD_DESTINATION_PREFIX" = "" ]]
     then
         echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Exiting video recorder.

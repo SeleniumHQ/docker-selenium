@@ -6,7 +6,7 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 #========================
 RUN apk update \
   && apk upgrade \
-  && apk add --no-cache --update --virtual .build-deps supervisor bash curl jq xset python3 py3-psutil py3-pip \
+  && apk add --no-cache --update --virtual .build-deps supervisor bash curl jq xset xdpyinfo python3 py3-psutil py3-pip \
   && ln -sf python3 /usr/bin/python \
   && rm -rf /tmp/* /var/cache/apk/*
 
