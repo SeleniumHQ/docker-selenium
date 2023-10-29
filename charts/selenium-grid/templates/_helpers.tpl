@@ -101,7 +101,6 @@ Is autoscaling using KEDA enabled
 {{- or .Values.autoscaling.enabled .Values.autoscaling.enableWithExistingKEDA | ternary "true" "" -}}
 {{- end -}}
 
-
 {{/*
 Common pod template
 */}}
@@ -144,7 +143,7 @@ template:
           - configMapRef:
               name: {{ .Values.nodeConfigMap.name }}
           {{- with .node.extraEnvFrom }}
-            {{- toYaml . | nindent 10 }}
+            {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
       {{- if gt (len .node.ports) 0 }}
         ports:
@@ -157,7 +156,7 @@ template:
           - name: dshm
             mountPath: /dev/shm
         {{- if .node.extraVolumeMounts }}
-          {{- toYaml .node.extraVolumeMounts | nindent 10 }}
+          {{- tpl (toYaml .node.extraVolumeMounts) $ | nindent 10 }}
         {{- end }}
       {{- with .node.resources }}
         resources: {{- toYaml . | nindent 10 }}
@@ -189,7 +188,7 @@ template:
         - configMapRef:
             name: {{ .Values.busConfigMap.name }}
       {{- with .Values.videoRecorder.extraEnvFrom }}
-        {{- toYaml . | nindent 8 }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
       {{- if gt (len .Values.videoRecorder.ports) 0 }}
         ports:
@@ -201,16 +200,15 @@ template:
         volumeMounts:
         - name: dshm
           mountPath: /dev/shm
-        - name: video-scripts
-          mountPath: /opt/bin/video.sh
-          subPath: video.sh
-        - name: video
-          mountPath: /videos
-      {{- if .Values.videoRecorder.extraVolumeMounts }}
-        {{- toYaml .Values.videoRecorder.extraVolumeMounts | nindent 8 }}
-      {{- end }}
+      {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 8 }}
       {{- with .Values.videoRecorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.videoRecorder.startupProbe }}
+        startupProbe: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.videoRecorder.livenessProbe }}
+        livenessProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- if .uploader }}
       - name: uploader
@@ -227,14 +225,10 @@ template:
       {{- end }}
         {{- with .uploader.extraEnvFrom }}
         envFrom:
-          {{- toYaml . | nindent 10 }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
         volumeMounts:
-        - name: video
-          mountPath: /videos
-      {{- if .uploader.extraVolumeMounts }}
-        {{- toYaml .uploader.extraVolumeMounts | nindent 8 }}
-      {{- end }}
+        {{- tpl (include "seleniumGrid.video.uploader.volumeMounts" .) $ | nindent 8 }}
       {{- with .uploader.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
@@ -267,16 +261,11 @@ template:
           medium: Memory
           sizeLimit: {{ default "1Gi" .node.dshmVolumeSizeLimit }}
     {{- if .node.extraVolumes }}
-      {{ toYaml .node.extraVolumes | nindent 6 }}
+      {{ tpl (toYaml .node.extraVolumes) $ | nindent 6 }}
     {{- end }}
     {{- if .Values.videoRecorder.enabled }}
-      - name: video-scripts
-        configMap:
-          name: {{ template "seleniumGrid.video.fullname" . }}
-          defaultMode: 0500
-      - name: video
-      {{- toYaml .Values.videoRecorder.volume | nindent 8 }}
-  {{- end }}
+      {{- tpl (include "seleniumGrid.video.volumes" .) $ | nindent 6 }}
+    {{- end }}
 {{- end -}}
 
 {{/*
@@ -309,4 +298,103 @@ deployment preStop hook to deregister from the selenium hub.
 {{ if and $lifecycle (ne $lifecycle "{}") -}}
 lifecycle: {{ $lifecycle | nindent 2 }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Default specs of VolumeMounts and Volumes for video recorder
+*/}}
+{{- define "seleniumGrid.video.volume.name.folder" -}}
+{{- $name := default "video" (((.Values.videoRecorder).volume).name).folder -}}
+{{- $name -}}
+{{- end -}}
+
+{{- define "seleniumGrid.video.volume.name.scripts" -}}
+{{- $name := default "video-scripts" (((.Values.videoRecorder).volume).name).scripts -}}
+{{- $name -}}
+{{- end -}}
+
+{{- define "seleniumGrid.video.volumeMounts.default" -}}
+- name: {{ include "seleniumGrid.video.volume.name.scripts" . }}
+  mountPath: /opt/bin/video.sh
+  subPath: video.sh
+- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
+  mountPath: /videos
+{{- end -}}
+
+{{- define "seleniumGrid.video.volumes.default" -}}
+- name: {{ include "seleniumGrid.video.volume.name.scripts" . }}
+  configMap:
+    name: {{ template "seleniumGrid.video.fullname" . }}
+    defaultMode: 0500
+- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
+  emptyDir: {}
+{{- end -}}
+
+{{- define "seleniumGrid.video.uploader.volumeMounts.default" -}}
+- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
+  mountPath: /videos
+{{- end -}}
+
+{{/* Combine videoRecorder.extraVolumeMounts with the default ones for container video recorder */}}
+{{- define "seleniumGrid.video.volumeMounts" -}}
+{{- $videoVolumeMounts := list -}}
+{{- if .Values.videoRecorder.extraVolumeMounts -}}
+  {{- range .Values.videoRecorder.extraVolumeMounts -}}
+    {{- $videoVolumeMounts = append $videoVolumeMounts . -}}
+  {{- end -}}
+{{- end -}}
+{{- $defaultVolumeMounts := (include "seleniumGrid.video.volumeMounts.default" . | toString | fromYamlArray ) -}}
+{{- $videoVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
+{{- not (empty $videoVolumeMounts) | ternary $videoVolumeMounts "" -}}
+{{- end -}}
+
+{{/* Combine videoRecorder.uploader.extraVolumeMounts with the default ones for container video uploader */}}
+{{- define "seleniumGrid.video.uploader.volumeMounts" -}}
+{{- $videoUploaderVolumeMounts := list -}}
+{{- if .uploader.extraVolumeMounts -}}
+  {{- range .uploader.extraVolumeMounts -}}
+    {{- $videoUploaderVolumeMounts = append $videoUploaderVolumeMounts . -}}
+  {{- end -}}
+{{- end }}
+{{- $defaultVolumeMounts := (include "seleniumGrid.video.uploader.volumeMounts.default" . | toString | fromYamlArray ) -}}
+{{- $videoUploaderVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoUploaderVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
+{{- not (empty $videoUploaderVolumeMounts) | ternary $videoUploaderVolumeMounts "" -}}
+{{- end -}}
+
+{{/* Combine videoRecorder.extraVolumes with the default ones for the node pod */}}
+{{- define "seleniumGrid.video.volumes" -}}
+{{- $videoVolumes := list -}}
+{{- if .Values.videoRecorder.extraVolumes -}}
+  {{- range .Values.videoRecorder.extraVolumes -}}
+    {{- $videoVolumes = append $videoVolumes . -}}
+  {{- end -}}
+{{- end -}}
+{{- $defaultVolumes := (include "seleniumGrid.video.volumes.default" . | toString | fromYamlArray ) -}}
+{{- $videoVolumes = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumes "defaultArray" $defaultVolumes "uniqueKey" "name") -}}
+{{- not (empty $videoVolumes) | ternary $videoVolumes "" -}}
+{{- end -}}
+
+{{/*
+Is used to append default items needed to an array if they are not already present. Args: currentArray, defaultArray, uniqueKey
+Usage: {{- $thisArray = include "utils.appendDefaultIfNotExist" (dict "currentArray" $thisArray "defaultArray" $defaultArray "uniqueKey" $uniqueKey }}
+*/}}
+{{- define "utils.appendDefaultIfNotExist" -}}
+  {{- $currentArray := index . "currentArray" -}}
+  {{- $defaultArray := index . "defaultArray" -}}
+  {{- $uniqueKey := index . "uniqueKey" -}}
+  {{- range $default := $defaultArray -}}
+    {{- if eq (len $currentArray) 0 -}}
+      {{- $currentArray = append $currentArray $default -}}
+    {{- end -}}
+    {{- $isExisting := false -}}
+    {{- range $current := $currentArray -}}
+      {{- if eq (index $default $uniqueKey | toString) (index $current $uniqueKey | toString) -}}
+        {{- $isExisting = true -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $isExisting -}}
+      {{- $currentArray = append $currentArray $default -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $currentArray | toYaml -}}
 {{- end -}}

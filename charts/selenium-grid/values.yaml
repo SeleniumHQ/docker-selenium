@@ -726,22 +726,23 @@ edgeNode:
   sidecars: []
 
 videoRecorder:
+  enabled: false
   # Image of video recorder
   imageName: selenium/video
-  enabled: false
-  # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
-  uploadDestinationPrefix: false
+  # Image of video recorder
+  imageTag: ffmpeg-6.0-20231025
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+
   # What uploader to use. See .videRecorder.s3 for how to create a new one.
   # uploader: s3
   uploader: false
-
-  # Image of video recorder
-  imageTag: latest
-  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
-  imagePullPolicy: IfNotPresent
+  # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
+  uploadDestinationPrefix: false
 
   ports:
-    - 5666
+  - 9000
   resources:
     requests:
       memory: "1Gi"
@@ -749,19 +750,52 @@ videoRecorder:
     limits:
       memory: "1Gi"
       cpu: "1"
-  extraEnvironmentVariables: []
+  extraEnvironmentVariables:
   # - name: SE_VIDEO_FOLDER
   #   value: /videos
   # Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
   extraEnvFrom:
-    # - configMapRef:
-    #   name: proxy-settings
-    # - secretRef:
-    #   name: mysecret
+  # - configMapRef:
+  #   name: proxy-settings
+  # - secretRef:
+  #   name: mysecret
   # Wait for pod startup
   terminationGracePeriodSeconds: 30
+
+  # Wait for pod startup
+  startupProbe: {}
+  #   httpGet:
+  #     path: /
+  #     port: 9000
+  #   failureThreshold: 120
+  # periodSeconds: 5
+
+  # Liveness probe settings
+  livenessProbe: {}
+
   volume:
-    emptyDir: {}
+  # name:
+  #   folder: video
+  #   scripts: video-scripts
+  # Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap.
+  # NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended.
+  extraVolumeMounts: []
+  # - name: video-scripts
+  #   mountPath: /opt/bin/video.sh
+  #   subPath: custom_video.sh
+  # - name: video-scripts
+  #   mountPath: /opt/bin/video_ready.py
+  #   subPath: video_ready.py
+
+  extraVolumes: []
+  # - name: video-scripts
+  #   configMap:
+  #     name: my-video-scripts-cm
+  #     defaultMode: 0500
+  # - name: video
+  #   persistentVolumeClaim:
+  #     claimName: video-pv-claim
+
   # Container spec for the uploader if above it is defined as "uploader: s3"
   s3:
     imageName: public.ecr.aws/bitnami/aws-cli
@@ -789,17 +823,16 @@ videoRecorder:
               aws s3 cp --no-progress $FILE $DESTINATION
           fi
       done
-  # extraEnvironmentVariables:
-  # - name: AWS_ACCESS_KEY_ID
-  #   value: aws_access_key_id
-  # - name: AWS_SECRET_ACCESS_KEY
-  #   value: aws_secret_access_key
-  # - name:
-  #   valueFrom:
-  #     secretKeyRef:
-  #       name: secret-name
-  #       key: secret-key
-
+    extraEnvironmentVariables:
+    # - name: AWS_ACCESS_KEY_ID
+    #   value: aws_access_key_id
+    # - name: AWS_SECRET_ACCESS_KEY
+    #   value: aws_secret_access_key
+    # - name:
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
 
 # Custom labels for k8s resources
 customLabels: {}
