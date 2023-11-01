@@ -102,6 +102,47 @@ Is autoscaling using KEDA enabled
 {{- end -}}
 
 {{/*
+Common autoscaling spec template
+*/}}
+{{- define "seleniumGrid.autoscalingTemplate" -}}
+{{- $spec := toYaml (dict) -}}
+{{/* Merge with precedence from right to left */}}
+{{- with .Values.autoscaling.scaledOptions -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+{{- end -}}
+{{- with .node.scaledOptions -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+{{- end -}}
+{{- if eq .Values.autoscaling.scalingType "deployment" -}}
+  {{- with .Values.autoscaling.scaledObjectOptions -}}
+    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- end -}}
+  {{- with .node.scaledObjectOptions -}}
+    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- end -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "scaleTargetRef" (dict "name" .name)) | toYaml -}}
+{{- else if eq .Values.autoscaling.scalingType "job" -}}
+  {{- with .Values.autoscaling.scaledJobOptions -}}
+    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- end -}}
+  {{- with .node.scaledJobOptions -}}
+    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- end -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "jobTargetRef" .podTemplate) | toYaml -}}
+{{- end -}}
+{{- if and $spec (ne $spec "{}") -}}
+  {{ tpl $spec $ }}
+{{- end -}}
+{{- if not .Values.autoscaling.scaledOptions.triggers }}
+triggers:
+  - type: selenium-grid
+  {{- with .node.hpa }}
+    metadata: {{- tpl (toYaml .) $ | nindent 6 }}
+  {{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Common pod template
 */}}
 {{- define "seleniumGrid.podTemplate" -}}
