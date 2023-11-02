@@ -11,7 +11,7 @@ All notable changes to this helm chart will be documented in this file.
 - Update Video/Dockerfile with based image ffmpeg:6.0-alpine (#1981) :: Viet Nguyen Duc
 
 ### Changed
-- Update image tag to 4.14.1-20231025
+- Update image tag to 4.15.0-20231102
 
 ## :heavy_check_mark: 0.22.0
 
