@@ -38,6 +38,10 @@ ingress:
   hostname: selenium-grid.local
   # Default host path for the ingress resource
   path: /
+  # Default path type for the ingress resource
+  pathType: Prefix
+  # List of paths for the ingress resource. This will override the default path
+  paths: []
   # TLS backend configuration for ingress resource
   tls: []
 
