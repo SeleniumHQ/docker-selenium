@@ -11,13 +11,8 @@ metadata:
   labels:
     deploymentName: {{ template "seleniumGrid.chromeNode.fullname" . }}
 spec:
-  maxReplicaCount: {{ .Values.chromeNode.maxReplicaCount }}
-  minReplicaCount: {{ .Values.chromeNode.minReplicaCount }}
-  scaleTargetRef:
-    name: {{ template "seleniumGrid.chromeNode.fullname" . }}
-  triggers:
-    - type: selenium-grid
-    {{- with .Values.chromeNode.hpa }}
-      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
-    {{- end }}
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.chromeNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.chromeNode -}}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 {{- end }}

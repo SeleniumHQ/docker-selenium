@@ -348,11 +348,31 @@ autoscaling:
   # Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
     helm.sh/hook: post-install,post-upgrade
-  # Options for KEDA ScaledJobs
-  scaledJobOptions:
+  # Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 8
     pollingInterval: 10
+    # List of triggers. Be careful, the default trigger of selenium-grid will be overwritten if you specify this
+    #triggers:
+  # Options for KEDA ScaledJobs (only used when scalingType is set to "job")
+  # see https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
+  scaledJobOptions:
     scalingStrategy:
       strategy: accurate
+    # Number of Completed jobs should be kept
+    successfulJobsHistoryLimit: 0
+    # Number of Failed jobs should be kept (for troubleshooting purposes)
+    failedJobsHistoryLimit: 100
+    jobTargetRef:
+      parallelism: 1
+      completions: 1
+      backoffLimit: 0
+  # Options for KEDA ScaledObjects (only used when scalingType is set to "deployment")
+  # see https://keda.sh/docs/latest/concepts/scaling-deployments/#scaledobject-spec
+  scaledObjectOptions:
+    scaleTargetRef:
+      kind: Deployment
   deregisterLifecycle:
     preStop:
       exec:
@@ -472,8 +492,10 @@ chromeNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
 
-  maxReplicaCount: 8
-  minReplicaCount: 1
+  # Override the scaled options for chrome nodes
+  #scaledOptions:
+  #scaledJobOptions:
+  #scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
@@ -594,8 +616,11 @@ firefoxNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
-  maxReplicaCount: 8
-  minReplicaCount: 1
+
+  # Override the scaled options for firefox nodes
+  #scaledOptions:
+  #scaledJobOptions:
+  #scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
@@ -713,8 +738,11 @@ edgeNode:
   # - name: my-extra-volume-from-pvc
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
-  maxReplicaCount: 8
-  minReplicaCount: 1
+
+  # Override the scaled options for edge nodes
+  #scaledOptions:
+  #scaledJobOptions:
+  #scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
