@@ -95,6 +95,9 @@ This table contains the configuration parameters of the chart and their default 
 
 | Parameter                                     | Default                                     | Description                                                                                                                |
 |-----------------------------------------------|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `basicAuth.enabled`                           | `true`                                      | Enable or disable basic auth for Selenium Grid                                                                             |
+| `basicAuth.username`                          | `admin`                                     | Username of basic auth for Selenium Grid                                                                                   |
+| `basicAuth.password`                          | `admin`                                     | Password of basic auth for Selenium Grid                                                                                   |
 | `isolateComponents`                           | `false`                                     | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
 | `serviceAccount.create`                       | `true`                                      | Enable or disable creation of service account (if `false`, `serviceAccount.name` MUST be specified                         |
 | `serviceAccount.name`                         | `""`                                        | Name of the service account to be made or existing service account to use for all deployments and jobs                     |
