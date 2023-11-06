@@ -27,6 +27,8 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 
 # In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
+# Verify ingress configuration via kubectl get ingress
+# Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
 ```
 
 ## Enable Selenium Grid Autoscaling
@@ -104,7 +106,7 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.enabled`                             | `true`                                      | Enable or disable ingress resource                                                                                         |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                         | `{}`                                        | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                            | `selenium-grid.local`                       | Default host for the ingress resource                                                                                      |
+| `ingress.hostname`                            | ``                                          | Default host for the ingress resource                                                                                      |
 | `ingress.path`                                | `/`                                         | Default host path for the ingress resource                                                                                 |
 | `ingress.pathType`                            | `Prefix`                                    | Default path type for the ingress resource                                                                                 |
 | `ingress.paths`                               | `[]`                                        | List of paths config for the ingress resource. This will override the default path                                         |

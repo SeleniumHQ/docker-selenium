@@ -35,7 +35,7 @@ ingress:
   # Custom annotations for ingress resource
   annotations: {}
   # Default host for the ingress resource
-  hostname: selenium-grid.local
+  hostname: ""
   # Default host path for the ingress resource
   path: /
   # Default path type for the ingress resource
