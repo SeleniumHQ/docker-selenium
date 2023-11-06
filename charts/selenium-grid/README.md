@@ -27,6 +27,8 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 
 # In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
+# Verify ingress configuration via kubectl get ingress
+# Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
 ```
 
 ## Enable Selenium Grid Autoscaling
@@ -93,6 +95,9 @@ This table contains the configuration parameters of the chart and their default 
 
 | Parameter                                     | Default                                     | Description                                                                                                                |
 |-----------------------------------------------|---------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
+| `basicAuth.enabled`                           | `true`                                      | Enable or disable basic auth for Selenium Grid                                                                             |
+| `basicAuth.username`                          | `admin`                                     | Username of basic auth for Selenium Grid                                                                                   |
+| `basicAuth.password`                          | `admin`                                     | Password of basic auth for Selenium Grid                                                                                   |
 | `isolateComponents`                           | `false`                                     | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
 | `serviceAccount.create`                       | `true`                                      | Enable or disable creation of service account (if `false`, `serviceAccount.name` MUST be specified                         |
 | `serviceAccount.name`                         | `""`                                        | Name of the service account to be made or existing service account to use for all deployments and jobs                     |
@@ -104,8 +109,10 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.enabled`                             | `true`                                      | Enable or disable ingress resource                                                                                         |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                         | `{}`                                        | Custom annotations for ingress resource                                                                                    |
-| `ingress.hostname`                            | `selenium-grid.local`                       | Default host for the ingress resource                                                                                      |
+| `ingress.hostname`                            | ``                                          | Default host for the ingress resource                                                                                      |
 | `ingress.path`                                | `/`                                         | Default host path for the ingress resource                                                                                 |
+| `ingress.pathType`                            | `Prefix`                                    | Default path type for the ingress resource                                                                                 |
+| `ingress.paths`                               | `[]`                                        | List of paths config for the ingress resource. This will override the default path                                         |
 | `ingress.tls`                                 | `[]`                                        | TLS backend configuration for ingress resource                                                                             |
 | `autoscaling.enableWithExistingKEDA`          | `false`                                     | Enable autoscaling of browser nodes.                                                                                       |
 | `autoscaling.enabled`                         | `false`                                     | Same as above plus installation of KEDA                                                                                    |
