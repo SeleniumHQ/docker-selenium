@@ -16,9 +16,25 @@ spec:
   selector:
     app: selenium-firefox-node
     app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.firefoxNode.service.type "LoadBalancer") (.Values.firefoxNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.firefoxNode.service.loadBalancerIP }}
+  {{- end }}
   ports:
     - name: tcp-firefox
       protocol: TCP
       port: {{ .Values.firefoxNode.seleniumServicePort }}
       targetPort: {{ .Values.firefoxNode.seleniumPort }}
+  {{- with .Values.firefoxNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.firefoxNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
