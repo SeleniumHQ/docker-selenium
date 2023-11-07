@@ -14,6 +14,7 @@ All notable changes to this helm chart will be documented in this file.
 - Update to Selenium 4.15.0 (#1990) :: Luis Correia
 - feat(autoscaling): Unified parameters to set scaled options for browser nodes (#1989) :: Viet Nguyen Duc
 - Add chart parameter ingress.paths to configure custom paths (#1994) :: Viet Nguyen Duc
+- feat: Adding port to nodes service (#1196) :: Viet Nguyen Duc
 
 ### Changed
 - Update image tag to 4.15.0-20231102
