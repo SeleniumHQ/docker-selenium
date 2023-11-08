@@ -2,6 +2,23 @@
 
 All notable changes to this helm chart will be documented in this file.
 
+## :heavy_check_mark: 0.24.0
+
+### Added
+
+- Update tag in docs and files [skip ci] :: Selenium CI Bot
+- Bumping chart version :: Diego Molina
+- Fix minor issues after PR #1881 and #1981 (#1983) :: Viet Nguyen Duc
+- Improve default value for videoRecorder in chart (#1984) :: Viet Nguyen Duc
+- Improve chart templates in the section videoRecorder (#1987) :: Viet Nguyen Duc
+- Update to Selenium 4.15.0 (#1990) :: Luis Correia
+- feat(autoscaling): Unified parameters to set scaled options for browser nodes (#1989) :: Viet Nguyen Duc
+- Add chart parameter ingress.paths to configure custom paths (#1994) :: Viet Nguyen Duc
+- feat: Adding port to nodes service (#1196) :: Viet Nguyen Duc
+
+### Changed
+- Update image tag to 4.15.0-20231102
+
 ## :heavy_check_mark: 0.23.0
 
 ### Added
@@ -11,7 +28,7 @@ All notable changes to this helm chart will be documented in this file.
 - Update Video/Dockerfile with based image ffmpeg:6.0-alpine (#1981) :: Viet Nguyen Duc
 
 ### Changed
-- Update image tag to 4.15.0-20231102
+- Update image tag to 4.14.1-20231025
 
 ## :heavy_check_mark: 0.22.0
 
