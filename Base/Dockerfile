@@ -88,7 +88,7 @@ RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier 
   && mkdir -p /external_jars \
   && chmod -R 775 /external_jars
 
-RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-otlp:1.30.1 io.opentelemetry:opentelemetry-exporter-jaeger:1.30.1 io.grpc:grpc-netty:1.58.0 > /external_jars/.classpath.txt
+RUN /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-otlp:1.31.0 io.opentelemetry:opentelemetry-exporter-jaeger:1.31.0 io.grpc:grpc-netty:1.59.0 > /external_jars/.classpath.txt
 
 RUN chmod 664 /external_jars/.classpath.txt
 RUN rm -fr /root/.cache/*
