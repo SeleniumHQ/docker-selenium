@@ -19,21 +19,10 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  maxReplicaCount: {{ .Values.edgeNode.maxReplicaCount }}
-  {{- with .Values.autoscaling.scaledJobOptions -}}
-    {{ toYaml . | nindent 2 }}
-  {{- end }}
-  triggers:
-    - type: selenium-grid
-    {{- with .Values.edgeNode.hpa }}
-      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
-    {{- end }}
-  jobTargetRef:
-    parallelism: 1
-    completions: 1
-    backoffLimit: 0
-{{- $podScope := deepCopy . -}}
-{{- $_ := set $podScope "name" "selenium-edge-node" -}}
-{{- $_ =  set $podScope "node" .Values.edgeNode  -}}
-{{- include "seleniumGrid.podTemplate" $podScope | nindent 4 }}
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.edgeNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.edgeNode -}}
+  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader | toString)) -}}
+  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 {{- end }}

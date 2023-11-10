@@ -2,8 +2,70 @@
 
 All notable changes to this helm chart will be documented in this file.
 
-## :heavy_check_mark: 0.20.0
+## :heavy_check_mark: 0.24.0
 
+### Added
+
+- Update tag in docs and files [skip ci] :: Selenium CI Bot
+- Bumping chart version :: Diego Molina
+- Fix minor issues after PR #1881 and #1981 (#1983) :: Viet Nguyen Duc
+- Improve default value for videoRecorder in chart (#1984) :: Viet Nguyen Duc
+- Improve chart templates in the section videoRecorder (#1987) :: Viet Nguyen Duc
+- Update to Selenium 4.15.0 (#1990) :: Luis Correia
+- feat(autoscaling): Unified parameters to set scaled options for browser nodes (#1989) :: Viet Nguyen Duc
+- Add chart parameter ingress.paths to configure custom paths (#1994) :: Viet Nguyen Duc
+- feat: Adding port to nodes service (#1196) :: Viet Nguyen Duc
+
+### Changed
+- Update image tag to 4.15.0-20231108
+
+## :heavy_check_mark: 0.23.0
+
+### Added
+
+- Update tag in docs and files [skip ci] :: Selenium CI Bot
+- feat: video recording with pluggable upload container (#1881) :: Mårten Svantesson
+- Update Video/Dockerfile with based image ffmpeg:6.0-alpine (#1981) :: Viet Nguyen Duc
+
+### Changed
+- Update image tag to 4.14.1-20231025
+
+## :heavy_check_mark: 0.22.0
+
+### Added
+-  feat(keda): bumped up keda 2.12.0 (#1960) :: Amar Deep Singh
+-  Add missing Ingress namespace field (#1966) :: Cody Lent
+
+### Changed
+- Update image tag to 4.13.0-20231004
+
+## :heavy_check_mark: 0.21.3
+
+### Changed
+- Update image tag to  4.13.0-20230926
+
+## :heavy_check_mark: 0.21.2
+
+### Changed
+- Update image tag to 4.12.1-20230920
+
+## :heavy_check_mark: 0.21.1
+
+### Changed
+- Update image tag to 4.12.1-20230912
+
+## :heavy_check_mark: 0.21.0
+
+### Added
+- feat: Add option to inject sidecars into Node Pods (#1938) 
+- Add minReplicaCount, remove replicas if autoscaling is enabled (#1932) 
+
+## :heavy_check_mark: 0.20.1
+
+### Changed
+- Update image tag to 4.12.1-20230904
+
+## :heavy_check_mark: 0.20.0
 
 ### Added
 - fix missing securityContext in nodes (#1907) :: balazs92117

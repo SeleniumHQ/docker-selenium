@@ -17,11 +17,11 @@ jobs:
       matrix:
         use-random-user: [false, true]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Output Docker info
         run: docker info
       - name: Set up Python 3.8
-        uses: actions/setup-python@v4.7.0
+        uses: actions/setup-python@v4.7.1
         with:
           python-version: 3.8
       - name: Get branch name (only for push to branch)
