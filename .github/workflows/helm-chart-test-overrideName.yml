@@ -1,13 +1,13 @@
-name: Test Helm Charts Set Component OverrideName
+name: Test Charts Set Component OverrideName
 
 on:
-  workflow_dispatch:
   push:
     paths:
       - 'charts/selenium-grid/templates/*'
   pull_request:
     paths:
       - 'charts/selenium-grid/templates/*'
+  workflow_dispatch:
 
 jobs:
   lint-test:
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'
           check-latest: true
 
       - name: Set up chart-testing
