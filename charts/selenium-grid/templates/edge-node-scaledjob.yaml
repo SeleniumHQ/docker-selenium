@@ -9,8 +9,8 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: selenium-edge-node
-    app.kubernetes.io/name: selenium-edge-node
+    app: {{ template "seleniumGrid.edgeNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.edgeNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.edgeNode.labels }}
       {{- toYaml . | nindent 4 }}

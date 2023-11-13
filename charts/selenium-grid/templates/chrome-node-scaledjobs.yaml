@@ -9,8 +9,8 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: selenium-chrome-node
-    app.kubernetes.io/name: selenium-chrome-node
+    app: {{ template "seleniumGrid.chromeNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.chromeNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.chromeNode.labels }}
       {{- toYaml . | nindent 4 }}

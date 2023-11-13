@@ -5,8 +5,8 @@ metadata:
   name: {{ template "seleniumGrid.router.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels: &router_labels
-    app: selenium-router
-    app.kubernetes.io/name: selenium-router
+    app: {{ template "seleniumGrid.router.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.router.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-router
+      app: {{ template "seleniumGrid.router.fullname" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
@@ -27,7 +27,7 @@ spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       containers:
-        - name: selenium-router
+        - name: {{ template "seleniumGrid.router.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.router.imageTag }}
           image: {{ printf "%s:%s" .Values.components.router.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.router.imagePullPolicy }}

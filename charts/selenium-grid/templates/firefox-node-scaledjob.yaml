@@ -9,8 +9,8 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: selenium-firefox-node
-    app.kubernetes.io/name: selenium-firefox-node
+    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.firefoxNode.labels }}
       {{- toYaml . | nindent 4 }}
