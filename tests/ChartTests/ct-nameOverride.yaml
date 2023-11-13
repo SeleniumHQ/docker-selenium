@@ -1,0 +1,4 @@
+chart-dirs:
+  - charts/selenium-grid
+helm-extra-args: --set-string hub.nameOverride=my-hub-name --set-string chromeNode.nameOverride=my-chrome-name --set-string firefoxNode.nameOverride=my-firefox-name --set-string edgeNode.nameOverride=my-edge-name
+check-version-increment: false
