@@ -1,0 +1,9 @@
+#These desired is used to test the overrideName of the component
+hub:
+  nameOverride: my-hub-name
+chromeNode:
+  nameOverride: my-chrome-name
+firefoxNode:
+  nameOverride: my-firefox-name
+edgeNode:
+  nameOverride: my-edge-name
