@@ -3,6 +3,6 @@ chart-dirs:
   - charts
 chart-repos:
   - kedacore=https://kedacore.github.io/charts
-upgrade: true
+upgrade: false
 helm-extra-args: --timeout 600s
 check-version-increment: false
