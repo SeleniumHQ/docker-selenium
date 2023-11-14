@@ -1,6 +1,13 @@
 name: Lint and Test Helm Charts
 
-on: pull_request
+on:
+  push:
+    paths:
+      - 'charts/selenium-grid/**'
+  pull_request:
+    paths:
+      - 'charts/selenium-grid/**'
+  workflow_dispatch:
 
 jobs:
   lint-test:
@@ -28,27 +35,16 @@ jobs:
       - name: Run chart-testing (list-changed)
         id: list-changed
         run: |
-          changed=$(ct list-changed --target-branch ${{ github.event.repository.default_branch }})
+          changed=$(ct list-changed --config tests/chart-test.yaml)
           if [[ -n "$changed" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "{changed}={true}" >> $GITHUB_OUTPUT
           fi
 
       - name: Run chart-testing (lint)
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct lint --target-branch ${{ github.event.repository.default_branch }}
+        run: ct lint --config tests/chart-test.yaml
 
       - name: Create kind cluster
-        if: steps.list-changed.outputs.changed == 'true'
         uses: helm/kind-action@v1.8.0
 
-      - name: Build Helm Charts
-        if: steps.list-changed.outputs.changed == 'true'
-        run: | 
-          helm repo add kedacore https://kedacore.github.io/charts
-          helm repo update
-          cd charts
-          helm dependency build selenium-grid
-
       - name: Run chart-testing (install)
-        if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --target-branch ${{ github.event.repository.default_branch }}
+        run: ct install --all --config tests/chart-test.yaml

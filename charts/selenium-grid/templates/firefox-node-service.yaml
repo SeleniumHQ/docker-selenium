@@ -5,7 +5,7 @@ metadata:
   name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    name: selenium-firefox-node
+    name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
   {{- with .Values.firefoxNode.service.annotations }}
   annotations:
@@ -14,7 +14,7 @@ metadata:
 spec:
   type: {{ .Values.firefoxNode.service.type }}
   selector:
-    app: selenium-firefox-node
+    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
   {{- if and (eq .Values.firefoxNode.service.type "LoadBalancer") (.Values.firefoxNode.service.loadBalancerIP) }}
   loadBalancerIP: {{ .Values.firefoxNode.service.loadBalancerIP }}
