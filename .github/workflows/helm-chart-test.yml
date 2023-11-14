@@ -40,8 +40,8 @@ jobs:
             echo "{changed}={true}" >> $GITHUB_OUTPUT
           fi
 
-#      - name: Run chart-testing (lint)
-#        run: ct lint --config tests/chart-test.yaml
+      - name: Run chart-testing (lint)
+        run: ct lint --config tests/chart-test.yaml
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
