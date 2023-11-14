@@ -5,8 +5,8 @@ metadata:
   name: {{ template "seleniumGrid.distributor.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels: &distributor_labels
-    app: selenium-distributor
-    app.kubernetes.io/name: selenium-distributor
+    app: {{ template "seleniumGrid.distributor.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.distributor.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-distributor
+      app: {{ template "seleniumGrid.distributor.fullname" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
@@ -27,7 +27,7 @@ spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       containers:
-        - name: selenium-distributor
+        - name: {{ template "seleniumGrid.distributor.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.distributor.imageTag }}
           image: {{ printf "%s:%s" .Values.components.distributor.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}

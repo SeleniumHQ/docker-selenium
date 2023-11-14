@@ -5,8 +5,8 @@ metadata:
   name: {{ template "seleniumGrid.hub.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels: &hub_labels
-    app: selenium-hub
-    app.kubernetes.io/name: selenium-hub
+    app: {{ template "seleniumGrid.hub.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.hub.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.hub.labels }}
       {{- toYaml . | nindent 4 }}
@@ -18,7 +18,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-hub
+      app: {{ template "seleniumGrid.hub.fullname" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
@@ -30,7 +30,7 @@ spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
       containers:
-        - name: selenium-hub
+        - name: {{ template "seleniumGrid.hub.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.hub.imageTag }}
           image: {{ printf "%s:%s" .Values.hub.imageName $imageTag }}
           imagePullPolicy: {{ .Values.hub.imagePullPolicy }}

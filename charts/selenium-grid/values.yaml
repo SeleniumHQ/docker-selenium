@@ -870,8 +870,10 @@ videoRecorder:
       do
           if [ "$FILE" = "exit" ]
           then
+              echo "$FILE"
               break
           else
+              echo "Uploading $FILE to $DESTINATION"
               aws s3 cp --no-progress $FILE $DESTINATION
           fi
       done
