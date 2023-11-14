@@ -5,16 +5,16 @@ global:
     # Image tag for browser's nodes
     nodesImageTag: 4.15.0-20231110
     # Pull secret for all components, can be overridden individually
-    imagePullSecret: ""    
+    imagePullSecret: ""
 
 # Basic auth settings for Selenium Grid
 basicAuth:
-      # Enable or disable basic auth
-      enabled: true
-      # Username for basic auth
-      username: admin
-      # Password for basic auth
-      password: admin    
+  # Enable or disable basic auth
+  enabled: true
+  # Username for basic auth
+  username: admin
+  # Password for basic auth
+  password: admin
 
 # Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
@@ -358,7 +358,7 @@ autoscaling:
     maxReplicaCount: 8
     pollingInterval: 10
     # List of triggers. Be careful, the default trigger of selenium-grid will be overwritten if you specify this
-    #triggers:
+    # triggers:
   # Options for KEDA ScaledJobs (only used when scalingType is set to "job")
   # see https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
@@ -504,14 +504,14 @@ chromeNode:
   #     claimName: my-pv-claim
 
   # Override the scaled options for chrome nodes
-  #scaledOptions:
-  #scaledJobOptions:
-  #scaledObjectOptions:
+  # scaledOptions:
+  # scaledJobOptions:
+  # scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl : 'true' # Optional
+    unsafeSsl: 'true'  # Optional
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -636,9 +636,9 @@ firefoxNode:
   #     claimName: my-pv-claim
 
   # Override the scaled options for firefox nodes
-  #scaledOptions:
-  #scaledJobOptions:
-  #scaledObjectOptions:
+  # scaledOptions:
+  # scaledJobOptions:
+  # scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
@@ -764,9 +764,9 @@ edgeNode:
   #     claimName: my-pv-claim
 
   # Override the scaled options for edge nodes
-  #scaledOptions:
-  #scaledJobOptions:
-  #scaledObjectOptions:
+  # scaledOptions:
+  # scaledJobOptions:
+  # scaledObjectOptions:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
