@@ -81,7 +81,7 @@ data:
             then
               upload_destination=${UPLOAD_DESTINATION_PREFIX}${video_file_name}
               echo "Uploading video to $upload_destination"
-              echo $video_file $upload_destination > /videos/uploadpipe &
+              echo $video_file $upload_destination > /videos/uploadpipe
             fi
             recording_started="false"
         elif [[ $recording_started = "true" ]]
