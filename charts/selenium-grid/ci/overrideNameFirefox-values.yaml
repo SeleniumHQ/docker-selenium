@@ -2,8 +2,8 @@
 hub:
   nameOverride: my-hub-name
 chromeNode:
-  nameOverride: my-chrome-name
+  enabled: false
+edgeNode:
+  enabled: false
 firefoxNode:
   nameOverride: my-firefox-name
-edgeNode:
-  nameOverride: my-edge-name
