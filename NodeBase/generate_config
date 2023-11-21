@@ -53,13 +53,7 @@ echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 
 SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
 SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
-if [[ "${SE_NODE_BROWSER_NAME}" == "chrome" ]]; then
-    SE__BROWSER_BINARY_LOCATION="\"goog:chromeOptions\": {\"binary\": \"/usr/bin/google-chrome\"}"
-elif [[ "${SE_NODE_BROWSER_NAME}" == "firefox" ]]; then
-    SE__BROWSER_BINARY_LOCATION="\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}"
-elif [[ "${SE_NODE_BROWSER_NAME}" == "MicrosoftEdge" ]]; then
-    SE__BROWSER_BINARY_LOCATION="\"ms:edgeOptions\": {\"binary\": \"/usr/bin/microsoft-edge\"}"
-fi
+SE__BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
 
 if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
 SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}}"

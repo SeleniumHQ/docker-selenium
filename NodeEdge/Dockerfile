@@ -53,3 +53,4 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
 #============================================
 RUN echo "MicrosoftEdge" > /opt/selenium/browser_name
 RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version
+RUN echo "\"ms:edgeOptions\": {\"binary\": \"/usr/bin/microsoft-edge\"}" > /opt/selenium/browser_binary_location
