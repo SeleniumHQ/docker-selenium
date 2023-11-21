@@ -17,7 +17,7 @@ echo "Selenium Grid Standalone configuration: "
 cat /opt/selenium/config.toml
 echo "Starting Selenium Grid Standalone..."
 
-EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)

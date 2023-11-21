@@ -34,7 +34,7 @@ if [ ! -z "$SE_SESSIONS_PORT" ]; then
   PORT_CONFIG="--port ${SE_SESSIONS_PORT}"
 fi
 
-EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)

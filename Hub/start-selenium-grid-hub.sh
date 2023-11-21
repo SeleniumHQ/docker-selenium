@@ -22,7 +22,7 @@ if [ ! -z "$SE_SUB_PATH" ]; then
   SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
 fi
 
-EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
