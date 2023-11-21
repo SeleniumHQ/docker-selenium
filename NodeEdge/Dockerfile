@@ -49,6 +49,7 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && sudo ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
 
 #============================================
-# Dumping Browser name and version for config
+# Dumping Browser information for config
 #============================================
 RUN echo "MicrosoftEdge" > /opt/selenium/browser_name
+RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version

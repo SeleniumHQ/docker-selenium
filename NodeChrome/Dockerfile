@@ -56,6 +56,7 @@ RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
   && sudo ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
 #============================================
-# Dumping Browser name and version for config
+# Dumping Browser information for config
 #============================================
 RUN echo "chrome" > /opt/selenium/browser_name
+RUN google-chrome --version | awk '{print $3}' > /opt/selenium/browser_version

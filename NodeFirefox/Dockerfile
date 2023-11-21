@@ -40,6 +40,7 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
 USER 1200
 
 #============================================
-# Dumping Browser name and version for config
+# Dumping Browser information for config
 #============================================
 RUN echo "firefox" > /opt/selenium/browser_name
+RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
