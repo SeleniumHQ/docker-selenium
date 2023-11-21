@@ -5,8 +5,8 @@ metadata:
   name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels: &session_queue_labels
-    app: selenium-session-queue
-    app.kubernetes.io/name: selenium-session-queue
+    app: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
@@ -15,7 +15,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: selenium-session-queue
+      app: {{ template "seleniumGrid.sessionQueue.fullname" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
@@ -24,8 +24,10 @@ spec:
       annotations: {{- toYaml . | nindent 8 }}
     {{- end }}
     spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       containers:
-        - name: selenium-session-queue
+        - name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionQueue.imageTag }}
           image: {{ printf "%s:%s" .Values.components.sessionQueue.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionQueue.imagePullPolicy }}

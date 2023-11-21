@@ -11,12 +11,8 @@ metadata:
   labels:
     deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
 spec:
-  maxReplicaCount: {{ .Values.edgeNode.maxReplicaCount }}
-  scaleTargetRef:
-    name: {{ template "seleniumGrid.edgeNode.fullname" . }}
-  triggers:
-    - type: selenium-grid
-    {{- with .Values.edgeNode.hpa }}
-      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
-    {{- end }}
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.edgeNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.edgeNode -}}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 {{- end }}

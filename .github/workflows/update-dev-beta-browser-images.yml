@@ -22,7 +22,7 @@ jobs:
       CHANNEL: ${{ matrix.channel }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
@@ -49,7 +49,7 @@ jobs:
         
     - name: Build the Dev/Beta Docker container images
       run: |
-        echo VERSION=$SELENIUM_VERSION make $BROWSER_$CHANNEL standalone_"$BROWSER"_"$CHANNEL"
+        echo VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
         VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"        
 
     - name: Test the Dev/Beta Docker container images

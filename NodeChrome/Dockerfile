@@ -10,11 +10,9 @@ USER root
 # Google Chrome
 #============================================
 # can specify versions by CHROME_VERSION;
-#  e.g. google-chrome-stable=53.0.2785.101-1
-#       google-chrome-beta=53.0.2785.92-1
-#       google-chrome-unstable=54.0.2840.14-1
-#       latest (equivalent to google-chrome-stable)
-#       google-chrome-beta  (pull latest beta)
+#  e.g. google-chrome-stable
+#       google-chrome-beta
+#       google-chrome-unstable
 #============================================
 ARG CHROME_VERSION="google-chrome-stable"
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
@@ -42,14 +40,10 @@ USER 1200
 ARG CHROME_DRIVER_VERSION
 RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
   then CHROME_DRIVER_URL=https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chromedriver-linux64.zip ; \
-  else echo "Geting ChromeDriver binary from https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
-    && CFT_URL=https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json \
-    && CFT_CHANNEL="Stable" \
-    && if [[ $CHROME_VERSION == *"beta"* ]]; then CFT_CHANNEL="Beta"; fi \
-    && if [[ $CHROME_VERSION == *"unstable"* ]]; then CFT_CHANNEL="Dev"; fi \
-    && CTF_VALUES=$(curl -sSL $CFT_URL | jq -r --arg CFT_CHANNEL "$CFT_CHANNEL" '.channels[] | select (.channel==$CFT_CHANNEL)') \
-    && CHROME_DRIVER_VERSION=$(echo $CTF_VALUES | jq -r '.version' ) \
-    && CHROME_DRIVER_URL=$(echo $CTF_VALUES | jq -r '.downloads.chromedriver[] | select(.platform=="linux64") | .url' ) ; \
+  else echo "Geting ChromeDriver latest version from https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_" \
+    && CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
+    && CHROME_DRIVER_VERSION=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//') \
+    && CHROME_DRIVER_URL=https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_DRIVER_VERSION/linux64/chromedriver-linux64.zip ; \
   fi \
   && echo "Using ChromeDriver from: "$CHROME_DRIVER_URL \
   && echo "Using ChromeDriver version: "$CHROME_DRIVER_VERSION \
