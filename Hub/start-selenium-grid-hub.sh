@@ -34,7 +34,7 @@ else
 fi
 
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   --ext ${EXTRA_LIBS} hub \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \

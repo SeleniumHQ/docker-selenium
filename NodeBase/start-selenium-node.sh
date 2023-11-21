@@ -51,7 +51,14 @@ echo "Selenium Grid Node configuration: "
 cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+CHROME_DRIVER_PATH_PROPERTY=-Dwebdriver.chrome.driver=/usr/bin/chromedriver
+EDGE_DRIVER_PATH_PROPERTY=-Dwebdriver.edge.driver=/usr/bin/msedgedriver
+GECKO_DRIVER_PATH_PROPERTY=-Dwebdriver.gecko.driver=/usr/bin/geckodriver
+
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
+  ${CHROME_DRIVER_PATH_PROPERTY} \
+  ${EDGE_DRIVER_PATH_PROPERTY} \
+  ${GECKO_DRIVER_PATH_PROPERTY} \
   -jar /opt/selenium/selenium-server.jar \
   --ext ${EXTRA_LIBS} node \
   --bind-host ${SE_BIND_HOST} \
