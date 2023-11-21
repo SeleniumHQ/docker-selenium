@@ -22,6 +22,8 @@ chromeNode:
       value: "Europe/Paris"
     - name: SE_JAVA_OPTS
       value: "-Xmx2g"
+    - name: SE_NODE_SESSION_TIMEOUT
+      value: "900"
   # Resources for chrome-node container
   resources:
     requests:
