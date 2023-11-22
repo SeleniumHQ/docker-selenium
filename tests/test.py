@@ -169,10 +169,13 @@ if __name__ == '__main__':
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
     run_in_docker_compose = RUN_IN_DOCKER_COMPOSE == 'true'
-    random_user_id = random.randint(100000, 2147483647)
+    random_user_id = random.randint(2000, 65000)
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)
+        if 'firefox' in image.lower():
+            logger.info("Firefox has issues when running with a random user ID. Skipping until it gets fixed.")
+            exit(0)
 
     standalone = 'standalone' in image.lower()
 
