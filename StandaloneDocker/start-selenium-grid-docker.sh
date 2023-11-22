@@ -14,10 +14,11 @@ if [ ! -z "$SE_NODE_GRID_URL" ]; then
   SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
 fi
 
-EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
+  EXTRA_LIBS="--ext "
   EXTRA_LIBS=${EXTRA_LIBS}:${EXTERNAL_JARS}
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
@@ -25,9 +26,9 @@ else
   echo "Tracing is disabled"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
-  --ext ${EXTRA_LIBS} standalone \
+  ${EXTRA_LIBS} standalone \
   --relax-checks ${SE_RELAX_CHECKS} \
   --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
