@@ -31,6 +31,10 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_DRIVER_OPTS" ]; then
+  echo "Appending Selenium Driver Service property: ${SE_DRIVER_OPTS}"
+fi
+
 if [ "$GENERATE_CONFIG" = true ]; then
   echo "Generating Selenium Config"
   /opt/bin/generate_config
@@ -52,14 +56,8 @@ echo "Selenium Grid Node configuration: "
 cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
 
-CHROME_DRIVER_PATH_PROPERTY=-Dwebdriver.chrome.driver=/usr/bin/chromedriver
-EDGE_DRIVER_PATH_PROPERTY=-Dwebdriver.edge.driver=/usr/bin/msedgedriver
-GECKO_DRIVER_PATH_PROPERTY=-Dwebdriver.gecko.driver=/usr/bin/geckodriver
-
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
-  ${CHROME_DRIVER_PATH_PROPERTY} \
-  ${EDGE_DRIVER_PATH_PROPERTY} \
-  ${GECKO_DRIVER_PATH_PROPERTY} \
+  ${SE_DRIVER_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} node \
   --bind-host ${SE_BIND_HOST} \

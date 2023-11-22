@@ -35,8 +35,19 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && mv /opt/geckodriver /opt/geckodriver-$GK_VERSION \
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
+ENV SE_DRIVER_OPTS="-Dwebdriver.gecko.driver="${GECKO_DRIVER_PATH_PROPERTY:-"/usr/bin/geckodriver"}" "$SE_DRIVER_OPTS
+
+# Workaround for issue launch Firefox Webdriver "Failed to read marionette port"
+RUN mkdir -p /home/seluser/.cache /home/seluser/.mozilla /.cache \
+    && chmod 777 /home/seluser/.cache /home/seluser/.mozilla /.cache
 
 USER 1200
+
+RUN if ! whoami &> /dev/null; then \
+  if [ -w /tmp/passwd ]; then \
+    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:/home/seluser:/tmp:/bin/bash" >> /tmp/passwd; \
+  fi \
+fi
 
 #============================================
 # Dumping Browser information for config

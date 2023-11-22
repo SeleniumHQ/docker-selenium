@@ -24,6 +24,10 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_DRIVER_OPTS" ]; then
+  echo "Appending Selenium Driver Service property: ${SE_DRIVER_OPTS}"
+fi
+
 if [ ! -z "$SE_NODE_GRID_URL" ]; then
   echo "Appending Grid url: ${SE_NODE_GRID_URL}"
   SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
@@ -42,6 +46,7 @@ else
 fi
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
+  ${SE_DRIVER_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} node \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \

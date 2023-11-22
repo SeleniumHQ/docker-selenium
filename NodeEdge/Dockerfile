@@ -13,7 +13,7 @@ USER root
 #  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
-RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
   && apt-get -qqy install ${EDGE_VERSION} \
@@ -25,8 +25,6 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add
 #=================================
 COPY wrap_edge_binary /opt/bin/wrap_edge_binary
 RUN /opt/bin/wrap_edge_binary
-
-USER 1200
 
 #============================================
 # Edge webdriver
@@ -46,7 +44,10 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && rm /tmp/msedgedriver_linux64.zip \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
-  && sudo ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
+  && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
+ENV SE_DRIVER_OPTS="-Dwebdriver.edge.driver="${EDGE_DRIVER_PATH_PROPERTY:-"/usr/bin/msedgedriver"}" "$SE_DRIVER_OPTS
+
+USER 1200
 
 #============================================
 # Dumping Browser information for config

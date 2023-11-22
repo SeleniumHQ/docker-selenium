@@ -173,9 +173,6 @@ if __name__ == '__main__':
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)
-        if 'firefox' in image.lower():
-            logger.info("Firefox has issues when running with a random user ID. Skipping until it gets fixed.")
-            exit(0)
 
     standalone = 'standalone' in image.lower()
 
