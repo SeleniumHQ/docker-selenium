@@ -41,7 +41,7 @@ jobs:
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
-        uses: nick-invision/retry@v2.8.3
+        uses: nick-invision/retry@v2.9.0
         with:
           timeout_minutes: 20
           max_attempts: 3
