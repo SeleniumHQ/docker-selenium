@@ -45,7 +45,6 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
-ENV SE_DRIVER_OPTS="-Dwebdriver.edge.driver="${EDGE_DRIVER_PATH_PROPERTY:-"/usr/bin/msedgedriver"}" "$SE_DRIVER_OPTS
 
 USER 1200
 

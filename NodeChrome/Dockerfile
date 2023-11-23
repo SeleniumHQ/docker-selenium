@@ -90,7 +90,6 @@ RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
   && mv /opt/selenium/chromedriver-$CHROME_PLATFORM/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
-ENV SE_DRIVER_OPTS="-Dwebdriver.chrome.driver="${CHROME_DRIVER_PATH_PROPERTY:-"/usr/bin/chromedriver"}" "$SE_DRIVER_OPTS
 
 USER 1200
 

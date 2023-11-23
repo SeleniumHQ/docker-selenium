@@ -35,7 +35,6 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && mv /opt/geckodriver /opt/geckodriver-$GK_VERSION \
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
-ENV SE_DRIVER_OPTS="-Dwebdriver.gecko.driver="${GECKO_DRIVER_PATH_PROPERTY:-"/usr/bin/geckodriver"}" "$SE_DRIVER_OPTS
 
 # Workaround for issue launch Firefox Webdriver "Failed to read marionette port"
 RUN mkdir -p /home/seluser/.cache /home/seluser/.mozilla /.cache \
