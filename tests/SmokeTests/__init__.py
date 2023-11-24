@@ -9,7 +9,7 @@ except ImportError:
     from urllib.request import urlopen
 
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
-
+SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
@@ -35,4 +35,4 @@ class SmokeTests(unittest.TestCase):
 
 class GridTest(SmokeTests):
     def test_grid_is_up(self):
-        self.smoke_test_container(4444)
+        self.smoke_test_container('%s' % SELENIUM_GRID_PORT)

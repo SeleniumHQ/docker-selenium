@@ -11,7 +11,7 @@ python -m pip install selenium==4.15.0 \
                       docker===6.1.3 \
                       | grep -v 'Requirement already satisfied'
 
-python test.py $1
+python $1 $2
 ret_code=$?
 
 if [ "${CI:-false}" = "false" ]; then

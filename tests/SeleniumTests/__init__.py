@@ -9,7 +9,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
-
+SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -70,14 +70,14 @@ class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
             options=ChromeOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
             options=EdgeOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 
@@ -85,7 +85,7 @@ class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
         self.driver = webdriver.Remote(
             options=FirefoxOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
     def test_title_and_maximize_window(self):

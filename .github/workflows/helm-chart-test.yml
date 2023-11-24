@@ -9,6 +9,9 @@ on:
       - 'charts/selenium-grid/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
@@ -45,6 +48,72 @@ jobs:
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
+        with:
+         config: ./tests/kind-cluster-config.yaml
+
+# 👋 Documentation link for Ingress Installation on kind k8s cluster https://kind.sigs.k8s.io/docs/user/ingress
+      - name: Install ingress-nginx on kind kubernetes cluster
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl wait --namespace ingress-nginx \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/component=controller \
+          --timeout=90s
 
       - name: Run chart-testing (install)
         run: ct install --all --config tests/chart-test.yaml
+
+      - name: Deploy Selenium Grid Chart With ChromeNode only
+        run: |
+          helm upgrade --install selenium-grid -f ./tests/override-kind-auth-chrome-values.yaml charts/selenium-grid --namespace selenium-grid-test --create-namespace
+          kubectl get ingress --all-namespaces
+
+      - name: Verify Post Deployment Grid Health and k8s pods status 
+        run: |
+          sleep 10 # Allow time to kubernetes to settle down pods
+          python ./tests/K8sSmokeTest.py "http://localhost"
+          kubectl get pods -n selenium-grid-test
+          kubectl get events -n selenium-grid-test
+
+      - name: Run Chrome Tests Against Kubernetes
+        run: |
+          export SELENIUM_GRID_HOST=localhost
+          export SELENIUM_GRID_PORT=80
+          ./tests/bootstrap.sh testonkubernetes.py NodeChrome
+
+      - name: Deploy Selenium Grid Chart With EdgeNode only
+        run: |
+          helm upgrade --install selenium-grid -f ./tests/override-kind-auth-edge-values.yaml charts/selenium-grid --namespace selenium-grid-test --create-namespace
+          kubectl get ingress --all-namespaces
+
+      - name: Verify Post Deployment Grid Health and k8s pods status 
+        run: |
+          sleep 10 # Allow time to kubernetes to settle down pods
+          python ./tests/K8sSmokeTest.py "http://localhost"        
+          kubectl get pods -n selenium-grid-test
+          kubectl get events -n selenium-grid-test
+
+
+      - name: Run Edge Tests Against Kubernetes
+        run: |
+          export SELENIUM_GRID_HOST=localhost
+          export SELENIUM_GRID_PORT=80
+          ./tests/bootstrap.sh testonkubernetes.py NodeEdge
+
+      - name: Deploy Selenium Grid Chart With FirefoxNode only
+        run: |
+          helm upgrade --install selenium-grid -f ./tests/override-kind-auth-firefox-values.yaml charts/selenium-grid --namespace selenium-grid-test --create-namespace
+          kubectl get ingress --all-namespaces
+
+      - name: Verify Post Deployment Grid Health and k8s pods status 
+        run: |
+          sleep 10 # Allow time to kubernetes to settle down pods
+          python ./tests/K8sSmokeTest.py "http://localhost"          
+          kubectl get pods -n selenium-grid-test
+          kubectl get events -n selenium-grid-test
+
+      - name: Run Firefox Tests Against Kubernetes
+        run: |
+          export SELENIUM_GRID_HOST=localhost
+          export SELENIUM_GRID_PORT=80
+          ./tests/bootstrap.sh testonkubernetes.py NodeFirefox          
