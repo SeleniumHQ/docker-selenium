@@ -104,6 +104,7 @@ jobs:
 
       - name: Verify Post Deployment Grid Health and k8s pods status 
         run: |
+          sleep 20 # Allow Kubernetes to pull Docker Images and start Pods
           python ./tests/K8sSmokeTest.py "http://localhost"
           kubectl get pods -n selenium-grid-test
           kubectl get events -n selenium-grid-test
