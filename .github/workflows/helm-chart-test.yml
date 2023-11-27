@@ -9,8 +9,12 @@ on:
       - 'charts/selenium-grid/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   lint-test:
+    name: "Lint Tests with ct"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,6 +49,69 @@ jobs:
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.8.0
+        with:
+         config: ./tests/kind-cluster-config.yaml
 
       - name: Run chart-testing (install)
         run: ct install --all --config tests/chart-test.yaml
+
+  deploy-grid-selenium-tests:
+    name: "Run Selenium Tests on K8s"
+    runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix:
+        browser: [NodeChrome,NodeEdge,NodeFirefox]    
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.13.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          check-latest: true
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.8.0
+        with:
+         config: ./tests/kind-cluster-config.yaml
+
+      # 👋 Documentation link for Ingress Installation on kind k8s cluster https://kind.sigs.k8s.io/docs/user/ingress
+      - name: Install ingress-nginx on kind kubernetes cluster
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+          kubectl wait --namespace ingress-nginx \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/component=controller \
+          --timeout=90s
+
+      - name: Deploy Selenium Grid Chart 
+        run: |
+          helm repo add kedacore https://kedacore.github.io/charts
+          helm repo update
+          helm dependency build charts/selenium-grid          
+          helm upgrade --install selenium-grid -f ./tests/override-kind-auth-${{matrix.browser}}-values.yaml charts/selenium-grid --namespace selenium-grid-test --create-namespace
+          kubectl get ingress --all-namespaces
+
+      - name: Verify Post Deployment Grid Health and k8s pods status 
+        run: |
+          sleep 20 # Allow Kubernetes to pull Docker Images and start Pods
+          python ./tests/K8sSmokeTest.py "http://localhost"
+          kubectl get pods -n selenium-grid-test
+          kubectl get events -n selenium-grid-test
+
+      - name: Run Selenium Tests Against Kubernetes
+        run: |
+          export SELENIUM_GRID_HOST=localhost
+          export SELENIUM_GRID_PORT=80
+          export RUN_IN_DOCKER_COMPOSE=true
+          ./tests/bootstrap.sh ${{matrix.browser}}
