@@ -56,8 +56,8 @@ jobs:
       run: |
         export SKIP_BUILD=true
         export NAMESPACE=$NAME
-        VERSION=$CHANNEL ./tests/bootstrap.sh test.py Node$BROWSER_CAPS
-        VERSION=$CHANNEL ./tests/bootstrap.sh test.py Standalone$BROWSER_CAPS
+        VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
+        VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
 
     - name: Login Docker Hub
       run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"

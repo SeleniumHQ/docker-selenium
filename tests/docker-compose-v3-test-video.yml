@@ -43,4 +43,4 @@ services:
     environment:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
-    command: ["./bootstrap.sh", "test.py", "${NODE}"]
+    command: ["./bootstrap.sh", "${NODE}"]

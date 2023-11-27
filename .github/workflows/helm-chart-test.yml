@@ -113,4 +113,5 @@ jobs:
         run: |
           export SELENIUM_GRID_HOST=localhost
           export SELENIUM_GRID_PORT=80
-          ./tests/bootstrap.sh testonkubernetes.py ${{matrix.browser}}
+          export RUN_IN_DOCKER_COMPOSE=true
+          ./tests/bootstrap.sh ${{matrix.browser}}
