@@ -1,0 +1,52 @@
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: Prefix
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
+    - path: /(/?)(session/.*/se/vnc)
+      pathType: Prefix
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
+
+basicAuth:
+  enabled: false
+isolateComponents: true
+
+hub:
+  subPath: *gridAppRoot
+
+components:
+  subPath: *gridAppRoot
+
+chromeNode:
+  enabled: true
+  extraEnvironmentVariables:
+    - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+      value: "true"
+    - name: SE_NODE_MAX_SESSIONS
+      value: "5"
+  startupProbe:
+    exec:
+      command:
+        - bash
+        - -c
+        - if [ $(curl --write-out %{http_code} --silent --output /dev/null http://selenium-router:4444/selenium/wd/hub/status) -ne 200 ]; then exit 1; fi
+    failureThreshold: 15
+    periodSeconds: 5
+
+edgeNode:
+  enabled: false
+firefoxNode:
+  enabled: false
