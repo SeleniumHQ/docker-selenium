@@ -1,7 +1,7 @@
 global:
   seleniumGrid:
     # Image registry for all selenium components
-    registry: selenium
+    imageRegistry: selenium
     # Image tag for all selenium components
     imageTag: 4.15.0-20231128
     # Image tag for browser's nodes
@@ -67,7 +67,7 @@ components:
 
   # Configuration for router component
   router:
-    # registry: selenium
+    # imageRegistry: selenium
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -119,7 +119,7 @@ components:
 
   # Configuration for distributor component
   distributor:
-    # registry: selenium
+    # imageRegistry: selenium
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -151,7 +151,7 @@ components:
 
   # Configuration for Event Bus component
   eventBus:
-    # registry: selenium
+    # imageRegistry: selenium
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -187,7 +187,7 @@ components:
 
   # Configuration for Session Map component
   sessionMap:
-    # registry: selenium
+    # imageRegistry: selenium
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -218,7 +218,7 @@ components:
 
   # Configuration for Session Queue component
   sessionQueue:
-    # registry: selenium
+    # imageRegistry: selenium
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -269,7 +269,7 @@ components:
 
 # Configuration for selenium hub deployment (applied only if `isolateComponents: false`)
 hub:
-  # registry: selenium
+  # imageRegistry: selenium
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
@@ -410,7 +410,7 @@ chromeNode:
 
   # Number of chrome nodes
   replicas: 1
-  # registry: selenium
+  # imageRegistry: selenium
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
@@ -543,7 +543,7 @@ firefoxNode:
 
   # Number of firefox nodes
   replicas: 1
-  # registry: selenium
+  # imageRegistry: selenium
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
@@ -673,7 +673,7 @@ edgeNode:
 
   # Number of edge nodes
   replicas: 1
-  # registry: selenium
+  # imageRegistry: selenium
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
@@ -792,7 +792,7 @@ edgeNode:
 
 videoRecorder:
   enabled: false
-  # registry: selenium
+  # imageRegistry: selenium
   # Image of video recorder
   imageName: video
   # Image of video recorder
