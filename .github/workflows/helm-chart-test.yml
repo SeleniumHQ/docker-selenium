@@ -14,8 +14,6 @@ permissions:
 
 jobs:
   build-and-test:
-    # Skip job based on the commit message, only works in push to branches for now
-    if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Build & test Docker images with Helm charts
     runs-on: ubuntu-latest
     steps:
