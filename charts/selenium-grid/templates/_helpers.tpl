@@ -173,7 +173,8 @@ template:
     containers:
       - name: {{.name}}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
-        image: {{ printf "%s:%s" .node.imageName $imageTag }}
+        {{- $imageRegistry := default .Values.global.seleniumGrid.registry .node.registry }}
+        image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
       {{- with .node.extraEnvironmentVariables }}
         env: {{- tpl (toYaml .) $ | nindent 10 }}
@@ -217,7 +218,9 @@ template:
     {{- end }}
     {{- if .Values.videoRecorder.enabled }}
       - name: video
-        image: {{ printf "%s:%s" .Values.videoRecorder.imageName .Values.videoRecorder.imageTag }}
+        {{- $imageTag := default .Values.global.seleniumGrid.videoImageTag .Values.videoRecorder.imageTag }}
+        {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.videoRecorder.registry }}
+        image: {{ printf "%s/%s:%s" $imageRegistry .Values.videoRecorder.imageName $imageTag }}
         imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
         env:
         - name: UPLOAD_DESTINATION_PREFIX

@@ -29,7 +29,8 @@ spec:
       containers:
         - name: {{ template "seleniumGrid.distributor.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.distributor.imageTag }}
-          image: {{ printf "%s:%s" .Values.components.distributor.imageName $imageTag }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.components.distributor.registry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.distributor.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
           env:
             - name: SE_SESSIONS_MAP_HOST
