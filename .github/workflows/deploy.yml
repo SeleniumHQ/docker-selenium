@@ -10,7 +10,7 @@ jobs:
     # Only continue if the commit message has '[deploy]' in it
     if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

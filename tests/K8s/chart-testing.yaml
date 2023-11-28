@@ -1,3 +1,5 @@
+# This is config file for chart-testing tool. It is used to test Helm charts.
+# https://github.com/helm/chart-testing
 target-branch: trunk
 chart-dirs:
   - charts

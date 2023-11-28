@@ -1,0 +1,10 @@
+# This is used in Helm chart testing. This disables the basic auth on selenium grid
+# Configuration for chrome nodes
+chromeNode:
+  enabled: false
+# Configuration for edge nodes
+edgeNode:
+  nameOverride: my-edge-name
+# Configuration for firefox nodes
+firefoxNode:
+  enabled: false
