@@ -30,6 +30,8 @@ cleanup() {
 # Function to be executed on command failure
 on_failure() {
     local exit_status=$?
+    echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
+    kubectl describe all -n ${SELENIUM_NAMESPACE}
     echo "There is step failed with exit status $exit_status"
     cleanup
     exit $exit_status
@@ -48,9 +50,6 @@ helm upgrade --install ${RELEASE_NAME} \
 --set global.seleniumGrid.imageTag=${VERSION} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace
 
-echo "Verify Post Deployment Grid Health and Pod Status"
-kubectl get pods -n ${SELENIUM_NAMESPACE}
-
 echo "Run Tests"
 export SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST}
 export SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT}""${SUB_PATH}
@@ -60,5 +59,11 @@ export RUN_IN_DOCKER_COMPOSE=true
 export HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL}
 export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
 ./tests/bootstrap.sh ${MATRIX_BROWSER}
+
+echo "Get pods status"
+kubectl get pods -n ${SELENIUM_NAMESPACE}
+
+echo "Get all resources in the ${SELENIUM_NAMESPACE} namespace"
+kubectl get all -n ${SELENIUM_NAMESPACE}
 
 cleanup
