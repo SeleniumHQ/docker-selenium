@@ -1,8 +1,9 @@
 #!/bin/bash
 # Function to be executed on command failure
 on_failure() {
-    echo "There is step failed with exit status $?"
-    exit $?
+    local exit_status=$?
+    echo "There is step failed with exit status $exit_status"
+    exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
