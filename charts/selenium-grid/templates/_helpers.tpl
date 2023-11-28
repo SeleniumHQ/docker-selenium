@@ -173,7 +173,7 @@ template:
     containers:
       - name: {{.name}}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
-        {{- $imageRegistry := default .Values.global.seleniumGrid.registry .node.registry }}
+        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
       {{- with .node.extraEnvironmentVariables }}
@@ -219,7 +219,7 @@ template:
     {{- if .Values.videoRecorder.enabled }}
       - name: video
         {{- $imageTag := default .Values.global.seleniumGrid.videoImageTag .Values.videoRecorder.imageTag }}
-        {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.videoRecorder.registry }}
+        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.videoRecorder.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .Values.videoRecorder.imageName $imageTag }}
         imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
         env:

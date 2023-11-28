@@ -29,7 +29,7 @@ spec:
       containers:
         - name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionQueue.imageTag }}
-          {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.components.sessionQueue.registry }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.sessionQueue.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionQueue.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionQueue.imagePullPolicy }}
         {{- with .Values.components.extraEnvironmentVariables }}

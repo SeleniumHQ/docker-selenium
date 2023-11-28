@@ -32,7 +32,7 @@ spec:
       containers:
         - name: {{ template "seleniumGrid.hub.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.hub.imageTag }}
-          {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.hub.registry }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.hub.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.hub.imageName $imageTag }}
           imagePullPolicy: {{ .Values.hub.imagePullPolicy }}
           ports:

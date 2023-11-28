@@ -85,7 +85,7 @@ For now, global configuration supported is:
 
 | Parameter                             | Default               | Description                           |
 |---------------------------------------|-----------------------|---------------------------------------|
-| `global.seleniumGrid.registry`        | `selenium`            | Distribution registry to pull images  |
+| `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images  |
 | `global.seleniumGrid.imageTag`        | `4.15.0-20231128`     | Image tag for all selenium components |
 | `global.seleniumGrid.nodesImageTag`   | `4.15.0-20231128`     | Image tag for browser's nodes         |
 | `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.0-20231128` | Image tag for browser's video recoder |
@@ -129,7 +129,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.enabled`                          | `true`                                      | Enable chrome nodes                                                                                                        |
 | `chromeNode.deploymentEnabled`                | `true`                                      | Enable creation of Deployment for chrome nodes                                                                             |
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
-| `chromeNode.registry`                         | `nil`                                       | Distribution registry to pull the image                                                                                    |
+| `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
 | `chromeNode.imageTag`                         | `4.15.0-20231128`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
@@ -169,7 +169,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.enabled`                         | `true`                                      | Enable firefox nodes                                                                                                       |
 | `firefoxNode.deploymentEnabled`               | `true`                                      | Enable creation of Deployment for firefox nodes                                                                            |
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
-| `firefoxNode.registry`                        | `nil`                                       | Distribution registry to pull the image                                                                                    |
+| `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imageTag`                        | `4.15.0-20231128`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
@@ -209,7 +209,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.enabled`                            | `true`                                      | Enable edge nodes                                                                                                          |
 | `edgeNode.deploymentEnabled`                  | `true`                                      | Enable creation of Deployment for edge nodes                                                                               |
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
-| `edgeNode.registry`                           | `nil`                                       | Distribution registry to pull the image                                                                                    |
+| `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
 | `edgeNode.imageTag`                           | `4.15.0-20231128`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
@@ -247,7 +247,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.scaledJobOptions`                   | See `values.yaml`                           | Override the global `autoscaling.scaledJobOptions` with specific scaled options for edge nodes                             |
 | `edgeNode.scaledObjectOptions`                | See `values.yaml`                           | Override the global `autoscaling.scaledObjectOptions` with specific scaled options for edge nodes                          |
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
-| `videoRecorder.registry`                      | `nil`                                       | Distribution registry to pull the image                                                                                    |
+| `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recoder image name                                                                                          |
 | `videoRecorder.imageTag`                      | `ffmpeg-6.0-20231128`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
@@ -285,7 +285,7 @@ You can configure the Selenium Hub with these values:
 
 | Parameter                       | Default           | Description                                                                                                                                      |
 |---------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `hub.registry`                  | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `hub.imageRegistry`             | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `hub.imageName`                 | `hub`             | Selenium Hub image name                                                                                                                          |
 | `hub.imageTag`                  | `nil`             | Selenium Hub image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
 | `hub.imagePullPolicy`           | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
@@ -319,7 +319,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 
 | Parameter                                    | Default           | Description                                                                                                                                      |
 |----------------------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `components.router.registry`                 | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `components.router.imageRegistry`            | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `components.router.imageName`                | `router`          | Router image name                                                                                                                                |
 | `components.router.imageTag`                 | `nil`             | Router image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                                         |
 | `components.router.imagePullPolicy`          | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
@@ -337,7 +337,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.nodeSelector`             | `{}`              | Node Selector for router pods                                                                                                                    |
 | `components.router.affinity`                 | `{}`              | Affinity for router pods                                                                                                                         |
 | `components.router.priorityClassName`        | `""`              | Priority class name for router pods                                                                                                              |
-| `components.distributor.registry`            | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `components.distributor.imageRegistry`       | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `components.distributor.imageName`           | `distributor`     | Distributor image name                                                                                                                           |
 | `components.distributor.imageTag`            | `nil`             | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
 | `components.distributor.imagePullPolicy`     | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
@@ -352,7 +352,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.nodeSelector`        | `{}`              | Node Selector for Distributor pods                                                                                                               |
 | `components.distributor.affinity`            | `{}`              | Affinity for Distributor pods                                                                                                                    |
 | `components.distributor.priorityClassName`   | `""`              | Priority class name for Distributor pods                                                                                                         |
-| `components.eventBus.registry`               | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `components.eventBus.imageRegistry`          | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `components.eventBus.imageName`              | `event-bus`       | Event Bus image name                                                                                                                             |
 | `components.eventBus.imageTag`               | `nil`             | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                     |
 | `components.eventBus.imagePullPolicy`        | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
@@ -369,7 +369,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.nodeSelector`           | `{}`              | Node Selector for Event Bus pods                                                                                                                 |
 | `components.eventBus.affinity`               | `{}`              | Affinity for Event Bus pods                                                                                                                      |
 | `components.eventBus.priorityClassName`      | `""`              | Priority class name for Event Bus pods                                                                                                           |
-| `components.sessionMap.registry`             | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `components.sessionMap.imageRegistry`        | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `components.sessionMap.imageName`            | `sessions`        | Session Map image name                                                                                                                           |
 | `components.sessionMap.imageTag`             | `nil`             | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
 | `components.sessionMap.imagePullPolicy`      | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
@@ -383,7 +383,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionMap.nodeSelector`         | `{}`              | Node Selector for Session Map pods                                                                                                               |
 | `components.sessionMap.affinity`             | `{}`              | Affinity for Session Map pods                                                                                                                    |
 | `components.sessionMap.priorityClassName`    | `""`              | Priority class name for Session Map pods                                                                                                         |
-| `components.sessionQueue.registry`           | `nil`             | Distribution registry to pull the image                                                                                                          |
+| `components.sessionQueue.imageRegistry`      | `nil`             | Distribution registry to pull the image                                                                                                          |
 | `components.sessionQueue.imageName`          | `session-queue`   | Session Queue image name                                                                                                                         |
 | `components.sessionQueue.imageTag`           | `nil`             | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                 |
 | `components.sessionQueue.imagePullPolicy`    | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |

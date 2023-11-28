@@ -29,7 +29,7 @@ spec:
       containers:
         - name: {{ template "seleniumGrid.eventBus.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.eventBus.imageTag }}
-          {{- $imageRegistry := default .Values.global.seleniumGrid.registry .Values.components.eventBus.registry }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.eventBus.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.eventBus.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.eventBus.imagePullPolicy }}
           ports:

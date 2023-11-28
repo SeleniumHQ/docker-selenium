@@ -47,7 +47,7 @@ helm upgrade --install ${RELEASE_NAME} \
 -f ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
 --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
 --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
---set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.registry=${NAMESPACE} \
+--set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace
 
 echo "Run Tests"
