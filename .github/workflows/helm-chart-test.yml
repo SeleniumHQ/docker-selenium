@@ -13,105 +13,46 @@ permissions:
   contents: read
 
 jobs:
-  lint-test:
-    name: "Lint Tests with ct"
-    runs-on: ubuntu-latest
+  build-and-test:
+    # Skip job based on the commit message, only works in push to branches for now
+    if: contains(toJson(github.event.commits), '[skip ci]') == false
+    name: Build & test Docker images with Helm charts
+    runs-on: ubuntu-20.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Output Docker info
+        run: docker info
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4.7.1
         with:
-          fetch-depth: 0
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
+          python-version: 3.8
+      - name: Get branch name (only for push to branch)
+        if: github.event_name == 'push'
+        run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          PUSH_BRANCH: ${{ github.ref }}
+      - name: Get target branch name (only for PRs)
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH=$(echo ${TARGET_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+      - name: Output branch name
+        run: echo ${BRANCH}
+      - name: Sets build date
+        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+      - name: Build Docker images
+        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - name: Setup Kubernetes environment
+        run: make chart_setup_env
+      - name: Setup Kubernetes cluster
+        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      - name: Test Selenium Grid on Kubernetes
+        uses: nick-invision/retry@v2.9.0
         with:
-          version: v3.13.2
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          check-latest: true
-
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.1
-
-      - name: Run chart-testing (list-changed)
-        id: list-changed
-        run: |
-          changed=$(ct list-changed --config tests/chart-test.yaml)
-          if [[ -n "$changed" ]]; then
-            echo "{changed}={true}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Run chart-testing (lint)
-        run: ct lint --config tests/chart-test.yaml
-
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.8.0
-        with:
-         config: ./tests/kind-cluster-config.yaml
-
-      - name: Run chart-testing (install)
-        run: ct install --all --config tests/chart-test.yaml
-
-  deploy-grid-selenium-tests:
-    name: "Run Selenium Tests on K8s"
-    runs-on: ubuntu-latest
-    strategy: 
-      fail-fast: false
-      matrix:
-        browser: [NodeChrome,NodeEdge,NodeFirefox]    
-    steps:
-
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: v3.13.2
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          check-latest: true
-
-      - name: Create kind cluster
-        uses: helm/kind-action@v1.8.0
-        with:
-         config: ./tests/kind-cluster-config.yaml
-
-      # 👋 Documentation link for Ingress Installation on kind k8s cluster https://kind.sigs.k8s.io/docs/user/ingress
-      - name: Install ingress-nginx on kind kubernetes cluster
-        run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-          kubectl wait --namespace ingress-nginx \
-          --for=condition=ready pod \
-          --selector=app.kubernetes.io/component=controller \
-          --timeout=90s
-
-      - name: Deploy Selenium Grid Chart 
-        run: |
-          helm repo add kedacore https://kedacore.github.io/charts
-          helm repo update
-          helm dependency build charts/selenium-grid          
-          helm upgrade --install selenium-grid -f ./tests/override-kind-auth-${{matrix.browser}}-values.yaml charts/selenium-grid --namespace selenium-grid-test --create-namespace
-          kubectl get ingress --all-namespaces
-
-      - name: Verify Post Deployment Grid Health and k8s pods status 
-        run: |
-          sleep 20 # Allow Kubernetes to pull Docker Images and start Pods
-          python ./tests/K8sSmokeTest.py "http://localhost"
-          kubectl get pods -n selenium-grid-test
-          kubectl get events -n selenium-grid-test
-
-      - name: Run Selenium Tests Against Kubernetes
-        run: |
-          export SELENIUM_GRID_HOST=localhost
-          export SELENIUM_GRID_PORT=80
-          export RUN_IN_DOCKER_COMPOSE=true
-          ./tests/bootstrap.sh ${{matrix.browser}}
+          timeout_minutes: 20
+          max_attempts: 3
+          command: |
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test
+      - name: Cleanup Kubernetes cluster
+        if: always()
+        run: make chart_cluster_cleanup

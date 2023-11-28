@@ -1,7 +1,7 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-VERSION := $(or $(VERSION),$(VERSION),4.11.0)
+VERSION := $(or $(VERSION),$(VERSION),4.15.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
@@ -360,6 +360,32 @@ test_video: video hub chrome firefox edge
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:6.0-alpine -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+
+chart_setup_env:
+	./tests/K8s/chart_setup_env.sh
+
+chart_test: chart_lint \
+ chart_install_chrome \
+ chart_install_firefox \
+ chart_install_edge
+
+chart_cluster_setup:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_cluster_setup.sh
+
+chart_lint:
+	./tests/K8s/chart_lint.sh
+
+chart_install_chrome:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeChrome
+
+chart_install_firefox:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeFirefox
+
+chart_install_edge:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeEdge
+
+chart_cluster_cleanup:
+	./tests/K8s/chart_cluster_cleanup.sh
 
 .PHONY: \
 	all \
