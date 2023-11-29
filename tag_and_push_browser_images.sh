@@ -20,7 +20,7 @@ echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BU
 case "${BROWSER}" in
 
 chrome)
-  CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $5}')
+  CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
   echo "Chrome version -> "${CHROME_VERSION}
   CHROME_SHORT_VERSION="$(short_version ${CHROME_VERSION})"
   echo "Short Chrome version -> "${CHROME_SHORT_VERSION}
