@@ -17,7 +17,7 @@ All notable changes to this helm chart will be documented in this file.
 - feat: Adding port to nodes service (#1196) :: Viet Nguyen Duc
 
 ### Changed
-- Update image tag to 4.15.0-20231128
+- Update image tag to 4.15.0-20231129
 
 ## :heavy_check_mark: 0.23.0
 

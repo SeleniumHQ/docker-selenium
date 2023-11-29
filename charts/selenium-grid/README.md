@@ -86,9 +86,9 @@ For now, global configuration supported is:
 | Parameter                             | Default               | Description                           |
 |---------------------------------------|-----------------------|---------------------------------------|
 | `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images  |
-| `global.seleniumGrid.imageTag`        | `4.15.0-20231128`     | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.15.0-20231128`     | Image tag for browser's nodes         |
-| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.0-20231128` | Image tag for browser's video recoder |
+| `global.seleniumGrid.imageTag`        | `4.15.0-20231129`     | Image tag for all selenium components |
+| `global.seleniumGrid.nodesImageTag`   | `4.15.0-20231129`     | Image tag for browser's nodes         |
+| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.0-20231129` | Image tag for browser's video recoder |
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally            |
@@ -131,7 +131,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.15.0-20231128`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.15.0-20231129`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                            | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -171,7 +171,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.15.0-20231128`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.15.0-20231129`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                           | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -211,7 +211,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.15.0-20231128`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.15.0-20231129`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                              | `[5555]`                                    | Port list to enable on container                                                                                           |
@@ -249,7 +249,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image                                                                                    |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recoder image name                                                                                          |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.0-20231128`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.0-20231129`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader`                      | `false`                                     | Name of the uploader to use. The value `false` is used to disable uploader. Supported default `s3`                         |
 | `videoRecorder.uploadDestinationPrefix`       | `false`                                     | Destination URL for uploading video file. The value `false` is used to disable the uploading                               |
