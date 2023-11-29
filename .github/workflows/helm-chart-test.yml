@@ -38,20 +38,22 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Sets build date
-        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
       - name: Build Docker images
-        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Setup Kubernetes environment
         run: make chart_setup_env
       - name: Setup Kubernetes cluster
-        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Test Selenium Grid on Kubernetes
         uses: nick-invision/retry@v2.9.0
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: |
-            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test
       - name: Cleanup Kubernetes cluster
         if: always()
         run: make chart_cluster_cleanup
