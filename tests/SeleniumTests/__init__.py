@@ -63,29 +63,48 @@ class SeleniumGenericTests(unittest.TestCase):
         paused = video.get_property('paused')
         self.assertFalse(paused)
 
+    def test_download_file(self):
+        driver = self.driver
+        driver.get('https://the-internet.herokuapp.com/download')
+        wait = WebDriverWait(driver, 30)
+        file_link = wait.until(
+            EC.element_to_be_clickable((By.LINK_TEXT, 'some-file.txt'))
+        )
+        file_link.click()
+        wait.until(
+            lambda d: len(d.get_downloadable_files()) > 0
+        )
+        self.assertTrue(len(driver.get_downloadable_files()) > 0)
+
     def tearDown(self):
         self.driver.quit()
 
 
 class ChromeTests(SeleniumGenericTests):
     def setUp(self):
+        options = ChromeOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=ChromeOptions(),
+            options=options,
             command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
+        options = EdgeOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=EdgeOptions(),
+            options=options,
             command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
+        options = FirefoxOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=FirefoxOptions(),
+            options=options,
             command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 

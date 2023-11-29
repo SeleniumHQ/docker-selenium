@@ -1,5 +1,6 @@
 ![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
 ![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
+![Helm Charts](https://github.com/SeleniumHQ/docker-selenium/workflows/Lint%20and%20Test%20Helm%20Charts/badge.svg)
 
 # Docker images for the Selenium Grid Server
 
