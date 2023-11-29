@@ -11,7 +11,7 @@ echo "" >> release_notes.md
 echo "### Changelog" > release_notes.md
 git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" --reverse >> release_notes.md
 
-CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $5}')
+CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
 EDGE_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
 CHROMEDRIVER_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
