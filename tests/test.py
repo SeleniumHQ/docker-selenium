@@ -136,6 +136,8 @@ def launch_container(container, **kwargs):
         'SE_EVENT_BUS_PUBLISH_PORT': 4442,
         'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443
     }
+    if container != 'Hub':
+        environment['SE_OPTS'] = "--enable-managed-downloads true"
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
                                          environment=environment,
