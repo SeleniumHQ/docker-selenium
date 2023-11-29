@@ -6,6 +6,7 @@ on:
       - trunk
     paths:
       - 'charts/selenium-grid/Chart.yaml'
+  workflow_dispatch:
 
 jobs:
   release:

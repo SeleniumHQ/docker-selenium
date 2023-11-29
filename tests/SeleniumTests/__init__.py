@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
+WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -51,7 +52,7 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_play_video(self):
         driver = self.driver
         driver.get('https://hls-js.netlify.com/demo/')
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
         video = wait.until(
             EC.element_to_be_clickable((By.TAG_NAME, 'video'))
         )

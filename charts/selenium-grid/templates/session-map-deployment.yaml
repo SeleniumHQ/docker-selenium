@@ -29,7 +29,8 @@ spec:
       containers:
         - name: {{ template "seleniumGrid.sessionMap.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionMap.imageTag }}
-          image: {{ printf "%s:%s" .Values.components.sessionMap.imageName $imageTag }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.sessionMap.imageRegistry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionMap.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
         {{- with .Values.components.extraEnvironmentVariables }}
           env: {{- tpl (toYaml .) $ | nindent 12 }}

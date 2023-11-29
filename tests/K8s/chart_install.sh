@@ -15,7 +15,8 @@ MATRIX_BROWSER=${1:-"NodeChrome"}
 SELENIUM_GRID_AUTOSCALING=${2:-"true"}
 SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=${3:-"0"}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
-SLEEP_INTERVAL=${SLEEP_INTERVAL:-45}
+HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL:-45}
+WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
 
 cleanup() {
@@ -28,9 +29,12 @@ cleanup() {
 
 # Function to be executed on command failure
 on_failure() {
-    echo "There is step failed with exit status $?"
+    local exit_status=$?
+    echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
+    kubectl describe all -n ${SELENIUM_NAMESPACE}
+    echo "There is step failed with exit status $exit_status"
     cleanup
-    exit $?
+    exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
@@ -43,11 +47,8 @@ helm upgrade --install ${RELEASE_NAME} \
 -f ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
 --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
 --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
---set global.seleniumGrid.imageTag=${VERSION} \
+--set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace
-
-echo "Verify Post Deployment Grid Health and Pod Status"
-kubectl get pods -n ${SELENIUM_NAMESPACE}
 
 echo "Run Tests"
 export SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST}
@@ -55,7 +56,14 @@ export SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT}""${SUB_PATH}
 export SELENIUM_GRID_AUTOSCALING=${SELENIUM_GRID_AUTOSCALING}
 export SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}
 export RUN_IN_DOCKER_COMPOSE=true
-export SLEEP_INTERVAL=${SLEEP_INTERVAL}
+export HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL}
+export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
 ./tests/bootstrap.sh ${MATRIX_BROWSER}
+
+echo "Get pods status"
+kubectl get pods -n ${SELENIUM_NAMESPACE}
+
+echo "Get all resources in the ${SELENIUM_NAMESPACE} namespace"
+kubectl get all -n ${SELENIUM_NAMESPACE}
 
 cleanup
