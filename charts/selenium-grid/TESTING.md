@@ -13,13 +13,17 @@ All related testing to this helm chart will be documented in this file.
 |                        | Auto scaling with `scalingType` is `deployment`                      | &cross;  |
 |                        | Auto scaling with `autoscaling.scaledOptions.minReplicaCount` is `0` | &check;  |
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  |
+|                        | Ingress is enabled with `hostname` is set                            | &cross;  |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  |
+|                        | `isolateComponents` is disabled                                      | &cross;  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  |
 |                        | Sanity tests in node                                                 | &check;  |
 |                        | Video recorder is enabled in node                                    | &cross;  |
 |                        | Node `extraEnvironmentVariables` is set value                        | &check;  |
 | General                | Set new image registry via `global.seleniumGrid.imageRegistry`       | &check;  |
+| Tracing                | Enable tracing via `SE_ENABLE_TRACING`                               | &check;  |
+|                        | Disable tracing via `SE_ENABLE_TRACING`                              | &cross;  |
 
 ## Build & test Docker images with Helm charts
 Noted: These `make` commands are composed and tested on Linux x86_64.
