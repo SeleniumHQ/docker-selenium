@@ -19,6 +19,7 @@ All related testing to this helm chart will be documented in this file.
 |                        | Sanity tests in node                                                 | &check;  |
 |                        | Video recorder is enabled in node                                    | &cross;  |
 |                        | Node `extraEnvironmentVariables` is set value                        | &check;  |
+| General                | Set new image registry via `global.seleniumGrid.imageRegistry`       | &check;  |
 
 ## Build & test Docker images with Helm charts
 Noted: These `make` commands are composed and tested on Linux x86_64.
