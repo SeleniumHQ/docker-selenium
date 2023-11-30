@@ -66,15 +66,16 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_download_file(self):
         driver = self.driver
         driver.get('https://the-internet.herokuapp.com/download')
+        file_name = 'some-file.txt'
         wait = WebDriverWait(driver, 30)
         file_link = wait.until(
-            EC.element_to_be_clickable((By.LINK_TEXT, 'some-file.txt'))
+            EC.element_to_be_clickable((By.LINK_TEXT, file_name))
         )
         file_link.click()
         wait.until(
-            lambda d: len(d.get_downloadable_files()) > 0
+            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
         )
-        self.assertTrue(len(driver.get_downloadable_files()) > 0)
+        self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
         self.driver.quit()

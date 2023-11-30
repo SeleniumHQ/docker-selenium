@@ -48,6 +48,7 @@ helm upgrade --install ${RELEASE_NAME} \
 --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
 --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
 --set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
+--set global.seleniumGrid.nodesImageTag=${VERSION} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace
 
 echo "Run Tests"
