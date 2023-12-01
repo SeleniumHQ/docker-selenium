@@ -26,14 +26,13 @@ EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
-  EXTRA_LIBS="--ext "
-  EXTRA_LIBS=${EXTRA_LIBS}:${EXTERNAL_JARS}
+  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
+  EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
 else
   echo "Tracing is disabled"
 fi
-
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \

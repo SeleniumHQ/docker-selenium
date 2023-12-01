@@ -43,8 +43,9 @@ trap 'on_failure' ERR
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${RELEASE_NAME} \
 -f ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
--f ${TEST_VALUES_PATH}/autoscaling-values.yaml \
+-f ${TEST_VALUES_PATH}/tracing-values.yaml \
 -f ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+-f ${TEST_VALUES_PATH}/autoscaling-values.yaml \
 --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
 --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
 --set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \

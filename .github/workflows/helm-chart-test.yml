@@ -2,11 +2,7 @@ name: Lint and Test Helm Charts
 
 on:
   push:
-    paths:
-      - 'charts/selenium-grid/**'
   pull_request:
-    paths:
-      - 'charts/selenium-grid/**'
   workflow_dispatch:
 
 permissions:
