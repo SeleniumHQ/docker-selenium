@@ -474,7 +474,7 @@ ___
 
 ## Video recording
 
-Tests execution can be recorded by using the `selenium/video:ffmpeg-6.0-20231129`
+Tests execution can be recorded by using the `selenium/video:ffmpeg-6.1-20231129`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -501,7 +501,7 @@ This example shows how to start the containers manually:
 ``` bash
 $ docker network create grid
 $ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium --shm-size="2g" selenium/standalone-chrome:4.15.0-20231129
-$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-6.0-20231129
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-6.1-20231129
 # Run your tests
 $ docker stop video && docker rm video
 $ docker stop selenium && docker rm selenium
@@ -548,7 +548,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-6.0-20231129"
+video-image = "selenium/video:ffmpeg-6.1-20231129"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -679,7 +679,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-6.0-20231129"
+video-image = "selenium/video:ffmpeg-6.1-20231129"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values

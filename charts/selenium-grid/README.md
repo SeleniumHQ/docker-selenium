@@ -88,7 +88,7 @@ For now, global configuration supported is:
 | `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images  |
 | `global.seleniumGrid.imageTag`        | `4.15.0-20231129`     | Image tag for all selenium components |
 | `global.seleniumGrid.nodesImageTag`   | `4.15.0-20231129`     | Image tag for browser's nodes         |
-| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.0-20231129` | Image tag for browser's video recoder |
+| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.1-20231129` | Image tag for browser's video recoder |
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally            |
@@ -249,7 +249,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recoder image name                                                                                          |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.0-20231129`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20231129`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader`                      | `false`                                     | Name of the uploader to use. The value `false` is used to disable uploader. Supported default `s3`                         |
 | `videoRecorder.uploadDestinationPrefix`       | `false`                                     | Destination URL for uploading video file. The value `false` is used to disable the uploading                               |
