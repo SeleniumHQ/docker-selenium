@@ -7,7 +7,7 @@ global:
     # Image tag for browser's nodes
     nodesImageTag: 4.15.0-20231129
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.0-20231129
+    videoImageTag: ffmpeg-6.1-20231129
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
 
@@ -796,7 +796,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.0-20231129
+  # imageTag: ffmpeg-6.1-20231129
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
