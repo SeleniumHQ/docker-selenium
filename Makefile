@@ -364,30 +364,34 @@ test_video: video hub chrome firefox edge
 	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 chart_setup_env:
-	./tests/K8s/chart_setup_env.sh
+	./tests/charts/make/chart_setup_env.sh
 
 chart_test: chart_lint \
+ chart_test_template \
  chart_install_chrome \
  chart_install_firefox \
  chart_install_edge
 
+chart_test_template:
+	./tests/charts/bootstrap.sh
+
 chart_cluster_setup:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_cluster_setup.sh
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_cluster_setup.sh
 
 chart_lint:
-	./tests/K8s/chart_lint.sh
+	./tests/charts/make/chart_lint.sh
 
 chart_install_chrome:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeChrome
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeChrome
 
 chart_install_firefox:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeFirefox
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeFirefox
 
 chart_install_edge:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/K8s/chart_install.sh NodeEdge
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeEdge
 
 chart_cluster_cleanup:
-	./tests/K8s/chart_cluster_cleanup.sh
+	./tests/charts/make/chart_cluster_cleanup.sh
 
 .PHONY: \
 	all \

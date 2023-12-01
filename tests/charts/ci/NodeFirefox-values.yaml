@@ -1,4 +1,4 @@
-# This is used in Helm chart testing. This disables the basic auth on selenium grid
+# This is used in Helm chart testing
 # Configuration for chrome nodes
 chromeNode:
   enabled: false

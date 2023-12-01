@@ -36,13 +36,13 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 Selenium Grid has the ability to autoscaling browser nodes up/down based on the pending requests in the 
 session queue.
 
-To do this [KEDA](https://keda.sh/docs/2.12/scalers/selenium-grid-scaler/) is used. When enabling
+To do this [KEDA](https://keda.sh/docs/latest/scalers/selenium-grid-scaler/) is used. When enabling
 autoscaling using `autoscaling.enabling` KEDA is installed automatically. To instead use an existing
 installation of KEDA you can enable autoscaling with `autoscaling.enableWithExistingKEDA` instead.
 
 KEDA can scale either with
-[deployments](https://keda.sh/docs/2.12/concepts/scaling-deployments/#scaling-of-deployments-and-statefulsets)
-or [jobs](https://keda.sh/docs/2.12/concepts/scaling-jobs/) and the charts support both types. This
+[deployments](https://keda.sh/docs/latest/concepts/scaling-deployments/#scaling-of-deployments-and-statefulsets)
+or [jobs](https://keda.sh/docs/latest/concepts/scaling-jobs/) and the charts support both types. This
 chart support both modes.  It is controlled with `autoscaling.scalingType` that can be set to either
 job (default) or deployment.
 

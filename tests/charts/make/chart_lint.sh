@@ -22,7 +22,8 @@ python -m pip install yamale==4.0.4 \
                       | grep -v 'Requirement already satisfied'
 
 cd ..
-ct lint --all --config tests/K8s/chart-testing.yaml
+rm -rf ./charts/**/Chart.lock
+ct lint --all --config tests/charts/config/ct.yaml
 
 if [ "${CI:-false}" = "false" ]; then
   deactivate
