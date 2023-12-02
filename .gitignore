@@ -149,3 +149,4 @@ ENV/
 .DS_Store
 /charts/*/charts
 /charts/*/**.lock
+/charts/*.tgz

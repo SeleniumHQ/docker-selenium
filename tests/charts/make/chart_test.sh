@@ -40,14 +40,19 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
+HELM_COMMAND_SET_AUTOSCALING=""
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
+  HELM_COMMAND_SET_AUTOSCALING="--values ${TEST_VALUES_PATH}/autoscaling-values.yaml \
+  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
+  --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}"
+fi
+
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${RELEASE_NAME} \
--f ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
--f ${TEST_VALUES_PATH}/tracing-values.yaml \
--f ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
--f ${TEST_VALUES_PATH}/autoscaling-values.yaml \
---set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
---set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
+--values ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
+--values ${TEST_VALUES_PATH}/tracing-values.yaml \
+--values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+${HELM_COMMAND_SET_AUTOSCALING} \
 --set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace

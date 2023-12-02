@@ -1,5 +1,6 @@
 import unittest
 import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -11,6 +12,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
+SE_NODE_SESSION_TIMEOUT = int(os.environ.get('SE_NODE_SESSION_TIMEOUT', 10))
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -113,3 +115,21 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.get('https://the-internet.herokuapp.com')
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
+
+class NodeSessionTimeoutTests(unittest.TestCase):
+    def setUp(self):
+        self.driver = webdriver.Remote(
+            options = ChromeOptions(),
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+        )
+
+    def test_node_session_timeout(self):
+        self.driver.get('https://the-internet.herokuapp.com')
+        self.assertTrue(self.driver.title == 'The Internet')
+        time.sleep(SE_NODE_SESSION_TIMEOUT + 5)
+        is_timed_out = False
+        try:
+            self.driver.quit()
+        except:
+            is_timed_out = True
+        self.assertTrue(is_timed_out, "Node session should be timed out after %s seconds" % SE_NODE_SESSION_TIMEOUT)
