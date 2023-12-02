@@ -43,7 +43,7 @@ jobs:
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Build and lint charts
         run: |
-          VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_build
+          VERSION=1.0.0 BUILD_DATE=${BUILD_DATE} make chart_build
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
       - name: Setup Kubernetes cluster
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
