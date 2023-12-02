@@ -43,22 +43,24 @@ jobs:
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Build and lint charts
         run: |
-          VERSION=1.0.0 BUILD_DATE=${BUILD_DATE} make chart_build
+          BUILD_DATE=${BUILD_DATE} make chart_build
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+          echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Setup Kubernetes cluster
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Test Selenium Grid on Kubernetes
         uses: nick-invision/retry@v2.9.0
         with:
           timeout_minutes: 30
-          max_attempts: 2
+          max_attempts: 3
           command: |
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test
       - name: Cleanup Kubernetes cluster
         if: always()
         run: make chart_cluster_cleanup
       - name: Upload Helm chart package
+        if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: selenium_grid_chart_package
+          name: ${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
