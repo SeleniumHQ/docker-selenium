@@ -31,7 +31,6 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-# Workaround for issue #1824
 if [ ! -z "$SE_NODE_SESSION_TIMEOUT" ]; then
   SE_OPTS="$SE_OPTS --session-timeout $SE_NODE_SESSION_TIMEOUT"
   echo "Appending Selenium node session timeout via SE_OPTS: ${SE_OPTS}"

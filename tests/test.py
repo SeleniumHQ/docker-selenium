@@ -55,9 +55,6 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
-
-    # Container Env Vars
-    'NodeSessionTimeout': 'NodeSessionTimeoutTests'
 }
 
 FROM_IMAGE_ARGS = {

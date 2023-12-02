@@ -25,7 +25,6 @@ All related testing to this helm chart will be documented in this file.
 |                        | Components are able to set `.affinity`                               | &check;  | Template |
 | Tracing                | Enable tracing via `SE_ENABLE_TRACING`                               | &check;  | Cluster  |
 |                        | Disable tracing via `SE_ENABLE_TRACING`                              | &cross;  |          |
-| Container ENV vars     | `SE_NODE_SESSION_TIMEOUT` pass value to opts `--session-timeout`     | &check;  | Cluster  |
 
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.

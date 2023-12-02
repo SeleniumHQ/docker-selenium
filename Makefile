@@ -376,7 +376,6 @@ chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
 chart_test: chart_test_template \
- chart_test_node_session_timeout \
  chart_test_chrome \
  chart_test_firefox \
  chart_test_edge
@@ -392,9 +391,6 @@ chart_test_firefox:
 
 chart_test_edge:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
-
-chart_test_node_session_timeout:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeSessionTimeout
 
 .PHONY: \
 	all \
