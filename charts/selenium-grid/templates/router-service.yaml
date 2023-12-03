@@ -5,7 +5,7 @@ metadata:
   name: {{ template "seleniumGrid.router.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    app: selenium-router
+    app: {{ template "seleniumGrid.router.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
@@ -15,7 +15,7 @@ metadata:
 {{- end }}
 spec:
   selector:
-    app: selenium-router
+    app: {{ template "seleniumGrid.router.fullname" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.router.serviceType }}
   {{- if and (eq .Values.components.router.serviceType "LoadBalancer") (.Values.components.router.loadBalancerIP) }}

@@ -9,7 +9,8 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
-
+SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
+WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -51,7 +52,7 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_play_video(self):
         driver = self.driver
         driver.get('https://hls-js.netlify.com/demo/')
-        wait = WebDriverWait(driver, 30)
+        wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
         video = wait.until(
             EC.element_to_be_clickable((By.TAG_NAME, 'video'))
         )
@@ -62,30 +63,50 @@ class SeleniumGenericTests(unittest.TestCase):
         paused = video.get_property('paused')
         self.assertFalse(paused)
 
+    def test_download_file(self):
+        driver = self.driver
+        driver.get('https://the-internet.herokuapp.com/download')
+        file_name = 'some-file.txt'
+        wait = WebDriverWait(driver, 30)
+        file_link = wait.until(
+            EC.element_to_be_clickable((By.LINK_TEXT, file_name))
+        )
+        file_link.click()
+        wait.until(
+            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
+        )
+        self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
+
     def tearDown(self):
         self.driver.quit()
 
 
 class ChromeTests(SeleniumGenericTests):
     def setUp(self):
+        options = ChromeOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=ChromeOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            options=options,
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
+        options = EdgeOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=EdgeOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            options=options,
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
+        options = FirefoxOptions()
+        options.enable_downloads = True
         self.driver = webdriver.Remote(
-            options=FirefoxOptions(),
-            command_executor="http://%s:4444" % SELENIUM_GRID_HOST
+            options=options,
+            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
     def test_title_and_maximize_window(self):

@@ -1,7 +1,7 @@
 Selenium Grid Server deployed successfully.
 
 {{- $svcName := ternary (include "seleniumGrid.router.fullname" . ) (include "seleniumGrid.hub.fullname" . ) .Values.isolateComponents }}
-{{- $appName := ternary "selenium-router" "selenium-hub" .Values.isolateComponents }}
+{{- $appName := ternary (include "seleniumGrid.router.fullname" . ) (include "seleniumGrid.hub.fullname" . ) .Values.isolateComponents }}
 {{- $serviceType := ternary .Values.components.router.serviceType .Values.hub.serviceType .Values.isolateComponents }}
 {{- $port := ternary .Values.components.router.port .Values.hub.port .Values.isolateComponents }}
 {{- $localUrl := ternary "http://localhost:PORT" "http://localhost:PORT/wd/hub" .Values.isolateComponents }}

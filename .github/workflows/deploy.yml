@@ -10,7 +10,7 @@ jobs:
     # Only continue if the commit message has '[deploy]' in it
     if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -78,9 +78,9 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files [skip ci]" -a
+          git commit -m "Update tag in docs and files" -a
       - name: Push changes
-        uses: ad-m/github-push-action@40bf560936a8022e68a3c00e7d2abefaf01305a6 # master
+        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # master
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           branch: trunk

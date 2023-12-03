@@ -1,0 +1,24 @@
+# This is dummy values file for chart template testing
+global:
+  seleniumGrid:
+    affinity: &affinity
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - selenium
+            topologyKey: "kubernetes.io/hostname"
+
+isolateComponents: true
+
+chromeNode:
+  affinity: *affinity
+
+firefoxNode:
+    affinity: *affinity
+
+edgeNode:
+    affinity: *affinity

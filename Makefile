@@ -1,7 +1,7 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-VERSION := $(or $(VERSION),$(VERSION),4.11.0)
+VERSION := $(or $(VERSION),$(VERSION),4.15.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
@@ -11,7 +11,9 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
-FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-4.3.1)
+FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-6.1)
+FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),ndviet)
+FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),6.1-ubuntu2204)
 
 all: hub \
 	distributor \
@@ -119,7 +121,7 @@ standalone_edge_beta: edge_beta
 	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
 
 video:
-	cd ./Video && docker build $(BUILD_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+	cd ./Video && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
@@ -357,9 +359,38 @@ test_video: video hub chrome firefox edge
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) jrottenberg/ffmpeg:4.3.1-ubuntu2004 -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+
+chart_setup_env:
+	./tests/charts/make/chart_setup_env.sh
+
+chart_cluster_setup:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_cluster_setup.sh
+
+chart_cluster_cleanup:
+	./tests/charts/make/chart_cluster_cleanup.sh
+
+chart_build:
+	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
+
+chart_test: chart_test_template \
+ chart_test_chrome \
+ chart_test_firefox \
+ chart_test_edge
+
+chart_test_template:
+	./tests/charts/bootstrap.sh
+
+chart_test_chrome:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeChrome
+
+chart_test_firefox:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeFirefox
+
+chart_test_edge:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
 
 .PHONY: \
 	all \

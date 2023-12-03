@@ -11,13 +11,8 @@ metadata:
   labels:
     deploymentName: {{ template "seleniumGrid.firefoxNode.fullname" . }}
 spec:
-  maxReplicaCount: {{ .Values.firefoxNode.maxReplicaCount }}
-  minReplicaCount: {{ .Values.firefoxNode.minReplicaCount }}
-  scaleTargetRef:
-    name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
-  triggers:
-    - type: selenium-grid
-    {{- with .Values.firefoxNode.hpa }}
-      metadata: {{- tpl (toYaml .) $ | nindent 8 }}
-    {{- end }}
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.firefoxNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.firefoxNode -}}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 {{- end }}
