@@ -366,32 +366,31 @@ test_video: video hub chrome firefox edge
 chart_setup_env:
 	./tests/charts/make/chart_setup_env.sh
 
-chart_test: chart_lint \
- chart_test_template \
- chart_install_chrome \
- chart_install_firefox \
- chart_install_edge
+chart_cluster_setup:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_cluster_setup.sh
+
+chart_cluster_cleanup:
+	./tests/charts/make/chart_cluster_cleanup.sh
+
+chart_build:
+	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
+
+chart_test: chart_test_template \
+ chart_test_chrome \
+ chart_test_firefox \
+ chart_test_edge
 
 chart_test_template:
 	./tests/charts/bootstrap.sh
 
-chart_cluster_setup:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_cluster_setup.sh
+chart_test_chrome:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeChrome
 
-chart_lint:
-	./tests/charts/make/chart_lint.sh
+chart_test_firefox:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeFirefox
 
-chart_install_chrome:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeChrome
-
-chart_install_firefox:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeFirefox
-
-chart_install_edge:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_install.sh NodeEdge
-
-chart_cluster_cleanup:
-	./tests/charts/make/chart_cluster_cleanup.sh
+chart_test_edge:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
 
 .PHONY: \
 	all \

@@ -36,7 +36,7 @@ All related testing to this helm chart will be documented in this file.
 cd ../..
 
 # Build chart dependencies and lint
-make chart_lint
+make chart_build
 
 # Test chart template
 make chart_test_template
@@ -51,11 +51,14 @@ Run entire commands to build and test Docker images with Helm charts in local en
 # Back to root directory
 cd ../..
 
+# Setup Kubernetes environment
+make chart_setup_env
+
 # Build Docker images
 make build
 
-# Setup Kubernetes environment
-make chart_setup_env
+# Build and lint charts
+make chart_build
 
 # Setup Kubernetes cluster
 make chart_cluster_setup
