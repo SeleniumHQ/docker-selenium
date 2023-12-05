@@ -55,6 +55,9 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+
+    # Chart Parallel Test
+    'ParallelAutoscaling': 'ParallelAutoscalingTests'
 }
 
 FROM_IMAGE_ARGS = {
