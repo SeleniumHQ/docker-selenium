@@ -12,11 +12,12 @@ All related testing to this helm chart will be documented in this file.
 |                        | Auto scaling with `scalingType` is `job`                             | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `deployment`                      | &cross;  |          |
 |                        | Auto scaling with `autoscaling.scaledOptions.minReplicaCount` is `0` | &check;  | Cluster  |
+|                        | Parallel tests execution against node autoscaling                    | &check;  | Cluster  |
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  | Cluster  |
 |                        | Ingress is enabled with `hostname` is set                            | &cross;  |          |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  | Cluster  |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |
-|                        | `isolateComponents` is disabled                                      | &cross;  |          |
+|                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  | Cluster  |
 |                        | Sanity tests in node                                                 | &check;  | Cluster  |
 |                        | Video recorder is enabled in node                                    | &cross;  |          |
@@ -24,7 +25,7 @@ All related testing to this helm chart will be documented in this file.
 | General                | Set new image registry via `global.seleniumGrid.imageRegistry`       | &check;  | Cluster  |
 |                        | Components are able to set `.affinity`                               | &check;  | Template |
 | Tracing                | Enable tracing via `SE_ENABLE_TRACING`                               | &check;  | Cluster  |
-|                        | Disable tracing via `SE_ENABLE_TRACING`                              | &cross;  |          |
+|                        | Disable tracing via `SE_ENABLE_TRACING`                              | &check;  | Cluster  |
 
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.
@@ -65,6 +66,8 @@ make chart_cluster_setup
 
 # Test Selenium Grid on Kubernetes
 make chart_test
+
+# make chart_test_parallel_autoscaling
 
 # Cleanup Kubernetes cluster
 make chart_cluster_cleanup

@@ -392,6 +392,9 @@ chart_test_firefox:
 chart_test_edge:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
 
+chart_test_parallel_autoscaling:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh ParallelAutoscaling
+
 .PHONY: \
 	all \
 	base \

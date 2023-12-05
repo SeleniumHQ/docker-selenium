@@ -10,8 +10,11 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build & test Docker images with Helm charts
+    name: Test Helm charts
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-strategy: [chart_test, chart_test_parallel_autoscaling]
     steps:
       - uses: actions/checkout@v4
       - name: Output Docker info
@@ -54,7 +57,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: |
-            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
       - name: Cleanup Kubernetes cluster
         if: always()
         run: make chart_cluster_cleanup
@@ -64,3 +67,10 @@ jobs:
         with:
           name: ${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
+      - name: Upload Helm chart template rendered
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: chart_template_rendered.yaml
+          path: ./tests/tests/output_deployment.yaml
+          if-no-files-found: ignore

@@ -1,4 +1,5 @@
 import unittest
+import concurrent.futures
 import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -113,3 +114,19 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.get('https://the-internet.herokuapp.com')
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
+
+class ParallelAutoscaling():
+    def run(self, test_classes):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            for test_class in test_classes:
+                suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
+                for test in suite:
+                    futures.append(executor.submit(test))
+            for future in concurrent.futures.as_completed(futures):
+                future.result()
+
+class ParallelAutoscalingTests(unittest.TestCase):
+    def test_parallel_autoscaling(self):
+        runner = ParallelAutoscaling()
+        runner.run([ChromeTests, EdgeTests, FirefoxTests])
