@@ -1,6 +1,7 @@
 import unittest
 import concurrent.futures
 import os
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -66,16 +67,17 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_download_file(self):
         driver = self.driver
-        driver.get('https://the-internet.herokuapp.com/download')
-        file_name = 'some-file.txt'
+        driver.get('https://demoqa.com/upload-download')
+        file_name = 'sampleFile.jpeg'
         wait = WebDriverWait(driver, 30)
         file_link = wait.until(
-            EC.element_to_be_clickable((By.LINK_TEXT, file_name))
+            EC.element_to_be_clickable((By.XPATH, f'//*[@download="{file_name}"]'))
         )
         file_link.click()
         wait.until(
             lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
         )
+        time.sleep(5)
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
