@@ -19,7 +19,7 @@ jobs:
       - name: Output Docker info
         run: docker info
       - name: Set up Python
-        uses: actions/setup-python@v4.7.1
+        uses: actions/setup-python@v4.8.0
         with:
           python-version: '3.11'
           check-latest: true
