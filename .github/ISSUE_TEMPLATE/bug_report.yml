@@ -56,6 +56,6 @@ body:
     attributes:
       label: Docker Selenium version (tag or chart version)
       description: What version of Docker Selenium are you using?
-      placeholder: 4.15.0-20231129? Please use the full tag, avoid "latest"
+      placeholder: 4.16.0-20231206? Please use the full tag, avoid "latest"
     validations:
       required: true

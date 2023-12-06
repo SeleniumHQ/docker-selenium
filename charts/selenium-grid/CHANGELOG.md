@@ -5,7 +5,7 @@ All notable changes to this helm chart will be documented in this file.
 ## :heavy_check_mark: 0.25.3
 
 ### Changed
-- Update image tag to 4.15.0-20231129
+- Update image tag to 4.16.0-20231206
 - Update tag in docs and files :: Selenium CI Bot
 - test: Add sanity test for download file (#2034) [deploy] :: Viet Nguyen Duc
 - feat(chart): distribution registry can be set global and individual component (#2030) :: Viet Nguyen Duc
