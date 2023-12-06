@@ -79,6 +79,54 @@ To uninstall:
 helm uninstall selenium-grid
 ```
 
+## Ingress Configuration
+
+By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see #1808). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
+
+In order to make user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
+
+If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=null`) or via an override-values.yaml as below:
+
+```yaml
+ingress:
+  nginx:
+  # nginx: null (alternative way)
+```
+
+Similarly, if you want to disable a sub-config of `ingress.nginx`. For example: `--set ingress.nginx.proxyBuffer=null`)
+
+You are also able to combine using both default annotations and your own annotations in `ingress.annotations`. Duplicated keys will be merged strategy overwrite with your own annotations in `ingress.annotations` take precedence.
+
+```yaml
+ingress:
+  nginx:
+    proxyTimeout: 3600
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "7200" # This key will take 7200 instead of 3600
+```
+
+List mapping of chart values and default annotation(s)
+
+```markdown
+# `ingress.nginx.proxyTimeout` pass value to annotation(s)
+nginx.ingress.kubernetes.io/proxy-connect-timeout
+nginx.ingress.kubernetes.io/proxy-send-timeout
+nginx.ingress.kubernetes.io/proxy-read-timeout
+nginx.ingress.kubernetes.io/proxy-next-upstream-timeout
+nginx.ingress.kubernetes.io/auth-keepalive-timeout
+
+# `ingress.nginx.proxyBuffer` pass value to to annotation(s)
+nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+nginx.ingress.kubernetes.io/proxy-buffering: "on"
+
+# `ingress.nginx.proxyBuffer.size` pass value to to annotation(s)
+nginx.ingress.kubernetes.io/proxy-buffer-size
+nginx.ingress.kubernetes.io/client-body-buffer-size
+
+# `ingress.nginx.proxyBuffer.number` pass value to annotation(s)
+nginx.ingress.kubernetes.io/proxy-buffers-number
+```
+
 ## Configuration
 
 For now, global configuration supported is:
@@ -111,6 +159,9 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.enabled`                             | `true`                                      | Enable or disable ingress resource                                                                                         |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                         | `{}`                                        | Custom annotations for ingress resource                                                                                    |
+| `ingress.nginx.proxyTimeout`                  | `3600`                                      | Value is used to set for NGINX ingress annotations related to proxy timeout                                                |
+| `ingress.nginx.proxyBuffer.size`              | `512M`                                      | Value is used to set for NGINX ingress annotations on size of the buffer proxy_buffer_size used for reading                |
+| `ingress.nginx.proxyBuffer.number`            | `4`                                         | Value is used to set for NGINX ingress annotations on number of the buffers in proxy_buffers used for reading              |
 | `ingress.hostname`                            | ``                                          | Default host for the ingress resource                                                                                      |
 | `ingress.path`                                | `/`                                         | Default host path for the ingress resource                                                                                 |
 | `ingress.pathType`                            | `Prefix`                                    | Default path type for the ingress resource                                                                                 |
