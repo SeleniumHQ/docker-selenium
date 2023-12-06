@@ -11,6 +11,34 @@ global:
                   values:
                     - selenium
             topologyKey: "kubernetes.io/hostname"
+ingress:
+  nginx:
+    proxyTimeout: 360 # Set different proxy timout
+    proxyBuffer:
+      # size: 512M # Keep using sub-config default
+      number: # Disable sub-config
+  annotations: # Add you own annotations
+    nginx.ingress.kubernetes.io/use-regex: "true" # Add new key
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600" # Override default key
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600" # Override default key
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
+    - path: /(/?)(session/.*/se/vnc)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
 
 isolateComponents: true
 

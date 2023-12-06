@@ -36,6 +36,12 @@ ingress:
   enabled: true
   # Name of ingress class to select which controller will implement ingress resource
   className: ""
+  # Refer to list nginx annotations: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#annotations
+  nginx:
+    proxyTimeout: 3600
+    proxyBuffer:
+      size: 512M
+      number: 4
   # Custom annotations for ingress resource
   annotations: {}
   # Default host for the ingress resource

@@ -80,6 +80,29 @@ Ingress fullname
 {{- default "selenium-ingress" .Values.ingress.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
+{{- with .Values.ingress.nginx }}
+  {{- with .proxyTimeout }}
+nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-send-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-read-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/auth-keepalive-timeout: {{ . | quote }}
+  {{- end }}
+  {{- with .proxyBuffer }}
+nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
+nginx.ingress.kubernetes.io/proxy-buffering: "on"
+    {{- with .size }}
+nginx.ingress.kubernetes.io/proxy-buffer-size: {{ . | quote }}
+nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
+    {{- end }}
+    {{- with .number }}
+nginx.ingress.kubernetes.io/proxy-buffers-number: {{ . | quote }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end -}}
+
 {{/*
 Service Account fullname
 */}}

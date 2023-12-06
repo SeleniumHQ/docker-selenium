@@ -20,9 +20,13 @@ metadata:
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.ingress.annotations }}
+  {{- $ingressAnnotations := (include "seleniumGrid.ingress.nginx.annotations.default" . | toString | fromYaml ) }}
+  {{- with .Values.ingress.annotations -}}
+    {{- $ingressAnnotations = mergeOverwrite $ingressAnnotations . }}
+  {{- end }}
+  {{- if not (empty $ingressAnnotations) }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- $ingressAnnotations | toYaml | nindent 4 }}
   {{- end }}
 spec:
   {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
