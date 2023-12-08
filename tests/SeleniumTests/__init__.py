@@ -77,7 +77,7 @@ class SeleniumGenericTests(unittest.TestCase):
         wait.until(
             lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
         )
-        time.sleep(5)
+        sleep(5)
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
@@ -88,6 +88,7 @@ class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         options = ChromeOptions()
         options.enable_downloads = True
+        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         self.driver = webdriver.Remote(
             options=options,
             command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -97,6 +98,7 @@ class EdgeTests(SeleniumGenericTests):
     def setUp(self):
         options = EdgeOptions()
         options.enable_downloads = True
+        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         self.driver = webdriver.Remote(
             options=options,
             command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -105,7 +107,11 @@ class EdgeTests(SeleniumGenericTests):
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference("browser.download.manager.showWhenStarting", False)
+        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
         options = FirefoxOptions()
+        options.profile = profile
         options.enable_downloads = True
         self.driver = webdriver.Remote(
             options=options,
