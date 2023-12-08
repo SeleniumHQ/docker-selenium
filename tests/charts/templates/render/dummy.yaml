@@ -42,6 +42,9 @@ ingress:
 
 isolateComponents: true
 
+components:
+  subPath: *gridAppRoot
+
 chromeNode:
   affinity: *affinity
 

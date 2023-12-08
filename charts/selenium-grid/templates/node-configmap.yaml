@@ -13,4 +13,4 @@ metadata:
     {{- end }}
 data:
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
-  SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
+  SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}{{ include "seleniumGrid.url.subPath" .}}'
