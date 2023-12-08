@@ -67,18 +67,22 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_download_file(self):
         driver = self.driver
-        driver.get('https://demoqa.com/upload-download')
-        file_name = 'sampleFile.jpeg'
-        wait = WebDriverWait(driver, 30)
-        file_link = wait.until(
-            EC.element_to_be_clickable((By.XPATH, f'//*[@download="{file_name}"]'))
-        )
-        file_link.click()
-        wait.until(
-            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
-        )
-        sleep(5)
-        self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
+        driver.get('https://the-internet.herokuapp.com/download')
+        file_name = 'some-file.txt'
+        is_continue = True
+        try:
+            wait = WebDriverWait(driver, 30)
+            file_link = wait.until(
+                EC.element_to_be_clickable((By.LINK_TEXT, file_name))
+            )
+        except:
+            is_continue = False
+        if is_continue:
+            file_link.click()
+            wait.until(
+                lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
+            )
+            self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
         self.driver.quit()

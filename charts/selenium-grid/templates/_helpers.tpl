@@ -346,6 +346,16 @@ http://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}
 {{- end }}
 {{- end -}}
 
+{{- define "seleniumGrid.url.subPath" -}}
+{{- $subPath := "/" -}}
+{{ if $.Values.isolateComponents }}
+  {{- $subPath = default $subPath $.Values.components.subPath -}}
+{{- else -}}
+  {{- $subPath = default $subPath $.Values.hub.subPath -}}
+{{- end -}}
+{{ $subPath }}
+{{- end -}}
+
 {{/*
 Graphql Url of the hub or the router
 */}}
