@@ -27,18 +27,3 @@ jobs:
         uses: helm/chart-releaser-action@v1.6.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Update chart CHANGELOG
-        run: ./generate_chart_changelog.sh
-
-      - name: Commit files
-        run: |
-          git config --local user.email "selenium-ci@users.noreply.github.com"
-          git config --local user.name "Selenium CI Bot"
-          git commit -m "Update chart CHANGELOG [skip ci]" -a
-
-      - name: Push changes
-        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # master
-        with:
-          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
-          branch: trunk
