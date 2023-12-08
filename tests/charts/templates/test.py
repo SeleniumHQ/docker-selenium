@@ -45,6 +45,28 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No ingress resources found")
 
+    def test_sub_path_append_to_node_grid_url(self):
+        resources_name = ['selenium-node-config']
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert subPath is appended to node grid url")
+                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'http://admin:admin@selenium-router.default:4444/selenium')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
+
+    def test_sub_path_set_to_grid_env_var(self):
+        resources_name = ['selenium-router']
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert subPath is set to grid ENV variable")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_SUB_PATH' and env['value'] == '/selenium':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
+
 if __name__ == '__main__':
     failed = False
     try:
