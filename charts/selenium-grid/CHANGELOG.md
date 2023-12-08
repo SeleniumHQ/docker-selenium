@@ -1,6 +1,21 @@
-# Change Log
+## :heavy_check_mark: selenium-grid-0.26.0
 
-All notable changes to this helm chart will be documented in this file.
+- Chart is using image tag 4.16.0-20231206
+
+### Added
+- feat(chart): Add default annotations for ingress nginx controller (#2047) :: Viet Nguyen Duc
+- feat: Video image with based FFmpeg-6.1 on Ubuntu-22.04 (#2042) :: Viet Nguyen Duc
+
+### Fixed
+- bug(#1824): Container ENV SE_NODE_SESSION_TIMEOUT not take effect (#2044) :: Viet Nguyen Duc
+- bug(#2038): Rollback io.opentelemetry 1.31.0 - add test tracing enabled (#2040) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Viet Nguyen Duc
+- test(chart): Parallel tests execution against autoscaling in Kubernetes (#2046) :: Viet Nguyen Duc
+- test(chart): Chart template render and assert output (#2043) :: Viet Nguyen Duc
+- test(chart): Add test for setting registry to pull images (#2036) :: Viet Nguyen Duc
 
 ## :heavy_check_mark: 0.25.3
 
