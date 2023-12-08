@@ -1,3 +1,14 @@
+## :heavy_check_mark: selenium-grid-0.26.1
+
+- Chart is using image tag 4.16.1-20231208
+
+### Added
+- Add script to generate chart CHANGELOG after released (#2054) :: Viet Nguyen Duc
+- feat(chart): Append subPath to ENV variable SE_NODE_GRID_URL (#2053) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.26.0
 
 - Chart is using image tag 4.16.0-20231206
