@@ -1,0 +1,98 @@
+{{- if .Values.videoRecorder.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.video.fullname" . }}
+data:
+  video.sh: |
+    #!/usr/bin/env bash
+    set -em
+    function finish {
+        echo exit > /videos/uploadpipe
+        kill -s SIGINT `cat /var/run/supervisor/supervisord.pid`
+    }
+    trap finish EXIT
+    FRAME_RATE=${FRAME_RATE:-$SE_FRAME_RATE}
+    CODEC=${CODEC:-$SE_CODEC}
+    PRESET=${PRESET:-$SE_PRESET}
+    export DISPLAY=localhost:${DISPLAY_NUM}.0
+
+    return_code=1
+    max_attempts=600
+    attempts=0
+    if [ ! -p /videos/uploadpipe ];
+    then
+      mkfifo /videos/uploadpipe
+    fi
+    if [[ "$UPLOAD_DESTINATION_PREFIX" = "" ]]
+    then
+        echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Exiting video recorder.
+        exit
+    fi
+    echo Checking if the display is open
+    until xset b off || [[ $attempts = $max_attempts ]]
+    do
+        echo Waiting before next display check
+        sleep 0.5
+        attempts=$((attempts+1))
+    done
+    if [[ $attempts = $max_attempts ]]
+    then
+        echo Can not open display, exiting.
+        exit
+    fi
+    VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
+
+    recording_started="false"
+    video_file_name=""
+    video_file=""
+    prev_session_id=""
+    attempts=0
+    echo Checking if node API responds
+    until curl -s --request GET http://localhost:5555/status || [[ $attempts = $max_attempts ]]
+    do
+        echo Waiting before next API check
+        sleep 0.5
+        attempts=$((attempts+1))
+    done
+    if [[ $attempts = $max_attempts ]]
+    then
+        echo Can not reach node API, exiting.
+        exit
+    fi
+    while curl -s --request GET http://localhost:5555/status > /tmp/status.json
+    do
+        session_id=$(jq -r '.[]?.node?.slots | .[0]?.session?.sessionId' /tmp/status.json)
+        echo $session_id
+        if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" ]]
+        then
+            video_file_name="$session_id.mp4"
+            video_file="${SE_VIDEO_FOLDER:-/videos}/$video_file_name"
+            echo "Starting to record video"
+            ffmpeg -nostdin -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p $video_file &
+            recording_started="true"
+            echo "Video recording started"
+        elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]
+        then
+            echo "Stopping to record video"
+            kill -INT %1
+            fg || echo ffmpeg exited with code $?
+            if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]]
+            then
+              upload_destination=${UPLOAD_DESTINATION_PREFIX}${video_file_name}
+              echo "Uploading video to $upload_destination"
+              echo $video_file $upload_destination > /videos/uploadpipe
+            fi
+            recording_started="false"
+        elif [[ $recording_started = "true" ]]
+        then
+            echo "Video recording in progress"
+            sleep 1
+        else
+            echo "No session in progress"
+            sleep 1
+        fi
+        prev_session_id=$session_id
+    done
+    echo
+{{- end }}

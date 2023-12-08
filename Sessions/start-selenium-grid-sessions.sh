@@ -34,20 +34,21 @@ if [ ! -z "$SE_SESSIONS_PORT" ]; then
   PORT_CONFIG="--port ${SE_SESSIONS_PORT}"
 fi
 
-EXTRA_LIBS="/opt/selenium/selenium-http-jdk-client.jar"
+EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
-  EXTRA_LIBS=${EXTRA_LIBS}:${EXTERNAL_JARS}
+  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
+  EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
 else
   echo "Tracing is disabled"
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} -Dwebdriver.http.factory=jdk-http-client \
+java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
-  --ext ${EXTRA_LIBS} sessions \
+  ${EXTRA_LIBS} sessions \
   --publish-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_PUBLISH_PORT} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   --bind-host ${SE_BIND_HOST} \

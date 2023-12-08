@@ -1,0 +1,40 @@
+isolateComponents: false
+autoscaling:
+  strategy: default
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 5
+chromeNode:
+  nameOverride: my-chrome-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+# Configuration for edge nodes
+edgeNode:
+  nameOverride: my-edge-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+# Configuration for firefox nodes
+firefoxNode:
+  nameOverride: my-firefox-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+
+ingress:
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.hub.fullname" $ }}'
+          port:
+            number: 4444
+    - path: /(/?)(session/.*/se/vnc)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.hub.fullname" $ }}'
+          port:
+            number: 4444

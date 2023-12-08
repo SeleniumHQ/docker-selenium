@@ -8,13 +8,14 @@
 FROM debian:bullseye
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
+ARG VERSION
+ARG RELEASE=selenium-${VERSION}
 #================================================
 # Customize sources for apt-get
 #================================================
-#RUN  echo "deb http://archive.ubuntu.com/ubuntu focal main universe\n" > /etc/apt/sources.list \
-#  && echo "deb http://archive.ubuntu.com/ubuntu focal-updates main universe\n" >> /etc/apt/sources.list \
-#  && echo "deb http://security.ubuntu.com/ubuntu focal-security main universe\n" >> /etc/apt/sources.list
-
+#RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+#  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+#  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
 ARG TARGETARCH
 ARG TARGETVARIANT
 
@@ -59,8 +60,9 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
 ENV TZ "UTC"
-RUN echo "${TZ}" > /etc/timezone \
-  && dpkg-reconfigure --frontend noninteractive tzdata
+RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata && \
+    cat /etc/timezone
 
 #========================================
 # Add normal user and group with passwordless sudo
@@ -93,10 +95,8 @@ COPY supervisord.conf /etc
 RUN  mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && touch /opt/selenium/config.toml \
   && chmod -R 777 /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor /etc/passwd \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.10.0/selenium-server-4.10.0.jar \
+  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
-  && wget --no-verbose https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-http-jdk-client/4.10.0/selenium-http-jdk-client-4.10.0.jar \
-    -O /opt/selenium/selenium-http-jdk-client.jar \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && setfacl -Rm u:seluser:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
@@ -114,11 +114,15 @@ RUN if [ `arch` = "aarch64" ]; then \
   && chmod -R 775 /external_jars ; \
     fi
 
-RUN if [ -f "/tmp/cs" ]; then \
-    /tmp/cs fetch --classpath --cache /external_jars io.opentelemetry:opentelemetry-exporter-otlp:1.28.0 io.opentelemetry:opentelemetry-exporter-jaeger:1.28.0 io.grpc:grpc-netty:1.57.1 > /external_jars/.classpath.txt ; \
+RUN if [ -f "/tmp/cs" ]; then \ 
+    /tmp/cs fetch --classpath --cache /external_jars \
+    io.opentelemetry:opentelemetry-exporter-otlp:1.31.0 \
+    io.opentelemetry:opentelemetry-exporter-jaeger:1.31.0 \
+    io.grpc:grpc-netty:1.59.0 > /external_jars/.classpath.txt ; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
+RUN rm -fr /root/.cache/*
 
 #===================================================
 # Run the following commands as non-privileged user

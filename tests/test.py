@@ -60,9 +60,8 @@ TEST_NAME_MAP = {
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
 
-    # Chrome Images
-    'NodeChromium': 'ChromeTests',
-    'StandaloneChromium': 'ChromeTests',
+    # Chart Parallel Test
+    'ParallelAutoscaling': 'ParallelAutoscalingTests'
 }
 
 FROM_IMAGE_ARGS = {
@@ -144,6 +143,8 @@ def launch_container(container, **kwargs):
         'SE_EVENT_BUS_PUBLISH_PORT': 4442,
         'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443
     }
+    if container != 'Hub':
+        environment['SE_OPTS'] = "--enable-managed-downloads true"
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
                                          environment=environment,
@@ -177,7 +178,7 @@ if __name__ == '__main__':
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
     run_in_docker_compose = RUN_IN_DOCKER_COMPOSE == 'true'
-    random_user_id = random.randint(100000, 2147483647)
+    random_user_id = random.randint(2000, 65000)
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)

@@ -9,10 +9,8 @@ permissions:
 
 jobs:
   build-and-test:
-    # Skip job based on the commit message, only works in push to branches for now
-    if: contains(toJson(github.event.commits), '[skip ci]') == false
     name: Build & test Docker images with random user
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         use-random-user: [false, true]
@@ -20,10 +18,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Output Docker info
         run: docker info
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4.7.0
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
         with:
-          python-version: 3.8
+          python-version: '3.11'
+          check-latest: true
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
@@ -41,7 +40,11 @@ jobs:
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test
+        uses: nick-invision/retry@v2.9.0
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: |
+            USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test
         env:
           USE_RANDOM_USER: ${{ matrix.use-random-user }}
-

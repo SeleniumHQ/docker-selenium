@@ -1,0 +1,13 @@
+# This is used in Helm chart testing
+# Configuration for chrome nodes
+chromeNode:
+  enabled: false
+# Configuration for edge nodes
+edgeNode:
+  enabled: false
+# Configuration for firefox nodes
+firefoxNode:
+  nameOverride: my-firefox-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"

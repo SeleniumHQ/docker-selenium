@@ -52,19 +52,11 @@ echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >> "$FILENAME"
 
 SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
-if [[ "${SE_NODE_BROWSER_NAME}" == "chrome" ]]; then
-    SE_NODE_BROWSER_VERSION=$(short_version $(google-chrome --version | awk '{print $3}'))
-elif [[ "${SE_NODE_BROWSER_NAME}" == "chromium" ]]; then
-    SE_NODE_BROWSER_NAME=chrome
-    SE_NODE_BROWSER_VERSION=$(short_version $(chromium --version | awk '{print $2}'))
-elif [[ "${SE_NODE_BROWSER_NAME}" == "firefox" ]]; then
-    SE_NODE_BROWSER_VERSION=$(short_version $(firefox --version | awk '{print $3}'))
-elif [[ "${SE_NODE_BROWSER_NAME}" == "MicrosoftEdge" ]]; then
-    SE_NODE_BROWSER_VERSION=$(short_version $(microsoft-edge --version | awk '{print $3}'))
-fi
+SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
+SE__BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
 
 if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
-SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\"}"
+SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}}"
 else
 SE_NODE_STEREOTYPE="$SE_NODE_STEREOTYPE"
 fi

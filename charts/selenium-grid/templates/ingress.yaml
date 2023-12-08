@@ -14,14 +14,19 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ template "seleniumGrid.ingress.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
     {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.ingress.annotations }}
+  {{- $ingressAnnotations := (include "seleniumGrid.ingress.nginx.annotations.default" . | toString | fromYaml ) }}
+  {{- with .Values.ingress.annotations -}}
+    {{- $ingressAnnotations = mergeOverwrite $ingressAnnotations . }}
+  {{- end }}
+  {{- if not (empty $ingressAnnotations) }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- $ingressAnnotations | toYaml | nindent 4 }}
   {{- end }}
 spec:
   {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
@@ -46,8 +51,9 @@ spec:
       {{- end }}
       {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.Version }}
         paths:
+        {{- if empty (.Values.ingress.paths) }}
           - path: {{ $.Values.ingress.path | default "/" }}
-            pathType: Prefix
+            pathType: {{ $.Values.ingress.pathType | default "Prefix" }}
             backend:
               service:
                 {{- if $.Values.isolateComponents }}
@@ -59,6 +65,9 @@ spec:
                 port:
                   number: {{ $.Values.hub.port }}
                 {{- end }}
+        {{- else }}
+          {{- tpl (toYaml .Values.ingress.paths | nindent 10) . }}
+        {{- end }}
       {{- else }}
         paths:
           - path: /

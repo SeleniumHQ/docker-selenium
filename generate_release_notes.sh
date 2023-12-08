@@ -17,7 +17,7 @@ CHROMEDRIVER_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} chrom
 EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
 FIREFOX_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
-FFMPEG_VERSION=$(docker run --entrypoint="" --rm selenium/video:ffmpeg-4.3.1-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
+FFMPEG_VERSION=$(docker run --entrypoint="" --rm selenium/video:ffmpeg-6.1-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
 
 
 echo "" >> release_notes.md
