@@ -6,6 +6,10 @@ LABEL authors=${AUTHORS}
 
 USER root
 
+ENV LANGUAGE=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
 # Install Chromium 
 # RUN echo "deb http://http.us.debian.org/debian/ stable non-free contrib main" >> /etc/apt/sources.list \
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
