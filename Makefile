@@ -153,7 +153,7 @@ build_multi: all_multi
 ci_multi: build_multi test_multi_arch
 
 base_multi: qemu_user_static
-	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub_multi: base_multi
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
