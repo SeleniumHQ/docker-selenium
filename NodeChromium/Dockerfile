@@ -10,6 +10,10 @@ ENV LANGUAGE=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
 
+# Deal with the usr merge issues in Debian
+RUN dpkg --remove --force-all dpkg-fsys-usrunmess \
+  && apt install usrmerge
+
 # Install Chromium 
 # RUN echo "deb http://http.us.debian.org/debian/ stable non-free contrib main" >> /etc/apt/sources.list \
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
