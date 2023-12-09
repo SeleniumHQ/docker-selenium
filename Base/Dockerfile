@@ -22,7 +22,7 @@ ARG TARGETVARIANT
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
-
+RUN echo "VERSION is $VERSION" && echo "RELEASE is $RELEASE"
 
 #========================
 # Miscellaneous packages

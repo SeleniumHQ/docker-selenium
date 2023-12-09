@@ -205,6 +205,8 @@ jobs:
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
       DEPLOY_BRANCH: trunk
+      RELEASE: selenium-4.16.0
+      SELENIUM_VERSION: 4.16.1
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
     steps:
@@ -227,7 +229,7 @@ jobs:
       - run:
           name: "Prepare workflow environment variables"
           command: |
-            export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
+            #export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
@@ -244,6 +246,8 @@ jobs:
             echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
             echo GITHUB_USER="$GITHUB_USER"
             echo GITHUB_REPO="$GITHUB_REPO"
+            echo SELENIUM_VERSION="$SELENIUM_VERSION"
+            echo RELEASE="$RELEASE"
       - run: uname -a
       - run: docker info
       - run:
@@ -277,6 +281,7 @@ jobs:
             
             export NAME=${NAMESPACE}
             export VERSION=${BRANCH}
+            export RELEASE=${RELEASE}
             export BUILD_DATE=${BUILD_DATE}
             export PLATFORMS=${PLATFORMS}
             export BUILD_ARGS=${BUILD_ARGS}

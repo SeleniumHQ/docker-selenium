@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
+#SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
 NAME="${NAME:-seleniarm}"
 VERSION="${VERSION:-$SELENIUM_VERSION}"
 BUILD_DATE="${BUILD_DATE:-$(date '+%Y%m%d')}"
@@ -19,7 +19,7 @@ docker run --rm --privileged aptman/qus -- -r
 docker run --rm --privileged aptman/qus -s -- -p
 
 if [ "$1" = "base_multi" ]; then
-    cd ./Base && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} -t ${NAME}/base:${TAG_VERSION} .
+    cd ./Base && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} --build-arg RELEASE=${RELEASE} --build-arg VERSION=${VERSION} -t ${NAME}/base:${TAG_VERSION} .
 
 elif [ "$1" = "grid_multi" ]; then
     cd ./Hub && docker buildx build --platform ${PLATFORMS} ${BUILD_ARGS} ${FROM_IMAGE_ARGS} -t ${NAME}/hub:${TAG_VERSION} .
