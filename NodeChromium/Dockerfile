@@ -22,7 +22,7 @@ RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   # && apt-get -qqy install chromium=93.0.4577.82-1 \
   # && apt-get -qqy install chromium=97.0.4692.71-0.1 \
   # && apt-get -qqy install chromium=98.0.4758.102-1+b1 \
-  && apt-get -qqy install chromium \
+  && apt-get -qqy install usrmerge chromium \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================
