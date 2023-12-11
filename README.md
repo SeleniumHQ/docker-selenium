@@ -1287,30 +1287,59 @@ container in the following way:
 
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" \
-  -v /home/ubuntu/files:/home/seluser/files \
+  -v /home/ubuntu/files:/home/seluser/Downloads \
   selenium/standalone-chrome:4.16.1-20231208
 ```
 
 That will mount the host `/home/ubuntu/files` directory
-to the `/home/seluser/files` inside the container. The
+to the `/home/seluser/Downloads` inside the container
+(default browser's downloads directory). The
 problem happens because the volume will be mounted as
 `root`; therefore, the browser cannot write a file to
 that directory because it is running under the user 
 `seluser`. This happens because that is how Docker mounts
 volumes in Linux, more details in this [issue](https://github.com/moby/moby/issues/2259).
 
-A workaround for this is to create a directory on the
-host and change its permissions **before mounting the volume**. 
-Depending on your user permissions, you might need to use 
-`sudo` for some of these commands:
+There was a fix in this [feature](https://github.com/SeleniumHQ/docker-selenium/issues/1947)
+that changed ownership when staring the container.
 
-```bash
-mkdir /home/ubuntu/files
-chown 1200:1201 /home/ubuntu/files
+You are able to configure browser with another download directory and mount the host with it in container by overriding `SE_DOWNLOAD_DIR`.
+
+```groovy
+ChromeOptions options = new ChromeOptions();
+HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+chromePrefs.put("download.default_directory", "/tmp/downloads");
+options.setExperimentalOption("prefs", chromePrefs);
+options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+WebDriver driver = new ChromeDriver(options);
 ```
 
-After doing this, you should be able to download files
-to the mounted directory. If you have a better workaround,
-please send us a pull request! 
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -e SE_DOWNLOAD_DIR=/tmp/downloads \
+  -v /home/ubuntu/files:/tmp/downloads \
+  selenium/standalone-chrome:4.16.1-20231208
+```
 
+### Change ownership of the volume mount
+
+If you are using Linux and you need to change the ownership of the volume mount, you can set the `CHOWN_EXTRA` and `CHOWN_EXTRA_OPTS` (default is set `-R` - change recursively) environment variables
+
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -v /home/ubuntu/my-certs:/etc/certs \
+  -e CHOWN_EXTRA=/etc/certs \
+  selenium/standalone-chrome:4.16.1-20231208
+```
+
+If you want a  new volume mount directory to be created and set ownership, you can set the `MKDIR_EXTRA` and `MKDIR_EXTRA_OPTS` (default is set `-p` - create a directory hierarchy) environment variables.
+
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -v /home/ubuntu/my-nssdb:/home/seluser/.pki/nssdb \
+  -e MKDIR_EXTRA=/home/seluser/.pki/nssdb \
+  selenium/standalone-chrome:4.16.1-20231208
+```
+
+Both `CHOWN_EXTRA` and `MKDIR_EXTRA` can be set to multiple directories by separating them with a `space` or `comma`. For example: `CHOWN_EXTRA=<some-dir>,<some-other-dir>`
 

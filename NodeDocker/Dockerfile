@@ -13,7 +13,7 @@ RUN apt-get update -qqy \
   && apt-get -qqy install socat \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-USER 1200
+USER ${SEL_UID}
 
 #========================
 # Selenium Standalone Docker Configuration
@@ -21,7 +21,7 @@ USER 1200
 
 EXPOSE 4444
 
-COPY start-selenium-grid-docker.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-docker.sh \
     config.toml \
     start-socat.sh \
     /opt/bin/

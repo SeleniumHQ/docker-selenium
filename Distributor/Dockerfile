@@ -4,7 +4,7 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
-USER 1200
+USER ${SEL_UID}
 
 #========================
 # Selenium Distributor Configuration
@@ -12,7 +12,7 @@ USER 1200
 
 EXPOSE 5553
 
-COPY start-selenium-grid-distributor.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-distributor.sh \
     /opt/bin/
 
 COPY selenium-grid-distributor.conf /etc/supervisor/conf.d/

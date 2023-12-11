@@ -4,7 +4,7 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
-USER 1200
+USER ${SEL_UID}
 
 #========================
 # Selenium SessionQueue Configuration
@@ -17,7 +17,7 @@ ENV SE_SESSION_RETRY_INTERVAL 15
 
 EXPOSE 5559
 
-COPY start-selenium-grid-session-queue.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-session-queue.sh \
     /opt/bin/
 
 COPY selenium-grid-session-queue.conf /etc/supervisor/conf.d/
