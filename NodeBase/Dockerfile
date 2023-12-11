@@ -117,8 +117,8 @@ RUN mkdir -p /tmp/.X11-unix && \
     fix-permissions /tmp/.X11-unix
 
 #==============================
-# Generating the VNC password as seluser
-# So the service can be started with seluser
+# Generating the VNC password based on the ${SE_VNC_PASSWORD}
+# Changing ownership to ${SEL_USER}, so the service can be started
 #==============================
 
 ENV SE_VNC_PASSWORD=secret
@@ -179,8 +179,6 @@ ENV GENERATE_CONFIG true
 ENV SE_DRAIN_AFTER_SESSION_COUNT 0
 # Setting Selenium Manager to work offline
 ENV SE_OFFLINE true
-
-
 
 #========================
 # Selenium Configuration

@@ -1320,3 +1320,26 @@ docker run -d -p 4444:4444 --shm-size="2g" \
   -v /home/ubuntu/files:/tmp/downloads \
   selenium/standalone-chrome:4.16.1-20231208
 ```
+
+### Change ownership of the volume mount
+
+If you are using Linux and you need to change the ownership of the volume mount, you can set the `CHOWN_EXTRA` and `CHOWN_EXTRA_OPTS` (default is set `-R` - change recursively) environment variables
+
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -v /home/ubuntu/my-certs:/etc/certs \
+  -e CHOWN_EXTRA=/etc/certs \
+  selenium/standalone-chrome:4.16.1-20231208
+```
+
+If you want a  new volume mount directory to be created and set ownership, you can set the `MKDIR_EXTRA` and `MKDIR_EXTRA_OPTS` (default is set `-p` - create a directory hierarchy) environment variables.
+
+```bash
+docker run -d -p 4444:4444 --shm-size="2g" \
+  -v /home/ubuntu/my-nssdb:/home/seluser/.pki/nssdb \
+  -e MKDIR_EXTRA=/home/seluser/.pki/nssdb \
+  selenium/standalone-chrome:4.16.1-20231208
+```
+
+Both `CHOWN_EXTRA` and `MKDIR_EXTRA` can be set to multiple directories by separating them with a `space` or `comma`. For example: `CHOWN_EXTRA=<some-dir>,<some-other-dir>`
+
