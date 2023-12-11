@@ -147,4 +147,13 @@ USER ${SEL_UID}:${SEL_GID}
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
 
+# A too high maximum number of file descriptors (with the default value
+# inherited from the docker host) can cause issues with some of our tools:
+#  - sanitizers hanging: https://github.com/google/sanitizers/issues/1662
+#  - valgrind crashing: https://stackoverflow.com/a/75293014
+# This is not be a problem on our CI hosts, but developers who run the image
+# on their machines may run into this (e.g., on Arch Linux), so warn them.
+# (Note that .bashrc is only executed in interactive bash shells.)
+RUN echo 'if [[ $(ulimit -n) -gt 200000 ]]; then echo "WARNING: Very high value reported by \"ulimit -n\". Consider passing \"--ulimit nofile=32768\" to \"docker run\"."; fi' >> ${HOME}/.bashrc
+
 CMD ["/opt/bin/entry_point.sh"]
