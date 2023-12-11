@@ -51,7 +51,7 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
       if [ $? -eq 0 ]; then
         echo "Successfully lowered the open file descriptor limit."
       else
-        echo "Failed to lower the open file descriptor limit. This can result in delays when connecting to VNC."
+        echo "The open file descriptor limit could not be updated. This can result in delays when connecting to VNC."
       fi
     fi
 
