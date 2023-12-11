@@ -112,16 +112,31 @@ RUN  wget -nv -O noVNC.zip \
 #=========================================================================================================================================
 RUN chmod +x /dev/shm
 
+# Creating base directory for Xvfb
+RUN mkdir -p /tmp/.X11-unix && \
+    fix-permissions /tmp/.X11-unix
+
+#==============================
+# Generating the VNC password as seluser
+# So the service can be started with seluser
+#==============================
+
+ENV SE_VNC_PASSWORD=secret
+RUN mkdir -p ${HOME}/.vnc \
+    && x11vnc -storepasswd ${SE_VNC_PASSWORD} ${HOME}/.vnc/passwd \
+    && chown -R "${SEL_UID}:${SEL_GID}" ${HOME}/.vnc \
+    && fix-permissions ${HOME}/.vnc
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
 
-USER 1200
+USER ${SEL_UID}
 
 #==============================
 # Scripts to run Selenium Node and XVFB
 #==============================
-COPY start-selenium-node.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
       start-xvfb.sh \
       /opt/bin/
 
@@ -131,24 +146,9 @@ COPY start-selenium-node.sh \
 COPY selenium.conf /etc/supervisor/conf.d/
 
 #==============================
-# Generating the VNC password as seluser
-# So the service can be started with seluser
-#==============================
-
-RUN mkdir -p ${HOME}/.vnc \
-  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
-
-#==========
-# Relaxing permissions for OpenShift and other non-sudo environments
-#==========
-RUN sudo chmod -R 775 ${HOME} \
-  && sudo chgrp -R 0 ${HOME} \
-  && sudo chmod -R g=u ${HOME}
-
-#==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
-COPY start-vnc.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-vnc.sh \
       start-novnc.sh \
       /opt/bin/
 
@@ -195,10 +195,7 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-# Creating base directory for Xvfb
-RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
-
 # Copying configuration script generator
-COPY generate_config /opt/bin/generate_config
+COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config
 
 EXPOSE 5900
