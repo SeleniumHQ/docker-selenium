@@ -1,11 +1,11 @@
-FROM ubuntu:jammy-20231004
+FROM ubuntu:jammy-20231128
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 ARG OPENTELEMETRY_VERSION=1.31.0
-ARG GRPC_VERSION=1.59.0
+ARG GRPC_VERSION=1.60.0
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
