@@ -1169,6 +1169,8 @@ If you want to run VNC without password authentication you can set the environme
 
 If you want to run VNC in view-only mode you can set the environment variable `SE_VNC_VIEW_ONLY=1`.
 
+If you want to modify the open file descriptor limit for the VNC server process you can set the environment variable `SE_VNC_ULIMIT=4096`.
+
 ### Using your browser (no VNC client is needed)
 
 This project uses [noVNC](https://github.com/novnc/noVNC) to allow users to inspect visually container activity with

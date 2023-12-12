@@ -44,6 +44,17 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
       echo "Waiting for Xvfb..."
     done
 
+    # Guard against unreasonably high nofile limits. See https://github.com/SeleniumHQ/docker-selenium/issues/2045
+    if [[ $(ulimit -n) -gt 200000 || ! -z "${SE_VNC_ULIMIT}" ]]; then
+      echo "Trying to update the open file descriptor limit from $(ulimit -n) to ${SE_VNC_ULIMIT:-65536}."
+      ulimit -n ${SE_VNC_ULIMIT:-65536}
+      if [ $? -eq 0 ]; then
+        echo "Successfully update the open file descriptor limit."
+      else
+        echo "The open file descriptor limit could not be updated."
+      fi
+    fi
+
     x11vnc ${X11VNC_OPTS} -forever -shared -rfbport ${VNC_PORT:-$SE_VNC_PORT} -rfbportv6 ${VNC_PORT:-$SE_VNC_PORT} -display ${DISPLAY}
   else
     echo "VNC won't start because SE_START_VNC is false."
