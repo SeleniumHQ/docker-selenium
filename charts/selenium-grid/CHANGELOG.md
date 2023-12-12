@@ -1,3 +1,11 @@
+## :heavy_check_mark: selenium-grid-0.26.2
+
+- Chart is using image tag 4.16.1-20231212
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.26.1
 
 - Chart is using image tag 4.16.1-20231208
