@@ -4,8 +4,9 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
-ARG OPENTELEMETRY_VERSION=1.31.0
-ARG GRPC_VERSION=1.60.0
+# Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
+ARG OPENTELEMETRY_VERSION=1.28.0
+ARG GRPC_VERSION=1.57.1
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -115,7 +116,8 @@ COPY supervisord.conf /etc
 #==========
 RUN touch ${SEL_DIR}/config.toml \
   && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
-    -O ${SEL_DIR}/selenium-server.jar
+    -O ${SEL_DIR}/selenium-server.jar \
+  && echo "${SEL_PASSWD}" > ${SEL_DIR}/initialPasswd
 
 #=====
 # Download observability related jaegar jars and make them available in a separate directory
