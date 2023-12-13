@@ -4,13 +4,16 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
+ARG NOVNC_VERSION="1.4.0"
+ARG WEBSOCKIFY_VERSION="0.11.0"
+
 USER root
 
 #==============
 # Xvfb
 #==============
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     xvfb \
     pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
@@ -40,7 +43,7 @@ RUN apt-get -qqy update \
 # VNC
 #=====
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
   x11vnc \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -49,7 +52,7 @@ RUN apt-get update -qqy \
 # A fast, lightweight and responsive window manager
 #=========
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -92,8 +95,6 @@ RUN apt-get -qqy update \
 ########################################
 # noVNC exposes VNC through a web page #
 ########################################
-ENV NOVNC_VERSION="1.4.0" \
-    WEBSOCKIFY_VERSION="0.11.0"
 RUN  wget -nv -O noVNC.zip \
        "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
@@ -104,8 +105,8 @@ RUN  wget -nv -O noVNC.zip \
       "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
-  && rm -rf websockify-${WEBSOCKIFY_VERSION}/tests \
-  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify
+  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify \
+  && rm -rf /opt/bin/noVNC/utils/websockify/docker /opt/bin/noVNC/utils/websockify/tests
 
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
@@ -117,13 +118,12 @@ RUN mkdir -p /tmp/.X11-unix && \
     fix-permissions /tmp/.X11-unix
 
 #==============================
-# Generating the VNC password based on the ${SE_VNC_PASSWORD}
+# Generating the VNC password using initial password in Base image
 # Changing ownership to ${SEL_USER}, so the service can be started
 #==============================
 
-ENV SE_VNC_PASSWORD=secret
 RUN mkdir -p ${HOME}/.vnc \
-    && x11vnc -storepasswd ${SE_VNC_PASSWORD} ${HOME}/.vnc/passwd \
+    && x11vnc -storepasswd $(cat ${SEL_DIR}/initialPasswd) ${HOME}/.vnc/passwd \
     && chown -R "${SEL_UID}:${SEL_GID}" ${HOME}/.vnc \
     && fix-permissions ${HOME}/.vnc
 

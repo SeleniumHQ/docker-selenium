@@ -10,7 +10,7 @@ USER root
 # Socat to proxy docker.sock when mounted
 #==============
 RUN apt-get update -qqy \
-  && apt-get -qqy install socat \
+  && apt-get -qqy --no-install-recommends install socat \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 USER ${SEL_UID}
