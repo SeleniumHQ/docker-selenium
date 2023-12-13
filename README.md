@@ -1302,7 +1302,7 @@ that directory because it is running under the user
 `seluser`. This happens because that is how Docker mounts
 volumes in Linux, more details in this [issue](https://github.com/moby/moby/issues/2259).
 
-There was a fix in this [feature](https://github.com/SeleniumHQ/docker-selenium/issues/1947)
+There was a fix in this feature [#1947](https://github.com/SeleniumHQ/docker-selenium/issues/1947)
 that changed ownership when staring the container.
 
 You are able to configure browser with another download directory and mount the host with it in container by overriding `SE_DOWNLOAD_DIR`.
