@@ -1,13 +1,15 @@
 name: Update Chart CHANGELOG
 
 on:
-  page_build:
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions: write-all
+    if: ${{ contains(github.event.release.tag_name, 'selenium-grid') || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,7 +27,7 @@ jobs:
           git commit -m "Update chart CHANGELOG [skip ci]" -a
 
       - name: Push changes
-        uses: ad-m/github-push-action@d91a481090679876dfc4178fef17f286781251df # master
+        uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           branch: trunk
