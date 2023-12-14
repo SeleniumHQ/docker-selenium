@@ -1,23 +1,46 @@
 #!/bin/bash
 set -e
-# Run this with USER root only
-for d in "$@"; do
-    find "${d}" \
-        ! \( \
-            -group "${SEL_GID}" \
-            -a -perm -g+rwX \
-        \) \
-        -exec chgrp -R "${SEL_GID}" -- {} \+ \
-        -exec chmod -R g+rwX -- {} \+
-    # setuid, setgid *on directories only*
-    find "${d}" \
-        \( \
-            -type d \
-            -a ! -perm -6000 \
-        \) \
-        -exec chmod -R +6000 -- {} \+
-    # Relaxing permissions for OpenShift and other non-sudo environments
-    chmod -R u+x "${d}"
-    chgrp -R 0 "${d}"
-    chmod -R g=u "${d}"
-done
+
+if [[ "${SE_DOWNLOAD_DIR}" != "${HOME}/Downloads" ]] && [[ -d "${SE_DOWNLOAD_DIR}" ]]; then
+    mkdir -p "${SE_DOWNLOAD_DIR}"
+fi
+
+if [ "$(id -u)" == 0 ]; then
+    # For root user to change ownership
+    for d in "$@"; do
+        find "${d}" \
+            ! \( \
+                -group "${SEL_GID}" \
+                -a -perm -g+rwX \
+            \) \
+            -exec chown -R "${SEL_UID}:${SEL_GID}" -- {} \+ \
+            -exec chgrp -R "${SEL_GID}" -- {} \+ \
+            -exec chmod -R g+rwX -- {} \+
+        find "${d}" \
+            \( \
+                -type d \
+                -a ! -perm -775 \
+            \) \
+            -exec chmod -R 775 -- {} \+
+        # Relaxing permissions for OpenShift and other non-sudo environments
+        chmod -R u+x "${d}"
+        chgrp -R 0 "${d}"
+        chmod -R g=u "${d}"
+    done
+
+    # Only give write access for app data in case running of read-only filesystem
+    dirs=(
+        "${HOME}"
+        "${SEL_DIR}"
+        "${SE_DOWNLOAD_DIR}"
+        "/var/run/supervisor"
+        "/var/log/supervisor"
+        "/etc/passwd"
+        "/tmp/.X11-unix"
+    )
+    for d in "${dirs[@]}"; do
+        if [[ -d $d ]]; then
+            chmod 777 -R "${d}"
+        fi
+    done
+fi
