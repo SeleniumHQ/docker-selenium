@@ -1302,46 +1302,72 @@ that directory because it is running under the user
 `seluser`. This happens because that is how Docker mounts
 volumes in Linux, more details in this [issue](https://github.com/moby/moby/issues/2259).
 
-There was a fix in this feature [#1947](https://github.com/SeleniumHQ/docker-selenium/issues/1947)
-that changed ownership when staring the container.
+A workaround (to be done manually) for this is to create a directory on the
+host and change its permissions **before mounting the volume**. 
+Depending on your user permissions, you might need to use 
+`sudo` for some of these commands:
 
-You are able to configure browser with another download directory and mount the host with it in container by overriding `SE_DOWNLOAD_DIR`.
+```bash
+mkdir /home/ubuntu/files
+chown 1200:1201 /home/ubuntu/files
+```
 
+After doing this, you should be able to download files
+to the mounted directory.
+
+---
+Another introduced feature [#1947](https://github.com/SeleniumHQ/docker-selenium/issues/1947)
+that take action to change ownership when staring the container.
+
+You are able to configure another default browser download directory and mount the host with it in container by overriding `SE_DOWNLOAD_DIR`.
+
+For example, in test you might be scripting something
 ```groovy
 ChromeOptions options = new ChromeOptions();
 HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
-chromePrefs.put("download.default_directory", "/tmp/downloads");
+chromePrefs.put("download.default_directory", "/path/to/your/downloads");
 options.setExperimentalOption("prefs", chromePrefs);
 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
 WebDriver driver = new ChromeDriver(options);
 ```
 
+When running the container, you set the `SE_DOWNLOAD_DIR` and mount the host with that directory in container.
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" \
-  -e SE_DOWNLOAD_DIR=/tmp/downloads \
-  -v /home/ubuntu/files:/tmp/downloads \
+  -e SE_DOWNLOAD_DIR=/path/to/your/downloads \
+  -v /home/ubuntu/files:/path/to/your/downloads \
   selenium/standalone-chrome:4.16.1-20231212
 ```
 
-### Change ownership of the volume mount
+**Note:** The changing ownership when starting container is not supported well when both overriding `SE_DOWNLOAD_DIR` and running non-root (e.g. Podman) or specifying user ids different from `1200` (OpenShift arbitrary user ids).
 
-If you are using Linux and you need to change the ownership of the volume mount, you can set the `CHOWN_EXTRA` and `CHOWN_EXTRA_OPTS` (default is set `-R` - change recursively) environment variables
+In this case, you can use above workaround to create and set permissions for the directory on the host before mounting the volume.
 
+You also can run the container with `--user root` once to initialize and change ownership of the directory on the host, then run the container with non-root user again.
+
+For example, the first run with root user:
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" \
-  -v /home/ubuntu/my-certs:/etc/certs \
-  -e CHOWN_EXTRA=/etc/certs \
+  --user root \
+  -e SE_DOWNLOAD_DIR=/path/to/your/downloads \
+  -v /home/ubuntu/files:/path/to/your/downloads \
   selenium/standalone-chrome:4.16.1-20231212
 ```
 
-If you want a  new volume mount directory to be created and set ownership, you can set the `MKDIR_EXTRA` and `MKDIR_EXTRA_OPTS` (default is set `-p` - create a directory hierarchy) environment variables.
-
+Then stop it, rerun with switching to non-root user:
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" \
-  -v /home/ubuntu/my-nssdb:/home/seluser/.pki/nssdb \
-  -e MKDIR_EXTRA=/home/seluser/.pki/nssdb \
+  --user 4496 \
+  -e SE_DOWNLOAD_DIR=/path/to/your/downloads \
+  -v /home/ubuntu/files:/path/to/your/downloads \
   selenium/standalone-chrome:4.16.1-20231212
 ```
+Summarize the supported use case for changing ownership when starting container:
 
-Both `CHOWN_EXTRA` and `MKDIR_EXTRA` can be set to multiple directories by separating them with a `space` or `comma`. For example: `CHOWN_EXTRA=<some-dir>,<some-other-dir>`
+| User (uid)           | Mount `SE_DOWNLOAD_DIR` in container | Auto changing |
+|----------------------|--------------------------------------|---------------|
+| seluser (uid `1200`) | default `/home/seluser/Downloads`    | Yes           |
+| seluser (uid `1200`) | any `/path/to/downloads`             | Yes           |
+| any (uid != `1200`)  | default `/home/seluser/Downloads`    | Yes           |
+| any (uid != `1200`)  | any `/path/to/downloads`             | No            |
 

@@ -133,8 +133,7 @@ RUN /tmp/cs fetch --classpath --cache ${EXTERNAL_JARS} \
 RUN rm -fr /root/.cache/*
 
 # Change ownership of directories
-RUN chown -R "${SEL_USER}:${SEL_GID}" ${HOME} ${SEL_DIR} ${SEL_DIR}/assets ${EXTERNAL_JARS} ${SE_DOWNLOAD_DIR} /var/run/supervisor /var/log/supervisor \
-    && fix-permissions ${HOME} ${SEL_DIR} ${SEL_DIR}/assets ${EXTERNAL_JARS} ${SE_DOWNLOAD_DIR} /var/run/supervisor /var/log/supervisor
+RUN fix-permissions ${HOME} ${SEL_DIR} ${SEL_DIR}/assets ${EXTERNAL_JARS} ${SE_DOWNLOAD_DIR} /var/run/supervisor /var/log/supervisor
 
 #==========
 # Relaxing permissions for OpenShift and other non-sudo environments
@@ -145,6 +144,7 @@ RUN chmod g=u /etc/passwd
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
+VOLUME ${SE_DOWNLOAD_DIR}
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false

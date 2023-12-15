@@ -174,7 +174,7 @@ if __name__ == '__main__':
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
     run_in_docker_compose = RUN_IN_DOCKER_COMPOSE == 'true'
-    random_user_id = random.randint(2000, 65000)
+    random_user_id = "%s:%s" % (random.randint(2000, 65000), random.randint(2001, 65001))
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)
