@@ -42,6 +42,7 @@ if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_versio
   echo -e "\033[0;32m NEXT_CHART_VERSION -> ${next_chart_version}\033[0m"
   # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
   find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
+  find . \( -type d -name .git -prune \) -o -type f -name 'bug_report.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
 fi
 
 git diff | cat
