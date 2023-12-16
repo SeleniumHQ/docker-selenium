@@ -10,9 +10,10 @@ ARG GRPC_VERSION=1.57.1
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
+ARG SEL_GROUP=${SEL_USER}
 ARG SEL_PASSWD=secret
-ARG SEL_UID=1200
-ARG SEL_GID=1201
+ARG UID=1200
+ARG GID=1201
 
 USER root
 #================================================
@@ -62,44 +63,24 @@ RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
 # Configure environement
 #======================================
 ENV SEL_USER=${SEL_USER}
-ENV SEL_UID=${SEL_UID}
-ENV SEL_GID=${SEL_GID}
+ENV SEL_UID=${UID}
+ENV SEL_GID=${GID}
 ENV HOME=/home/${SEL_USER}
-ENV SEL_DIR=/opt/selenium
-ENV EXTERNAL_JARS=/external_jars
-ENV SE_DOWNLOAD_DIR=${HOME}/Downloads
-
-# Copy a script that we will use to correct permissions after running certain commands
-COPY fix-permissions /usr/local/bin/fix-permissions
-RUN chmod a+rx /usr/local/bin/fix-permissions
+ENV SEL_DOWNLOAD_DIR=${HOME}/Downloads
 
 #========================================
 # Add normal user and group with passwordless sudo
 #========================================
-RUN echo "auth requisite pam_deny.so" >> /etc/pam.d/su \
-    && sed -i.bak -e 's/^%admin/#%admin/' /etc/sudoers \
-    && sed -i.bak -e 's/^%sudo/#%sudo/' /etc/sudoers \
-    && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-RUN groupadd ${SEL_USER} \
-        --gid ${SEL_GID} \
-    && useradd ${SEL_USER} \
-        --no-log-init \
-        --create-home \
-        --gid ${SEL_GID} \
-        --shell /bin/bash \
-        --uid ${SEL_UID} \
-    && chmod g+w /etc/passwd \
-    && echo "${SEL_USER}:${SEL_PASSWD}" | chpasswd
-
-#======================================
-# Create directories needed
-#======================================
-RUN mkdir -p ${HOME}/.mozilla ${HOME}/.cache \
-      ${SEL_DIR} ${SEL_DIR}/assets \
-      /var/run/supervisor /var/log/supervisor \
-      ${EXTERNAL_JARS} \
-      ${SE_DOWNLOAD_DIR}
+RUN groupadd ${SEL_GROUP} \
+         --gid ${SEL_GID} \
+  && useradd ${SEL_USER} \
+         --create-home \
+         --gid ${SEL_GID} \
+         --shell /bin/bash \
+         --uid ${SEL_UID} \
+  && usermod -a -G sudo ${SEL_USER} \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
+  && echo "${SEL_USER}:${SEL_PASSWD}" | chpasswd
 
 #======================================
 # Add Grid check script
@@ -112,39 +93,42 @@ COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh /opt/bin/
 COPY supervisord.conf /etc
 
 #==========
-# Selenium
+# Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN touch ${SEL_DIR}/config.toml \
+RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} ${HOME}/.mozilla ${HOME}/.vnc \
+  && touch /opt/selenium/config.toml \
+  && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
+  && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
-    -O ${SEL_DIR}/selenium-server.jar \
-  && echo "${SEL_PASSWD}" > ${SEL_DIR}/initialPasswd
+    -O /opt/selenium/selenium-server.jar \
+  && echo "${SEL_PASSWD}" > /opt/selenium/initialPasswd \
+  && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm u:${SEL_USER}:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm g:${SEL_GROUP}:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor
 
 #=====
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
 RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
-  && chmod +x /tmp/cs
+  && chmod +x /tmp/cs \
+  && mkdir -p /external_jars \
+  && chmod -R 775 /external_jars
 
-RUN /tmp/cs fetch --classpath --cache ${EXTERNAL_JARS} \
+RUN /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
     io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \
-    io.grpc:grpc-netty:${GRPC_VERSION} > ${EXTERNAL_JARS}/.classpath.txt
+    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt
+
+RUN chmod 664 /external_jars/.classpath.txt
 RUN rm -fr /root/.cache/*
-
-# Change ownership of directories
-RUN fix-permissions ${HOME} ${SEL_DIR} ${SEL_DIR}/assets ${EXTERNAL_JARS} ${SE_DOWNLOAD_DIR} /var/run/supervisor /var/log/supervisor
-
-#==========
-# Relaxing permissions for OpenShift and other non-sudo environments
-#==========
-RUN chmod g=u /etc/passwd
 
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
-VOLUME ${SE_DOWNLOAD_DIR}
+VOLUME ${SEL_DOWNLOAD_DIR}
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
