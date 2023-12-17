@@ -9,6 +9,11 @@ chromeNode:
   extraEnvironmentVariables:
     - name: SE_OPTS
       value: "--enable-managed-downloads true"
+chromiumNode:
+  nameOverride: my-chromium-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
 # Configuration for edge nodes
 edgeNode:
   nameOverride: my-edge-name

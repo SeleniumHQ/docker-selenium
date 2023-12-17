@@ -12,8 +12,10 @@ echo "### Changelog" > release_notes.md
 git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" --reverse >> release_notes.md
 
 CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
+CHROMIUM_VERSION=$(docker run --rm selenium/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
 EDGE_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
 CHROMEDRIVER_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+CHROMIUMDRIVER_VERSION=$(docker run --rm selenium/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
 FIREFOX_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
@@ -29,6 +31,8 @@ echo "* Edge: ${EDGE_VERSION}" >> release_notes.md
 echo "* EdgeDriver: ${EDGEDRIVER_VERSION}" >> release_notes.md
 echo "* Firefox: ${FIREFOX_VERSION}" >> release_notes.md
 echo "* GeckoDriver: ${GECKODRIVER_VERSION}" >> release_notes.md
+echo "* Chromium: ${CHROMIUM_VERSION}" >> release_notes.md
+echo "* ChromiumDriver: ${CHROMIUMDRIVER_VERSION}" >> release_notes.md
 echo "* ffmpeg: ${FFMPEG_VERSION}" >> release_notes.md
 
 echo "" >> release_notes.md

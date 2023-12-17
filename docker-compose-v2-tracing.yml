@@ -50,6 +50,21 @@ services:
     ports:
       - "6902:5900"
 
+
+  chromium:
+    image: selenium/node-chromium:4.16.1-20231212
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_ENABLE_TRACING=true
+      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chromium
+    ports:
+      - "6903:5900"
+
   selenium-hub:
     image: selenium/hub:4.16.1-20231212
     ports:

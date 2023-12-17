@@ -17,7 +17,7 @@ def load_template(yaml_file):
 
 class ChartTemplateTests(unittest.TestCase):
     def test_set_affinity(self):
-        resources_name = ['selenium-chrome-node', 'selenium-distributor', 'selenium-edge-node', 'selenium-firefox-node',
+        resources_name = ['selenium-chrome-node', 'selenium-distributor', 'selenium-edge-node', 'selenium-firefox-node', 'selenium-chromium-node',
                 'selenium-event-bus', 'selenium-router', 'selenium-session-map', 'selenium-session-queue']
         count = 0
         logger.info(f"Assert affinity is set in global and nodes")

@@ -59,6 +59,13 @@ Chrome node fullname
 {{- end -}}
 
 {{/*
+Chromium node fullname
+*/}}
+{{- define "seleniumGrid.chromiumNode.fullname" -}}
+{{- default "selenium-chromium-node" .Values.chromiumNode.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Firefox node fullname
 */}}
 {{- define "seleniumGrid.firefoxNode.fullname" -}}

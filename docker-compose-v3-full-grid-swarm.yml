@@ -39,6 +39,17 @@ services:
       replicas: 1
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
+  chromium:
+    image: selenium/node-chromium:4.16.1-20231212
+    shm_size: 2gb
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    deploy:
+      replicas: 1
+    entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
+
   selenium-hub:
     image: selenium/hub:4.16.1-20231212
     ports:

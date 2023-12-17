@@ -7,6 +7,12 @@ updates:
     time: '08:00'
   open-pull-requests-limit: 99
 - package-ecosystem: docker
+  directory: "/StandaloneChromium"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
   directory: "/StandaloneFirefox"
   schedule:
     interval: daily
@@ -32,6 +38,12 @@ updates:
   open-pull-requests-limit: 99
 - package-ecosystem: docker
   directory: "/NodeChrome"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99
+- package-ecosystem: docker
+  directory: "/NodeChromium"
   schedule:
     interval: daily
     time: '08:00'

@@ -1,0 +1,40 @@
+{{- if and .Values.chromiumNode.enabled .Values.chromiumNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.chromiumNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: {{ template "seleniumGrid.chromiumNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.chromiumNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.chromiumNode.service.type }}
+  selector:
+    app: {{ template "seleniumGrid.chromiumNode.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.chromiumNode.service.type "LoadBalancer") (.Values.chromiumNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.chromiumNode.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-chromium
+      protocol: TCP
+      port: {{ .Values.chromiumNode.seleniumServicePort }}
+      targetPort: {{ .Values.chromiumNode.seleniumPort }}
+  {{- with .Values.chromiumNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.chromiumNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

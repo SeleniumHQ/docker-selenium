@@ -4,13 +4,13 @@ chromeNode:
   enabled: false
 # Configuration for chromium nodes
 chromiumNode:
-  enabled: false
+  nameOverride: my-chromium-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
 # Configuration for edge nodes
 edgeNode:
   enabled: false
 # Configuration for firefox nodes
 firefoxNode:
-  nameOverride: my-firefox-name
-  extraEnvironmentVariables:
-    - name: SE_OPTS
-      value: "--enable-managed-downloads true"
+  enabled: false

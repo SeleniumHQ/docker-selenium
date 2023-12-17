@@ -41,6 +41,10 @@ IMAGE_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
+
+    # Chromium Images
+    'NodeChromium': 'node-chromium',
+    'StandaloneChromium': 'standalone-chromium',
 }
 
 TEST_NAME_MAP = {
@@ -55,6 +59,10 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+
+    # Chromium Images
+    'NodeChromium': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
 
     # Chart Parallel Test
     'ParallelAutoscaling': 'ParallelAutoscalingTests'
@@ -165,7 +173,7 @@ def get_build_path(container):
 
 
 def standalone_browser_container_matches(container):
-    return re.match("(Standalone)(Chrome|Firefox|Edge)", container)
+    return re.match("(Standalone)(Chrome|Firefox|Edge|Chromium)", container)
 
 
 if __name__ == '__main__':

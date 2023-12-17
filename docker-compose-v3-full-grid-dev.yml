@@ -109,3 +109,15 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+  chromium:
+    image: selenium/node-chromium:4.16.1-20231212
+    shm_size: 2gb
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443

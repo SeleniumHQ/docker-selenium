@@ -41,6 +41,11 @@ jobs:
         with:
           name: chrome_video
           path: ./tests/videos/chrome_video.mp4
+      - name: Upload recorded Chromium video
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromium_video
+          path: ./tests/videos/chromium_video.mp4
       - name: Upload recorded Edge video
         uses: actions/upload-artifact@v4
         with:

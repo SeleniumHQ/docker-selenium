@@ -76,7 +76,7 @@ services:
       - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
-      - SE_ENABLE_TRACING=true      
+      - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-router
   chrome:
     image: selenium/node-chrome:4.16.1-20231212
@@ -88,7 +88,7 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chrome      
+      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chrome
   edge:
     image: selenium/node-edge:4.16.1-20231212
     shm_size: 2gb
@@ -98,7 +98,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true      
+      - SE_ENABLE_TRACING=true
       - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-edge
   firefox:
     image: selenium/node-firefox:4.16.1-20231212
@@ -110,4 +110,15 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-firefox      
+      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-firefox
+  chromium:
+    image: selenium/node-chromium:4.16.1-20231212
+    shm_size: 2gb
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_ENABLE_TRACING=true
+      - JAVA_OPTS=-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chromium

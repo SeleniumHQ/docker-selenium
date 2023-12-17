@@ -2,6 +2,9 @@
 # Configuration for chrome nodes
 chromeNode:
   enabled: false
+# Configuration for chromium nodes
+chromiumNode:
+  enabled: false
 # Configuration for edge nodes
 edgeNode:
   nameOverride: my-edge-name

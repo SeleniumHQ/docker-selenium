@@ -33,6 +33,16 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
+  chromium:
+    image: selenium/node-chromium:4.16.1-20231212
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
   chrome_video:
     image: selenium/video:ffmpeg-6.1-20231212
     volumes:
@@ -62,6 +72,16 @@ services:
     environment:
       - DISPLAY_CONTAINER_NAME=firefox
       - FILE_NAME=firefox_video.mp4
+
+  chromium_video:
+    image: selenium/video:ffmpeg-6.1-20231212
+    volumes:
+      - /tmp/videos:/videos
+    depends_on:
+      - chrome
+    environment:
+      - DISPLAY_CONTAINER_NAME=chromium
+      - FILE_NAME=chromium_video.mp4
 
   selenium-hub:
     image: selenium/hub:4.16.1-20231212

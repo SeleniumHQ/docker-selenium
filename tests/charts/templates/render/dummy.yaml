@@ -48,6 +48,9 @@ components:
 chromeNode:
   affinity: *affinity
 
+chromiumNode:
+  affinity: *affinity
+
 firefoxNode:
     affinity: *affinity
 

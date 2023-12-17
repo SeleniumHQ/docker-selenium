@@ -4,6 +4,7 @@
 configs = [
     "selenium/standalone-firefox:4.16.1-20231212", '{"browserName": "firefox", "platformName": "linux"}',
     "selenium/standalone-chrome:4.16.1-20231212", '{"browserName": "chrome", "platformName": "linux"}',
+    "selenium/standalone-chromium:4.16.1-20231212", '{"browserName": "chromium", "platformName": "linux"}',
     "selenium/standalone-edge:4.16.1-20231212", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 

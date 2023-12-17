@@ -796,6 +796,138 @@ edgeNode:
   # It should be set using the --set-json option
   sidecars: []
 
+# Configuration for chromium nodes
+chromiumNode:
+  # Enable chromium nodes
+  enabled: true
+
+  # NOTE: Only used when autoscaling.enabled is false
+  # Enable creation of Deployment
+  # true (default) - if you want long living pods
+  # false - for provisioning your own custom type such as Jobs
+  deploymentEnabled: true
+
+  # Number of chromium nodes
+  replicas: 1
+  # imageRegistry: selenium
+  # Image of chromium nodes
+  imageName: node-chromium
+  # Image of chromium nodes (this overwrites global.seleniumGrid.nodesImageTag)
+  # imageTag: 4.16.1-20231212
+  # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+
+  # Port list to enable on container
+  ports:
+    - 5555
+  # Selenium port (spec.ports[0].targetPort in kubernetes service)
+  seleniumPort: 5900
+  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
+  seleniumServicePort: 6900
+  # Annotations for chromium-node pods
+  annotations: {}
+  # Labels for chromium-node pods
+  labels: {}
+  # Resources for chromium-node container
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "1"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+  # SecurityContext for chromium-node container
+  securityContext: {}
+  # Tolerations for chromium-node pods
+  tolerations: []
+  # Node selector for chromium-node pods
+  nodeSelector: {}
+  # Custom host aliases for chromium nodes
+  hostAliases:
+  # - ip: "198.51.100.0"
+  #   hostnames:
+  #     - "example.com"
+  #     - "example.net"
+  # - ip: "203.0.113.0"
+  #   hostnames:
+  #     - "example.org"
+  # Custom environment variables for chromium nodes
+  extraEnvironmentVariables:
+  # - name: SE_JAVA_OPTS
+  #   value: "-Xmx512m"
+  # - name:
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: secret-name
+  #       key: secret-key
+  # Custom environment variables by sourcing entire configMap, Secret, etc. for chromium nodes
+  extraEnvFrom:
+  # - configMapRef:
+  #   name: proxy-settings
+  # - secretRef:
+  #   name: mysecret
+  # Service configuration
+  service:
+    # Create a service for node
+    enabled: true
+    # Service type
+    type: ClusterIP
+    # Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+    loadBalancerIP: ""
+    # Extra ports exposed in node service
+    ports:
+    # - name: node-port
+    #   port: 5555
+    #   targetPort: 5555
+    # Custom annotations for service
+    annotations: {}
+  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
+  dshmVolumeSizeLimit: 1Gi
+  # Priority class name for chromium-node pods
+  priorityClassName: ""
+
+  # Wait for pod startup
+  startupProbe: {}
+    # httpGet:
+    #   path: /status
+    #   port: 5555
+  # failureThreshold: 120
+  # periodSeconds: 5
+
+  # Liveness probe settings
+  livenessProbe: {}
+
+  # Time to wait for pod termination
+  terminationGracePeriodSeconds: 30
+  lifecycle: {}
+  extraVolumeMounts: []
+  # - name: my-extra-volume
+  #   mountPath: /home/seluser/Downloads
+
+  extraVolumes: []
+  # - name: my-extra-volume
+  #   emptyDir: {}
+  # - name: my-extra-volume-from-pvc
+  #   persistentVolumeClaim:
+  #     claimName: my-pv-claim
+
+  # Override the scaled options for chromium nodes
+  # scaledOptions:
+  # scaledJobOptions:
+  # scaledObjectOptions:
+  hpa:
+    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    browserName: chrome
+    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
+    unsafeSsl: 'true'  # Optional
+
+  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It means it will add a new container to the deployment itself.
+  # It should be set using the --set-json option
+  sidecars: []
+
 videoRecorder:
   enabled: false
   # imageRegistry: selenium
