@@ -47,6 +47,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.loggingConfigMap.name }}
             {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
             {{- end }}

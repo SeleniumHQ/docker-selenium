@@ -67,6 +67,29 @@ class ChartTemplateTests(unittest.TestCase):
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
+    def test_log_level_set_to_logging_config_map(self):
+        resources_name = ['selenium-chrome-node', 'selenium-distributor', 'selenium-edge-node', 'selenium-firefox-node',
+                          'selenium-event-bus', 'selenium-router', 'selenium-session-map', 'selenium-session-queue']
+        logger.info(f"Assert log level value is set to logging ConfigMap")
+        count_config = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] == 'selenium-logging-config' and doc['kind'] == 'ConfigMap':
+                self.assertTrue(doc['data']['SE_LOG_LEVEL'] == 'FINE')
+                count_config += 1
+        self.assertEqual(count_config, 1, "No logging ConfigMap found")
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                is_present = False
+                logger.info(f"Assert logging ConfigMap is set to envFrom in resource {doc['metadata']['name']}")
+                list_env_from = doc['spec']['template']['spec']['containers'][0]['envFrom']
+                for env in list_env_from:
+                    if env['configMapRef']['name'] == 'selenium-logging-config':
+                        is_present = True
+                self.assertTrue(is_present, "envFrom doesn't contain logging ConfigMap")
+                count += 1
+        self.assertEqual(count, len(resources_name), "Logging ConfigMap is not present in expected resources")
+
 if __name__ == '__main__':
     failed = False
     try:

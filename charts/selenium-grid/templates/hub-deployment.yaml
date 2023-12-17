@@ -76,10 +76,12 @@ spec:
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
-        {{- with .Values.hub.extraEnvFrom }}
           envFrom:
+            - configMapRef:
+                name: {{ .Values.loggingConfigMap.name }}
+          {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-        {{- end }}
+          {{- end }}
         {{- with .Values.hub.extraVolumeMounts }}
           volumeMounts:
             {{- tpl (toYaml .) $ | nindent 12 }}

@@ -140,6 +140,7 @@ For now, global configuration supported is:
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
 | `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally            |
+| `global.seleniumGrid.logLevel`        | `INFO`                | Set log level for all components      |
 
 This table contains the configuration parameters of the chart and their default values:
 
