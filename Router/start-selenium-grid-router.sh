@@ -54,6 +54,11 @@ if [ ! -z "$SE_ROUTER_PORT" ]; then
   PORT_CONFIG="--port ${SE_ROUTER_PORT}"
 fi
 
+if [ ! -z "$SE_LOG_LEVEL" ]; then
+  echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
+  SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then

@@ -36,6 +36,11 @@ if [ ! -z "$SE_NODE_SESSION_TIMEOUT" ]; then
   echo "Appending Selenium node session timeout via SE_OPTS: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_LOG_LEVEL" ]; then
+  echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
+  SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
+fi
+
 if [ "$GENERATE_CONFIG" = true ]; then
   echo "Generating Selenium Config"
   /opt/bin/generate_config

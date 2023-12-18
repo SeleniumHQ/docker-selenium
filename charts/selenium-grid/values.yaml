@@ -10,6 +10,8 @@ global:
     videoImageTag: ffmpeg-6.1-20231212
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
+    # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
+    logLevel: INFO
 
 # Basic auth settings for Selenium Grid
 basicAuth:
@@ -65,6 +67,12 @@ busConfigMap:
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
   name: selenium-node-config
+  # Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
+loggingConfigMap:
+  name: selenium-logging-config
   # Custom annotations for configmap
   annotations: {}
 

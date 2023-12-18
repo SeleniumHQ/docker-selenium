@@ -1,6 +1,7 @@
 # This is dummy values file for chart template testing
 global:
   seleniumGrid:
+    logLevel: FINE
     affinity: &affinity
       podAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:

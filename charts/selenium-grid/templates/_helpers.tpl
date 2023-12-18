@@ -207,6 +207,8 @@ template:
               name: {{ .Values.busConfigMap.name }}
           - configMapRef:
               name: {{ .Values.nodeConfigMap.name }}
+          - configMapRef:
+              name: {{ .Values.loggingConfigMap.name }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}

@@ -19,6 +19,11 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_LOG_LEVEL" ]; then
+  echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
+  SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
