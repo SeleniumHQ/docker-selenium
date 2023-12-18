@@ -43,6 +43,7 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && unzip /tmp/msedgedriver_linux64.zip -d /opt/selenium \
   && rm /tmp/msedgedriver_linux64.zip \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
+  && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
 
 USER ${SEL_UID}

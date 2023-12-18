@@ -114,8 +114,7 @@ RUN  wget -nv -O noVNC.zip \
 RUN chmod +x /dev/shm
 
 # Creating base directory for Xvfb
-RUN mkdir -p /tmp/.X11-unix && \
-    fix-permissions /tmp/.X11-unix
+RUN mkdir -p /tmp/.X11-unix
 
 #==============================
 # Generating the VNC password using initial password in Base image
@@ -123,9 +122,15 @@ RUN mkdir -p /tmp/.X11-unix && \
 #==============================
 
 RUN mkdir -p ${HOME}/.vnc \
-    && x11vnc -storepasswd $(cat ${SEL_DIR}/initialPasswd) ${HOME}/.vnc/passwd \
-    && chown -R "${SEL_UID}:${SEL_GID}" ${HOME}/.vnc \
-    && fix-permissions ${HOME}/.vnc
+    && x11vnc -storepasswd $(cat /opt/selenium/initialPasswd) ${HOME}/.vnc/passwd \
+    && chown -R "${SEL_USER}:${SEL_GROUP}" ${HOME}/.vnc
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN chmod -R 775 ${HOME} /tmp/.X11-unix \
+  && chgrp -R 0 ${HOME} /tmp/.X11-unix \
+  && chmod -R g=u ${HOME} /tmp/.X11-unix
 
 #===================================================
 # Run the following commands as non-privileged user
