@@ -10,6 +10,10 @@ dependencies:
   version: 2.12.1
   name: keda
   condition: autoscaling.enabled
+- repository: https://kubernetes.github.io/ingress-nginx
+  version: 4.8.3
+  name: ingress-nginx
+  condition: ingress-nginx.enabled
 maintainers:
   - name: SeleniumHQ
     email: selenium-developers@googlegroups.com

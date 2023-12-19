@@ -341,28 +341,87 @@ template:
 Get the url of the grid. If the external url can be figured out from the ingress use that, otherwise the cluster internal url
 */}}
 {{- define "seleniumGrid.url" -}}
-{{- if and .Values.ingress.enabled .Values.ingress.hostname (ne .Values.ingress.hostname "selenium-grid.local") -}}
-http{{if .Values.ingress.tls}}s{{end}}://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{.Values.ingress.hostname}}
+{{- $url := printf "%s://%s%s%s%s" (include "seleniumGrid.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.url.host" .) (include "seleniumGrid.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- $url }}
+{{- end -}}
+
+{{- define "seleniumGrid.url.schema" -}}
+{{- $schema := "http" -}}
+{{- if .Values.ingress.enabled -}}
+  {{- if .Values.ingress.tls -}}
+    {{- $schema = "https" -}}
+  {{- end -}}
+{{- end -}}
+{{- $schema }}
+{{- end -}}
+
+{{- define "seleniumGrid.url.basicAuth" -}}
+{{- $basicAuth := "" -}}
+{{- if eq .Values.basicAuth.enabled true -}}
+  {{- $basicAuth = printf "%s:%s@" .Values.basicAuth.username (.Values.basicAuth.password | toString) -}}
+{{- end -}}
+{{- $basicAuth }}
+{{- end -}}
+
+{{- define "seleniumGrid.url.host" -}}
+{{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
+{{- if .Values.ingress.enabled -}}
+  {{- if and ( empty .Values.ingress.hostname) (not (empty .Values.global.K8S_PUBLIC_IP)) -}}
+    {{- $host = .Values.global.K8S_PUBLIC_IP -}}
+  {{- else if and .Values.ingress.hostname (ne .Values.ingress.hostname "selenium-grid.local") -}}
+    {{- $host = .Values.ingress.hostname -}}
+  {{- end -}}
+{{- else if not (empty .Values.global.K8S_PUBLIC_IP) -}}
+  {{- $host = .Values.global.K8S_PUBLIC_IP -}}
+{{- end -}}
+{{- $host }}
+{{- end -}}
+
+{{- define "seleniumGrid.url.port" -}}
+{{- $port := ":4444" -}}
+{{- if .Values.ingress.enabled -}}
+  {{- if or (ne (.Values.ingress.ports.http | toString) "80") (ne (.Values.ingress.ports.https | toString) "443") -}}
+    {{- $port = printf ":%s" (ternary (.Values.ingress.ports.http | toString) (.Values.ingress.ports.https | toString) (eq (include "seleniumGrid.url.schema" .) "http")) -}}
+  {{- else -}}
+    {{- $port = "" -}}
+  {{- end -}}
 {{- else -}}
-http://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}
-{{- end }}
+  {{- if .Values.isolateComponents -}}
+    {{- if and (eq .Values.components.router.serviceType "NodePort") .Values.components.router.nodePort -}}
+      {{- $port = printf ":%s" (.Values.components.router.nodePort | toString) -}}
+    {{- end -}}
+  {{- else -}}
+    {{- if and (eq .Values.hub.serviceType "NodePort") .Values.hub.nodePort -}}
+      {{- $port = printf ":%s" (.Values.hub.nodePort | toString) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $port }}
 {{- end -}}
 
 {{- define "seleniumGrid.url.subPath" -}}
 {{- $subPath := "/" -}}
-{{ if $.Values.isolateComponents }}
+{{- if $.Values.isolateComponents -}}
   {{- $subPath = default $subPath $.Values.components.subPath -}}
 {{- else -}}
   {{- $subPath = default $subPath $.Values.hub.subPath -}}
 {{- end -}}
-{{ $subPath }}
+{{- $subPath }}
 {{- end -}}
 
 {{/*
 Graphql Url of the hub or the router
 */}}
 {{- define "seleniumGrid.graphqlURL" -}}
-http://{{- if eq .Values.basicAuth.enabled true}}{{ .Values.basicAuth.username}}:{{ .Values.basicAuth.password}}@{{- end}}{{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}.{{ .Release.Namespace }}:{{ $.Values.components.router.port }}/graphql
+{{- printf "http://%s%s%s/graphql" (include "seleniumGrid.url.basicAuth" .) (printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $) (.Release.Namespace)) (printf ":%s" ($.Values.isolateComponents | ternary ($.Values.components.router.port | toString) ($.Values.hub.port | toString))) -}}
+{{- end -}}
+
+{{/*
+Graphql unsafeSsl of the hub or the router
+*/}}
+{{- define "seleniumGrid.graphqlURL.unsafeSsl" -}}
+{{- $unsafeSsl := printf "%s" (ternary "false" "true" (contains (include "seleniumGrid.graphqlURL" .) "https")) -}}
+{{- $unsafeSsl }}
 {{- end -}}
 
 {{/*

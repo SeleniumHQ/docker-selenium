@@ -2,6 +2,27 @@
 
 This chart enables the creation of a Selenium Grid Server in Kubernetes.
 
+## Contents
+<!-- TOC -->
+* [Selenium-Grid Helm Chart](#selenium-grid-helm-chart)
+  * [Contents](#contents)
+  * [Installing the chart](#installing-the-chart)
+  * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
+    * [Settings when scaling with deployments](#settings-when-scaling-with-deployments-)
+  * [Updating Selenium-Grid release](#updating-selenium-grid-release)
+  * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
+  * [Ingress Configuration](#ingress-configuration)
+  * [References values](#references-values)
+  * [Configuration](#configuration)
+    * [Configuration global](#configuration-global)
+      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8spublicip)
+    * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
+    * [Configuration of KEDA](#configuration-of-keda)
+    * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
+    * [Configuration for Selenium-Hub](#configuration-for-selenium-hub)
+    * [Configuration for isolated components](#configuration-for-isolated-components)
+<!-- TOC -->
+
 ## Installing the chart
 
 If you want to install the latest master version of Selenium Grid onto your cluster you can do that by using the helm charts repository located at https://www.selenium.dev/docker-selenium.
@@ -127,12 +148,20 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 nginx.ingress.kubernetes.io/proxy-buffers-number
 ```
 
+## Reference values
+
+There are some values file that used to test and deploy Selenium Grid chart. You can find them in
+- [tests/charts/refValues](../../tests/charts/refValues).
+- [tests/charts/ci](../../tests/charts/ci).
+
 ## Configuration
 
+### Configuration global
 For now, global configuration supported is:
 
 | Parameter                             | Default               | Description                           |
 |---------------------------------------|-----------------------|---------------------------------------|
+| `global.K8S_PUBLIC_IP`                | `""`                  | Public IP of the host running K8s     |
 | `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images  |
 | `global.seleniumGrid.imageTag`        | `4.16.1-20231212`     | Image tag for all selenium components |
 | `global.seleniumGrid.nodesImageTag`   | `4.16.1-20231212`     | Image tag for browser's nodes         |
@@ -142,6 +171,32 @@ For now, global configuration supported is:
 | `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally            |
 | `global.seleniumGrid.logLevel`        | `INFO`                | Set log level for all components      |
 
+#### Configuration `global.K8S_PUBLIC_IP`
+
+This is the public IP of the host running Kubernetes cluster. Mainly, it is used to construct the URL for the Selenium Grid (Hub or Router) can be accessed from the outside of the cluster for Node register, Grid UI, RemoteWebDriver, etc.
+- Ingress is enabled without setting `ingress.hostname`. All the services will be exposed via the public IP is set in `K8S_PUBLIC_IP`.
+- Using NodePort to expose the services. All the services will be exposed via the public IP is set in `K8S_PUBLIC_IP`.
+- Using LoadBalancer to expose the services. All the services will be exposed via the LB External IP is set in `K8S_PUBLIC_IP`.
+
+For example:
+```yaml
+global:
+  K8S_PUBLIC_IP: "10.10.10.10"
+ingress:
+    enabled: true
+    hostname: ""
+hub:
+    subPath: "/selenium"
+    serviceType: NodePort
+```
+```
+# Source: selenium-grid/templates/node-configmap.yaml
+
+SE_NODE_GRID_URL: 'http://admin:admin@10.10.10.10/selenium'
+```
+Besides that, from the outside of the cluster, you can access via NodePort http://10.10.10.10:30444/selenium
+
+### Configuration of Selenium Grid chart
 This table contains the configuration parameters of the chart and their default values:
 
 | Parameter                                     | Default                                     | Description                                                                                                                |
@@ -163,6 +218,8 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.nginx.proxyTimeout`                  | `3600`                                      | Value is used to set for NGINX ingress annotations related to proxy timeout                                                |
 | `ingress.nginx.proxyBuffer.size`              | `512M`                                      | Value is used to set for NGINX ingress annotations on size of the buffer proxy_buffer_size used for reading                |
 | `ingress.nginx.proxyBuffer.number`            | `4`                                         | Value is used to set for NGINX ingress annotations on number of the buffers in proxy_buffers used for reading              |
+| `ingress.ports.http`                          | `80`                                        | Port to expose for HTTP                                                                                                    |
+| `ingress.ports.https`                         | `443`                                       | Port to expose for HTTPS                                                                                                   |
 | `ingress.hostname`                            | ``                                          | Default host for the ingress resource                                                                                      |
 | `ingress.path`                                | `/`                                         | Default host path for the ingress resource                                                                                 |
 | `ingress.pathType`                            | `Prefix`                                    | Default path type for the ingress resource                                                                                 |
@@ -322,14 +379,20 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.s3.extraEnvFrom`               | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
 | `videoRecorder.s3.extraVolumeMounts`          | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
 | `customLabels`                                | `{}`                                        | Custom labels for k8s resources                                                                                            |
+| `ingress-nginx.enabled`                       | `false`                                     | Enable the dependency chart Ingress controller for Kubernetes (https://github.com/kubernetes/ingress-nginx)                |
 
 
 ### Configuration of KEDA
 
-If you are setting `autoscaling.enabled` to `true` KEDA is installed and can be configured with
+If you are setting `autoscaling.enabled` to `true`, chart KEDA is installed and can be configured with
 values with the prefix `keda`. So you can for example set `keda.prometheus.metricServer.enabled` to
 `true` to enable the metrics server for KEDA.  See
 https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
+
+### Configuration of Ingress NGINX Controller
+
+If you are setting `ingress-nginx.enabled` to `true`, chart Ingress NGINX Controller is installed and can be configured with
+values with the prefix `ingress-nginx`. See https://github.com/kubernetes/ingress-nginx for more details.
 
 ### Configuration for Selenium-Hub
 
@@ -345,8 +408,11 @@ You can configure the Selenium Hub with these values:
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                                          |
 | `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                                               |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                                  |
+| `hub.publishNodePort`           | `31442`           | NodePort where events are published                                                                                                              |
 | `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                                               |
+| `hub.subscribeNodePort`         | `31443`           | NodePort where to subscribe for events                                                                                                           |
 | `hub.port`                      | `4444`            | Selenium Hub port                                                                                                                                |
+| `hub.nodePort`                  | `31444`           | Selenium Hub NodePort                                                                                                                            |
 | `hub.livenessProbe`             | `See values.yaml` | Liveness probe settings                                                                                                                          |
 | `hub.readinessProbe`            | `See values.yaml` | Readiness probe settings                                                                                                                         |
 | `hub.tolerations`               | `[]`              | Tolerations for selenium-hub pods                                                                                                                |
@@ -378,6 +444,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.imagePullSecret`          | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.router.annotations`              | `{}`              | Custom annotations for router pod                                                                                                                |
 | `components.router.port`                     | `4444`            | Router port                                                                                                                                      |
+| `components.router.nodePort`                 | `30444`           | Router NodePort                                                                                                                                  |
 | `components.router.livenessProbe`            | `See values.yaml` | Liveness probe settings                                                                                                                          |
 | `components.router.readinessProbe`           | `See values.yaml` | Readiness probe settings                                                                                                                         |
 | `components.router.resources`                | `{}`              | Resources for router pod                                                                                                                         |
@@ -396,6 +463,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.imagePullSecret`     | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.distributor.annotations`         | `{}`              | Custom annotations for Distributor pod                                                                                                           |
 | `components.distributor.port`                | `5553`            | Distributor port                                                                                                                                 |
+| `components.distributor.nodePort`            | `30553`           | Distributor NodePort                                                                                                                             |
 | `components.distributor.resources`           | `{}`              | Resources for Distributor pod                                                                                                                    |
 | `components.distributor.securityContext`     | `See values.yaml` | Security context for Distributor pod                                                                                                             |
 | `components.distributor.serviceType`         | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
@@ -411,8 +479,11 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.imagePullSecret`        | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.eventBus.annotations`            | `{}`              | Custom annotations for Event Bus pod                                                                                                             |
 | `components.eventBus.port`                   | `5557`            | Event Bus port                                                                                                                                   |
+| `components.eventBus.nodePort`               | `30557`           | Event Bus NodePort                                                                                                                               |
 | `components.eventBus.publishPort`            | `4442`            | Port where events are published                                                                                                                  |
+| `components.eventBus.publishNodePort`        | `30442`           | NodePort where events are published                                                                                                              |
 | `components.eventBus.subscribePort`          | `4443`            | Port where to subscribe for events                                                                                                               |
+| `components.eventBus.subscribeNodePort`      | `30443`           | NodePort where to subscribe for events                                                                                                           |
 | `components.eventBus.resources`              | `{}`              | Resources for event-bus pod                                                                                                                      |
 | `components.eventBus.securityContext`        | `See values.yaml` | Security context for event-bus pod                                                                                                               |
 | `components.eventBus.serviceType`            | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
@@ -442,6 +513,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.imagePullSecret`    | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.sessionQueue.annotations`        | `{}`              | Custom annotations for Session Queue pod                                                                                                         |
 | `components.sessionQueue.port`               | `5559`            | Session Queue Port                                                                                                                               |
+| `components.sessionQueue.nodePort`           | `30559`           | Session Queue NodePort                                                                                                                           |
 | `components.sessionQueue.resources`          | `{}`              | Resources for Session Queue pod                                                                                                                  |
 | `components.sessionQueue.securityContext`    | `See values.yaml` | Security context for Session Queue pod                                                                                                           |
 | `components.sessionQueue.serviceType`        | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |

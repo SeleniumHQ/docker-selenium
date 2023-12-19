@@ -38,13 +38,6 @@ kind create cluster --wait ${WAIT_TIMEOUT} --name ${CLUSTER_NAME} --config tests
 echo "Install KEDA core on kind kubernetes cluster"
 kubectl apply --server-side -f https://github.com/kedacore/keda/releases/download/v2.12.1/keda-2.12.1-core.yaml
 
-echo "Install ingress-nginx on kind kubernetes cluster"
-kubectl apply -n ${INGRESS_NAMESPACE} -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
-kubectl wait --namespace ${INGRESS_NAMESPACE} \
-  --for=condition=ready pod \
-  --selector=app.kubernetes.io/component=controller \
-  --timeout=${WAIT_TIMEOUT}
-
 echo "Load built local Docker Images into Kind Cluster"
 image_list=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${NAMESPACE} | grep ${VERSION})
 for image in $image_list; do

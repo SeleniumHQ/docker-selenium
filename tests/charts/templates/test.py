@@ -51,7 +51,7 @@ class ChartTemplateTests(unittest.TestCase):
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
                 logger.info(f"Assert subPath is appended to node grid url")
-                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'http://admin:admin@selenium-router.default:4444/selenium')
+                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'http://sysadmin:strongPassword@10.10.10.10:8081/selenium')
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
 
@@ -89,6 +89,17 @@ class ChartTemplateTests(unittest.TestCase):
                 self.assertTrue(is_present, "envFrom doesn't contain logging ConfigMap")
                 count += 1
         self.assertEqual(count, len(resources_name), "Logging ConfigMap is not present in expected resources")
+
+    def test_node_port_set_when_service_type_is_node_port(self):
+        single_node_port = {'selenium-distributor': 30553, 'selenium-router': 30444, 'selenium-session-queue': 30559}
+        count = 0
+        logger.info(f"Assert NodePort is set to components service")
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in single_node_port.keys() and doc['kind'] == 'Service':
+                logger.info(f"Assert NodePort is set to service {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['ports'][0]['nodePort'] == single_node_port[doc['metadata']['name']], f"Service {doc['metadata']['name']} with expect NodePort {single_node_port[doc['metadata']['name']]} is not found")
+                count += 1
+        self.assertEqual(count, len(single_node_port.keys()), "Number of services with NodePort is not correct")
 
 if __name__ == '__main__':
     failed = False

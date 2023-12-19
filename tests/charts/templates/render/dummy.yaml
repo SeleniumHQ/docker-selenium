@@ -1,5 +1,6 @@
 # This is dummy values file for chart template testing
 global:
+  K8S_PUBLIC_IP: "10.10.10.10"
   seleniumGrid:
     logLevel: FINE
     affinity: &affinity
@@ -12,6 +13,11 @@ global:
                   values:
                     - selenium
             topologyKey: "kubernetes.io/hostname"
+
+basicAuth:
+  username: sysadmin
+  password: strongPassword
+
 ingress:
   nginx:
     proxyTimeout: 360 # Set different proxy timout
@@ -25,6 +31,9 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600" # Override default key
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600" # Override default key
   hostname: ""
+  ports:
+    http: 8081
+    https: 8443
   paths:
     - path: /selenium(/|$)(.*)
       pathType: ImplementationSpecific
@@ -45,6 +54,16 @@ isolateComponents: true
 
 components:
   subPath: *gridAppRoot
+  router:
+    serviceType: NodePort
+  distributor:
+    serviceType: NodePort
+  eventBus:
+    serviceType: NodePort
+  sessionQueue:
+    serviceType: NodePort
+  sessionMap:
+    serviceType: NodePort
 
 chromeNode:
   affinity: *affinity

@@ -23,4 +23,7 @@ spec:
       protocol: TCP
       port: {{ .Values.components.distributor.port }}
       targetPort: {{ .Values.components.distributor.port }}
+      {{- if and (eq .Values.components.distributor.serviceType "NodePort") .Values.components.distributor.nodePort }}
+      nodePort: {{ .Values.components.distributor.nodePort }}
+      {{- end }}
 {{- end }}
