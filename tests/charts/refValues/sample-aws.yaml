@@ -1,18 +1,12 @@
-# README: This is a sample values for chart deployment in Minikube
-# Chart dependency ingress-nginx is installed together by enabling `ingress-nginx.enabled`
+# README: This is a sample values for chart deployment in EKS AWS
+# Chart dependency ingress-nginx is installed together by enabling `ingress-nginx.enabled`. On AWS, ingress-nginx is installed as a Classic LoadBalancer
 # Chart dependency keda is installed together by enabling `autoscaling.enable`
-# Enabled ingress without hostname, set the subPath `/selenium`. Set K8S_PUBLIC_IP point to the public host IP, where Minikube is running
-# `ingress-nginx.controller.hostNetwork` is set to true to allow access from outside the cluster via http://<K8S_PUBLIC_IP>/selenium
-# Components serviceType is set to NodePort to allow access from outside the cluster via K8S_PUBLIC_IP and NodePort http://<K8S_PUBLIC_IP>:30444/selenium
-# Use this reference values to deploy e.g. `helm upgrade --install test --values tests/charts/refValues/simplex-minikube.yaml docker-selenium/selenium-grid --version <0.26.3_onwards>`
+# Enabled ingress with hostname, set the subPath `/selenium`. Grid is accessible via http://my.hostname/selenium
+# Use this reference values to deploy e.g. `helm upgrade --install test --values tests/charts/refValues/sample-aws.yaml docker-selenium/selenium-grid --version <0.26.3_onwards>`
 global:
-  K8S_PUBLIC_IP: "10.10.10.10" # Replace with your public IP
+  K8S_PUBLIC_IP: ""
   seleniumGrid:
-    logLevel: INFO
-#    imageRegistry: selenium
-#    imageTag: latest
-#    nodesImageTag: latest
-#    videoImageTag: latest
+    logLevel: INFO # Change to FINE when you want to debug the issue
 
 ingress:
   enabled: true
@@ -22,7 +16,7 @@ ingress:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
   ingressClassName: nginx
-  hostname: ""
+  hostname: "aws.ndviet.org" # Replace with your hostname
   paths:
     - path: /selenium(/|$)(.*)
       pathType: ImplementationSpecific
@@ -33,7 +27,7 @@ ingress:
             number: 4444
 
 basicAuth:
-  enabled: true
+  enabled: false
 
 isolateComponents: true
 
@@ -54,12 +48,9 @@ autoscaling:
 
 hub:
   subPath: *gridAppRoot
-  serviceType: NodePort
 
 components:
   subPath: *gridAppRoot
-  router:
-    serviceType: NodePort
 
 chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariablesNodes
@@ -89,8 +80,3 @@ videoRecorder:
 
 ingress-nginx:
   enabled: true
-  controller:
-    hostNetwork: true
-    kind: DaemonSet
-    service:
-      type: ClusterIP
