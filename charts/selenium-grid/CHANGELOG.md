@@ -1,3 +1,18 @@
+## :heavy_check_mark: selenium-grid-0.26.3
+
+- Chart is using image tag 4.16.1-20231219
+
+### Added
+- feat(chart): Simplify to access Selenium Grid from outside of Kubernetes (#2073) :: Viet Nguyen Duc
+- feat(chart): Simplify to change log level in Kubernetes (#2072) :: Viet Nguyen Duc
+
+### Fixed
+- bug: ENV variable SE_VNC_PASSWORD contains sensitive data (#2061) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.26.2
 
 - Chart is using image tag 4.16.1-20231212
