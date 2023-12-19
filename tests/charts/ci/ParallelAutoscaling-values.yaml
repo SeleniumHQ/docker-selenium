@@ -31,10 +31,3 @@ ingress:
           name: '{{ template "seleniumGrid.hub.fullname" $ }}'
           port:
             number: 4444
-    - path: /(/?)(session/.*/se/vnc)
-      pathType: ImplementationSpecific
-      backend:
-        service:
-          name: '{{ template "seleniumGrid.hub.fullname" $ }}'
-          port:
-            number: 4444

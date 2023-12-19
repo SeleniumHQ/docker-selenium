@@ -1,4 +1,8 @@
 global:
+  # Public IP of the host running Kubernetes cluster.
+  # This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set.
+  # This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset
+  K8S_PUBLIC_IP: ""
   seleniumGrid:
     # Image registry for all selenium components
     imageRegistry: selenium
@@ -44,6 +48,9 @@ ingress:
     proxyBuffer:
       size: 512M
       number: 4
+  ports:
+    http: 80
+    https: 443
   # Custom annotations for ingress resource
   annotations: {}
   # Default host for the ingress resource
@@ -96,6 +103,7 @@ components:
     annotations: {}
     # Router port
     port: 4444
+    nodePort: 30444
     # Liveness probe settings
     livenessProbe:
       enabled: true
@@ -148,6 +156,7 @@ components:
     annotations: {}
     # Distributor port
     port: 5553
+    nodePort: 30553
     # Resources for Distributor container
     resources: {}
     # SecurityContext for Distributor container
@@ -180,10 +189,13 @@ components:
     annotations: {}
     # Event Bus port
     port: 5557
+    nodePort: 30557
     # Port where events are published
     publishPort: 4442
+    publishNodePort: 30442
     # Port where to subscribe for events
     subscribePort: 4443
+    subscribeNodePort: 30443
     # Resources for event-bus container
     resources: {}
     # SecurityContext for event-bus container
@@ -246,6 +258,7 @@ components:
     # Custom annotations for Session Queue pods
     annotations: {}
     port: 5559
+    nodePort: 30559
     # Resources for Session Queue container
     resources: {}
     # SecurityContext for Session Queue container
@@ -299,10 +312,13 @@ hub:
   labels: {}
   # Port where events are published
   publishPort: 4442
+  publishNodePort: 31442
   # Port where to subscribe for events
   subscribePort: 4443
+  subscribeNodePort: 31443
   # Selenium Hub port
   port: 4444
+  nodePort: 31444
   # Liveness probe settings
   livenessProbe:
     enabled: true
@@ -387,7 +403,8 @@ autoscaling:
   # see https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
     scalingStrategy:
-      strategy: accurate
+      # Change this to "accurate" when the calculation problem is fixed
+      strategy: default
     # Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # Number of Failed jobs should be kept (for troubleshooting purposes)
@@ -535,8 +552,9 @@ chromeNode:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
+    sessionBrowserName: 'chrome'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl: 'true'  # Optional
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -668,6 +686,8 @@ firefoxNode:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
+    sessionBrowserName: 'firefox'
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -798,6 +818,7 @@ edgeNode:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
     sessionBrowserName: 'msedge'
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -918,3 +939,17 @@ videoRecorder:
 
 # Custom labels for k8s resources
 customLabels: {}
+
+# Configuration for dependency chart keda
+keda:
+  http:
+    timeout: 60000
+  webhooks:
+    enabled: false
+
+# Configuration for dependency chart ingress-nginx
+ingress-nginx:
+  enabled: false
+  controller:
+    admissionWebhooks:
+      enabled: false
