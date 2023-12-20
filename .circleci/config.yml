@@ -204,7 +204,7 @@ jobs:
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
-      DEPLOY_BRANCH: trunk
+      DEPLOY_BRANCH: tmp
       RELEASE: selenium-4.16.0
       SELENIUM_VERSION: 4.16.1
       GITHUB_USER: seleniumhq-community
@@ -346,7 +346,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-full-grid
           requires: [deploy-multi-arch-base]
@@ -357,7 +357,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-node-base
           requires: [deploy-multi-arch-base]
@@ -368,7 +368,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-firefox
           requires: [deploy-multi-arch-node-base]
@@ -379,7 +379,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-chromium
           requires: [deploy-multi-arch-node-base]
@@ -390,7 +390,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
           requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
@@ -401,4 +401,4 @@ workflows:
           filters: 
             branches: 
               only: 
-                - trunk
+                - tmp
