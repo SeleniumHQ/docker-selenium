@@ -78,7 +78,7 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
     libfreetype6 \
-    xfonts-cyrillic \
+    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \

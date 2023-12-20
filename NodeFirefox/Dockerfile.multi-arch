@@ -55,9 +55,11 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
     rm /tmp/geckodriver.tar.gz ; \
     mkdir -p /opt/geckodriver-bin ; \
     mv /tmp/geckodriver /opt/geckodriver-bin/geckodriver ; \
-    echo "Symlinking geckodriver to /usr/local/bin/geckodriver" ; \
+    echo "Symlinking geckodriver to /usr/local/bin/geckodriver and /usr/bin/geckodriver" ; \
     ln -s /opt/geckodriver-bin/geckodriver /usr/local/bin/geckodriver ; \
-    chmod 755 /usr/local/bin/geckodriver
+    chmod 755 /usr/local/bin/geckodriver ; \
+    ln -s /opt/geckodriver-bin/geckodriver /usr/bin/geckodriver ; \
+    chmod 755 /usr/bin/geckodriver
 
 USER 1200
 
@@ -65,3 +67,5 @@ USER 1200
 # Dumping Browser name and version for config
 #============================================
 RUN echo "firefox" > /opt/selenium/browser_name
+RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
+RUN echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location

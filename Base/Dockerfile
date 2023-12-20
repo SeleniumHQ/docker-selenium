@@ -5,7 +5,7 @@
 #FROM ubuntu:focal-20220415
 #FROM ubuntu:focal-20220531
 #FROM ubuntu:focal-20230301
-FROM debian:bullseye
+FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 ARG VERSION
@@ -34,7 +34,6 @@ RUN apt-get -qqy update \
     acl \
     bzip2 \
     ca-certificates \
-    openjdk-11-jre-headless \
     tzdata \
     sudo \
     unzip \
@@ -43,6 +42,11 @@ RUN apt-get -qqy update \
     curl \
     supervisor \
     gnupg2 \
+  && mkdir -p /etc/apt/keyrings \
+  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc \
+  && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
+  && apt-get update -y \
+  && apt-get install temurin-11-jre -y \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
 
 #===================
@@ -52,7 +56,7 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
     else \
        export ARCH=$TARGETARCH ; \
     fi \
-    && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-11-openjdk-$ARCH/conf/security/java.security
+    && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-11-jre-$ARCH/conf/security/java.security
 
 
 #===================

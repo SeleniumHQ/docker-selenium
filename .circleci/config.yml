@@ -200,7 +200,7 @@ jobs:
         type: string
     executor: << parameters.machine-type >>
     environment:
-      NAMESPACE: seleniarm
+      NAMESPACE: jamesmortensen1
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
@@ -271,7 +271,7 @@ jobs:
             docker buildx ls
             # For release notes, we'll pull images anonymously without login.
             # if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
-            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            docker login -u="$DOCKER_TEST_USERNAME" -p="$DOCKER_TEST_PASSWORD"
             # fi
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
