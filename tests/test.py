@@ -60,6 +60,10 @@ TEST_NAME_MAP = {
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
 
+    # Chromium Images
+    'NodeChromium': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
+
     # Chart Parallel Test
     'ParallelAutoscaling': 'ParallelAutoscalingTests'
 }
