@@ -400,7 +400,7 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- end -}}
 
 {{- define "seleniumGrid.url.subPath" -}}
-{{- $subPath := "/" -}}
+{{- $subPath := "" -}}
 {{- if $.Values.isolateComponents -}}
   {{- $subPath = default $subPath $.Values.components.subPath -}}
 {{- else -}}

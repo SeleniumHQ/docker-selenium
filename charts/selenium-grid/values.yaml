@@ -275,7 +275,7 @@ components:
     priorityClassName: ""
 
   # Custom sub path for all components
-  subPath: /
+  subPath: ""
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -338,7 +338,7 @@ hub:
     periodSeconds: 10
     successThreshold: 1
   # Custom sub path for the hub deployment
-  subPath: /
+  subPath: ""
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
