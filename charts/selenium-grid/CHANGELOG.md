@@ -1,3 +1,13 @@
+## :heavy_check_mark: selenium-grid-0.26.4
+
+- Chart is using image tag 4.16.1-20231219
+
+### Fixed
+- fix(chart): Remove trailing slash from default subPath value (#2076) :: Viet Nguyen Duc
+
+### Changed
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.26.3
 
 - Chart is using image tag 4.16.1-20231219
