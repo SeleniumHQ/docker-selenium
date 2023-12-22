@@ -65,8 +65,10 @@ spec:
             failureThreshold: {{ .Values.hub.readinessProbe.failureThreshold }}
         {{- end }}
           env:
+            {{- with .Values.hub.subPath }}
             - name: SE_SUB_PATH
-              value: {{ .Values.hub.subPath }}
+              value: {{ . | quote }}
+            {{- end }}
             {{- if eq .Values.basicAuth.enabled true}}
             - name: ROUTER_USERNAME
               value: {{ .Values.basicAuth.username }}
