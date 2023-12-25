@@ -57,7 +57,7 @@ TEST_NAME_MAP = {
     'StandaloneFirefox': 'FirefoxTests',
 
     # Chart Parallel Test
-    'ParallelAutoscaling': 'ParallelAutoscalingTests'
+    'JobAutoscaling': 'JobAutoscalingTests'
 }
 
 FROM_IMAGE_ARGS = {

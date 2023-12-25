@@ -22,8 +22,11 @@ spec:
   ports:
     - name: tcp-firefox
       protocol: TCP
-      port: {{ .Values.firefoxNode.seleniumServicePort }}
-      targetPort: {{ .Values.firefoxNode.seleniumPort }}
+      port: {{ .Values.firefoxNode.port }}
+      targetPort: {{ .Values.firefoxNode.port }}
+      {{- if and (eq $.Values.firefoxNode.service.type "NodePort") .Values.firefoxNode.nodePort }}
+      nodePort: {{ .Values.firefoxNode.nodePort }}
+      {{- end }}
   {{- with .Values.firefoxNode.service.ports }}
     {{- range . }}
     - name: {{ .name }}

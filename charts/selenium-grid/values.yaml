@@ -74,6 +74,12 @@ busConfigMap:
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
   name: selenium-node-config
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # File name of preStop script in ConfigMap
+  preStopScript: nodePreStop.sh
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName: node-helper-scripts
   # Custom annotations for configmap
   annotations: {}
 
@@ -104,11 +110,11 @@ components:
     # Router port
     port: 4444
     nodePort: 30444
-    # Liveness probe settings
-    livenessProbe:
+    # Wait for pod startup
+    startupProbe:
       enabled: true
       path: /readyz
-      initialDelaySeconds: 10
+      initialDelaySeconds: 5
       failureThreshold: 10
       timeoutSeconds: 10
       periodSeconds: 10
@@ -118,6 +124,15 @@ components:
       enabled: true
       path: /readyz
       initialDelaySeconds: 12
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Liveness probe settings
+    livenessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 10
       failureThreshold: 10
       timeoutSeconds: 10
       periodSeconds: 10
@@ -319,11 +334,11 @@ hub:
   # Selenium Hub port
   port: 4444
   nodePort: 31444
-  # Liveness probe settings
-  livenessProbe:
+  # Wait for pod startup
+  startupProbe:
     enabled: true
     path: /readyz
-    initialDelaySeconds: 10
+    initialDelaySeconds: 5
     failureThreshold: 10
     timeoutSeconds: 10
     periodSeconds: 10
@@ -333,6 +348,15 @@ hub:
     enabled: true
     path: /readyz
     initialDelaySeconds: 12
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
+  # Liveness probe settings
+  livenessProbe:
+    enabled: true
+    path: /readyz
+    initialDelaySeconds: 10
     failureThreshold: 10
     timeoutSeconds: 10
     periodSeconds: 10
@@ -418,15 +442,13 @@ autoscaling:
   scaledObjectOptions:
     scaleTargetRef:
       kind: Deployment
+  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force killing it
+  terminationGracePeriodSeconds: 3600
+  # Define preStop command to shuts down the node gracefully when scalingType is set to "deployment"
   deregisterLifecycle:
-    preStop:
-      exec:
-        command:
-          - bash
-          - -c
-          - |
-            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-            while curl 127.0.0.1:5555/status; do sleep 1; done;
+  #  preStop:
+  #    exec:
+  #      command: [ "bash", "-c", "/opt/selenium/nodePreStop.sh" ]
 
 # Configuration for chrome nodes
 chromeNode:
@@ -451,13 +473,13 @@ chromeNode:
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  # Port list to enable on container
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for chrome-node pods
   annotations: {}
   # Labels for chrome-node pods
@@ -510,9 +532,9 @@ chromeNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -521,18 +543,40 @@ chromeNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -585,13 +629,13 @@ firefoxNode:
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  # Port list to enable on container
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for firefox-node pods
   annotations: {}
   # Labels for firefox-node pods
@@ -644,9 +688,9 @@ firefoxNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -655,18 +699,40 @@ firefoxNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -717,12 +783,13 @@ edgeNode:
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for edge-node pods
   annotations: {}
   # Labels for edge-node pods
@@ -775,9 +842,9 @@ edgeNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -786,18 +853,40 @@ edgeNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume

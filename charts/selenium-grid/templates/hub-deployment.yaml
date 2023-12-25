@@ -42,27 +42,53 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.hub.subscribePort }}
               protocol: TCP
-        {{- if .Values.hub.livenessProbe.enabled }}
-          livenessProbe:
+        {{- if .Values.hub.startupProbe.enabled }}
+          {{- with .Values.hub.startupProbe }}
+          startupProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
             httpGet:
-              path: {{ .Values.hub.livenessProbe.path }}
-              port: {{ .Values.hub.port }}
-            initialDelaySeconds: {{ .Values.hub.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.hub.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.hub.livenessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.hub.livenessProbe.successThreshold }}
-            failureThreshold: {{ .Values.hub.livenessProbe.failureThreshold }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
         {{- end }}
         {{- if .Values.hub.readinessProbe.enabled }}
+          {{- with .Values.hub.readinessProbe }}
           readinessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
             httpGet:
-              path: {{ .Values.hub.readinessProbe.path }}
-              port: {{ .Values.hub.port }}
-            initialDelaySeconds: {{ .Values.hub.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.hub.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.hub.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.hub.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.hub.readinessProbe.failureThreshold }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.hub.livenessProbe.enabled }}
+          {{- with .Values.hub.livenessProbe }}
+          livenessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
+            httpGet:
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
         {{- end }}
           env:
             {{- with .Values.hub.subPath }}

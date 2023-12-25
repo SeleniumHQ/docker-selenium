@@ -10,7 +10,7 @@ All related testing to this helm chart will be documented in this file.
 |                        | Basic Auth is enabled                                                | &cross;  |          |
 | Auto scaling           | Auto scaling with `enableWithExistingKEDA` is `true`                 | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `job`                             | &check;  | Cluster  |
-|                        | Auto scaling with `scalingType` is `deployment`                      | &cross;  |          |
+|                        | Auto scaling with `scalingType` is `deployment`                      | &check;  | Cluster  |
 |                        | Auto scaling with `autoscaling.scaledOptions.minReplicaCount` is `0` | &check;  | Cluster  |
 |                        | Parallel tests execution against node autoscaling                    | &check;  | Cluster  |
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  | Cluster  |
@@ -27,6 +27,10 @@ All related testing to this helm chart will be documented in this file.
 |                        | Components are able to set `.affinity`                               | &check;  | Template |
 | Tracing                | Enable tracing via `SE_ENABLE_TRACING`                               | &check;  | Cluster  |
 |                        | Disable tracing via `SE_ENABLE_TRACING`                              | &check;  | Cluster  |
+| `Node` component       | `SE_NODE_PORT` can set a port different via `.port`                  | &check;  | Cluster  |
+|                        | Extra ports can be exposed on container via `.ports`                 | &check;  | Cluster  |
+|                        | Extra ports can be exposed on Service via `.service.ports`           | &check;  | Cluster  |
+|                        | Service type change to `NodePort`, specific NodePort can be set      | &check;  | Cluster  |
 
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.

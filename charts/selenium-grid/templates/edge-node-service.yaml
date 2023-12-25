@@ -22,8 +22,11 @@ spec:
   ports:
     - name: tcp-edge
       protocol: TCP
-      port: {{ .Values.edgeNode.seleniumServicePort }}
-      targetPort: {{ .Values.edgeNode.seleniumPort }}
+      port: {{ .Values.edgeNode.port }}
+      targetPort: {{ .Values.edgeNode.port }}
+      {{- if and (eq $.Values.edgeNode.service.type "NodePort") .Values.edgeNode.nodePort }}
+      nodePort: {{ .Values.edgeNode.nodePort }}
+      {{- end }}
   {{- with .Values.edgeNode.service.ports }}
     {{- range . }}
     - name: {{ .name }}

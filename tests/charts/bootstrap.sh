@@ -13,9 +13,9 @@ python -m pip install pyyaml==6.0.1 \
 
 cd ..
 helm template dummy --values tests/charts/templates/render/dummy.yaml \
-  charts/selenium-grid > ./tests/tests/output_deployment.yaml
+  charts/selenium-grid > ./tests/tests/dummy_template_manifests.yaml
 
-python tests/charts/templates/test.py "./tests/tests/output_deployment.yaml"
+python tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml"
 ret_code=$?
 
 if [ "${CI:-false}" = "false" ]; then

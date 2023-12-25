@@ -33,7 +33,7 @@ ingress:
             number: 4444
 
 basicAuth:
-  enabled: true
+  enabled: false
 
 isolateComponents: true
 
@@ -69,20 +69,12 @@ chromeNode:
       value: "true"
     - name: SE_OPTS
       value: "--enable-managed-downloads true"
-  startupProbe: &nodeStartupProbe
-    httpGet:
-      path: /status
-      port: 5555
-    failureThreshold: 120
-    periodSeconds: 1
 
 firefoxNode:
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes
-  startupProbe: *nodeStartupProbe
 
 edgeNode:
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes
-  startupProbe: *nodeStartupProbe
 
 videoRecorder:
   enabled: false
