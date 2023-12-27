@@ -1,0 +1,72 @@
+autoscaling:
+  enableWithExistingKEDA: true
+  scalingType: deployment
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 3
+  scaledObjectOptions:
+    cooldownPeriod: 30
+  terminationGracePeriodSeconds: 360
+# Configuration for chrome nodes
+chromeNode:
+  # (test): user is able to change `SE_NODE_PORT`
+  port: 6666
+  # (test): user is able to set NodePort to expose `SE_NODE_PORT`
+  nodePort: 30666
+  # (test): user is able to define list extra container ports
+  ports:
+    - 5900
+    - 7900
+  service:
+    type: NodePort
+    # (test): user is able to define extra ports for Node service
+    ports:
+      - name: vnc-port
+        protocol: TCP
+        port: 5900
+        targetPort: 5900
+        nodePort: 30590
+      - name: novnc-port
+        protocol: TCP
+        port: 7900
+        targetPort: 7900
+        # NodePort will be assigned randomly if not set
+  nameOverride: my-chrome-name
+  extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+    - name: SE_DRAIN_AFTER_SESSION_COUNT
+      value: "0"
+  readinessProbe:
+    enabled: &readinessProbe true
+  livenessProbe:
+    enabled: &livenessProbe true
+# Configuration for edge nodes
+edgeNode:
+  # (test): user is able to define extra container ports
+  ports:
+    - containerPort: 5900
+      name: vnc
+      protocol: TCP
+    - containerPort: 7900
+      name: novnc
+      protocol: TCP
+  nameOverride: my-edge-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  # (test): user is able to override probe method
+  startupProbe:
+    enabled: true
+    tcpSocket:
+      port: 8888
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe
+# Configuration for firefox nodes
+firefoxNode:
+  nameOverride: my-firefox-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe

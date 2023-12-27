@@ -4,6 +4,7 @@ chromeNode:
   enabled: false
 # Configuration for edge nodes
 edgeNode:
+  port: 8888
   nameOverride: my-edge-name
   extraEnvironmentVariables:
     - name: SE_OPTS

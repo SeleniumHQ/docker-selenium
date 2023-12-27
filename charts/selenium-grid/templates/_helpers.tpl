@@ -80,6 +80,56 @@ Ingress fullname
 {{- default "selenium-ingress" .Values.ingress.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Probe httpGet schema
+*/}}
+{{- define "seleniumGrid.probe.httpGet.schema" -}}
+{{- "HTTP" -}}
+{{- end -}}
+
+{{/*
+Check user define custom probe method
+*/}}
+{{- define "seleniumGrid.probe.fromUserDefine" -}}
+{{- $overrideProbe := dict -}}
+{{- with .exec -}}
+{{- $overrideProbe = dict "exec" . -}}
+{{- end }}
+{{- with .httpGet -}}
+{{- $overrideProbe = dict "httpGet" . -}}
+{{- end }}
+{{- with .tcpSocket -}}
+{{- $overrideProbe = dict "tcpSocket" . -}}
+{{- end }}
+{{- with .grpc -}}
+{{- $overrideProbe = dict "grpc" . -}}
+{{- end -}}
+{{- $overrideProbe | toYaml -}}
+{{- end -}}
+
+{{/*
+Get probe settings
+*/}}
+{{- define "seleniumGrid.probe.settings" -}}
+{{- $settings := dict -}}
+{{- with .initialDelaySeconds -}}
+  {{- $settings = set $settings "initialDelaySeconds" . -}}
+{{- end }}
+{{- with .periodSeconds -}}
+  {{- $settings = set $settings "periodSeconds" . -}}
+{{- end }}
+{{- with .timeoutSeconds -}}
+  {{- $settings = set $settings "timeoutSeconds" . -}}
+{{- end }}
+{{- with .successThreshold -}}
+  {{- $settings = set $settings "successThreshold" . -}}
+{{- end }}
+{{- with .failureThreshold -}}
+  {{- $settings = set $settings "failureThreshold" . -}}
+{{- end -}}
+{{- $settings | toYaml -}}
+{{- end -}}
+
 {{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
 {{- with .Values.ingress.nginx }}
   {{- with .proxyTimeout }}
@@ -199,9 +249,12 @@ template:
         {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
-      {{- with .node.extraEnvironmentVariables }}
-        env: {{- tpl (toYaml .) $ | nindent 10 }}
-      {{- end }}
+        env:
+          - name: SE_NODE_PORT
+            value: {{ .node.port | quote }}
+        {{- with .node.extraEnvironmentVariables }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+        {{- end }}
         envFrom:
           - configMapRef:
               name: {{ .Values.busConfigMap.name }}
@@ -212,16 +265,26 @@ template:
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
-      {{- if gt (len .node.ports) 0 }}
         ports:
-        {{- range .node.ports }}
-          - containerPort: {{ . }}
+          - containerPort: {{ .node.port }}
             protocol: TCP
+      {{- if gt (len .node.ports) 0 }}
+        {{- $ports := .node.ports -}}
+        {{- if (regexMatch "[0-9]+$" (index $ports 0 | toString)) -}}
+          {{- range .node.ports }}
+          - containerPort: {{ . | int }}
+            protocol: TCP
+          {{- end }}
+        {{- else -}}
+          {{- tpl (toYaml .node.ports) $ | nindent 10 }}
         {{- end }}
       {{- end }}
         volumeMounts:
           - name: dshm
             mountPath: /dev/shm
+          - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
+            mountPath: /opt/selenium/{{ .Values.nodeConfigMap.preStopScript }}
+            subPath: {{ .Values.nodeConfigMap.preStopScript }}
         {{- if .node.extraVolumeMounts }}
           {{- tpl (toYaml .node.extraVolumeMounts) $ | nindent 10 }}
         {{- end }}
@@ -231,12 +294,54 @@ template:
       {{- with .node.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- include "seleniumGrid.lifecycle" . | nindent 8 -}}
+      {{- include "seleniumGrid.node.lifecycle" . | nindent 8 -}}
+      {{- if .node.startupProbe.enabled }}
       {{- with .node.startupProbe }}
-        startupProbe: {{- toYaml . | nindent 10 }}
+        startupProbe:
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+        {{- else }}
+          httpGet:
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            path: {{ .path }}
+            port: {{ default ($.node.port) .port }}
+        {{- end }}
+        {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+          {{- include "seleniumGrid.probe.settings" . | nindent 10 }}
+        {{- end }}
       {{- end }}
+      {{- end }}
+      {{- if .node.readinessProbe.enabled }}
+      {{- with .node.readinessProbe }}
+        readinessProbe:
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 12 }}
+        {{- else }}
+          httpGet:
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            path: {{ .path }}
+            port: {{ default ($.node.port) .port }}
+        {{- end }}
+        {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+          {{- include "seleniumGrid.probe.settings" . | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .node.livenessProbe.enabled }}
       {{- with .node.livenessProbe }}
-        livenessProbe: {{- toYaml . | nindent 10 }}
+        livenessProbe:
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+        {{- else }}
+          httpGet:
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            path: {{ .path }}
+            port: {{ default ($.node.port) .port }}
+        {{- end }}
+        {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+          {{- include "seleniumGrid.probe.settings" . | nindent 10 }}
+        {{- end }}
+      {{- end }}
       {{- end }}
     {{- if .node.sidecars }}
       {{- toYaml .node.sidecars | nindent 6 }}
@@ -325,6 +430,10 @@ template:
   {{- end }}
     terminationGracePeriodSeconds: {{ .node.terminationGracePeriodSeconds }}
     volumes:
+      - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
+        configMap:
+          name: {{ .Values.nodeConfigMap.name }}
+          defaultMode: {{ .Values.nodeConfigMap.defaultMode }}
       - name: dshm
         emptyDir:
           medium: Memory
@@ -425,17 +534,53 @@ Graphql unsafeSsl of the hub or the router
 {{- end -}}
 
 {{/*
-Get the lifecycle of the pod. When KEDA is activated and the lifecycle is used for a pod of a
-deployment preStop hook to deregister from the selenium hub.
+Define preStop hook for the node pod. Node preStop script is stored in a ConfigMap and mounted as a volume.
 */}}
-{{- define "seleniumGrid.lifecycle" }}
-{{ $lifecycle := tpl (toYaml (default (dict) .node.lifecycle)) $ }}
-{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true") -}}
-{{ $lifecycle = merge ($lifecycle | fromYaml ) .Values.autoscaling.deregisterLifecycle | toYaml }}
+{{- define "seleniumGrid.node.deregisterLifecycle" -}}
+preStop:
+  exec:
+    command: ["bash", "-c", "/opt/selenium/{{ .Values.nodeConfigMap.preStopScript }}"]
+{{- end -}}
+
+{{/*
+Get the lifecycle of the pod is used for a Node to deregister from the Hub/Router.
+1. IF KEDA is activated, scalingType is "deployment", and individual node deregisterLifecycle is not set, use autoscaling.deregisterLifecycle
+2. ELSE (KEDA is not activated and node deregisterLifecycle is set), use .deregisterLifecycle in individual node
+3. IF individual node with .lifecycle is set, it takes highest precedence to override the preStop in above use cases
+*/}}
+{{- define "seleniumGrid.node.lifecycle" }}
+{{- $defaultDeregisterLifecycle := tpl (include "seleniumGrid.node.deregisterLifecycle" .) $ -}}
+{{- $lifecycle := toYaml (dict) -}}
+{{- if and (and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true")) (empty .node.deregisterLifecycle) -}}
+  {{- $lifecycle = merge ($lifecycle | fromYaml) (tpl (toYaml (default ($defaultDeregisterLifecycle | fromYaml) .Values.autoscaling.deregisterLifecycle)) $ | fromYaml) | toYaml -}}
+{{- else -}}
+  {{- if eq (.node.deregisterLifecycle | toString | lower) "false" -}}
+    {{- $lifecycle = toYaml (dict) -}}
+  {{- else -}}
+    {{- $lifecycle = (tpl (toYaml (default ($defaultDeregisterLifecycle | fromYaml) .node.deregisterLifecycle) ) $ | fromYaml) | toYaml -}}
+  {{- end -}}
+{{- end -}}
+{{- if not (empty .node.lifecycle) -}}
+  {{- $lifecycle = mergeOverwrite ($lifecycle | fromYaml) (tpl (toYaml .node.lifecycle) $ | fromYaml) | toYaml -}}
 {{- end -}}
 {{ if and $lifecycle (ne $lifecycle "{}") -}}
 lifecycle: {{ $lifecycle | nindent 2 }}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Define terminationGracePeriodSeconds of the node pod.
+1. IF KEDA is activated, scalingType is "deployment", use autoscaling.terminationGracePeriodSeconds
+2. IF node.terminationGracePeriodSeconds is greater than autoscaling.terminationGracePeriodSeconds, use node.terminationGracePeriodSeconds
+*/}}
+{{- define "seleniumGrid.node.terminationGracePeriodSeconds" -}}
+{{- $autoscalingPeriod := default 0 .Values.autoscaling.terminationGracePeriodSeconds -}}
+{{- $nodePeriod := default 0 .node.terminationGracePeriodSeconds -}}
+{{- $period := $nodePeriod -}}
+{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true") -}}
+  {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
+{{- end -}}
+{{- $period -}}
 {{- end -}}
 
 {{/*

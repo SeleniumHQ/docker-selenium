@@ -1,4 +1,6 @@
 #!/bin/bash
+mkdir -p tests/tests
+set -o xtrace
 
 echo "Set ENV variables"
 CLUSTER_NAME=${CLUSTER_NAME:-"chart-testing"}
@@ -31,7 +33,7 @@ cleanup() {
 on_failure() {
     local exit_status=$?
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
-    kubectl describe all -n ${SELENIUM_NAMESPACE}
+    kubectl describe all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     cleanup
     exit $exit_status
@@ -42,20 +44,25 @@ trap 'on_failure' ERR
 
 HELM_COMMAND_SET_AUTOSCALING=""
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
-  HELM_COMMAND_SET_AUTOSCALING="--values ${TEST_VALUES_PATH}/autoscaling-values.yaml \
+  HELM_COMMAND_SET_AUTOSCALING="--values ${TEST_VALUES_PATH}/DeploymentAutoScaling-values.yaml \
   --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}"
 fi
 
-echo "Deploy Selenium Grid Chart"
-helm upgrade --install ${RELEASE_NAME} \
+HELM_COMMAND_ARGS="${RELEASE_NAME} \
 --values ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
 --values ${TEST_VALUES_PATH}/tracing-values.yaml \
 --values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
 ${HELM_COMMAND_SET_AUTOSCALING} \
 --set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
-${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace
+${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
+
+echo "Render manifests YAML for this deployment"
+helm template ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_manifests_${MATRIX_BROWSER}.yaml
+
+echo "Deploy Selenium Grid Chart"
+helm upgrade --install ${HELM_COMMAND_ARGS}
 
 echo "Run Tests"
 export SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST}
@@ -71,6 +78,6 @@ echo "Get pods status"
 kubectl get pods -n ${SELENIUM_NAMESPACE}
 
 echo "Get all resources in the ${SELENIUM_NAMESPACE} namespace"
-kubectl get all -n ${SELENIUM_NAMESPACE}
+kubectl get all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 cleanup

@@ -67,10 +67,10 @@ jobs:
         with:
           name: ${{ matrix.test-strategy }}_${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
-      - name: Upload Helm chart template rendered
+      - name: Upload chart test artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.test-strategy }}_chart_template_rendered.yaml
-          path: ./tests/tests/output_deployment.yaml
+          name: ${{ matrix.test-strategy }}-artifacts
+          path: ./tests/tests/
           if-no-files-found: ignore

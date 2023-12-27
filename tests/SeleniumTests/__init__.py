@@ -127,7 +127,7 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
 
-class ParallelAutoscaling():
+class JobAutoscaling():
     def run(self, test_classes):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
@@ -138,7 +138,7 @@ class ParallelAutoscaling():
             for future in concurrent.futures.as_completed(futures):
                 future.result()
 
-class ParallelAutoscalingTests(unittest.TestCase):
+class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
-        runner = ParallelAutoscaling()
+        runner = JobAutoscaling()
         runner.run([ChromeTests, EdgeTests, FirefoxTests])

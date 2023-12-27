@@ -7,6 +7,7 @@ edgeNode:
   enabled: false
 # Configuration for firefox nodes
 firefoxNode:
+  port: 7777
   nameOverride: my-firefox-name
   extraEnvironmentVariables:
     - name: SE_OPTS
