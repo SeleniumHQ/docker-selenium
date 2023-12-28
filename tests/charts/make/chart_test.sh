@@ -11,6 +11,7 @@ INGRESS_NAMESPACE=${INGRESS_NAMESPACE:-"ingress-nginx"}
 SUB_PATH=${SUB_PATH:-"/selenium"}
 CHART_PATH=${CHART_PATH:-"charts/selenium-grid"}
 TEST_VALUES_PATH=${TEST_VALUES_PATH:-"tests/charts/ci"}
+SELENIUM_GRID_PROTOCOL=${SELENIUM_GRID_PROTOCOL:-"http"}
 SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST:-"localhost"}
 SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT:-"80"}
 MATRIX_BROWSER=${1:-"NodeChrome"}
@@ -20,6 +21,8 @@ WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
 HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL:-45}
 WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
+CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
+SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -49,11 +52,17 @@ if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}"
 fi
 
+HELM_COMMAND_SET_TLS=""
+if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
+  HELM_COMMAND_SET_TLS="--values ${TEST_VALUES_PATH}/tls-values.yaml"
+fi
+
 HELM_COMMAND_ARGS="${RELEASE_NAME} \
 --values ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
 --values ${TEST_VALUES_PATH}/tracing-values.yaml \
---values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
 ${HELM_COMMAND_SET_AUTOSCALING} \
+${HELM_COMMAND_SET_TLS} \
+--values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
 --set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
@@ -65,6 +74,8 @@ echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
 
 echo "Run Tests"
+export CHART_CERT_PATH=$(readlink -f ${CHART_CERT_PATH})
+export SELENIUM_GRID_PROTOCOL=${SELENIUM_GRID_PROTOCOL}
 export SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST}
 export SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT}""${SUB_PATH}
 export SELENIUM_GRID_AUTOSCALING=${SELENIUM_GRID_AUTOSCALING}

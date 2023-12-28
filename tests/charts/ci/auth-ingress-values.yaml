@@ -1,5 +1,7 @@
 global:
   K8S_PUBLIC_IP: localhost
+  seleniumGrid:
+    logLevel: INFO
 
 ingress:
   annotations:
@@ -17,7 +19,7 @@ ingress:
       pathType: ImplementationSpecific
       backend:
         service:
-          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
 

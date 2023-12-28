@@ -397,6 +397,10 @@ chart_test_edge:
 chart_test_parallel_autoscaling:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh JobAutoscaling
 
+chart_test_https_tls:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
+	./tests/charts/make/chart_test.sh JobAutoscaling
+
 .PHONY: \
 	all \
 	base \

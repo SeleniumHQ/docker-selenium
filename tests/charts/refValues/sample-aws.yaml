@@ -22,7 +22,7 @@ ingress:
       pathType: ImplementationSpecific
       backend:
         service:
-          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
 

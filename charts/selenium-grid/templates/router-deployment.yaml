@@ -61,9 +61,17 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ .Values.loggingConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.serverConfigMap.name }}
             {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
+          volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
           ports:
             - containerPort: {{ .Values.components.router.port }}
               protocol: TCP
@@ -74,7 +82,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.components.router.port) .port }}
           {{- end }}
@@ -90,7 +98,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.components.router.port) .port }}
           {{- end }}
@@ -107,7 +115,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.components.router.port) .port }}
           {{- end }}
@@ -139,4 +147,10 @@ spec:
     {{- with .Values.components.router.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
+      volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
 {{- end }}

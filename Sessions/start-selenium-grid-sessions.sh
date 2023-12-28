@@ -39,6 +39,30 @@ if [ ! -z "$SE_LOG_LEVEL" ]; then
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
 fi
 
+if [ ! -z "$SE_EXTERNAL_URL" ]; then
+  echo "Appending Selenium options: --external-url ${SE_EXTERNAL_URL}"
+  SE_OPTS="$SE_OPTS --external-url ${SE_EXTERNAL_URL}"
+fi
+
+if [ ! -z "$SE_HTTPS_CERTIFICATE" ]; then
+  echo "Appending Selenium options: --https-certificate ${SE_HTTPS_CERTIFICATE}"
+  SE_OPTS="$SE_OPTS --https-certificate ${SE_HTTPS_CERTIFICATE}"
+fi
+
+if [ ! -z "$SE_HTTPS_PRIVATE_KEY" ]; then
+  echo "Appending Selenium options: --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
+  SE_OPTS="$SE_OPTS --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
+fi
+
+if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
+  echo "Appending Java options: -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
+  echo "Appending Java options: -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
+  echo "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION:-true}"
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION:-true}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then

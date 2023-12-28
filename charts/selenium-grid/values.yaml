@@ -17,6 +17,22 @@ global:
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
     logLevel: INFO
 
+tls:
+  enabled: false
+  generateTLS: false
+  defaultName: "SeleniumHQ"
+  defaultDays: 3650
+  defaultCN: "www.selenium.dev"
+  # or *.domain.com
+  defaultSANList: []
+  #  - domain.com
+  #  - production.domain.com
+  defaultIPList: []
+  #  - 10.10.10.10
+  certificate:
+  privateKey:
+  trustStore:
+
 # Basic auth settings for Selenium Grid
 basicAuth:
   # Enable or disable basic auth
@@ -86,6 +102,20 @@ nodeConfigMap:
 # ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
 loggingConfigMap:
   name: selenium-logging-config
+  # Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
+serverConfigMap:
+  name: selenium-server-config
+  certVolumeMountPath: /etc/ssl/certs/selenium
+  certificateFile: selenium.pem
+  privateKeyFile: selenium.pkcs8
+  trustStoreFile: selenium.jks
+  # Trust store password
+  trustStorePassword: changeit
+  # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
+  disableHostnameVerification: true
   # Custom annotations for configmap
   annotations: {}
 

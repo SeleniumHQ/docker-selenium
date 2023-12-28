@@ -51,7 +51,7 @@ class ChartTemplateTests(unittest.TestCase):
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
                 logger.info(f"Assert subPath is appended to node grid url")
-                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'http://sysadmin:strongPassword@10.10.10.10:8081/selenium')
+                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium')
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
 

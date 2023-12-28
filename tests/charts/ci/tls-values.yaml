@@ -1,0 +1,8 @@
+tls:
+  enabled: true
+  generateTLS: false
+
+ingress-nginx:
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'

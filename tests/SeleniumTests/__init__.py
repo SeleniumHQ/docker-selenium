@@ -10,6 +10,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
+SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
@@ -95,7 +96,7 @@ class ChromeTests(SeleniumGenericTests):
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 class EdgeTests(SeleniumGenericTests):
@@ -105,7 +106,7 @@ class EdgeTests(SeleniumGenericTests):
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 
@@ -119,7 +120,7 @@ class FirefoxTests(SeleniumGenericTests):
         options.enable_downloads = True
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
     def test_title_and_maximize_window(self):
