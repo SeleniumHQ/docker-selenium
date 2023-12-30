@@ -200,11 +200,11 @@ jobs:
         type: string
     executor: << parameters.machine-type >>
     environment:
-      NAMESPACE: jamesmortensen1
+      NAMESPACE: seleniarm
       PLATFORMS: << parameters.platforms >>
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
-      DEPLOY_BRANCH: tmp
+      DEPLOY_BRANCH: trunk
       RELEASE: selenium-4.16.0
       SELENIUM_VERSION: 4.16.1
       GITHUB_USER: seleniumhq-community
@@ -271,7 +271,7 @@ jobs:
             docker buildx ls
             # For release notes, we'll pull images anonymously without login.
             # if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
-            docker login -u="$DOCKER_TEST_USERNAME" -p="$DOCKER_TEST_PASSWORD"
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
             # fi
             echo BRANCH="$BRANCH"
             echo BUILD_DATE="$BUILD_DATE"
@@ -346,7 +346,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-full-grid
           requires: [deploy-multi-arch-base]
@@ -357,7 +357,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-node-base
           requires: [deploy-multi-arch-base]
@@ -368,7 +368,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-firefox
           requires: [deploy-multi-arch-node-base]
@@ -379,7 +379,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-chromium
           requires: [deploy-multi-arch-node-base]
@@ -390,7 +390,7 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
           requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
@@ -401,4 +401,4 @@ workflows:
           filters: 
             branches: 
               only: 
-                - tmp
+                - trunk
