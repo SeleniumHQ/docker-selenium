@@ -1,0 +1,76 @@
+name: Lint and Test Helm Charts
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Test Helm charts
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-strategy: [chart_test, chart_test_parallel_autoscaling]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Output Docker info
+        run: docker info
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+          check-latest: true
+      - name: Get branch name (only for push to branch)
+        if: github.event_name == 'push'
+        run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          PUSH_BRANCH: ${{ github.ref }}
+      - name: Get target branch name (only for PRs)
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH=$(echo ${TARGET_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+      - name: Output branch name
+        run: echo ${BRANCH}
+      - name: Sets build date
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
+      - name: Setup Kubernetes environment
+        run: make chart_setup_env
+      - name: Build Docker images
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - name: Build and lint charts
+        run: |
+          BUILD_DATE=${BUILD_DATE} make chart_build
+          echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+          echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+      - name: Setup Kubernetes cluster
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      - name: Test Selenium Grid on Kubernetes
+        uses: nick-invision/retry@v2.9.0
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
+      - name: Cleanup Kubernetes cluster
+        if: always()
+        run: make chart_cluster_cleanup
+      - name: Upload Helm chart package
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.CHART_FILE_NAME }}
+          path: ${{ env.CHART_PACKAGE_PATH }}
+      - name: Upload Helm chart template rendered
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: chart_template_rendered.yaml
+          path: ./tests/tests/output_deployment.yaml
+          if-no-files-found: ignore

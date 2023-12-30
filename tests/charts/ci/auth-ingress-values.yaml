@@ -1,0 +1,34 @@
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
+    - path: /(/?)(session/.*/se/vnc)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          port:
+            number: 4444
+
+basicAuth:
+  enabled: false
+isolateComponents: true
+
+hub:
+  subPath: *gridAppRoot
+
+components:
+  subPath: *gridAppRoot

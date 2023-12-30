@@ -6,9 +6,16 @@ LABEL authors=${AUTHORS}
 
 USER root
 
+#ENV LANGUAGE=en_US.UTF-8
+#ENV LC_ALL=en_US.UTF-8
+#ENV LANG=en_US.UTF-8
+
+# Deal with the usr merge issues in Debian
+#RUN apt install usrmerge
+
 # Install Chromium 
 # RUN echo "deb http://http.us.debian.org/debian/ stable non-free contrib main" >> /etc/apt/sources.list \
-RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+RUN echo "deb http://deb.debian.org/debian/ bookworm main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   # && apt-get -qqy install chromium=89.0.4389.82-1 \
   # && apt-get -qqy install chromium=90.0.4430.212-1 \
@@ -31,7 +38,9 @@ RUN apt-get update -qqy \
   && apt-get -qqy install chromium-driver \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-RUN echo "chromium" > /opt/selenium/browser_name
+RUN echo "chrome" > /opt/selenium/browser_name
+RUN chromium --version | awk '{print $2}' > /opt/selenium/browser_version
+RUN echo "\"goog:chromeOptions\": {\"binary\": \"/usr/bin/chromium\"}" > /opt/selenium/browser_binary_location
 
 USER 1200
 

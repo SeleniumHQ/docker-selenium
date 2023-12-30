@@ -11,6 +11,9 @@ ARG GECKODRIVER_VERSION=0.33.0
 
 USER root
 
+# Deal with the usr merge issues in Debian
+#RUN apt install usrmerge
+
 #=========
 # Firefox
 #=========
@@ -24,8 +27,9 @@ USER root
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-get update -qqy \
   && apt-get install libavcodec-extra -y \
-  && wget https://snapshot.debian.org/archive/debian/20230924T210045Z/pool/main/f/firefox/firefox_117.0.1-1_`dpkg --print-architecture`.deb -O firefox.deb \
-  && apt install ./firefox.deb -y \
+  && wget https://snapshot.debian.org/archive/debian/20231208T150859Z/pool/main/f/firefox/firefox_120.0.1-1_`dpkg --print-architecture`.deb -O firefox.deb
+
+RUN apt install ./firefox.deb -y \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ./firefox.deb
 
 #=============
@@ -51,9 +55,11 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
     rm /tmp/geckodriver.tar.gz ; \
     mkdir -p /opt/geckodriver-bin ; \
     mv /tmp/geckodriver /opt/geckodriver-bin/geckodriver ; \
-    echo "Symlinking geckodriver to /usr/local/bin/geckodriver" ; \
+    echo "Symlinking geckodriver to /usr/local/bin/geckodriver and /usr/bin/geckodriver" ; \
     ln -s /opt/geckodriver-bin/geckodriver /usr/local/bin/geckodriver ; \
-    chmod 755 /usr/local/bin/geckodriver
+    chmod 755 /usr/local/bin/geckodriver ; \
+    ln -s /opt/geckodriver-bin/geckodriver /usr/bin/geckodriver ; \
+    chmod 755 /usr/bin/geckodriver
 
 USER 1200
 
@@ -61,3 +67,5 @@ USER 1200
 # Dumping Browser name and version for config
 #============================================
 RUN echo "firefox" > /opt/selenium/browser_name
+RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
+RUN echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location

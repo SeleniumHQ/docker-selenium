@@ -64,7 +64,7 @@ RUN apt-get update -qqy \
 # fonts-ipafont-gothic     ~13 MB
 # fonts-wqy-zenhei         ~17 MB
 # fonts-tlwg-loma-otf      ~300 KB
-# ttf-ubuntu-font-family   ~5 MB
+# fonts-ubuntu             ~5 MB
 #   Ubuntu Font Family, sans-serif typeface hinted for clarity
 # Removed packages:
 # xfonts-100dpi            ~6 MB
@@ -78,13 +78,14 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
     libfreetype6 \
-    xfonts-cyrillic \
+    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
     # ttf-ubuntu-font-family \
+    # fonts-ubuntu \
     fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
