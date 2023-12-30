@@ -75,7 +75,7 @@ class SeleniumGenericTests(unittest.TestCase):
         )
         file_link.click()
         wait.until(
-            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
+            lambda d: len(d.get_downloadable_files()) > 0 and str(d.get_downloadable_files()[0]).endswith(file_name)
         )
         time.sleep(5)
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
