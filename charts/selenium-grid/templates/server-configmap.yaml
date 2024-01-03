@@ -16,6 +16,5 @@ data:
   SE_HTTPS_CERTIFICATE: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.certificateFile | quote }}
   SE_HTTPS_PRIVATE_KEY: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.privateKeyFile | quote }}
   SE_JAVA_SSL_TRUST_STORE: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.trustStoreFile | quote }}
-  SE_JAVA_SSL_TRUST_STORE_PASSWORD: {{ .Values.serverConfigMap.trustStorePassword | quote }}
   SE_JAVA_DISABLE_HOSTNAME_VERIFICATION: {{ .Values.serverConfigMap.disableHostnameVerification | quote }}
 {{- end }}

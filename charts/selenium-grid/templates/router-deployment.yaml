@@ -49,12 +49,6 @@ spec:
             - name: SE_SUB_PATH
               value: {{ . | quote }}
             {{- end }}
-            {{- if eq .Values.basicAuth.enabled true}}
-            - name: ROUTER_USERNAME
-              value: {{ .Values.basicAuth.username }}
-            - name: ROUTER_PASSWORD
-              value: {{ .Values.basicAuth.password }}
-            {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
@@ -63,6 +57,8 @@ spec:
                 name: {{ .Values.loggingConfigMap.name }}
             - configMapRef:
                 name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
             {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
             {{- end }}

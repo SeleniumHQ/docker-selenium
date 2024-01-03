@@ -173,6 +173,33 @@ Secret TLS fullname
 {{- default "selenium-tls-secret" .Values.tls.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Is registration secret enabled
+*/}}
+{{- define "seleniumGrid.tls.registrationSecret.enabled" -}}
+{{- and .Values.tls.enabled .Values.tls.registrationSecret.enabled | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
+Get default certificate file name in chart
+*/}}
+{{- define "seleniumGrid.tls.getDefaultFile" -}}
+{{- $value := index . 0 -}}
+{{- $global := index . 1 -}}
+{{- $content := $global.Files.Get $value -}}
+{{- if (contains "base64" (lower $value)) -}}
+  {{- $content = $content | b64dec -}}
+{{- end -}}
+{{- $content -}}
+{{- end -}}
+
+{{/*
+Common secrets cross components
+*/}}
+{{- define "seleniumGrid.common.secrets" -}}
+{{- default "selenium-secrets" .Values.secrets.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
 {{- with .Values.ingress.nginx }}
   {{- with .proxyTimeout }}
@@ -311,6 +338,8 @@ template:
               name: {{ .Values.loggingConfigMap.name }}
           - configMapRef:
               name: {{ .Values.serverConfigMap.name }}
+          - secretRef:
+              name: {{ include "seleniumGrid.common.secrets" $ | quote }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}

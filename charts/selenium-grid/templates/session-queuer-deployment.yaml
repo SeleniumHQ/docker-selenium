@@ -40,6 +40,8 @@ spec:
                 name: {{ .Values.loggingConfigMap.name }}
             - configMapRef:
                 name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
           {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
           {{- end }}

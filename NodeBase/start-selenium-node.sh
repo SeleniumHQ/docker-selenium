@@ -65,6 +65,11 @@ if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION:-true}"
 fi
 
+if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
+  echo "Appending Selenium options: --registration-secret ${SE_REGISTRATION_SECRET}"
+  SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
+fi
+
 if [ "$GENERATE_CONFIG" = true ]; then
   echo "Generating Selenium Config"
   /opt/bin/generate_config

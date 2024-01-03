@@ -32,12 +32,13 @@ spec:
   {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
+  {{- if and (or .Values.tls.enabled .Values.tls.ingress.generateTLS) .Values.ingress.hostname (not .Values.ingress.tls) }}
   tls:
-  {{- if and .Values.tls.enabled (and .Values.ingress.enabled (not .Values.ingress.tls)) }}
     - hosts:
-        - {{ default .Values.tls.defaultCN .Values.ingress.hostname | quote }}
+        - {{ .Values.ingress.hostname | quote }}
       secretName: {{ include "seleniumGrid.tls.fullname" . | quote }}
   {{- else if .Values.ingress.tls }}
+  tls:
     {{- range .Values.ingress.tls }}
     - hosts:
         {{- range .hosts }}

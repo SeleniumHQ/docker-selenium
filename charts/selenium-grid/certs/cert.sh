@@ -4,6 +4,7 @@ CERTNAME=${1:-selenium}
 STOREPASS=${2:-changeit}
 KEYPASS=${3:-changeit}
 ALIAS=${4:-SeleniumHQ}
+BASE64_ONLY=1
 
 # Remove existing files
 rm -f ${CERTNAME}.*
@@ -23,7 +24,7 @@ keytool -genkeypair \
     -keystore ${CERTNAME}.jks
 
 # Base64 encode JKS file (for Kubernetes Secret)
-base64 -i ${CERTNAME}.jks -w 0 > ${CERTNAME}.jks.base64
+#base64 -i ${CERTNAME}.jks -w 0 > ${CERTNAME}.jks.base64
 
 # Create PKCS12 from JKS
 keytool -importkeystore -srckeystore ${CERTNAME}.jks \
@@ -47,12 +48,14 @@ keytool -exportcert -alias ${ALIAS} \
     -storepass ${STOREPASS} -keypass ${KEYPASS} \
     -keystore ${CERTNAME}.jks -rfc -file ${CERTNAME}.pem
 
-# Bsae64 encode Certificate PEM file (for Kubernetes Secret)
-base64 -i ${CERTNAME}.pem -w 0 > ${CERTNAME}.pem.base64
+# Base64 encode Certificate PEM file (for Kubernetes Secret)
+#base64 -i ${CERTNAME}.pem -w 0 > ${CERTNAME}.pem.base64
 
-# Remove source files (prevent sensitive data leak)
-rm -f ${CERTNAME}.key
-rm -f ${CERTNAME}.p12
-rm -f ${CERTNAME}.jks
-rm -f ${CERTNAME}.pkcs8
-# Retain ${CERTNAME}.pem for client establishing HTTPS connection
+if [ ${BASE64_ONLY} -eq 1 ]; then
+  # Remove source files (prevent sensitive data leak)
+  rm -f ${CERTNAME}.key
+  rm -f ${CERTNAME}.p12
+  rm -f ${CERTNAME}.pkcs8
+  # Retain ${CERTNAME}.jks for Java client establishing HTTPS connection
+  # Retain ${CERTNAME}.pem for client establishing HTTPS connection
+fi

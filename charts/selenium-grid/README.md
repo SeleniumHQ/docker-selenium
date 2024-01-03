@@ -21,6 +21,9 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
       * [Probes](#probes)
+    * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
+      * [Secure Communication](#secure-communication)
+      * [Node Registration](#node-registration)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
     * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
@@ -228,6 +231,23 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 nginx.ingress.kubernetes.io/proxy-buffers-number
 ```
 
+You can generate a dummy self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
+
+```yaml
+tls:
+  ingress:
+    generateTLS: true
+
+ingress:
+  hostname: "your.domain.com"
+
+ingress-nginx:
+  enabled: true
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+```
+
 ## Configuration
 
 ### Configuration global
@@ -340,6 +360,78 @@ edgeNode:
       port: 5555
     failureThreshold: 10
     periodSeconds: 5
+```
+
+### Configuration of Secure Communication (HTTPS)
+
+Selenium Grid supports secure communication between components. Refer to the [instructions](https://github.com/SeleniumHQ/selenium/blob/trunk/java/src/org/openqa/selenium/grid/commands/security.txt) and [options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) are able to configure the secure communication. Below is the details on how to enable secure communication in Selenium Grid chart.
+
+#### Secure Communication
+
+In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
+
+There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them together.
+
+- Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
+
+- Use the default directory [certs](./certs). Copy your own files to there and adjust the file name under config `tls.defaultFile`, those will be picked up when installing chart. For example:
+
+    ```yaml
+    tls:
+      enabled: true
+      trustStorePassword: "your_truststore_password"
+      defaultFile:
+        certificate: "certs/your_cert.pem"
+        privateKey: "certs/your_private_key.pkcs8"
+        trustStore: "certs/your_truststore.jks"
+    ```
+    For some security reasons, you may not able to put private key in your source code or your customization chart package. You can provide files with contents are encoded in Base64 format, just append `.base64` to the file name for chart able to know and decode them. For example:
+
+    ```yaml
+    tls:
+      enabled: true
+      trustStorePassword: "your_truststore_password"
+      defaultFile:
+        certificate: "certs/your_cert.pem.base64"
+        privateKey: "certs/your_private_key.pkcs8.base64"
+        trustStore: "certs/your_truststore.jks.base64"
+    ```
+
+- Using Helm CLI `--set-file` to pass your own file to particular config key. For example:
+
+    ```bash
+    helm upgrade -i test selenium-grid \
+    --set tls.enabled=true \
+    --set-file tls.certificate=/path/to/your_cert.pem \
+    --set-file tls.privateKey=/path/to/your_private_key.pkcs8 \
+    --set-file tls.trustStore=/path/to/your_truststore.jks \
+    --set-string tls.trustStorePassword=your_truststore_password
+    ```
+
+If you start NGINX ingress controller inline with Selenium Grid chart, you can configure the default certificate of NGINX ingress controller to use the same certificate as Selenium Grid. For example:
+
+```yaml
+tls:
+  enabled: true
+
+ingress-nginx:
+  enabled: true
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+```
+
+#### Node Registration
+
+In order to enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
+Node servers in config `tls.registrationSecret`. For example:
+
+```yaml
+tls:
+  enabled: true
+  registrationSecret:
+    enabled: true
+    value: "matchThisSecret"
 ```
 
 ### Configuration of Selenium Grid chart

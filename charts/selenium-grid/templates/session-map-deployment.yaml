@@ -40,6 +40,8 @@ spec:
                 name: {{ .Values.loggingConfigMap.name }}
             - configMapRef:
                 name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
             - configMapRef:
                 name: {{ .Values.busConfigMap.name }}
             {{- with .Values.components.extraEnvFrom }}

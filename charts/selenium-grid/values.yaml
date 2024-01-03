@@ -19,19 +19,28 @@ global:
 
 tls:
   enabled: false
-  generateTLS: false
-  defaultName: "SeleniumHQ"
-  defaultDays: 3650
-  defaultCN: "www.selenium.dev"
-  # or *.domain.com
-  defaultSANList: []
-  #  - domain.com
-  #  - production.domain.com
-  defaultIPList: []
-  #  - 10.10.10.10
+  ingress:
+    generateTLS: false
+    defaultName: "SeleniumHQ"
+    defaultDays: 3650
+    defaultCN: "www.selenium.dev"
+    # or *.domain.com
+    defaultSANList: []
+    #  - domain.com
+    #  - production.domain.com
+    defaultIPList: []
+    #  - 10.10.10.10
+  defaultFile:
+    certificate: "certs/selenium.pem"
+    privateKey: "certs/selenium.pkcs8.base64"
+    trustStore: "certs/selenium.jks"
   certificate:
   privateKey:
   trustStore:
+  trustStorePassword: "changeit"
+  registrationSecret:
+    enabled: false
+    value: "HappyTesting"
 
 # Basic auth settings for Selenium Grid
 basicAuth:
@@ -112,11 +121,17 @@ serverConfigMap:
   certificateFile: selenium.pem
   privateKeyFile: selenium.pkcs8
   trustStoreFile: selenium.jks
-  # Trust store password
-  trustStorePassword: changeit
   # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
   disableHostnameVerification: true
   # Custom annotations for configmap
+  annotations: {}
+
+# Secrets for all components. Components environment variables contain sensitive data should be stored in secrets.
+secrets:
+  create: true
+  name: selenium-secrets
+  env:
+    SE_VNC_PASSWORD: "secret"
   annotations: {}
 
 # Configuration for isolated components (applied only if `isolateComponents: true`)

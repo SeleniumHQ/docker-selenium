@@ -14,6 +14,11 @@ global:
 #    nodesImageTag: latest
 #    videoImageTag: latest
 
+tls:
+#  enabled: true
+  ingress:
+    generateTLS: true
+
 ingress:
   enabled: true
   annotations:
@@ -23,10 +28,6 @@ ingress:
     nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
   ingressClassName: nginx
   hostname: ""
-#  tls:
-#    - secretName: '{{ include "seleniumGrid.tls.fullname" . }}'
-#      hosts:
-#        - *.domain.com
   paths:
     - path: /selenium(/|$)(.*)
       pathType: ImplementationSpecific
@@ -42,7 +43,8 @@ basicAuth:
 isolateComponents: true
 
 autoscaling:
-  enabled: true
+#  enabled: true
+  enableWithExistingKEDA: true
   scalingType: job
   annotations:
     helm.sh/hook: post-install,post-upgrade,post-rollback
