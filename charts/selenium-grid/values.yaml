@@ -17,6 +17,31 @@ global:
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
     logLevel: INFO
 
+tls:
+  enabled: false
+  ingress:
+    generateTLS: false
+    defaultName: "SeleniumHQ"
+    defaultDays: 3650
+    defaultCN: "www.selenium.dev"
+    # or *.domain.com
+    defaultSANList: []
+    #  - domain.com
+    #  - production.domain.com
+    defaultIPList: []
+    #  - 10.10.10.10
+  defaultFile:
+    certificate: "certs/selenium.pem"
+    privateKey: "certs/selenium.pkcs8.base64"
+    trustStore: "certs/selenium.jks"
+  certificate:
+  privateKey:
+  trustStore:
+  trustStorePassword: "changeit"
+  registrationSecret:
+    enabled: false
+    value: "HappyTesting"
+
 # Basic auth settings for Selenium Grid
 basicAuth:
   # Enable or disable basic auth
@@ -87,6 +112,26 @@ nodeConfigMap:
 loggingConfigMap:
   name: selenium-logging-config
   # Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
+serverConfigMap:
+  name: selenium-server-config
+  certVolumeMountPath: /etc/ssl/certs/selenium
+  certificateFile: selenium.pem
+  privateKeyFile: selenium.pkcs8
+  trustStoreFile: selenium.jks
+  # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
+  disableHostnameVerification: true
+  # Custom annotations for configmap
+  annotations: {}
+
+# Secrets for all components. Components environment variables contain sensitive data should be stored in secrets.
+secrets:
+  create: true
+  name: selenium-secrets
+  env:
+    SE_VNC_PASSWORD: "secret"
   annotations: {}
 
 # Configuration for isolated components (applied only if `isolateComponents: true`)

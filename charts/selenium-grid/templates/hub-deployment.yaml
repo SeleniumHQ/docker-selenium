@@ -49,7 +49,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.hub.port) .port }}
           {{- end }}
@@ -65,7 +65,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.hub.port) .port }}
           {{- end }}
@@ -81,7 +81,7 @@ spec:
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
             httpGet:
-              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
               path: {{ .path }}
               port: {{ default ($.Values.hub.port) .port }}
           {{- end }}
@@ -95,23 +95,26 @@ spec:
             - name: SE_SUB_PATH
               value: {{ . | quote }}
             {{- end }}
-            {{- if eq .Values.basicAuth.enabled true}}
-            - name: ROUTER_USERNAME
-              value: {{ .Values.basicAuth.username }}
-            - name: ROUTER_PASSWORD
-              value: {{ .Values.basicAuth.password }}
-            {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ .Values.loggingConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
           {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
           {{- end }}
-        {{- with .Values.hub.extraVolumeMounts }}
           volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
+        {{- with .Values.hub.extraVolumeMounts }}
             {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
         {{- with .Values.hub.resources }}
@@ -137,8 +140,13 @@ spec:
     {{- with .Values.hub.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
-    {{- with .Values.hub.extraVolumes }}
       volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
+    {{- with .Values.hub.extraVolumes }}
         {{- tpl (toYaml .) $ | nindent 8 }}
     {{- end }}
 {{- end }}

@@ -18,6 +18,10 @@ basicAuth:
   username: sysadmin
   password: strongPassword
 
+tls:
+  enabled: true
+  generateTLS: false
+
 ingress:
   nginx:
     proxyTimeout: 360 # Set different proxy timout
@@ -39,14 +43,14 @@ ingress:
       pathType: ImplementationSpecific
       backend:
         service:
-          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
     - path: /(/?)(session/.*/se/vnc)
       pathType: ImplementationSpecific
       backend:
         service:
-          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
 

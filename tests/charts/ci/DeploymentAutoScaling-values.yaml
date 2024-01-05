@@ -35,14 +35,13 @@ chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariables
     - name: SE_OPTS
       value: "--enable-managed-downloads true"
-    - name: SE_DRAIN_AFTER_SESSION_COUNT
-      value: "0"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:
     enabled: &livenessProbe true
 # Configuration for edge nodes
 edgeNode:
+  port: 8888
   # (test): user is able to define extra container ports
   ports:
     - containerPort: 5900

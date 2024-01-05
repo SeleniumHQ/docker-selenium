@@ -1,4 +1,34 @@
 {{/*
+Expand the name of the chart.
+*/}}
+{{- define "seleniumGrid.name" -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create a default fully qualified app name.
+*/}}
+{{- define "seleniumGrid.fullname" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "seleniumGrid.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Common labels
 */}}
 {{- define "seleniumGrid.commonLabels" -}}
@@ -6,7 +36,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service | lower }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
 app.kubernetes.io/component: {{ printf "selenium-grid-%s" .Chart.AppVersion }}
-helm.sh/chart: {{ printf "%s-%s" .Chart.Name (.Chart.Version | replace "+" "_") }}
+helm.sh/chart: {{ include "seleniumGrid.chart" . }}
 {{- end -}}
 
 {{/*
@@ -72,7 +102,6 @@ Edge node fullname
 {{- default "selenium-edge-node" .Values.edgeNode.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-
 {{/*
 Ingress fullname
 */}}
@@ -81,10 +110,17 @@ Ingress fullname
 {{- end -}}
 
 {{/*
+Protocol of server components
+*/}}
+{{- define "seleniumGrid.server.protocol" -}}
+{{- .Values.tls.enabled | ternary "https" "http" -}}
+{{- end -}}
+
+{{/*
 Probe httpGet schema
 */}}
 {{- define "seleniumGrid.probe.httpGet.schema" -}}
-{{- "HTTP" -}}
+{{- .Values.tls.enabled | ternary "HTTPS" "HTTP" -}}
 {{- end -}}
 
 {{/*
@@ -130,6 +166,40 @@ Get probe settings
 {{- $settings | toYaml -}}
 {{- end -}}
 
+{{/*
+Secret TLS fullname
+*/}}
+{{- define "seleniumGrid.tls.fullname" -}}
+{{- default "selenium-tls-secret" .Values.tls.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Is registration secret enabled
+*/}}
+{{- define "seleniumGrid.tls.registrationSecret.enabled" -}}
+{{- and .Values.tls.enabled .Values.tls.registrationSecret.enabled | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
+Get default certificate file name in chart
+*/}}
+{{- define "seleniumGrid.tls.getDefaultFile" -}}
+{{- $value := index . 0 -}}
+{{- $global := index . 1 -}}
+{{- $content := $global.Files.Get $value -}}
+{{- if (contains "base64" (lower $value)) -}}
+  {{- $content = $content | b64dec -}}
+{{- end -}}
+{{- $content -}}
+{{- end -}}
+
+{{/*
+Common secrets cross components
+*/}}
+{{- define "seleniumGrid.common.secrets" -}}
+{{- default "selenium-secrets" .Values.secrets.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
 {{- with .Values.ingress.nginx }}
   {{- with .proxyTimeout }}
@@ -150,6 +220,10 @@ nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
 nginx.ingress.kubernetes.io/proxy-buffers-number: {{ . | quote }}
     {{- end }}
   {{- end }}
+{{- end }}
+{{- if .Values.tls.enabled }}
+nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 {{- end }}
 {{- end -}}
 
@@ -262,6 +336,10 @@ template:
               name: {{ .Values.nodeConfigMap.name }}
           - configMapRef:
               name: {{ .Values.loggingConfigMap.name }}
+          - configMapRef:
+              name: {{ .Values.serverConfigMap.name }}
+          - secretRef:
+              name: {{ include "seleniumGrid.common.secrets" $ | quote }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
@@ -285,6 +363,11 @@ template:
           - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
             mountPath: /opt/selenium/{{ .Values.nodeConfigMap.preStopScript }}
             subPath: {{ .Values.nodeConfigMap.preStopScript }}
+        {{- if .Values.tls.enabled }}
+          - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+            mountPath: {{ .Values.serverConfigMap.certVolumeMountPath }}
+            readOnly: true
+        {{- end }}
         {{- if .node.extraVolumeMounts }}
           {{- tpl (toYaml .node.extraVolumeMounts) $ | nindent 10 }}
         {{- end }}
@@ -302,7 +385,7 @@ template:
           {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
         {{- else }}
           httpGet:
-            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
             path: {{ .path }}
             port: {{ default ($.node.port) .port }}
         {{- end }}
@@ -318,7 +401,7 @@ template:
           {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 12 }}
         {{- else }}
           httpGet:
-            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
             path: {{ .path }}
             port: {{ default ($.node.port) .port }}
         {{- end }}
@@ -334,7 +417,7 @@ template:
           {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
         {{- else }}
           httpGet:
-            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" .) .schema }}
+            scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
             path: {{ .path }}
             port: {{ default ($.node.port) .port }}
         {{- end }}
@@ -438,6 +521,11 @@ template:
         emptyDir:
           medium: Memory
           sizeLimit: {{ default "1Gi" .node.dshmVolumeSizeLimit }}
+    {{- if .Values.tls.enabled }}
+      - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+        secret:
+          secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+    {{- end }}
     {{- if .node.extraVolumes }}
       {{ tpl (toYaml .node.extraVolumes) $ | nindent 6 }}
     {{- end }}
@@ -456,7 +544,9 @@ Get the url of the grid. If the external url can be figured out from the ingress
 
 {{- define "seleniumGrid.url.schema" -}}
 {{- $schema := "http" -}}
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.tls.enabled -}}
+  {{- $schema = "https" -}}
+{{- else if .Values.ingress.enabled -}}
   {{- if .Values.ingress.tls -}}
     {{- $schema = "https" -}}
   {{- end -}}
@@ -522,14 +612,14 @@ Get the url of the grid. If the external url can be figured out from the ingress
 Graphql Url of the hub or the router
 */}}
 {{- define "seleniumGrid.graphqlURL" -}}
-{{- printf "http://%s%s%s/graphql" (include "seleniumGrid.url.basicAuth" .) (printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $) (.Release.Namespace)) (printf ":%s" ($.Values.isolateComponents | ternary ($.Values.components.router.port | toString) ($.Values.hub.port | toString))) -}}
+{{- printf "%s://%s%s%s/graphql" (include "seleniumGrid.server.protocol" .) (include "seleniumGrid.url.basicAuth" .) (printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $) (.Release.Namespace)) (printf ":%s" ($.Values.isolateComponents | ternary ($.Values.components.router.port | toString) ($.Values.hub.port | toString))) -}}
 {{- end -}}
 
 {{/*
 Graphql unsafeSsl of the hub or the router
 */}}
 {{- define "seleniumGrid.graphqlURL.unsafeSsl" -}}
-{{- $unsafeSsl := printf "%s" (ternary "false" "true" (contains (include "seleniumGrid.graphqlURL" .) "https")) -}}
+{{- $unsafeSsl := printf "%s" (ternary "true" "false" .Values.serverConfigMap.disableHostnameVerification) -}}
 {{- $unsafeSsl }}
 {{- end -}}
 

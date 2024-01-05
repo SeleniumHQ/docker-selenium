@@ -51,7 +51,7 @@ class ChartTemplateTests(unittest.TestCase):
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
                 logger.info(f"Assert subPath is appended to node grid url")
-                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'http://sysadmin:strongPassword@10.10.10.10:8081/selenium')
+                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium')
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
 
@@ -84,8 +84,9 @@ class ChartTemplateTests(unittest.TestCase):
                 logger.info(f"Assert logging ConfigMap is set to envFrom in resource {doc['metadata']['name']}")
                 list_env_from = doc['spec']['template']['spec']['containers'][0]['envFrom']
                 for env in list_env_from:
-                    if env['configMapRef']['name'] == 'selenium-logging-config':
-                        is_present = True
+                    if env.get('configMapRef') is not None:
+                        if env['configMapRef']['name'] == 'selenium-logging-config':
+                            is_present = True
                 self.assertTrue(is_present, "envFrom doesn't contain logging ConfigMap")
                 count += 1
         self.assertEqual(count, len(resources_name), "Logging ConfigMap is not present in expected resources")

@@ -14,6 +14,11 @@ global:
 #    nodesImageTag: latest
 #    videoImageTag: latest
 
+tls:
+#  enabled: true
+  ingress:
+    generateTLS: true
+
 ingress:
   enabled: true
   annotations:
@@ -28,7 +33,7 @@ ingress:
       pathType: ImplementationSpecific
       backend:
         service:
-          name: '{{ template "seleniumGrid.router.fullname" $ }}'
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
 
@@ -38,7 +43,8 @@ basicAuth:
 isolateComponents: true
 
 autoscaling:
-  enabled: true
+#  enabled: true
+  enableWithExistingKEDA: true
   scalingType: job
   annotations:
     helm.sh/hook: post-install,post-upgrade,post-rollback
@@ -82,6 +88,9 @@ videoRecorder:
 ingress-nginx:
   enabled: true
   controller:
+    # Set controller default certificate use the same with Selenium Grid
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
     hostNetwork: true
     kind: DaemonSet
     service:

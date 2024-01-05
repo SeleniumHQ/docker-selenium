@@ -13,8 +13,9 @@ jobs:
     name: Test Helm charts
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        test-strategy: [chart_test, chart_test_parallel_autoscaling]
+        test-strategy: [chart_test, chart_test_parallel_autoscaling, chart_test_https_tls]
     steps:
       - uses: actions/checkout@v4
       - name: Output Docker info
@@ -24,6 +25,11 @@ jobs:
         with:
           python-version: '3.11'
           check-latest: true
+      - name: Install CA certificates
+        run: |
+          sudo apt install openssl -y
+          sudo apt install ca-certificates -y
+          sudo update-ca-certificates --fresh
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
