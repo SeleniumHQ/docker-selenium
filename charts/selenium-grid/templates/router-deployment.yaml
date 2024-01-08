@@ -49,6 +49,10 @@ spec:
             - name: SE_SUB_PATH
               value: {{ . | quote }}
             {{- end }}
+            {{- if .Values.components.disableUI }}
+            - name: SE_DISABLE_UI
+              value: {{ .Values.components.disableUI | quote }}
+            {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}

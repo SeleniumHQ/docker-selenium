@@ -336,6 +336,8 @@ components:
 
   # Custom sub path for all components
   subPath: ""
+  # Disable the Grid UI
+  disableUI: false
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -370,6 +372,8 @@ hub:
   annotations: {}
   # Custom labels for Selenium Hub pods
   labels: {}
+  # Disable the Grid UI
+  disableUI: false
   # Port where events are published
   publishPort: 4442
   publishNodePort: 31442
