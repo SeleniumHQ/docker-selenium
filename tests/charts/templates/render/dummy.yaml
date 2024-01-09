@@ -58,6 +58,7 @@ isolateComponents: true
 
 components:
   subPath: *gridAppRoot
+  disableUI: true
   router:
     serviceType: NodePort
   distributor:

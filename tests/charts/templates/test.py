@@ -50,7 +50,7 @@ class ChartTemplateTests(unittest.TestCase):
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
-                logger.info(f"Assert subPath is appended to node grid url")
+                logger.info(f"Assert subPath is appended to Node env SE_NODE_GRID_URL")
                 self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium')
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
@@ -60,12 +60,24 @@ class ChartTemplateTests(unittest.TestCase):
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
-                logger.info(f"Assert subPath is set to grid ENV variable")
+                logger.info(f"Assert subPath is set to Router env SE_SUB_PATH")
                 list_env = doc['spec']['template']['spec']['containers'][0]['env']
                 for env in list_env:
                     if env['name'] == 'SE_SUB_PATH' and env['value'] == '/selenium':
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
+
+    def test_disable_ui_set_to_grid_env_var(self):
+        resources_name = ['selenium-router']
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert option disable UI is set to Router env SE_DISABLE_UI")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_DISABLE_UI' and env['value'] == 'true':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_DISABLE_UI is not populated")
 
     def test_log_level_set_to_logging_config_map(self):
         resources_name = ['selenium-chrome-node', 'selenium-distributor', 'selenium-edge-node', 'selenium-firefox-node',

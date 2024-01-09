@@ -648,6 +648,7 @@ You can configure the Selenium Hub with these values:
 | `hub.imagePullSecret`           | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                                          |
 | `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                                               |
+| `hub.disableUI`                 | `false`           | Disable the Grid UI                                                                                                                              |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                                  |
 | `hub.publishNodePort`           | `31442`           | NodePort where events are published                                                                                                              |
 | `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                                               |
@@ -764,6 +765,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.affinity`           | `{}`              | Affinity for Session Queue pods                                                                                                                  |
 | `components.sessionQueue.priorityClassName`  | `""`              | Priority class name for Session Queue pods                                                                                                       |
 | `components.subPath`                         | `/`               | Custom sub path for all components                                                                                                               |
+| `components.disableUI`                       | `false`           | Disable the Grid UI                                                                                                                              |
 | `components.extraEnvironmentVariables`       | `nil`             | Custom environment variables for all components                                                                                                  |
 | `components.extraEnvFrom`                    | `nil`             | Custom environment variables taken from `configMap` or `secret` for all components                                                               |
 

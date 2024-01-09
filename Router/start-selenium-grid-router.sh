@@ -88,6 +88,11 @@ if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
   SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
 fi
 
+if [ ! -z "$SE_DISABLE_UI" ]; then
+  echo "Appending Selenium options: --disable-ui ${SE_DISABLE_UI}"
+  SE_OPTS="$SE_OPTS --disable-ui ${SE_DISABLE_UI}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
