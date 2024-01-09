@@ -1,9 +1,11 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-VERSION := $(or $(VERSION),$(VERSION),4.16.1)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.16.1)
 BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.16.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.16.1)
+BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.17.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),$(BASE_VERSION))
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
@@ -40,6 +42,9 @@ ci: build test
 
 base:
 	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) -t $(NAME)/base:$(TAG_VERSION) .
+
+base_nightly:
+	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub: base
 	cd ./Hub && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
@@ -176,6 +181,44 @@ release_latest:
 	docker push $(NAME)/standalone-firefox:latest
 	docker push $(NAME)/standalone-docker:latest
 	docker push $(NAME)/video:latest
+
+tag_nightly:
+	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:nightly
+	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:nightly
+	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:nightly
+	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:nightly
+	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:nightly
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
+	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
+	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
+	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly
+	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
+	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
+	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly
+	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
+	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
+	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
+
+release_nightly:
+	docker push $(NAME)/base:nightly
+	docker push $(NAME)/hub:nightly
+	docker push $(NAME)/distributor:nightly
+	docker push $(NAME)/router:nightly
+	docker push $(NAME)/sessions:nightly
+	docker push $(NAME)/session-queue:nightly
+	docker push $(NAME)/event-bus:nightly
+	docker push $(NAME)/node-base:nightly
+	docker push $(NAME)/node-chrome:nightly
+	docker push $(NAME)/node-edge:nightly
+	docker push $(NAME)/node-firefox:nightly
+	docker push $(NAME)/node-docker:nightly
+	docker push $(NAME)/standalone-chrome:nightly
+	docker push $(NAME)/standalone-edge:nightly
+	docker push $(NAME)/standalone-firefox:nightly
+	docker push $(NAME)/standalone-docker:nightly
+	docker push $(NAME)/video:nightly
 
 tag_major_minor:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR)
