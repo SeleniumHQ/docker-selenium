@@ -137,7 +137,9 @@ class JobAutoscaling():
                 for test in suite:
                     futures.append(executor.submit(test))
             for future in concurrent.futures.as_completed(futures):
-                future.result()
+                result = future.result()
+                if not result.wasSuccessful():
+                    raise Exception("Parallel tests failed")
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
