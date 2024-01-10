@@ -23,6 +23,7 @@ Talk to us at https://www.selenium.dev/support/
 
 * [Quick start](#quick-start)
 * [Experimental Mult-Arch aarch64/armhf/amd64 Images](#experimental-mult-arch-aarch64armhfamd64-images)
+* [Nightly Images](#nightly-images)
 * [Dev and Beta Channel Browser Images](#dev-and-beta-channel-browser-images)
   + [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
   + [Dev and Beta on the Grid](#dev-and-beta-on-the-grid)
@@ -105,6 +106,14 @@ If you're working on an Intel or AMD64 architecture, we recommend using the cont
 in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
 
 ___
+
+## Nightly Images
+
+Nightly images are built on top of the [Nightly](https://github.com/SeleniumHQ/selenium/releases/tag/nightly) build on the upstream project [Selenium](https://github.com/SeleniumHQ/selenium) with the latest changes on main branch in this repository. The image tag is `nightly`. This is not recommended to use images in production. It is only for testing purpose.
+
+```bash
+$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:nightly
+```
 
 ## Dev and Beta Channel Browser Images
 

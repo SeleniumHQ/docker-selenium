@@ -38,7 +38,7 @@ echo "<details>" >> release_notes.md
 echo "<summary>Click to see published Docker images</summary>" >> release_notes.md
 echo "" >> release_notes.md
 echo '```' >> release_notes.md
-docker images --filter=reference=${NAMESPACE}'/*:*' --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >> release_notes.md
+docker images --filter=reference=${NAMESPACE}'/*:'${FILTER_IMAGE_TAG:-"*"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >> release_notes.md
 echo '```' >> release_notes.md
 echo "" >> release_notes.md
 echo "</details>" >> release_notes.md
