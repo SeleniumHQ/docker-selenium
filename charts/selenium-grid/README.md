@@ -8,6 +8,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Contents](#contents)
   * [Introduction](#introduction)
   * [Installing the chart](#installing-the-chart)
+    * [Installing the Nightly chart](#installing-the-nightly-chart)
   * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
@@ -65,6 +66,14 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 # Verify ingress configuration via kubectl get ingress
 # Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
+```
+
+### Installing the Nightly chart
+
+Nightly chart is built from the latest main branch of this repository with using Nightly images. It is not recommended to use this chart in production. It is only for testing purpose. The procedure to install the Nightly chart is the same as the above, only different on the version, it is `1.0.0-nightly`
+
+```bash
+helm install selenium-grid docker-selenium/selenium-grid --version 1.0.0-nightly
 ```
 
 ## Enable Selenium Grid Autoscaling

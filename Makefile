@@ -7,6 +7,7 @@ BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nig
 BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.17.0-SNAPSHOT)
 VERSION := $(or $(VERSION),$(VERSION),$(BASE_VERSION))
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
+CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
@@ -416,6 +417,9 @@ chart_cluster_setup:
 
 chart_cluster_cleanup:
 	./tests/charts/make/chart_cluster_cleanup.sh
+
+chart_build_nightly:
+	VERSION=$(CHART_VERSION_NIGHTLY) ./tests/charts/make/chart_build.sh
 
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh

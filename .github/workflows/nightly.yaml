@@ -61,21 +61,39 @@ jobs:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_nightly
-      - name: Sets env var for the next tag
-        run: echo "NEXT_TAG=nightly" >> $GITHUB_ENV
       - name: Get current latest tag
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude=selenium-grid*)" >> $GITHUB_ENV
       - name: Display latest tag
         run: echo ${LATEST_TAG}
+      - name: Sets env var for nightly tag
+        run: |
+          echo "NEXT_TAG=nightly" >> $GITHUB_ENV
+          echo "FILTER_IMAGE_TAG=nightly" >> $GITHUB_ENV
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+          check-latest: true
+      - name: Update tag in docs and files
+        run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
+      - name: Setup environment to build chart
+        run: make chart_setup_env
+      - name: Build and lint charts
+        run: |
+          make chart_build_nightly
+          echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+          echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+
       - name: Create Nightly Release
         id: create_release
         uses: ncipollo/release-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          #artifacts:
+          artifacts: "${{ env.CHART_PACKAGE_PATH }}"
           replacesArtifacts: true
           bodyFile: "release_notes.md"
           generateReleaseNotes: true
