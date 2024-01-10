@@ -747,4 +747,18 @@ entries:
     urls:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.3.0/selenium-grid-0.3.0.tgz
     version: 0.3.0
-generated: "2023-12-22T15:55:13.953662047Z"
+  - apiVersion: v2
+    appVersion: nightly
+    description: A Helm chart for creating a Selenium Grid Server in Kubernetes
+    icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
+    maintainers:
+    - email: selenium-developers@googlegroups.com
+      name: SeleniumHQ
+    name: selenium-grid
+    sources:
+    - https://github.com/SeleniumHQ/docker-selenium
+    type: application
+    urls:
+      - https://github.com/SeleniumHQ/docker-selenium/releases/download/nightly/selenium-grid-1.0.0-nightly.tgz
+    version: 1.0.0-nightly
+generated: "2023-12-23T15:55:13.953662047Z"
