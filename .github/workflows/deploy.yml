@@ -57,19 +57,19 @@ jobs:
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
-        uses: nick-invision/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
       - name: Deploy latest tag
-        uses: nick-invision/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
-        uses: nick-invision/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
@@ -88,12 +88,12 @@ jobs:
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: ncipollo/release-action@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          body_path: release_notes.md
-          draft: false
+          tag: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          bodyFile: "release_notes.md"
+          generateReleaseNotes: true
           prerelease: ${{ env.PRERELEASE }}

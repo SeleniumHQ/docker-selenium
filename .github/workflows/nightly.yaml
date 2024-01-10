@@ -72,6 +72,8 @@ jobs:
       - name: Create Nightly Release
         id: create_release
         uses: ncipollo/release-action@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           #artifacts:
           replacesArtifacts: true
