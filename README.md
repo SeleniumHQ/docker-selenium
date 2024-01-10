@@ -865,12 +865,12 @@ captured in the same video.
 [Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
-To avoid starting the server you can set the `START_XVFB` environment variable to `false` 
+To avoid starting the server you can set the `SE_START_XVFB` environment variable to `false` 
 (or any other value than `true`), for example:
 
 ``` bash
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e START_XVFB=false --shm-size="2g" selenium/node-chrome:4.16.1-20231219
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.16.1-20231219
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
