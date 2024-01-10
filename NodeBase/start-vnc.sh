@@ -45,9 +45,10 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
     done
 
     # Guard against unreasonably high nofile limits. See https://github.com/SeleniumHQ/docker-selenium/issues/2045
-    if [[ $(ulimit -n) -gt 200000 || ! -z "${SE_VNC_ULIMIT}" ]]; then
-      echo "Trying to update the open file descriptor limit from $(ulimit -n) to ${SE_VNC_ULIMIT:-65536}."
-      ulimit -n ${SE_VNC_ULIMIT:-65536}
+    ULIMIT=${SE_VNC_ULIMIT:-100000}
+    if [[ ${ULIMIT} -ge 100000 ]]; then
+      echo "Trying to update the open file descriptor limit from $(ulimit -n) to ${ULIMIT}."
+      ulimit -Sv ${ULIMIT}
       if [ $? -eq 0 ]; then
         echo "Successfully update the open file descriptor limit."
       else
