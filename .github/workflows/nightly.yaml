@@ -71,7 +71,6 @@ jobs:
           echo "FILTER_IMAGE_TAG=nightly" >> $GITHUB_ENV
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
-
       - name: Set up Python
         uses: actions/setup-python@v5.0.0
         with:
@@ -86,7 +85,12 @@ jobs:
           make chart_build_nightly
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
-
+      - name: Delete previous nightly tag if any
+        uses: dev-drprasad/delete-tag-and-release@master
+        with:
+          tag_name: ${{ env.BASE_RELEASE }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true
       - name: Create Nightly Release
         id: create_release
         uses: ncipollo/release-action@main
@@ -98,6 +102,6 @@ jobs:
           bodyFile: "release_notes.md"
           generateReleaseNotes: true
           name: Nightly
-          tag: nightly
+          tag: ${{ env.BASE_RELEASE }}
           allowUpdates: true
           prerelease: ${{ env.PRERELEASE }}
