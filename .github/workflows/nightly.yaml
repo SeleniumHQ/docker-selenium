@@ -28,7 +28,7 @@ jobs:
           echo "PRERELEASE=true" >> $GITHUB_ENV
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
         env:
-          NAMESPACE: ${{ github.event.inputs.NAMESPACE }}
+          NAMESPACE: ${{ github.event.inputs.NAMESPACE || 'selenium' }}
       - name: Build base image to get Grid version
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base_nightly
       - name: Get Grid version
