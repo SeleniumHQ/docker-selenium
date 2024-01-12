@@ -13,6 +13,7 @@ jobs:
   deploy:
     name: Nightly build
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,22 +87,21 @@ jobs:
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Delete previous nightly tag if any
-        uses: dev-drprasad/delete-tag-and-release@master
+        uses: cb80/delrel@latest
         with:
-          tag_name: ${{ env.BASE_RELEASE }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          delete_release: true
+          tag: ${{ env.BASE_RELEASE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Nightly Release
         id: create_release
-        uses: ncipollo/release-action@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@master
         with:
-          artifacts: "${{ env.CHART_PACKAGE_PATH }}"
-          replacesArtifacts: true
-          bodyFile: "release_notes.md"
-          generateReleaseNotes: true
-          name: Nightly
-          tag: ${{ env.BASE_RELEASE }}
-          allowUpdates: true
-          prerelease: ${{ env.PRERELEASE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.BASE_RELEASE }}
+          name: "Nightly"
+          body_path: "release_notes.md"
+          files: |
+            ${{ env.CHART_PACKAGE_PATH }}
+          generate_release_notes: true
+          draft: false
+          prerelease: true
+          append_body: true

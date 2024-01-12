@@ -11,6 +11,7 @@ jobs:
     if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -88,12 +89,13 @@ jobs:
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release
         id: create_release
-        uses: ncipollo/release-action@main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@master
         with:
-          tag: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
           name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          bodyFile: "release_notes.md"
-          generateReleaseNotes: true
+          body_path: "release_notes.md"
+          generate_release_notes: true
           prerelease: ${{ env.PRERELEASE }}
+          draft: false
+          append_body: false

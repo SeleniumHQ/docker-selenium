@@ -73,6 +73,10 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 Nightly chart is built from the latest main branch of this repository with using Nightly images. It is not recommended to use this chart in production. It is only for testing purpose. The procedure to install the Nightly chart is the same as the above, only different on the version, it is `1.0.0-nightly`
 
 ```bash
+# List all versions Nightly in the docker-selenium repo
+helm search repo docker-selenium --devel
+
+# Install basic grid Nightly version
 helm install selenium-grid docker-selenium/selenium-grid --version 1.0.0-nightly
 ```
 
