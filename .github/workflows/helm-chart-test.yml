@@ -2,7 +2,11 @@ name: Lint and Test Helm Charts
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-strategy: [chart_test, chart_test_parallel_autoscaling, chart_test_https_tls]
+        test-strategy: [chart_test, chart_test_parallel_autoscaling, chart_test_https, chart_test_parallel_autoscaling_https]
     steps:
       - uses: actions/checkout@v4
       - name: Output Docker info
@@ -49,7 +53,7 @@ jobs:
       - name: Setup Kubernetes environment
         run: make chart_setup_env
       - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build_nightly
       - name: Build and lint charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build

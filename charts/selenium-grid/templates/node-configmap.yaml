@@ -14,11 +14,4 @@ metadata:
 data:
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
   SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
-  {{ .Values.nodeConfigMap.preStopScript }}: |
-    #!/bin/bash
-    if curl -sf 127.0.0.1:${SE_NODE_PORT}/status; then
-        curl -X POST 127.0.0.1:${SE_NODE_PORT}/se/grid/node/drain --header 'X-REGISTRATION-SECRET;'
-        while curl -sf 127.0.0.1:${SE_NODE_PORT}/status; do sleep 1; done
-    else
-        echo "Node is already drained. Shutting down gracefully!"
-    fi
+{{ (.Files.Glob "configs/node/*").AsConfig | indent 2 }}

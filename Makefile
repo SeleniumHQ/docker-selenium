@@ -426,6 +426,9 @@ chart_build_nightly:
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
+chart_test_https:
+	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test
+
 chart_test: chart_test_template \
  chart_test_chrome \
  chart_test_firefox \
@@ -443,12 +446,11 @@ chart_test_firefox:
 chart_test_edge:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
 
+chart_test_parallel_autoscaling_https:
+	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_parallel_autoscaling
+
 chart_test_parallel_autoscaling:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh JobAutoscaling
-
-chart_test_https_tls:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
-	./tests/charts/make/chart_test.sh JobAutoscaling
 
 .PHONY: \
 	all \
