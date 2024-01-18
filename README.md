@@ -828,7 +828,7 @@ docker run -d -e SE_SCREEN_WIDTH=1366 -e SE_SCREEN_HEIGHT=768 -e SE_SCREEN_DEPTH
 In some use cases, you might need to set the Grid URL to the Node, for example, if you'd like to access the BiDi/CDP endpoint. 
 This is also needed when you want to use the new `RemoteWebDriver.builder()` or `Augmenter()` present in Selenium 4 
 (since they setup the BiDi/CDP connection implicitly). You can do that through the `SE_NODE_GRID_URL` environment 
-variable. Setting this env var is needed if you want to see the live view while sessions are executing.
+variable, eg `-e SE_NODE_GRID_URL=http://<hostMachine>:4444`. Setting this env var is needed if you want to see the live view while sessions are executing.
 
 Grid has a default session timeout of 300 seconds, where the session can be in a stale state until it is killed. You can use
 `SE_NODE_SESSION_TIMEOUT` to overwrite that value in seconds.
