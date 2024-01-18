@@ -1,0 +1,14 @@
+# This is used in Helm chart testing
+# Configuration for chrome nodes
+chromeNode:
+  enabled: false
+# Configuration for edge nodes
+edgeNode:
+  port: 8888
+  nameOverride: my-edge-name
+  extraEnvironmentVariables:
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+# Configuration for firefox nodes
+firefoxNode:
+  enabled: false

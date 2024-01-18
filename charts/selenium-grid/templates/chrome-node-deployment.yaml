@@ -1,0 +1,30 @@
+{{- if and .Values.chromeNode.enabled ((eq (include "seleniumGrid.useKEDA" .) "true") | ternary (eq .Values.autoscaling.scalingType "deployment") .Values.chromeNode.deploymentEnabled) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.chromeNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.chromeNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if and (not .Values.autoscaling.enabled) (not .Values.autoscaling.enableWithExistingKEDA) }}
+  replicas: {{ .Values.chromeNode.replicas }}
+  {{end}}
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.chromeNode.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" (include "seleniumGrid.chromeNode.fullname" .) -}}
+{{- $_ =  set $podScope "node" .Values.chromeNode -}}
+{{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader | toString)) -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 2 }}
+{{- end }}

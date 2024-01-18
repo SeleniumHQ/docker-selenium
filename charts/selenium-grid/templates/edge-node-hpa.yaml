@@ -1,0 +1,18 @@
+{{- if and .Values.edgeNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "deployment") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-edge-scaledobject
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
+spec:
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.edgeNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.edgeNode -}}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if and .Values.firefoxNode.enabled ((eq (include "seleniumGrid.useKEDA" .) "true") | ternary (eq .Values.autoscaling.scalingType "deployment")  .Values.firefoxNode.deploymentEnabled) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.firefoxNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if and (not .Values.autoscaling.enabled) (not .Values.autoscaling.enableWithExistingKEDA) }}
+  replicas: {{ .Values.firefoxNode.replicas }}
+  {{end}}
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- $podScope := deepCopy . -}}
+{{- $_ := set $podScope "name" (include "seleniumGrid.firefoxNode.fullname" .) -}}
+{{- $_ =  set $podScope "node" .Values.firefoxNode -}}
+{{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader | toString)) -}}
+{{- include "seleniumGrid.podTemplate" $podScope | nindent 2 }}
+{{- end }}

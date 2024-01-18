@@ -1,0 +1,156 @@
+{{- if (not .Values.isolateComponents) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.hub.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &hub_labels
+    app: {{ template "seleniumGrid.hub.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.hub.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.hub.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.hub.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels: *hub_labels
+    {{- with .Values.hub.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
+      containers:
+        - name: {{ template "seleniumGrid.hub.fullname" . }}
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.hub.imageTag }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.hub.imageRegistry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.hub.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.hub.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.hub.port }}
+              protocol: TCP
+            - containerPort: {{ .Values.hub.publishPort }}
+              protocol: TCP
+            - containerPort: {{ .Values.hub.subscribePort }}
+              protocol: TCP
+        {{- if .Values.hub.startupProbe.enabled }}
+          {{- with .Values.hub.startupProbe }}
+          startupProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
+            httpGet:
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.hub.readinessProbe.enabled }}
+          {{- with .Values.hub.readinessProbe }}
+          readinessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
+            httpGet:
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.hub.livenessProbe.enabled }}
+          {{- with .Values.hub.livenessProbe }}
+          livenessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
+            httpGet:
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+          env:
+            {{- with .Values.hub.subPath }}
+            - name: SE_SUB_PATH
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .Values.hub.disableUI }}
+            - name: SE_DISABLE_UI
+              value: {{ .Values.hub.disableUI | quote }}
+            {{- end }}
+          {{- with .Values.hub.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.loggingConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+          {{- with .Values.hub.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
+        {{- with .Values.hub.extraVolumeMounts }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+        {{- with .Values.hub.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.hub.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.hub.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
+    {{- with .Values.hub.tolerations }}
+      tolerations: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.hub.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.hub.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
+      volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
+    {{- with .Values.hub.extraVolumes }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
+{{- end }}

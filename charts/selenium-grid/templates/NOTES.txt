@@ -1,0 +1,46 @@
+Selenium Grid Server deployed successfully.
+
+{{- $svcName := ternary (include "seleniumGrid.router.fullname" . ) (include "seleniumGrid.hub.fullname" . ) .Values.isolateComponents }}
+{{- $appName := ternary (include "seleniumGrid.router.fullname" . ) (include "seleniumGrid.hub.fullname" . ) .Values.isolateComponents }}
+{{- $serviceType := ternary .Values.components.router.serviceType .Values.hub.serviceType .Values.isolateComponents }}
+{{- $port := ternary .Values.components.router.port .Values.hub.port .Values.isolateComponents }}
+{{- $localUrl := ternary "http://localhost:PORT" "http://localhost:PORT/wd/hub" .Values.isolateComponents }}
+
+{{- if .Values.ingress.enabled }}
+    {{- if .Values.ingress.hostname }}
+1. Ingress is enabled, and it exposes the Grid Hub or Grid Router with the hostname you supplied.
+    To access Selenium from outside of Kubernetes, simply open {{ include "seleniumGrid.url" .}}.
+    {{- else if and (empty .Values.ingress.hostname) .Values.global.K8S_PUBLIC_IP }}
+1. Ingress is enabled, but hostname doesn't set, and it exposes the Grid Hub or Grid Router with the K8S_PUBLIC_IP you supplied.
+    To access Selenium from outside of Kubernetes, simply open {{ include "seleniumGrid.url" .}}.
+    {{- else }}
+1. Ingress is enabled, but hostname doesn't set. All inbound HTTP traffic will be routed to the Grid by matching any host.
+    Please keep in mind that it is rarely necessary, and in most cases, you shall provide `ingress.hostname` in values.yaml.
+    To access Selenium from outside of Kubernetes:
+        - open the IP of any node with Ingress, or
+        - any hostname pointing to the node with Ingress
+    {{- end}}
+{{- else}}
+    {{- if contains "NodePort" $serviceType }}
+      {{- if .Values.global.K8S_PUBLIC_IP }}
+1. Ingress is disabled, and it exposes the Grid Hub or Grid Router with NodePort and the K8S_PUBLIC_IP you supplied
+    To access Selenium from outside of Kubernetes with NodePort and K8S_PUBLIC_IP you supplied, simply open {{ include "seleniumGrid.url" .}}.
+      {{- else }}
+1. Ingress is disabled. To access Selenium from outside of Kubernetes, simply run these commands:
+    export NODE_IP=$(kubectl get nodes -n {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+    echo http://$NODE_IP:{{ include "seleniumGrid.url.port" .}}{{ include "seleniumGrid.url.subPath" .}}
+      {{- end }}
+    {{- else if contains "LoadBalancer" $serviceType }}
+        NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+            You can watch the status of by running 'kubectl get -n {{ .Release.Namespace }} svc -w {{ $svcName }}'
+    export SERVICE_IP=$(kubectl get svc -n {{ .Release.Namespace }} {{ $svcName }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+    echo http://$SERVICE_IP:{{ $port }}
+    {{- else if contains "ClusterIP" $serviceType }}
+    export POD_NAME=$(kubectl get pods -n {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ $appName }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+    echo "Point your WebDriver tests to {{ $localUrl | replace "PORT" (toString $port) }}"
+    kubectl -n {{ .Release.Namespace }} port-forward $POD_NAME {{ $port }}:{{ $port }}
+    {{- end }}
+{{- end}}
+
+2. Within Kubernetes cluster, you can use following Service endpoint:
+        http://{{ $svcName }}.{{ .Release.Namespace }}.svc:{{ $port }}

@@ -3,6 +3,7 @@ import os
 import random
 import sys
 import unittest
+import re
 
 import docker
 from docker.errors import NotFound
@@ -11,9 +12,6 @@ from docker.errors import NotFound
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Docker Client
-client = docker.from_env()
-
 NAMESPACE = os.environ.get('NAMESPACE')
 VERSION = os.environ.get('VERSION')
 USE_RANDOM_USER_ID = os.environ.get('USE_RANDOM_USER_ID')
@@ -21,6 +19,12 @@ RUN_IN_DOCKER_COMPOSE = os.environ.get('RUN_IN_DOCKER_COMPOSE')
 http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
+SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
+
+try:
+    client = docker.from_env()
+except:
+    client = None
 
 IMAGE_NAME_MAP = {
     # Hub
@@ -51,8 +55,15 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+
+    # Chart Parallel Test
+    'JobAutoscaling': 'JobAutoscalingTests'
 }
 
+FROM_IMAGE_ARGS = {
+    'NAMESPACE': NAMESPACE,
+    'VERSION': VERSION
+}
 
 def launch_hub(network_name):
     """
@@ -103,12 +114,19 @@ def launch_container(container, **kwargs):
     :param container:
     :return: the container ID
     """
-    # Build the container if it doesn't exist
-    logger.info("Building %s container..." % container)
-    client.images.build(path='../%s' % container,
-                        tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                        rm=True)
-    logger.info("Done building %s" % container)
+    skip_building_images = SKIP_BUILD == 'true'
+    if skip_building_images:
+        logger.info("SKIP_BUILD is true...not rebuilding images...")
+    else:
+        # Build the container if it doesn't exist
+        logger.info("Building %s container..." % container)
+        set_from_image_base_for_standalone(container)
+        build_path = get_build_path(container)
+        client.images.build(path='../%s' % build_path,
+                            tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                            rm=True,
+                            buildargs=FROM_IMAGE_ARGS)
+        logger.info("Done building %s" % container)
 
     # Run the container
     logger.info("Running %s container..." % container)
@@ -121,6 +139,8 @@ def launch_container(container, **kwargs):
         'SE_EVENT_BUS_PUBLISH_PORT': 4442,
         'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443
     }
+    if container != 'Hub':
+        environment['SE_OPTS'] = "--enable-managed-downloads true"
     container_id = client.containers.run("%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
                                          detach=True,
                                          environment=environment,
@@ -130,13 +150,31 @@ def launch_container(container, **kwargs):
     return container_id
 
 
+def set_from_image_base_for_standalone(container):
+    match = standalone_browser_container_matches(container)
+    if match != None:
+      FROM_IMAGE_ARGS['BASE'] = 'node-' + match.group(2).lower()
+
+
+def get_build_path(container):
+    match = standalone_browser_container_matches(container)
+    if match == None:
+      return container
+    else:
+      return match.group(1)
+
+
+def standalone_browser_container_matches(container):
+    return re.match("(Standalone)(Chrome|Firefox|Edge)", container)
+
+
 if __name__ == '__main__':
     # The container to test against
     image = sys.argv[1]
 
     use_random_user_id = USE_RANDOM_USER_ID == 'true'
     run_in_docker_compose = RUN_IN_DOCKER_COMPOSE == 'true'
-    random_user_id = random.randint(100000, 2147483647)
+    random_user_id = random.randint(2000, 65000)
 
     if use_random_user_id:
         logger.info("Running tests with a random user ID -> %s" % random_user_id)

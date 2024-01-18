@@ -1,0 +1,53 @@
+name: Scan Dockerfile vulnerabilities
+
+on:
+  push:
+    paths:
+      - '**/Dockerfile'
+  pull_request:
+    paths:
+      - '**/Dockerfile'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build-and-scan:
+    name: Scan Dockerfile vulnerabilities
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set severity for PRs
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: |
+          echo "SEVERITY=HIGH,CRITICAL" >> $GITHUB_ENV
+          echo "EXIT_CODE=1" >> $GITHUB_ENV
+      - name: Set severity for others
+        if: github.event_name != 'pull_request' && github.event_name != 'push'
+        run: |
+          echo "SEVERITY=LOW,MEDIUM,HIGH,CRITICAL" >> $GITHUB_ENV
+          echo "EXIT_CODE=0" >> $GITHUB_ENV
+      - name: Scan source code
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'source-results.sarif'
+          scanners: 'vuln,secret,misconfig'
+          skip-dirs: 'tests,Video'
+          exit-code: '${{ env.EXIT_CODE }}'
+          severity: '${{ env.SEVERITY }}'
+          limit-severities-for-sarif: true
+      - name: Upload source scan results to annotations
+        if: always()
+        uses: Ayrx/sarif_to_github_annotations@master
+        with:
+          sarif_file: 'source-results.sarif'
+      - name: Upload source scan results to GitHub Security tab
+        if: github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'source-results.sarif'
+          category: source-results

@@ -1,0 +1,86 @@
+name: Update Dev/Beta Browser Images
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Trigger build every 2 days
+    - cron: '0 2 */2 * *'
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+    strategy: 
+      fail-fast: false
+      matrix:
+        browser: [chrome,firefox,edge]
+        channel: [dev,beta]
+    env:
+      NAME: selenium
+      BROWSER: ${{ matrix.browser }}
+      CHANNEL: ${{ matrix.channel }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup environment variables
+      run: |
+        export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
+        echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
+        export BUILD_DATE=$(date '+%Y%m%d')
+        echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
+        export BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
+        echo "BROWSER_CAPS="$BROWSER_CAPS >> $GITHUB_ENV
+        export CHANNEL_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $CHANNEL`
+        echo "CHANNEL_CAPS="$CHANNEL_CAPS >> $GITHUB_ENV
+        echo "BROWSER is $BROWSER"
+        echo "CHANNEL is $CHANNEL"
+        echo "SELENIUM_VERSION is $SELENIUM_VERSION"
+        echo "BUILD_DATE is $BUILD_DATE"
+
+    - name: Pull hub and node-base and tag them for faster building and testing
+      run: |
+        docker pull $NAME/hub:latest
+        docker pull $NAME/node-base:latest
+        docker tag $NAME/hub:latest $NAME/hub:$CHANNEL
+        docker tag $NAME/node-base:latest $NAME/node-base:$CHANNEL
+        docker tag $NAME/hub:latest $NAME/hub:"$SELENIUM_VERSION"-"$BUILD_DATE"
+        docker tag $NAME/node-base:latest $NAME/node-base:"$SELENIUM_VERSION"-"$BUILD_DATE"
+        
+    - name: Build the Dev/Beta Docker container images
+      run: |
+        echo VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
+        VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"        
+
+    - name: Test the Dev/Beta Docker container images
+      run: |
+        export SKIP_BUILD=true
+        export NAMESPACE=$NAME
+        VERSION=$CHANNEL ./tests/bootstrap.sh Node$BROWSER_CAPS
+        VERSION=$CHANNEL ./tests/bootstrap.sh Standalone$BROWSER_CAPS
+
+    - name: Login Docker Hub
+      run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+      env:
+        DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}  
+
+    - name: Deploy Dev/Beta Docker container images  
+      run: |
+        docker push $NAME/node-$BROWSER:$CHANNEL
+        docker push $NAME/standalone-$BROWSER:$CHANNEL
+        if [ "$BROWSER" = "firefox" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/geckodriver --version | head -n 1"
+          export BROWSER_VERSION_COMMAND="firefox -version"
+        elif [ "$BROWSER" = "chrome" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/chromedriver -version"
+          export BROWSER_VERSION_COMMAND="google-chrome -version"
+        elif [ "$BROWSER" = "edge" ]; then
+          export DRIVER_VERSION_COMMAND="/usr/bin/msedgedriver -version"
+          export BROWSER_VERSION_COMMAND="microsoft-edge -version"
+        fi
+        echo "Push to Docker Hub completed"
+        echo "$BROWSER_CAPS $CHANNEL_CAPS browser version:"
+        docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$BROWSER_VERSION_COMMAND"
+        echo "$BROWSER_CAPS $CHANNEL_CAPS WebDriver version:"
+        docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$DRIVER_VERSION_COMMAND"

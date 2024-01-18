@@ -42,3 +42,9 @@ updates:
     interval: daily
     time: '08:00'
   open-pull-requests-limit: 99
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: daily
+    time: '08:00'
+  open-pull-requests-limit: 99

@@ -1,0 +1,97 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.distributor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &distributor_labels
+    app: {{ template "seleniumGrid.distributor.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.distributor.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.distributor.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels: *distributor_labels
+    {{- with .Values.components.distributor.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      containers:
+        - name: {{ template "seleniumGrid.distributor.fullname" . }}
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.distributor.imageTag }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.distributor.imageRegistry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.distributor.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
+          env:
+            - name: SE_SESSIONS_MAP_HOST
+              value: {{ template "seleniumGrid.sessionMap.fullname" . }}
+            - name: SE_SESSIONS_MAP_PORT
+              value: {{ .Values.components.sessionMap.port | quote }}
+            - name: SE_SESSION_QUEUE_HOST
+              value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+            - name: SE_SESSION_QUEUE_PORT
+              value: {{ .Values.components.sessionQueue.port | quote }}
+          {{- with .Values.components.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.loggingConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+            {{- with .Values.components.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.components.distributor.port }}
+              protocol: TCP
+        {{- with .Values.components.distributor.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.components.distributor.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.distributor.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.components.distributor.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.distributor.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.distributor.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}     
+    {{- with .Values.components.distributor.tolerations }}
+      tolerations: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.components.distributor.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
+      volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if and .Values.firefoxNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.firefoxNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.firefoxNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.firefoxNode -}}
+  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader | toString)) -}}
+  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+{{- end }}

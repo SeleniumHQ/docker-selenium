@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.loggingConfigMap.name }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.loggingConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  SE_LOG_LEVEL: "{{ default "INFO" .Values.global.seleniumGrid.logLevel }}"

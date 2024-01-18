@@ -1,0 +1,29 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.sessionQueue.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.components.sessionQueue.serviceType }}
+  ports:
+    - name: tcp-ssn-que
+      protocol: TCP
+      port: {{ .Values.components.sessionQueue.port }}
+      targetPort: {{ .Values.components.sessionQueue.port }}
+      {{- if and (eq .Values.components.sessionQueue.serviceType "NodePort") .Values.components.sessionQueue.nodePort }}
+      nodePort: {{ .Values.components.sessionQueue.nodePort }}
+      {{- end }}
+{{- end }}

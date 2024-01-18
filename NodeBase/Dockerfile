@@ -1,9 +1,11 @@
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
-# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/base:4.1.0-20211209
-LABEL authors=SeleniumHQ
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+FROM ${NAMESPACE}/base:${VERSION}
+LABEL authors=${AUTHORS}
+
+ARG NOVNC_VERSION="1.4.0"
+ARG WEBSOCKIFY_VERSION="0.11.0"
 
 USER root
 
@@ -11,7 +13,7 @@ USER root
 # Xvfb
 #==============
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     xvfb \
     pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
@@ -41,7 +43,7 @@ RUN apt-get -qqy update \
 # VNC
 #=====
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
   x11vnc \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -50,7 +52,7 @@ RUN apt-get update -qqy \
 # A fast, lightweight and responsive window manager
 #=========
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -65,15 +67,16 @@ RUN apt-get update -qqy \
 # fonts-ipafont-gothic     ~13 MB
 # fonts-wqy-zenhei         ~17 MB
 # fonts-tlwg-loma-otf      ~300 KB
-# ttf-ubuntu-font-family   ~5 MB
+# fonts-ubuntu             ~5 MB
 #   Ubuntu Font Family, sans-serif typeface hinted for clarity
 # Removed packages:
 # xfonts-100dpi            ~6 MB
 # xfonts-75dpi             ~6 MB
+# fonts-noto-color-emoji   ~10 MB
 # Regarding fonts-liberation see:
 #  https://github.com/SeleniumHQ/docker-selenium/issues/383#issuecomment-278367069
-# Layer size: small: 36.28 MB (with --no-install-recommends)
-# Layer size: small: 36.28 MB
+# Layer size: small: 50.3 MB (with --no-install-recommends)
+# Layer size: small: 50.3 MB
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
@@ -84,45 +87,61 @@ RUN apt-get -qqy update \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    ttf-ubuntu-font-family \
+    fonts-ubuntu \
+    fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
 
 ########################################
 # noVNC exposes VNC through a web page #
 ########################################
-# Download https://github.com/novnc/noVNC dated 2021-03-30 commit 84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0
-# Download https://github.com/novnc/websockify dated 2021-03-22 commit c5d365dd1dbfee89881f1c1c02a2ac64838d645f
-ENV NOVNC_SHA="84f102d6a9ffaf3972693d59bad5c6fddb6d7fb0" \
-    WEBSOCKIFY_SHA="c5d365dd1dbfee89881f1c1c02a2ac64838d645f"
 RUN  wget -nv -O noVNC.zip \
-       "https://github.com/novnc/noVNC/archive/${NOVNC_SHA}.zip" \
+       "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
-  && mv noVNC-${NOVNC_SHA} /opt/bin/noVNC \
+  && mv noVNC-${NOVNC_VERSION} /opt/bin/noVNC \
   && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
   && rm noVNC.zip \
   && wget -nv -O websockify.zip \
-      "https://github.com/novnc/websockify/archive/${WEBSOCKIFY_SHA}.zip" \
+      "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
-  && rm -rf websockify-${WEBSOCKIFY_SHA}/tests \
-  && mv websockify-${WEBSOCKIFY_SHA} /opt/bin/noVNC/utils/websockify
+  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify \
+  && rm -rf /opt/bin/noVNC/utils/websockify/docker /opt/bin/noVNC/utils/websockify/tests
 
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
 #=========================================================================================================================================
 RUN chmod +x /dev/shm
 
+# Creating base directory for Xvfb
+RUN mkdir -p /tmp/.X11-unix
+
+#==============================
+# Generating the VNC password using initial password in Base image
+# Changing ownership to ${SEL_USER}, so the service can be started
+#==============================
+
+RUN mkdir -p ${HOME}/.vnc \
+    && x11vnc -storepasswd $(cat /opt/selenium/initialPasswd) ${HOME}/.vnc/passwd \
+    && chown -R "${SEL_USER}:${SEL_GROUP}" ${HOME}/.vnc
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN chmod -R 775 ${HOME} /tmp/.X11-unix \
+  && chgrp -R 0 ${HOME} /tmp/.X11-unix \
+  && chmod -R g=u ${HOME} /tmp/.X11-unix
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
 
-USER 1200
+USER ${SEL_UID}
 
 #==============================
 # Scripts to run Selenium Node and XVFB
 #==============================
-COPY start-selenium-node.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
       start-xvfb.sh \
       /opt/bin/
 
@@ -132,24 +151,9 @@ COPY start-selenium-node.sh \
 COPY selenium.conf /etc/supervisor/conf.d/
 
 #==============================
-# Generating the VNC password as seluser
-# So the service can be started with seluser
-#==============================
-
-RUN mkdir -p ${HOME}/.vnc \
-  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
-
-#==========
-# Relaxing permissions for OpenShift and other non-sudo environments
-#==========
-RUN sudo chmod -R 777 ${HOME} \
-  && sudo chgrp -R 0 ${HOME} \
-  && sudo chmod -R g=u ${HOME}
-
-#==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
-COPY start-vnc.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-vnc.sh \
       start-novnc.sh \
       /opt/bin/
 
@@ -161,17 +165,25 @@ COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
 #============================
 # Some configuration options
 #============================
-ENV SCREEN_WIDTH 1360
-ENV SCREEN_HEIGHT 1020
-ENV SCREEN_DEPTH 24
-ENV SCREEN_DPI 96
+ENV SE_SCREEN_WIDTH 1360
+ENV SE_SCREEN_HEIGHT 1020
+ENV SE_SCREEN_DEPTH 24
+ENV SE_SCREEN_DPI 96
+ENV SE_START_XVFB true
+ENV SE_START_VNC true
+ENV SE_START_NO_VNC true
+ENV SE_NO_VNC_PORT 7900
+ENV SE_VNC_PORT 5900
 ENV DISPLAY :99.0
 ENV DISPLAY_NUM 99
-ENV START_XVFB true
-ENV START_NO_VNC true
 # Path to the Configfile
 ENV CONFIG_FILE=/opt/selenium/config.toml
 ENV GENERATE_CONFIG true
+# Drain the Node after N sessions. 
+# A value higher than zero enables the feature
+ENV SE_DRAIN_AFTER_SESSION_COUNT 0
+# Setting Selenium Manager to work offline
+ENV SE_OFFLINE true
 
 #========================
 # Selenium Configuration
@@ -186,10 +198,7 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-# Creating base directory for Xvfb
-RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
-
 # Copying configuration script generator
-COPY generate_config /opt/bin/generate_config
+COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config
 
 EXPOSE 5900

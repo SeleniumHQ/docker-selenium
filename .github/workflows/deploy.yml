@@ -10,10 +10,11 @@ jobs:
     # Only continue if the commit message has '[deploy]' in it
     if: contains(toJson(github.event.commits), '[deploy]') == true
     name: Deploy Docker images
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -38,46 +39,63 @@ jobs:
       - name: Sets env var for the next tag
         run: echo "NEXT_TAG=${GRID_VERSION}-${BUILD_DATE}" >> $GITHUB_ENV
       - name: Get latest tag
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+        run: echo "LATEST_TAG=$(git tag --sort=-version:refname | grep "^[^selenium]" | head -n 1)" >> $GITHUB_ENV
       - name: Display latest tag
         run: echo ${LATEST_TAG}
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-      - name: Commit files
-        run: |
-          git config --local user.email "selenium-ci@users.noreply.github.com"
-          git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files [skip ci]" -a
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
-          branch: trunk
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
+        uses: nick-invision/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
       - name: Deploy latest tag
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+      - name: Commit files
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update tag in docs and files" -a
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: trunk
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@master
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          release_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          body_path: release_notes.md
-          draft: false
+          name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          body_path: "release_notes.md"
+          generate_release_notes: true
           prerelease: ${{ env.PRERELEASE }}
+          draft: false
+          append_body: false

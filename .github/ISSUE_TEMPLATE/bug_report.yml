@@ -19,14 +19,15 @@ body:
     validations:
       required: true
   - type: textarea
-    id: repro-command
+    id: reproduce-command
     attributes:
-      label: Command used to start Selenium Grid with Docker
+      label: Command used to start Selenium Grid with Docker (or Kubernetes)
       description: |
-        What command do you use to start Selenium Grid with Docker?
+        What command do you use to start Selenium Grid with Docker (or Kubernetes)?
       placeholder: |
         Please share the script or docker-compose file used. This will be automatically
         formatted into code, so no need for backticks.
+        If Kubernetes used, please share the YAML file, or chart values used to deploy the cluster.
         Be sure to include an SSCCE (Short, Self Contained, Correct 
         [compilable] example) http://sscce.org/
       render: shell
@@ -47,14 +48,22 @@ body:
     attributes:
       label: Operating System
       description: What host operating system are you using to run docker-selenium?
-      placeholder: Windows 10? macOS BigSur? Ubuntu?
+      placeholder: Windows 10? macOS BigSur? Ubuntu? Kubernetes (Minikube, EKS, GKE, AKS, OpenShift, Rancher, etc.) version?
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Docker Selenium version (tag)
+      label: Docker Selenium version (image tag)
       description: What version of Docker Selenium are you using?
-      placeholder: 4.1.0-20211209? Please use the full tag, avoid "latest"
+      placeholder: 4.16.1-20231219? Please use the full tag, avoid "latest"
     validations:
       required: true
+  - type: input
+    id: chart-version
+    attributes:
+      label: Selenium Grid chart version (chart version)
+      description: What version of Selenium Grid chart are you using?
+      placeholder: 0.26.2?
+    validations:
+      required: false

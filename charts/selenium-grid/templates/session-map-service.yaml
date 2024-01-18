@@ -1,0 +1,26 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.sessionMap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.sessionMap.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.sessionMap.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.sessionMap.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.components.sessionMap.serviceType }}
+  ports:
+    - name: tcp-ssn-map
+      protocol: TCP
+      port: {{ .Values.components.sessionMap.port }}
+      targetPort: {{ .Values.components.sessionMap.port }}
+{{- end }}

@@ -1,9 +1,8 @@
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# NOTE: DO *NOT* EDIT THIS FILE.  IT IS GENERATED.
-# PLEASE UPDATE Dockerfile.txt INSTEAD OF THIS FILE
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-FROM selenium/node-base:4.1.0-20211209
-LABEL authors=SeleniumHQ
+ARG NAMESPACE
+ARG VERSION
+ARG AUTHORS
+FROM ${NAMESPACE}/node-base:${VERSION}
+LABEL authors=${AUTHORS}
 
 USER root
 
@@ -14,10 +13,10 @@ USER root
 #  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
-RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
-  && apt-get -qqy install ${EDGE_VERSION} \
+  && apt-get -qqy --no-install-recommends install ${EDGE_VERSION} \
   && rm /etc/apt/sources.list.d/microsoft-edge.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -26,8 +25,6 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | apt-key add
 #=================================
 COPY wrap_edge_binary /opt/bin/wrap_edge_binary
 RUN /opt/bin/wrap_edge_binary
-
-USER 1200
 
 #============================================
 # Edge webdriver
@@ -47,9 +44,13 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && rm /tmp/msedgedriver_linux64.zip \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
-  && sudo ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
+  && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
+
+USER ${SEL_UID}
 
 #============================================
-# Dumping Browser name and version for config
+# Dumping Browser information for config
 #============================================
 RUN echo "MicrosoftEdge" > /opt/selenium/browser_name
+RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version
+RUN echo "\"ms:edgeOptions\": {\"binary\": \"/usr/bin/microsoft-edge\"}" > /opt/selenium/browser_binary_location

@@ -1,0 +1,11 @@
+# This is config file for chart-testing tool. It is used to test Helm charts.
+# https://github.com/helm/chart-testing
+target-branch: trunk
+chart-dirs:
+  - charts
+chart-repos:
+  - kedacore=https://kedacore.github.io/charts
+  - ingressNginx=https://kubernetes.github.io/ingress-nginx
+upgrade: false
+helm-extra-args: --timeout 600s
+check-version-increment: false

@@ -1,0 +1,43 @@
+global:
+  K8S_PUBLIC_IP: localhost
+  seleniumGrid:
+    logLevel: INFO
+
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+  ingressClassName: nginx
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+          port:
+            number: 4444
+
+basicAuth:
+  enabled: false
+
+isolateComponents: true
+
+hub:
+  subPath: *gridAppRoot
+
+components:
+  subPath: *gridAppRoot
+
+ingress-nginx:
+  enabled: true
+  controller:
+    hostNetwork: true
+    kind: DaemonSet
+    service:
+      type: ClusterIP

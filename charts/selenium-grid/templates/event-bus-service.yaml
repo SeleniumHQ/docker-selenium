@@ -1,0 +1,43 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.eventBus.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.eventBus.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.eventBus.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.eventBus.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.components.eventBus.serviceType }}
+  ports:
+    - name: http-evtbus
+      protocol: TCP
+      port: {{ .Values.components.eventBus.port }}
+      targetPort: {{ .Values.components.eventBus.port }}
+      {{- if and (eq .Values.components.eventBus.serviceType "NodePort") .Values.components.eventBus.nodePort }}
+      nodePort: {{ .Values.components.eventBus.nodePort }}
+      {{- end }}
+    - name: tcp-evtbus-pub
+      protocol: TCP
+      port: {{ .Values.components.eventBus.publishPort }}
+      targetPort: {{ .Values.components.eventBus.publishPort }}
+      {{- if and (eq .Values.components.eventBus.serviceType "NodePort") .Values.components.eventBus.publishNodePort }}
+      nodePort: {{ .Values.components.eventBus.publishNodePort }}
+      {{- end }}
+    - name: tcp-evtbus-sub
+      protocol: TCP
+      port: {{ .Values.components.eventBus.subscribePort }}
+      targetPort: {{ .Values.components.eventBus.subscribePort }}
+      {{- if and (eq .Values.components.eventBus.serviceType "NodePort") .Values.components.eventBus.subscribeNodePort }}
+      nodePort: {{ .Values.components.eventBus.subscribeNodePort }}
+      {{- end }}
+{{- end }}

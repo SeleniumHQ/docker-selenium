@@ -1,0 +1,43 @@
+{{- if and .Values.firefoxNode.enabled .Values.firefoxNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.firefoxNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.firefoxNode.service.type }}
+  selector:
+    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.firefoxNode.service.type "LoadBalancer") (.Values.firefoxNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.firefoxNode.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-firefox
+      protocol: TCP
+      port: {{ .Values.firefoxNode.port }}
+      targetPort: {{ .Values.firefoxNode.port }}
+      {{- if and (eq $.Values.firefoxNode.service.type "NodePort") .Values.firefoxNode.nodePort }}
+      nodePort: {{ .Values.firefoxNode.nodePort }}
+      {{- end }}
+  {{- with .Values.firefoxNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.firefoxNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

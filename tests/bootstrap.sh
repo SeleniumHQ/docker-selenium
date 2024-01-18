@@ -7,9 +7,13 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 fi
 
-python -m pip install selenium==4.0.0 \
-                      docker===4.2.0 \
+python -m pip install selenium==4.16.0 \
+                      docker===6.1.3 \
                       | grep -v 'Requirement already satisfied'
+
+if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
+  export REQUESTS_CA_BUNDLE="${CHART_CERT_PATH}"
+fi
 
 python test.py $1
 ret_code=$?

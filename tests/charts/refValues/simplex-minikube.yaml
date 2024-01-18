@@ -1,0 +1,97 @@
+# README: This is a sample values for chart deployment in Minikube
+# Chart dependency ingress-nginx is installed together by enabling `ingress-nginx.enabled`
+# Chart dependency keda is installed together by enabling `autoscaling.enable`
+# Enabled ingress without hostname, set the subPath `/selenium`. Set K8S_PUBLIC_IP point to the public host IP, where Minikube is running
+# `ingress-nginx.controller.hostNetwork` is set to true to allow access from outside the cluster via http://<K8S_PUBLIC_IP>/selenium
+# Components serviceType is set to NodePort to allow access from outside the cluster via K8S_PUBLIC_IP and NodePort http://<K8S_PUBLIC_IP>:30444/selenium
+# Use this reference values to deploy e.g. `helm upgrade --install test --values tests/charts/refValues/simplex-minikube.yaml docker-selenium/selenium-grid --version <0.26.3_onwards>`
+global:
+  K8S_PUBLIC_IP: "10.10.10.10" # Replace with your public IP
+  seleniumGrid:
+    logLevel: INFO
+#    imageRegistry: selenium
+#    imageTag: latest
+#    nodesImageTag: latest
+#    videoImageTag: latest
+
+tls:
+#  enabled: true
+  ingress:
+    generateTLS: true
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+  ingressClassName: nginx
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+          port:
+            number: 4444
+
+basicAuth:
+  enabled: false
+
+isolateComponents: true
+
+autoscaling:
+#  enabled: true
+  enableWithExistingKEDA: true
+  scalingType: job
+  annotations:
+    helm.sh/hook: post-install,post-upgrade,post-rollback
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 8
+    pollingInterval: 15
+  scaledJobOptions:
+    successfulJobsHistoryLimit: 0
+    failedJobsHistoryLimit: 5
+    scalingStrategy:
+      strategy: default
+
+hub:
+  subPath: *gridAppRoot
+  serviceType: NodePort
+
+components:
+  subPath: *gridAppRoot
+  router:
+    serviceType: NodePort
+
+chromeNode:
+  extraEnvironmentVariables: &extraEnvironmentVariablesNodes
+    - name: SE_NODE_SESSION_TIMEOUT
+      value: "300"
+    - name: SE_VNC_NO_PASSWORD
+      value: "true"
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+
+firefoxNode:
+  extraEnvironmentVariables: *extraEnvironmentVariablesNodes
+
+edgeNode:
+  extraEnvironmentVariables: *extraEnvironmentVariablesNodes
+
+videoRecorder:
+  enabled: false
+
+ingress-nginx:
+  enabled: true
+  controller:
+    # Set controller default certificate use the same with Selenium Grid
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+    hostNetwork: true
+    kind: DaemonSet
+    service:
+      type: ClusterIP

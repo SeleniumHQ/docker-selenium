@@ -1,0 +1,43 @@
+{{- if and .Values.chromeNode.enabled .Values.chromeNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: {{ template "seleniumGrid.chromeNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.chromeNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.chromeNode.service.type }}
+  selector:
+    app: {{ template "seleniumGrid.chromeNode.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.chromeNode.service.type "LoadBalancer") (.Values.chromeNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.chromeNode.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-chrome
+      protocol: TCP
+      port: {{ .Values.chromeNode.port }}
+      targetPort: {{ .Values.chromeNode.port }}
+      {{- if and (eq $.Values.chromeNode.service.type "NodePort") .Values.chromeNode.nodePort }}
+      nodePort: {{ .Values.chromeNode.nodePort }}
+      {{- end }}
+  {{- with .Values.chromeNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.chromeNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

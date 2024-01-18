@@ -1,0 +1,43 @@
+{{- if and .Values.edgeNode.enabled .Values.edgeNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.edgeNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.edgeNode.service.type }}
+  selector:
+    app: {{ template "seleniumGrid.edgeNode.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.edgeNode.service.type "LoadBalancer") (.Values.edgeNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.edgeNode.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-edge
+      protocol: TCP
+      port: {{ .Values.edgeNode.port }}
+      targetPort: {{ .Values.edgeNode.port }}
+      {{- if and (eq $.Values.edgeNode.service.type "NodePort") .Values.edgeNode.nodePort }}
+      nodePort: {{ .Values.edgeNode.nodePort }}
+      {{- end }}
+  {{- with .Values.edgeNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.edgeNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

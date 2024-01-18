@@ -1,0 +1,107 @@
+name: Nightly
+on:
+  workflow_dispatch:
+    inputs:
+      NAMESPACE:
+        description: 'Set image registry'
+        required: true
+        default: 'selenium'
+  schedule:
+    - cron: '0 1 * * *'
+
+jobs:
+  deploy:
+    name: Nightly build
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Output Docker info
+        run: docker info
+      - name: Sets build date
+        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+      - name: Sets prerelease to nightly
+        run: |
+          echo "PRERELEASE=true" >> $GITHUB_ENV
+          echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+        env:
+          NAMESPACE: ${{ github.event.inputs.NAMESPACE || 'selenium' }}
+      - name: Build base image to get Grid version
+        run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base_nightly
+      - name: Get Grid version
+        # sed used to remove last comma of Selenium version output
+        run: |
+          echo "GRID_VERSION=$(docker run --rm ${{ env.NAME }}/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')" | awk '{$1=$1;print}' >> $GITHUB_ENV
+      - name: Display Grid version and set Base version
+        run: |
+          echo ${GRID_VERSION}
+          echo "BASE_VERSION=$(echo ${GRID_VERSION})" >> $GITHUB_ENV
+          echo "BASE_RELEASE=nightly" >> $GITHUB_ENV
+      - name: Remove local Docker tag
+        run: docker rmi ${{ env.NAME }}/base:local-${BUILD_DATE}
+      - name: Build images
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Tag images as nightly
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_nightly
+      - name: Deploy nightly tag
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_nightly
+      - name: Get current latest tag
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude=selenium-grid*)" >> $GITHUB_ENV
+      - name: Display latest tag
+        run: echo ${LATEST_TAG}
+      - name: Sets env var for nightly tag
+        run: |
+          echo "NEXT_TAG=nightly" >> $GITHUB_ENV
+          echo "FILTER_IMAGE_TAG=nightly" >> $GITHUB_ENV
+      - name: Create release notes (release_notes.md)
+        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+      - name: Set up Python
+        uses: actions/setup-python@v5.0.0
+        with:
+          python-version: '3.11'
+          check-latest: true
+      - name: Update tag in docs and files
+        run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
+      - name: Setup environment to build chart
+        run: make chart_setup_env
+      - name: Build and lint charts
+        run: |
+          make chart_build_nightly
+          echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+          echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+      - name: Delete previous nightly tag if any
+        uses: cb80/delrel@latest
+        with:
+          tag: ${{ env.BASE_RELEASE }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Nightly Release
+        id: create_release
+        uses: softprops/action-gh-release@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ env.BASE_RELEASE }}
+          name: "Nightly"
+          body_path: "release_notes.md"
+          files: |
+            ${{ env.CHART_PACKAGE_PATH }}
+          generate_release_notes: true
+          draft: false
+          prerelease: true
+          append_body: true

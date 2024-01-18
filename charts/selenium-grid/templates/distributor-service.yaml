@@ -1,0 +1,29 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.distributor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.distributor.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.distributor.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.distributor.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.components.distributor.serviceType }}
+  ports:
+    - name: tcp-dist
+      protocol: TCP
+      port: {{ .Values.components.distributor.port }}
+      targetPort: {{ .Values.components.distributor.port }}
+      {{- if and (eq .Values.components.distributor.serviceType "NodePort") .Values.components.distributor.nodePort }}
+      nodePort: {{ .Values.components.distributor.nodePort }}
+      {{- end }}
+{{- end }}

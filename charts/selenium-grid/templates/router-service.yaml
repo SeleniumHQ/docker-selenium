@@ -1,0 +1,32 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.router.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.router.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.components.router.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.router.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.components.router.serviceType }}
+  {{- if and (eq .Values.components.router.serviceType "LoadBalancer") (.Values.components.router.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.components.router.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-router
+      protocol: TCP
+      port: {{ .Values.components.router.port }}
+      targetPort: {{ .Values.components.router.port }}
+      {{- if and (eq $.Values.components.router.serviceType "NodePort") $.Values.components.router.nodePort }}
+      nodePort: {{ $.Values.components.router.nodePort }}
+      {{- end }}
+{{- end }}

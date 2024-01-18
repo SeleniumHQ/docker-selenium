@@ -1,0 +1,88 @@
+{{- if .Values.isolateComponents }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.sessionMap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: &session_map_labels
+    app: {{ template "seleniumGrid.sessionMap.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.sessionMap.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.sessionMap.fullname" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels: *session_map_labels
+    {{- with .Values.components.sessionMap.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      containers:
+        - name: {{ template "seleniumGrid.sessionMap.fullname" . }}
+          {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.sessionMap.imageTag }}
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.sessionMap.imageRegistry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionMap.imageName $imageTag }}
+          imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
+        {{- with .Values.components.extraEnvironmentVariables }}
+          env: {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.loggingConfigMap.name }}
+            - configMapRef:
+                name: {{ .Values.serverConfigMap.name }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+            - configMapRef:
+                name: {{ .Values.busConfigMap.name }}
+            {{- with .Values.components.extraEnvFrom }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.components.sessionMap.port }}
+              protocol: TCP
+        {{- with .Values.components.sessionMap.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.components.sessionMap.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.components.sessionMap.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.components.sessionMap.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.sessionMap.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}      
+    {{- with .Values.components.sessionMap.tolerations }}
+      tolerations: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionMap.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.components.sessionMap.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.components.sessionMap.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
+      volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
+{{- end }}

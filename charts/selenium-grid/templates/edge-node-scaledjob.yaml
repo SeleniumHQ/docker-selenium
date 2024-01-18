@@ -1,0 +1,28 @@
+{{- if and .Values.edgeNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    app: {{ template "seleniumGrid.edgeNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.edgeNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.edgeNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.edgeNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.edgeNode -}}
+  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader | toString)) -}}
+  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+{{- end }}

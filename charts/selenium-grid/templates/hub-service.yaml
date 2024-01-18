@@ -1,0 +1,46 @@
+{{- if (not .Values.isolateComponents) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.hub.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.hub.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.hub.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.hub.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.hub.serviceType }}
+  {{- if and (eq .Values.hub.serviceType "LoadBalancer") ( .Values.hub.loadBalancerIP ) }}
+  loadBalancerIP: {{ .Values.hub.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: http-hub
+      protocol: TCP
+      port: {{ .Values.hub.port }}
+      targetPort: {{ .Values.hub.port }}
+      {{- if and (eq .Values.hub.serviceType "NodePort") .Values.hub.nodePort }}
+      nodePort: {{ .Values.hub.nodePort }}
+      {{- end }}
+    - name: tcp-hub-pub
+      protocol: TCP
+      port: {{ .Values.hub.publishPort }}
+      targetPort: {{ .Values.hub.publishPort }}
+      {{- if and (eq .Values.hub.serviceType "NodePort") .Values.hub.publishNodePort }}
+      nodePort: {{ .Values.hub.publishNodePort }}
+      {{- end }}
+    - name: tcp-hub-sub
+      protocol: TCP
+      port: {{ .Values.hub.subscribePort }}
+      targetPort: {{ .Values.hub.subscribePort }}
+      {{- if and (eq .Values.hub.serviceType "NodePort") .Values.hub.subscribeNodePort }}
+      nodePort: {{ .Values.hub.subscribeNodePort }}
+      {{- end }}
+{{- end }}
