@@ -41,6 +41,12 @@ jobs:
           echo ${GRID_VERSION}
           echo "BASE_VERSION=$(echo ${GRID_VERSION})" >> $GITHUB_ENV
           echo "BASE_RELEASE=nightly" >> $GITHUB_ENV
+      - name: Update tag nightly
+        uses: richardsimko/update-tag@v1.0.11
+        with:
+          tag_name: ${{ env.BASE_RELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Remove local Docker tag
         run: docker rmi ${{ env.NAME }}/base:local-${BUILD_DATE}
       - name: Build images
@@ -105,9 +111,3 @@ jobs:
           draft: false
           prerelease: true
           append_body: false
-      - name: Update tag nightly
-        uses: richardsimko/update-tag@v1.0.11
-        with:
-          tag_name: ${{ env.BASE_RELEASE }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
