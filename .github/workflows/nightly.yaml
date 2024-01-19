@@ -87,7 +87,7 @@ jobs:
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Delete previous nightly tag if any
-        uses: cb80/delrel@latest
+        uses: cb80/delrel@main
         with:
           tag: ${{ env.BASE_RELEASE }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -104,4 +104,10 @@ jobs:
           generate_release_notes: true
           draft: false
           prerelease: true
-          append_body: true
+          append_body: false
+      - name: Update tag nightly
+        uses: richardsimko/update-tag@v1.0.11
+        with:
+          tag_name: ${{ env.BASE_RELEASE }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

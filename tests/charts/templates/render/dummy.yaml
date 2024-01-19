@@ -78,3 +78,16 @@ firefoxNode:
 
 edgeNode:
     affinity: *affinity
+
+videoRecorder:
+  enabled: true
+  uploader: s3
+  uploadDestinationPrefix: "s3://ndviet"
+  s3:
+    extraEnvironmentVariables:
+     - name: AWS_ACCESS_KEY_ID
+       value: "xxxx"
+     - name: AWS_SECRET_ACCESS_KEY
+       value: "xxxx"
+     - name: AWS_REGION
+       value: "ap-southeast-1"

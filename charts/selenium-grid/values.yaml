@@ -649,6 +649,10 @@ chromeNode:
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
+
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
@@ -804,6 +808,10 @@ firefoxNode:
     sessionBrowserName: 'firefox'
     unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
+
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
@@ -958,6 +966,10 @@ edgeNode:
     sessionBrowserName: 'msedge'
     unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
+
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
@@ -1011,6 +1023,8 @@ videoRecorder:
 
   # Liveness probe settings
   livenessProbe: {}
+  # Define lifecycle events for video recorder
+  lifecycle: {}
 
   volume:
   # name:
@@ -1042,33 +1056,15 @@ videoRecorder:
     imagePullPolicy: IfNotPresent
     securityContext:
       runAsUser: 0
-    command:
-    - /bin/sh
-    args:
-    - -c
-    - |
-      while ! [ -p /videos/uploadpipe ]
-      do
-          echo Waiting for /videos/uploadpipe to be created
-          sleep 1
-      done
-      echo Waiting for files to upload
-      while read FILE DESTINATION < /videos/uploadpipe
-      do
-          if [ "$FILE" = "exit" ]
-          then
-              echo "$FILE"
-              break
-          else
-              echo "Uploading $FILE to $DESTINATION"
-              aws s3 cp --no-progress $FILE $DESTINATION
-          fi
-      done
+    command: ["/bin/sh"]
+    args: ["-c", "/opt/bin/entry_point.sh"]
     extraEnvironmentVariables:
     # - name: AWS_ACCESS_KEY_ID
     #   value: aws_access_key_id
     # - name: AWS_SECRET_ACCESS_KEY
     #   value: aws_secret_access_key
+    # - name: AWS_REGION
+    #   value: region
     # - name:
     #   valueFrom:
     #     secretKeyRef:

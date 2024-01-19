@@ -1,7 +1,7 @@
 import unittest
 import concurrent.futures
 import os
-import time
+import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -137,8 +137,13 @@ class JobAutoscaling():
                 for test in suite:
                     futures.append(executor.submit(test))
             for future in concurrent.futures.as_completed(futures):
-                result = future.result()
-                if not result.wasSuccessful():
+                try:
+                    result = future.result()
+                    if not result.wasSuccessful():
+                        raise Exception("Test failed")
+                except Exception as e:
+                    print(f"Test {str(test)} failed with exception: {str(e)}")
+                    print(traceback.format_exc())
                     raise Exception("Parallel tests failed")
 
 class JobAutoscalingTests(unittest.TestCase):

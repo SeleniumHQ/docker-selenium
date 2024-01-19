@@ -317,6 +317,10 @@ template:
   {{- with .node.hostAliases }}
     hostAliases: {{ toYaml . | nindent 6 }}
   {{- end }}
+    initContainers:
+    {{- if .node.initContainers }}
+      {{- toYaml .node.initContainers | nindent 6 }}
+    {{- end }}
     containers:
       - name: {{.name}}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
@@ -436,6 +440,12 @@ template:
         image: {{ printf "%s/%s:%s" $imageRegistry .Values.videoRecorder.imageName $imageTag }}
         imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
         env:
+        - name: SE_NODE_PORT
+          value: {{ .node.port | quote }}
+        - name: DISPLAY_CONTAINER_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
         - name: UPLOAD_DESTINATION_PREFIX
           value: {{ .Values.videoRecorder.uploadDestinationPrefix | quote }}
       {{- with .Values.videoRecorder.extraEnvironmentVariables }}
@@ -444,6 +454,10 @@ template:
         envFrom:
         - configMapRef:
             name: {{ .Values.busConfigMap.name }}
+        - configMapRef:
+            name: {{ .Values.nodeConfigMap.name }}
+        - configMapRef:
+            name: {{ .Values.serverConfigMap.name }}
       {{- with .Values.videoRecorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
@@ -466,6 +480,9 @@ template:
       {{- end }}
       {{- with .Values.videoRecorder.livenessProbe }}
         livenessProbe: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.videoRecorder.lifecycle }}
+        lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- if .uploader }}
       - name: uploader
@@ -687,9 +704,12 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end -}}
 
 {{- define "seleniumGrid.video.volumeMounts.default" -}}
-- name: {{ include "seleniumGrid.video.volume.name.scripts" . }}
-  mountPath: /opt/bin/video.sh
-  subPath: video.sh
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob "configs/video/*" }}
+- name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
+  mountPath: /opt/bin/{{ base $path }}
+  subPath: {{ base $path }}
+{{- end }}
 - name: {{ include "seleniumGrid.video.volume.name.folder" . }}
   mountPath: /videos
 {{- end -}}
@@ -704,6 +724,12 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end -}}
 
 {{- define "seleniumGrid.video.uploader.volumeMounts.default" -}}
+{{- $root := . -}}
+{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*" $.Values.videoRecorder.uploader) }}
+- name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
+  mountPath: /opt/bin/{{ base $path }}
+  subPath: {{ base $path }}
+{{- end }}
 - name: {{ include "seleniumGrid.video.volume.name.folder" . }}
   mountPath: /videos
 {{- end -}}
