@@ -18,10 +18,13 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Ingress Configuration](#ingress-configuration)
   * [Configuration](#configuration)
     * [Configuration global](#configuration-global)
-      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8spublicip)
+      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
       * [Probes](#probes)
+    * [Configuration of video recorder and video uploader](#configuration-of-video-recorder-and-video-uploader)
+      * [Video recorder](#video-recorder)
+      * [Video uploader](#video-uploader)
     * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
       * [Secure Communication](#secure-communication)
       * [Node Registration](#node-registration)
@@ -375,6 +378,87 @@ edgeNode:
     periodSeconds: 5
 ```
 
+### Configuration of video recorder and video uploader
+
+#### Video recorder
+
+The video recorder is a sidecar that is deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
+
+```yaml
+videoRecorder:
+  enabled: true
+```
+
+#### Video uploader
+
+The uploader is a sidecar that is deployed with the browser nodes. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
+
+```yaml
+videoRecorder:
+  uploader:
+    enabled: true
+```
+
+By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video to a remote location. RCLONE requires a configuration file to define different remote locations. Refer to [RCLONE docs](https://rclone.org/docs/#config-file) for more details. Config file might contain sensitive information such as access key, secret key, etc. hence it is stored in Secret.
+
+The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The bucket-name is the name of the bucket in the remote location. The path is the path to the folder in the bucket.
+
+By default, the config file is loaded from file [configs/uploader/rclone/rclone.conf](configs/uploader/rclone/rclone.conf) to the Secret. You can override the config file via `--set-file videoRecorder.uploader.config=/path/to/config` or set via YAML values.
+
+For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
+
+```bash
+videoRecorder:
+  uploader:
+    destinationPrefix: "mys3://mybucket"
+    config: |
+        [mys3]
+        type = s3
+        provider = AWS
+        env_auth = true
+        region = ap-southeast-1
+        location_constraint = ap-southeast-1
+        acl = private
+        access_key_id = xxx
+        secret_access_key = xxx
+```
+
+You can prepare a config file with multiple remotes are defined. Ensure that `[remoteName]` is unique for each remote.
+You also can replace your config to default file `configs/uploader/rclone/rclone.conf` in chart.
+
+Instead of using config file, another way that RCLONE also supports to pass the information via environment variables. ENV variable with format: `RCLONE_CONFIG_ + name of remote + _ + name of config file option` (make it all uppercase). In this case the remote name it can only contain letters, digits, or the _ (underscore) character. All those ENV variables can be set via `videoRecorder.uploader.secrets`, it will be stored in Secret.
+
+For example, the same above config can be set via ENV vars as below:
+
+```yaml
+videoRecorder:
+  uploader:
+    destinationPrefix: "mys3://mybucket"
+    secrets:
+      RCLONE_CONFIG_MYS3_TYPE: "s3"
+      RCLONE_CONFIG_MYS3_PROVIDER: "GCS"
+      RCLONE_CONFIG_MYS3_ENV_AUTH: "true"
+      RCLONE_CONFIG_MYS3_REGION: "asia-southeast1"
+      RCLONE_CONFIG_MYS3_LOCATION_CONSTRAINT: "asia-southeast1"
+      RCLONE_CONFIG_MYS3_ACL: "private"
+      RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
+      RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
+```
+
+Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `rclone.conf` will take precedence.
+
+Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file videoRecorder.uploader.entryPoint=/path/to/script` or set via YAML values. For example:
+
+```yaml
+videoRecorder:
+  uploader:
+    entryPoint: |
+        #!/bin/bash
+        echo "Your custom script"
+```
+
+You also can replace your script to default file `configs/uploader/rclone/entry_point.sh` in chart.
+
 ### Configuration of Secure Communication (HTTPS)
 
 Selenium Grid supports secure communication between components. Refer to the [instructions](https://github.com/SeleniumHQ/selenium/blob/trunk/java/src/org/openqa/selenium/grid/commands/security.txt) and [options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) are able to configure the secure communication. Below is the details on how to enable secure communication in Selenium Grid chart.
@@ -620,8 +704,14 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
 | `videoRecorder.imageTag`                      | `ffmpeg-6.1-20231219`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `videoRecorder.uploader`                      | `false`                                     | Name of the uploader to use. The value `false` is used to disable uploader. Supported default `s3`                         |
-| `videoRecorder.uploadDestinationPrefix`       | `false`                                     | Destination URL for uploading video file. The value `false` is used to disable the uploading                               |
+| `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
+| `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
+| `videoRecorder.uploader.name`                 | `rclone`                                    | Name of the uploader to use. Supported default `rclone`                                                                    |
+| `videoRecorder.uploader.configFileName`       | `rclone.conf`                               | Config file name for `rclone` in uploader container                                                                        |
+| `videoRecorder.uploader.entryPointFileName`   | `entry_point.sh`                            | Script file name for uploader container entry point                                                                        |
+| `videoRecorder.uploader.config`               | ``                                          | Set value to uploader config file via YAML or `--set-file`                                                                 |
+| `videoRecorder.uploader.entryPoint`           | ``                                          | Set value to uploader entry point via YAML or `--set-file`                                                                 |
+| `videoRecorder.uploader.secrets`              | ``                                          | Environment variables to configure the uploader which store in Secret                                                      |
 | `videoRecorder.ports`                         | `[9000]`                                    | Port list to enable on video recorder container                                                                            |
 | `videoRecorder.resources`                     | `See values.yaml`                           | Resources for video recorder                                                                                               |
 | `videoRecorder.extraEnvironmentVariables`     | `nil`                                       | Custom environment variables for video recorder                                                                            |
@@ -634,11 +724,10 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.volume.name.scripts`           | `video-scripts`                             | Name is used to set for the volume to persist and share video recorder scripts in container                                |
 | `videoRecorder.extraVolumeMounts`             | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `videoRecorder.extraVolumes`                  | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `videoRecorder.s3`                            | `See values.yaml`                           | Container spec for the uploader if `videoRecorder.uploader` is `s3`. Similarly, create for your new uploader               |
-| `videoRecorder.s3.resources`                  | `See values.yaml`                           | Resources for video uploader                                                                                               |
-| `videoRecorder.s3.extraEnvironmentVariables`  | ``                                          | Custom environment variables for video uploader container                                                                  |
-| `videoRecorder.s3.extraEnvFrom`               | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
-| `videoRecorder.s3.extraVolumeMounts`          | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
+| `videoRecorder.rclone`                        | `See values.yaml`                           | Container spec for the uploader if `videoRecorder.uploader` is `s3`. Similarly, create for your new uploader               |
+| `videoRecorder.rclone.resources               | `See values.yaml`                           | Resources for video uploader                                                                                               |
+| `videoRecorder.rclone.extraEnvFrom`           | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
+| `videoRecorder.rclone.extraVolumeMounts`      | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
 | `customLabels`                                | `{}`                                        | Custom labels for k8s resources                                                                                            |
 | `ingress-nginx.enabled`                       | `false`                                     | Enable the dependency chart Ingress controller for Kubernetes (https://github.com/kubernetes/ingress-nginx)                |
 

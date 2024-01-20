@@ -19,6 +19,7 @@ EDGEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} msedg
 FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
 FFMPEG_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:ffmpeg-6.1-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
+RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/uploader:rclone-1.65-${BUILD_DATE} rclone version | head -n 1 | awk '{print $2}')
 
 
 echo "" >> release_notes.md
@@ -31,6 +32,7 @@ echo "* EdgeDriver: ${EDGEDRIVER_VERSION}" >> release_notes.md
 echo "* Firefox: ${FIREFOX_VERSION}" >> release_notes.md
 echo "* GeckoDriver: ${GECKODRIVER_VERSION}" >> release_notes.md
 echo "* ffmpeg: ${FFMPEG_VERSION}" >> release_notes.md
+echo "* rclone: ${RCLONE_VERSION}" >> release_notes.md
 
 echo "" >> release_notes.md
 echo "### Published Docker images" >> release_notes.md

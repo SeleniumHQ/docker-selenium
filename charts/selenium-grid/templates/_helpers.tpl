@@ -446,8 +446,6 @@ template:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        - name: UPLOAD_DESTINATION_PREFIX
-          value: {{ .Values.videoRecorder.uploadDestinationPrefix | quote }}
       {{- with .Values.videoRecorder.extraEnvironmentVariables }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
@@ -475,6 +473,9 @@ template:
       {{- with .Values.videoRecorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
+      {{- with .Values.videoRecorder.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+      {{- end }}
       {{- with .Values.videoRecorder.startupProbe }}
         startupProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
@@ -484,21 +485,29 @@ template:
       {{- with .Values.videoRecorder.lifecycle }}
         lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if .uploader }}
+    {{- if .Values.videoRecorder.uploader.enabled }}
       - name: uploader
-        image: {{ printf "%s:%s" .uploader.imageName .uploader.imageTag }}
+        {{- $imageTag := default .Values.global.seleniumGrid.uploaderImageTag .uploader.imageTag }}
+        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .uploader.imageRegistry }}
+        image: {{ printf "%s/%s:%s" $imageRegistry .uploader.imageName $imageTag }}
         imagePullPolicy: {{ .uploader.imagePullPolicy }}
-      {{- with .uploader.command }}
-        command: {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- if .uploader.command }}
+        command: {{- tpl (toYaml .uploader.command) $ | nindent 8 }}
+      {{- else }}
+        command: ["/bin/sh"]
       {{- end }}
-      {{- with .uploader.args }}
-        args: {{- tpl (toYaml .) $ | nindent 8 }}
+      {{- if .uploader.args }}
+        args: {{- tpl (toYaml .uploader.args) $ | nindent 8 }}
+      {{- else }}
+        args: ["-c", "{{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ $.Values.videoRecorder.uploader.entryPointFileName }}"]
       {{- end }}
       {{- with .uploader.extraEnvironmentVariables }}
         env: {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
-        {{- with .uploader.extraEnvFrom }}
         envFrom:
+          - secretRef:
+              name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+        {{- with .uploader.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
         volumeMounts:
@@ -582,12 +591,12 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- define "seleniumGrid.url.host" -}}
 {{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
 {{- if .Values.ingress.enabled -}}
-  {{- if and ( empty .Values.ingress.hostname) (not (empty .Values.global.K8S_PUBLIC_IP)) -}}
+  {{- if and (not .Values.ingress.hostname) .Values.global.K8S_PUBLIC_IP -}}
     {{- $host = .Values.global.K8S_PUBLIC_IP -}}
   {{- else if and .Values.ingress.hostname (ne .Values.ingress.hostname "selenium-grid.local") -}}
     {{- $host = .Values.ingress.hostname -}}
   {{- end -}}
-{{- else if not (empty .Values.global.K8S_PUBLIC_IP) -}}
+{{- else if .Values.global.K8S_PUBLIC_IP -}}
   {{- $host = .Values.global.K8S_PUBLIC_IP -}}
 {{- end -}}
 {{- $host }}
@@ -658,7 +667,7 @@ Get the lifecycle of the pod is used for a Node to deregister from the Hub/Route
 {{- define "seleniumGrid.node.lifecycle" }}
 {{- $defaultDeregisterLifecycle := tpl (include "seleniumGrid.node.deregisterLifecycle" .) $ -}}
 {{- $lifecycle := toYaml (dict) -}}
-{{- if and (and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true")) (empty .node.deregisterLifecycle) -}}
+{{- if and (and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true")) (not .node.deregisterLifecycle) -}}
   {{- $lifecycle = merge ($lifecycle | fromYaml) (tpl (toYaml (default ($defaultDeregisterLifecycle | fromYaml) .Values.autoscaling.deregisterLifecycle)) $ | fromYaml) | toYaml -}}
 {{- else -}}
   {{- if eq (.node.deregisterLifecycle | toString | lower) "false" -}}
@@ -667,7 +676,7 @@ Get the lifecycle of the pod is used for a Node to deregister from the Hub/Route
     {{- $lifecycle = (tpl (toYaml (default ($defaultDeregisterLifecycle | fromYaml) .node.deregisterLifecycle) ) $ | fromYaml) | toYaml -}}
   {{- end -}}
 {{- end -}}
-{{- if not (empty .node.lifecycle) -}}
+{{- if not .node.lifecycle -}}
   {{- $lifecycle = mergeOverwrite ($lifecycle | fromYaml) (tpl (toYaml .node.lifecycle) $ | fromYaml) | toYaml -}}
 {{- end -}}
 {{ if and $lifecycle (ne $lifecycle "{}") -}}
@@ -705,7 +714,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 
 {{- define "seleniumGrid.video.volumeMounts.default" -}}
 {{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "configs/video/*" }}
+{{- range $path, $bytes := .Files.Glob "configs/recorder/*.sh" }}
 - name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
   mountPath: /opt/bin/{{ base $path }}
   subPath: {{ base $path }}
@@ -719,15 +728,23 @@ Default specs of VolumeMounts and Volumes for video recorder
   configMap:
     name: {{ template "seleniumGrid.video.fullname" . }}
     defaultMode: 0500
+- name: {{ template "seleniumGrid.common.secrets" . }}
+  secret:
+    secretName: {{ template "seleniumGrid.common.secrets" . }}
 - name: {{ include "seleniumGrid.video.volume.name.folder" . }}
   emptyDir: {}
 {{- end -}}
 
 {{- define "seleniumGrid.video.uploader.volumeMounts.default" -}}
 {{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*" $.Values.videoRecorder.uploader) }}
+{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*.sh" $.Values.videoRecorder.uploader.name) }}
 - name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
-  mountPath: /opt/bin/{{ base $path }}
+  mountPath: {{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ base $path }}
+  subPath: {{ base $path }}
+{{- end }}
+{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*.conf" $.Values.videoRecorder.uploader.name) }}
+- name: {{ include "seleniumGrid.common.secrets" $ }}
+  mountPath: {{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ base $path }}
   subPath: {{ base $path }}
 {{- end }}
 - name: {{ include "seleniumGrid.video.volume.name.folder" . }}
@@ -744,7 +761,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end -}}
 {{- $defaultVolumeMounts := (include "seleniumGrid.video.volumeMounts.default" . | toString | fromYamlArray ) -}}
 {{- $videoVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
-{{- not (empty $videoVolumeMounts) | ternary $videoVolumeMounts "" -}}
+{{- not $videoVolumeMounts | ternary $videoVolumeMounts "" -}}
 {{- end -}}
 
 {{/* Combine videoRecorder.uploader.extraVolumeMounts with the default ones for container video uploader */}}
@@ -757,7 +774,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end }}
 {{- $defaultVolumeMounts := (include "seleniumGrid.video.uploader.volumeMounts.default" . | toString | fromYamlArray ) -}}
 {{- $videoUploaderVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoUploaderVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
-{{- not (empty $videoUploaderVolumeMounts) | ternary $videoUploaderVolumeMounts "" -}}
+{{- not $videoUploaderVolumeMounts | ternary $videoUploaderVolumeMounts "" -}}
 {{- end -}}
 
 {{/* Combine videoRecorder.extraVolumes with the default ones for the node pod */}}
@@ -770,7 +787,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end -}}
 {{- $defaultVolumes := (include "seleniumGrid.video.volumes.default" . | toString | fromYamlArray ) -}}
 {{- $videoVolumes = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumes "defaultArray" $defaultVolumes "uniqueKey" "name") -}}
-{{- not (empty $videoVolumes) | ternary $videoVolumes "" -}}
+{{- not $videoVolumes | ternary $videoVolumes "" -}}
 {{- end -}}
 
 {{/*

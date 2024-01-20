@@ -81,13 +81,15 @@ edgeNode:
 
 videoRecorder:
   enabled: true
-  uploader: s3
-  uploadDestinationPrefix: "s3://ndviet"
-  s3:
-    extraEnvironmentVariables:
-     - name: AWS_ACCESS_KEY_ID
-       value: "xxxx"
-     - name: AWS_SECRET_ACCESS_KEY
-       value: "xxxx"
-     - name: AWS_REGION
-       value: "ap-southeast-1"
+  uploader:
+    enabled: true
+    destinationPrefix: "s3://ndviet"
+    secrets:
+      RCLONE_CONFIG_S3_TYPE: "s3"
+      RCLONE_CONFIG_S3_PROVIDER: "AWS"
+      RCLONE_CONFIG_S3_ENV_AUTH: "true"
+      RCLONE_CONFIG_S3_REGION: "ap-southeast-1"
+      RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-southeast-1"
+      RCLONE_CONFIG_S3_ACL: "private"
+      RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
+      RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
