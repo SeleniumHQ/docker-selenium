@@ -23,6 +23,8 @@ WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
+VIDEO_TAG=${VIDEO_TAG:-"latest"}
+UPLOADER_TAG=${UPLOADER_TAG:-"latest"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -63,12 +65,15 @@ HELM_COMMAND_ARGS="${RELEASE_NAME} \
 ${HELM_COMMAND_SET_AUTOSCALING} \
 ${HELM_COMMAND_SET_TLS} \
 --values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
---set global.seleniumGrid.imageTag=${VERSION} --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
+--set global.seleniumGrid.imageRegistry=${NAMESPACE} \
+--set global.seleniumGrid.imageTag=${VERSION} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
+--set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
+--set global.seleniumGrid.uploaderImageTag=${UPLOADER_TAG} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
 
 echo "Render manifests YAML for this deployment"
-helm template ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_manifests_${MATRIX_BROWSER}.yaml
+helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_manifests_${MATRIX_BROWSER}.yaml
 
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}

@@ -17,7 +17,7 @@ jobs:
         browser: [chrome,firefox,edge]
         channel: [dev,beta]
     env:
-      NAME: selenium
+      NAME: ${{ secrets.DOCKER_NAMESPACE || 'selenium' }}
       BROWSER: ${{ matrix.browser }}
       CHANNEL: ${{ matrix.channel }}
 

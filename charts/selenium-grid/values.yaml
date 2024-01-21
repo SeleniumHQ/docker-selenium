@@ -12,6 +12,8 @@ global:
     nodesImageTag: 4.16.1-20231219
     # Image tag for browser's video recorder
     videoImageTag: ffmpeg-6.1-20231219
+    # Image tag for browser's uploader
+    uploaderImageTag: rclone-1.65-20231219
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -985,13 +987,39 @@ videoRecorder:
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-
-  # What uploader to use. See .videRecorder.s3 for how to create a new one.
-  # uploader: s3
-  uploader: false
-  # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
-  uploadDestinationPrefix: false
-
+  uploader:
+    enabled: false
+    # Where to upload the video file e.g. remoteName://bucketName/path. Refer to destination syntax of rclone https://rclone.org/docs/
+    destinationPrefix:
+    # What uploader to use. See .videRecorder.rclone for how to create a new one.
+    name: "rclone"
+    configFileName: "rclone.conf"
+    entryPointFileName: "entry_point.sh"
+    scriptMountPath: "/opt/bin"
+    # Config file for rclone.
+    config:
+    # Script to control the upload process.
+    entryPoint:
+    # For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom
+    # Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase)
+    secrets:
+    #  RCLONE_CONFIG_S3_TYPE: "s3"
+    #  RCLONE_CONFIG_S3_PROVIDER: "AWS"
+    #  RCLONE_CONFIG_S3_ENV_AUTH: "true"
+    #  RCLONE_CONFIG_S3_REGION: "ap-southeast-1"
+    #  RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-southeast-1"
+    #  RCLONE_CONFIG_S3_ACL: "private"
+    #  RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
+    #  RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
+    #  RCLONE_CONFIG_GS_TYPE: "s3"
+    #  RCLONE_CONFIG_GS_PROVIDER: "GCS"
+    #  RCLONE_CONFIG_GS_ENV_AUTH: "true"
+    #  RCLONE_CONFIG_GS_REGION: "asia-southeast1"
+    #  RCLONE_CONFIG_GS_LOCATION_CONSTRAINT: "asia-southeast1"
+    #  RCLONE_CONFIG_GS_ACL: "private"
+    #  RCLONE_CONFIG_GS_ACCESS_KEY_ID: "xxx"
+    #  RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "xxx"
+    #  RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
   ports:
   - 9000
   resources:
@@ -1001,6 +1029,9 @@ videoRecorder:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for recorder container
+  securityContext:
+    runAsUser: 0
   extraEnvironmentVariables:
   # - name: SE_VIDEO_FOLDER
   #   value: /videos
@@ -1049,15 +1080,34 @@ videoRecorder:
   #   persistentVolumeClaim:
   #     claimName: video-pv-claim
 
-  # Container spec for the uploader if above it is defined as "uploader: s3"
+  # Container spec for the uploader if above it is defined as "uploader.name: rclone"
+  rclone:
+    # imageRegistry: selenium
+    imageName: uploader
+    # imageTag: "rclone-1.65-20240119"
+    imagePullPolicy: IfNotPresent
+    # SecurityContext for uploader container
+    securityContext:
+      runAsUser: 0
+    command: []
+    args: []
+    extraEnvironmentVariables:
+    # Extra options for rclone. Refer to https://rclone.org/flags
+      - name: UPLOAD_OPTS
+        value: "--progress"
+    #  - name: UPLOAD_COMMAND
+    #    value: "copy"
+
+  # Container spec for the uploader if above it is defined as "uploader.name: s3"
   s3:
-    imageName: public.ecr.aws/bitnami/aws-cli
-    imageTag: "2"
+    imageRegistry: public.ecr.aws
+    imageName: bitnami/aws-cli
+    imageTag: latest
     imagePullPolicy: IfNotPresent
     securityContext:
       runAsUser: 0
-    command: ["/bin/sh"]
-    args: ["-c", "/opt/bin/entry_point.sh"]
+    command: []
+    args: []
     extraEnvironmentVariables:
     # - name: AWS_ACCESS_KEY_ID
     #   value: aws_access_key_id

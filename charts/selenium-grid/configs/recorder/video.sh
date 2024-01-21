@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+UPLOAD_ENABLED=${UPLOAD_ENABLED:-"false"}
+
 function create_pipe() {
-    if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]];
+    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         echo "Create pipe if not exists for video upload stream"
         if [ ! -p ${SE_VIDEO_FOLDER}/uploadpipe ];
@@ -13,7 +15,7 @@ function create_pipe() {
 create_pipe
 
 function wait_util_force_exit_consume() {
-    if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]];
+    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         while [[ -f ${SE_VIDEO_FOLDER}/force_exit ]]
         do
@@ -25,9 +27,9 @@ function wait_util_force_exit_consume() {
 }
 
 function add_exit_signal() {
-    if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]];
+    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
-        echo "exit" > ${SE_VIDEO_FOLDER}/uploadpipe &
+        echo "exit" >> ${SE_VIDEO_FOLDER}/uploadpipe &
         echo "exit" > ${SE_VIDEO_FOLDER}/force_exit
     fi
 }
@@ -55,11 +57,6 @@ export DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
 
 max_attempts=600
 attempts=0
-if [[ "$UPLOAD_DESTINATION_PREFIX" = "" ]]
-then
-    echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Exiting video recorder.
-    exit
-fi
 echo Checking if the display is open
 until xset b off || [[ $attempts = $max_attempts ]]
 do
@@ -111,11 +108,14 @@ do
         pkill -INT ffmpeg
         recorded_count=$((recorded_count+1))
         recording_started="false"
-        if [[ "$UPLOAD_DESTINATION_PREFIX" != "false" ]]
+        if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
         then
           upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
           echo "Uploading video to $upload_destination"
-          echo $video_file $upload_destination >> ${SE_VIDEO_FOLDER}/uploadpipe &
+          echo $video_file ${UPLOAD_DESTINATION_PREFIX} >> ${SE_VIDEO_FOLDER}/uploadpipe &
+        elif [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+        then
+            echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading.
         fi
         if [ $max_recorded_count -gt 0 ] && [ $recorded_count -ge $max_recorded_count ];
         then

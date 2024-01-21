@@ -25,8 +25,13 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_with_frames(self):
         driver = self.driver
         driver.get('http://the-internet.herokuapp.com/nested_frames')
-        driver.switch_to.frame('frame-top')
-        driver.switch_to.frame('frame-middle')
+        wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
+        frame_top = wait.until(
+            EC.frame_to_be_available_and_switch_to_it('frame-top')
+        )
+        frame_middle = wait.until(
+            EC.frame_to_be_available_and_switch_to_it('frame-middle')
+        )
         self.assertTrue(driver.find_element(By.ID, 'content').text == "MIDDLE", "content should be MIDDLE")
 
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/05-select-from-a-dropdown/python/dropdown.py
@@ -140,11 +145,11 @@ class JobAutoscaling():
                 try:
                     result = future.result()
                     if not result.wasSuccessful():
-                        raise Exception("Test failed")
+                        raise Exception(f"Test {str(test)} failed")
                 except Exception as e:
-                    print(f"Test {str(test)} failed with exception: {str(e)}")
+                    print(f"{str(test)} failed with exception: {str(e)}")
                     print(traceback.format_exc())
-                    raise Exception("Parallel tests failed")
+                    raise Exception(f"Parallel tests failed: {str(test)} failed with exception: {str(e)}")
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
