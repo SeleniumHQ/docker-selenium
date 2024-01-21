@@ -1,7 +1,7 @@
 ARG BASED_TAG
 FROM rclone/rclone:${BASED_TAG}
 
-RUN apk update \
+RUN apk update && apk upgrade \
   && apk add --no-cache --update \
     bash \
     curl \
