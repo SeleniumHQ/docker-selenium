@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-UPLOAD_ENABLED=${UPLOAD_ENABLED:-"false"}
+VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-"false"}
+VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
 
 function create_pipe() {
-    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+    if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         echo "Create pipe if not exists for video upload stream"
         if [ ! -p ${SE_VIDEO_FOLDER}/uploadpipe ];
@@ -15,7 +16,7 @@ function create_pipe() {
 create_pipe
 
 function wait_util_force_exit_consume() {
-    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+    if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         while [[ -f ${SE_VIDEO_FOLDER}/force_exit ]]
         do
@@ -27,7 +28,7 @@ function wait_util_force_exit_consume() {
 }
 
 function add_exit_signal() {
-    if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+    if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         echo "exit" >> ${SE_VIDEO_FOLDER}/uploadpipe &
         echo "exit" > ${SE_VIDEO_FOLDER}/force_exit
@@ -93,8 +94,14 @@ fi
 while curl -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status > /tmp/status.json
 do
     session_id=$(jq -r '.[]?.node?.slots | .[0]?.session?.sessionId' /tmp/status.json)
-    echo $session_id
+    echo "Session: $session_id is created"
     if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" ]]
+    then
+      caps_se_video_record=$(bash ${VIDEO_CONFIG_DIRECTORY}/graphQLRecordVideo.sh "$session_id")
+      cat "/tmp/graphQL_$session_id.json"; echo
+      echo "se:recordVideo value is: $caps_se_video_record"
+    fi
+    if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]]
     then
         video_file_name="$session_id.mp4"
         video_file="${SE_VIDEO_FOLDER}/$video_file_name"
@@ -108,12 +115,12 @@ do
         pkill -INT ffmpeg
         recorded_count=$((recorded_count+1))
         recording_started="false"
-        if [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+        if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ ! -z "${UPLOAD_DESTINATION_PREFIX}" ]];
         then
           upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
           echo "Uploading video to $upload_destination"
           echo $video_file ${UPLOAD_DESTINATION_PREFIX} >> ${SE_VIDEO_FOLDER}/uploadpipe &
-        elif [[ "${UPLOAD_ENABLED}" != "false" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+        elif [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
         then
             echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading.
         fi

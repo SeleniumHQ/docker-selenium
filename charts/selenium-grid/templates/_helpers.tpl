@@ -335,15 +335,15 @@ template:
         {{- end }}
         envFrom:
           - configMapRef:
-              name: {{ .Values.busConfigMap.name }}
+              name: {{ tpl (toYaml .Values.busConfigMap.name) $ }}
           - configMapRef:
-              name: {{ .Values.nodeConfigMap.name }}
+              name: {{ tpl (toYaml .Values.nodeConfigMap.name) $ }}
           - configMapRef:
-              name: {{ .Values.loggingConfigMap.name }}
+              name: {{ tpl (toYaml .Values.loggingConfigMap.name) $ }}
           - configMapRef:
-              name: {{ .Values.serverConfigMap.name }}
+              name: {{ tpl (toYaml .Values.serverConfigMap.name) $ }}
           - secretRef:
-              name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+              name: {{ include "seleniumGrid.common.secrets" $ }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
@@ -364,9 +364,11 @@ template:
         volumeMounts:
           - name: dshm
             mountPath: /dev/shm
-          - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
-            mountPath: /opt/selenium/{{ .Values.nodeConfigMap.preStopScript }}
-            subPath: {{ .Values.nodeConfigMap.preStopScript }}
+        {{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
+          - name: {{ $.Values.nodeConfigMap.scriptVolumeMountName }}
+            mountPath: {{ $.Values.nodeConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+            subPath: {{ $fileName }}
+        {{- end }}
         {{- if .Values.tls.enabled }}
           - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
             mountPath: {{ .Values.serverConfigMap.certVolumeMountPath }}
@@ -451,11 +453,13 @@ template:
       {{- end }}
         envFrom:
         - configMapRef:
-            name: {{ .Values.busConfigMap.name }}
+            name: {{ tpl (toYaml .Values.busConfigMap.name) $ }}
         - configMapRef:
-            name: {{ .Values.nodeConfigMap.name }}
+            name: {{ tpl (toYaml .Values.nodeConfigMap.name) $ }}
         - configMapRef:
-            name: {{ .Values.serverConfigMap.name }}
+            name: {{ tpl (toYaml .Values.recorderConfigMap.name) $ }}
+        - configMapRef:
+            name: {{ tpl (toYaml .Values.serverConfigMap.name) $ }}
       {{- with .Values.videoRecorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
@@ -499,14 +503,16 @@ template:
       {{- if .uploader.args }}
         args: {{- tpl (toYaml .uploader.args) $ | nindent 8 }}
       {{- else }}
-        args: ["-c", "{{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ $.Values.videoRecorder.uploader.entryPointFileName }}"]
+        args: ["-c", "{{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $.Values.videoRecorder.uploader.entryPointFileName }}"]
       {{- end }}
       {{- with .uploader.extraEnvironmentVariables }}
         env: {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
         envFrom:
+          - configMapRef:
+              name: {{ tpl (toYaml .Values.uploaderConfigMap.name) $ }}
           - secretRef:
-              name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+              name: {{ tpl (toYaml .Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- with .uploader.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
@@ -655,7 +661,7 @@ Define preStop hook for the node pod. Node preStop script is stored in a ConfigM
 {{- define "seleniumGrid.node.deregisterLifecycle" -}}
 preStop:
   exec:
-    command: ["bash", "-c", "/opt/selenium/{{ .Values.nodeConfigMap.preStopScript }}"]
+    command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodePreStop.sh"]
 {{- end -}}
 
 {{/*
@@ -699,56 +705,45 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- $period -}}
 {{- end -}}
 
-{{/*
-Default specs of VolumeMounts and Volumes for video recorder
-*/}}
-{{- define "seleniumGrid.video.volume.name.folder" -}}
-{{- $name := default "video" (((.Values.videoRecorder).volume).name).folder -}}
-{{- $name -}}
-{{- end -}}
-
-{{- define "seleniumGrid.video.volume.name.scripts" -}}
-{{- $name := default "video-scripts" (((.Values.videoRecorder).volume).name).scripts -}}
-{{- $name -}}
-{{- end -}}
-
 {{- define "seleniumGrid.video.volumeMounts.default" -}}
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob "configs/recorder/*.sh" }}
-- name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
-  mountPath: /opt/bin/{{ base $path }}
-  subPath: {{ base $path }}
+{{- range $fileName, $value := .Values.recorderConfigMap.extraScripts }}
+- name: {{ tpl (toYaml $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
+  mountPath: {{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+  subPath: {{ $fileName }}
 {{- end }}
-- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
-  mountPath: /videos
+- name: {{ tpl (toYaml $.Values.recorderConfigMap.videoVolumeMountName) $ }}
+  mountPath: {{ $.Values.videoRecorder.targetFolder }}
 {{- end -}}
 
 {{- define "seleniumGrid.video.volumes.default" -}}
-- name: {{ include "seleniumGrid.video.volume.name.scripts" . }}
-  configMap:
-    name: {{ template "seleniumGrid.video.fullname" . }}
-    defaultMode: 0500
-- name: {{ template "seleniumGrid.common.secrets" . }}
-  secret:
-    secretName: {{ template "seleniumGrid.common.secrets" . }}
-- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
+- name: {{ tpl (toYaml $.Values.recorderConfigMap.videoVolumeMountName) $ }}
   emptyDir: {}
+- name: {{ tpl (toYaml $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
+  configMap:
+    name: {{ tpl (toYaml $.Values.recorderConfigMap.name) $ }}
+    defaultMode: {{ $.Values.recorderConfigMap.defaultMode }}
+- name: {{ tpl (toYaml $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
+  configMap:
+    name: {{ tpl (toYaml $.Values.uploaderConfigMap.name) $ }}
+    defaultMode: {{ $.Values.uploaderConfigMap.defaultMode }}
+- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+  secret:
+    secretName: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
 {{- end -}}
 
 {{- define "seleniumGrid.video.uploader.volumeMounts.default" -}}
-{{- $root := . -}}
-{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*.sh" $.Values.videoRecorder.uploader.name) }}
-- name: {{ include "seleniumGrid.video.volume.name.scripts" $ }}
-  mountPath: {{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ base $path }}
-  subPath: {{ base $path }}
+{{- range $fileName, $value := .Values.uploaderConfigMap.extraScripts }}
+- name: {{ tpl (toYaml $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
+  mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+  subPath: {{ $fileName }}
 {{- end }}
-{{- range $path, $bytes := .Files.Glob (printf "configs/uploader/%s/*.conf" $.Values.videoRecorder.uploader.name) }}
-- name: {{ include "seleniumGrid.common.secrets" $ }}
-  mountPath: {{ $.Values.videoRecorder.uploader.scriptMountPath }}/{{ base $path }}
-  subPath: {{ base $path }}
+{{- range $fileName, $value := .Values.uploaderConfigMap.secretFiles }}
+- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+  mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+  subPath: {{ $fileName }}
 {{- end }}
-- name: {{ include "seleniumGrid.video.volume.name.folder" . }}
-  mountPath: /videos
+- name: {{ tpl (toYaml $.Values.recorderConfigMap.videoVolumeMountName) $ }}
+  mountPath: {{ $.Values.videoRecorder.targetFolder }}
 {{- end -}}
 
 {{/* Combine videoRecorder.extraVolumeMounts with the default ones for container video recorder */}}
@@ -759,9 +754,9 @@ Default specs of VolumeMounts and Volumes for video recorder
     {{- $videoVolumeMounts = append $videoVolumeMounts . -}}
   {{- end -}}
 {{- end -}}
-{{- $defaultVolumeMounts := (include "seleniumGrid.video.volumeMounts.default" . | toString | fromYamlArray ) -}}
+{{- $defaultVolumeMounts := (include "seleniumGrid.video.volumeMounts.default" $ | toString | fromYamlArray ) -}}
 {{- $videoVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
-{{- not $videoVolumeMounts | ternary $videoVolumeMounts "" -}}
+{{- not (empty $videoVolumeMounts) | ternary $videoVolumeMounts "" -}}
 {{- end -}}
 
 {{/* Combine videoRecorder.uploader.extraVolumeMounts with the default ones for container video uploader */}}
@@ -774,7 +769,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end }}
 {{- $defaultVolumeMounts := (include "seleniumGrid.video.uploader.volumeMounts.default" . | toString | fromYamlArray ) -}}
 {{- $videoUploaderVolumeMounts = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoUploaderVolumeMounts "defaultArray" $defaultVolumeMounts "uniqueKey" "mountPath") -}}
-{{- not $videoUploaderVolumeMounts | ternary $videoUploaderVolumeMounts "" -}}
+{{- not (empty $videoUploaderVolumeMounts) | ternary $videoUploaderVolumeMounts "" -}}
 {{- end -}}
 
 {{/* Combine videoRecorder.extraVolumes with the default ones for the node pod */}}
@@ -787,7 +782,7 @@ Default specs of VolumeMounts and Volumes for video recorder
 {{- end -}}
 {{- $defaultVolumes := (include "seleniumGrid.video.volumes.default" . | toString | fromYamlArray ) -}}
 {{- $videoVolumes = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumes "defaultArray" $defaultVolumes "uniqueKey" "name") -}}
-{{- not $videoVolumes | ternary $videoVolumes "" -}}
+{{- not (empty $videoVolumes) | ternary $videoVolumes "" -}}
 {{- end -}}
 
 {{/*

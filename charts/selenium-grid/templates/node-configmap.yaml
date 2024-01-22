@@ -14,8 +14,12 @@ metadata:
 data:
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
   SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
-  UPLOAD_ENABLED: '{{ .Values.videoRecorder.uploader.enabled }}'
-  UPLOAD_DESTINATION_PREFIX: '{{ .Values.videoRecorder.uploader.destinationPrefix }}'
-  UPLOAD_CONFIG_FILE_NAME: '{{ .Values.videoRecorder.uploader.configFileName }}'
-  UPLOAD_CONFIG_DIRECTORY: '{{ .Values.videoRecorder.uploader.scriptMountPath }}'
-{{ (.Files.Glob "configs/node/*").AsConfig | indent 2 }}
+  SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" .}}'
+{{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
+  {{- if not (empty $value) }}
+{{ $fileName | indent 2 -}}: |
+{{ $value | indent 4 }}
+  {{- else }}
+{{ ($.Files.Glob (printf "configs/node/%s" $fileName)).AsConfig | indent 2 }}
+  {{- end }}
+{{- end }}
