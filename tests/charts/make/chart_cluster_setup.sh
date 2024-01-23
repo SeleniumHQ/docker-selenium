@@ -39,7 +39,7 @@ echo "Install KEDA core on kind kubernetes cluster"
 kubectl apply --server-side -f https://github.com/kedacore/keda/releases/download/v2.12.1/keda-2.12.1-core.yaml
 
 echo "Load built local Docker Images into Kind Cluster"
-image_list=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${NAMESPACE} | grep ${VERSION})
+image_list=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${NAMESPACE} | grep ${BUILD_DATE:-$VERSION})
 for image in $image_list; do
     kind load docker-image --name ${CLUSTER_NAME} "$image"
 done
