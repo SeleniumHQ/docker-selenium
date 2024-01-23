@@ -53,7 +53,7 @@ jobs:
       - name: Setup Kubernetes environment
         run: make chart_setup_env
       - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build_nightly
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Build and lint charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build
