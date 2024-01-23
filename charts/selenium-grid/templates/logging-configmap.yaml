@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.loggingConfigMap.name }}
+  name: {{ tpl .Values.loggingConfigMap.name $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.loggingConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}
