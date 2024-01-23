@@ -21,21 +21,25 @@ jobs:
       - name: Output Docker info
         run: docker info
       - name: Sets build date
-        run: echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+        env:
+          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
       - name: Sets prerelease to false by default
         run: echo "PRERELEASE=false" >> $GITHUB_ENV
       - name: Build base image to get Grid version
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base
       - name: Get Grid version
         # sed used to remove last comma of Selenium version output
-        run: echo "GRID_VERSION=$(docker run --rm selenium/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')" | awk '{$1=$1;print}' >> $GITHUB_ENV
+        run: echo "GRID_VERSION=$(docker run --rm ${NAME}/base:local-${BUILD_DATE} java -jar /opt/selenium/selenium-server.jar hub --version | awk '{print $3}' | sed 's/\(.*\),/\1 /')" | awk '{$1=$1;print}' >> $GITHUB_ENV
       - name: Is it a prerelease?
         run: echo "GRID_VERSION=${GRID_VERSION}-prerelease" >> $GITHUB_ENV && echo "PRERELEASE=true" >> $GITHUB_ENV
         if: contains(toJson(github.event.commits), '[prerelease]') == true
       - name: Display Grid version
         run: echo ${GRID_VERSION}
       - name: Remove local Docker tag
-        run: docker rmi selenium/base:local-${BUILD_DATE}
+        run: docker rmi ${NAME}/base:local-${BUILD_DATE}
       - name: Sets env var for the next tag
         run: echo "NEXT_TAG=${GRID_VERSION}-${BUILD_DATE}" >> $GITHUB_ENV
       - name: Get latest tag

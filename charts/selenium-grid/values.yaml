@@ -517,7 +517,7 @@ autoscaling:
   scaledJobOptions:
     scalingStrategy:
       # Change this to "accurate" when the calculation problem is fixed
-      strategy: default
+      strategy: accurate
     # Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # Number of Failed jobs should be kept (for troubleshooting purposes)
