@@ -99,6 +99,7 @@ class ChromeTests(SeleniumGenericTests):
         options = ChromeOptions()
         options.enable_downloads = True
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -109,6 +110,7 @@ class EdgeTests(SeleniumGenericTests):
         options = EdgeOptions()
         options.enable_downloads = True
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -123,6 +125,7 @@ class FirefoxTests(SeleniumGenericTests):
         options = FirefoxOptions()
         options.profile = profile
         options.enable_downloads = True
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)

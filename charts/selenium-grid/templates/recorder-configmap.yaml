@@ -1,0 +1,27 @@
+{{- if .Values.videoRecorder.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.recorderConfigMap.name }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.recorderConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  VIDEO_UPLOAD_ENABLED: '{{ .Values.videoRecorder.uploader.enabled }}'
+  VIDEO_CONFIG_DIRECTORY: '{{ .Values.recorderConfigMap.extraScriptsDirectory }}'
+  UPLOAD_DESTINATION_PREFIX: '{{ .Values.videoRecorder.uploader.destinationPrefix }}'
+{{- range $fileName, $value := .Values.recorderConfigMap.extraScripts }}
+{{- if not (empty $value) }}
+{{ $fileName | indent 2 -}}: |
+{{ $value | indent 4 }}
+{{- else }}
+{{ ($.Files.Glob (printf "configs/recorder/%s" $fileName)).AsConfig | indent 2 }}
+{{- end }}
+{{- end }}
+{{- end }}

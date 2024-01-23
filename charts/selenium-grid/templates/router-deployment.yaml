@@ -110,7 +110,6 @@ spec:
         {{- if .Values.components.router.livenessProbe.enabled }}
           livenessProbe:
           {{- with .Values.components.router.livenessProbe }}
-          livenessProbe:
           {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
             {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
           {{- else }}
