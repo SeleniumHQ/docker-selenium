@@ -30,7 +30,7 @@ ENV LANG ${LANGUAGE}
 # Layer size: small: ~9 MB MB (with --no-install-recommends)
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    language-pack-en \
+    #language-pack-en \
     tzdata \
     locales \
   && locale-gen ${LANGUAGE} \
@@ -81,13 +81,14 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
     libfreetype6 \
-    xfonts-cyrillic \
+    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    fonts-ubuntu \
+    # ttf-ubuntu-font-family \
+    # fonts-ubuntu \
     fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
@@ -151,6 +152,26 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
 COPY selenium.conf /etc/supervisor/conf.d/
 
 #==============================
+# Generating the VNC password as seluser
+# So the service can be started with seluser
+#==============================
+
+RUN mkdir -p ${HOME}/.vnc \
+  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
+
+# Added to avoid the following sudo error while running multi-arch builds:
+# "sudo: effective uid is not 0, is /usr/bin/sudo on a file system with 
+#   the 'nosuid' option set or an NFS file system without root privileges?"
+USER root 
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN sudo chmod -R 775 ${HOME} \
+  && sudo chgrp -R 0 ${HOME} \
+  && sudo chmod -R g=u ${HOME}
+
+#==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
 COPY --chown="${SEL_UID}:${SEL_GID}" start-vnc.sh \
@@ -197,6 +218,15 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
+
+# Added to avoid sudo-related multi-arch build errors
+USER root
+
+# Creating base directory for Xvfb
+RUN  mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
+
+# Added to avoid sudo-related multi-arch build errors
+USER 1200
 
 # Copying configuration script generator
 COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config

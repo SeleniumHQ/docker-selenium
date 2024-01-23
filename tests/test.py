@@ -41,6 +41,10 @@ IMAGE_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
+
+    # Chromium Images
+    'NodeChromium': 'node-chromium',
+    'StandaloneChromium': 'standalone-chromium',
 }
 
 TEST_NAME_MAP = {
@@ -55,6 +59,10 @@ TEST_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+
+    # Chromium Images
+    'NodeChromium': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
 
     # Chart Parallel Test
     'JobAutoscaling': 'JobAutoscalingTests'
@@ -165,7 +173,7 @@ def get_build_path(container):
 
 
 def standalone_browser_container_matches(container):
-    return re.match("(Standalone)(Chrome|Firefox|Edge)", container)
+    return re.match("(Standalone)(Chromium|Chrome|Firefox|Edge)", container)
 
 
 if __name__ == '__main__':
@@ -196,9 +204,9 @@ if __name__ == '__main__':
             """
             ports = {'4444': 4444}
             if use_random_user_id:
-                test_container_id = launch_container(image, ports=ports, user=random_user_id)
+               test_container_id = launch_container(image, ports=ports, user=random_user_id)
             else:
-                test_container_id = launch_container(image, ports=ports)
+               test_container_id = launch_container(image, ports=ports)
         else:
             """
             Hub / Node Configuration
@@ -208,9 +216,9 @@ if __name__ == '__main__':
             hub_id = launch_hub("grid")
             ports = {'5555': 5555, '7900': 7900}
             if use_random_user_id:
-                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
+               test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
             else:
-                test_container_id = launch_container(image, network='grid', ports=ports)
+               test_container_id = launch_container(image, network='grid', ports=ports)
             prune_networks()
 
         logger.info('========== / Containers ready to go ==========')
@@ -248,13 +256,13 @@ if __name__ == '__main__':
         test_container.remove()
 
         if standalone:
-            logger.info("Standalone Cleaned up")
+           logger.info("Standalone Cleaned up")
         else:
-            # Kill the launched hub
-            hub = client.containers.get(hub_id)
-            hub.kill()
-            hub.remove()
-            logger.info("Hub / Node Cleaned up")
+           # Kill the launched hub
+           hub = client.containers.get(hub_id)
+           hub.kill()
+           hub.remove()
+           logger.info("Hub / Node Cleaned up")
 
     if failed:
         exit(1)

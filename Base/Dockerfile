@@ -1,4 +1,11 @@
-FROM ubuntu:jammy-20240111
+# FROM ubuntu:focal-20210416
+#FROM ubuntu:focal-20210827
+#FROM ubuntu:focal-20211006
+#FROM ubuntu:focal-20220302
+#FROM ubuntu:focal-20220415
+#FROM ubuntu:focal-20220531
+#FROM ubuntu:focal-20230301
+FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
@@ -19,13 +26,16 @@ USER root
 #================================================
 # Customize sources for apt-get
 #================================================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
+#RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+#  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+#  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
+RUN echo "VERSION is $VERSION" && echo "RELEASE is $RELEASE"
 
 #========================
 # Miscellaneous packages
@@ -37,7 +47,6 @@ RUN apt-get -qqy update \
     acl \
     bzip2 \
     ca-certificates \
-    openjdk-11-jre-headless \
     tzdata \
     sudo \
     unzip \
@@ -47,8 +56,22 @@ RUN apt-get -qqy update \
     supervisor \
     gnupg2 \
     libnss3-tools \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/java-11-openjdk-amd64/conf/security/java.security
+  && mkdir -p /etc/apt/keyrings \
+  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc \
+  && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
+  && apt-get update -y \
+  && apt-get install temurin-11-jre -y \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
+
+#===================
+
+RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
+       export ARCH=armhf ; \
+    else \
+       export ARCH=$TARGETARCH ; \
+    fi \
+    && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-11-jre-$ARCH/conf/security/java.security
+
 
 #===================
 # Timezone settings
@@ -111,17 +134,23 @@ RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/sup
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
-RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
+#RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
+# RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
+RUN if [ `arch` = "aarch64" ]; then \
+    curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
   && chmod +x /tmp/cs \
   && mkdir -p /external_jars \
-  && chmod -R 775 /external_jars
+  && chmod -R 775 /external_jars ; \
+    fi
 
-RUN /tmp/cs fetch --classpath --cache /external_jars \
+RUN if [ -f "/tmp/cs" ]; then \ 
+    /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
     io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \
-    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt
+    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt ; \
+    fi
 
-RUN chmod 664 /external_jars/.classpath.txt
+RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
 RUN rm -fr /root/.cache/*
 
 #===================================================
