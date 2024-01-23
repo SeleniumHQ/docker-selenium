@@ -16,10 +16,14 @@ data:
   SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
   SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" .}}'
 {{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
-  {{- if not (empty $value) }}
+{{- if not (empty $value) }}
 {{ $fileName | indent 2 -}}: |
 {{ $value | indent 4 }}
-  {{- else }}
-{{ ($.Files.Glob (printf "configs/node/%s" $fileName)).AsConfig | indent 2 }}
-  {{- end }}
+{{- else }}
+{{- $files := $.Files.Glob (printf "configs/node/%s" $fileName) }}
+{{- $cfg := $files.AsConfig }}
+{{- if and (gt (len $files) 0) (ne $cfg "") }}
+{{ indent 2 $cfg }}
+{{- end }}
+{{- end }}
 {{- end }}

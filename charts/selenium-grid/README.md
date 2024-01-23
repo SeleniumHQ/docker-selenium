@@ -378,6 +378,52 @@ edgeNode:
     periodSeconds: 5
 ```
 
+### Configuration extra scripts mount to container
+
+This is supported for containers of browser node, video recorder and video uploader. By default, in these containers, there are scripts, config files implemented. In case you want to customize or replace them with your own implementation. Instead of forking the chart, use volume mount. Now, from your external files, you can insert them into ConfigMap via Helm CLI `--set-file` or compose them in your own YAML values file and pass to Helm CLI `--values` when deploying chart. Any files name that you defined will be picked up into ConfigMap and mounted to the container.
+
+```yaml
+nodeConfigMap:
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    nodePreStop.sh: |
+      #!/bin/bash
+      echo "Your custom script"
+
+recorderConfigMap:
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    video.sh: |
+        #!/bin/bash
+        echo "Your custom script"    
+    videoPreStop.sh: |
+        #!/bin/bash
+        echo "My new script"
+
+uploaderConfigMap:
+  extraScriptsDirectory: "/opt/bin"
+  extraScripts:
+    entry_point.sh: |
+        #!/bin/bash
+        echo "Your custom entry point"
+  secretFiles:
+    config.conf: |
+        [myremote]
+        type = s3
+```
+
+Via Helm CLI, you can pass your own files to particular config key. Note that, the file name contains dot `.` for file extension, it will impact to the key name convention in Helm CLI. In this case, be careful to escape the dot `.` in the file name. For example a command in Unix:
+
+```bash
+helm upgrade -i test \
+    --set-file 'nodeConfigMap.extraScripts.nodePreStop\.sh=/path/to/myScript.sh' \
+    --set-file 'recorderConfigMap.extraScripts.video\.sh=/path/to/myCustom.sh' \
+    selenium-grid
+```
+
+Files in `.extraScripts` will be mounted to the container with the same name within directory is defined in `.extraScriptsDirectory`. For example, in the above config, `nodePreStop.sh` will be mounted to `/opt/selenium/nodePreStop.sh` in the node container.
+
+
 ### Configuration of video recorder and video uploader
 
 #### Video recorder
@@ -388,6 +434,20 @@ The video recorder is a sidecar that is deployed with the browser nodes. It is r
 videoRecorder:
   enabled: true
 ```
+
+At chart deployment level, that config will enable video container always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:recordVideo', False)
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+)
+```
+
+In Node will perform query GraphQL and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. By default, the script is loaded from file [configs/recorder/graphQLRecordVideo.sh](configs/recorder/graphQLRecordVideo.sh) to the ConfigMap. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
 
 #### Video uploader
 
@@ -401,17 +461,16 @@ videoRecorder:
 
 By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video to a remote location. RCLONE requires a configuration file to define different remote locations. Refer to [RCLONE docs](https://rclone.org/docs/#config-file) for more details. Config file might contain sensitive information such as access key, secret key, etc. hence it is stored in Secret.
 
-The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The bucket-name is the name of the bucket in the remote location. The path is the path to the folder in the bucket.
+The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The `bucket-name` is the name of the bucket in the remote location. The `path` is the path to the folder in the bucket.
 
-By default, the config file is loaded from file [configs/uploader/rclone/rclone.conf](configs/uploader/rclone/rclone.conf) to the Secret. You can override the config file via `--set-file videoRecorder.uploader.config=/path/to/config` or set via YAML values.
+By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config.conf=/path/to/your_config.conf` or set via YAML values.
 
 For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
 
 ```bash
-videoRecorder:
-  uploader:
-    destinationPrefix: "mys3://mybucket"
-    config: |
+uploaderConfigMap:
+  secretFiles:
+    config.conf: |
         [mys3]
         type = s3
         provider = AWS
@@ -421,10 +480,14 @@ videoRecorder:
         acl = private
         access_key_id = xxx
         secret_access_key = xxx
+
+videoRecorder:
+  uploader:
+    destinationPrefix: "mys3://mybucket/subFolder"
 ```
 
 You can prepare a config file with multiple remotes are defined. Ensure that `[remoteName]` is unique for each remote.
-You also can replace your config to default file `configs/uploader/rclone/rclone.conf` in chart.
+You also can replace your config to default file `configs/uploader/rclone/config.conf` in chart.
 
 Instead of using config file, another way that RCLONE also supports to pass the information via environment variables. ENV variable with format: `RCLONE_CONFIG_ + name of remote + _ + name of config file option` (make it all uppercase). In this case the remote name it can only contain letters, digits, or the _ (underscore) character. All those ENV variables can be set via `videoRecorder.uploader.secrets`, it will be stored in Secret.
 
@@ -445,16 +508,16 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
 ```
 
-Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `rclone.conf` will take precedence.
+Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `config.conf` will take precedence.
 
-Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file videoRecorder.uploader.entryPoint=/path/to/script` or set via YAML values. For example:
+Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point.sh=/path/to/your_script.sh` or set via YAML values. For example:
 
 ```yaml
-videoRecorder:
-  uploader:
-    entryPoint: |
+uploaderConfigMap:
+  extraScripts:
+    entry_point.sh: |
         #!/bin/bash
-        echo "Your custom script"
+        echo "Your custom entry point"
 ```
 
 You also can replace your script to default file `configs/uploader/rclone/entry_point.sh` in chart.
@@ -707,7 +770,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
 | `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
 | `videoRecorder.uploader.name`                 | `rclone`                                    | Name of the uploader to use. Supported default `rclone`                                                                    |
-| `videoRecorder.uploader.configFileName`       | `rclone.conf`                               | Config file name for `rclone` in uploader container                                                                        |
+| `videoRecorder.uploader.configFileName`       | `config.conf`                               | Config file name for `rclone` in uploader container                                                                        |
 | `videoRecorder.uploader.entryPointFileName`   | `entry_point.sh`                            | Script file name for uploader container entry point                                                                        |
 | `videoRecorder.uploader.config`               | ``                                          | Set value to uploader config file via YAML or `--set-file`                                                                 |
 | `videoRecorder.uploader.entryPoint`           | ``                                          | Set value to uploader entry point via YAML or `--set-file`                                                                 |
