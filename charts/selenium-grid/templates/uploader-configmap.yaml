@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.uploaderConfigMap.name }}
+  name: {{ template "seleniumGrid.uploader.fullname" $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.uploaderConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

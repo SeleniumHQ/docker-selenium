@@ -235,10 +235,17 @@ Service Account fullname
 {{- end -}}
 
 {{/*
-Video ConfigMap fullname
+Recorder ConfigMap fullname
 */}}
-{{- define "seleniumGrid.video.fullname" -}}
-{{- tpl (default "selenium-video" .Values.videoRecorder.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- define "seleniumGrid.recorder.fullname" -}}
+{{- tpl (default "selenium-recorder-config" .Values.recorderConfigMap.name) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Uploader ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.uploader.fullname" -}}
+{{- tpl (default "selenium-uploader-config" .Values.uploaderConfigMap.name) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
