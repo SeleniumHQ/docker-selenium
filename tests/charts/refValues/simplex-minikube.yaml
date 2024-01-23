@@ -56,7 +56,7 @@ autoscaling:
     successfulJobsHistoryLimit: 0
     failedJobsHistoryLimit: 5
     scalingStrategy:
-      strategy: accurate
+      strategy: default
 
 hub:
   subPath: *gridAppRoot
