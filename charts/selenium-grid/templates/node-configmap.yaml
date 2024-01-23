@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.nodeConfigMap.name }}
+  name: {{ tpl .Values.nodeConfigMap.name $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.nodeConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

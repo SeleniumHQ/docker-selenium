@@ -46,11 +46,11 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ .Values.busConfigMap.name }}
+                name: {{ tpl .Values.busConfigMap.name $ }}
             - configMapRef:
-                name: {{ .Values.loggingConfigMap.name }}
+                name: {{ tpl .Values.loggingConfigMap.name $ }}
             - configMapRef:
-                name: {{ .Values.serverConfigMap.name }}
+                name: {{ tpl .Values.serverConfigMap.name $ }}
             - secretRef:
                 name: {{ include "seleniumGrid.common.secrets" $ | quote }}
             {{- with .Values.components.extraEnvFrom }}

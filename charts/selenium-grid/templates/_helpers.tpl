@@ -43,70 +43,70 @@ helm.sh/chart: {{ include "seleniumGrid.chart" . }}
 Selenium Hub fullname
 */}}
 {{- define "seleniumGrid.hub.fullname" -}}
-{{- default "selenium-hub" .Values.hub.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-hub" .Values.hub.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Event bus fullname
 */}}
 {{- define "seleniumGrid.eventBus.fullname" -}}
-{{- default "selenium-event-bus" .Values.components.eventBus.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-event-bus" .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Router fullname
 */}}
 {{- define "seleniumGrid.router.fullname" -}}
-{{- default "selenium-router" .Values.components.router.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-router" .Values.components.router.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Distributor fullname
 */}}
 {{- define "seleniumGrid.distributor.fullname" -}}
-{{- default "selenium-distributor" .Values.components.distributor.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-distributor" .Values.components.distributor.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 SessionMap fullname
 */}}
 {{- define "seleniumGrid.sessionMap.fullname" -}}
-{{- default "selenium-session-map" .Values.components.sessionMap.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-session-map" .Values.components.sessionMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 SessionQueue fullname
 */}}
 {{- define "seleniumGrid.sessionQueue.fullname" -}}
-{{- default "selenium-session-queue" .Values.components.sessionQueue.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-session-queue" .Values.components.sessionQueue.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Chrome node fullname
 */}}
 {{- define "seleniumGrid.chromeNode.fullname" -}}
-{{- default "selenium-chrome-node" .Values.chromeNode.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-chrome-node" .Values.chromeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Firefox node fullname
 */}}
 {{- define "seleniumGrid.firefoxNode.fullname" -}}
-{{- default "selenium-firefox-node" .Values.firefoxNode.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-firefox-node" .Values.firefoxNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Edge node fullname
 */}}
 {{- define "seleniumGrid.edgeNode.fullname" -}}
-{{- default "selenium-edge-node" .Values.edgeNode.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-edge-node" .Values.edgeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Ingress fullname
 */}}
 {{- define "seleniumGrid.ingress.fullname" -}}
-{{- default "selenium-ingress" .Values.ingress.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-ingress" .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -170,7 +170,7 @@ Get probe settings
 Secret TLS fullname
 */}}
 {{- define "seleniumGrid.tls.fullname" -}}
-{{- default "selenium-tls-secret" .Values.tls.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- ( tpl (default "selenium-tls-secret" .Values.tls.nameOverride) $ )| trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -197,7 +197,7 @@ Get default certificate file name in chart
 Common secrets cross components
 */}}
 {{- define "seleniumGrid.common.secrets" -}}
-{{- default "selenium-secrets" .Values.secrets.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-secrets" .Values.secrets.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
@@ -231,14 +231,14 @@ nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 Service Account fullname
 */}}
 {{- define "seleniumGrid.serviceAccount.fullname" -}}
-{{- .Values.serviceAccount.name | default "selenium-serviceaccount" | trunc 63 | trimSuffix "-" -}}
+{{- tpl (.Values.serviceAccount.name | default "selenium-serviceaccount") $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Video ConfigMap fullname
 */}}
 {{- define "seleniumGrid.video.fullname" -}}
-{{- default "selenium-video" .Values.videoRecorder.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default "selenium-video" .Values.videoRecorder.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -547,7 +547,7 @@ template:
     volumes:
       - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
         configMap:
-          name: {{ .Values.nodeConfigMap.name }}
+          name: {{ tpl .Values.nodeConfigMap.name $ }}
           defaultMode: {{ .Values.nodeConfigMap.defaultMode }}
       - name: dshm
         emptyDir:
@@ -599,8 +599,8 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- if .Values.ingress.enabled -}}
   {{- if and (not .Values.ingress.hostname) .Values.global.K8S_PUBLIC_IP -}}
     {{- $host = .Values.global.K8S_PUBLIC_IP -}}
-  {{- else if and .Values.ingress.hostname (ne .Values.ingress.hostname "selenium-grid.local") -}}
-    {{- $host = .Values.ingress.hostname -}}
+  {{- else if and .Values.ingress.hostname (ne (tpl .Values.ingress.hostname $) "selenium-grid.local") -}}
+    {{- $host = (tpl .Values.ingress.hostname $) -}}
   {{- end -}}
 {{- else if .Values.global.K8S_PUBLIC_IP -}}
   {{- $host = .Values.global.K8S_PUBLIC_IP -}}
