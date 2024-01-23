@@ -177,7 +177,7 @@ Secret TLS fullname
 Is registration secret enabled
 */}}
 {{- define "seleniumGrid.tls.registrationSecret.enabled" -}}
-{{- and .Values.tls.enabled .Values.tls.registrationSecret.enabled | ternary "true" "" -}}
+{{- .Values.tls.registrationSecret.enabled | ternary "true" "" -}}
 {{- end -}}
 
 {{/*
