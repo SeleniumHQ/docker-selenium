@@ -3,7 +3,9 @@ isolateComponents: false
 autoscaling:
   enableWithExistingKEDA: true
   scalingType: job
-  strategy: accurate
+  scaledJobOptions:
+    scalingStrategy:
+      strategy: default
   scaledOptions:
     minReplicaCount: 0
     maxReplicaCount: 5
