@@ -1,15 +1,48 @@
 global:
+  # Public IP of the host running Kubernetes cluster.
+  # This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set.
+  # This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset
+  K8S_PUBLIC_IP: ""
   seleniumGrid:
     # Image registry for all selenium components
     imageRegistry: selenium
     # Image tag for all selenium components
-    imageTag: 4.16.0-20231206
+    imageTag: 4.17.0-20240123
     # Image tag for browser's nodes
-    nodesImageTag: 4.16.0-20231206
+    nodesImageTag: 4.17.0-20240123
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.1-20231206
+    videoImageTag: ffmpeg-6.1-20240123
+    # Image tag for browser's uploader
+    uploaderImageTag: rclone-1.65-20240123
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
+    # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
+    logLevel: INFO
+
+tls:
+  enabled: false
+  ingress:
+    generateTLS: false
+    defaultName: "SeleniumHQ"
+    defaultDays: 3650
+    defaultCN: "www.selenium.dev"
+    # or *.domain.com
+    defaultSANList: []
+    #  - domain.com
+    #  - production.domain.com
+    defaultIPList: []
+    #  - 10.10.10.10
+  defaultFile:
+    certificate: "certs/selenium.pem"
+    privateKey: "certs/selenium.pkcs8.base64"
+    trustStore: "certs/selenium.jks"
+  certificate:
+  privateKey:
+  trustStore:
+  trustStorePassword: "changeit"
+  registrationSecret:
+    enabled: false
+    value: "HappyTesting"
 
 # Basic auth settings for Selenium Grid
 basicAuth:
@@ -42,6 +75,9 @@ ingress:
     proxyBuffer:
       size: 512M
       number: 4
+  ports:
+    http: 80
+    https: 443
   # Custom annotations for ingress resource
   annotations: {}
   # Default host for the ingress resource
@@ -65,7 +101,77 @@ busConfigMap:
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
   name: selenium-node-config
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # File name of preStop script in ConfigMap
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    nodePreStop.sh:
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName: node-helper-scripts
   # Custom annotations for configmap
+  annotations: {}
+
+recorderConfigMap:
+  name: selenium-recorder-config
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/bin"
+  # List of extra scripts to be mounted to the container. Format as `filename: content`
+  extraScripts:
+    video.sh:
+    graphQLRecordVideo.sh:
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName: recorder-helper-scripts
+  videoVolumeMountName: videos
+  # Custom annotations for configmap
+  annotations: {}
+
+uploaderConfigMap:
+  name: selenium-uploader-config
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/bin"
+  # List of extra scripts to be mounted to the container. Format as `filename: content`
+  extraScripts:
+    entry_point.sh:
+  # Extra files stored in Secret to be mounted to the container.
+  secretFiles:
+    config.conf:
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName: uploader-helper-scripts
+  # Name of Secret is used to store the `secretFiles`
+  secretVolumeMountName: '{{ include "seleniumGrid.common.secrets" $ }}'
+  # Custom annotations for configmap
+  annotations: {}
+
+
+# ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
+loggingConfigMap:
+  name: selenium-logging-config
+  # Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
+serverConfigMap:
+  name: selenium-server-config
+  certVolumeMountPath: /etc/ssl/certs/selenium
+  certificateFile: selenium.pem
+  privateKeyFile: selenium.pkcs8
+  trustStoreFile: selenium.jks
+  # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
+  disableHostnameVerification: true
+  # Custom annotations for configmap
+  annotations: {}
+
+# Secrets for all components. Components environment variables contain sensitive data should be stored in secrets.
+secrets:
+  create: true
+  name: selenium-secrets
+  env:
+    SE_VNC_PASSWORD: "secret"
   annotations: {}
 
 # Configuration for isolated components (applied only if `isolateComponents: true`)
@@ -77,7 +183,7 @@ components:
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.16.0-20231206
+    # imageTag: 4.17.0-20240123
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -88,11 +194,12 @@ components:
     annotations: {}
     # Router port
     port: 4444
-    # Liveness probe settings
-    livenessProbe:
+    nodePort: 30444
+    # Wait for pod startup
+    startupProbe:
       enabled: true
       path: /readyz
-      initialDelaySeconds: 10
+      initialDelaySeconds: 5
       failureThreshold: 10
       timeoutSeconds: 10
       periodSeconds: 10
@@ -102,6 +209,15 @@ components:
       enabled: true
       path: /readyz
       initialDelaySeconds: 12
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Liveness probe settings
+    livenessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 10
       failureThreshold: 10
       timeoutSeconds: 10
       periodSeconds: 10
@@ -129,7 +245,7 @@ components:
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.16.0-20231206
+    # imageTag: 4.17.0-20240123
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -140,6 +256,7 @@ components:
     annotations: {}
     # Distributor port
     port: 5553
+    nodePort: 30553
     # Resources for Distributor container
     resources: {}
     # SecurityContext for Distributor container
@@ -161,7 +278,7 @@ components:
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.16.0-20231206
+    # imageTag: 4.17.0-20240123
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -172,10 +289,13 @@ components:
     annotations: {}
     # Event Bus port
     port: 5557
+    nodePort: 30557
     # Port where events are published
     publishPort: 4442
+    publishNodePort: 30442
     # Port where to subscribe for events
     subscribePort: 4443
+    subscribeNodePort: 30443
     # Resources for event-bus container
     resources: {}
     # SecurityContext for event-bus container
@@ -197,7 +317,7 @@ components:
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.16.0-20231206
+    # imageTag: 4.17.0-20240123
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -228,7 +348,7 @@ components:
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.16.0-20231206
+    # imageTag: 4.17.0-20240123
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -238,6 +358,7 @@ components:
     # Custom annotations for Session Queue pods
     annotations: {}
     port: 5559
+    nodePort: 30559
     # Resources for Session Queue container
     resources: {}
     # SecurityContext for Session Queue container
@@ -254,7 +375,9 @@ components:
     priorityClassName: ""
 
   # Custom sub path for all components
-  subPath: /
+  subPath: ""
+  # Disable the Grid UI
+  disableUI: false
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -279,7 +402,7 @@ hub:
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.16.0-20231206
+  # imageTag: 4.17.0-20240123
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -289,17 +412,22 @@ hub:
   annotations: {}
   # Custom labels for Selenium Hub pods
   labels: {}
+  # Disable the Grid UI
+  disableUI: false
   # Port where events are published
   publishPort: 4442
+  publishNodePort: 31442
   # Port where to subscribe for events
   subscribePort: 4443
+  subscribeNodePort: 31443
   # Selenium Hub port
   port: 4444
-  # Liveness probe settings
-  livenessProbe:
+  nodePort: 31444
+  # Wait for pod startup
+  startupProbe:
     enabled: true
     path: /readyz
-    initialDelaySeconds: 10
+    initialDelaySeconds: 5
     failureThreshold: 10
     timeoutSeconds: 10
     periodSeconds: 10
@@ -313,8 +441,17 @@ hub:
     timeoutSeconds: 10
     periodSeconds: 10
     successThreshold: 1
+  # Liveness probe settings
+  livenessProbe:
+    enabled: true
+    path: /readyz
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
   # Custom sub path for the hub deployment
-  subPath: /
+  subPath: ""
   # Custom environment variables for selenium-hub
   extraEnvironmentVariables:
     # - name: SE_JAVA_OPTS
@@ -379,6 +516,7 @@ autoscaling:
   # see https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
     scalingStrategy:
+      # Change this to "accurate" when the calculation problem is fixed
       strategy: accurate
     # Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
@@ -393,15 +531,13 @@ autoscaling:
   scaledObjectOptions:
     scaleTargetRef:
       kind: Deployment
+  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force killing it
+  terminationGracePeriodSeconds: 3600
+  # Define preStop command to shuts down the node gracefully when scalingType is set to "deployment"
   deregisterLifecycle:
-    preStop:
-      exec:
-        command:
-          - bash
-          - -c
-          - |
-            curl -X POST 127.0.0.1:5555/se/grid/node/drain --header 'X-REGISTRATION-SECRET;' && \
-            while curl 127.0.0.1:5555/status; do sleep 1; done;
+  #  preStop:
+  #    exec:
+  #      command: [ "bash", "-c", "/opt/selenium/nodePreStop.sh" ]
 
 # Configuration for chrome nodes
 chromeNode:
@@ -420,19 +556,19 @@ chromeNode:
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.16.0-20231206
+  # imageTag: 4.17.0-20240123
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  # Port list to enable on container
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for chrome-node pods
   annotations: {}
   # Labels for chrome-node pods
@@ -485,9 +621,9 @@ chromeNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -496,18 +632,40 @@ chromeNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -527,8 +685,13 @@ chromeNode:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
+    sessionBrowserName: 'chrome'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl: 'true'  # Optional
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -553,19 +716,19 @@ firefoxNode:
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.16.0-20231206
+  # imageTag: 4.17.0-20240123
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  # Port list to enable on container
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for firefox-node pods
   annotations: {}
   # Labels for firefox-node pods
@@ -618,9 +781,9 @@ firefoxNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -629,18 +792,40 @@ firefoxNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -660,6 +845,12 @@ firefoxNode:
   hpa:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
+    sessionBrowserName: 'firefox'
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -683,18 +874,19 @@ edgeNode:
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.16.0-20231206
+  # imageTag: 4.17.0-20240123
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
-  ports:
-    - 5555
-  # Selenium port (spec.ports[0].targetPort in kubernetes service)
-  seleniumPort: 5900
-  # Selenium port exposed in service (spec.ports[0].port in kubernetes service)
-  seleniumServicePort: 6900
+  # Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.)
+  ports: []
+  # - 5900
+  # - 7900
+  # Node component port
+  port: 5555
+  nodePort:
   # Annotations for edge-node pods
   annotations: {}
   # Labels for edge-node pods
@@ -747,9 +939,9 @@ edgeNode:
     loadBalancerIP: ""
     # Extra ports exposed in node service
     ports:
-    # - name: node-port
-    #   port: 5555
-    #   targetPort: 5555
+    # - name: vnc-port
+    #   port: 5900
+    #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
   # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
@@ -758,18 +950,40 @@ edgeNode:
   priorityClassName: ""
 
   # Wait for pod startup
-  startupProbe: {}
-    # httpGet:
-    #   path: /status
-    #   port: 5555
-    # failureThreshold: 120
-    # periodSeconds: 5
+  startupProbe:
+    enabled: true
+    path: /status
+    initialDelaySeconds: 0
+    failureThreshold: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    successThreshold: 1
+
+  # Readiness probe settings
+  readinessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 10
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Liveness probe settings
-  livenessProbe: {}
+  livenessProbe:
+    enabled: false
+    path: /status
+    initialDelaySeconds: 15
+    failureThreshold: 10
+    timeoutSeconds: 10
+    periodSeconds: 10
+    successThreshold: 1
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
+  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  deregisterLifecycle:
+  # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
   extraVolumeMounts: []
   # - name: my-extra-volume
@@ -790,6 +1004,11 @@ edgeNode:
     url: '{{ include "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
     sessionBrowserName: 'msedge'
+    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+
+  # It is used to add initContainers in the same pod of the browser node.
+  # It should be set using the --set-json option
+  initContainers: []
 
   # It is used to add a sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
@@ -802,17 +1021,40 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.1-20231206
+  # imageTag: ffmpeg-6.1-20240123
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
-
-  # What uploader to use. See .videRecorder.s3 for how to create a new one.
-  # uploader: s3
-  uploader: false
-  # Where to upload the video file. Should be set to something like 's3://myvideobucket/'
-  uploadDestinationPrefix: false
-
+  targetFolder: "/videos"
+  uploader:
+    enabled: false
+    # Where to upload the video file e.g. remoteName://bucketName/path. Refer to destination syntax of rclone https://rclone.org/docs/
+    destinationPrefix:
+    # What uploader to use. See .videRecorder.rclone for how to create a new one.
+    name: "rclone"
+    configFileName: "config.conf"
+    entryPointFileName: "entry_point.sh"
+    scriptMountPath: "/opt/bin"
+    # For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom
+    # Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase)
+    secrets:
+    #  RCLONE_CONFIG_S3_TYPE: "s3"
+    #  RCLONE_CONFIG_S3_PROVIDER: "AWS"
+    #  RCLONE_CONFIG_S3_ENV_AUTH: "true"
+    #  RCLONE_CONFIG_S3_REGION: "ap-southeast-1"
+    #  RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-southeast-1"
+    #  RCLONE_CONFIG_S3_ACL: "private"
+    #  RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
+    #  RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
+    #  RCLONE_CONFIG_GS_TYPE: "s3"
+    #  RCLONE_CONFIG_GS_PROVIDER: "GCS"
+    #  RCLONE_CONFIG_GS_ENV_AUTH: "true"
+    #  RCLONE_CONFIG_GS_REGION: "asia-southeast1"
+    #  RCLONE_CONFIG_GS_LOCATION_CONSTRAINT: "asia-southeast1"
+    #  RCLONE_CONFIG_GS_ACL: "private"
+    #  RCLONE_CONFIG_GS_ACCESS_KEY_ID: "xxx"
+    #  RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "xxx"
+    #  RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
   ports:
   - 9000
   resources:
@@ -822,6 +1064,9 @@ videoRecorder:
     limits:
       memory: "1Gi"
       cpu: "1"
+  # SecurityContext for recorder container
+  securityContext:
+    runAsUser: 0
   extraEnvironmentVariables:
   # - name: SE_VIDEO_FOLDER
   #   value: /videos
@@ -844,6 +1089,8 @@ videoRecorder:
 
   # Liveness probe settings
   livenessProbe: {}
+  # Define lifecycle events for video recorder
+  lifecycle: {}
 
   volume:
   # name:
@@ -868,40 +1115,41 @@ videoRecorder:
   #   persistentVolumeClaim:
   #     claimName: video-pv-claim
 
-  # Container spec for the uploader if above it is defined as "uploader: s3"
+  # Container spec for the uploader if above it is defined as "uploader.name: rclone"
+  rclone:
+    # imageRegistry: selenium
+    imageName: uploader
+    # imageTag: "rclone-1.65-20240119"
+    imagePullPolicy: IfNotPresent
+    # SecurityContext for uploader container
+    securityContext:
+      runAsUser: 0
+    command: []
+    args: []
+    extraEnvironmentVariables:
+    # Extra options for rclone. Refer to https://rclone.org/flags
+      - name: UPLOAD_OPTS
+        value: "--progress"
+    #  - name: UPLOAD_COMMAND
+    #    value: "copy"
+
+  # Container spec for the uploader if above it is defined as "uploader.name: s3"
   s3:
-    imageName: public.ecr.aws/bitnami/aws-cli
-    imageTag: "2"
+    imageRegistry: public.ecr.aws
+    imageName: bitnami/aws-cli
+    imageTag: latest
     imagePullPolicy: IfNotPresent
     securityContext:
       runAsUser: 0
-    command:
-    - /bin/sh
-    args:
-    - -c
-    - |
-      while ! [ -p /videos/uploadpipe ]
-      do
-          echo Waiting for /videos/uploadpipe to be created
-          sleep 1
-      done
-      echo Waiting for files to upload
-      while read FILE DESTINATION < /videos/uploadpipe
-      do
-          if [ "$FILE" = "exit" ]
-          then
-              echo "$FILE"
-              break
-          else
-              echo "Uploading $FILE to $DESTINATION"
-              aws s3 cp --no-progress $FILE $DESTINATION
-          fi
-      done
+    command: []
+    args: []
     extraEnvironmentVariables:
     # - name: AWS_ACCESS_KEY_ID
     #   value: aws_access_key_id
     # - name: AWS_SECRET_ACCESS_KEY
     #   value: aws_secret_access_key
+    # - name: AWS_REGION
+    #   value: region
     # - name:
     #   valueFrom:
     #     secretKeyRef:
@@ -910,3 +1158,17 @@ videoRecorder:
 
 # Custom labels for k8s resources
 customLabels: {}
+
+# Configuration for dependency chart keda
+keda:
+  http:
+    timeout: 60000
+  webhooks:
+    enabled: false
+
+# Configuration for dependency chart ingress-nginx
+ingress-nginx:
+  enabled: false
+  controller:
+    admissionWebhooks:
+      enabled: false

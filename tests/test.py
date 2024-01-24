@@ -65,7 +65,7 @@ TEST_NAME_MAP = {
     'StandaloneChromium': 'ChromeTests',
 
     # Chart Parallel Test
-    'ParallelAutoscaling': 'ParallelAutoscalingTests'
+    'JobAutoscaling': 'JobAutoscalingTests'
 }
 
 FROM_IMAGE_ARGS = {

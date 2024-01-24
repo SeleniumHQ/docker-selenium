@@ -42,46 +42,83 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.hub.subscribePort }}
               protocol: TCP
-        {{- if .Values.hub.livenessProbe.enabled }}
-          livenessProbe:
+        {{- if .Values.hub.startupProbe.enabled }}
+          {{- with .Values.hub.startupProbe }}
+          startupProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
             httpGet:
-              path: {{ .Values.hub.livenessProbe.path }}
-              port: {{ .Values.hub.port }}
-            initialDelaySeconds: {{ .Values.hub.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.hub.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.hub.livenessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.hub.livenessProbe.successThreshold }}
-            failureThreshold: {{ .Values.hub.livenessProbe.failureThreshold }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
         {{- end }}
         {{- if .Values.hub.readinessProbe.enabled }}
+          {{- with .Values.hub.readinessProbe }}
           readinessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
             httpGet:
-              path: {{ .Values.hub.readinessProbe.path }}
-              port: {{ .Values.hub.port }}
-            initialDelaySeconds: {{ .Values.hub.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.hub.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.hub.readinessProbe.timeoutSeconds }}
-            successThreshold: {{ .Values.hub.readinessProbe.successThreshold }}
-            failureThreshold: {{ .Values.hub.readinessProbe.failureThreshold }}
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.hub.livenessProbe.enabled }}
+          {{- with .Values.hub.livenessProbe }}
+          livenessProbe:
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- else }}
+            httpGet:
+              scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
+              path: {{ .path }}
+              port: {{ default ($.Values.hub.port) .port }}
+          {{- end }}
+          {{- if (ne (include "seleniumGrid.probe.settings" .) "{}") }}
+            {{- include "seleniumGrid.probe.settings" . | nindent 12 }}
+          {{- end }}
+          {{- end }}
         {{- end }}
           env:
+            {{- with .Values.hub.subPath }}
             - name: SE_SUB_PATH
-              value: {{ .Values.hub.subPath }}
-            {{- if eq .Values.basicAuth.enabled true}}
-            - name: ROUTER_USERNAME
-              value: {{ .Values.basicAuth.username }}
-            - name: ROUTER_PASSWORD
-              value: {{ .Values.basicAuth.password }}
+              value: {{ . | quote }}
+            {{- end }}
+            {{- if .Values.hub.disableUI }}
+            - name: SE_DISABLE_UI
+              value: {{ .Values.hub.disableUI | quote }}
             {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
-        {{- with .Values.hub.extraEnvFrom }}
           envFrom:
+            - configMapRef:
+                name: {{ tpl .Values.loggingConfigMap.name $ }}
+            - configMapRef:
+                name: {{ tpl .Values.serverConfigMap.name $ }}
+            - secretRef:
+                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+          {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
-        {{- end }}
-        {{- with .Values.hub.extraVolumeMounts }}
+          {{- end }}
           volumeMounts:
+          {{- if .Values.tls.enabled }}
+            - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              readOnly: true
+          {{- end }}
+        {{- with .Values.hub.extraVolumeMounts }}
             {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
         {{- with .Values.hub.resources }}
@@ -107,8 +144,13 @@ spec:
     {{- with .Values.hub.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
-    {{- with .Values.hub.extraVolumes }}
       volumes:
+      {{- if .Values.tls.enabled }}
+        - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
+      {{- end }}
+    {{- with .Values.hub.extraVolumes }}
         {{- tpl (toYaml .) $ | nindent 8 }}
     {{- end }}
 {{- end }}

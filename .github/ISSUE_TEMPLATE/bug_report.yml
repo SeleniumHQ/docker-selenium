@@ -54,8 +54,16 @@ body:
   - type: input
     id: version
     attributes:
-      label: Docker Selenium version (tag or chart version)
+      label: Docker Selenium version (image tag)
       description: What version of Docker Selenium are you using?
-      placeholder: 4.16.0-20231206? Please use the full tag, avoid "latest"
+      placeholder: 4.17.0-20240123? Please use the full tag, avoid "latest"
     validations:
       required: true
+  - type: input
+    id: chart-version
+    attributes:
+      label: Selenium Grid chart version (chart version)
+      description: What version of Selenium Grid chart are you using?
+      placeholder: 0.26.2?
+    validations:
+      required: false

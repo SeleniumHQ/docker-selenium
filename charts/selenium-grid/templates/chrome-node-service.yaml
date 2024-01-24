@@ -22,8 +22,11 @@ spec:
   ports:
     - name: tcp-chrome
       protocol: TCP
-      port: {{ .Values.chromeNode.seleniumServicePort }}
-      targetPort: {{ .Values.chromeNode.seleniumPort }}
+      port: {{ .Values.chromeNode.port }}
+      targetPort: {{ .Values.chromeNode.port }}
+      {{- if and (eq $.Values.chromeNode.service.type "NodePort") .Values.chromeNode.nodePort }}
+      nodePort: {{ .Values.chromeNode.nodePort }}
+      {{- end }}
   {{- with .Values.chromeNode.service.ports }}
     {{- range . }}
     - name: {{ .name }}

@@ -1,5 +1,0 @@
-autoscaling:
-  enableWithExistingKEDA: true
-  scalingType: job
-  scaledOptions:
-    minReplicaCount: 0

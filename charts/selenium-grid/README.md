@@ -2,6 +2,47 @@
 
 This chart enables the creation of a Selenium Grid Server in Kubernetes.
 
+## Contents
+<!-- TOC -->
+* [Selenium-Grid Helm Chart](#selenium-grid-helm-chart)
+  * [Contents](#contents)
+  * [Introduction](#introduction)
+  * [Installing the chart](#installing-the-chart)
+    * [Installing the Nightly chart](#installing-the-nightly-chart)
+  * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
+    * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
+    * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
+    * [Settings when scalingType with `job`](#settings-when-scalingtype-with-job)
+  * [Updating Selenium-Grid release](#updating-selenium-grid-release)
+  * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
+  * [Ingress Configuration](#ingress-configuration)
+  * [Configuration](#configuration)
+    * [Configuration global](#configuration-global)
+      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8spublicip)
+    * [Configuration of Nodes](#configuration-of-nodes)
+      * [Container ports and Service ports](#container-ports-and-service-ports)
+      * [Probes](#probes)
+    * [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container)
+    * [Configuration of video recorder and video uploader](#configuration-of-video-recorder-and-video-uploader)
+      * [Video recorder](#video-recorder)
+      * [Video uploader](#video-uploader)
+    * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
+      * [Secure Communication](#secure-communication)
+      * [Node Registration](#node-registration)
+    * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
+    * [Configuration of KEDA](#configuration-of-keda)
+    * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
+    * [Configuration for Selenium-Hub](#configuration-for-selenium-hub)
+    * [Configuration for isolated components](#configuration-for-isolated-components)
+<!-- TOC -->
+
+## Introduction
+
+We offer a Helm chart to simplify the deployment of Selenium Grid Docker images to Kubernetes.
+- Chart changes are tracked in [CHANGELOG](CHANGELOG.md).
+- Sanity/Regression tests for the chart features are tracked in [TESTING](TESTING.md).
+- There are some reference values file that used to test and deploy Selenium Grid chart. You can find them in [tests/charts/refValues](../../tests/charts/refValues) and [tests/charts/ci](../../tests/charts/ci).
+
 ## Installing the chart
 
 If you want to install the latest master version of Selenium Grid onto your cluster you can do that by using the helm charts repository located at https://www.selenium.dev/docker-selenium.
@@ -31,6 +72,18 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 # Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
 ```
 
+### Installing the Nightly chart
+
+Nightly chart is built from the latest main branch of this repository with using Nightly images. It is not recommended to use this chart in production. It is only for testing purpose. The procedure to install the Nightly chart is the same as the above, only different on the version, it is `1.0.0-nightly`
+
+```bash
+# List all versions Nightly in the docker-selenium repo
+helm search repo docker-selenium --devel
+
+# Install basic grid Nightly version
+helm install selenium-grid docker-selenium/selenium-grid --version 1.0.0-nightly
+```
+
 ## Enable Selenium Grid Autoscaling
 
 Selenium Grid has the ability to autoscaling browser nodes up/down based on the pending requests in the 
@@ -46,14 +99,82 @@ or [jobs](https://keda.sh/docs/latest/concepts/scaling-jobs/) and the charts sup
 chart support both modes.  It is controlled with `autoscaling.scalingType` that can be set to either
 job (default) or deployment.
 
-### Settings when scaling with deployments 
+### Settings common for both `job` and `deployment` scalingType
 
-The `terminationGracePeriodSeconds` is set to 30 seconds by default. When scaling using deployments
-the HPA choose pods to terminate randomly. If the chosen pod is currently executing a test rather
-than being idle, then there is 30 seconds before the test is expected to complete. If your test is
-still executing after 30 seconds, it would result in failure as the pod will be killed. If you want
-to give more time for your tests to complete, you may set `terminationGracePeriodSeconds` to value
-upto 3600 seconds.
+There are few settings that are common for both scaling types. These are grouped under `autoscaling.scaledOptions`.
+
+In case individual node should be scaled differently, you can override the upstream settings with `.scaledOptions` for each node type. For example:
+
+```yaml
+autoscaling:
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 8
+    pollingInterval: 20
+
+chromeNode:
+  scaledOptions:
+    minReplicaCount: 1
+    maxReplicaCount: 16
+    pollingInterval: 10
+```
+
+### Settings when scalingType with `deployment` 
+
+By default, `autoscaling.terminationGracePeriodSeconds` is set to 3600 seconds. This is used when scalingType is set to `deployment`. You can adjust this value, it will affect to all nodes.
+
+In case individual node which needs to set different period, you can override the upstream settings with `.terminationGracePeriodSeconds` for each node type. Note that override value must be greater than upstream setting to take effect. For example:
+
+```yaml
+autoscaling:
+  terminationGracePeriodSeconds: 3600 #default
+chromeNode:
+  terminationGracePeriodSeconds: 7200 #override
+firefoxNode:
+  terminationGracePeriodSeconds: 1800 #not override
+```
+
+When scaling using deployments the HPA choose pods to terminate randomly. If the chosen pod is currently executing a test rather
+than being idle, then there is `terminationGracePeriodSeconds` seconds before the test is expected to complete. If your test is
+still executing after `terminationGracePeriodSeconds` seconds, it would result in failure as the pod will be killed.
+
+During `terminationGracePeriodSeconds` period, there is `preStop` hook to execute command to wait for the pod can be shut down gracefully which can be defined in `.deregisterLifecycle`
+- There is a `_helpers` template with name `seleniumGrid.node.deregisterLifecycle` render value for pod `lifecycle.preStop`. By default, hook to execute the script to drain node and wait for current session to complete if any. The script is stored in node ConfigMap, more details can be seen in config `nodeConfigMap.`
+- You can define your custom `preStop` hook which is applied for all nodes via `autoscaling.deregisterLifecycle`
+- In case individual node which needs different hook, you can override the upstream settings with `.deregisterLifecycle` for each node type. If you want to disable upstream hook in a node, pass the value as `false`
+- If an individual node has settings `.lifecycle` itself, it would take the highest precedence to override the above use cases.
+
+```yaml
+autoscaling:
+  deregisterLifecycle:
+    preStop:
+      exec:
+        command: ["bash", "-c", "echo 'Your custom preStop hook applied for all nodes'"]
+chromeNode:
+  deregisterLifecycle: false #disable upstream hook in chrome node
+firefoxNode:
+  deregisterLifecycle:
+    preStop:
+      exec:
+        command: ["bash", "-c", "echo 'Your custom preStop hook specific for firefox node'"]
+edgeNode:
+  lifecycle:
+    preStop:
+      exec:
+        command: ["bash", "-c", "echo 'preStop hook is defined in edge node lifecycle itself'"]
+```
+
+For other settings that KEDA [ScaledObject spec](https://keda.sh/docs/latest/concepts/scaling-deployments/#scaledobject-spec) supports, you can set them via `autoscaling.scaledObjectOptions`. For example:
+
+```yaml
+autoscaling:
+  scaledObjectOptions:
+    cooldownPeriod: 60
+```
+
+### Settings when scalingType with `job`
+
+Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
 
 ## Updating Selenium-Grid release
 
@@ -81,7 +202,7 @@ helm uninstall selenium-grid
 
 ## Ingress Configuration
 
-By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see #1808). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
+By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see [#1808](https://github.com/SeleniumHQ/docker-selenium/issues/1808)). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
 
 In order to make user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
 
@@ -127,20 +248,354 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 nginx.ingress.kubernetes.io/proxy-buffers-number
 ```
 
+You can generate a dummy self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
+
+```yaml
+tls:
+  ingress:
+    generateTLS: true
+
+ingress:
+  hostname: "your.domain.com"
+
+ingress-nginx:
+  enabled: true
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+```
+
 ## Configuration
 
+### Configuration global
 For now, global configuration supported is:
 
-| Parameter                             | Default               | Description                           |
-|---------------------------------------|-----------------------|---------------------------------------|
-| `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images  |
-| `global.seleniumGrid.imageTag`        | `4.16.0-20231206`     | Image tag for all selenium components |
-| `global.seleniumGrid.nodesImageTag`   | `4.16.0-20231206`     | Image tag for browser's nodes         |
-| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.1-20231206` | Image tag for browser's video recoder |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images |
-| `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally            |
+| Parameter                             | Default               | Description                            |
+|---------------------------------------|-----------------------|----------------------------------------|
+| `global.K8S_PUBLIC_IP`                | `""`                  | Public IP of the host running K8s      |
+| `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images   |
+| `global.seleniumGrid.imageTag`        | `4.17.0-20240123`     | Image tag for all selenium components  |
+| `global.seleniumGrid.nodesImageTag`   | `4.17.0-20240123`     | Image tag for browser's nodes          |
+| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.1-20240123` | Image tag for browser's video recorder |
+| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally             |
+| `global.seleniumGrid.logLevel`        | `INFO`                | Set log level for all components       |
 
+#### Configuration `global.K8S_PUBLIC_IP`
+
+This is the public IP of the host running Kubernetes cluster. Mainly, it is used to construct the URL for the Selenium Grid (Hub or Router) can be accessed from the outside of the cluster for Node register, Grid UI, RemoteWebDriver, etc.
+- Ingress is enabled without setting `ingress.hostname`. All the services will be exposed via the public IP is set in `K8S_PUBLIC_IP`.
+- Using NodePort to expose the services. All the services will be exposed via the public IP is set in `K8S_PUBLIC_IP`.
+- Using LoadBalancer to expose the services. All the services will be exposed via the LB External IP is set in `K8S_PUBLIC_IP`.
+
+For example:
+```yaml
+global:
+  K8S_PUBLIC_IP: "10.10.10.10"
+ingress:
+    enabled: true
+    hostname: ""
+hub:
+    subPath: "/selenium"
+    serviceType: NodePort
+```
+```
+# Source: selenium-grid/templates/node-configmap.yaml
+
+SE_NODE_GRID_URL: 'http://admin:admin@10.10.10.10/selenium'
+```
+Besides that, from the outside of the cluster, you can access via NodePort http://10.10.10.10:30444/selenium
+
+### Configuration of Nodes
+
+#### Container ports and Service ports
+
+By default, Node will use port `5555` to listen on container (following [this](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)) and expose via Service. You can update this value via `.port` in respective node type. This will be used to set `SE_NODE_PORT` environment variable to pass to option `--port` when starting the node and update in Service accordingly.
+
+By default, if httpGet probes are enabled, it will use `.port` value in respective node type unless you override it via e.g. `.startupProbe.port` `.readinessProbe.port` or `.livenessProbe.port` in respective node type.
+
+In a node container, there are other running services can be exposed. For example: VNC, NoVNC, SSH, etc. You can easily expose them on container via `.ports` and on Service `service.ports` in respective node type.
+
+```yaml
+chromeNode:
+  port: 6666 # Update `SE_NODE_PORT` to 6666
+  nodePort: 30666 # Specify a NodePort to expose `SE_NODE_PORT` to outside traffic
+  ports:
+    - 5900 # You can give port number alone, default protocol is TCP
+    - 7900
+  service:
+    type: NodePort # Expose entire ports on Service via NodePort
+    ports:
+      - name: vnc-port
+        protocol: TCP
+        port: 5900
+        targetPort: 5900
+        nodePort: 30590 # Specify a NodePort to expose VNC port
+      - name: novnc-port
+        protocol: TCP
+        port: 7900
+        targetPort: 7900
+        # NodePort will be assigned randomly if not set
+edgeNode:
+  ports: # You also can give object following manifest of container ports
+    - containerPort: 5900
+      name: vnc
+      protocol: TCP
+    - containerPort: 7900
+      name: novnc
+      protocol: TCP
+```
+
+#### Probes
+
+By default, `startupProbe` is enabled and `readinessProbe` and `livenessProbe` are disabled. You can enable/disable them via `.startupProbe.enabled` `.readinessProbe.enabled` `.livenessProbe.enabled` in respective node type.
+
+By default, probes are using `httpGet` method to check the node state. It will use `.port` value in respective node type unless you override it via e.g. `.startupProbe.port` `.readinessProbe.port` or `.livenessProbe.port` in respective node type.
+
+Other settings of probe support to override under `.startupProbe` `.readinessProbe` `.livenessProbe` in respective node type.
+
+```markdown
+    schema
+    path
+    port
+    initialDelaySeconds
+    failureThreshold
+    timeoutSeconds
+    periodSeconds
+    successThreshold
+```
+
+You can easily configure the probes (as Kubernetes [supports](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)) to override the default settings. For example:
+
+```yaml
+edgeNode:
+  port: 5555
+  startupProbe:
+    enabled: true
+    tcpSocket:
+      port: 5555
+    failureThreshold: 10
+    periodSeconds: 5
+```
+
+### Configuration extra scripts mount to container
+
+This is supported for containers of browser node, video recorder and video uploader. By default, in these containers, there are scripts, config files implemented. In case you want to customize or replace them with your own implementation. Instead of forking the chart, use volume mount. Now, from your external files, you can insert them into ConfigMap via Helm CLI `--set-file` or compose them in your own YAML values file and pass to Helm CLI `--values` when deploying chart. Any files name that you defined will be picked up into ConfigMap and mounted to the container.
+
+```yaml
+nodeConfigMap:
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    nodePreStop.sh: |
+      #!/bin/bash
+      echo "Your custom script"
+
+recorderConfigMap:
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    video.sh: |
+        #!/bin/bash
+        echo "Your custom script"    
+    videoPreStop.sh: |
+        #!/bin/bash
+        echo "My new script"
+
+uploaderConfigMap:
+  extraScriptsDirectory: "/opt/bin"
+  extraScripts:
+    entry_point.sh: |
+        #!/bin/bash
+        echo "Your custom entry point"
+  secretFiles:
+    config.conf: |
+        [myremote]
+        type = s3
+```
+
+Via Helm CLI, you can pass your own files to particular config key. Note that, the file name contains dot `.` for file extension, it will impact to the key name convention in Helm CLI. In this case, be careful to escape the dot `.` in the file name. For example a command in Unix:
+
+```bash
+helm upgrade -i test \
+    --set-file 'nodeConfigMap.extraScripts.nodePreStop\.sh=/path/to/myScript.sh' \
+    --set-file 'recorderConfigMap.extraScripts.video\.sh=/path/to/myCustom.sh' \
+    selenium-grid
+```
+
+Files in `.extraScripts` will be mounted to the container with the same name within directory is defined in `.extraScriptsDirectory`. For example, in the above config, `nodePreStop.sh` will be mounted to `/opt/selenium/nodePreStop.sh` in the node container.
+
+
+### Configuration of video recorder and video uploader
+
+#### Video recorder
+
+The video recorder is a sidecar that is deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
+
+```yaml
+videoRecorder:
+  enabled: true
+```
+
+At chart deployment level, that config will enable video container always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:recordVideo', False)
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+)
+```
+
+In Node will perform query GraphQL and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. By default, the script is loaded from file [configs/recorder/graphQLRecordVideo.sh](configs/recorder/graphQLRecordVideo.sh) to the ConfigMap. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
+
+#### Video uploader
+
+The uploader is a sidecar that is deployed with the browser nodes. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
+
+```yaml
+videoRecorder:
+  uploader:
+    enabled: true
+```
+
+By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video to a remote location. RCLONE requires a configuration file to define different remote locations. Refer to [RCLONE docs](https://rclone.org/docs/#config-file) for more details. Config file might contain sensitive information such as access key, secret key, etc. hence it is stored in Secret.
+
+The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The `bucket-name` is the name of the bucket in the remote location. The `path` is the path to the folder in the bucket.
+
+By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config.conf=/path/to/your_config.conf` or set via YAML values.
+
+For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
+
+```bash
+uploaderConfigMap:
+  secretFiles:
+    config.conf: |
+        [mys3]
+        type = s3
+        provider = AWS
+        env_auth = true
+        region = ap-southeast-1
+        location_constraint = ap-southeast-1
+        acl = private
+        access_key_id = xxx
+        secret_access_key = xxx
+
+videoRecorder:
+  uploader:
+    destinationPrefix: "mys3://mybucket/subFolder"
+```
+
+You can prepare a config file with multiple remotes are defined. Ensure that `[remoteName]` is unique for each remote.
+You also can replace your config to default file `configs/uploader/rclone/config.conf` in chart.
+
+Instead of using config file, another way that RCLONE also supports to pass the information via environment variables. ENV variable with format: `RCLONE_CONFIG_ + name of remote + _ + name of config file option` (make it all uppercase). In this case the remote name it can only contain letters, digits, or the _ (underscore) character. All those ENV variables can be set via `videoRecorder.uploader.secrets`, it will be stored in Secret.
+
+For example, the same above config can be set via ENV vars as below:
+
+```yaml
+videoRecorder:
+  uploader:
+    destinationPrefix: "mys3://mybucket"
+    secrets:
+      RCLONE_CONFIG_MYS3_TYPE: "s3"
+      RCLONE_CONFIG_MYS3_PROVIDER: "GCS"
+      RCLONE_CONFIG_MYS3_ENV_AUTH: "true"
+      RCLONE_CONFIG_MYS3_REGION: "asia-southeast1"
+      RCLONE_CONFIG_MYS3_LOCATION_CONSTRAINT: "asia-southeast1"
+      RCLONE_CONFIG_MYS3_ACL: "private"
+      RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
+      RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
+```
+
+Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `config.conf` will take precedence.
+
+Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point.sh=/path/to/your_script.sh` or set via YAML values. For example:
+
+```yaml
+uploaderConfigMap:
+  extraScripts:
+    entry_point.sh: |
+        #!/bin/bash
+        echo "Your custom entry point"
+```
+
+You also can replace your script to default file `configs/uploader/rclone/entry_point.sh` in chart.
+
+### Configuration of Secure Communication (HTTPS)
+
+Selenium Grid supports secure communication between components. Refer to the [instructions](https://github.com/SeleniumHQ/selenium/blob/trunk/java/src/org/openqa/selenium/grid/commands/security.txt) and [options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) are able to configure the secure communication. Below is the details on how to enable secure communication in Selenium Grid chart.
+
+#### Secure Communication
+
+In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
+
+There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them together.
+
+- Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
+
+- Use the default directory [certs](./certs). Copy your own files to there and adjust the file name under config `tls.defaultFile`, those will be picked up when installing chart. For example:
+
+    ```yaml
+    tls:
+      enabled: true
+      trustStorePassword: "your_truststore_password"
+      defaultFile:
+        certificate: "certs/your_cert.pem"
+        privateKey: "certs/your_private_key.pkcs8"
+        trustStore: "certs/your_truststore.jks"
+    ```
+    For some security reasons, you may not able to put private key in your source code or your customization chart package. You can provide files with contents are encoded in Base64 format, just append `.base64` to the file name for chart able to know and decode them. For example:
+
+    ```yaml
+    tls:
+      enabled: true
+      trustStorePassword: "your_truststore_password"
+      defaultFile:
+        certificate: "certs/your_cert.pem.base64"
+        privateKey: "certs/your_private_key.pkcs8.base64"
+        trustStore: "certs/your_truststore.jks.base64"
+    ```
+
+- Using Helm CLI `--set-file` to pass your own file to particular config key. For example:
+
+    ```bash
+    helm upgrade -i test selenium-grid \
+    --set tls.enabled=true \
+    --set-file tls.certificate=/path/to/your_cert.pem \
+    --set-file tls.privateKey=/path/to/your_private_key.pkcs8 \
+    --set-file tls.trustStore=/path/to/your_truststore.jks \
+    --set-string tls.trustStorePassword=your_truststore_password
+    ```
+
+If you start NGINX ingress controller inline with Selenium Grid chart, you can configure the default certificate of NGINX ingress controller to use the same certificate as Selenium Grid. For example:
+
+```yaml
+tls:
+  enabled: true
+
+ingress-nginx:
+  enabled: true
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+```
+
+#### Node Registration
+
+In order to enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
+Node servers in config `tls.registrationSecret`. For example:
+
+```yaml
+tls:
+  enabled: true
+  registrationSecret:
+    enabled: true
+    value: "matchThisSecret"
+```
+
+### Configuration of Selenium Grid chart
 This table contains the configuration parameters of the chart and their default values:
 
 | Parameter                                     | Default                                     | Description                                                                                                                |
@@ -162,6 +617,8 @@ This table contains the configuration parameters of the chart and their default 
 | `ingress.nginx.proxyTimeout`                  | `3600`                                      | Value is used to set for NGINX ingress annotations related to proxy timeout                                                |
 | `ingress.nginx.proxyBuffer.size`              | `512M`                                      | Value is used to set for NGINX ingress annotations on size of the buffer proxy_buffer_size used for reading                |
 | `ingress.nginx.proxyBuffer.number`            | `4`                                         | Value is used to set for NGINX ingress annotations on number of the buffers in proxy_buffers used for reading              |
+| `ingress.ports.http`                          | `80`                                        | Port to expose for HTTP                                                                                                    |
+| `ingress.ports.https`                         | `443`                                       | Port to expose for HTTPS                                                                                                   |
 | `ingress.hostname`                            | ``                                          | Default host for the ingress resource                                                                                      |
 | `ingress.path`                                | `/`                                         | Default host path for the ingress resource                                                                                 |
 | `ingress.pathType`                            | `Prefix`                                    | Default path type for the ingress resource                                                                                 |
@@ -182,12 +639,12 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.16.0-20231206`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.17.0-20240123`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `chromeNode.ports`                            | `[5555]`                                    | Port list to enable on container                                                                                           |
-| `chromeNode.seleniumPort`                     | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `chromeNode.seleniumServicePort`              | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `chromeNode.ports`                            | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
+| `chromeNode.port`                             | `5555`                                      | Port is used to set `SE_NODE_PORT`                                                                                         |
+| `chromeNode.nodePort`                         | `nil`                                       | NodePort where chrome-node exposed                                                                                         |
 | `chromeNode.annotations`                      | `{}`                                        | Annotations for chrome-node pods                                                                                           |
 | `chromeNode.labels`                           | `{}`                                        | Labels for chrome-node pods                                                                                                |
 | `chromeNode.resources`                        | `See values.yaml`                           | Resources for chrome-node pods                                                                                             |
@@ -205,8 +662,9 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.ports`                    | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `chromeNode.service.annotations`              | `{}`                                        | Custom annotations for service                                                                                             |
 | `chromeNode.dshmVolumeSizeLimit`              | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `chromeNode.startupProbe`                     | `{}`                                        | Probe to check pod is started successfully                                                                                 |
-| `chromeNode.livenessProbe`                    | `{}`                                        | Liveness probe settings                                                                                                    |
+| `chromeNode.startupProbe.enabled`             | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
+| `chromeNode.readinessProbe.enabled`           | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
+| `chromeNode.livenessProbe.enabled`            | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |
 | `chromeNode.terminationGracePeriodSeconds`    | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `chromeNode.lifecycle`                        | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `chromeNode.extraVolumeMounts`                | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -214,6 +672,8 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.hpa.url`                          | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
 | `chromeNode.hpa.browserName`                  | `chrome`                                    | BrowserName from the capability                                                                                            |
 | `chromeNode.hpa.browserVersion`               | ``                                          | BrowserVersion from the capability                                                                                         |
+| `chromeNode.sidecars`                         | `[]`                                        | Add a sidecars proxy in the same pod of the browser node                                                                   |
+| `chromeNode.initContainers`                   | `[]`                                        | Add initContainers in the same pod of the browser node                                                                     |
 | `chromeNode.scaledOptions`                    | See `values.yaml`                           | Override the global `autoscaling.scaledOptions` with specific scaled options for chrome nodes                              |
 | `chromeNode.scaledJobOptions`                 | See `values.yaml`                           | Override the global `autoscaling.scaledJobOptions` with specific scaled options for chrome nodes                           |
 | `chromeNode.scaledObjectOptions`              | See `values.yaml`                           | Override the global `autoscaling.scaledObjectOptions` with specific scaled options for chrome nodes                        |
@@ -222,12 +682,12 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.16.0-20231206`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.17.0-20240123`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `firefoxNode.ports`                           | `[5555]`                                    | Port list to enable on container                                                                                           |
-| `firefoxNode.seleniumPort`                    | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `firefoxNode.seleniumServicePort`             | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `firefoxNode.ports`                           | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
+| `firefoxNode.port`                            | `5555`                                      | Port is used to set `SE_NODE_PORT`                                                                                         |
+| `firefoxNode.nodePort`                        | `nil`                                       | NodePort where firefox-node exposed                                                                                        |
 | `firefoxNode.annotations`                     | `{}`                                        | Annotations for firefox-node pods                                                                                          |
 | `firefoxNode.labels`                          | `{}`                                        | Labels for firefox-node pods                                                                                               |
 | `firefoxNode.resources`                       | `See values.yaml`                           | Resources for firefox-node pods                                                                                            |
@@ -245,8 +705,9 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.ports`                   | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `firefoxNode.service.annotations`             | `{}`                                        | Custom annotations for service                                                                                             |
 | `firefoxNode.dshmVolumeSizeLimit`             | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `firefoxNode.startupProbe`                    | `{}`                                        | Probe to check pod is started successfully                                                                                 |
-| `firefoxNode.livenessProbe`                   | `{}`                                        | Liveness probe settings                                                                                                    |
+| `firefoxNode.startupProbe.enabled`            | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
+| `firefoxNode.readinessProbe.enabled`          | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
+| `firefoxNode.livenessProbe.enabled`           | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |
 | `firefoxNode.terminationGracePeriodSeconds`   | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `firefoxNode.lifecycle`                       | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `firefoxNode.extraVolumeMounts`               | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -254,6 +715,8 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.hpa.url`                         | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
 | `firefoxNode.hpa.browserName`                 | `firefox`                                   | BrowserName from the capability                                                                                            |
 | `firefoxNode.hpa.browserVersion`              | ``                                          | BrowserVersion from the capability                                                                                         |
+| `firefoxNode.sidecars`                        | `[]`                                        | Add a sidecars proxy in the same pod of the browser node                                                                   |
+| `firefoxNode.initContainers`                  | `[]`                                        | Add initContainers in the same pod of the browser node                                                                     |
 | `firefoxNode.scaledOptions`                   | See `values.yaml`                           | Override the global `autoscaling.scaledOptions` with specific scaled options for firefox nodes                             |
 | `firefoxNode.scaledJobOptions`                | See `values.yaml`                           | Override the global `autoscaling.scaledJobOptions` with specific scaled options for firefox nodes                          |
 | `firefoxNode.scaledObjectOptions`             | See `values.yaml`                           | Override the global `autoscaling.scaledObjectOptions` with specific scaled options for firefox nodes                       |
@@ -262,12 +725,12 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.16.0-20231206`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.17.0-20240123`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
-| `edgeNode.ports`                              | `[5555]`                                    | Port list to enable on container                                                                                           |
-| `edgeNode.seleniumPort`                       | `5900`                                      | Selenium port (spec.ports[0].targetPort in kubernetes service)                                                             |
-| `edgeNode.seleniumServicePort`                | `6900`                                      | Selenium port exposed in service (spec.ports[0].port in kubernetes service)                                                |
+| `edgeNode.ports`                              | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
+| `edgeNode.port`                               | `5555`                                      | Port is used to set `SE_NODE_PORT`                                                                                         |
+| `edgeNode.nodePort`                           | `nil`                                       | NodePort where edge-node exposed                                                                                           |
 | `edgeNode.annotations`                        | `{}`                                        | Annotations for edge-node pods                                                                                             |
 | `edgeNode.labels`                             | `{}`                                        | Labels for edge-node pods                                                                                                  |
 | `edgeNode.resources`                          | `See values.yaml`                           | Resources for edge-node pods                                                                                               |
@@ -285,8 +748,9 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.ports`                      | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `edgeNode.service.annotations`                | `{}`                                        | Custom annotations for service                                                                                             |
 | `edgeNode.dshmVolumeSizeLimit`                | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
-| `edgeNode.startupProbe`                       | `{}`                                        | Probe to check pod is started successfully                                                                                 |
-| `edgeNode.livenessProbe`                      | `{}`                                        | Liveness probe settings                                                                                                    |
+| `edgeNode.startupProbe.enabled`               | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
+| `edgeNode.readinessProbe.enabled`             | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
+| `edgeNode.livenessProbe.enabled`              | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |
 | `edgeNode.terminationGracePeriodSeconds`      | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `edgeNode.lifecycle`                          | `{}`                                        | hooks to make pod correctly shutdown or started                                                                            |
 | `edgeNode.extraVolumeMounts`                  | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
@@ -294,16 +758,24 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.hpa.url`                            | `{{ include "seleniumGrid.graphqlURL" . }}` | Graphql Url of the hub or the router                                                                                       |
 | `edgeNode.hpa.browserName`                    | `edge`                                      | BrowserName from the capability                                                                                            |
 | `edgeNode.hpa.browserVersion`                 | ``                                          | BrowserVersion from the capability                                                                                         |
+| `edgeNode.sidecars`                           | `[]`                                        | Add a sidecars proxy in the same pod of the browser node                                                                   |
+| `edgeNode.initContainers`                     | `[]`                                        | Add initContainers in the same pod of the browser node                                                                     |
 | `edgeNode.scaledOptions`                      | See `values.yaml`                           | Override the global `autoscaling.scaledOptions` with specific scaled options for edge nodes                                |
 | `edgeNode.scaledJobOptions`                   | See `values.yaml`                           | Override the global `autoscaling.scaledJobOptions` with specific scaled options for edge nodes                             |
 | `edgeNode.scaledObjectOptions`                | See `values.yaml`                           | Override the global `autoscaling.scaledObjectOptions` with specific scaled options for edge nodes                          |
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
-| `videoRecorder.imageName`                     | `video`                                     | Selenium video recoder image name                                                                                          |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20231206`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240123`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
-| `videoRecorder.uploader`                      | `false`                                     | Name of the uploader to use. The value `false` is used to disable uploader. Supported default `s3`                         |
-| `videoRecorder.uploadDestinationPrefix`       | `false`                                     | Destination URL for uploading video file. The value `false` is used to disable the uploading                               |
+| `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
+| `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
+| `videoRecorder.uploader.name`                 | `rclone`                                    | Name of the uploader to use. Supported default `rclone`                                                                    |
+| `videoRecorder.uploader.configFileName`       | `config.conf`                               | Config file name for `rclone` in uploader container                                                                        |
+| `videoRecorder.uploader.entryPointFileName`   | `entry_point.sh`                            | Script file name for uploader container entry point                                                                        |
+| `videoRecorder.uploader.config`               | ``                                          | Set value to uploader config file via YAML or `--set-file`                                                                 |
+| `videoRecorder.uploader.entryPoint`           | ``                                          | Set value to uploader entry point via YAML or `--set-file`                                                                 |
+| `videoRecorder.uploader.secrets`              | ``                                          | Environment variables to configure the uploader which store in Secret                                                      |
 | `videoRecorder.ports`                         | `[9000]`                                    | Port list to enable on video recorder container                                                                            |
 | `videoRecorder.resources`                     | `See values.yaml`                           | Resources for video recorder                                                                                               |
 | `videoRecorder.extraEnvironmentVariables`     | `nil`                                       | Custom environment variables for video recorder                                                                            |
@@ -311,24 +783,30 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.terminationGracePeriodSeconds` | `30`                                        | Time to graceful terminate container (default: 30s)                                                                        |
 | `videoRecorder.startupProbe`                  | `{}`                                        | Probe to check pod is started successfully                                                                                 |
 | `videoRecorder.livenessProbe`                 | `{}`                                        | Liveness probe settings                                                                                                    |
+| `videoRecorder.lifecycle`                     | `{}`                                        | Define lifecycle events for video recorder                                                                                 |
 | `videoRecorder.volume.name.folder`            | `video`                                     | Name is used to set for the volume to persist and share output video folder in container                                   |
 | `videoRecorder.volume.name.scripts`           | `video-scripts`                             | Name is used to set for the volume to persist and share video recorder scripts in container                                |
 | `videoRecorder.extraVolumeMounts`             | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `videoRecorder.extraVolumes`                  | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `videoRecorder.s3`                            | `See values.yaml`                           | Container spec for the uploader if `videoRecorder.uploader` is `s3`. Similarly, create for your new uploader               |
-| `videoRecorder.s3.resources`                  | `See values.yaml`                           | Resources for video uploader                                                                                               |
-| `videoRecorder.s3.extraEnvironmentVariables`  | ``                                          | Custom environment variables for video uploader container                                                                  |
-| `videoRecorder.s3.extraEnvFrom`               | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
-| `videoRecorder.s3.extraVolumeMounts`          | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
+| `videoRecorder.rclone`                        | `See values.yaml`                           | Container spec for the uploader if `videoRecorder.uploader` is `s3`. Similarly, create for your new uploader               |
+| `videoRecorder.rclone.resources               | `See values.yaml`                           | Resources for video uploader                                                                                               |
+| `videoRecorder.rclone.extraEnvFrom`           | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
+| `videoRecorder.rclone.extraVolumeMounts`      | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
 | `customLabels`                                | `{}`                                        | Custom labels for k8s resources                                                                                            |
+| `ingress-nginx.enabled`                       | `false`                                     | Enable the dependency chart Ingress controller for Kubernetes (https://github.com/kubernetes/ingress-nginx)                |
 
 
 ### Configuration of KEDA
 
-If you are setting `autoscaling.enabled` to `true` KEDA is installed and can be configured with
+If you are setting `autoscaling.enabled` to `true`, chart KEDA is installed and can be configured with
 values with the prefix `keda`. So you can for example set `keda.prometheus.metricServer.enabled` to
 `true` to enable the metrics server for KEDA.  See
 https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
+
+### Configuration of Ingress NGINX Controller
+
+If you are setting `ingress-nginx.enabled` to `true`, chart Ingress NGINX Controller is installed and can be configured with
+values with the prefix `ingress-nginx`. See https://github.com/kubernetes/ingress-nginx for more details.
 
 ### Configuration for Selenium-Hub
 
@@ -343,9 +821,13 @@ You can configure the Selenium Hub with these values:
 | `hub.imagePullSecret`           | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                                          |
 | `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                                               |
+| `hub.disableUI`                 | `false`           | Disable the Grid UI                                                                                                                              |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                                  |
+| `hub.publishNodePort`           | `31442`           | NodePort where events are published                                                                                                              |
 | `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                                               |
+| `hub.subscribeNodePort`         | `31443`           | NodePort where to subscribe for events                                                                                                           |
 | `hub.port`                      | `4444`            | Selenium Hub port                                                                                                                                |
+| `hub.nodePort`                  | `31444`           | Selenium Hub NodePort                                                                                                                            |
 | `hub.livenessProbe`             | `See values.yaml` | Liveness probe settings                                                                                                                          |
 | `hub.readinessProbe`            | `See values.yaml` | Readiness probe settings                                                                                                                         |
 | `hub.tolerations`               | `[]`              | Tolerations for selenium-hub pods                                                                                                                |
@@ -377,6 +859,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.router.imagePullSecret`          | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.router.annotations`              | `{}`              | Custom annotations for router pod                                                                                                                |
 | `components.router.port`                     | `4444`            | Router port                                                                                                                                      |
+| `components.router.nodePort`                 | `30444`           | Router NodePort                                                                                                                                  |
 | `components.router.livenessProbe`            | `See values.yaml` | Liveness probe settings                                                                                                                          |
 | `components.router.readinessProbe`           | `See values.yaml` | Readiness probe settings                                                                                                                         |
 | `components.router.resources`                | `{}`              | Resources for router pod                                                                                                                         |
@@ -395,6 +878,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.distributor.imagePullSecret`     | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.distributor.annotations`         | `{}`              | Custom annotations for Distributor pod                                                                                                           |
 | `components.distributor.port`                | `5553`            | Distributor port                                                                                                                                 |
+| `components.distributor.nodePort`            | `30553`           | Distributor NodePort                                                                                                                             |
 | `components.distributor.resources`           | `{}`              | Resources for Distributor pod                                                                                                                    |
 | `components.distributor.securityContext`     | `See values.yaml` | Security context for Distributor pod                                                                                                             |
 | `components.distributor.serviceType`         | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
@@ -410,8 +894,11 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.eventBus.imagePullSecret`        | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.eventBus.annotations`            | `{}`              | Custom annotations for Event Bus pod                                                                                                             |
 | `components.eventBus.port`                   | `5557`            | Event Bus port                                                                                                                                   |
+| `components.eventBus.nodePort`               | `30557`           | Event Bus NodePort                                                                                                                               |
 | `components.eventBus.publishPort`            | `4442`            | Port where events are published                                                                                                                  |
+| `components.eventBus.publishNodePort`        | `30442`           | NodePort where events are published                                                                                                              |
 | `components.eventBus.subscribePort`          | `4443`            | Port where to subscribe for events                                                                                                               |
+| `components.eventBus.subscribeNodePort`      | `30443`           | NodePort where to subscribe for events                                                                                                           |
 | `components.eventBus.resources`              | `{}`              | Resources for event-bus pod                                                                                                                      |
 | `components.eventBus.securityContext`        | `See values.yaml` | Security context for event-bus pod                                                                                                               |
 | `components.eventBus.serviceType`            | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
@@ -441,6 +928,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.imagePullSecret`    | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
 | `components.sessionQueue.annotations`        | `{}`              | Custom annotations for Session Queue pod                                                                                                         |
 | `components.sessionQueue.port`               | `5559`            | Session Queue Port                                                                                                                               |
+| `components.sessionQueue.nodePort`           | `30559`           | Session Queue NodePort                                                                                                                           |
 | `components.sessionQueue.resources`          | `{}`              | Resources for Session Queue pod                                                                                                                  |
 | `components.sessionQueue.securityContext`    | `See values.yaml` | Security context for Session Queue pod                                                                                                           |
 | `components.sessionQueue.serviceType`        | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
@@ -450,6 +938,7 @@ If you implement selenium-grid with separate components (`isolateComponents: tru
 | `components.sessionQueue.affinity`           | `{}`              | Affinity for Session Queue pods                                                                                                                  |
 | `components.sessionQueue.priorityClassName`  | `""`              | Priority class name for Session Queue pods                                                                                                       |
 | `components.subPath`                         | `/`               | Custom sub path for all components                                                                                                               |
+| `components.disableUI`                       | `false`           | Disable the Grid UI                                                                                                                              |
 | `components.extraEnvironmentVariables`       | `nil`             | Custom environment variables for all components                                                                                                  |
 | `components.extraEnvFrom`                    | `nil`             | Custom environment variables taken from `configMap` or `secret` for all components                                                               |
 

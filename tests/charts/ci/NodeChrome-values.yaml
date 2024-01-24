@@ -1,6 +1,7 @@
 # This is used in Helm chart testing
 # Configuration for chrome nodes
 chromeNode:
+  port: 6666
   nameOverride: my-chrome-name
   extraEnvironmentVariables:
     - name: SE_OPTS

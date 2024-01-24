@@ -4,13 +4,16 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
+ARG NOVNC_VERSION="1.4.0"
+ARG WEBSOCKIFY_VERSION="0.11.0"
+
 USER root
 
 #==============
 # Xvfb
 #==============
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     xvfb \
     pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
@@ -40,7 +43,7 @@ RUN apt-get -qqy update \
 # VNC
 #=====
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
   x11vnc \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -49,7 +52,7 @@ RUN apt-get update -qqy \
 # A fast, lightweight and responsive window manager
 #=========
 RUN apt-get update -qqy \
-  && apt-get -qqy install \
+  && apt-get -qqy --no-install-recommends install \
     fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -93,8 +96,6 @@ RUN apt-get -qqy update \
 ########################################
 # noVNC exposes VNC through a web page #
 ########################################
-ENV NOVNC_VERSION="1.4.0" \
-    WEBSOCKIFY_VERSION="0.11.0"
 RUN  wget -nv -O noVNC.zip \
        "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
@@ -105,24 +106,43 @@ RUN  wget -nv -O noVNC.zip \
       "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
-  && rm -rf websockify-${WEBSOCKIFY_VERSION}/tests \
-  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify
+  && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify \
+  && rm -rf /opt/bin/noVNC/utils/websockify/docker /opt/bin/noVNC/utils/websockify/tests
 
 #=========================================================================================================================================
 # Run this command for executable file permissions for /dev/shm when this is a "child" container running in Docker Desktop and WSL2 distro
 #=========================================================================================================================================
 RUN chmod +x /dev/shm
 
+# Creating base directory for Xvfb
+RUN mkdir -p /tmp/.X11-unix
+
+#==============================
+# Generating the VNC password using initial password in Base image
+# Changing ownership to ${SEL_USER}, so the service can be started
+#==============================
+
+RUN mkdir -p ${HOME}/.vnc \
+    && x11vnc -storepasswd $(cat /opt/selenium/initialPasswd) ${HOME}/.vnc/passwd \
+    && chown -R "${SEL_USER}:${SEL_GROUP}" ${HOME}/.vnc
+
+#==========
+# Relaxing permissions for OpenShift and other non-sudo environments
+#==========
+RUN chmod -R 775 ${HOME} /tmp/.X11-unix \
+  && chgrp -R 0 ${HOME} /tmp/.X11-unix \
+  && chmod -R g=u ${HOME} /tmp/.X11-unix
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================
 
-USER 1200
+USER ${SEL_UID}
 
 #==============================
 # Scripts to run Selenium Node and XVFB
 #==============================
-COPY start-selenium-node.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
       start-xvfb.sh \
       /opt/bin/
 
@@ -132,29 +152,9 @@ COPY start-selenium-node.sh \
 COPY selenium.conf /etc/supervisor/conf.d/
 
 #==============================
-# Generating the VNC password as seluser
-# So the service can be started with seluser
-#==============================
-
-RUN mkdir -p ${HOME}/.vnc \
-  && x11vnc -storepasswd secret ${HOME}/.vnc/passwd
-
-# Added to avoid the following sudo error while running multi-arch builds:
-# "sudo: effective uid is not 0, is /usr/bin/sudo on a file system with 
-#   the 'nosuid' option set or an NFS file system without root privileges?"
-USER root 
-
-#==========
-# Relaxing permissions for OpenShift and other non-sudo environments
-#==========
-RUN sudo chmod -R 775 ${HOME} \
-  && sudo chgrp -R 0 ${HOME} \
-  && sudo chmod -R g=u ${HOME}
-
-#==============================
 # Scripts to run fluxbox, x11vnc and noVNC
 #==============================
-COPY start-vnc.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-vnc.sh \
       start-novnc.sh \
       /opt/bin/
 
@@ -186,8 +186,6 @@ ENV SE_DRAIN_AFTER_SESSION_COUNT 0
 # Setting Selenium Manager to work offline
 ENV SE_OFFLINE true
 
-
-
 #========================
 # Selenium Configuration
 #========================
@@ -201,16 +199,7 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-# Added to avoid sudo-related multi-arch build errors
-USER root
-
-# Creating base directory for Xvfb
-RUN  mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
-
-# Added to avoid sudo-related multi-arch build errors
-USER 1200
-
 # Copying configuration script generator
-COPY generate_config /opt/bin/generate_config
+COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config
 
 EXPOSE 5900

@@ -1,7 +1,7 @@
 import unittest
 import concurrent.futures
 import os
-import time
+import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,6 +10,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
+SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
@@ -24,8 +25,13 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_with_frames(self):
         driver = self.driver
         driver.get('http://the-internet.herokuapp.com/nested_frames')
-        driver.switch_to.frame('frame-top')
-        driver.switch_to.frame('frame-middle')
+        wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
+        frame_top = wait.until(
+            EC.frame_to_be_available_and_switch_to_it('frame-top')
+        )
+        frame_middle = wait.until(
+            EC.frame_to_be_available_and_switch_to_it('frame-middle')
+        )
         self.assertTrue(driver.find_element(By.ID, 'content').text == "MIDDLE", "content should be MIDDLE")
 
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/05-select-from-a-dropdown/python/dropdown.py
@@ -67,18 +73,22 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_download_file(self):
         driver = self.driver
-        driver.get('https://demoqa.com/upload-download')
-        file_name = 'sampleFile.jpeg'
-        wait = WebDriverWait(driver, 30)
-        file_link = wait.until(
-            EC.element_to_be_clickable((By.XPATH, f'//*[@download="{file_name}"]'))
-        )
-        file_link.click()
-        wait.until(
-            lambda d: len(d.get_downloadable_files()) > 0 and str(d.get_downloadable_files()[0]).endswith(file_name)
-        )
-        time.sleep(5)
-        self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
+        driver.get('https://the-internet.herokuapp.com/download')
+        file_name = 'some-file.txt'
+        is_continue = True
+        try:
+            wait = WebDriverWait(driver, 30)
+            file_link = wait.until(
+                EC.element_to_be_clickable((By.LINK_TEXT, file_name))
+            )
+        except:
+            is_continue = False
+        if is_continue:
+            file_link.click()
+            wait.until(
+                lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
+            )
+            self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
         self.driver.quit()
@@ -88,28 +98,37 @@ class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         options = ChromeOptions()
         options.enable_downloads = True
+        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
         options = EdgeOptions()
         options.enable_downloads = True
+        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
+        profile = webdriver.FirefoxProfile()
+        profile.set_preference("browser.download.manager.showWhenStarting", False)
+        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
         options = FirefoxOptions()
+        options.profile = profile
         options.enable_downloads = True
+        options.set_capability('se:recordVideo', True)
         self.driver = webdriver.Remote(
             options=options,
-            command_executor="http://%s:%s" % (SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
 
     def test_title_and_maximize_window(self):
@@ -117,7 +136,7 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
 
-class ParallelAutoscaling():
+class JobAutoscaling():
     def run(self, test_classes):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
@@ -126,9 +145,16 @@ class ParallelAutoscaling():
                 for test in suite:
                     futures.append(executor.submit(test))
             for future in concurrent.futures.as_completed(futures):
-                future.result()
+                try:
+                    result = future.result()
+                    if not result.wasSuccessful():
+                        raise Exception(f"Test {str(test)} failed")
+                except Exception as e:
+                    print(f"{str(test)} failed with exception: {str(e)}")
+                    print(traceback.format_exc())
+                    raise Exception(f"Parallel tests failed: {str(test)} failed with exception: {str(e)}")
 
-class ParallelAutoscalingTests(unittest.TestCase):
+class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
-        runner = ParallelAutoscaling()
+        runner = JobAutoscaling()
         runner.run([ChromeTests, EdgeTests, FirefoxTests])

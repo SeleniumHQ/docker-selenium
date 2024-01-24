@@ -7,6 +7,7 @@ PUSH_IMAGE="${4:-false}"
 BROWSER=$5
 
 TAG_VERSION=${VERSION}-${BUILD_DATE}
+NAMESPACE=${NAME:-selenium}
 
 function short_version() {
     local __long_version=$1
@@ -20,12 +21,12 @@ echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BU
 case "${BROWSER}" in
 
 chrome)
-  CHROME_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
+  CHROME_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
   echo "Chrome version -> "${CHROME_VERSION}
   CHROME_SHORT_VERSION="$(short_version ${CHROME_VERSION})"
   echo "Short Chrome version -> "${CHROME_SHORT_VERSION}
 
-  CHROMEDRIVER_VERSION=$(docker run --rm selenium/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+  CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
   echo "ChromeDriver version -> "${CHROMEDRIVER_VERSION}
   CHROMEDRIVER_SHORT_VERSION="$(short_version ${CHROMEDRIVER_VERSION})"
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
@@ -64,12 +65,12 @@ chrome)
 
   ;;
 edge)
-  EDGE_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
+  EDGE_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
   echo "Edge version -> "${EDGE_VERSION}
   EDGE_SHORT_VERSION="$(short_version ${EDGE_VERSION})"
   echo "Short Edge version -> "${EDGE_SHORT_VERSION}
 
-  EDGEDRIVER_VERSION=$(docker run --rm selenium/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
+  EDGEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
   echo "EdgeDriver version -> "${EDGEDRIVER_VERSION}
   EDGEDRIVER_SHORT_VERSION="$(short_version ${EDGEDRIVER_VERSION})"
   echo "Short EdgeDriver version -> "${EDGEDRIVER_SHORT_VERSION}
@@ -108,11 +109,11 @@ edge)
 
   ;;
 firefox)
-  FIREFOX_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
+  FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
   echo "Firefox version -> "${FIREFOX_VERSION}
   FIREFOX_SHORT_VERSION="$(short_version ${FIREFOX_VERSION})"
   echo "Short Firefox version -> "${FIREFOX_SHORT_VERSION}
-  GECKODRIVER_VERSION=$(docker run --rm selenium/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
+  GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
   echo "GeckoDriver version -> "${GECKODRIVER_VERSION}
   GECKODRIVER_SHORT_VERSION="$(short_version ${GECKODRIVER_VERSION})"
   echo "Short GeckoDriver version -> "${GECKODRIVER_SHORT_VERSION}

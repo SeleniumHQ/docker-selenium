@@ -5,20 +5,30 @@ NEXT_TAG=$2
 LATEST_DATE=$(echo ${LATEST_TAG} | sed 's/.*-//')
 NEXT_DATE=$(echo ${NEXT_TAG} | sed 's/.*-//')
 latest_chart_app_version=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
+FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
+RCLONE_TAG_VERSION=$(grep RCLONE_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 
 echo -e "\033[0;32m Updating tag displayed in docs and files...\033[0m"
 echo -e "\033[0;32m LATEST_TAG -> ${LATEST_TAG}\033[0m"
 echo -e "\033[0;32m NEXT_TAG -> ${NEXT_TAG}\033[0m"
 
 # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
-find . \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/${LATEST_TAG}/${NEXT_TAG}/g"
+find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${LATEST_TAG}/${NEXT_TAG}/g"
+
+if [[ "$NEXT_TAG" == "latest" ]] || [[ "$NEXT_TAG" == "nightly" ]]; then
+  # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
+  FFMPEG_LATEST_TAG=${FFMPEG_TAG_VERSION}-${LATEST_DATE}
+  RCLONE_LATEST_TAG=${RCLONE_TAG_VERSION}-${LATEST_DATE}
+  find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${FFMPEG_LATEST_TAG}/${NEXT_TAG}/g"
+  find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${RCLONE_LATEST_TAG}/${NEXT_TAG}/g"
+fi
 
 echo -e "\033[0;32m Updating date used in some docs and files...\033[0m"
 echo -e "\033[0;32m LATEST_DATE -> ${LATEST_DATE}\033[0m"
 echo -e "\033[0;32m NEXT_DATE -> ${NEXT_DATE}\033[0m"
 
 # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
-find . \( -type d -name .git -prune \) -o -type f -print0 | xargs -0 sed -i "s/${LATEST_DATE}/${NEXT_DATE}/g"
+find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${LATEST_DATE}/${NEXT_DATE}/g"
 
 # Bump chart version and appVersion if next tag is different
 if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_version" != "$NEXT_TAG" ]; then
@@ -42,6 +52,7 @@ if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_versio
   echo -e "\033[0;32m NEXT_CHART_VERSION -> ${next_chart_version}\033[0m"
   # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
   find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
+  find . \( -type d -name .git -prune \) -o -type f -name 'bug_report.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
 fi
 
 git diff | cat

@@ -1,6 +1,88 @@
-# Change Log
+## :heavy_check_mark: selenium-grid-0.27.0
 
-All notable changes to this helm chart will be documented in this file.
+- Chart is using image tag 4.17.0-20240123
+
+### Added
+- feat(chart): templating in name(Override) for new object [deploy] Signed-off-by: Viet Nguyen Duc <nguyenducviet4496@gmail.com> :: Viet Nguyen Duc
+- feat(chart): templating in name(Override) (#2107) :: Bas M
+- feat(chart): Add node registration secret to exec preStop container Update default scalingStrategy.strategy: accurate [skip ci] :: Viet Nguyen Duc
+- feat(chart): Configuration extra scripts mount to container (#2105) :: Viet Nguyen Duc
+- feat(chart): Bump dependency charts KEDA and Ingress-NGINX version (#2103) :: Viet Nguyen Duc
+- feat(chart): Add RCLONE as default video uploader on Kubernetes (#2100) :: Viet Nguyen Duc
+- feat(chart): videoRecorder getting scripts from external files (#2095) :: Viet Nguyen Duc
+- feat(chart): Add config to control disabling Grid UI (#2083) :: Viet Nguyen Duc
+- feat(chart): Simplify to enable HTTPS/TLS in Selenium Grid on Kubernetes (#2080) :: Viet Nguyen Duc
+- feat(chart): Simplify config ports, probes, lifecycle hooks for Nodes (#2077) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+-  feat(chart): se:recordVideo should be used to determine if record video (#2104) :: Viet Nguyen Duc
+- [build] Fix duplicated Nightly releases creation :: Viet Nguyen Duc
+- build(chart): Chart built on top of Nightly images (#2089) :: Viet Nguyen Duc
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.26.4
+
+- Chart is using image tag 4.16.1-20231219
+
+### Fixed
+- fix(chart): Remove trailing slash from default subPath value (#2076) :: Viet Nguyen Duc
+
+### Changed
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.26.3
+
+- Chart is using image tag 4.16.1-20231219
+
+### Added
+- feat(chart): Simplify to access Selenium Grid from outside of Kubernetes (#2073) :: Viet Nguyen Duc
+- feat(chart): Simplify to change log level in Kubernetes (#2072) :: Viet Nguyen Duc
+
+### Fixed
+- bug: ENV variable SE_VNC_PASSWORD contains sensitive data (#2061) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.26.2
+
+- Chart is using image tag 4.16.1-20231212
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.26.1
+
+- Chart is using image tag 4.16.1-20231208
+
+### Added
+- Add script to generate chart CHANGELOG after released (#2054) :: Viet Nguyen Duc
+- feat(chart): Append subPath to ENV variable SE_NODE_GRID_URL (#2053) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.26.0
+
+- Chart is using image tag 4.16.0-20231206
+
+### Added
+- feat(chart): Add default annotations for ingress nginx controller (#2047) :: Viet Nguyen Duc
+- feat: Video image with based FFmpeg-6.1 on Ubuntu-22.04 (#2042) :: Viet Nguyen Duc
+
+### Fixed
+- bug(#1824): Container ENV SE_NODE_SESSION_TIMEOUT not take effect (#2044) :: Viet Nguyen Duc
+- bug(#2038): Rollback io.opentelemetry 1.31.0 - add test tracing enabled (#2040) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Update chart CHANGELOG [skip ci] :: Viet Nguyen Duc
+- test(chart): Parallel tests execution against autoscaling in Kubernetes (#2046) :: Viet Nguyen Duc
+- test(chart): Chart template render and assert output (#2043) :: Viet Nguyen Duc
+- test(chart): Add test for setting registry to pull images (#2036) :: Viet Nguyen Duc
 
 ## :heavy_check_mark: 0.25.3
 

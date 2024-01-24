@@ -1,0 +1,11 @@
+tls:
+  enabled: true
+  generateTLS: false
+  registrationSecret:
+    enabled: true
+    value: "HappyTestOps"
+
+ingress-nginx:
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'

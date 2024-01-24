@@ -45,6 +45,75 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No ingress resources found")
 
+    def test_sub_path_append_to_node_grid_url(self):
+        resources_name = ['selenium-node-config']
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert subPath is appended to Node env SE_NODE_GRID_URL")
+                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
+
+    def test_sub_path_set_to_grid_env_var(self):
+        resources_name = ['selenium-router']
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert subPath is set to Router env SE_SUB_PATH")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_SUB_PATH' and env['value'] == '/selenium':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
+
+    def test_disable_ui_set_to_grid_env_var(self):
+        resources_name = ['selenium-router']
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert option disable UI is set to Router env SE_DISABLE_UI")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_DISABLE_UI' and env['value'] == 'true':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_DISABLE_UI is not populated")
+
+    def test_log_level_set_to_logging_config_map(self):
+        resources_name = ['selenium-chrome-node', 'selenium-distributor', 'selenium-edge-node', 'selenium-firefox-node',
+                          'selenium-event-bus', 'selenium-router', 'selenium-session-map', 'selenium-session-queue']
+        logger.info(f"Assert log level value is set to logging ConfigMap")
+        count_config = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] == 'selenium-logging-config' and doc['kind'] == 'ConfigMap':
+                self.assertTrue(doc['data']['SE_LOG_LEVEL'] == 'FINE')
+                count_config += 1
+        self.assertEqual(count_config, 1, "No logging ConfigMap found")
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                is_present = False
+                logger.info(f"Assert logging ConfigMap is set to envFrom in resource {doc['metadata']['name']}")
+                list_env_from = doc['spec']['template']['spec']['containers'][0]['envFrom']
+                for env in list_env_from:
+                    if env.get('configMapRef') is not None:
+                        if env['configMapRef']['name'] == 'selenium-logging-config':
+                            is_present = True
+                self.assertTrue(is_present, "envFrom doesn't contain logging ConfigMap")
+                count += 1
+        self.assertEqual(count, len(resources_name), "Logging ConfigMap is not present in expected resources")
+
+    def test_node_port_set_when_service_type_is_node_port(self):
+        single_node_port = {'selenium-distributor': 30553, 'selenium-router': 30444, 'selenium-session-queue': 30559}
+        count = 0
+        logger.info(f"Assert NodePort is set to components service")
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in single_node_port.keys() and doc['kind'] == 'Service':
+                logger.info(f"Assert NodePort is set to service {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['ports'][0]['nodePort'] == single_node_port[doc['metadata']['name']], f"Service {doc['metadata']['name']} with expect NodePort {single_node_port[doc['metadata']['name']]} is not found")
+                count += 1
+        self.assertEqual(count, len(single_node_port.keys()), "Number of services with NodePort is not correct")
+
 if __name__ == '__main__':
     failed = False
     try:

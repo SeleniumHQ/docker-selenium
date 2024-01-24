@@ -4,7 +4,7 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
-USER 1200
+USER ${SEL_UID}
 
 #========================
 # Selenium Router Configuration
@@ -17,7 +17,7 @@ ENV SE_SESSION_RETRY_INTERVAL 0
 
 EXPOSE 4444
 
-COPY start-selenium-grid-router.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-router.sh \
     /opt/bin/
 
 COPY selenium-grid-router.conf /etc/supervisor/conf.d/

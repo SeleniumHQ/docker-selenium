@@ -2,7 +2,11 @@ name: Lint and Test Helm Charts
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
   pull_request:
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
 
 permissions:
@@ -13,8 +17,9 @@ jobs:
     name: Test Helm charts
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        test-strategy: [chart_test, chart_test_parallel_autoscaling]
+        test-strategy: [chart_test, chart_test_parallel_autoscaling, chart_test_https, chart_test_parallel_autoscaling_https]
     steps:
       - uses: actions/checkout@v4
       - name: Output Docker info
@@ -24,6 +29,11 @@ jobs:
         with:
           python-version: '3.11'
           check-latest: true
+      - name: Install CA certificates
+        run: |
+          sudo apt install openssl -y
+          sudo apt install ca-certificates -y
+          sudo update-ca-certificates --fresh
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
@@ -43,7 +53,7 @@ jobs:
       - name: Setup Kubernetes environment
         run: make chart_setup_env
       - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build_multi
       - name: Build and lint charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build
@@ -63,14 +73,14 @@ jobs:
         run: make chart_cluster_cleanup
       - name: Upload Helm chart package
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.CHART_FILE_NAME }}
+          name: ${{ matrix.test-strategy }}_${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
-      - name: Upload Helm chart template rendered
+      - name: Upload chart test artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: chart_template_rendered.yaml
-          path: ./tests/tests/output_deployment.yaml
+          name: ${{ matrix.test-strategy }}-artifacts
+          path: ./tests/tests/
           if-no-files-found: ignore

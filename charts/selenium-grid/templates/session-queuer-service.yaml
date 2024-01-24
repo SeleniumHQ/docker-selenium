@@ -23,4 +23,7 @@ spec:
       protocol: TCP
       port: {{ .Values.components.sessionQueue.port }}
       targetPort: {{ .Values.components.sessionQueue.port }}
+      {{- if and (eq .Values.components.sessionQueue.serviceType "NodePort") .Values.components.sessionQueue.nodePort }}
+      nodePort: {{ .Values.components.sessionQueue.nodePort }}
+      {{- end }}
 {{- end }}

@@ -1,0 +1,38 @@
+isolateComponents: false
+
+autoscaling:
+  enableWithExistingKEDA: true
+  scalingType: job
+  scaledJobOptions:
+    scalingStrategy:
+      strategy: default
+  scaledOptions:
+    minReplicaCount: 0
+    maxReplicaCount: 5
+    pollingInterval: 20
+# Configuration for chrome nodes
+chromeNode:
+  nameOverride: my-chrome-name
+  extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_OPTS
+      value: "--enable-managed-downloads true"
+  readinessProbe:
+    enabled: &readinessProbe false
+  livenessProbe:
+    enabled: &livenessProbe false
+# Configuration for edge nodes
+edgeNode:
+  nameOverride: my-edge-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe
+# Configuration for firefox nodes
+firefoxNode:
+  nameOverride: my-firefox-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe

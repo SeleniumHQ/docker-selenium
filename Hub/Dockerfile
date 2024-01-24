@@ -4,7 +4,7 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
-USER 1200
+USER ${SEL_UID}
 
 #========================
 # Selenium Hub Configuration
@@ -21,7 +21,7 @@ ENV SE_SESSION_RETRY_INTERVAL 15
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
 
-COPY start-selenium-grid-hub.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-hub.sh \
     /opt/bin/
 
 COPY selenium-grid-hub.conf /etc/supervisor/conf.d/

@@ -1,0 +1,30 @@
+{{- if .Values.videoRecorder.uploader.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.uploader.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.uploaderConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  UPLOAD_CONFIG_DIRECTORY: '{{ .Values.uploaderConfigMap.extraScriptsDirectory }}'
+  UPLOAD_CONFIG_FILE_NAME: '{{ .Values.videoRecorder.uploader.configFileName }}'
+{{- range $fileName, $value := .Values.uploaderConfigMap.extraScripts }}
+{{- if not (empty $value) }}
+{{ $fileName | indent 2 -}}: |
+{{ $value | indent 4 }}
+{{- else }}
+{{- $files := $.Files.Glob (printf "configs/uploader/%s/%s" $.Values.videoRecorder.uploader.name $fileName) }}
+{{- $cfg := $files.AsConfig }}
+{{- if and (gt (len $files) 0) (ne $cfg "") }}
+{{ indent 2 $cfg }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

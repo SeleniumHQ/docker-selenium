@@ -1,10 +1,13 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-VERSION := $(or $(VERSION),$(VERSION),4.16.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.16.0)
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-$(BASE_VERSION))
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.17.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.17.0)
+BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.18.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.17.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
+CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
@@ -16,6 +19,8 @@ MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-6.1)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),ndviet)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),6.1-ubuntu2204)
+RCLONE_BASED_TAG := $(or $(RCLONE_BASED_TAG),$(RCLONE_BASED_TAG),1.65)
+RCLONE_TAG_VERSION := $(or $(RCLONE_TAG_VERSION),$(RCLONE_TAG_VERSION),rclone-1.65)
 PLATFORMS := $(or $(PLATFORMS),$(PLATFORMS),linux/arm64)
 
 all: hub \
@@ -32,8 +37,11 @@ all: hub \
 	standalone_edge \
 	standalone_firefox \
 	standalone_docker \
+	uploader \
 	video
 
+build_nightly:
+	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
 build: all
 
@@ -41,6 +49,9 @@ ci: build test
 
 base:
 	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) -t $(NAME)/base:$(TAG_VERSION) .
+
+base_nightly:
+	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub: base
 	cd ./Hub && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
@@ -123,6 +134,9 @@ standalone_edge_dev: edge_dev
 standalone_edge_beta: edge_beta
 	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
 
+uploader:
+	cd ./Uploader && docker build $(BUILD_ARGS) --build-arg BASED_TAG=$(RCLONE_BASED_TAG) -t $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE) .
+
 video:
 	cd ./Video && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
@@ -147,6 +161,8 @@ all_multi: base_multi \
 	sessions_multi \
 	sessionqueue_multi \
 	event_bus_multi \
+	uploader_multi \
+	video_multi
 
 build_multi: all_multi
 
@@ -194,6 +210,12 @@ standalone_chromium_multi: chromium_multi
 standalone_docker_multi: docker_multi
 	cd ./StandaloneDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
+uploader_multi:
+	cd ./Uploader && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg BASED_TAG=$(RCLONE_BASED_TAG) -t $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE) .
+
+video_multi:
+	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
 tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_edge_images
@@ -225,6 +247,7 @@ tag_latest:
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+	docker tag $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE) $(NAME)/uploader:latest
 
 # Additional tags for browser images
 tag_and_push_multi_arch_browser_images: tag_and_push_multi_arch_chromium_images tag_and_push_multi_arch_firefox_images
@@ -296,6 +319,47 @@ release_latest:
 	docker push $(NAME)/standalone-firefox:latest
 	docker push $(NAME)/standalone-docker:latest
 	docker push $(NAME)/video:latest
+	docker push $(NAME)/uploader:latest
+
+tag_nightly:
+	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:nightly
+	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:nightly
+	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:nightly
+	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:nightly
+	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:nightly
+	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
+	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
+	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
+	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly
+	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
+	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
+	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly
+	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
+	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
+	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
+	docker tag $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE) $(NAME)/uploader:nightly
+
+release_nightly:
+	docker push $(NAME)/base:nightly
+	docker push $(NAME)/hub:nightly
+	docker push $(NAME)/distributor:nightly
+	docker push $(NAME)/router:nightly
+	docker push $(NAME)/sessions:nightly
+	docker push $(NAME)/session-queue:nightly
+	docker push $(NAME)/event-bus:nightly
+	docker push $(NAME)/node-base:nightly
+	docker push $(NAME)/node-chrome:nightly
+	docker push $(NAME)/node-edge:nightly
+	docker push $(NAME)/node-firefox:nightly
+	docker push $(NAME)/node-docker:nightly
+	docker push $(NAME)/standalone-chrome:nightly
+	docker push $(NAME)/standalone-edge:nightly
+	docker push $(NAME)/standalone-firefox:nightly
+	docker push $(NAME)/standalone-docker:nightly
+	docker push $(NAME)/video:nightly
+	docker push $(NAME)/uploader:nightly
 
 tag_major_minor:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR)
@@ -429,6 +493,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
+	docker push $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE)
 
 test: test_chrome \
  test_firefox \
@@ -515,8 +580,14 @@ chart_cluster_setup:
 chart_cluster_cleanup:
 	./tests/charts/make/chart_cluster_cleanup.sh
 
+chart_build_nightly:
+	VERSION=$(CHART_VERSION_NIGHTLY) ./tests/charts/make/chart_build.sh
+
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
+
+chart_test_https:
+	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test
 
 chart_test: chart_test_template \
  chart_test_chrome \
@@ -527,16 +598,23 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_test_chrome:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeChrome
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh NodeChrome
 
 chart_test_firefox:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeFirefox
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh NodeFirefox
 
 chart_test_edge:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh NodeEdge
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh NodeEdge
+
+chart_test_parallel_autoscaling_https:
+	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_parallel_autoscaling
 
 chart_test_parallel_autoscaling:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_test.sh ParallelAutoscaling
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh JobAutoscaling
 
 .PHONY: \
 	all \
