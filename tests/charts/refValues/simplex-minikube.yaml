@@ -91,7 +91,8 @@ ingress-nginx:
     # Set controller default certificate use the same with Selenium Grid
     extraArgs:
       default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
-    hostNetwork: true
+    hostPort:
+      enabled: true
     kind: DaemonSet
     service:
       type: ClusterIP

@@ -37,7 +37,8 @@ components:
 ingress-nginx:
   enabled: true
   controller:
-    hostNetwork: true
+    hostPort:
+      enabled: true
     kind: DaemonSet
     service:
       type: ClusterIP

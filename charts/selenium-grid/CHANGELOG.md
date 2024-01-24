@@ -1,3 +1,26 @@
+## :heavy_check_mark: selenium-grid-0.27.0
+
+- Chart is using image tag 4.17.0-20240123
+
+### Added
+- feat(chart): templating in name(Override) for new object [deploy] Signed-off-by: Viet Nguyen Duc <nguyenducviet4496@gmail.com> :: Viet Nguyen Duc
+- feat(chart): templating in name(Override) (#2107) :: Bas M
+- feat(chart): Add node registration secret to exec preStop container Update default scalingStrategy.strategy: accurate [skip ci] :: Viet Nguyen Duc
+- feat(chart): Configuration extra scripts mount to container (#2105) :: Viet Nguyen Duc
+- feat(chart): Bump dependency charts KEDA and Ingress-NGINX version (#2103) :: Viet Nguyen Duc
+- feat(chart): Add RCLONE as default video uploader on Kubernetes (#2100) :: Viet Nguyen Duc
+- feat(chart): videoRecorder getting scripts from external files (#2095) :: Viet Nguyen Duc
+- feat(chart): Add config to control disabling Grid UI (#2083) :: Viet Nguyen Duc
+- feat(chart): Simplify to enable HTTPS/TLS in Selenium Grid on Kubernetes (#2080) :: Viet Nguyen Duc
+- feat(chart): Simplify config ports, probes, lifecycle hooks for Nodes (#2077) :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+-  feat(chart): se:recordVideo should be used to determine if record video (#2104) :: Viet Nguyen Duc
+- [build] Fix duplicated Nightly releases creation :: Viet Nguyen Duc
+- build(chart): Chart built on top of Nightly images (#2089) :: Viet Nguyen Duc
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.26.4
 
 - Chart is using image tag 4.16.1-20231219
