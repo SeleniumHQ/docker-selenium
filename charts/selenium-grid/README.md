@@ -464,7 +464,7 @@ By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video 
 
 The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The `bucket-name` is the name of the bucket in the remote location. The `path` is the path to the folder in the bucket.
 
-By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config.conf=/path/to/your_config.conf` or set via YAML values.
+By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config\.conf=/path/to/your_config.conf` or set via YAML values.
 
 For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
 
@@ -511,7 +511,7 @@ videoRecorder:
 
 Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `config.conf` will take precedence.
 
-Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point.sh=/path/to/your_script.sh` or set via YAML values. For example:
+Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point\.sh=/path/to/your_script.sh` or set via YAML values. For example:
 
 ```yaml
 uploaderConfigMap:
@@ -563,9 +563,9 @@ There are multiple ways to configure your certificate, private key, truststore t
     ```bash
     helm upgrade -i test selenium-grid \
     --set tls.enabled=true \
-    --set-file tls.certificate=/path/to/your_cert.pem \
-    --set-file tls.privateKey=/path/to/your_private_key.pkcs8 \
-    --set-file tls.trustStore=/path/to/your_truststore.jks \
+    --set-file tls.certificate=/path/to/your_cert\.pem \
+    --set-file tls.privateKey=/path/to/your_private_key\.pkcs8 \
+    --set-file tls.trustStore=/path/to/your_truststore\.jks \
     --set-string tls.trustStorePassword=your_truststore_password
     ```
 
