@@ -44,7 +44,7 @@ RUN apt-get -qqy update \
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-  x11vnc \
+  x11vnc x11-utils fluxbox \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=========
