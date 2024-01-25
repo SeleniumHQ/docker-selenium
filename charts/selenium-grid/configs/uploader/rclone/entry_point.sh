@@ -27,6 +27,10 @@ do
     else [ "$FILE" != "" ] && [ "$DESTINATION" != "" ];
         echo "Uploading ${FILE} to ${DESTINATION}"
         rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${FILE}" "${DESTINATION}"
+        if [ $? -eq 0 ];
+        then
+          rm -rf $FILE
+        fi
     fi
     if [ -f ${SE_VIDEO_FOLDER}/force_exit ] && [ ! -s ${SE_VIDEO_FOLDER}/uploadpipe ];
     then
