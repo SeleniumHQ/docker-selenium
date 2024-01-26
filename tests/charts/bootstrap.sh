@@ -21,7 +21,7 @@ helm template dummy --values tests/charts/templates/render/dummy.yaml \
   --set-file 'uploaderConfigMap.secretFiles.config\.conf=tests/charts/templates/render/dummy_external.sh' \
   charts/selenium-grid > ./tests/tests/dummy_template_manifests.yaml
 
-python tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml"
+python tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml" dummy
 ret_code=$?
 
 if [ "${CI:-false}" = "false" ]; then

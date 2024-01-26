@@ -94,13 +94,13 @@ ingress:
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
   # Name of the configmap
-  name: selenium-event-bus-config
+  name: "{{ .Release.Name }}-selenium-event-bus-config"
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
-  name: selenium-node-config
+  name: "{{ .Release.Name }}-selenium-node-config"
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # File name of preStop script in ConfigMap
@@ -113,7 +113,7 @@ nodeConfigMap:
   annotations: {}
 
 recorderConfigMap:
-  name: selenium-recorder-config
+  name: "{{ .Release.Name }}-selenium-recorder-config"
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
@@ -129,7 +129,7 @@ recorderConfigMap:
   annotations: {}
 
 uploaderConfigMap:
-  name: selenium-uploader-config
+  name: "{{ .Release.Name }}-selenium-uploader-config"
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
@@ -150,13 +150,13 @@ uploaderConfigMap:
 
 # ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
 loggingConfigMap:
-  name: selenium-logging-config
+  name: "{{ .Release.Name }}-selenium-logging-config"
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
 serverConfigMap:
-  name: selenium-server-config
+  name: "{{ .Release.Name }}-selenium-server-config"
   certVolumeMountPath: /etc/ssl/certs/selenium
   certificateFile: selenium.pem
   privateKeyFile: selenium.pkcs8
