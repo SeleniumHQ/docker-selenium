@@ -143,7 +143,7 @@ RUN if [ `arch` = "aarch64" ]; then \
   && chmod -R 775 /external_jars ; \
     fi
 
-RUN if [ -f "/tmp/cs" ]; then \ 
+RUN if [ -f "/tmp/cs" ]; then \
     /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
     io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \
