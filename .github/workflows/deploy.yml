@@ -1,9 +1,10 @@
 name: Deploys
 
 on:
-  push:
-    branches:
-      - trunk
+  workflow_dispatch:
+#  push:
+#    branches:
+#      - trunk
 
 jobs:
   deploy:
