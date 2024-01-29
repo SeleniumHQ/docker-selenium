@@ -135,15 +135,14 @@ RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/sup
 # so that the container can skip downloading them everytime it comes up
 #=====
 #RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
-# RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
-RUN if [ `arch` = "aarch64" ]; then \
+RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
     curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
-  && chmod +x /tmp/cs \
-  && mkdir -p /external_jars \
-  && chmod -R 775 /external_jars ; \
+    && chmod +x /tmp/cs \
+    && mkdir -p /external_jars \
+    && chmod -R 775 /external_jars ; \
     fi
 
-RUN if [ -f "/tmp/cs" ]; then \ 
+RUN if [ -f "/tmp/cs" ]; then \
     /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
     io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \

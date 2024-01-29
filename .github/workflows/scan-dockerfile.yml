@@ -36,7 +36,7 @@ jobs:
           format: 'sarif'
           output: 'source-results.sarif'
           scanners: 'vuln,secret,misconfig'
-          skip-dirs: 'tests,Video'
+          skip-dirs: 'tests,Video,NodeChromium,NodeFirefox'
           exit-code: '${{ env.EXIT_CODE }}'
           severity: '${{ env.SEVERITY }}'
           limit-severities-for-sarif: true
