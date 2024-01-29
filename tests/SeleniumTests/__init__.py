@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
+SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'false').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 
 class SeleniumGenericTests(unittest.TestCase):
@@ -100,6 +101,8 @@ class ChromeTests(SeleniumGenericTests):
         options.enable_downloads = True
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         options.set_capability('se:recordVideo', True)
+        if SELENIUM_GRID_TEST_HEADLESS:
+            options.add_argument('--headless=new')
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -111,6 +114,8 @@ class EdgeTests(SeleniumGenericTests):
         options.enable_downloads = True
         options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
         options.set_capability('se:recordVideo', True)
+        if SELENIUM_GRID_TEST_HEADLESS:
+            options.add_argument('--headless=new')
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
@@ -126,6 +131,8 @@ class FirefoxTests(SeleniumGenericTests):
         options.profile = profile
         options.enable_downloads = True
         options.set_capability('se:recordVideo', True)
+        if SELENIUM_GRID_TEST_HEADLESS:
+            options.add_argument('-headless')
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)

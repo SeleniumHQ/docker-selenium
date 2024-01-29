@@ -438,7 +438,7 @@ chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
 chart_test_https:
-	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test
 
 chart_test: chart_test_template \
  chart_test_chrome \
@@ -461,7 +461,7 @@ chart_test_edge:
 	./tests/charts/make/chart_test.sh NodeEdge
 
 chart_test_parallel_autoscaling_https:
-	SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_parallel_autoscaling
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_parallel_autoscaling
 
 chart_test_parallel_autoscaling:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \

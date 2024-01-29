@@ -15,6 +15,7 @@ USER root
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
     xvfb \
+    xauth \
     pulseaudio \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
