@@ -668,7 +668,7 @@ Define preStop hook for the node pod. Node preStop script is stored in a ConfigM
 {{- define "seleniumGrid.node.deregisterLifecycle" -}}
 preStop:
   exec:
-    command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodePreStop.sh"]
+    command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodePreStop.sh >> /proc/1/fd/1"]
 {{- end -}}
 
 {{/*

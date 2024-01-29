@@ -1,4 +1,4 @@
-name: Lint and Test Helm Charts
+name: Test Helm Charts
 
 on:
   push:
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Test Helm charts
+    name: Build & test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
