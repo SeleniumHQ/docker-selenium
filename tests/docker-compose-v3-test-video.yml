@@ -5,6 +5,7 @@ version: "3"
 services:
   browser:
     image: selenium/node-${BROWSER}:${TAG}
+    user: ${UID}
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -18,6 +19,7 @@ services:
 
   browser_video:
     image: selenium/video:${VIDEO_TAG}
+    user: ${UID}
     volumes:
       - ./videos:/videos
     depends_on:
@@ -28,6 +30,7 @@ services:
 
   selenium-hub:
     image: selenium/hub:${TAG}
+    user: ${UID}
     container_name: selenium-hub
     ports:
       - "4442:4442"
