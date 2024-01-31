@@ -1066,7 +1066,6 @@ videoRecorder:
       cpu: "1"
   # SecurityContext for recorder container
   securityContext:
-    runAsUser: 0
   extraEnvironmentVariables:
   # - name: SE_VIDEO_FOLDER
   #   value: /videos

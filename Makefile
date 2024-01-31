@@ -397,11 +397,13 @@ test_firefox_standalone:
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
 	# Running a few tests with docker-compose to generate the videos
+	rm -rf ./tests/videos; mkdir -p ./tests/videos
 	for node in NodeChrome NodeFirefox NodeEdge ; do \
 			cd ./tests || true ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
 			echo NODE=$$node >> .env ; \
+			echo UID=$$(id -u) >> .env ; \
 			if [ $$node = "NodeChrome" ] ; then \
 					echo BROWSER=chrome >> .env ; \
 					echo VIDEO_FILE_NAME=chrome_video.mp4 >> .env ; \
@@ -418,9 +420,9 @@ test_video: video hub chrome firefox edge
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 chart_setup_env:
 	./tests/charts/make/chart_setup_env.sh
