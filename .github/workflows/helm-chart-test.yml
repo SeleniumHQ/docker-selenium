@@ -62,7 +62,7 @@ jobs:
       - name: Setup Kubernetes cluster
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Test Selenium Grid on Kubernetes
-        uses: nick-invision/retry@v3.0.0
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 30
           max_attempts: 3

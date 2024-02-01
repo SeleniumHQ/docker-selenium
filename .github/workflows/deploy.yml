@@ -56,7 +56,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        uses: nick-invision/retry@7152eba30c6575329ac0576536151aca5a72780e # v2
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
