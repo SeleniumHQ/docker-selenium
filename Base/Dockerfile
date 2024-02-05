@@ -128,7 +128,6 @@ RUN rm -fr /root/.cache/*
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
-VOLUME ${SEL_DOWNLOAD_DIR}
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
