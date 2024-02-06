@@ -320,7 +320,7 @@ template:
   spec:
     serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
     serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
-    restartPolicy: {{ and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "Never" "Always" }}
+    restartPolicy: {{ template "seleniumGrid.node.restartPolicy" . }}
   {{- with .node.hostAliases }}
     hostAliases: {{ toYaml . | nindent 6 }}
   {{- end }}
@@ -710,6 +710,14 @@ Define terminationGracePeriodSeconds of the node pod.
   {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
 {{- end -}}
 {{- $period -}}
+{{- end -}}
+
+{{- define "seleniumGrid.node.restartPolicy" -}}
+{{- $restartPolicy := "Always" -}}
+{{- if and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") -}}
+  {{- $restartPolicy = "Never" -}}
+{{- end -}}
+{{- $restartPolicy -}}
 {{- end -}}
 
 {{- define "seleniumGrid.video.volumeMounts.default" -}}

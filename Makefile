@@ -428,7 +428,7 @@ chart_setup_env:
 	./tests/charts/make/chart_setup_env.sh
 
 chart_cluster_setup:
-	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_cluster_setup.sh
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BUILD_DATE=$(BUILD_DATE) ./tests/charts/make/chart_cluster_setup.sh
 
 chart_cluster_cleanup:
 	./tests/charts/make/chart_cluster_cleanup.sh
@@ -438,14 +438,6 @@ chart_build_nightly:
 
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
-
-chart_test_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test
-
-chart_test: chart_test_template \
- chart_test_chrome \
- chart_test_firefox \
- chart_test_edge
 
 chart_test_template:
 	./tests/charts/bootstrap.sh
@@ -462,10 +454,17 @@ chart_test_edge:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh NodeEdge
 
-chart_test_parallel_autoscaling_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_parallel_autoscaling
+chart_test_autoscaling_deployment_https:
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_deployment
 
-chart_test_parallel_autoscaling:
+chart_test_autoscaling_deployment:
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh DeploymentAutoscaling
+
+chart_test_autoscaling_job_https:
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_job
+
+chart_test_autoscaling_job:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) UPLOADER_TAG=$(RCLONE_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 

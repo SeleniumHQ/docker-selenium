@@ -48,29 +48,42 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-HELM_COMMAND_SET_AUTOSCALING=""
-if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
-  HELM_COMMAND_SET_AUTOSCALING="--values ${TEST_VALUES_PATH}/DeploymentAutoScaling-values.yaml \
-  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
-  --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}"
-fi
-
-HELM_COMMAND_SET_TLS=""
-if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
-  HELM_COMMAND_SET_TLS="--values ${TEST_VALUES_PATH}/tls-values.yaml"
-fi
-
-HELM_COMMAND_ARGS="${RELEASE_NAME} \
---values ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
---values ${TEST_VALUES_PATH}/tracing-values.yaml \
-${HELM_COMMAND_SET_AUTOSCALING} \
-${HELM_COMMAND_SET_TLS} \
---values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.imageTag=${VERSION} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
 --set global.seleniumGrid.uploaderImageTag=${UPLOADER_TAG} \
+"
+
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
+  HELM_COMMAND_SET_AUTOSCALING=" \
+  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
+  --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
+  "
+fi
+
+HELM_COMMAND_SET_BASE_VALUES=" \
+--values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
+--values ${TEST_VALUES_PATH}/base-tracing-values.yaml \
+--values ${TEST_VALUES_PATH}/base-recorder-values.yaml \
+--values ${TEST_VALUES_PATH}/base-resources-values.yaml \
+"
+
+if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${TEST_VALUES_PATH}/base-tls-values.yaml \
+  "
+fi
+
+HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+--values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+"
+
+HELM_COMMAND_ARGS="${RELEASE_NAME} \
+${HELM_COMMAND_SET_BASE_VALUES} \
+${HELM_COMMAND_SET_AUTOSCALING} \
+${HELM_COMMAND_SET_IMAGES} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
 
 echo "Render manifests YAML for this deployment"

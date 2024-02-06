@@ -3,10 +3,12 @@ autoscaling:
   scalingType: deployment
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 3
+    maxReplicaCount: 2
+    pollingInterval: 20
   scaledObjectOptions:
     cooldownPeriod: 30
   terminationGracePeriodSeconds: 360
+
 # Configuration for chrome nodes
 chromeNode:
   # (test): user is able to change `SE_NODE_PORT`
@@ -39,6 +41,7 @@ chromeNode:
     enabled: &readinessProbe true
   livenessProbe:
     enabled: &livenessProbe true
+
 # Configuration for edge nodes
 edgeNode:
   port: 8888
@@ -61,8 +64,10 @@ edgeNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+
 # Configuration for firefox nodes
 firefoxNode:
+  port: 7777
   nameOverride: my-firefox-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:

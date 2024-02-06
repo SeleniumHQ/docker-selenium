@@ -1,4 +1,6 @@
 name: Scan Dockerfile vulnerabilities
+concurrency:
+  group: ${{ github.workflow }}
 
 on:
   push:
@@ -17,7 +19,7 @@ jobs:
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - name: Set severity for PRs
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         run: |

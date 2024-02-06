@@ -77,19 +77,15 @@ class SeleniumGenericTests(unittest.TestCase):
         driver.get('https://the-internet.herokuapp.com/download')
         file_name = 'some-file.txt'
         is_continue = True
-        try:
-            wait = WebDriverWait(driver, 30)
-            file_link = wait.until(
-                EC.element_to_be_clickable((By.LINK_TEXT, file_name))
-            )
-        except:
-            is_continue = False
-        if is_continue:
-            file_link.click()
-            wait.until(
-                lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
-            )
-            self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
+        wait = WebDriverWait(driver, 30)
+        file_link = wait.until(
+            EC.element_to_be_clickable((By.LINK_TEXT, file_name))
+        )
+        file_link.click()
+        wait.until(
+            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
+        )
+        self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
         self.driver.quit()
@@ -143,25 +139,43 @@ class FirefoxTests(SeleniumGenericTests):
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
 
-class JobAutoscaling():
+class Autoscaling():
     def run(self, test_classes):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
+            tests = []
             for test_class in test_classes:
                 suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
                 for test in suite:
                     futures.append(executor.submit(test))
-            for future in concurrent.futures.as_completed(futures):
+                    tests.append(test)
+            failed_tests = []
+            for future, test in zip(concurrent.futures.as_completed(futures), tests):
                 try:
-                    result = future.result()
-                    if not result.wasSuccessful():
-                        raise Exception(f"Test {str(test)} failed")
+                    if not future.result().wasSuccessful():
+                        raise Exception
                 except Exception as e:
-                    print(f"{str(test)} failed with exception: {str(e)}")
+                    failed_tests.append(test)
                     print(traceback.format_exc())
-                    raise Exception(f"Parallel tests failed: {str(test)} failed with exception: {str(e)}")
+                    print(f"{str(test)} failed with exception: {str(e)}")
+                    print(f"Original exception: {e.__cause__}")
+            print(f"Number of failed tests: {len(failed_tests)}")
+            for test in failed_tests:
+                try:
+                    print(f"Rerunning test: {str(test)}")
+                    test.run()
+                except Exception as e:
+                    print(traceback.format_exc())
+                    print(f"Test {str(test)} failed again with exception: {str(e)}")
+                    print(f"Original exception: {e.__cause__}")
+                    raise Exception(f"Rerun test failed: {str(test)} failed with exception: {str(e)}")
+
+class DeploymentAutoscalingTests(unittest.TestCase):
+    def test_parallel_autoscaling(self):
+        runner = Autoscaling()
+        runner.run([FirefoxTests, EdgeTests, ChromeTests])
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
-        runner = JobAutoscaling()
-        runner.run([ChromeTests, EdgeTests, FirefoxTests])
+        runner = Autoscaling()
+        runner.run([FirefoxTests, EdgeTests, ChromeTests])

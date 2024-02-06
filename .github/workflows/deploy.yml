@@ -1,6 +1,7 @@
 name: Deploys
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - trunk
@@ -14,7 +15,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0

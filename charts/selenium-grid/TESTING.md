@@ -70,9 +70,9 @@ make chart_build
 make chart_cluster_setup
 
 # Test Selenium Grid on Kubernetes
-make chart_test
+make chart_test_autoscaling_deployment
 
-# make chart_test_parallel_autoscaling
+make chart_test_autoscaling_job
 
 # Cleanup Kubernetes cluster
 make chart_cluster_cleanup

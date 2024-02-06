@@ -8,7 +8,7 @@ autoscaling:
       strategy: default
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 5
+    maxReplicaCount: 6
     pollingInterval: 20
 # Configuration for chrome nodes
 chromeNode:

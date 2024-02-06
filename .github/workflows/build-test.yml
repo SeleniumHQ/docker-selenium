@@ -1,6 +1,9 @@
 name: Build & test
+concurrency:
+  group: ${{ github.workflow }}
 
 on:
+  workflow_dispatch:
   push:
     paths-ignore:
       - '**.md'
@@ -19,11 +22,11 @@ jobs:
       matrix:
         use-random-user: [false, true]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - name: Output Docker info
         run: docker info
       - name: Set up Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@main
         with:
           python-version: '3.11'
           check-latest: true

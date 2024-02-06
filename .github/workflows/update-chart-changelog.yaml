@@ -1,18 +1,19 @@
 name: Update Chart CHANGELOG
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - trunk
   workflow_dispatch:
 
 jobs:
   release:
     runs-on: ubuntu-latest
     permissions: write-all
-    if: ${{ contains(github.event.release.tag_name, 'selenium-grid') || github.event_name == 'workflow_dispatch' }}
+    if: contains(toJson(github.event.commits), 'Update tag in docs and files') == true
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0
