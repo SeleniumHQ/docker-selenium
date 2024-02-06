@@ -45,7 +45,7 @@ RUN apt-get -qqy update \
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-  x11vnc x11-utils fluxbox \
+  x11vnc x11-utils \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=========
@@ -54,7 +54,7 @@ RUN apt-get update -qqy \
 #=========
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-    fluxbox \
+    fluxbox eterm hsetroot feh \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #================
