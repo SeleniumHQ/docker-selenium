@@ -39,8 +39,13 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.components.eventBus.subscribePort }}
               protocol: TCP
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: '{{ template "seleniumGrid.eventBus.fullname" . }}.{{ .Release.Namespace }}'
+            - name: SE_EVENT_BUS_PORT
+              value: {{ .Values.components.eventBus.port | quote }}
         {{- with .Values.components.extraEnvironmentVariables }}
-          env: {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
           envFrom:
             - configMapRef:

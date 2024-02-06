@@ -32,8 +32,13 @@ spec:
           {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.sessionMap.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionMap.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
+          env:
+            - name: SE_SESSIONS_HOST
+              value: '{{ template "seleniumGrid.sessionMap.fullname" . }}.{{ .Release.Namespace }}'
+            - name: SE_SESSIONS_PORT
+              value: {{ .Values.components.sessionMap.port | quote }}
         {{- with .Values.components.extraEnvironmentVariables }}
-          env: {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
         {{- end }}
           envFrom:
             - configMapRef:

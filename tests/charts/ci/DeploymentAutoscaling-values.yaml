@@ -37,6 +37,14 @@ chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariables
     - name: SE_OPTS
       value: "--enable-managed-downloads true"
+    - name: SE_VNC_NO_PASSWORD
+      value: "true"
+    - name: SE_SCREEN_WIDTH
+      value: "1920"
+    - name: SE_SCREEN_HEIGHT
+      value: "1080"
+    - name: TZ
+      value: "Asia/Saigon"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:

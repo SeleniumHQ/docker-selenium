@@ -33,12 +33,16 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.distributor.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
           env:
+            - name: SE_DISTRIBUTOR_HOST
+              value: '{{ template "seleniumGrid.distributor.fullname" . }}.{{ .Release.Namespace }}'
+            - name: SE_DISTRIBUTOR_PORT
+              value: {{ .Values.components.distributor.port | quote }}
             - name: SE_SESSIONS_MAP_HOST
-              value: {{ template "seleniumGrid.sessionMap.fullname" . }}
+              value: '{{ template "seleniumGrid.sessionMap.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_SESSIONS_MAP_PORT
               value: {{ .Values.components.sessionMap.port | quote }}
             - name: SE_SESSION_QUEUE_HOST
-              value: {{ template "seleniumGrid.sessionQueue.fullname" . }}
+              value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
           {{- with .Values.components.extraEnvironmentVariables }}
