@@ -40,6 +40,11 @@ if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION:-true}"
 fi
 
+if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
+  echo "Appending Selenium options: --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+  SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
 /opt/bin/generate_config
 
 echo "Selenium Grid Standalone configuration: "

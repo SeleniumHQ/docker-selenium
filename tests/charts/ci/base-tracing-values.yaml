@@ -1,5 +1,7 @@
 hub:
   extraEnvironmentVariables:
+    - name: SE_REJECT_UNSUPPORTED_CAPS
+      value: "false"
     - name: SE_ENABLE_TRACING
       value: "true"
     - name: SE_JAVA_OPTS
@@ -7,6 +9,8 @@ hub:
 
 components:
   extraEnvironmentVariables:
+    - name: SE_REJECT_UNSUPPORTED_CAPS
+      value: "false"
     - name: SE_ENABLE_TRACING
       value: "true"
     - name: SE_JAVA_OPTS

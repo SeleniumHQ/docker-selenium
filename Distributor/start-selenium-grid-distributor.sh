@@ -88,6 +88,11 @@ if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
   SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
 fi
 
+if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
+  echo "Appending Selenium options: --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+  SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then
