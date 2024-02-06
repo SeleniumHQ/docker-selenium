@@ -61,6 +61,11 @@ if [ ! -z "$SE_DISABLE_UI" ]; then
   SE_OPTS="$SE_OPTS --disable-ui ${SE_DISABLE_UI}"
 fi
 
+if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
+  echo "Appending Selenium options: --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+  SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
 EXTRA_LIBS=""
 
 if [ ! -z "$SE_ENABLE_TRACING" ]; then

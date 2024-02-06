@@ -131,6 +131,8 @@ USER ${SEL_UID}:${SEL_GID}
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
+# Boolean value, maps "--reject-unsupported-caps"
+ENV SE_REJECT_UNSUPPORTED_CAPS false
 
 # A too high maximum number of file descriptors (with the default value
 # inherited from the docker host) can cause issues with some of our tools:
