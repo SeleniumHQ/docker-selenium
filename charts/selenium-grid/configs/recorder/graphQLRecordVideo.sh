@@ -11,7 +11,7 @@ curl --retry 3 -k -X POST \
 
 RECORD_VIDEO=$(jq -r '.data.session.capabilities | fromjson | ."se:recordVideo"' /tmp/graphQL_$SESSION_ID.json)
 
-if [ "${RECORD_VIDEO}" = "false" ]; then
+if [ "${RECORD_VIDEO,,}" = "false" ]; then
   echo "${RECORD_VIDEO}"
 else
   echo true
