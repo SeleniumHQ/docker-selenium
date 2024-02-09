@@ -3,6 +3,7 @@ ARG BASED_TAG
 FROM $NAMESPACE/ffmpeg:$BASED_TAG
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
+ARG RCLONE_VERSION=current
 #Arguments to define the user running the container
 ARG SEL_USER=seluser
 ARG SEL_GROUP=${SEL_USER}
@@ -29,7 +30,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils x11-utils curl jq python3-pip tzdata acl \
+    supervisor x11-xserver-utils x11-utils curl jq python3-pip tzdata acl unzip \
   && python3 -m pip install --upgrade pip \
   && python3 -m pip install --upgrade setuptools \
   && python3 -m pip install --upgrade wheel \
@@ -71,7 +72,20 @@ RUN groupadd ${SEL_GROUP} \
 # Add Supervisor configuration files
 #======================================
 COPY supervisord.conf /etc
-COPY --chown="${SEL_UID}:${SEL_GID}" entry_point.sh video.sh video_ready.py /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" entry_point.sh video.sh video_ready.py video_graphQLQuery.sh /opt/bin/
+
+#======================================
+# Add RCLONE for uploading videos
+#======================================
+RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSION}-linux-amd64.zip \
+  && unzip -a /tmp/rclone.zip -d /tmp \
+  && mv /tmp/rclone-*-linux-amd64/rclone /usr/local/bin/ \
+  && rm -rf /tmp/rclone-*
+COPY rclone.conf /etc
+COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh /opt/bin/
+ENV SE_VIDEO_UPLOAD_ENABLED false
+ENV SE_UPLOAD_DESTINATION_PREFIX ""
+ENV SE_VIDEO_INTERNAL_UPLOAD false
 
 ENV SE_VIDEO_FOLDER /videos
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER \
@@ -82,7 +96,6 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER \
   && setfacl -Rdm u:${SEL_USER}:rwx,g:${SEL_GROUP}:rwx /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME
 
 USER ${SEL_UID}
-VOLUME ${SE_VIDEO_FOLDER}
 
 ENTRYPOINT ["/opt/bin/entry_point.sh"]
 CMD ["/opt/bin/entry_point.sh"]
@@ -94,6 +107,6 @@ ENV SE_SCREEN_HEIGHT 1020
 ENV SE_FRAME_RATE 15
 ENV SE_CODEC libx264
 ENV SE_PRESET "-preset ultrafast"
-ENV FILE_NAME video.mp4
+ENV SE_VIDEO_FILE_NAME video.mp4
 
 EXPOSE 9000
