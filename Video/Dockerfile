@@ -81,8 +81,7 @@ RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSI
   && unzip -a /tmp/rclone.zip -d /tmp \
   && mv /tmp/rclone-*-linux-amd64/rclone /usr/local/bin/ \
   && rm -rf /tmp/rclone-*
-COPY rclone.conf /etc
-COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
 ENV SE_VIDEO_UPLOAD_ENABLED false
 ENV SE_UPLOAD_DESTINATION_PREFIX ""
 ENV SE_VIDEO_INTERNAL_UPLOAD false

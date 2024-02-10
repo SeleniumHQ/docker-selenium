@@ -392,23 +392,23 @@ nodeConfigMap:
       echo "Your custom script"
 
 recorderConfigMap:
-  extraScriptsDirectory: "/opt/selenium"
+  extraScriptsDirectory: "/opt/bin"
   extraScripts:
     video.sh: |
         #!/bin/bash
         echo "Your custom script"    
-    videoPreStop.sh: |
+    video_graphQLQuery.sh: |
         #!/bin/bash
         echo "My new script"
 
 uploaderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   extraScripts:
-    entry_point.sh: |
+    upload.sh: |
         #!/bin/bash
         echo "Your custom entry point"
   secretFiles:
-    config.conf: |
+    upload.conf: |
         [myremote]
         type = s3
 ```
@@ -448,11 +448,11 @@ driver = webdriver.Remote(options=options, command_executor="http://localhost:44
 )
 ```
 
-In Node will perform query GraphQL and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. By default, the script is loaded from file [configs/recorder/graphQLRecordVideo.sh](configs/recorder/graphQLRecordVideo.sh) to the ConfigMap. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
+In Node will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
 
 #### Video uploader
 
-The uploader is a sidecar that is deployed with the browser nodes. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
+The uploader is extra utility in the video container. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
 
 ```yaml
 videoRecorder:
@@ -464,14 +464,14 @@ By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video 
 
 The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The `bucket-name` is the name of the bucket in the remote location. The `path` is the path to the folder in the bucket.
 
-By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config\.conf=/path/to/your_config.conf` or set via YAML values.
+By default, the config file is empty. You can override the config file via `--set-file uploaderConfigMap.secretFiles.upload\.conf=/path/to/your_config.conf` or set via YAML values.
 
 For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
 
 ```bash
 uploaderConfigMap:
   secretFiles:
-    config.conf: |
+    upload.conf: |
         [mys3]
         type = s3
         provider = AWS
@@ -488,7 +488,6 @@ videoRecorder:
 ```
 
 You can prepare a config file with multiple remotes are defined. Ensure that `[remoteName]` is unique for each remote.
-You also can replace your config to default file `configs/uploader/rclone/config.conf` in chart.
 
 Instead of using config file, another way that RCLONE also supports to pass the information via environment variables. ENV variable with format: `RCLONE_CONFIG_ + name of remote + _ + name of config file option` (make it all uppercase). In this case the remote name it can only contain letters, digits, or the _ (underscore) character. All those ENV variables can be set via `videoRecorder.uploader.secrets`, it will be stored in Secret.
 
@@ -507,21 +506,46 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_ACL: "private"
       RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
       RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
+      RCLONE_CONFIG_MYS3_ENDPOINT: "https://storage.googleapis.com"
 ```
 
-Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `config.conf` will take precedence.
+Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `upload.conf` will take precedence.
 
-Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point\.sh=/path/to/your_script.sh` or set via YAML values. For example:
+Beside the configuration, the script for entry point of uploader container also needed. You can override the script via `--set-file uploaderConfigMap.extraScripts.upload\.sh=/path/to/your_script.sh` or set via YAML values. For example:
 
 ```yaml
 uploaderConfigMap:
   extraScripts:
-    entry_point.sh: |
+    upload.sh: |
         #!/bin/bash
         echo "Your custom entry point"
 ```
 
-You also can replace your script to default file `configs/uploader/rclone/entry_point.sh` in chart.
+In case you want to configure another sidecar container for uploader, you can set a name for `videoRecorder.uploader.name` and create a config key with the same name under `videoRecorder` with all the settings for your container. Set name of `videoRecorder.uploader.entryPointFileName` if your container start by a different entry point. For example:
+
+```yaml
+uploaderConfigMap:
+    extraScripts:
+        upload.sh: |
+            #!/bin/bash
+            echo "Script control the uploader process"
+
+videoRecorder:
+    enabled: true
+    uploader:
+        enabled: true
+        name: "s3"
+        entryPointFileName: "upload.sh"
+        destinationPrefix: "s3://mybucket"
+        secrets:
+            AWS_REGION: "ap-southeast-1"
+            AWS_ACCESS_KEY_ID: "xxxx"
+            AWS_SECRET_ACCESS_KEY: "xxxx"
+    s3:
+        imageRegistry: public.ecr.aws
+        imageName: bitnami/aws-cli
+        imageTag: latest
+```
 
 ### Configuration of Secure Communication (HTTPS)
 

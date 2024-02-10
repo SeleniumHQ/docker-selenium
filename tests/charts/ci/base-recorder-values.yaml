@@ -1,8 +1,19 @@
+# Use different container sidecar for uploader
+#videoRecorder:
+#  enabled: true
+#  uploader:
+#    enabled: true
+#    name: s3
+#    destinationPrefix: "s3://ndviet"
+#    secrets:
+#      AWS_REGION: "ap-southeast-1"
+#      AWS_ACCESS_KEY_ID: "****"
+#      AWS_SECRET_ACCESS_KEY: "****"
+
 videoRecorder:
   enabled: true
   uploader:
     enabled: false
-    name: rclone
     destinationPrefix: "gs://ndviet"
     secrets:
       RCLONE_CONFIG_S3_TYPE: "s3"
@@ -22,6 +33,3 @@ videoRecorder:
       RCLONE_CONFIG_GS_ACCESS_KEY_ID: "****"
       RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "****"
       RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
-      AWS_REGION: "ap-southeast-1"
-      AWS_ACCESS_KEY_ID: "****"
-      AWS_SECRET_ACCESS_KEY: "****"

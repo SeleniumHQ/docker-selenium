@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Set ENV variables"
-CLUSTER=${CLUSTER:-"minikube"}
+CLUSTER=${CLUSTER:-"kind"}
 CLUSTER_NAME=${CLUSTER_NAME:-"chart-testing"}
 
 cleanup() {

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Set ENV variables"
-CLUSTER=${CLUSTER:-"minikube"}
+CLUSTER=${CLUSTER:-"kind"}
 
 # Function to be executed on command failure
 on_failure() {

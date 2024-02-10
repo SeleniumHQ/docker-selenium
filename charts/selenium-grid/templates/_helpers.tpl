@@ -467,6 +467,10 @@ template:
             name: {{ tpl (toYaml .Values.recorderConfigMap.name) $ }}
         - configMapRef:
             name: {{ tpl (toYaml .Values.serverConfigMap.name) $ }}
+        {{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
+        - secretRef:
+            name: {{ tpl (toYaml .Values.uploaderConfigMap.secretVolumeMountName) $ }}
+        {{- end }}
       {{- with .Values.videoRecorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
@@ -496,7 +500,7 @@ template:
       {{- with .Values.videoRecorder.lifecycle }}
         lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if .Values.videoRecorder.uploader.enabled }}
+    {{- if and .Values.videoRecorder.uploader.enabled (not (empty .Values.videoRecorder.uploader.name)) }}
       - name: uploader
         {{- $imageTag := default .Values.global.seleniumGrid.uploaderImageTag .uploader.imageTag }}
         {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .uploader.imageRegistry }}
@@ -725,6 +729,13 @@ Define terminationGracePeriodSeconds of the node pod.
 - name: {{ tpl (toYaml $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
   mountPath: {{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
+{{- end }}
+{{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
+{{- range $fileName, $value := .Values.uploaderConfigMap.secretFiles }}
+- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+  mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+  subPath: {{ $fileName }}
+{{- end }}
 {{- end }}
 - name: {{ tpl (toYaml $.Values.recorderConfigMap.videoVolumeMountName) $ }}
   mountPath: {{ $.Values.videoRecorder.targetFolder }}

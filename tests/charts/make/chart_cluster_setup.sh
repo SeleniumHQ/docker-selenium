@@ -2,7 +2,7 @@
 set -o xtrace
 
 echo "Set ENV variables"
-CLUSTER=${CLUSTER:-"minikube"}
+CLUSTER=${CLUSTER:-"kind"}
 CLUSTER_NAME=${CLUSTER_NAME:-"chart-testing"}
 RELEASE_NAME=${RELEASE_NAME:-"test"}
 SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE:-"selenium"}
