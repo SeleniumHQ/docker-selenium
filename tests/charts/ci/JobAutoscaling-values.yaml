@@ -15,8 +15,8 @@ autoscaling:
 chromeNode:
   nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_OPTS
-      value: "--enable-managed-downloads true"
+    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+      value: "true"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH

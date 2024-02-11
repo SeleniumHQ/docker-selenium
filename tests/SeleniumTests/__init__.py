@@ -159,16 +159,18 @@ class Autoscaling():
                     print(traceback.format_exc())
                     print(f"{str(test)} failed with exception: {str(e)}")
                     print(f"Original exception: {e.__cause__}")
-            print(f"Number of failed tests: {len(failed_tests)}")
-            for test in failed_tests:
-                try:
-                    print(f"Rerunning test: {str(test)}")
-                    test.run()
-                except Exception as e:
-                    print(traceback.format_exc())
-                    print(f"Test {str(test)} failed again with exception: {str(e)}")
-                    print(f"Original exception: {e.__cause__}")
-                    raise Exception(f"Rerun test failed: {str(test)} failed with exception: {str(e)}")
+            if len(failed_tests) > 0:
+                print(f"Number of failed tests: {len(failed_tests)}. Going to rerun!")
+                for test in failed_tests:
+                    try:
+                        print(f"Rerunning test: {str(test)}")
+                        test.run()
+                    except Exception as e:
+                        print(traceback.format_exc())
+                        print(f"Test {str(test)} failed again with exception: {str(e)}")
+                        print(f"Original exception: {e.__cause__}")
+                        raise Exception(f"Rerun test failed: {str(test)} failed with exception: {str(e)}")
+                print(f"::warning:: Number of failed tests: {len(failed_tests)}. All tests passed in rerun!")
 
 class DeploymentAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):

@@ -13,7 +13,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_OPTS=--enable-managed-downloads true
 
   edge:
     image: selenium/node-edge:nightly
@@ -24,7 +23,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_OPTS=--enable-managed-downloads true
 
   firefox:
     image: selenium/node-firefox:nightly
@@ -35,7 +33,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_OPTS=--enable-managed-downloads true
 
   chrome_video:
     image: selenium/video:nightly
