@@ -1,0 +1,106 @@
+# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-video-upload.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-video-upload.yml down`
+# ${variable_pattern} get value from .env in the same directory
+version: "3"
+services:
+  chrome:
+    image: selenium/node-chrome:nightly
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_OPTS=--enable-managed-downloads true
+
+  edge:
+    image: selenium/node-edge:nightly
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_OPTS=--enable-managed-downloads true
+
+  firefox:
+    image: selenium/node-firefox:nightly
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_OPTS=--enable-managed-downloads true
+
+  chrome_video:
+    image: selenium/video:nightly
+    depends_on:
+      - chrome
+    environment:
+      - DISPLAY_CONTAINER_NAME=chrome
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=s3://${BUCKET_NAME}
+      - RCLONE_CONFIG_S3_TYPE=s3
+      - RCLONE_CONFIG_S3_PROVIDER=GCS
+      - RCLONE_CONFIG_S3_ENV_AUTH=true
+      - RCLONE_CONFIG_S3_REGION=asia-southeast1
+      - RCLONE_CONFIG_S3_LOCATION_CONSTRAINT=asia-southeast1
+      - RCLONE_CONFIG_S3_ACL=private
+      - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
+      - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
+      - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+
+  edge_video:
+    image: selenium/video:nightly
+    depends_on:
+      - edge
+    environment:
+      - DISPLAY_CONTAINER_NAME=edge
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=s3://${BUCKET_NAME}
+      - RCLONE_CONFIG_S3_TYPE=s3
+      - RCLONE_CONFIG_S3_PROVIDER=GCS
+      - RCLONE_CONFIG_S3_ENV_AUTH=true
+      - RCLONE_CONFIG_S3_REGION=asia-southeast1
+      - RCLONE_CONFIG_S3_LOCATION_CONSTRAINT=asia-southeast1
+      - RCLONE_CONFIG_S3_ACL=private
+      - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
+      - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
+      - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+
+  firefox_video:
+    image: selenium/video:nightly
+    depends_on:
+      - firefox
+    environment:
+      - DISPLAY_CONTAINER_NAME=firefox
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=s3://${BUCKET_NAME}
+      - RCLONE_CONFIG_S3_TYPE=s3
+      - RCLONE_CONFIG_S3_PROVIDER=GCS
+      - RCLONE_CONFIG_S3_ENV_AUTH=true
+      - RCLONE_CONFIG_S3_REGION=asia-southeast1
+      - RCLONE_CONFIG_S3_LOCATION_CONSTRAINT=asia-southeast1
+      - RCLONE_CONFIG_S3_ACL=private
+      - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
+      - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
+      - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+
+  selenium-hub:
+    image: selenium/hub:nightly
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"

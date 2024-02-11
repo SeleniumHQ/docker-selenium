@@ -52,7 +52,11 @@ jobs:
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
       - name: Setup Kubernetes environment
-        run: make chart_setup_env
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: make chart_setup_env
       - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build

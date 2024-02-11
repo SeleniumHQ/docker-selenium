@@ -12,8 +12,6 @@ global:
     nodesImageTag: 4.17.0-20240123
     # Image tag for browser's video recorder
     videoImageTag: ffmpeg-6.1-20240123
-    # Image tag for browser's uploader
-    uploaderImageTag: rclone-1.65-20240123
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -120,8 +118,8 @@ recorderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-    video.sh:
-    graphQLRecordVideo.sh:
+  #  video.sh:
+  #  video_graphQLQuery.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName: recorder-helper-scripts
   videoVolumeMountName: videos
@@ -136,10 +134,10 @@ uploaderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-    entry_point.sh:
+    upload.sh:
   # Extra files stored in Secret to be mounted to the container.
   secretFiles:
-    config.conf:
+    upload.conf: "[sample]"
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName: uploader-helper-scripts
   # Name of Secret is used to store the `secretFiles`
@@ -1031,10 +1029,9 @@ videoRecorder:
     # Where to upload the video file e.g. remoteName://bucketName/path. Refer to destination syntax of rclone https://rclone.org/docs/
     destinationPrefix:
     # What uploader to use. See .videRecorder.rclone for how to create a new one.
-    name: "rclone"
-    configFileName: "config.conf"
-    entryPointFileName: "entry_point.sh"
-    scriptMountPath: "/opt/bin"
+    name:
+    configFileName: upload.conf
+    entryPointFileName: upload.sh
     # For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom
     # Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase)
     secrets:
@@ -1113,24 +1110,6 @@ videoRecorder:
   # - name: video
   #   persistentVolumeClaim:
   #     claimName: video-pv-claim
-
-  # Container spec for the uploader if above it is defined as "uploader.name: rclone"
-  rclone:
-    # imageRegistry: selenium
-    imageName: uploader
-    # imageTag: "rclone-1.65-20240119"
-    imagePullPolicy: IfNotPresent
-    # SecurityContext for uploader container
-    securityContext:
-      runAsUser: 0
-    command: []
-    args: []
-    extraEnvironmentVariables:
-    # Extra options for rclone. Refer to https://rclone.org/flags
-      - name: UPLOAD_OPTS
-        value: "--progress"
-    #  - name: UPLOAD_COMMAND
-    #    value: "copy"
 
   # Container spec for the uploader if above it is defined as "uploader.name: s3"
   s3:

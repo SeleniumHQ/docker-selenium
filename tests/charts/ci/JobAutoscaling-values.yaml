@@ -4,6 +4,7 @@ autoscaling:
   enableWithExistingKEDA: true
   scalingType: job
   scaledJobOptions:
+    successfulJobsHistoryLimit: 100
     scalingStrategy:
       strategy: default
   scaledOptions:

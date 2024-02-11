@@ -25,7 +25,6 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
-UPLOADER_TAG=${UPLOADER_TAG:-"latest"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -48,12 +47,20 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
+RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
+if [ -f .env ]
+then
+    export $(cat .env | xargs)
+    echo "Render values files with .env"
+    envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
+    RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
+fi
+
 HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.imageTag=${VERSION} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
---set global.seleniumGrid.uploaderImageTag=${UPLOADER_TAG} \
 "
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
@@ -66,7 +73,7 @@ fi
 HELM_COMMAND_SET_BASE_VALUES=" \
 --values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
 --values ${TEST_VALUES_PATH}/base-tracing-values.yaml \
---values ${TEST_VALUES_PATH}/base-recorder-values.yaml \
+--values ${RECORDER_VALUES_FILE} \
 --values ${TEST_VALUES_PATH}/base-resources-values.yaml \
 "
 

@@ -21,45 +21,59 @@ Talk to us at https://www.selenium.dev/support/
 
 ## Contents
 
+<!-- TOC -->
+* [Community](#community)
+* [Contents](#contents)
 * [Quick start](#quick-start)
+  * [Try them out in a ready-to-use GitPod environment!](#try-them-out-in-a-ready-to-use-gitpod-environment)
 * [Experimental Mult-Arch aarch64/armhf/amd64 Images](#experimental-mult-arch-aarch64armhfamd64-images)
 * [Nightly Images](#nightly-images)
 * [Dev and Beta Channel Browser Images](#dev-and-beta-channel-browser-images)
-  + [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
-  + [Dev and Beta on the Grid](#dev-and-beta-on-the-grid)
+  * [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
+  * [Dev and Beta on the Grid](#dev-and-beta-on-the-grid)
 * [Execution modes](#execution-modes)
-  + [Standalone](#standalone)
-  + [Hub and Nodes](#hub-and-nodes)
-    - [Docker networking](#docker-networking)
-    - [Using different machines/VMs](#using-different-machinesvms)
-    - [Docker Compose](#docker-compose)
-  + [Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes](#fully-distributed-mode---router-queue-distributor-eventbus-sessionmap-and-nodes)
+  * [Standalone](#standalone)
+  * [Hub and Nodes](#hub-and-nodes)
+  * [Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes](#fully-distributed-mode---router-queue-distributor-eventbus-sessionmap-and-nodes)
 * [Video recording](#video-recording)
+* [Video recording and uploading](#video-recording-and-uploading)
 * [Dynamic Grid](#dynamic-grid)
-  + [Configuration example](#configuration-example)
-  + [Execution with Hub & Node roles](#execution-with-hub--node-roles)
-  + [Execution with Standalone roles](#execution-with-standalone-roles)
-  + [Using Dynamic Grid in different machines/VMs](#using-dynamic-grid-in-different-machinesvms)
-  + [Execution with Docker Compose](#execution-with-docker-compose)
-  + [Video recording, screen resolution, and time zones in a Dynamic Grid](#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid)
-* [Kubernetes](#deploying-to-kubernetes)
+  * [Configuration example](#configuration-example)
+  * [Execution with Hub & Node roles](#execution-with-hub--node-roles)
+  * [Execution with Standalone roles](#execution-with-standalone-roles)
+  * [Using Dynamic Grid in different machines/VMs](#using-dynamic-grid-in-different-machinesvms)
+  * [Execution with Docker Compose](#execution-with-docker-compose)
+  * [Configuring the child containers](#configuring-the-child-containers)
+  * [Video recording, screen resolution, and time zones in a Dynamic Grid](#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid)
+* [Deploying to Kubernetes](#deploying-to-kubernetes)
 * [Configuring the containers](#configuring-the-containers)
-  + [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
-  + [SE_JAVA_OPTS Java Environment Options](#se_java_opts-java-environment-options)
-  + [Node configuration options](#node-configuration-options)
-  + [Setting Sub Path](#setting-sub-path)
-  + [Setting Screen Resolution](#setting-screen-resolution)
-  + [Grid Url and Session Timeout](#grid-url-and-session-timeout)
-  + [Session request timeout](#session-request-timeout)
-  + [Increasing session concurrency per container](#increasing-session-concurrency-per-container)
-  + [Running in Headless mode](#running-in-headless-mode)
+  * [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
+  * [SE_JAVA_OPTS Java Environment Options](#se_java_opts-java-environment-options)
+  * [Node configuration options](#node-configuration-options)
+  * [Setting Sub Path](#setting-sub-path)
+  * [Setting Screen Resolution](#setting-screen-resolution)
+  * [Grid Url and Session Timeout](#grid-url-and-session-timeout)
+  * [Session request timeout](#session-request-timeout)
+  * [Increasing session concurrency per container](#increasing-session-concurrency-per-container)
+  * [Running in Headless mode](#running-in-headless-mode)
+  * [Stopping the Node/Standalone after N sessions have been executed](#stopping-the-nodestandalone-after-n-sessions-have-been-executed)
 * [Building the images](#building-the-images)
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
+  * [Adding a HEALTHCHECK to the Grid](#adding-a-healthcheck-to-the-grid)
+  * [Using a bash script to wait for the Grid](#using-a-bash-script-to-wait-for-the-grid)
+* [Install certificates for Chromium-based browsers](#install-certificates-for-chromium-based-browsers)
+* [Alternative method: Add certificates to existing Selenium based images for browsers](#alternative-method-add-certificates-to-existing-selenium-based-images-for-browsers)
 * [Debugging](#debugging)
-* [Install certificates for Chromium based browsers](#install-certificates-for-Chromium-based-browsers)
+  * [Using a VNC client](#using-a-vnc-client)
+  * [Using your browser (no VNC client is needed)](#using-your-browser-no-vnc-client-is-needed)
+  * [Disabling VNC](#disabling-vnc)
 * [Tracing in Grid](#tracing-in-grid)
 * [Troubleshooting](#troubleshooting)
-
+  * [`--shm-size="2g"`](#--shm-size2g)
+  * [Headless](#headless)
+  * [Mounting volumes to retrieve downloaded files](#mounting-volumes-to-retrieve-downloaded-files)
+  * [Mounting volumes to retrieve video files](#mounting-volumes-to-retrieve-video-files)
+<!-- TOC -->
 
 ## Quick start
 
@@ -520,6 +534,47 @@ After the containers are stopped and removed, you should see a video file on you
 Here is an example using a Hub and a few Nodes:
 
 [`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
+
+## Video recording and uploading
+
+[RCLONE](https://rclone.org/) is installed in the video recorder image. You can use it to upload the videos to a cloud storage service.
+Besides the video recording mentioned above, you can enable the upload functionality by setting the following environment variables:
+
+```yaml
+version: "3"
+services:
+  chrome_video:
+    image: selenium/video:nightly
+    depends_on:
+      - chrome
+    environment:
+      - DISPLAY_CONTAINER_NAME=chrome
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=s3://mybucket/path
+      - RCLONE_CONFIG_S3_TYPE=s3
+      - RCLONE_CONFIG_S3_PROVIDER=GCS
+      - RCLONE_CONFIG_S3_ENV_AUTH=true
+      - RCLONE_CONFIG_S3_REGION=asia-southeast1
+      - RCLONE_CONFIG_S3_LOCATION_CONSTRAINT=asia-southeast1
+      - RCLONE_CONFIG_S3_ACL=private
+      - RCLONE_CONFIG_S3_ACCESS_KEY_ID=xxx
+      - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=xxx
+      - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+```
+
+`SE_VIDEO_FILE_NAME=auto` will use the session id as the video file name. This ensures that the video file name is unique to upload.
+
+`SE_VIDEO_UPLOAD_ENABLED=true` will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
+
+`SE_VIDEO_INTERNAL_UPLOAD=true` will use RCLONE installed in the container for upload. If you want to use another container for upload, set it to `false`.
+
+For environment variables with prefix `RCLONE_` is used to pass remote configuration to RCLONE. You can find more information about RCLONE configuration [here](https://rclone.org/docs/).
+
+[`docker-compose-v3-video-upload.yml`](docker-compose-v3-video-upload.yml)
+
+Note that upload function is not supported for Dynamic Grid. If you want it, please create a feature request.
 
 ___
 
@@ -1336,4 +1391,11 @@ After doing this, you should be able to download files
 to the mounted directory. If you have a better workaround,
 please send us a pull request!
 
+### Mounting volumes to retrieve video files
 
+Similar to mount volumes to retrieve downloaded files. For video files, you might need to do the same
+
+```bash
+mkdir /tmp/videos
+chown 1200:1201 /tmp/videos
+```

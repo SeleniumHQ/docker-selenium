@@ -13,9 +13,13 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
-  VIDEO_UPLOAD_ENABLED: '{{ .Values.videoRecorder.uploader.enabled }}'
+  SE_VIDEO_UPLOAD_ENABLED: '{{ .Values.videoRecorder.uploader.enabled }}'
+  SE_VIDEO_FILE_NAME: 'auto'
+{{- if and .Values.videoRecorder.uploader.enabled (empty .Values.videoRecorder.uploader.name) }}
+  SE_VIDEO_INTERNAL_UPLOAD: 'true'
+{{- end }}
   VIDEO_CONFIG_DIRECTORY: '{{ .Values.recorderConfigMap.extraScriptsDirectory }}'
-  UPLOAD_DESTINATION_PREFIX: '{{ .Values.videoRecorder.uploader.destinationPrefix }}'
+  SE_UPLOAD_DESTINATION_PREFIX: '{{ .Values.videoRecorder.uploader.destinationPrefix }}'
 {{- range $fileName, $value := .Values.recorderConfigMap.extraScripts }}
 {{- if not (empty $value) }}
 {{ $fileName | indent 2 -}}: |

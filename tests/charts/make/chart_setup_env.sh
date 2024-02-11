@@ -108,4 +108,10 @@ if [ "$(uname -m)" = "x86_64" ]; then
     rm -rf ct.tar.gz
     ct version
     echo "==============================="
+    echo "Installing envsubst for AMD64 / x86_64"
+    curl -L https://github.com/a8m/envsubst/releases/download/v1.4.2/envsubst-`uname -s`-`uname -m` -o envsubst
+    chmod +x envsubst
+    sudo mv envsubst /usr/local/bin
+    sudo ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
+    echo "==============================="
 fi
