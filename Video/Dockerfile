@@ -85,6 +85,7 @@ COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
 ENV SE_VIDEO_UPLOAD_ENABLED false
 ENV SE_UPLOAD_DESTINATION_PREFIX ""
 ENV SE_VIDEO_INTERNAL_UPLOAD false
+ENV UPLOAD_OPTS "-P"
 
 ENV SE_VIDEO_FOLDER /videos
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER \

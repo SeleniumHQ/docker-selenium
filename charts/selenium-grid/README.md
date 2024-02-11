@@ -18,7 +18,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Ingress Configuration](#ingress-configuration)
   * [Configuration](#configuration)
     * [Configuration global](#configuration-global)
-      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8spublicip)
+      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
       * [Probes](#probes)

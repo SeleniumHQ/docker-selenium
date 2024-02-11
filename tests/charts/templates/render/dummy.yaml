@@ -83,7 +83,7 @@ videoRecorder:
   enabled: true
   uploader:
     enabled: true
-    destinationPrefix: "s3://ndviet"
+    destinationPrefix: "s3://bucket-name"
     secrets:
       RCLONE_CONFIG_S3_TYPE: "s3"
       RCLONE_CONFIG_S3_PROVIDER: "AWS"

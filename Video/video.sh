@@ -12,15 +12,17 @@ VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-$SE_VIDEO_UPLOAD_ENABLED}
 VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
 UPLOAD_DESTINATION_PREFIX=${UPLOAD_DESTINATION_PREFIX:-$SE_UPLOAD_DESTINATION_PREFIX}
 UPLOAD_PIPE_FILE_NAME=${UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
-SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"true"}
+SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
 SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
 
 if [ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ];
 then
+    # If using RCLONE in the same container, write signal to /tmp internally
     UPLOAD_PIPE_FILE="/tmp/${UPLOAD_PIPE_FILE_NAME}"
     FORCE_EXIT_FILE="/tmp/force_exit"
 else
+    # If using external container for uploading, write signal to the video folder
     UPLOAD_PIPE_FILE="${SE_VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
     FORCE_EXIT_FILE="${SE_VIDEO_FOLDER}/force_exit"
 fi
@@ -36,19 +38,30 @@ function create_pipe() {
     fi
 }
 
-function wait_util_force_exit_consume() {
+function wait_util_uploader_shutdown() {
+    max_wait=5
+    wait=0
     if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
-        while [[ -f ${FORCE_EXIT_FILE} ]]
+        while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]];
         do
-            echo "Waiting for force exit file to be consumed by uploader"
+            echo "Waiting for force exit file to be consumed by external upload container"
+            sleep 1
+            wait=$((wait+1))
+        done
+    fi
+    if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ]];
+    then
+        while [[ $(pgrep rclone | wc -l) -gt 0 ]]
+        do
+            echo "Recorder is waiting for RCLONE to finish"
             sleep 1
         done
-        echo "Ready to shutdown the recorder"
     fi
+    echo "Ready to shutdown the recorder"
 }
 
-function add_exit_signal() {
+function send_exit_signal_to_uploader() {
     if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
         echo "exit" >> ${UPLOAD_PIPE_FILE} &
@@ -64,9 +77,33 @@ function exit_on_max_session_reach() {
     fi
 }
 
-function finish {
-    add_exit_signal
-    wait_util_force_exit_consume
+function stop_recording() {
+    echo "Stopping to record video"
+    pkill -INT ffmpeg
+    recorded_count=$((recorded_count+1))
+    recording_started="false"
+    if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
+    then
+      upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
+      echo "Add to pipe a signal Uploading video to $upload_destination"
+      echo $video_file ${UPLOAD_DESTINATION_PREFIX} >> ${UPLOAD_PIPE_FILE} &
+    elif [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
+    then
+        echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading.
+    fi
+}
+
+function check_if_recording_inprogress() {
+    if [[ "$recording_started" = "true" ]]
+    then
+        stop_recording
+    fi
+}
+
+function graceful_exit() {
+    check_if_recording_inprogress
+    send_exit_signal_to_uploader
+    wait_util_uploader_shutdown
     kill -INT "$(cat /var/run/supervisor/supervisord.pid)"
 }
 
@@ -90,7 +127,7 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
 
 else
   create_pipe
-  trap finish EXIT
+  trap graceful_exit SIGTERM SIGINT EXIT
   export DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
 
   max_attempts=600
@@ -153,19 +190,7 @@ else
           echo "Video recording started"
       elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]
       then
-          echo "Stopping to record video"
-          pkill -INT ffmpeg
-          recorded_count=$((recorded_count+1))
-          recording_started="false"
-          if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
-          then
-            upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
-            echo "Uploading video to $upload_destination"
-            echo $video_file ${UPLOAD_DESTINATION_PREFIX} >> ${UPLOAD_PIPE_FILE} &
-          elif [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
-          then
-              echo Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading.
-          fi
+          stop_recording
           if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]];
           then
             echo "Node will be drained since max sessions reached count number ($max_recorded_count)"
@@ -173,7 +198,7 @@ else
           fi
       elif [[ $recording_started = "true" ]]
       then
-          echo "Video recording in progress"
+          echo "Video recording in progress "
           sleep 1
       else
           sleep 1
@@ -181,4 +206,5 @@ else
       prev_session_id=$session_id
   done
   echo "Node API is not responding, exiting."
+  exit
 fi

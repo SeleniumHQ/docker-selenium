@@ -12,8 +12,6 @@ global:
     nodesImageTag: 4.17.0-20240123
     # Image tag for browser's video recorder
     videoImageTag: ffmpeg-6.1-20240123
-    # Image tag for browser's uploader
-    uploaderImageTag: rclone-1.65-20240123
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging

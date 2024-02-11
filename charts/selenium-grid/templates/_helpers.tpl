@@ -502,8 +502,8 @@ template:
       {{- end }}
     {{- if and .Values.videoRecorder.uploader.enabled (not (empty .Values.videoRecorder.uploader.name)) }}
       - name: uploader
-        {{- $imageTag := default .Values.global.seleniumGrid.uploaderImageTag .uploader.imageTag }}
-        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .uploader.imageRegistry }}
+        {{- $imageTag := .uploader.imageTag }}
+        {{- $imageRegistry := .uploader.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .uploader.imageName $imageTag }}
         imagePullPolicy: {{ .uploader.imagePullPolicy }}
       {{- if .uploader.command }}
