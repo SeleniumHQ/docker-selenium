@@ -47,14 +47,16 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
 if [ -f .env ]
 then
-    export $(cat .env | xargs)
-    echo "Render values files with .env"
-    envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
-    RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
+    export "$(cat .env | xargs)"
+else
+    export UPLOAD_ENABLED=false
 fi
+export RELEASE_NAME=${RELEASE_NAME}
+RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
+envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
+RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
 
 HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageRegistry=${NAMESPACE} \

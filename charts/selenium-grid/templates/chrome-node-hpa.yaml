@@ -2,7 +2,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: selenium-grid-chrome-scaledobject
+  name: {{ template "seleniumGrid.chromeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: delete

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "seleniumGrid.recorder.fullname" $ }}
+  name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.recorderConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

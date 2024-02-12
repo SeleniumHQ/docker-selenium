@@ -128,6 +128,13 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(single_node_port.keys()), "Number of services with NodePort is not correct")
 
+    def test_all_metadata_name_is_prefixed_with_release_name(self):
+        logger.info(f"Assert all metadata name is prefixed with RELEASE NAME")
+        for doc in LIST_OF_DOCUMENTS:
+            logger.info(f"Assert metadata name: {doc['metadata']['name']}")
+            self.assertTrue(doc['metadata']['name'].startswith(RELEASE_NAME),
+                            f"Metadata name {doc['metadata']['name']} is not prefixed with RELEASE NAME: {RELEASE_NAME}")
+
 if __name__ == '__main__':
     failed = False
     try:

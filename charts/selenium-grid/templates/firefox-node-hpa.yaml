@@ -2,7 +2,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: selenium-grid-firefox-scaledobject
+  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: delete

@@ -14,6 +14,10 @@ global:
                     - selenium
             topologyKey: "kubernetes.io/hostname"
 
+autoscaling:
+  enableWithExistingKEDA: true
+  scalingType: deployment
+
 basicAuth:
   username: sysadmin
   password: strongPassword

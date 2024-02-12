@@ -164,7 +164,9 @@ class Autoscaling():
                 for test in failed_tests:
                     try:
                         print(f"Rerunning test: {str(test)}")
-                        test.run()
+                        rerun_result = test.run()
+                        if not rerun_result.wasSuccessful():
+                            raise Exception
                     except Exception as e:
                         print(traceback.format_exc())
                         print(f"Test {str(test)} failed again with exception: {str(e)}")
