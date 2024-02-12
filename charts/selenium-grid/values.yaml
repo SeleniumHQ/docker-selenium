@@ -57,7 +57,7 @@ isolateComponents: false
 # Service Account for all components
 serviceAccount:
   create: true
-  name: ""
+  # nameOverride:
   annotations: {}
   #  eks.amazonaws.com/role-arn: "arn:aws:iam::12345678:role/video-bucket-permissions"
 
@@ -92,13 +92,13 @@ ingress:
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
   # Name of the configmap
-  name: "{{ .Release.Name }}-selenium-event-bus-config"
+  # nameOverride:
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
-  name: "{{ .Release.Name }}-selenium-node-config"
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # File name of preStop script in ConfigMap
@@ -106,12 +106,12 @@ nodeConfigMap:
   extraScripts:
     nodePreStop.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: node-helper-scripts
+  scriptVolumeMountName:
   # Custom annotations for configmap
   annotations: {}
 
 recorderConfigMap:
-  name: "{{ .Release.Name }}-selenium-recorder-config"
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
@@ -121,13 +121,13 @@ recorderConfigMap:
   #  video.sh:
   #  video_graphQLQuery.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: recorder-helper-scripts
+  scriptVolumeMountName:
   videoVolumeMountName: videos
   # Custom annotations for configmap
   annotations: {}
 
 uploaderConfigMap:
-  name: "{{ .Release.Name }}-selenium-uploader-config"
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
@@ -139,22 +139,22 @@ uploaderConfigMap:
   secretFiles:
     upload.conf: "[sample]"
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: uploader-helper-scripts
+  scriptVolumeMountName:
   # Name of Secret is used to store the `secretFiles`
-  secretVolumeMountName: '{{ include "seleniumGrid.common.secrets" $ }}'
+  secretVolumeMountName:
   # Custom annotations for configmap
   annotations: {}
 
 
 # ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
 loggingConfigMap:
-  name: "{{ .Release.Name }}-selenium-logging-config"
+  # nameOverride:
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
 serverConfigMap:
-  name: "{{ .Release.Name }}-selenium-server-config"
+  # nameOverride:
   certVolumeMountPath: /etc/ssl/certs/selenium
   certificateFile: selenium.pem
   privateKeyFile: selenium.pkcs8
@@ -164,10 +164,10 @@ serverConfigMap:
   # Custom annotations for configmap
   annotations: {}
 
-# Secrets for all components. Components environment variables contain sensitive data should be stored in secrets.
+# Secrets for all components. Component environment variables contain sensitive data should be stored in secrets.
 secrets:
   create: true
-  name: selenium-secrets
+  # nameOverride:
   env:
     SE_VNC_PASSWORD: "secret"
   annotations: {}
@@ -529,9 +529,9 @@ autoscaling:
   scaledObjectOptions:
     scaleTargetRef:
       kind: Deployment
-  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force killing it
+  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it
   terminationGracePeriodSeconds: 3600
-  # Define preStop command to shuts down the node gracefully when scalingType is set to "deployment"
+  # Define preStop command to shut down the node gracefully when scalingType is set to "deployment"
   deregisterLifecycle:
   #  preStop:
   #    exec:
@@ -544,7 +544,7 @@ chromeNode:
 
   # NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
-  # true (default) - if you want long living pods
+  # true (default) - if you want long-living pods
   # false - for provisioning your own custom type such as Jobs
   deploymentEnabled: true
 
@@ -661,7 +661,7 @@ chromeNode:
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
-  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  # Define preStop command to shut down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
   deregisterLifecycle:
   # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
@@ -681,17 +681,17 @@ chromeNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
     sessionBrowserName: 'chrome'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -841,16 +841,16 @@ firefoxNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
     sessionBrowserName: 'firefox'
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -999,16 +999,16 @@ edgeNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
     sessionBrowserName: 'msedge'
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -1088,10 +1088,6 @@ videoRecorder:
   # Define lifecycle events for video recorder
   lifecycle: {}
 
-  volume:
-  # name:
-  #   folder: video
-  #   scripts: video-scripts
   # Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap.
   # NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended.
   extraVolumeMounts: []

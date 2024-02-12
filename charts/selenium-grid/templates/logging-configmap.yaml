@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ tpl .Values.loggingConfigMap.name $ }}
+  name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.loggingConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

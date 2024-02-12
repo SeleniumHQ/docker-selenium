@@ -1,113 +1,3 @@
-{{/*
-Expand the name of the chart.
-*/}}
-{{- define "seleniumGrid.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create a default fully qualified app name.
-*/}}
-{{- define "seleniumGrid.fullname" -}}
-{{- if .Values.fullnameOverride -}}
-{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- if contains $name .Release.Name -}}
-{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "seleniumGrid.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Common labels
-*/}}
-{{- define "seleniumGrid.commonLabels" -}}
-app.kubernetes.io/managed-by: {{ .Release.Service | lower }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
-app.kubernetes.io/component: {{ printf "selenium-grid-%s" .Chart.AppVersion }}
-helm.sh/chart: {{ include "seleniumGrid.chart" . }}
-{{- end -}}
-
-{{/*
-Selenium Hub fullname
-*/}}
-{{- define "seleniumGrid.hub.fullname" -}}
-{{- tpl (default (printf "%s-selenium-hub" .Release.Name) .Values.hub.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Event bus fullname
-*/}}
-{{- define "seleniumGrid.eventBus.fullname" -}}
-{{- tpl (default (printf "%s-selenium-event-bus" .Release.Name) .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Router fullname
-*/}}
-{{- define "seleniumGrid.router.fullname" -}}
-{{- tpl (default (printf "%s-selenium-router" .Release.Name) .Values.components.router.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Distributor fullname
-*/}}
-{{- define "seleniumGrid.distributor.fullname" -}}
-{{- tpl (default (printf "%s-selenium-distributor" .Release.Name) .Values.components.distributor.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-SessionMap fullname
-*/}}
-{{- define "seleniumGrid.sessionMap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-session-map" .Release.Name) .Values.components.sessionMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-SessionQueue fullname
-*/}}
-{{- define "seleniumGrid.sessionQueue.fullname" -}}
-{{- tpl (default (printf "%s-selenium-session-queue" .Release.Name) .Values.components.sessionQueue.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Chrome node fullname
-*/}}
-{{- define "seleniumGrid.chromeNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-chrome-node" .Release.Name) .Values.chromeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Firefox node fullname
-*/}}
-{{- define "seleniumGrid.firefoxNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-firefox-node" .Release.Name) .Values.firefoxNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Edge node fullname
-*/}}
-{{- define "seleniumGrid.edgeNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-edge-node" .Release.Name) .Values.edgeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Ingress fullname
-*/}}
-{{- define "seleniumGrid.ingress.fullname" -}}
-{{- tpl (default (printf "%s-selenium-ingress" .Release.Name) .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 
 {{/*
 Protocol of server components
@@ -167,13 +57,6 @@ Get probe settings
 {{- end -}}
 
 {{/*
-Secret TLS fullname
-*/}}
-{{- define "seleniumGrid.tls.fullname" -}}
-{{- ( tpl (default (printf "%s-selenium-tls-secret" .Release.Name) .Values.tls.nameOverride) $ )| trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Is registration secret enabled
 */}}
 {{- define "seleniumGrid.tls.registrationSecret.enabled" -}}
@@ -191,13 +74,6 @@ Get default certificate file name in chart
   {{- $content = $content | b64dec -}}
 {{- end -}}
 {{- $content -}}
-{{- end -}}
-
-{{/*
-Common secrets cross components
-*/}}
-{{- define "seleniumGrid.common.secrets" -}}
-{{- tpl (default (printf "%s-selenium-secrets" .Release.Name) .Values.secrets.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
@@ -228,27 +104,6 @@ nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 {{- end -}}
 
 {{/*
-Service Account fullname
-*/}}
-{{- define "seleniumGrid.serviceAccount.fullname" -}}
-{{- tpl (.Values.serviceAccount.name | default (printf "%s-selenium-serviceaccount" .Release.Name)) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Recorder ConfigMap fullname
-*/}}
-{{- define "seleniumGrid.recorder.fullname" -}}
-{{- tpl (default (printf "%s-selenium-recorder-config" .Release.Name) .Values.recorderConfigMap.name) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Uploader ConfigMap fullname
-*/}}
-{{- define "seleniumGrid.uploader.fullname" -}}
-{{- tpl (default (printf "%s-selenium-uploader-config" .Release.Name) .Values.uploaderConfigMap.name) $ | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Is autoscaling using KEDA enabled
 */}}
 {{- define "seleniumGrid.useKEDA" -}}
@@ -274,7 +129,7 @@ Common autoscaling spec template
   {{- with .node.scaledObjectOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
   {{- end -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "scaleTargetRef" (dict "name" .name)) | toYaml -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name))) | toYaml -}}
 {{- else if eq .Values.autoscaling.scalingType "job" -}}
   {{- with .Values.autoscaling.scaledJobOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -324,10 +179,10 @@ template:
   {{- with .node.hostAliases }}
     hostAliases: {{ toYaml . | nindent 6 }}
   {{- end }}
+  {{- with .node.initContainers }}
     initContainers:
-    {{- if .node.initContainers }}
-      {{- toYaml .node.initContainers | nindent 6 }}
-    {{- end }}
+      {{- toYaml . | nindent 6 }}
+  {{- end }}
     containers:
       - name: {{.name}}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
@@ -342,15 +197,15 @@ template:
         {{- end }}
         envFrom:
           - configMapRef:
-              name: {{ tpl (toYaml .Values.busConfigMap.name) $ }}
+              name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
           - configMapRef:
-              name: {{ tpl (toYaml .Values.nodeConfigMap.name) $ }}
+              name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
           - configMapRef:
-              name: {{ tpl (toYaml .Values.loggingConfigMap.name) $ }}
+              name: {{ template "seleniumGrid.logging.configmap.fullname" $ }}
           - configMapRef:
-              name: {{ tpl (toYaml .Values.serverConfigMap.name) $ }}
+              name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
           - secretRef:
-              name: {{ include "seleniumGrid.common.secrets" $ }}
+              name: {{ include "seleniumGrid.common.secrets.fullname" $ }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
@@ -372,7 +227,7 @@ template:
           - name: dshm
             mountPath: /dev/shm
         {{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
-          - name: {{ $.Values.nodeConfigMap.scriptVolumeMountName }}
+          - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
             mountPath: {{ $.Values.nodeConfigMap.extraScriptsDirectory }}/{{ $fileName }}
             subPath: {{ $fileName }}
         {{- end }}
@@ -460,16 +315,16 @@ template:
       {{- end }}
         envFrom:
         - configMapRef:
-            name: {{ tpl (toYaml .Values.busConfigMap.name) $ }}
+            name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
         - configMapRef:
-            name: {{ tpl (toYaml .Values.nodeConfigMap.name) $ }}
+            name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
         - configMapRef:
-            name: {{ tpl (toYaml .Values.recorderConfigMap.name) $ }}
+            name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
         - configMapRef:
-            name: {{ tpl (toYaml .Values.serverConfigMap.name) $ }}
+            name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
         {{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
         - secretRef:
-            name: {{ tpl (toYaml .Values.uploaderConfigMap.secretVolumeMountName) $ }}
+            name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) .Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- end }}
       {{- with .Values.videoRecorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
@@ -521,9 +376,9 @@ template:
       {{- end }}
         envFrom:
           - configMapRef:
-              name: {{ tpl (toYaml .Values.uploaderConfigMap.name) $ }}
+              name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
           - secretRef:
-              name: {{ tpl (toYaml .Values.uploaderConfigMap.secretVolumeMountName) $ }}
+              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) .Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- with .uploader.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
@@ -556,9 +411,9 @@ template:
   {{- end }}
     terminationGracePeriodSeconds: {{ .node.terminationGracePeriodSeconds }}
     volumes:
-      - name: {{ .Values.nodeConfigMap.scriptVolumeMountName }}
+      - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
         configMap:
-          name: {{ tpl .Values.nodeConfigMap.name $ }}
+          name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
           defaultMode: {{ .Values.nodeConfigMap.defaultMode }}
       - name: dshm
         emptyDir:
@@ -726,13 +581,13 @@ Define terminationGracePeriodSeconds of the node pod.
 
 {{- define "seleniumGrid.video.volumeMounts.default" -}}
 {{- range $fileName, $value := .Values.recorderConfigMap.extraScripts }}
-- name: {{ tpl (toYaml $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.recorder.configmap.fullname" $) $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
   mountPath: {{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
 {{- end }}
 {{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
 {{- range $fileName, $value := .Values.uploaderConfigMap.secretFiles }}
-- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
   mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
 {{- end }}
@@ -744,27 +599,27 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- define "seleniumGrid.video.volumes.default" -}}
 - name: {{ tpl (toYaml $.Values.recorderConfigMap.videoVolumeMountName) $ }}
   emptyDir: {}
-- name: {{ tpl (toYaml $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.recorder.configmap.fullname" $) $.Values.recorderConfigMap.scriptVolumeMountName) $ }}
   configMap:
-    name: {{ tpl (toYaml $.Values.recorderConfigMap.name) $ }}
+    name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
     defaultMode: {{ $.Values.recorderConfigMap.defaultMode }}
-- name: {{ tpl (toYaml $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.uploader.configmap.fullname" $) $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
   configMap:
-    name: {{ tpl (toYaml $.Values.uploaderConfigMap.name) $ }}
+    name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
     defaultMode: {{ $.Values.uploaderConfigMap.defaultMode }}
-- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
   secret:
-    secretName: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+    secretName: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
 {{- end -}}
 
 {{- define "seleniumGrid.video.uploader.volumeMounts.default" -}}
 {{- range $fileName, $value := .Values.uploaderConfigMap.extraScripts }}
-- name: {{ tpl (toYaml $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.uploader.configmap.fullname" $) $.Values.uploaderConfigMap.scriptVolumeMountName) $ }}
   mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
 {{- end }}
 {{- range $fileName, $value := .Values.uploaderConfigMap.secretFiles }}
-- name: {{ tpl (toYaml $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+- name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
   mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
 {{- end }}

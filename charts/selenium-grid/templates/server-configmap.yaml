@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ tpl .Values.serverConfigMap.name $ }}
+  name: {{ template "seleniumGrid.server.configmap.fullname" . }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.busConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

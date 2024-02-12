@@ -33,3 +33,8 @@ videoRecorder:
       RCLONE_CONFIG_GS_ACCESS_KEY_ID: "${GS_ACCESS_KEY_ID}"
       RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "${GS_SECRET_ACCESS_KEY}"
       RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
+
+ingress-nginx:
+  controller:
+    extraArgs:
+      default-ssl-certificate: '$(POD_NAMESPACE)/${RELEASE_NAME}-selenium-tls-secret'
