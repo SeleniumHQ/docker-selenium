@@ -2,6 +2,7 @@ import unittest
 import concurrent.futures
 import os
 import traceback
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -99,10 +100,13 @@ class ChromeTests(SeleniumGenericTests):
         options.set_capability('se:recordVideo', True)
         if SELENIUM_GRID_TEST_HEADLESS:
             options.add_argument('--headless=new')
+        start_time = time.time()
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
+        end_time = time.time()
+        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
@@ -112,10 +116,13 @@ class EdgeTests(SeleniumGenericTests):
         options.set_capability('se:recordVideo', True)
         if SELENIUM_GRID_TEST_HEADLESS:
             options.add_argument('--headless=new')
+        start_time = time.time()
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
+        end_time = time.time()
+        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
 
 
 class FirefoxTests(SeleniumGenericTests):
@@ -129,10 +136,13 @@ class FirefoxTests(SeleniumGenericTests):
         options.set_capability('se:recordVideo', True)
         if SELENIUM_GRID_TEST_HEADLESS:
             options.add_argument('-headless')
+        start_time = time.time()
         self.driver = webdriver.Remote(
             options=options,
             command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
         )
+        end_time = time.time()
+        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
 
     def test_title_and_maximize_window(self):
         self.driver.get('https://the-internet.herokuapp.com')
@@ -144,14 +154,18 @@ class Autoscaling():
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
             tests = []
+            start_times = {}
             for test_class in test_classes:
                 suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
                 for test in suite:
+                    start_times[test] = time.time()
                     futures.append(executor.submit(test))
                     tests.append(test)
             failed_tests = []
             for future, test in zip(concurrent.futures.as_completed(futures), tests):
                 try:
+                    completion_time = time.time() - start_times[test]
+                    print(f">> {str(test)} completed in {str(completion_time)} (s)")
                     if not future.result().wasSuccessful():
                         raise Exception
                 except Exception as e:

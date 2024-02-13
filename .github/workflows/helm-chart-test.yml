@@ -10,6 +10,13 @@ on:
     paths-ignore:
       - '**.md'
   workflow_dispatch:
+    inputs:
+      request-timeout:
+        description: 'Test parameter for different request timeout'
+        required: false
+        default: '370'
+  schedule:
+    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -65,9 +72,19 @@ jobs:
       - name: Test chart template
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_template
       - name: Setup Kubernetes cluster
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Build Docker images
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - name: Set test parameters
+        if: (matrix.test-strategy == 'job' || matrix.test-strategy == 'deployment') && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        run: |
+          echo "AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL}" >> $GITHUB_ENV
+        env:
+          AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '370' }}
       - name: Test Selenium Grid on Kubernetes (Autoscaling ${{ matrix.test-strategy }})
         uses: nick-invision/retry@master
         with:

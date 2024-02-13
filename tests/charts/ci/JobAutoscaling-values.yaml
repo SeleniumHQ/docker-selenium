@@ -1,4 +1,4 @@
-isolateComponents: false
+isolateComponents: true
 
 autoscaling:
   enableWithExistingKEDA: true

@@ -13,7 +13,7 @@ USER ${SEL_UID}
 # In seconds, maps to "--session-request-timeout"
 ENV SE_SESSION_REQUEST_TIMEOUT 300
 # In seconds, maps to "--session-retry-interval"
-ENV SE_SESSION_RETRY_INTERVAL 0
+ENV SE_SESSION_RETRY_INTERVAL 5
 
 EXPOSE 4444
 

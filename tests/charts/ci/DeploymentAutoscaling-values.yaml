@@ -1,3 +1,5 @@
+isolateComponents: false
+
 autoscaling:
   enableWithExistingKEDA: true
   scalingType: deployment

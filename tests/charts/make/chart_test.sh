@@ -21,6 +21,7 @@ WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
 HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL:-45}
 HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS:-6}
 WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
+AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL:-20}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
@@ -63,6 +64,7 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageTag=${VERSION} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
+--set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
 "
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
