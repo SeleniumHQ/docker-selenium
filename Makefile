@@ -413,6 +413,9 @@ test_video: video hub chrome firefox edge
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
+test_custom_ca_cert:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/customCACert/bootstrap.sh
+
 chart_setup_env:
 	./tests/charts/make/chart_setup_env.sh
 

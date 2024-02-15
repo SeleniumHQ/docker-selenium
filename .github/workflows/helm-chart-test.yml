@@ -79,6 +79,8 @@ jobs:
           command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Build Docker images
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - name: Test set custom CA certificate
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_custom_ca_cert
       - name: Set test parameters
         if: (matrix.test-strategy == 'job' || matrix.test-strategy == 'deployment') && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         run: |

@@ -95,7 +95,8 @@ COPY supervisord.conf /etc
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} ${HOME}/.mozilla ${HOME}/.vnc \
+RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
+    ${HOME}/.mozilla ${HOME}/.vnc $HOME/.pki/nssdb \
   && touch /opt/selenium/config.toml \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
@@ -128,6 +129,11 @@ RUN rm -fr /root/.cache/*
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
+
+#==========
+# NSSDB initialization with an empty password
+#==========
+RUN certutil -d sql:$HOME/.pki/nssdb -N --empty-password
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
