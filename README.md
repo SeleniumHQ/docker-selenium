@@ -1122,45 +1122,29 @@ ___
 
 ## Install certificates for Chromium-based browsers
 
-If you need to install custom certificates, CA, intermediate CA, or client certificates (for example enterprise internal CA)
-you can use the different utils that come from libnss3-tools.
-The chromium-based browser uses nssdb as a certificate store.
-Create a new nssdb:  
-```bash
-certutil -d sql:$HOME/.pki/nssdb -N
-```
-For example, to trust a root CA certificate for issuing SSL server certificates, use
-```bash
-certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n <certificate nickname> -i <certificate filename>
-```
-To import an intermediate CA certificate, use
-```bash
-certutil -d sql:$HOME/.pki/nssdb -A -t ",," -n <certificate nickname> -i <certificate filename>
-```
-You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
-Usage example:
-If your company has an internal CA you can create your own dockerimage from selenium node image.
+By default, the based image is installed `libnss3-tools` and initializes `/home/seluser/.pki/nssdb`,
+so you are able to add your certs with rootless.
+If you need to install custom certificates, CA, intermediate CA,
+or client certificates (for example, enterprise internal CA)
+you can create your own docker image from selenium node image.
+The Chromium-based browser uses `nssdb` as a certificate store.
 You can then install all required internal certificates in your Dockerfile like this:
+
+- Create a script for installing the certificates. For example, [cert-script.sh](tests/customCACert/cert-script.sh)
+- Create a Dockerfile that uses the selenium node image as a base and copies the script to the container, and executes it.
+For example, [Dockerfile](tests/customCACert/Dockerfile)
+- If you have to create a set of different certificates and node images. You can create a bootstrap script to do that in one-shot.
+For example, [bootstrap.sh](tests/customCACert/bootstrap.sh)
+
+The above example can be tested with the following command:
+
 ```bash
-FROM selenium/node-edge:latest
-USER root
-COPY certs/ /etc/certs # copy over the certificate file
-
-#=========
-# libnss3-tools
-# Network Security Service tools
-# Manage certificates in nssdb (certutil, pk12util, modutil, shlibsign, signtool, ssltap)
-#=========
-RUN apt-get update -qqy \
-  && apt-get -qqy install \
-    libnss3-tools \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-RUN mkdir -p -m755 /home/seluser/.pki/nssdb \ #create nssdb folder
-    && certutil -d sql:/home/seluser/.pki/nssdb -N --empty-password \ # create new db without password
-    && certutil -d sql:/home/seluser/.pki/nssdb -A -t "C,," -n companyca -i /etc/certs/companeca.pem \ #trust company CA
-    && pk12util -d sql:/home/seluser/.pki/nssdb -i client_cert.p12 -W password_of_clent_cert # client certificate install
+make test_custom_ca_cert
+# ./tests/customCACert/bootstrap.sh
 ```
+
+You can find more information [here](https://chromium.googlesource.com/chromium/src/+/master/docs/linux/cert_management.md)
+
 This way the certificates will be installed and the node will start automatically as before.
 ___
 
