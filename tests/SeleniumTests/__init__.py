@@ -89,60 +89,79 @@ class SeleniumGenericTests(unittest.TestCase):
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
-        self.driver.quit()
+        try:
+            self.driver.quit()
+        except Exception as e:
+            print(f"::error::Exception: {str(e)}")
+            print(traceback.format_exc())
+            raise e
 
 
 class ChromeTests(SeleniumGenericTests):
     def setUp(self):
-        options = ChromeOptions()
-        options.enable_downloads = True
-        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
-        options.set_capability('se:recordVideo', True)
-        if SELENIUM_GRID_TEST_HEADLESS:
-            options.add_argument('--headless=new')
-        start_time = time.time()
-        self.driver = webdriver.Remote(
-            options=options,
-            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
-        )
-        end_time = time.time()
-        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+        try:
+            options = ChromeOptions()
+            options.enable_downloads = True
+            options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+            options.set_capability('se:recordVideo', True)
+            if SELENIUM_GRID_TEST_HEADLESS:
+                options.add_argument('--headless=new')
+            start_time = time.time()
+            self.driver = webdriver.Remote(
+                options=options,
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            )
+            end_time = time.time()
+            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+        except Exception as e:
+            print(f"::error::Exception: {str(e)}")
+            print(traceback.format_exc())
+            raise e
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
-        options = EdgeOptions()
-        options.enable_downloads = True
-        options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
-        options.set_capability('se:recordVideo', True)
-        if SELENIUM_GRID_TEST_HEADLESS:
-            options.add_argument('--headless=new')
-        start_time = time.time()
-        self.driver = webdriver.Remote(
-            options=options,
-            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
-        )
-        end_time = time.time()
-        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
-
+        try:
+            options = EdgeOptions()
+            options.enable_downloads = True
+            options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+            options.set_capability('se:recordVideo', True)
+            if SELENIUM_GRID_TEST_HEADLESS:
+                options.add_argument('--headless=new')
+            start_time = time.time()
+            self.driver = webdriver.Remote(
+                options=options,
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            )
+            end_time = time.time()
+            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+        except Exception as e:
+            print(f"::error::Exception: {str(e)}")
+            print(traceback.format_exc())
+            raise e
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
-        profile = webdriver.FirefoxProfile()
-        profile.set_preference("browser.download.manager.showWhenStarting", False)
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
-        options = FirefoxOptions()
-        options.profile = profile
-        options.enable_downloads = True
-        options.set_capability('se:recordVideo', True)
-        if SELENIUM_GRID_TEST_HEADLESS:
-            options.add_argument('-headless')
-        start_time = time.time()
-        self.driver = webdriver.Remote(
-            options=options,
-            command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
-        )
-        end_time = time.time()
-        print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+        try:
+            profile = webdriver.FirefoxProfile()
+            profile.set_preference("browser.download.manager.showWhenStarting", False)
+            profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
+            options = FirefoxOptions()
+            options.profile = profile
+            options.enable_downloads = True
+            options.set_capability('se:recordVideo', True)
+            if SELENIUM_GRID_TEST_HEADLESS:
+                options.add_argument('-headless')
+            start_time = time.time()
+            self.driver = webdriver.Remote(
+                options=options,
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+            )
+            end_time = time.time()
+            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+        except Exception as e:
+            print(f"::error::Exception: {str(e)}")
+            print(traceback.format_exc())
+            raise e
 
     def test_title_and_maximize_window(self):
         self.driver.get('https://the-internet.herokuapp.com')
