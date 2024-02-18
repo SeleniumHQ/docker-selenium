@@ -619,6 +619,28 @@ tls:
     value: "matchThisSecret"
 ```
 
+### Configuration of tracing observability
+
+The chart supports tracing observability via Jaeger. To enable it, you need to set the following values:
+
+```yaml
+tracing:
+  enabled: true
+```
+
+With this configuration, by default, Jaeger (all-in-one) will be deployed in the same namespace as Selenium Grid.
+The Jaeger UI can be accessed via same ingress with prefix `/jaeger`, for example: `http://your.host.name/jaeger`.
+The traces will be collected from all the components of Selenium Grid and can be viewed in the Jaeger UI.
+
+In case you want to use your own existing Jaeger instance, you can set the following values:
+
+```yaml
+tracing:
+    enabledWithExistingEndpoint: true
+    exporter: otlp #or jaeger
+    exporterEndpoint: 'http://jaeger.domain.com:4317' #or 'http://jaeger.domain.com:14250'
+```
+
 ### Configuration of Selenium Grid chart
 This table contains the configuration parameters of the chart and their default values:
 
@@ -825,6 +847,11 @@ https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
 
 If you are setting `ingress-nginx.enabled` to `true`, chart Ingress NGINX Controller is installed and can be configured with
 values with the prefix `ingress-nginx`. See https://github.com/kubernetes/ingress-nginx for more details.
+
+### Configuration of Jaeger
+
+If you are setting `tracing.enabled` to `true`, chart Jaeger is installed and can be configured with
+values with the prefix `jaeger`. See https://github.com/jaegertracing/helm-charts for more details.
 
 ### Configuration for Selenium-Hub
 

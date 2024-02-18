@@ -198,6 +198,7 @@ ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
+ENV SE_OTEL_SERVICE_NAME "selenium-node"
 
 # Copying configuration script generator
 COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config

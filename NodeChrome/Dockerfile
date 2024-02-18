@@ -61,3 +61,5 @@ USER ${SEL_UID}
 RUN echo "chrome" > /opt/selenium/browser_name
 RUN google-chrome --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "\"goog:chromeOptions\": {\"binary\": \"/usr/bin/google-chrome\"}" > /opt/selenium/browser_binary_location
+
+ENV SE_OTEL_SERVICE_NAME "selenium-node-chrome"

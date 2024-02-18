@@ -54,3 +54,5 @@ USER ${SEL_UID}
 RUN echo "MicrosoftEdge" > /opt/selenium/browser_name
 RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "\"ms:edgeOptions\": {\"binary\": \"/usr/bin/microsoft-edge\"}" > /opt/selenium/browser_binary_location
+
+ENV SE_OTEL_SERVICE_NAME "selenium-node-edge"

@@ -6,6 +6,7 @@ chart-dirs:
 chart-repos:
   - kedacore=https://kedacore.github.io/charts
   - ingressNginx=https://kubernetes.github.io/ingress-nginx
+  - jaegertracing=https://jaegertracing.github.io/helm-charts
 upgrade: false
 helm-extra-args: --timeout 600s
 check-version-increment: false

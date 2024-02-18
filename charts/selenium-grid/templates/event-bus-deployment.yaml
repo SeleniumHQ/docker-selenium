@@ -40,6 +40,8 @@ spec:
             - containerPort: {{ .Values.components.eventBus.subscribePort }}
               protocol: TCP
           env:
+            - name: SE_OTEL_SERVICE_NAME
+              value: '{{ template "seleniumGrid.eventBus.fullname" . }}'
             - name: SE_EVENT_BUS_HOST
               value: '{{ template "seleniumGrid.eventBus.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_EVENT_BUS_PORT

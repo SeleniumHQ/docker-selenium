@@ -21,3 +21,5 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-session-queue.sh \
     /opt/bin/
 
 COPY selenium-grid-session-queue.conf /etc/supervisor/conf.d/
+
+ENV SE_OTEL_SERVICE_NAME "selenium-session-queue"

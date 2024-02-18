@@ -15,6 +15,9 @@ SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST:-"localhost"}
 SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT:-"80"}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
+KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
+CNI=${CNI:-"calico"} # auto, calico, cilium
+CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"} # docker, containerd, cri-o
 
 # Function to clean up for retry step on workflow
 cleanup() {
@@ -53,7 +56,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   sudo chmod 777 /tmp
   export CHANGE_MINIKUBE_NONE_USER=true
   sudo -SE minikube start --vm-driver=none --cpus ${CPUs} --memory ${MEMORY} \
-  --kubernetes-version=$(curl -L -s https://dl.k8s.io/release/stable.txt) --network-plugin=cni --cni=calico
+  --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME}
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
 fi
 

@@ -25,3 +25,5 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-hub.sh \
     /opt/bin/
 
 COPY selenium-grid-hub.conf /etc/supervisor/conf.d/
+
+ENV SE_OTEL_SERVICE_NAME "selenium-hub"

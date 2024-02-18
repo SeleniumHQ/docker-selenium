@@ -450,11 +450,11 @@ chart_test_autoscaling_deployment_https:
 	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_deployment
 
 chart_test_autoscaling_deployment:
-	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	SE_ENABLE_TRACING=true VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_job_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_job
+	SE_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_job
 
 chart_test_autoscaling_job:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \

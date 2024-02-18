@@ -26,6 +26,7 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
+SE_ENABLE_TRACING=${SE_ENABLE_TRACING:-"false"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -65,6 +66,7 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
 --set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
+--set tracing.enabled=${SE_ENABLE_TRACING} \
 "
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then

@@ -14,6 +14,10 @@ dependencies:
   version: 4.9.0
   name: ingress-nginx
   condition: ingress-nginx.enabled
+- repository: https://jaegertracing.github.io/helm-charts
+  version: 1.0.0
+  name: jaeger
+  condition: tracing.enabled
 maintainers:
   - name: SeleniumHQ
     email: selenium-developers@googlegroups.com

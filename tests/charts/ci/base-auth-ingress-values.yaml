@@ -5,11 +5,10 @@ global:
 
 ingress:
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
-  ingressClassName: nginx
+  className: nginx
   hostname: ""
   paths:
     - path: /selenium(/|$)(.*)

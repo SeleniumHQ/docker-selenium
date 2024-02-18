@@ -33,6 +33,8 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionMap.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
           env:
+            - name: SE_OTEL_SERVICE_NAME
+              value: '{{ template "seleniumGrid.sessionMap.fullname" . }}'
             - name: SE_SESSIONS_HOST
               value: '{{ template "seleniumGrid.sessionMap.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_SESSIONS_PORT

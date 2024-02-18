@@ -29,4 +29,4 @@ ENV SE_RELAX_CHECKS true
 
 EXPOSE 4444
 
-
+ENV SE_OTEL_SERVICE_NAME "selenium-standalone"
