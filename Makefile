@@ -447,16 +447,22 @@ chart_test_edge:
 	./tests/charts/make/chart_test.sh NodeEdge
 
 chart_test_autoscaling_deployment_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_deployment
+	SE_FULL_DISTRIBUTED_MODE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
-	SE_ENABLE_TRACING=true VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	SE_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_job_https:
-	SE_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 make chart_test_autoscaling_job
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
+	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
+	SE_ENABLE_TRACING=true SE_FULL_DISTRIBUTED_MODE=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 

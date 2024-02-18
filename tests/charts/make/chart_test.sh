@@ -27,6 +27,7 @@ CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
 SE_ENABLE_TRACING=${SE_ENABLE_TRACING:-"false"}
+SE_FULL_DISTRIBUTED_MODE=${SE_FULL_DISTRIBUTED_MODE:-"false"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -40,14 +41,17 @@ cleanup() {
 on_failure() {
     local exit_status=$?
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
-    kubectl describe all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+    kubectl describe all -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+    kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     cleanup
     exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
-trap 'on_failure' ERR
+trap 'on_failure' ERR EXIT
+
+touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 if [ -f .env ]
 then
@@ -67,6 +71,7 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
 --set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
 --set tracing.enabled=${SE_ENABLE_TRACING} \
+--set isolateComponents=${SE_FULL_DISTRIBUTED_MODE} \
 "
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
@@ -122,7 +127,7 @@ export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
 echo "Get pods status"
 kubectl get pods -n ${SELENIUM_NAMESPACE}
 
-echo "Get all resources in the ${SELENIUM_NAMESPACE} namespace"
-kubectl get all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+echo "Get all resources in all namespaces"
+kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 cleanup

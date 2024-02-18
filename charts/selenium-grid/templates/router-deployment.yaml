@@ -84,8 +84,8 @@ spec:
         {{- if .Values.components.router.startupProbe.enabled }}
           {{- with .Values.components.router.startupProbe }}
           startupProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -100,8 +100,8 @@ spec:
         {{- if .Values.components.router.readinessProbe.enabled }}
           {{- with .Values.components.router.readinessProbe }}
           readinessProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -116,8 +116,8 @@ spec:
         {{- if .Values.components.router.livenessProbe.enabled }}
           livenessProbe:
           {{- with .Values.components.router.livenessProbe }}
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}

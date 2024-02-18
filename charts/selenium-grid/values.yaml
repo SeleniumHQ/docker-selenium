@@ -105,6 +105,7 @@ nodeConfigMap:
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
     nodePreStop.sh:
+    nodeProbe.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
   # Custom annotations for configmap
@@ -650,11 +651,13 @@ chromeNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
+    exec:
+      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings
@@ -810,11 +813,13 @@ firefoxNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
+    exec:
+      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings
@@ -968,11 +973,13 @@ edgeNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
+    exec:
+      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings

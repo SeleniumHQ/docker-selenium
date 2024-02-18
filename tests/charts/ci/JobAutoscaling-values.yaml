@@ -1,5 +1,3 @@
-isolateComponents: true
-
 autoscaling:
   enableWithExistingKEDA: true
   scalingType: job
