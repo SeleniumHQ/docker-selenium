@@ -1267,7 +1267,7 @@ In order to enable tracing in the Selenium Grid container, the following command
 
 ```bash
 docker network create grid
-docker run -d -p 16686:16686 -p 14250:14250 -p 4317:4317 --net grid --name jaeger jaegertracing/all-in-one:1.54
+docker run -d -p 16686:16686 -p 4317:4317 --net grid --name jaeger jaegertracing/all-in-one:1.54
 docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.17.0-20240123
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \

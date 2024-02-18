@@ -5,8 +5,8 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.33.0
-ARG GRPC_VERSION=1.60.1
+ARG OPENTELEMETRY_VERSION=1.34.1
+ARG GRPC_VERSION=1.61.0
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -119,7 +119,6 @@ RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier 
 
 RUN /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-    io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \
     io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt
 
 RUN chmod 664 /external_jars/.classpath.txt

@@ -637,8 +637,8 @@ In case you want to use your own existing Jaeger instance, you can set the follo
 ```yaml
 tracing:
     enabledWithExistingEndpoint: true
-    exporter: otlp #or jaeger
-    exporterEndpoint: 'http://jaeger.domain.com:4317' #or 'http://jaeger.domain.com:14250'
+    exporter: otlp
+    exporterEndpoint: 'http://jaeger.domain.com:4317'
 ```
 
 ### Configuration of Selenium Grid chart

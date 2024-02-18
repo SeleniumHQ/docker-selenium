@@ -7,7 +7,6 @@ services:
     image: jaegertracing/all-in-one:1.54
     ports:
       - "16686:16686"
-      - "14250:14250"
       - "4317:4317"
   selenium-event-bus:
     image: selenium/event-bus:4.17.0-20240123
@@ -20,8 +19,8 @@ services:
       - jaeger
     environment:
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-sessions:
     image: selenium/sessions:4.17.0-20240123
     container_name: selenium-sessions
@@ -34,8 +33,8 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-session-queue:
     image: selenium/session-queue:4.17.0-20240123
     container_name: selenium-session-queue
@@ -43,8 +42,8 @@ services:
       - "5559:5559"
     environment:
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-distributor:
     image: selenium/distributor:4.17.0-20240123
     container_name: selenium-distributor
@@ -63,8 +62,8 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-router:
     image: selenium/router:4.17.0-20240123
     container_name: selenium-router
@@ -82,8 +81,8 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   chrome:
     image: selenium/node-chrome:4.17.0-20240123
     shm_size: 2gb
@@ -94,8 +93,8 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   edge:
     image: selenium/node-edge:4.17.0-20240123
     shm_size: 2gb
@@ -106,8 +105,8 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   firefox:
     image: selenium/node-firefox:4.17.0-20240123
     shm_size: 2gb
@@ -118,5 +117,5 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp #or jaeger
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 #or http://jaeger:14250
+      - SE_OTEL_TRACES_EXPORTER=otlp
+      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
