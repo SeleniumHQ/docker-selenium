@@ -492,6 +492,24 @@ hub:
   # Priority class name for selenium-hub pods
   priorityClassName: ""
 
+tracing:
+  enabled: false
+  enabledWithExistingEndpoint: false
+  exporter: otlp
+  exporterEndpoint: 'http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317'
+  globalAutoConfigure: true
+  ingress:
+    enabled: true
+    annotations:
+    paths:
+      - backend:
+          service:
+            name: '{{ .Release.Name }}-jaeger-query'
+            port:
+              number: 16686
+        path: &jaegerBasePath "/jaeger"
+        pathType: Prefix
+
 # Keda scaled object configuration
 autoscaling:
   # Enable autoscaling. Implies installing KEDA
@@ -1146,3 +1164,21 @@ ingress-nginx:
   controller:
     admissionWebhooks:
       enabled: false
+
+# Configuration for dependency chart jaeger
+jaeger:
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+    extraEnv:
+      - name: QUERY_BASE_PATH
+        value: *jaegerBasePath
+  storage:
+    type: none
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false

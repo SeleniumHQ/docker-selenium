@@ -140,6 +140,9 @@ ENV SE_BIND_HOST false
 # Boolean value, maps "--reject-unsupported-caps"
 ENV SE_REJECT_UNSUPPORTED_CAPS false
 
+ENV SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED true
+ENV SE_OTEL_TRACES_EXPORTER "otlp"
+
 # A too high maximum number of file descriptors (with the default value
 # inherited from the docker host) can cause issues with some of our tools:
 #  - sanitizers hanging: https://github.com/google/sanitizers/issues/1662

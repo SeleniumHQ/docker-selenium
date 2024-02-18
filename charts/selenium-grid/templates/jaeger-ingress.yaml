@@ -1,0 +1,51 @@
+{{- if and (and .Values.tracing.enabled (not .Values.tracing.enabledWithExistingEndpoint)) .Values.tracing.ingress.enabled }}
+{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-jaeger-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.tracing.ingress.annotations }}
+  annotations:
+    {{- . | toYaml | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if and (or .Values.tls.enabled .Values.tls.ingress.generateTLS) (tpl .Values.ingress.hostname $) (not .Values.ingress.tls) }}
+  tls:
+    - hosts:
+        - {{ tpl .Values.ingress.hostname $ | quote }}
+      secretName: {{ include "seleniumGrid.tls.fullname" . | quote }}
+  {{- else if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ tpl . $ | quote }}
+        {{- end }}
+      secretName: {{ tpl (.secretName) $ | quote }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- if $.Values.ingress.hostname }}
+    - host: {{ tpl $.Values.ingress.hostname $ }}
+      http:
+    {{- else }}
+    - http:
+    {{- end }}
+        paths:
+        {{- with .Values.tracing.ingress.paths }}
+          {{- tpl (toYaml . | nindent 10) $ }}
+        {{- end }}
+{{- end }}

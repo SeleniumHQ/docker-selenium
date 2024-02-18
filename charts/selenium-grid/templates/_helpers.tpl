@@ -111,6 +111,13 @@ Is autoscaling using KEDA enabled
 {{- end -}}
 
 {{/*
+Is tracing enabled
+*/}}
+{{- define "seleniumGrid.enableTracing" -}}
+{{- or .Values.tracing.enabled .Values.tracing.enabledWithExistingEndpoint | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
 Common autoscaling spec template
 */}}
 {{- define "seleniumGrid.autoscalingTemplate" -}}
@@ -190,6 +197,8 @@ template:
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+          - name: SE_OTEL_SERVICE_NAME
+            value: {{ .name | quote }}
           - name: SE_NODE_PORT
             value: {{ .node.port | quote }}
         {{- with .node.extraEnvironmentVariables }}

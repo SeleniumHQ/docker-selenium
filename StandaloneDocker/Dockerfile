@@ -20,3 +20,5 @@ ENV SE_SESSION_REQUEST_TIMEOUT 300
 ENV SE_SESSION_RETRY_INTERVAL 15
 # Boolean value, maps "--relax-checks"
 ENV SE_RELAX_CHECKS true
+
+ENV SE_OTEL_SERVICE_NAME "selenium-standalone-docker"

@@ -21,3 +21,5 @@ COPY selenium-grid-distributor.conf /etc/supervisor/conf.d/
 ENV SE_SESSION_REQUEST_TIMEOUT 300
 # In seconds, maps to "--session-retry-interval"
 ENV SE_SESSION_RETRY_INTERVAL 15
+
+ENV SE_OTEL_SERVICE_NAME "selenium-distributor"

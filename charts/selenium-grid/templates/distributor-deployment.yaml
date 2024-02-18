@@ -33,6 +33,8 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.distributor.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
           env:
+            - name: SE_OTEL_SERVICE_NAME
+              value: '{{ template "seleniumGrid.distributor.fullname" . }}'
             - name: SE_DISTRIBUTOR_HOST
               value: '{{ template "seleniumGrid.distributor.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_DISTRIBUTOR_PORT

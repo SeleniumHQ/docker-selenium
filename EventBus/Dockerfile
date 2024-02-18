@@ -21,3 +21,5 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-eventbus.sh \
     /opt/bin/
 
 COPY selenium-grid-eventbus.conf /etc/supervisor/conf.d/
+
+ENV SE_OTEL_SERVICE_NAME "selenium-event-bus"

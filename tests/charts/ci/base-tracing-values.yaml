@@ -6,10 +6,6 @@ hub:
       value: "5"
     - name: SE_REJECT_UNSUPPORTED_CAPS
       value: "false"
-    - name: SE_ENABLE_TRACING
-      value: "true"
-    - name: SE_JAVA_OPTS
-      value: "-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://{{ .Release.Name }}-jaeger-all-in-one-headless:14250 -Dotel.resource.attributes=service.name=selenium -Dotel.java.global-autoconfigure.enabled=true"
 
 components:
   extraEnvironmentVariables:
@@ -19,7 +15,3 @@ components:
       value: "5"
     - name: SE_REJECT_UNSUPPORTED_CAPS
       value: "false"
-    - name: SE_ENABLE_TRACING
-      value: "true"
-    - name: SE_JAVA_OPTS
-      value: "-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://{{ .Release.Name }}-jaeger-all-in-one-headless:14250 -Dotel.resource.attributes=service.name=selenium -Dotel.java.global-autoconfigure.enabled=true"

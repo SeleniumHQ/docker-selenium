@@ -1267,26 +1267,29 @@ In order to enable tracing in the Selenium Grid container, the following command
 
 ```bash
 docker network create grid
-docker run -d -p 16686:16686 -p 14250:14250 --net grid --name jaeger jaegertracing/all-in-one:1.17
+docker run -d -p 16686:16686 -p 14250:14250 -p 4317:4317 --net grid --name jaeger jaegertracing/all-in-one:1.54
 docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.17.0-20240123
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
-	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-chrome" \
+	-e SE_OTEL_TRACES_EXPORTER=otlp \
+	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-chrome:4.17.0-20240123
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
-	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-edge" \
+	-e SE_OTEL_TRACES_EXPORTER=otlp \
+	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-edge:4.17.0-20240123
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
-	-e JAVA_OPTS="-Dotel.traces.exporter=jaeger -Dotel.exporter.jaeger.endpoint=http://jaegar:14250 -Dotel.resource.attributes=service.name=selenium-node-firefox" \
+	-e SE_OTEL_TRACES_EXPORTER=otlp \
+	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-firefox:4.17.0-20240123
@@ -1298,7 +1301,7 @@ You can also refer to the below docker-compose yaml files to be able to start a 
 * Simple Grid [v2 yaml file](docker-compose-v2-tracing.yml)
 * Dynamic Grid [v3 yaml file](docker-compose-v3-full-grid-tracing.yml)
 
-You can view the [Jaegar UI](http://localhost:16686/) and trace your request.
+You can view the [Jaeger UI](http://localhost:16686/) and trace your request.
 ___
 
 ## Troubleshooting

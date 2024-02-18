@@ -33,6 +33,8 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.router.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.router.imagePullPolicy }}
           env:
+            - name: SE_OTEL_SERVICE_NAME
+              value: '{{ template "seleniumGrid.router.fullname" . }}'
             - name: SE_ROUTER_HOST
               value: '{{ template "seleniumGrid.router.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_ROUTER_PORT
