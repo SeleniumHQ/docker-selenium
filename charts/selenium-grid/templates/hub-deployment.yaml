@@ -45,8 +45,8 @@ spec:
         {{- if .Values.hub.startupProbe.enabled }}
           {{- with .Values.hub.startupProbe }}
           startupProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -61,8 +61,8 @@ spec:
         {{- if .Values.hub.readinessProbe.enabled }}
           {{- with .Values.hub.readinessProbe }}
           readinessProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -77,8 +77,8 @@ spec:
         {{- if .Values.hub.livenessProbe.enabled }}
           {{- with .Values.hub.livenessProbe }}
           livenessProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}

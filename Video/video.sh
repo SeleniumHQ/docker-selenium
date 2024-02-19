@@ -159,7 +159,10 @@ else
   echo Checking if node API responds
   until curl -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status || [[ $attempts = "$max_attempts" ]]
   do
-      echo Waiting before next API check
+      if [ $(($attempts % 60)) -eq 0 ];
+      then
+          echo Waiting before next API check
+      fi
       sleep 0.5
       attempts=$((attempts+1))
   done

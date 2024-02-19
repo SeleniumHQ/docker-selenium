@@ -17,18 +17,20 @@ Probe httpGet schema
 Check user define custom probe method
 */}}
 {{- define "seleniumGrid.probe.fromUserDefine" -}}
+{{- $values := index . "values" -}}
+{{- $root := index . "root" -}}
 {{- $overrideProbe := dict -}}
-{{- with .exec -}}
-{{- $overrideProbe = dict "exec" . -}}
+{{- with $values.exec -}}
+{{- $overrideProbe = dict "exec" (tpl (toYaml .) $root | fromYaml) -}}
 {{- end }}
-{{- with .httpGet -}}
-{{- $overrideProbe = dict "httpGet" . -}}
+{{- with $values.httpGet -}}
+{{- $overrideProbe = dict "httpGet" (tpl (toYaml .) $root | fromYaml) -}}
 {{- end }}
-{{- with .tcpSocket -}}
-{{- $overrideProbe = dict "tcpSocket" . -}}
+{{- with $values.tcpSocket -}}
+{{- $overrideProbe = dict "tcpSocket" (tpl (toYaml .) $root | fromYaml) -}}
 {{- end }}
-{{- with .grpc -}}
-{{- $overrideProbe = dict "grpc" . -}}
+{{- with $values.grpc -}}
+{{- $overrideProbe = dict "grpc" (tpl (toYaml .) $root | fromYaml) -}}
 {{- end -}}
 {{- $overrideProbe | toYaml -}}
 {{- end -}}
@@ -258,8 +260,8 @@ template:
       {{- if .node.startupProbe.enabled }}
       {{- with .node.startupProbe }}
         startupProbe:
-        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -274,8 +276,8 @@ template:
       {{- if .node.readinessProbe.enabled }}
       {{- with .node.readinessProbe }}
         readinessProbe:
-        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 12 }}
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 12 }}
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -290,8 +292,8 @@ template:
       {{- if .node.livenessProbe.enabled }}
       {{- with .node.livenessProbe }}
         livenessProbe:
-        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-          {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+        {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+          {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}

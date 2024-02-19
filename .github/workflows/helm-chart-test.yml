@@ -15,6 +15,9 @@ on:
         description: 'Test parameter for different request timeout'
         required: false
         default: '370'
+      cluster:
+        description: 'Cluster type to test (kind, minikube)'
+        required: false
   schedule:
     - cron: '0 0 * * *'
 
@@ -33,6 +36,8 @@ jobs:
           - job_https
           - deployment
           - deployment_https
+    env:
+      CLUSTER: ${{ github.event.inputs.cluster || 'minikube' }}
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
@@ -63,7 +68,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: make chart_setup_env
+          command: CLUSTER=${CLUSTER} make chart_setup_env
       - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build
@@ -76,7 +81,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+          command: CLUSTER=${CLUSTER} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Build Docker images
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test set custom CA certificate
@@ -96,7 +101,7 @@ jobs:
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_autoscaling_${{ matrix.test-strategy }}
       - name: Cleanup Kubernetes cluster
         if: always()
-        run: make chart_cluster_cleanup
+        run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
       - name: Upload Helm chart package
         if: always()
         uses: actions/upload-artifact@main
