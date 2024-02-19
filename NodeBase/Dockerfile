@@ -195,6 +195,8 @@ ENV SE_NODE_MAX_SESSIONS 1
 ENV SE_NODE_SESSION_TIMEOUT 300
 # As boolean, maps to "override-max-sessions"
 ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
+# As integer, maps to "--heartbeat-period" in seconds
+ENV SE_NODE_HEARTBEAT_PERIOD 30
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null

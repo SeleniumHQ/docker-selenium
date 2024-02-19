@@ -83,7 +83,6 @@ fi
 
 HELM_COMMAND_SET_BASE_VALUES=" \
 --values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
---values ${TEST_VALUES_PATH}/base-tracing-values.yaml \
 --values ${RECORDER_VALUES_FILE} \
 --values ${TEST_VALUES_PATH}/base-resources-values.yaml \
 "

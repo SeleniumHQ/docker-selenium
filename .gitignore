@@ -2,6 +2,7 @@ tmp/
 *_image/
 node_modules/
 .idea/
+*.iml
 # Sed backup files.
 *-e
 # Vim swap files.

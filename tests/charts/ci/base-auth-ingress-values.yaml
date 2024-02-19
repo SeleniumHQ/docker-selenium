@@ -26,9 +26,19 @@ isolateComponents: true
 
 hub:
   subPath: *gridAppRoot
+  extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_SESSION_REQUEST_TIMEOUT
+      value: "800"
+    - name: SE_SESSION_RETRY_INTERVAL
+      value: "5"
+    - name: SE_REJECT_UNSUPPORTED_CAPS
+      value: "false"
+    - name: SE_OPTS
+      value: "--max-threads 12"
 
 components:
   subPath: *gridAppRoot
+  extraEnvironmentVariables: *extraEnvironmentVariables
 
 ingress-nginx:
   enabled: true

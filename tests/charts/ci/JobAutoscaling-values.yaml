@@ -23,6 +23,10 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
+    - name: SE_NODE_REGISTER_PERIOD
+      value: "800"
+    - name: SE_NODE_REGISTER_CYCLE
+      value: "3"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:
