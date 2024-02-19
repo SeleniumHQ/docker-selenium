@@ -29,9 +29,11 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
       * [Secure Communication](#secure-communication)
       * [Node Registration](#node-registration)
+    * [Configuration of tracing observability](#configuration-of-tracing-observability)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
     * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
+    * [Configuration of Jaeger](#configuration-of-jaeger)
     * [Configuration for Selenium-Hub](#configuration-for-selenium-hub)
     * [Configuration for isolated components](#configuration-for-isolated-components)
 <!-- TOC -->
@@ -204,7 +206,7 @@ helm uninstall selenium-grid
 
 By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see [#1808](https://github.com/SeleniumHQ/docker-selenium/issues/1808)). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
 
-In order to make user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
+To make the user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
 
 If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=null`) or via an override-values.yaml as below:
 
@@ -248,7 +250,7 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 nginx.ingress.kubernetes.io/proxy-buffers-number
 ```
 
-You can generate a dummy self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
+You can generate a test double self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
 
 ```yaml
 tls:
@@ -338,7 +340,7 @@ chromeNode:
         targetPort: 7900
         # NodePort will be assigned randomly if not set
 edgeNode:
-  ports: # You also can give object following manifest of container ports
+  ports: # You also can give objects following manifest of container ports
     - containerPort: 5900
       name: vnc
       protocol: TCP
@@ -366,7 +368,7 @@ Other settings of probe support to override under `.startupProbe` `.readinessPro
     successThreshold
 ```
 
-You can easily configure the probes (as Kubernetes [supports](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)) to override the default settings. For example:
+You can configure the probes (as Kubernetes [supports](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)) to override the default settings. For example:
 
 ```yaml
 edgeNode:
@@ -429,7 +431,7 @@ Files in `.extraScripts` will be mounted to the container with the same name wit
 
 #### Video recorder
 
-The video recorder is a sidecar that is deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
+The video recorder is a sidecar deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
 
 ```yaml
 videoRecorder:
@@ -445,7 +447,6 @@ from selenium import webdriver
 options = ChromeOptions()
 options.set_capability('se:recordVideo', False)
 driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
-)
 ```
 
 In Node will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
@@ -509,9 +510,9 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_ENDPOINT: "https://storage.googleapis.com"
 ```
 
-Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `upload.conf` will take precedence.
+Those two ways are equivalent. You can choose one of them or combine them. When both config file and ENV vars are set, value in `upload.conf` will take precedence.
 
-Beside the configuration, the script for entry point of uploader container also needed. You can override the script via `--set-file uploaderConfigMap.extraScripts.upload\.sh=/path/to/your_script.sh` or set via YAML values. For example:
+Besides the configuration, the script for entry point of uploader container also needed. You can override the script via `--set-file uploaderConfigMap.extraScripts.upload\.sh=/path/to/your_script.sh` or set via YAML values. For example:
 
 ```yaml
 uploaderConfigMap:
@@ -555,7 +556,7 @@ Selenium Grid supports secure communication between components. Refer to the [in
 
 In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
 
-There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them together.
+There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them.
 
 - Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
 
@@ -608,7 +609,7 @@ ingress-nginx:
 
 #### Node Registration
 
-In order to enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
+To enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
 Node servers in config `tls.registrationSecret`. For example:
 
 ```yaml

@@ -15,9 +15,6 @@ on:
         description: 'Test parameter for different request timeout'
         required: false
         default: '370'
-      cluster:
-        description: 'Cluster type to test (kind, minikube)'
-        required: false
   schedule:
     - cron: '0 0 * * *'
 
@@ -26,18 +23,31 @@ permissions:
 
 jobs:
   build-and-test:
-    name: Build & test
+    name: Test K8s
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        test-strategy:
-          - job
-          - job_https
-          - deployment
-          - deployment_https
+        include:
+          - k8s-version: 'v1.25.16'
+            test-strategy: job
+            cluster: 'kind'
+          - k8s-version: 'v1.26.14'
+            test-strategy: deployment
+            cluster: 'kind'
+          - k8s-version: 'v1.27.11'
+            test-strategy: job_https
+            cluster: 'kind'
+          - k8s-version: 'v1.28.7'
+            test-strategy: job
+            cluster: 'minikube'
+          - k8s-version: 'v1.29.2'
+            test-strategy: deployment_https
+            cluster: 'minikube'
     env:
-      CLUSTER: ${{ github.event.inputs.cluster || 'minikube' }}
+      CLUSTER: ${{ matrix.cluster }}
+      KUBERNETES_VERSION: ${{ matrix.k8s-version }}
+      ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
@@ -74,16 +84,16 @@ jobs:
           BUILD_DATE=${BUILD_DATE} make chart_build
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
-      - name: Test chart template
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_template
+      - name: Build Docker images
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Setup Kubernetes cluster
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: CLUSTER=${CLUSTER} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
-      - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+          command: CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      - name: Test chart template
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_template
       - name: Test set custom CA certificate
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_custom_ca_cert
       - name: Set test parameters
@@ -92,7 +102,7 @@ jobs:
           echo "AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL}" >> $GITHUB_ENV
         env:
           AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '370' }}
-      - name: Test Selenium Grid on Kubernetes (Autoscaling ${{ matrix.test-strategy }})
+      - name: Test Selenium Grid on Kubernetes ${{ matrix.k8s-version }} with Autoscaling ${{ matrix.test-strategy }}
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 30
@@ -106,12 +116,12 @@ jobs:
         if: always()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.test-strategy }}_${{ env.CHART_FILE_NAME }}
+          name: ${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
       - name: Upload chart test artifacts
         if: always()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.test-strategy }}-artifacts
+          name: ${{ env.ARTIFACT_NAME }}-artifacts
           path: ./tests/tests/
           if-no-files-found: ignore

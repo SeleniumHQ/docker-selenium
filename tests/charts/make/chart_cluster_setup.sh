@@ -50,7 +50,7 @@ fi
 
 if [ "${CLUSTER}" = "kind" ]; then
   echo "Start Kind cluster"
-  kind create cluster --wait ${WAIT_TIMEOUT} --name ${CLUSTER_NAME} --config tests/charts/config/kind-cluster.yaml
+  kind create cluster --image kindest/node:${KUBERNETES_VERSION} --wait ${WAIT_TIMEOUT} --name ${CLUSTER_NAME} --config tests/charts/config/kind-cluster.yaml
 elif [ "${CLUSTER}" = "minikube" ]; then
   echo "Start Minikube cluster"
   sudo chmod 777 /tmp
