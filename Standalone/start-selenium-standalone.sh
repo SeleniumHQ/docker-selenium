@@ -116,6 +116,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   ${EXTRA_LIBS} standalone \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
+  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
   --bind-host ${SE_BIND_HOST} \
   --config /opt/selenium/config.toml \
   ${SUB_PATH_CONFIG} \

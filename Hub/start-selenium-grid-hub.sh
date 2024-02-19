@@ -99,6 +99,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   ${EXTRA_LIBS} hub \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
+  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
   --relax-checks ${SE_RELAX_CHECKS} \
   --bind-host ${SE_BIND_HOST} \
   --config /opt/selenium/config.toml \

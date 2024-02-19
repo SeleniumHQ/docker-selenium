@@ -31,6 +31,8 @@ hub:
       value: "800"
     - name: SE_SESSION_RETRY_INTERVAL
       value: "5"
+    - name: SE_HEALTHCHECK_INTERVAL
+      value: "5"
     - name: SE_REJECT_UNSUPPORTED_CAPS
       value: "false"
     - name: SE_OPTS
