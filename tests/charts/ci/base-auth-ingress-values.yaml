@@ -1,5 +1,4 @@
 global:
-  K8S_PUBLIC_IP: localhost
   seleniumGrid:
     logLevel: INFO
 

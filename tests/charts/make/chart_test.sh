@@ -28,6 +28,8 @@ SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
 SE_ENABLE_TRACING=${SE_ENABLE_TRACING:-"false"}
 SE_FULL_DISTRIBUTED_MODE=${SE_FULL_DISTRIBUTED_MODE:-"false"}
+HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.local"}
+SE_ENABLE_INGRESS_HOSTNAME=${SE_ENABLE_INGRESS_HOSTNAME:-"false"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -73,6 +75,21 @@ HELM_COMMAND_SET_IMAGES=" \
 --set tracing.enabled=${SE_ENABLE_TRACING} \
 --set isolateComponents=${SE_FULL_DISTRIBUTED_MODE} \
 "
+
+if [ "${SE_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
+  if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
+    sudo -- sh -c -e "echo \"$(hostname -i) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+  fi
+  ping -c 2 ${HOSTNAME_ADDRESS}
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress.hostname=${HOSTNAME_ADDRESS} \
+  "
+  SELENIUM_GRID_HOST=${HOSTNAME_ADDRESS}
+else
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set global.K8S_PUBLIC_IP=${SELENIUM_GRID_HOST} \
+  "
+fi
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_AUTOSCALING=" \

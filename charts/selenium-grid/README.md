@@ -71,7 +71,9 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 # In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 # Verify ingress configuration via kubectl get ingress
+
 # Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
+sudo -- sh -c -e "echo \"$(hostname -i) selenium-grid.local\" >> /etc/hosts"
 ```
 
 ### Installing the Nightly chart

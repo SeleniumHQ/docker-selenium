@@ -14,7 +14,7 @@ All related testing to this helm chart will be documented in this file.
 |                        | Auto scaling with `autoscaling.scaledOptions.minReplicaCount` is `0` | &check;  | Cluster  |
 |                        | Parallel tests execution against node autoscaling                    | &check;  | Cluster  |
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  | Cluster  |
-|                        | Ingress is enabled with `hostname` is set                            | &cross;  |          |
+|                        | Ingress is enabled with `hostname` is set                            | &check;  | Cluster  |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  | Cluster  |
 |                        | `ingress.nginx` configs for NGINX ingress controller annotations     | &check;  | Template |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |

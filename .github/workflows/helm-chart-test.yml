@@ -39,7 +39,7 @@ jobs:
             test-strategy: job_https
             cluster: 'kind'
           - k8s-version: 'v1.28.7'
-            test-strategy: job
+            test-strategy: job_hostname
             cluster: 'minikube'
           - k8s-version: 'v1.29.2'
             test-strategy: deployment_https
