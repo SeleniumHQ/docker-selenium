@@ -32,6 +32,26 @@ All related testing to this helm chart will be documented in this file.
 |                        | Extra ports can be exposed on Service via `.service.ports`           | &check;  | Cluster  |
 |                        | Service type change to `NodePort`, specific NodePort can be set      | &check;  | Cluster  |
 
+## CI Test Traceability Matrix
+
+We have a CI pipeline to test the Helm chart with the following test cases.
+
+| Matrix                    | job      | deployment | job_https | job_hostname | deployment_https |
+|---------------------------|----------|------------|-----------|--------------|------------------|
+| Cluster                   | Kind     | Kind       | Kind      | Minikube     | Minikube         |
+| Kubernetes version        | v1.25.16 | v1.26.14   | v1.27.11  | v1.28.7      | v1.29.2          |
+| Autoscaling               | x        | x          | x         | x            | x                |
+| Scaling type `deployment` |          | x          |           |              | x                |
+| Scaling type `job`        | x        |            | x         | x            |                  |
+| Full distributed mode     | x        |            |           |              | x                |
+| Enable basic auth         |          | x          |           | x            | x                |
+| Ingress `hostname`        | x        |            |           | x            | x                |
+| Ingress `K8S_PUBLIC_IP`   |          | x          | x         |              |                  |
+| HTTPS `tls.enabled`       |          |            | x         |              | x                |
+| Enable tracing            | x        | x          |           | x            |                  |
+| Enable video recorder     | x        | x          | x         | x            | x                |
+| Test headless             |          | x          | x         |              |                  |
+
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.
 - Templates are rendered and the output as a YAML manifest file. The manifest file is then asserted with [pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation).

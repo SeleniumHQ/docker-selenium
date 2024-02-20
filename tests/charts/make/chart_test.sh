@@ -26,10 +26,10 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
-SE_ENABLE_TRACING=${SE_ENABLE_TRACING:-"false"}
-SE_FULL_DISTRIBUTED_MODE=${SE_FULL_DISTRIBUTED_MODE:-"false"}
+CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
+CHART_FULL_DISTRIBUTED_MODE=${CHART_FULL_DISTRIBUTED_MODE:-"false"}
 HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.local"}
-SE_ENABLE_INGRESS_HOSTNAME=${SE_ENABLE_INGRESS_HOSTNAME:-"false"}
+CHART_ENABLE_INGRESS_HOSTNAME=${CHART_ENABLE_INGRESS_HOSTNAME:-"false"}
 CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
 BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
 BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
@@ -75,11 +75,11 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
 --set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
---set tracing.enabled=${SE_ENABLE_TRACING} \
---set isolateComponents=${SE_FULL_DISTRIBUTED_MODE} \
+--set tracing.enabled=${CHART_ENABLE_TRACING} \
+--set isolateComponents=${CHART_FULL_DISTRIBUTED_MODE} \
 "
 
-if [ "${SE_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
+if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
   if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
     sudo -- sh -c -e "echo \"$(hostname -i) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi

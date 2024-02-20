@@ -447,12 +447,12 @@ chart_test_edge:
 	./tests/charts/make/chart_test.sh NodeEdge
 
 chart_test_autoscaling_deployment_https:
-	SE_FULL_DISTRIBUTED_MODE=true SE_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
+	CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true CHART_ENABLE_BASIC_AUTH=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
-	SE_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_HOST=$$(hostname -i) \
+	CHART_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_HOST=$$(hostname -i) \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
@@ -462,12 +462,12 @@ chart_test_autoscaling_job_https:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job_hostname:
-	SE_ENABLE_TRACING=true SE_ENABLE_INGRESS_HOSTNAME=true CHART_ENABLE_BASIC_AUTH=true \
+	CHART_ENABLE_TRACING=true CHART_ENABLE_INGRESS_HOSTNAME=true CHART_ENABLE_BASIC_AUTH=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	SE_ENABLE_TRACING=true SE_FULL_DISTRIBUTED_MODE=true SE_ENABLE_INGRESS_HOSTNAME=true \
+	CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
