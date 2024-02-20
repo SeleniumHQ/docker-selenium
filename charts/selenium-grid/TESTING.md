@@ -7,7 +7,7 @@ All related testing to this helm chart will be documented in this file.
 | Features               | TC Description                                                       | Coverage | Test via |
 |------------------------|----------------------------------------------------------------------|----------|----------|
 | Basic Auth             | Basic Auth is disabled                                               | &check;  | Cluster  |
-|                        | Basic Auth is enabled                                                | &cross;  |          |
+|                        | Basic Auth is enabled                                                | &check;  | Cluster  |
 | Auto scaling           | Auto scaling with `enableWithExistingKEDA` is `true`                 | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `job`                             | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `deployment`                      | &check;  | Cluster  |
@@ -21,7 +21,7 @@ All related testing to this helm chart will be documented in this file.
 |                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  | Cluster  |
 |                        | Sanity tests in node                                                 | &check;  | Cluster  |
-|                        | Video recorder is enabled in node                                    | &cross;  |          |
+|                        | Video recorder is enabled in node                                    | &check;  | Cluster  |
 |                        | Node `extraEnvironmentVariables` is set value                        | &check;  | Cluster  |
 | General                | Set new image registry via `global.seleniumGrid.imageRegistry`       | &check;  | Cluster  |
 |                        | Components are able to set `.affinity`                               | &check;  | Template |

@@ -3,14 +3,14 @@ import unittest
 import time
 import json
 from ssl import _create_unverified_context
-try:
-    from urllib2 import urlopen
-except ImportError:
-    from urllib.request import urlopen
+import requests
+from requests.auth import HTTPBasicAuth
 
 SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
+SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', '')
+SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', '')
 SELENIUM_GRID_AUTOSCALING = os.environ.get('SELENIUM_GRID_AUTOSCALING', 'false')
 SELENIUM_GRID_AUTOSCALING_MIN_REPLICA = os.environ.get('SELENIUM_GRID_AUTOSCALING_MIN_REPLICA', 0)
 HUB_CHECKS_MAX_ATTEMPTS = os.environ.get('HUB_CHECKS_MAX_ATTEMPTS', 3)
@@ -29,8 +29,12 @@ class SmokeTests(unittest.TestCase):
         while current_attempts < max_attempts:
             current_attempts = current_attempts + 1
             try:
-                response = urlopen('%s://%s:%s/status' % (SELENIUM_GRID_PROTOCOL, SELENIUM_GRID_HOST, port), context=_create_unverified_context())
-                status_json = json.loads(response.read())
+                grid_url_status = '%s://%s:%s/status' % (SELENIUM_GRID_PROTOCOL, SELENIUM_GRID_HOST, port)
+                if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
+                    response = requests.get(grid_url_status, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD))
+                else:
+                    response = requests.get(grid_url_status)
+                status_json = response.json()
                 if not auto_scaling or (auto_scaling and auto_scaling_min_replica > 0):
                     self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
                 else:
