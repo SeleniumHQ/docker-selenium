@@ -47,14 +47,17 @@ function signal_node_to_drain() {
 
 function replace_localhost_by_service_name() {
   internal="${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}"
+  echo "SE_NODE_GRID_URL: ${SE_NODE_GRID_URL}"
   if [[ "${SE_NODE_GRID_URL}" == *"/localhost"* ]]; then
       SE_GRID_URL=${SE_NODE_GRID_URL//localhost/${internal}}
   elif [[ "${SE_NODE_GRID_URL}" == *"/127.0.0.1"* ]]; then
       SE_GRID_URL=${SE_NODE_GRID_URL//127.0.0.1/${internal}}
   elif [[ "${SE_NODE_GRID_URL}" == *"/0.0.0.0"* ]]; then
       SE_GRID_URL=${SE_NODE_GRID_URL//0.0.0.0/${internal}}
+  else
+      SE_GRID_URL=${SE_NODE_GRID_URL}
   fi
-  echo "SE_GRID_URL: ${SE_GRID_URL}"
+  echo "Set SE_GRID_URL internally: ${SE_GRID_URL}"
 }
 replace_localhost_by_service_name
 
