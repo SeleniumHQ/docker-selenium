@@ -1,3 +1,29 @@
+## :heavy_check_mark: selenium-grid-0.28.0
+
+- Chart is using image tag 4.18.0-20240220
+Chart is tested on Kubernetes versions: v1.25.16,v1.26.14,v1.27.11,v1.28.7,v1.29.2,
+
+### Added
+- feat: enable tracing observability in docker-compose and helm chart (#2137) :: Viet Nguyen Duc
+- feat: video upload supports both docker-compose and helm chart (#2131) :: Viet Nguyen Duc
+- feat(chart): set components host & port point to its service :: Viet Nguyen Duc
+- feat: non-root user for video recorder (#2122) :: Viet Nguyen Duc
+- feat(chart): Log Node preStop exec to console :: Viet Nguyen Duc
+- feat(chart): delete file after upload (#2117) :: Doofus100500
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+- Release 4.18.0 :: Viet Nguyen Duc
+- test(chart): CI tests run against different Kubernetes version :: Viet Nguyen Duc
+- update(tracing): Use OTLP exporter instead of Jaeger specific :: Viet Nguyen Duc
+- update(chart): Node preStop and startupProbe in autoscaling Deployment (#2139) :: Viet Nguyen Duc
+- update(chart): objects name convention with prefix is chart RELEASENAME (#2134) :: Viet Nguyen Duc
+- [🚀 Feature]: Update objects name convention with prefix is Chart RELEASENAME #2109 (#2120) :: Bas M
+- update(chart): Make var RECORD_VIDEO lowercase before comparison (#2128) :: Doofus100500
+- test(chart): parallel with autoscalingType deployment & job :: Viet Nguyen Duc
+- docs(chart): point shielding in README (#2116) :: Doofus100500
+- Update chart CHANGELOG [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.27.0
 
 - Chart is using image tag 4.17.0-20240123
