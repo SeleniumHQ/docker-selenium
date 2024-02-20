@@ -51,6 +51,16 @@ if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
   SE_OPTS="$SE_OPTS --register-period ${SE_NODE_REGISTER_PERIOD}"
 fi
 
+if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
+  echo "Appending Selenium options: --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+  SE_OPTS="$SE_OPTS --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+fi
+
+if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
+  echo "Appending Selenium options: --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+  SE_OPTS="$SE_OPTS --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
 if [ ! -z "$SE_LOG_LEVEL" ]; then
   echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"

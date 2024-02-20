@@ -130,6 +130,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_SUBSCRIBE_PORT}" \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
+  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
   --bind-host ${SE_BIND_HOST} \
   --bind-bus false \
   ${HOST_CONFIG} \
