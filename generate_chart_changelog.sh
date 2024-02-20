@@ -15,25 +15,24 @@ generate_changelog() {
     tags=($(git tag --sort=committerdate | grep "^$TAG_PATTERN"))
     tags_size=${#tags[@]}
 
+    CURRENT_CHART_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+
     # Check if there are tags
     if [ ${#tags[@]} -eq 0 ]; then
         commit_range="HEAD"
-    elif [ ${#tags[@]} -eq 1 ]; then
+        change_title="${TAG_PATTERN}-${CURRENT_CHART_VERSION}"
+    elif [ ${#tags[@]} -eq 1 ] || [ "$SET_TAG" = "HEAD" ]; then
         previous_tag="${tags[$tags_size-1]}"
         current_tag="HEAD"
         commit_range="${previous_tag}..${current_tag}"
+        change_title="${TAG_PATTERN}-${CURRENT_CHART_VERSION}"
     else
         previous_tag="${tags[$tags_size-2]}"
         current_tag="${tags[$tags_size-1]}"
         commit_range="${previous_tag}..${current_tag}"
+        change_title="$current_tag"
     fi
 
-    change_title=$current_tag
-    if [ "$SET_TAG" = "HEAD" ]; then
-        current_tag="${SET_TAG}"
-        CURRENT_CHART_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
-        change_title="${TAG_PATTERN}-${CURRENT_CHART_VERSION}"
-    fi
     echo "Generating changelog for ${change_title}"
 
     # Get the changes for each section (Added, Removed, Fixed, Changed)

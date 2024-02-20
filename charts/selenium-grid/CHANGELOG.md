@@ -1,7 +1,7 @@
 ## :heavy_check_mark: selenium-grid-0.28.0
 
 - Chart is using image tag 4.18.0-20240220
-Chart is tested on Kubernetes versions: v1.25.16,v1.26.14,v1.27.11,v1.28.7,v1.29.2,
+- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2
 
 ### Added
 - feat: enable tracing observability in docker-compose and helm chart (#2137) :: Viet Nguyen Duc
