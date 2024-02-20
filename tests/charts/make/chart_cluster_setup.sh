@@ -56,7 +56,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   sudo chmod 777 /tmp
   export CHANGE_MINIKUBE_NONE_USER=true
   sudo -SE minikube start --vm-driver=none --cpus ${CPUs} --memory ${MEMORY} \
-  --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME}
+  --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME} --wait=all
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
 fi
 
@@ -70,3 +70,6 @@ if [ "${CLUSTER}" = "kind" ]; then
       kind load docker-image --name ${CLUSTER_NAME} "$image"
   done
 fi
+
+echo "Wait for KEDA core to be ready"
+kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s

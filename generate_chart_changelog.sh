@@ -29,6 +29,7 @@ generate_changelog() {
 
     # Get the changes for each section (Added, Removed, Fixed, Changed)
     image_tag_changes=$(echo "Chart is using image tag $CHART_APP_VERSION" | sed -e 's/^/- /')
+    k8s_versions_tested=$(echo "Chart is tested on Kubernetes versions: $(cat .github/workflows/helm-chart-test.yml | grep -oP "k8s-version: '\Kv.*(?=')" | tr '\n' ',')")
     added_changes=$(git log --pretty=format:"%s :: %an" "$commit_range" -- "$CHART_DIR" | grep -iE "^feat|^add" | sed -e 's/^/- /')
     removed_changes=$(git log --pretty=format:"%s :: %an" "$commit_range" -- "$CHART_DIR" | grep -iE "^remove|^deprecate|^delete" | sed -e 's/^/- /')
     fixed_changes=$(git log --pretty=format:"%s :: %an" "$commit_range" -- "$CHART_DIR" | grep -iE "^fix|^bug" | sed -e 's/^/- /')
@@ -46,6 +47,7 @@ generate_changelog() {
     echo "## :heavy_check_mark: ${current_tag}" >> "$temp_file"
     echo "" >> "$temp_file"
     echo "$image_tag_changes" >> "$temp_file"
+    echo "$k8s_versions_tested" >> "$temp_file"
     echo "" >> "$temp_file"
 
     if [ -n "$added_changes" ]; then

@@ -5,7 +5,7 @@
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:nightly
+    image: selenium/node-chrome:4.17.0-20240123
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -15,7 +15,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:nightly
+    image: selenium/node-edge:4.17.0-20240123
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -25,7 +25,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:nightly
+    image: selenium/node-firefox:4.17.0-20240123
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -35,7 +35,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:nightly
+    image: selenium/video:ffmpeg-6.1-20240123
     depends_on:
       - chrome
     environment:
@@ -55,7 +55,7 @@ services:
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
 
   edge_video:
-    image: selenium/video:nightly
+    image: selenium/video:ffmpeg-6.1-20240123
     depends_on:
       - edge
     environment:
@@ -75,7 +75,7 @@ services:
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
 
   firefox_video:
-    image: selenium/video:nightly
+    image: selenium/video:ffmpeg-6.1-20240123
     depends_on:
       - firefox
     environment:
@@ -95,7 +95,7 @@ services:
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
 
   selenium-hub:
-    image: selenium/hub:nightly
+    image: selenium/hub:4.17.0-20240123
     container_name: selenium-hub
     ports:
       - "4442:4442"

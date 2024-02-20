@@ -109,6 +109,8 @@ helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_mani
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
 
+kubectl get pods -A
+
 echo "Run Tests"
 export CHART_CERT_PATH=$(readlink -f ${CHART_CERT_PATH})
 export SELENIUM_GRID_PROTOCOL=${SELENIUM_GRID_PROTOCOL}

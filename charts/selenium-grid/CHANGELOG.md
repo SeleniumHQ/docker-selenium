@@ -3,7 +3,7 @@
 - Chart is using image tag 4.17.0-20240123
 
 ### Added
-- feat(chart): templating in name(Override) for new object [deploy] Signed-off-by: Viet Nguyen Duc <nguyenducviet4496@gmail.com> :: Viet Nguyen Duc
+- feat(chart): templating in name(Override) for new object [deploy] :: Viet Nguyen Duc
 - feat(chart): templating in name(Override) (#2107) :: Bas M
 - feat(chart): Add node registration secret to exec preStop container Update default scalingStrategy.strategy: accurate [skip ci] :: Viet Nguyen Duc
 - feat(chart): Configuration extra scripts mount to container (#2105) :: Viet Nguyen Duc
