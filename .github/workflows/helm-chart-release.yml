@@ -25,6 +25,9 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      - name: Get chart release notes (chart_release_notes.md)
+        run: ./generate_chart_changelog.sh HEAD
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@main
         with:
@@ -32,3 +35,4 @@ jobs:
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NOTES_FILE: RELEASE_NOTES.md

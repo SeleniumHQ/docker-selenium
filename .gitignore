@@ -151,3 +151,4 @@ ENV/
 /charts/*/charts
 /charts/*/**.lock
 /charts/*.tgz
+/charts/*/RELEASE_NOTES.md
