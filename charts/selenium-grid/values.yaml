@@ -16,6 +16,9 @@ global:
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
     logLevel: INFO
+    # Set default startup probe for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
+    # startup probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
+    defaultNodeStartupProbe: exec
 
 tls:
   enabled: false
@@ -651,8 +654,6 @@ chromeNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
-    exec:
-      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5
@@ -813,8 +814,6 @@ firefoxNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
-    exec:
-      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5
@@ -973,8 +972,6 @@ edgeNode:
   # Wait for pod startup
   startupProbe:
     enabled: true
-    exec:
-      command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5

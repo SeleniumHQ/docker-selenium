@@ -274,17 +274,18 @@ ingress-nginx:
 ### Configuration global
 For now, global configuration supported is:
 
-| Parameter                             | Default               | Description                            |
-|---------------------------------------|-----------------------|----------------------------------------|
-| `global.K8S_PUBLIC_IP`                | `""`                  | Public IP of the host running K8s      |
-| `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images   |
-| `global.seleniumGrid.imageTag`        | `4.18.0-20240220`     | Image tag for all selenium components  |
-| `global.seleniumGrid.nodesImageTag`   | `4.18.0-20240220`     | Image tag for browser's nodes          |
-| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.1-20240220` | Image tag for browser's video recorder |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally             |
-| `global.seleniumGrid.logLevel`        | `INFO`                | Set log level for all components       |
+| Parameter                                     | Default               | Description                            |
+|-----------------------------------------------|-----------------------|----------------------------------------|
+| `global.K8S_PUBLIC_IP`                        | `""`                  | Public IP of the host running K8s      |
+| `global.seleniumGrid.imageRegistry`           | `selenium`            | Distribution registry to pull images   |
+| `global.seleniumGrid.imageTag`                | `4.18.0-20240220`     | Image tag for all selenium components  |
+| `global.seleniumGrid.nodesImageTag`           | `4.18.0-20240220`     | Image tag for browser's nodes          |
+| `global.seleniumGrid.videoImageTag`           | `ffmpeg-6.1-20240220` | Image tag for browser's video recorder |
+| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.affinity`                | `{}`                  | Affinity assigned globally             |
+| `global.seleniumGrid.logLevel`                | `INFO`                | Set log level for all components       |
+| `global.seleniumGrid.defaultNodeStartupProbe` | `exec`                | Default startup probe method in Nodes  |
 
 #### Configuration `global.K8S_PUBLIC_IP`
 

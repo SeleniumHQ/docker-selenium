@@ -262,6 +262,9 @@ template:
         startupProbe:
         {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
           {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
+        {{- else if eq $.Values.global.seleniumGrid.defaultNodeStartupProbe "exec" }}
+          exec:
+            command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
