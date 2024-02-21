@@ -1,0 +1,104 @@
+components:
+  router:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 2500Mi
+  distributor:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 2500Mi
+  eventBus:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 2500Mi
+  sessionMap:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+  sessionQueue:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+
+hub:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 2500Mi
+
+chromeNode:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 2500Mi
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    timeoutSeconds: 400
+    failureThreshold: 80
+    successThreshold: 1
+
+firefoxNode:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 2500Mi
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    timeoutSeconds: 400
+    failureThreshold: 80
+    successThreshold: 1
+
+edgeNode:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 2500Mi
+  startupProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 5
+    timeoutSeconds: 400
+    failureThreshold: 80
+    successThreshold: 1
+
+videoRecorder:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi

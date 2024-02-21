@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "seleniumGrid.uploader.fullname" $ }}
+  name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.uploaderConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}
@@ -13,8 +13,12 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
-  UPLOAD_CONFIG_DIRECTORY: '{{ .Values.uploaderConfigMap.extraScriptsDirectory }}'
-  UPLOAD_CONFIG_FILE_NAME: '{{ .Values.videoRecorder.uploader.configFileName }}'
+{{- with .Values.uploaderConfigMap.extraScriptsDirectory }}
+  UPLOAD_CONFIG_DIRECTORY: '{{ . }}'
+{{- end }}
+{{- with .Values.videoRecorder.uploader.configFileName }}
+  UPLOAD_CONFIG_FILE_NAME: '{{ . }}'
+{{- end }}
 {{- range $fileName, $value := .Values.uploaderConfigMap.extraScripts }}
 {{- if not (empty $value) }}
 {{ $fileName | indent 2 -}}: |

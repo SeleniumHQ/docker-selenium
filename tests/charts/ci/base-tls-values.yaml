@@ -1,0 +1,6 @@
+tls:
+  enabled: true
+  generateTLS: false
+  registrationSecret:
+    enabled: true
+    value: "HappyTestOps"

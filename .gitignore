@@ -2,6 +2,7 @@ tmp/
 *_image/
 node_modules/
 .idea/
+*.iml
 # Sed backup files.
 *-e
 # Vim swap files.
@@ -150,3 +151,4 @@ ENV/
 /charts/*/charts
 /charts/*/**.lock
 /charts/*.tgz
+/charts/*/RELEASE_NOTES.md

@@ -1,10 +1,4 @@
-# FROM ubuntu:focal-20210416
-#FROM ubuntu:focal-20210827
-#FROM ubuntu:focal-20211006
-#FROM ubuntu:focal-20220302
-#FROM ubuntu:focal-20220415
-#FROM ubuntu:focal-20220531
-#FROM ubuntu:focal-20230301
+#FROM ubuntu:jammy-20240125
 FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
@@ -12,8 +6,8 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.33.0
-ARG GRPC_VERSION=1.60.1
+ARG OPENTELEMETRY_VERSION=1.34.1
+ARG GRPC_VERSION=1.61.0
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -118,7 +112,8 @@ COPY supervisord.conf /etc
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} ${HOME}/.mozilla ${HOME}/.vnc \
+RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
+    ${HOME}/.mozilla ${HOME}/.vnc $HOME/.pki/nssdb \
   && touch /opt/selenium/config.toml \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
@@ -145,8 +140,7 @@ RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
 RUN if [ -f "/tmp/cs" ]; then \
     /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-    io.opentelemetry:opentelemetry-exporter-jaeger:${OPENTELEMETRY_VERSION} \
-    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt ; \
+    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt; \
     fi
 
 RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
@@ -156,10 +150,19 @@ RUN rm -fr /root/.cache/*
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
-VOLUME ${SEL_DOWNLOAD_DIR}
+
+#==========
+# NSSDB initialization with an empty password
+#==========
+RUN certutil -d sql:$HOME/.pki/nssdb -N --empty-password
 
 # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST false
+# Boolean value, maps "--reject-unsupported-caps"
+ENV SE_REJECT_UNSUPPORTED_CAPS false
+
+ENV SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED true
+ENV SE_OTEL_TRACES_EXPORTER "otlp"
 
 # A too high maximum number of file descriptors (with the default value
 # inherited from the docker host) can cause issues with some of our tools:

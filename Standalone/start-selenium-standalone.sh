@@ -11,6 +11,31 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
+  echo "Appending Selenium options: --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+  SE_OPTS="$SE_OPTS --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+fi
+
+if [ ! -z "$SE_NODE_ENABLE_CDP" ]; then
+  echo "Appending Selenium options: --enable-cdp ${SE_NODE_ENABLE_CDP}"
+  SE_OPTS="$SE_OPTS --enable-cdp ${SE_NODE_ENABLE_CDP}"
+fi
+
+if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
+  echo "Appending Selenium options: --register-period ${SE_NODE_REGISTER_PERIOD}"
+  SE_OPTS="$SE_OPTS --register-period ${SE_NODE_REGISTER_PERIOD}"
+fi
+
+if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
+  echo "Appending Selenium options: --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+  SE_OPTS="$SE_OPTS --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+fi
+
+if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
+  echo "Appending Selenium options: --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+  SE_OPTS="$SE_OPTS --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
 if [ ! -z "$SE_LOG_LEVEL" ]; then
   echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
@@ -40,6 +65,11 @@ if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION:-true}"
 fi
 
+if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
+  echo "Appending Selenium options: --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+  SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
 /opt/bin/generate_config
 
 echo "Selenium Grid Standalone configuration: "
@@ -48,12 +78,28 @@ echo "Starting Selenium Grid Standalone..."
 
 EXTRA_LIBS=""
 
-if [ ! -z "$SE_ENABLE_TRACING" ]; then
+if [ "$SE_ENABLE_TRACING" = "true" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
   [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
   EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
+  if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
+    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.resource.attributes=service.name=${SE_OTEL_SERVICE_NAME}"
+  fi
+  if [ -n "$SE_OTEL_TRACES_EXPORTER" ]; then
+    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.traces.exporter=${SE_OTEL_TRACES_EXPORTER}"
+  fi
+  if [ -n "$SE_OTEL_EXPORTER_ENDPOINT" ]; then
+    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.exporter.otlp.endpoint=${SE_OTEL_EXPORTER_ENDPOINT}"
+  fi
+  if [ -n "$SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED" ]; then
+    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.java.global-autoconfigure.enabled=${SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED}"
+  fi
+  if [ -n "$SE_OTEL_JVM_ARGS" ]; then
+    echo "List arguments for OpenTelemetry: ${SE_OTEL_JVM_ARGS}"
+    SE_JAVA_OPTS="$SE_JAVA_OPTS ${SE_OTEL_JVM_ARGS}"
+  fi
 else
   echo "Tracing is disabled"
 fi
@@ -68,6 +114,9 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   ${GECKO_DRIVER_PATH_PROPERTY} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} standalone \
+  --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
+  --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
+  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
   --bind-host ${SE_BIND_HOST} \
   --config /opt/selenium/config.toml \
   ${SUB_PATH_CONFIG} \

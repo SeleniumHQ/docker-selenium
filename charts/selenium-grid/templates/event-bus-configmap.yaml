@@ -4,7 +4,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ tpl .Values.busConfigMap.name $ }}
+  name: {{ template "seleniumGrid.eventBus.configmap.fullname" . }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.busConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}

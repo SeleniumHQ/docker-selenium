@@ -45,8 +45,8 @@ spec:
         {{- if .Values.hub.startupProbe.enabled }}
           {{- with .Values.hub.startupProbe }}
           startupProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -61,8 +61,8 @@ spec:
         {{- if .Values.hub.readinessProbe.enabled }}
           {{- with .Values.hub.readinessProbe }}
           readinessProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -77,8 +77,8 @@ spec:
         {{- if .Values.hub.livenessProbe.enabled }}
           {{- with .Values.hub.livenessProbe }}
           livenessProbe:
-          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" .) "{}") }}
-            {{- include "seleniumGrid.probe.fromUserDefine" . | nindent 10 }}
+          {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
+            {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -91,6 +91,12 @@ spec:
           {{- end }}
         {{- end }}
           env:
+            - name: SE_OTEL_SERVICE_NAME
+              value: '{{ template "seleniumGrid.hub.fullname" . }}'
+            - name: SE_HUB_HOST
+              value: '{{ template "seleniumGrid.hub.fullname" . }}.{{ .Release.Namespace }}'
+            - name: SE_HUB_PORT
+              value: {{ .Values.hub.port | quote }}
             {{- with .Values.hub.subPath }}
             - name: SE_SUB_PATH
               value: {{ . | quote }}
@@ -104,11 +110,11 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ tpl .Values.loggingConfigMap.name $ }}
+                name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
             - configMapRef:
-                name: {{ tpl .Values.serverConfigMap.name $ }}
+                name: {{ template "seleniumGrid.server.configmap.fullname" . }}
             - secretRef:
-                name: {{ include "seleniumGrid.common.secrets" $ | quote }}
+                name: {{ template "seleniumGrid.common.secrets.fullname" . }}
           {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
           {{- end }}

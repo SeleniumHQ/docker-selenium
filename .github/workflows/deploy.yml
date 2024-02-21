@@ -2,9 +2,9 @@ name: Deploys
 
 on:
   workflow_dispatch:
-#  push:
-#    branches:
-#      - trunk
+  push:
+    branches:
+      - trunk
 
 jobs:
   deploy:
@@ -15,7 +15,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -49,6 +49,8 @@ jobs:
         run: echo ${LATEST_TAG}
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
+      - name: Update chart CHANGELOG
+        run: ./generate_chart_changelog.sh HEAD
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
@@ -57,7 +59,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
-        uses: nick-invision/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3

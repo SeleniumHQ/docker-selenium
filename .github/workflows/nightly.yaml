@@ -11,7 +11,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -74,7 +74,7 @@ jobs:
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Set up Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@main
         with:
           python-version: '3.11'
           check-latest: true

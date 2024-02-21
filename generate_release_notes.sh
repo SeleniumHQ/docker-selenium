@@ -21,7 +21,7 @@ EDGEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} msedg
 FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
 FFMPEG_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
-RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/uploader:${RCLONE_TAG_VERSION}-${BUILD_DATE} rclone version | head -n 1 | awk '{print $2}')
+RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} rclone version | head -n 1 | awk '{print $2}')
 
 
 echo "" >> release_notes.md

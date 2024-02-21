@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ tpl .Values.nodeConfigMap.name $ }}
+  name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.nodeConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}
@@ -12,9 +12,18 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
+{{- if .Values.isolateComponents }}
+  SE_DISTRIBUTOR_HOST: '{{ include "seleniumGrid.distributor.fullname" . }}.{{ .Release.Namespace }}'
+  SE_DISTRIBUTOR_PORT: '{{ .Values.components.distributor.port }}'
+  SE_ROUTER_HOST: '{{ include "seleniumGrid.router.fullname" . }}.{{ .Release.Namespace }}'
+  SE_ROUTER_PORT: '{{ .Values.components.router.port }}'
+{{- else }}
+  SE_HUB_HOST: '{{ include "seleniumGrid.hub.fullname" . }}.{{ .Release.Namespace }}'
+  SE_HUB_PORT: '{{ .Values.hub.port }}'
+{{- end }}
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
   SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
-  SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" .}}'
+  SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" . }}'
 {{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
 {{- if not (empty $value) }}
 {{ $fileName | indent 2 -}}: |

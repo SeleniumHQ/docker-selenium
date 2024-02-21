@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ tpl .Values.loggingConfigMap.name $ }}
+  name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
   namespace: {{ .Release.Namespace }}
 {{- with .Values.loggingConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}
@@ -13,3 +13,9 @@ metadata:
     {{- end }}
 data:
   SE_LOG_LEVEL: "{{ default "INFO" .Values.global.seleniumGrid.logLevel }}"
+{{- if (eq (include "seleniumGrid.enableTracing" .) "true") }}
+  SE_ENABLE_TRACING: "true"
+  SE_OTEL_TRACES_EXPORTER: {{ .Values.tracing.exporter | quote }}
+  SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED: {{ .Values.tracing.globalAutoConfigure | quote }}
+  SE_OTEL_EXPORTER_ENDPOINT: {{ tpl .Values.tracing.exporterEndpoint $ | quote }}
+{{- end }}

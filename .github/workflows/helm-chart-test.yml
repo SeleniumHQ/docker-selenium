@@ -1,4 +1,6 @@
-name: Lint and Test Helm Charts
+name: Test Helm Charts
+concurrency:
+  group: ${{ github.workflow }}
 
 on:
   push:
@@ -8,32 +10,53 @@ on:
     paths-ignore:
       - '**.md'
   workflow_dispatch:
+    inputs:
+      request-timeout:
+        description: 'Test parameter for different request timeout'
+        required: false
+        default: '370'
+  schedule:
+    - cron: '0 0 * * *'
 
 permissions:
   contents: read
 
 jobs:
   build-and-test:
-    name: Test Helm charts
+    name: Test K8s
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        test-strategy: [chart_test, chart_test_parallel_autoscaling, chart_test_https, chart_test_parallel_autoscaling_https]
+        include:
+          - k8s-version: 'v1.25.16'
+            test-strategy: job
+            cluster: 'kind'
+          - k8s-version: 'v1.26.14'
+            test-strategy: deployment
+            cluster: 'kind'
+          - k8s-version: 'v1.27.11'
+            test-strategy: job_https
+            cluster: 'kind'
+          - k8s-version: 'v1.28.7'
+            test-strategy: job_hostname
+            cluster: 'minikube'
+          - k8s-version: 'v1.29.2'
+            test-strategy: deployment_https
+            cluster: 'minikube'
+    env:
+      CLUSTER: ${{ matrix.cluster }}
+      KUBERNETES_VERSION: ${{ matrix.k8s-version }}
+      ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
       - name: Output Docker info
         run: docker info
       - name: Set up Python
-        uses: actions/setup-python@v5.0.0
+        uses: actions/setup-python@main
         with:
           python-version: '3.11'
           check-latest: true
-      - name: Install CA certificates
-        run: |
-          sudo apt install openssl -y
-          sudo apt install ca-certificates -y
-          sudo update-ca-certificates --fresh
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
@@ -51,36 +74,54 @@ jobs:
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
       - name: Setup Kubernetes environment
-        run: make chart_setup_env
-      - name: Build Docker images
-        run: BUILD_ARGS="--build-arg TARGETARCH=amd64" NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
-      - name: Build and lint charts
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: CLUSTER=${CLUSTER} make chart_setup_env
+      - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+      - name: Build Docker images
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Setup Kubernetes cluster
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
-      - name: Test Selenium Grid on Kubernetes
-        uses: nick-invision/retry@v2.9.0
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      - name: Test chart template
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_template
+      - name: Test set custom CA certificate
+        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_custom_ca_cert
+      - name: Set test parameters
+        if: (matrix.test-strategy == 'job' || matrix.test-strategy == 'deployment') && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        run: |
+          echo "AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL}" >> $GITHUB_ENV
+        env:
+          AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '370' }}
+      - name: Test Selenium Grid on Kubernetes ${{ matrix.k8s-version }} with Autoscaling ${{ matrix.test-strategy }}
+        uses: nick-invision/retry@master
         with:
           timeout_minutes: 30
           max_attempts: 3
           command: |
-            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_autoscaling_${{ matrix.test-strategy }}
       - name: Cleanup Kubernetes cluster
         if: always()
-        run: make chart_cluster_cleanup
+        run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
       - name: Upload Helm chart package
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.test-strategy }}_${{ env.CHART_FILE_NAME }}
+          name: ${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}
           path: ${{ env.CHART_PACKAGE_PATH }}
       - name: Upload chart test artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@main
         with:
-          name: ${{ matrix.test-strategy }}-artifacts
+          name: ${{ env.ARTIFACT_NAME }}-artifacts
           path: ./tests/tests/
           if-no-files-found: ignore

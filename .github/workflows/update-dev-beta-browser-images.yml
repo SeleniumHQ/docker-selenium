@@ -22,7 +22,7 @@ jobs:
       CHANNEL: ${{ matrix.channel }}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@main
     - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)

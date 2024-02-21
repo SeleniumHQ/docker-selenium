@@ -1,4 +1,6 @@
 name: Release Charts
+concurrency:
+  group: ${{ github.workflow }}
 
 on:
   push:
@@ -14,7 +16,7 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
         with:
           fetch-depth: 0
 
@@ -23,10 +25,14 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      - name: Get chart release notes (chart_release_notes.md)
+        run: ./generate_chart_changelog.sh HEAD
+
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@main
         with:
           mark_as_latest: false
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          CR_RELEASE_NOTES_FILE: RELEASE_NOTES.md

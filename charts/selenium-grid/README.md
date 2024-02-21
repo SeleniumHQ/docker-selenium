@@ -18,7 +18,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Ingress Configuration](#ingress-configuration)
   * [Configuration](#configuration)
     * [Configuration global](#configuration-global)
-      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8spublicip)
+      * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
       * [Probes](#probes)
@@ -29,9 +29,11 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
       * [Secure Communication](#secure-communication)
       * [Node Registration](#node-registration)
+    * [Configuration of tracing observability](#configuration-of-tracing-observability)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
     * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
+    * [Configuration of Jaeger](#configuration-of-jaeger)
     * [Configuration for Selenium-Hub](#configuration-for-selenium-hub)
     * [Configuration for isolated components](#configuration-for-isolated-components)
 <!-- TOC -->
@@ -69,7 +71,9 @@ helm install selenium-grid docker-selenium/selenium-grid --version <version>
 # In both cases grid exposed by default using ingress. You may want to set hostname for the grid. Default hostname is selenium-grid.local.
 helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker-selenium/chart/selenium-grid/.
 # Verify ingress configuration via kubectl get ingress
+
 # Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
+sudo -- sh -c -e "echo \"$(hostname -i) selenium-grid.local\" >> /etc/hosts"
 ```
 
 ### Installing the Nightly chart
@@ -204,7 +208,7 @@ helm uninstall selenium-grid
 
 By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see [#1808](https://github.com/SeleniumHQ/docker-selenium/issues/1808)). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
 
-In order to make user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
+To make the user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
 
 If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=null`) or via an override-values.yaml as below:
 
@@ -248,7 +252,7 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 nginx.ingress.kubernetes.io/proxy-buffers-number
 ```
 
-You can generate a dummy self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
+You can generate a test double self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
 
 ```yaml
 tls:
@@ -270,17 +274,18 @@ ingress-nginx:
 ### Configuration global
 For now, global configuration supported is:
 
-| Parameter                             | Default               | Description                            |
-|---------------------------------------|-----------------------|----------------------------------------|
-| `global.K8S_PUBLIC_IP`                | `""`                  | Public IP of the host running K8s      |
-| `global.seleniumGrid.imageRegistry`   | `selenium`            | Distribution registry to pull images   |
-| `global.seleniumGrid.imageTag`        | `4.17.0-20240123`     | Image tag for all selenium components  |
-| `global.seleniumGrid.nodesImageTag`   | `4.17.0-20240123`     | Image tag for browser's nodes          |
-| `global.seleniumGrid.videoImageTag`   | `ffmpeg-6.1-20240123` | Image tag for browser's video recorder |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.imagePullSecret` | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.affinity`        | `{}`                  | Affinity assigned globally             |
-| `global.seleniumGrid.logLevel`        | `INFO`                | Set log level for all components       |
+| Parameter                                     | Default               | Description                            |
+|-----------------------------------------------|-----------------------|----------------------------------------|
+| `global.K8S_PUBLIC_IP`                        | `""`                  | Public IP of the host running K8s      |
+| `global.seleniumGrid.imageRegistry`           | `selenium`            | Distribution registry to pull images   |
+| `global.seleniumGrid.imageTag`                | `4.18.0-20240220`     | Image tag for all selenium components  |
+| `global.seleniumGrid.nodesImageTag`           | `4.18.0-20240220`     | Image tag for browser's nodes          |
+| `global.seleniumGrid.videoImageTag`           | `ffmpeg-6.1-20240220` | Image tag for browser's video recorder |
+| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
+| `global.seleniumGrid.affinity`                | `{}`                  | Affinity assigned globally             |
+| `global.seleniumGrid.logLevel`                | `INFO`                | Set log level for all components       |
+| `global.seleniumGrid.defaultNodeStartupProbe` | `exec`                | Default startup probe method in Nodes  |
 
 #### Configuration `global.K8S_PUBLIC_IP`
 
@@ -338,7 +343,7 @@ chromeNode:
         targetPort: 7900
         # NodePort will be assigned randomly if not set
 edgeNode:
-  ports: # You also can give object following manifest of container ports
+  ports: # You also can give objects following manifest of container ports
     - containerPort: 5900
       name: vnc
       protocol: TCP
@@ -366,7 +371,7 @@ Other settings of probe support to override under `.startupProbe` `.readinessPro
     successThreshold
 ```
 
-You can easily configure the probes (as Kubernetes [supports](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)) to override the default settings. For example:
+You can configure the probes (as Kubernetes [supports](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)) to override the default settings. For example:
 
 ```yaml
 edgeNode:
@@ -392,23 +397,23 @@ nodeConfigMap:
       echo "Your custom script"
 
 recorderConfigMap:
-  extraScriptsDirectory: "/opt/selenium"
+  extraScriptsDirectory: "/opt/bin"
   extraScripts:
     video.sh: |
         #!/bin/bash
         echo "Your custom script"    
-    videoPreStop.sh: |
+    video_graphQLQuery.sh: |
         #!/bin/bash
         echo "My new script"
 
 uploaderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   extraScripts:
-    entry_point.sh: |
+    upload.sh: |
         #!/bin/bash
         echo "Your custom entry point"
   secretFiles:
-    config.conf: |
+    upload.conf: |
         [myremote]
         type = s3
 ```
@@ -429,7 +434,7 @@ Files in `.extraScripts` will be mounted to the container with the same name wit
 
 #### Video recorder
 
-The video recorder is a sidecar that is deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
+The video recorder is a sidecar deployed with the browser nodes. It is responsible for recording the video of the browser session. The video recorder is disabled by default. To enable it, you need to set the following values:
 
 ```yaml
 videoRecorder:
@@ -445,14 +450,13 @@ from selenium import webdriver
 options = ChromeOptions()
 options.set_capability('se:recordVideo', False)
 driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
-)
 ```
 
-In Node will perform query GraphQL and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. By default, the script is loaded from file [configs/recorder/graphQLRecordVideo.sh](configs/recorder/graphQLRecordVideo.sh) to the ConfigMap. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
+In Node will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
 
 #### Video uploader
 
-The uploader is a sidecar that is deployed with the browser nodes. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
+The uploader is extra utility in the video container. It is responsible for uploading the video to a remote location. The uploader is disabled by default. To enable it, you need to set the following values:
 
 ```yaml
 videoRecorder:
@@ -464,14 +468,14 @@ By default, the uploader uses [RCLONE](https://rclone.org/) to upload the video 
 
 The uploader requires `destinationPrefix` to be set. It is used to instruct the uploader where to upload the video. The format of destinationPrefix is `remote-name://bucket-name/path`. The `remote-name` is configured in RCLONE. The `bucket-name` is the name of the bucket in the remote location. The `path` is the path to the folder in the bucket.
 
-By default, the config file is loaded from file [configs/uploader/rclone/config.conf](configs/uploader/rclone/config.conf) to the Secret. You can override the config file via `--set-file uploaderConfigMap.secretFiles.config\.conf=/path/to/your_config.conf` or set via YAML values.
+By default, the config file is empty. You can override the config file via `--set-file uploaderConfigMap.secretFiles.upload\.conf=/path/to/your_config.conf` or set via YAML values.
 
 For example, to configure an S3 remote hosted on AWS with named `mys3` and the bucket name is `mybucket`, you can set the following values:
 
 ```bash
 uploaderConfigMap:
   secretFiles:
-    config.conf: |
+    upload.conf: |
         [mys3]
         type = s3
         provider = AWS
@@ -488,7 +492,6 @@ videoRecorder:
 ```
 
 You can prepare a config file with multiple remotes are defined. Ensure that `[remoteName]` is unique for each remote.
-You also can replace your config to default file `configs/uploader/rclone/config.conf` in chart.
 
 Instead of using config file, another way that RCLONE also supports to pass the information via environment variables. ENV variable with format: `RCLONE_CONFIG_ + name of remote + _ + name of config file option` (make it all uppercase). In this case the remote name it can only contain letters, digits, or the _ (underscore) character. All those ENV variables can be set via `videoRecorder.uploader.secrets`, it will be stored in Secret.
 
@@ -507,21 +510,46 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_ACL: "private"
       RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
       RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
+      RCLONE_CONFIG_MYS3_ENDPOINT: "https://storage.googleapis.com"
 ```
 
-Those 2 ways are equivalent. You can choose one of them or combine them together. When both config file and ENV vars are set, value in `config.conf` will take precedence.
+Those two ways are equivalent. You can choose one of them or combine them. When both config file and ENV vars are set, value in `upload.conf` will take precedence.
 
-Beside the configuration, the script for entry point of uploader container also needed. By default, it is loaded from file [configs/uploader/rclone/entry_point.sh](configs/uploader/rclone/entry_point.sh) to the ConfigMap. You can override the script via `--set-file uploaderConfigMap.extraScripts.entry_point\.sh=/path/to/your_script.sh` or set via YAML values. For example:
+Besides the configuration, the script for entry point of uploader container also needed. You can override the script via `--set-file uploaderConfigMap.extraScripts.upload\.sh=/path/to/your_script.sh` or set via YAML values. For example:
 
 ```yaml
 uploaderConfigMap:
   extraScripts:
-    entry_point.sh: |
+    upload.sh: |
         #!/bin/bash
         echo "Your custom entry point"
 ```
 
-You also can replace your script to default file `configs/uploader/rclone/entry_point.sh` in chart.
+In case you want to configure another sidecar container for uploader, you can set a name for `videoRecorder.uploader.name` and create a config key with the same name under `videoRecorder` with all the settings for your container. Set name of `videoRecorder.uploader.entryPointFileName` if your container start by a different entry point. For example:
+
+```yaml
+uploaderConfigMap:
+    extraScripts:
+        upload.sh: |
+            #!/bin/bash
+            echo "Script control the uploader process"
+
+videoRecorder:
+    enabled: true
+    uploader:
+        enabled: true
+        name: "s3"
+        entryPointFileName: "upload.sh"
+        destinationPrefix: "s3://mybucket"
+        secrets:
+            AWS_REGION: "ap-southeast-1"
+            AWS_ACCESS_KEY_ID: "xxxx"
+            AWS_SECRET_ACCESS_KEY: "xxxx"
+    s3:
+        imageRegistry: public.ecr.aws
+        imageName: bitnami/aws-cli
+        imageTag: latest
+```
 
 ### Configuration of Secure Communication (HTTPS)
 
@@ -531,7 +559,7 @@ Selenium Grid supports secure communication between components. Refer to the [in
 
 In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
 
-There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them together.
+There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them.
 
 - Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
 
@@ -584,7 +612,7 @@ ingress-nginx:
 
 #### Node Registration
 
-In order to enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
+To enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
 Node servers in config `tls.registrationSecret`. For example:
 
 ```yaml
@@ -593,6 +621,28 @@ tls:
   registrationSecret:
     enabled: true
     value: "matchThisSecret"
+```
+
+### Configuration of tracing observability
+
+The chart supports tracing observability via Jaeger. To enable it, you need to set the following values:
+
+```yaml
+tracing:
+  enabled: true
+```
+
+With this configuration, by default, Jaeger (all-in-one) will be deployed in the same namespace as Selenium Grid.
+The Jaeger UI can be accessed via same ingress with prefix `/jaeger`, for example: `http://your.host.name/jaeger`.
+The traces will be collected from all the components of Selenium Grid and can be viewed in the Jaeger UI.
+
+In case you want to use your own existing Jaeger instance, you can set the following values:
+
+```yaml
+tracing:
+    enabledWithExistingEndpoint: true
+    exporter: otlp
+    exporterEndpoint: 'http://jaeger.domain.com:4317'
 ```
 
 ### Configuration of Selenium Grid chart
@@ -604,12 +654,12 @@ This table contains the configuration parameters of the chart and their default 
 | `basicAuth.username`                          | `admin`                                     | Username of basic auth for Selenium Grid                                                                                   |
 | `basicAuth.password`                          | `admin`                                     | Password of basic auth for Selenium Grid                                                                                   |
 | `isolateComponents`                           | `false`                                     | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately                                                      |
-| `serviceAccount.create`                       | `true`                                      | Enable or disable creation of service account (if `false`, `serviceAccount.name` MUST be specified                         |
-| `serviceAccount.name`                         | `""`                                        | Name of the service account to be made or existing service account to use for all deployments and jobs                     |
+| `serviceAccount.create`                       | `true`                                      | Enable or disable creation of service account (if `false`, `serviceAccount.nameOverride` MUST be specified                 |
+| `serviceAccount.nameOverride`                 | `""`                                        | Name of another service account to be made or existing service account to use for all deployments and jobs                 |
 | `serviceAccount.annotations`                  | `{}`                                        | Custom annotations for service account                                                                                     |
-| `busConfigMap.name`                           | `selenium-event-bus-config`                 | Name of the configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables |
+| `busConfigMap.nameOverride`                   | ``                                          | Override another configmap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT vars |
 | `busConfigMap.annotations`                    | `{}`                                        | Custom annotations for configmap                                                                                           |
-| `nodeConfigMap.name`                          | `selenium-node-config`                      | Name of the configmap that contains common environment variables for browser nodes                                         |
+| `nodeConfigMap.nameOverride`                  | ``                                          | Name of the configmap that contains common environment variables for browser nodes                                         |
 | `nodeConfigMap.annotations`                   | `{}`                                        | Custom annotations for configmap                                                                                           |
 | `ingress.enabled`                             | `true`                                      | Enable or disable ingress resource                                                                                         |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
@@ -639,7 +689,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.17.0-20240123`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.18.0-20240220`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                            | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -682,7 +732,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.17.0-20240123`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.18.0-20240220`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                           | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -725,7 +775,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.17.0-20240123`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.18.0-20240220`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                              | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -766,11 +816,11 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240123`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240220`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
 | `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
-| `videoRecorder.uploader.name`                 | `rclone`                                    | Name of the uploader to use. Supported default `rclone`                                                                    |
+| `videoRecorder.uploader.name`                 | ``                                          | Name of the pluggable uploader container to add and configure                                                              |
 | `videoRecorder.uploader.configFileName`       | `config.conf`                               | Config file name for `rclone` in uploader container                                                                        |
 | `videoRecorder.uploader.entryPointFileName`   | `entry_point.sh`                            | Script file name for uploader container entry point                                                                        |
 | `videoRecorder.uploader.config`               | ``                                          | Set value to uploader config file via YAML or `--set-file`                                                                 |
@@ -784,14 +834,8 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.startupProbe`                  | `{}`                                        | Probe to check pod is started successfully                                                                                 |
 | `videoRecorder.livenessProbe`                 | `{}`                                        | Liveness probe settings                                                                                                    |
 | `videoRecorder.lifecycle`                     | `{}`                                        | Define lifecycle events for video recorder                                                                                 |
-| `videoRecorder.volume.name.folder`            | `video`                                     | Name is used to set for the volume to persist and share output video folder in container                                   |
-| `videoRecorder.volume.name.scripts`           | `video-scripts`                             | Name is used to set for the volume to persist and share video recorder scripts in container                                |
 | `videoRecorder.extraVolumeMounts`             | `[]`                                        | Extra mounts of declared ExtraVolumes into pod                                                                             |
 | `videoRecorder.extraVolumes`                  | `[]`                                        | Extra Volumes declarations to be used in the pod (can be any supported volume type: ConfigMap, Secret, PVC, NFS, etc.)     |
-| `videoRecorder.rclone`                        | `See values.yaml`                           | Container spec for the uploader if `videoRecorder.uploader` is `s3`. Similarly, create for your new uploader               |
-| `videoRecorder.rclone.resources               | `See values.yaml`                           | Resources for video uploader                                                                                               |
-| `videoRecorder.rclone.extraEnvFrom`           | ``                                          | Custom environment taken from `configMap` or `secret` variables for video uploader                                         |
-| `videoRecorder.rclone.extraVolumeMounts`      | `[]`                                        | Extra mounts of declared ExtraVolumes into pod of video uploader                                                           |
 | `customLabels`                                | `{}`                                        | Custom labels for k8s resources                                                                                            |
 | `ingress-nginx.enabled`                       | `false`                                     | Enable the dependency chart Ingress controller for Kubernetes (https://github.com/kubernetes/ingress-nginx)                |
 
@@ -807,6 +851,11 @@ https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
 
 If you are setting `ingress-nginx.enabled` to `true`, chart Ingress NGINX Controller is installed and can be configured with
 values with the prefix `ingress-nginx`. See https://github.com/kubernetes/ingress-nginx for more details.
+
+### Configuration of Jaeger
+
+If you are setting `tracing.enabled` to `true`, chart Jaeger is installed and can be configured with
+values with the prefix `jaeger`. See https://github.com/jaegertracing/helm-charts for more details.
 
 ### Configuration for Selenium-Hub
 

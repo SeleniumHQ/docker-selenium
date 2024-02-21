@@ -21,11 +21,18 @@ WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
 HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL:-45}
 HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS:-6}
 WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
+AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL:-20}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the cluster after the test run
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
-UPLOADER_TAG=${UPLOADER_TAG:-"latest"}
+CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
+CHART_FULL_DISTRIBUTED_MODE=${CHART_FULL_DISTRIBUTED_MODE:-"false"}
+HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.local"}
+CHART_ENABLE_INGRESS_HOSTNAME=${CHART_ENABLE_INGRESS_HOSTNAME:-"false"}
+CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
+BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
+BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 
 cleanup() {
   if [ "${SKIP_CLEANUP}" = "false" ]; then
@@ -39,38 +46,91 @@ cleanup() {
 on_failure() {
     local exit_status=$?
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
-    kubectl describe all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+    kubectl describe all -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+    kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     cleanup
     exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
-trap 'on_failure' ERR
+trap 'on_failure' ERR EXIT
 
-HELM_COMMAND_SET_AUTOSCALING=""
-if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
-  HELM_COMMAND_SET_AUTOSCALING="--values ${TEST_VALUES_PATH}/DeploymentAutoScaling-values.yaml \
-  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
-  --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA}"
+touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+
+if [ -f .env ]
+then
+    export "$(cat .env | xargs)"
+else
+    export UPLOAD_ENABLED=false
 fi
+export RELEASE_NAME=${RELEASE_NAME}
+RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
+envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
+RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
 
-HELM_COMMAND_SET_TLS=""
-if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
-  HELM_COMMAND_SET_TLS="--values ${TEST_VALUES_PATH}/tls-values.yaml"
-fi
-
-HELM_COMMAND_ARGS="${RELEASE_NAME} \
---values ${TEST_VALUES_PATH}/auth-ingress-values.yaml \
---values ${TEST_VALUES_PATH}/tracing-values.yaml \
-${HELM_COMMAND_SET_AUTOSCALING} \
-${HELM_COMMAND_SET_TLS} \
---values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
 --set global.seleniumGrid.imageTag=${VERSION} \
 --set global.seleniumGrid.nodesImageTag=${VERSION} \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
---set global.seleniumGrid.uploaderImageTag=${UPLOADER_TAG} \
+--set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
+--set tracing.enabled=${CHART_ENABLE_TRACING} \
+--set isolateComponents=${CHART_FULL_DISTRIBUTED_MODE} \
+"
+
+if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
+  if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
+    sudo -- sh -c -e "echo \"$(hostname -i) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+  fi
+  ping -c 2 ${HOSTNAME_ADDRESS}
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress.hostname=${HOSTNAME_ADDRESS} \
+  "
+  SELENIUM_GRID_HOST=${HOSTNAME_ADDRESS}
+else
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set global.K8S_PUBLIC_IP=${SELENIUM_GRID_HOST} \
+  "
+fi
+
+if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set basicAuth.enabled=${CHART_ENABLE_BASIC_AUTH} \
+  --set basicAuth.username=${BASIC_AUTH_USERNAME} \
+  --set basicAuth.password=${BASIC_AUTH_PASSWORD} \
+  "
+  export SELENIUM_GRID_USERNAME=${BASIC_AUTH_USERNAME}
+  export SELENIUM_GRID_PASSWORD=${BASIC_AUTH_PASSWORD}
+fi
+
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
+  HELM_COMMAND_SET_AUTOSCALING=" \
+  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
+  --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
+  "
+fi
+
+HELM_COMMAND_SET_BASE_VALUES=" \
+--values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
+--values ${RECORDER_VALUES_FILE} \
+--values ${TEST_VALUES_PATH}/base-resources-values.yaml \
+"
+
+if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${TEST_VALUES_PATH}/base-tls-values.yaml \
+  "
+fi
+
+HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+--values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+"
+
+HELM_COMMAND_ARGS="${RELEASE_NAME} \
+${HELM_COMMAND_SET_BASE_VALUES} \
+${HELM_COMMAND_SET_AUTOSCALING} \
+${HELM_COMMAND_SET_IMAGES} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
 
 echo "Render manifests YAML for this deployment"
@@ -78,6 +138,8 @@ helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_mani
 
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
+
+kubectl get pods -A
 
 echo "Run Tests"
 export CHART_CERT_PATH=$(readlink -f ${CHART_CERT_PATH})
@@ -90,12 +152,13 @@ export RUN_IN_DOCKER_COMPOSE=true
 export HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL}
 export HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS}
 export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
+export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
 ./tests/bootstrap.sh ${MATRIX_BROWSER}
 
 echo "Get pods status"
 kubectl get pods -n ${SELENIUM_NAMESPACE}
 
-echo "Get all resources in the ${SELENIUM_NAMESPACE} namespace"
-kubectl get all -n ${SELENIUM_NAMESPACE} > tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+echo "Get all resources in all namespaces"
+kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 cleanup

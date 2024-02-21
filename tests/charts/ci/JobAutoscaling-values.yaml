@@ -1,21 +1,32 @@
-isolateComponents: false
-
 autoscaling:
   enableWithExistingKEDA: true
   scalingType: job
   scaledJobOptions:
+    successfulJobsHistoryLimit: 100
     scalingStrategy:
       strategy: default
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 5
+    maxReplicaCount: 6
     pollingInterval: 20
 # Configuration for chrome nodes
 chromeNode:
   nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_OPTS
-      value: "--enable-managed-downloads true"
+    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+      value: "true"
+    - name: SE_VNC_NO_PASSWORD
+      value: "true"
+    - name: SE_SCREEN_WIDTH
+      value: "1920"
+    - name: SE_SCREEN_HEIGHT
+      value: "1080"
+    - name: TZ
+      value: "Asia/Saigon"
+    - name: SE_NODE_REGISTER_PERIOD
+      value: "800"
+    - name: SE_NODE_REGISTER_CYCLE
+      value: "3"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:

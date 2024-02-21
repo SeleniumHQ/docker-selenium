@@ -3,10 +3,12 @@ autoscaling:
   scalingType: deployment
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 3
+    maxReplicaCount: 2
+    pollingInterval: 20
   scaledObjectOptions:
     cooldownPeriod: 30
   terminationGracePeriodSeconds: 360
+
 # Configuration for chrome nodes
 chromeNode:
   # (test): user is able to change `SE_NODE_PORT`
@@ -33,12 +35,25 @@ chromeNode:
         # NodePort will be assigned randomly if not set
   nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_OPTS
-      value: "--enable-managed-downloads true"
+    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+      value: "true"
+    - name: SE_VNC_NO_PASSWORD
+      value: "true"
+    - name: SE_SCREEN_WIDTH
+      value: "1920"
+    - name: SE_SCREEN_HEIGHT
+      value: "1080"
+    - name: TZ
+      value: "Asia/Saigon"
+    - name: SE_NODE_REGISTER_PERIOD
+      value: "800"
+    - name: SE_NODE_REGISTER_CYCLE
+      value: "3"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:
     enabled: &livenessProbe true
+
 # Configuration for edge nodes
 edgeNode:
   port: 8888
@@ -61,8 +76,10 @@ edgeNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+
 # Configuration for firefox nodes
 firefoxNode:
+  port: 7777
   nameOverride: my-firefox-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:

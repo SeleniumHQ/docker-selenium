@@ -45,7 +45,7 @@ RUN apt-get -qqy update \
 #=====
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-  x11vnc x11-utils fluxbox \
+  x11vnc x11-utils \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=========
@@ -54,7 +54,7 @@ RUN apt-get update -qqy \
 #=========
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
-    fluxbox \
+    fluxbox eterm hsetroot feh \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #================
@@ -88,8 +88,7 @@ RUN apt-get -qqy update \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    # ttf-ubuntu-font-family \
-    # fonts-ubuntu \
+    #fonts-ubuntu \
     fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
@@ -196,9 +195,12 @@ ENV SE_NODE_MAX_SESSIONS 1
 ENV SE_NODE_SESSION_TIMEOUT 300
 # As boolean, maps to "override-max-sessions"
 ENV SE_NODE_OVERRIDE_MAX_SESSIONS false
+# As integer, maps to "--heartbeat-period" in seconds
+ENV SE_NODE_HEARTBEAT_PERIOD 30
 
 # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
 ENV DBUS_SESSION_BUS_ADDRESS=/dev/null
+ENV SE_OTEL_SERVICE_NAME "selenium-node"
 
 # Copying configuration script generator
 COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config

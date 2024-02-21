@@ -7,21 +7,21 @@ All related testing to this helm chart will be documented in this file.
 | Features               | TC Description                                                       | Coverage | Test via |
 |------------------------|----------------------------------------------------------------------|----------|----------|
 | Basic Auth             | Basic Auth is disabled                                               | &check;  | Cluster  |
-|                        | Basic Auth is enabled                                                | &cross;  |          |
+|                        | Basic Auth is enabled                                                | &check;  | Cluster  |
 | Auto scaling           | Auto scaling with `enableWithExistingKEDA` is `true`                 | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `job`                             | &check;  | Cluster  |
 |                        | Auto scaling with `scalingType` is `deployment`                      | &check;  | Cluster  |
 |                        | Auto scaling with `autoscaling.scaledOptions.minReplicaCount` is `0` | &check;  | Cluster  |
 |                        | Parallel tests execution against node autoscaling                    | &check;  | Cluster  |
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  | Cluster  |
-|                        | Ingress is enabled with `hostname` is set                            | &cross;  |          |
+|                        | Ingress is enabled with `hostname` is set                            | &check;  | Cluster  |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  | Cluster  |
 |                        | `ingress.nginx` configs for NGINX ingress controller annotations     | &check;  | Template |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |
 |                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  | Cluster  |
 |                        | Sanity tests in node                                                 | &check;  | Cluster  |
-|                        | Video recorder is enabled in node                                    | &cross;  |          |
+|                        | Video recorder is enabled in node                                    | &check;  | Cluster  |
 |                        | Node `extraEnvironmentVariables` is set value                        | &check;  | Cluster  |
 | General                | Set new image registry via `global.seleniumGrid.imageRegistry`       | &check;  | Cluster  |
 |                        | Components are able to set `.affinity`                               | &check;  | Template |
@@ -31,6 +31,26 @@ All related testing to this helm chart will be documented in this file.
 |                        | Extra ports can be exposed on container via `.ports`                 | &check;  | Cluster  |
 |                        | Extra ports can be exposed on Service via `.service.ports`           | &check;  | Cluster  |
 |                        | Service type change to `NodePort`, specific NodePort can be set      | &check;  | Cluster  |
+
+## CI Test Traceability Matrix
+
+We have a CI pipeline to test the Helm chart with the following test cases.
+
+| Matrix                    | job      | deployment | job_https | job_hostname | deployment_https |
+|---------------------------|----------|------------|-----------|--------------|------------------|
+| Cluster                   | Kind     | Kind       | Kind      | Minikube     | Minikube         |
+| Kubernetes version        | v1.25.16 | v1.26.14   | v1.27.11  | v1.28.7      | v1.29.2          |
+| Autoscaling               | x        | x          | x         | x            | x                |
+| Scaling type `deployment` |          | x          |           |              | x                |
+| Scaling type `job`        | x        |            | x         | x            |                  |
+| Full distributed mode     | x        |            |           |              | x                |
+| Enable basic auth         |          | x          |           | x            | x                |
+| Ingress `hostname`        | x        |            |           | x            | x                |
+| Ingress `K8S_PUBLIC_IP`   |          | x          | x         |              |                  |
+| HTTPS `tls.enabled`       |          |            | x         |              | x                |
+| Enable tracing            | x        | x          |           | x            |                  |
+| Enable video recorder     | x        | x          | x         | x            | x                |
+| Test headless             |          | x          | x         |              |                  |
 
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.
@@ -70,9 +90,9 @@ make chart_build
 make chart_cluster_setup
 
 # Test Selenium Grid on Kubernetes
-make chart_test
+make chart_test_autoscaling_deployment
 
-# make chart_test_parallel_autoscaling
+make chart_test_autoscaling_job
 
 # Cleanup Kubernetes cluster
 make chart_cluster_cleanup

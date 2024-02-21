@@ -22,11 +22,10 @@ tls:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
-  ingressClassName: nginx
+  className: nginx
   hostname: ""
   paths:
     - path: /selenium(/|$)(.*)
@@ -73,8 +72,8 @@ chromeNode:
       value: "300"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
-    - name: SE_OPTS
-      value: "--enable-managed-downloads true"
+    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+      value: "true"
 
 firefoxNode:
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes

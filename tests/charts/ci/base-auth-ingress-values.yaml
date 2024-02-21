@@ -1,0 +1,49 @@
+global:
+  seleniumGrid:
+    logLevel: INFO
+
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+  className: nginx
+  hostname: ""
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+          port:
+            number: 4444
+
+basicAuth:
+  enabled: false
+
+isolateComponents: true
+
+hub:
+  subPath: *gridAppRoot
+  extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_SESSION_REQUEST_TIMEOUT
+      value: "800"
+    - name: SE_SESSION_RETRY_INTERVAL
+      value: "5"
+    - name: SE_HEALTHCHECK_INTERVAL
+      value: "15"
+    - name: SE_REJECT_UNSUPPORTED_CAPS
+      value: "false"
+
+components:
+  subPath: *gridAppRoot
+  extraEnvironmentVariables: *extraEnvironmentVariables
+
+ingress-nginx:
+  enabled: true
+  controller:
+    hostPort:
+      enabled: true
+    kind: DaemonSet
+    service:
+      type: ClusterIP

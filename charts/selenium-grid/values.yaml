@@ -7,17 +7,18 @@ global:
     # Image registry for all selenium components
     imageRegistry: selenium
     # Image tag for all selenium components
-    imageTag: 4.17.0-20240123
+    imageTag: 4.18.0-20240220
     # Image tag for browser's nodes
-    nodesImageTag: 4.17.0-20240123
+    nodesImageTag: 4.18.0-20240220
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.1-20240123
-    # Image tag for browser's uploader
-    uploaderImageTag: rclone-1.65-20240123
+    videoImageTag: ffmpeg-6.1-20240220
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
     logLevel: INFO
+    # Set default startup probe for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
+    # startup probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
+    defaultNodeStartupProbe: exec
 
 tls:
   enabled: false
@@ -59,7 +60,7 @@ isolateComponents: false
 # Service Account for all components
 serviceAccount:
   create: true
-  name: ""
+  # nameOverride:
   annotations: {}
   #  eks.amazonaws.com/role-arn: "arn:aws:iam::12345678:role/video-bucket-permissions"
 
@@ -94,69 +95,70 @@ ingress:
 # ConfigMap that contains SE_EVENT_BUS_HOST, SE_EVENT_BUS_PUBLISH_PORT and SE_EVENT_BUS_SUBSCRIBE_PORT variables
 busConfigMap:
   # Name of the configmap
-  name: selenium-event-bus-config
+  # nameOverride:
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
-  name: selenium-node-config
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # File name of preStop script in ConfigMap
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
     nodePreStop.sh:
+    nodeProbe.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: node-helper-scripts
+  scriptVolumeMountName:
   # Custom annotations for configmap
   annotations: {}
 
 recorderConfigMap:
-  name: selenium-recorder-config
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-    video.sh:
-    graphQLRecordVideo.sh:
+  #  video.sh:
+  #  video_graphQLQuery.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: recorder-helper-scripts
+  scriptVolumeMountName:
   videoVolumeMountName: videos
   # Custom annotations for configmap
   annotations: {}
 
 uploaderConfigMap:
-  name: selenium-uploader-config
+  # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-    entry_point.sh:
+    upload.sh:
   # Extra files stored in Secret to be mounted to the container.
   secretFiles:
-    config.conf:
+    upload.conf: "[sample]"
   # Name of volume mount is used to mount scripts in the ConfigMap
-  scriptVolumeMountName: uploader-helper-scripts
+  scriptVolumeMountName:
   # Name of Secret is used to store the `secretFiles`
-  secretVolumeMountName: '{{ include "seleniumGrid.common.secrets" $ }}'
+  secretVolumeMountName:
   # Custom annotations for configmap
   annotations: {}
 
 
 # ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
 loggingConfigMap:
-  name: selenium-logging-config
+  # nameOverride:
   # Custom annotations for configmap
   annotations: {}
 
 # ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
 serverConfigMap:
-  name: selenium-server-config
+  # nameOverride:
   certVolumeMountPath: /etc/ssl/certs/selenium
   certificateFile: selenium.pem
   privateKeyFile: selenium.pkcs8
@@ -166,10 +168,10 @@ serverConfigMap:
   # Custom annotations for configmap
   annotations: {}
 
-# Secrets for all components. Components environment variables contain sensitive data should be stored in secrets.
+# Secrets for all components. Component environment variables contain sensitive data should be stored in secrets.
 secrets:
   create: true
-  name: selenium-secrets
+  # nameOverride:
   env:
     SE_VNC_PASSWORD: "secret"
   annotations: {}
@@ -183,7 +185,7 @@ components:
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.17.0-20240123
+    # imageTag: 4.18.0-20240220
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -245,7 +247,7 @@ components:
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.17.0-20240123
+    # imageTag: 4.18.0-20240220
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -278,7 +280,7 @@ components:
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.17.0-20240123
+    # imageTag: 4.18.0-20240220
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -317,7 +319,7 @@ components:
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.17.0-20240123
+    # imageTag: 4.18.0-20240220
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -348,7 +350,7 @@ components:
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.17.0-20240123
+    # imageTag: 4.18.0-20240220
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -402,7 +404,7 @@ hub:
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.17.0-20240123
+  # imageTag: 4.18.0-20240220
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -494,6 +496,24 @@ hub:
   # Priority class name for selenium-hub pods
   priorityClassName: ""
 
+tracing:
+  enabled: false
+  enabledWithExistingEndpoint: false
+  exporter: otlp
+  exporterEndpoint: 'http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317'
+  globalAutoConfigure: true
+  ingress:
+    enabled: true
+    annotations:
+    paths:
+      - backend:
+          service:
+            name: '{{ .Release.Name }}-jaeger-query'
+            port:
+              number: 16686
+        path: &jaegerBasePath "/jaeger"
+        pathType: Prefix
+
 # Keda scaled object configuration
 autoscaling:
   # Enable autoscaling. Implies installing KEDA
@@ -531,9 +551,9 @@ autoscaling:
   scaledObjectOptions:
     scaleTargetRef:
       kind: Deployment
-  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force killing it
+  # Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it
   terminationGracePeriodSeconds: 3600
-  # Define preStop command to shuts down the node gracefully when scalingType is set to "deployment"
+  # Define preStop command to shut down the node gracefully when scalingType is set to "deployment"
   deregisterLifecycle:
   #  preStop:
   #    exec:
@@ -546,7 +566,7 @@ chromeNode:
 
   # NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
-  # true (default) - if you want long living pods
+  # true (default) - if you want long-living pods
   # false - for provisioning your own custom type such as Jobs
   deploymentEnabled: true
 
@@ -556,7 +576,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.17.0-20240123
+  # imageTag: 4.18.0-20240220
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -636,9 +656,9 @@ chromeNode:
     enabled: true
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings
@@ -663,7 +683,7 @@ chromeNode:
 
   # Time to wait for pod termination
   terminationGracePeriodSeconds: 30
-  # Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
+  # Define preStop command to shut down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle
   deregisterLifecycle:
   # Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any
   lifecycle: {}
@@ -683,17 +703,17 @@ chromeNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: chrome
     sessionBrowserName: 'chrome'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -716,7 +736,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.17.0-20240123
+  # imageTag: 4.18.0-20240220
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -796,9 +816,9 @@ firefoxNode:
     enabled: true
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings
@@ -843,16 +863,16 @@ firefoxNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: firefox
     sessionBrowserName: 'firefox'
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -874,7 +894,7 @@ edgeNode:
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.17.0-20240123
+  # imageTag: 4.18.0-20240220
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -954,9 +974,9 @@ edgeNode:
     enabled: true
     path: /status
     initialDelaySeconds: 0
-    failureThreshold: 10
-    timeoutSeconds: 5
     periodSeconds: 5
+    timeoutSeconds: 125
+    failureThreshold: 25
     successThreshold: 1
 
   # Readiness probe settings
@@ -1001,16 +1021,16 @@ edgeNode:
   # scaledJobOptions:
   # scaledObjectOptions:
   hpa:
-    url: '{{ include "seleniumGrid.graphqlURL" . }}'
+    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: MicrosoftEdge
     sessionBrowserName: 'msedge'
-    unsafeSsl: '{{ include "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
   initContainers: []
 
-  # It is used to add a sidecars proxy in the same pod of the browser node.
+  # It is used to add sidecars proxy in the same pod of the browser node.
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
@@ -1021,7 +1041,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.1-20240123
+  # imageTag: ffmpeg-6.1-20240220
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -1031,10 +1051,9 @@ videoRecorder:
     # Where to upload the video file e.g. remoteName://bucketName/path. Refer to destination syntax of rclone https://rclone.org/docs/
     destinationPrefix:
     # What uploader to use. See .videRecorder.rclone for how to create a new one.
-    name: "rclone"
-    configFileName: "config.conf"
-    entryPointFileName: "entry_point.sh"
-    scriptMountPath: "/opt/bin"
+    name:
+    configFileName: upload.conf
+    entryPointFileName: upload.sh
     # For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom
     # Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase)
     secrets:
@@ -1066,7 +1085,6 @@ videoRecorder:
       cpu: "1"
   # SecurityContext for recorder container
   securityContext:
-    runAsUser: 0
   extraEnvironmentVariables:
   # - name: SE_VIDEO_FOLDER
   #   value: /videos
@@ -1092,10 +1110,6 @@ videoRecorder:
   # Define lifecycle events for video recorder
   lifecycle: {}
 
-  volume:
-  # name:
-  #   folder: video
-  #   scripts: video-scripts
   # Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap.
   # NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended.
   extraVolumeMounts: []
@@ -1114,24 +1128,6 @@ videoRecorder:
   # - name: video
   #   persistentVolumeClaim:
   #     claimName: video-pv-claim
-
-  # Container spec for the uploader if above it is defined as "uploader.name: rclone"
-  rclone:
-    # imageRegistry: selenium
-    imageName: uploader
-    # imageTag: "rclone-1.65-20240119"
-    imagePullPolicy: IfNotPresent
-    # SecurityContext for uploader container
-    securityContext:
-      runAsUser: 0
-    command: []
-    args: []
-    extraEnvironmentVariables:
-    # Extra options for rclone. Refer to https://rclone.org/flags
-      - name: UPLOAD_OPTS
-        value: "--progress"
-    #  - name: UPLOAD_COMMAND
-    #    value: "copy"
 
   # Container spec for the uploader if above it is defined as "uploader.name: s3"
   s3:
@@ -1172,3 +1168,21 @@ ingress-nginx:
   controller:
     admissionWebhooks:
       enabled: false
+
+# Configuration for dependency chart jaeger
+jaeger:
+  provisionDataStore:
+    cassandra: false
+  allInOne:
+    enabled: true
+    extraEnv:
+      - name: QUERY_BASE_PATH
+        value: *jaegerBasePath
+  storage:
+    type: none
+  agent:
+    enabled: false
+  collector:
+    enabled: false
+  query:
+    enabled: false
