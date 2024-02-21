@@ -31,7 +31,7 @@ ENV LANG ${LANGUAGE}
 # Layer size: small: ~9 MB MB (with --no-install-recommends)
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    language-pack-en \
+    #language-pack-en \
     tzdata \
     locales \
   && locale-gen ${LANGUAGE} \
@@ -82,13 +82,14 @@ RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     libfontconfig \
     libfreetype6 \
-    xfonts-cyrillic \
+    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    fonts-ubuntu \
+    # ttf-ubuntu-font-family \
+    # fonts-ubuntu \
     fonts-noto-color-emoji \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean
