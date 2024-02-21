@@ -155,7 +155,6 @@ all_multi: base_multi \
 	sessions_multi \
 	sessionqueue_multi \
 	event_bus_multi \
-	uploader_multi \
 	video_multi
 
 build_multi: all_multi
@@ -203,9 +202,6 @@ standalone_chromium_multi: chromium_multi
 
 standalone_docker_multi: docker_multi
 	cd ./StandaloneDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
-
-uploader_multi:
-	cd ./Uploader && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg BASED_TAG=$(RCLONE_BASED_TAG) -t $(NAME)/uploader:$(RCLONE_TAG_VERSION)-$(BUILD_DATE) .
 
 video_multi:
 	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
