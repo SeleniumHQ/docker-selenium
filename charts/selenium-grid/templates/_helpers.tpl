@@ -490,6 +490,8 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- if .Values.ingress.enabled -}}
   {{- if or (ne (.Values.ingress.ports.http | toString) "80") (ne (.Values.ingress.ports.https | toString) "443") -}}
     {{- $port = printf ":%s" (ternary (.Values.ingress.ports.http | toString) (.Values.ingress.ports.https | toString) (eq (include "seleniumGrid.url.schema" .) "http")) -}}
+  {{- else if and .Values.ingress.hostname (eq (tpl .Values.ingress.hostname $) "selenium-grid.local") }}
+    {{- $port = $port -}}
   {{- else -}}
     {{- $port = "" -}}
   {{- end -}}
