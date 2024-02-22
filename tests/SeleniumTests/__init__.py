@@ -87,6 +87,7 @@ class SeleniumGenericTests(unittest.TestCase):
         file_link = wait.until(
             EC.element_to_be_clickable((By.LINK_TEXT, file_name))
         )
+        driver.execute_script("arguments[0].scrollIntoView();", file_link)
         file_link.click()
         wait.until(
             lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
