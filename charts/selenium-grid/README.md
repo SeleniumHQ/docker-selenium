@@ -9,6 +9,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Introduction](#introduction)
   * [Installing the chart](#installing-the-chart)
     * [Installing the Nightly chart](#installing-the-nightly-chart)
+    * [Chart Release Name convention](#chart-release-name-convention)
   * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
@@ -87,6 +88,20 @@ helm search repo docker-selenium --devel
 # Install basic grid Nightly version
 helm install selenium-grid docker-selenium/selenium-grid --version 1.0.0-nightly
 ```
+
+### Chart Release Name convention
+
+By default, all objects created by the chart will be prefixed with the release name. This is to avoid conflicts with other installations of the chart in the same namespace.
+
+- If you want to disable this behavior, you can deploy the chart with the release name is `selenium`.
+- You can override the component name via `.nameOverride` in a respective component. For example
+    
+    ```yaml
+    hub:
+      nameOverride: my-hub-name
+    chromeNode:
+      nameOverride: my-chrome-name
+    ```
 
 ## Enable Selenium Grid Autoscaling
 

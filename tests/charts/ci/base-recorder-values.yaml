@@ -37,4 +37,4 @@ videoRecorder:
 ingress-nginx:
   controller:
     extraArgs:
-      default-ssl-certificate: '$(POD_NAMESPACE)/${RELEASE_NAME}-selenium-tls-secret'
+      default-ssl-certificate: '$(POD_NAMESPACE)/${SELENIUM_TLS_SECRET_NAME}'

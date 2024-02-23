@@ -39,18 +39,28 @@ app.kubernetes.io/component: {{ printf "selenium-grid-%s" .Chart.AppVersion }}
 helm.sh/chart: {{ include "seleniumGrid.chart" . }}
 {{- end -}}
 
+{{- define "seleniumGrid.component.name" -}}
+{{- $component := index . 0 }}
+{{- $root := index . 1 }}
+{{- if eq $root.Release.Name "selenium" }}
+{{- $component | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" $root.Release.Name $component | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{/*
 Selenium Hub fullname
 */}}
 {{- define "seleniumGrid.hub.fullname" -}}
-{{- tpl (default (printf "%s-selenium-hub" .Release.Name) .Values.hub.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-hub" $)) .Values.hub.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Event bus fullname
 */}}
 {{- define "seleniumGrid.eventBus.fullname" -}}
-{{- tpl (default (printf "%s-selenium-event-bus" .Release.Name) .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-event-bus" $)) .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" | trimPrefix "selenium-" -}}
 {{- end -}}
 
 {{/*
@@ -64,110 +74,110 @@ Event bus ConfigMap fullname
 Router fullname
 */}}
 {{- define "seleniumGrid.router.fullname" -}}
-{{- tpl (default (printf "%s-selenium-router" .Release.Name) .Values.components.router.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-router" $)) .Values.components.router.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Distributor fullname
 */}}
 {{- define "seleniumGrid.distributor.fullname" -}}
-{{- tpl (default (printf "%s-selenium-distributor" .Release.Name) .Values.components.distributor.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-distributor" $)) .Values.components.distributor.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 SessionMap fullname
 */}}
 {{- define "seleniumGrid.sessionMap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-session-map" .Release.Name) .Values.components.sessionMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-session-map" $)) .Values.components.sessionMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 SessionQueue fullname
 */}}
 {{- define "seleniumGrid.sessionQueue.fullname" -}}
-{{- tpl (default (printf "%s-selenium-session-queue" .Release.Name) .Values.components.sessionQueue.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-session-queue" $)) .Values.components.sessionQueue.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Chrome node fullname
 */}}
 {{- define "seleniumGrid.chromeNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-chrome-node" .Release.Name) .Values.chromeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-chrome-node" $)) .Values.chromeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Firefox node fullname
 */}}
 {{- define "seleniumGrid.firefoxNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-firefox-node" .Release.Name) .Values.firefoxNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-firefox-node" $)) .Values.firefoxNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Edge node fullname
 */}}
 {{- define "seleniumGrid.edgeNode.fullname" -}}
-{{- tpl (default (printf "%s-selenium-edge-node" .Release.Name) .Values.edgeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-edge-node" $)) .Values.edgeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Ingress fullname
 */}}
 {{- define "seleniumGrid.ingress.fullname" -}}
-{{- tpl (default (printf "%s-selenium-ingress" .Release.Name) .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-ingress" $)) .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Common secrets cross components
 */}}
 {{- define "seleniumGrid.common.secrets.fullname" -}}
-{{- tpl (default (printf "%s-selenium-secrets" .Release.Name) .Values.secrets.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-secrets" $)) .Values.secrets.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Secret TLS fullname
 */}}
 {{- define "seleniumGrid.tls.fullname" -}}
-{{- tpl (default (printf "%s-selenium-tls-secret" .Release.Name) .Values.tls.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-tls-secret" $)) .Values.tls.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Service Account fullname
 */}}
 {{- define "seleniumGrid.serviceAccount.fullname" -}}
-{{- tpl (default (printf "%s-selenium-serviceaccount" .Release.Name) .Values.serviceAccount.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-serviceaccount" $)) .Values.serviceAccount.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Recorder ConfigMap fullname
 */}}
 {{- define "seleniumGrid.recorder.configmap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-recorder-config" .Release.Name) .Values.recorderConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-recorder-config" $)) .Values.recorderConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Uploader ConfigMap fullname
 */}}
 {{- define "seleniumGrid.uploader.configmap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-uploader-config" .Release.Name) .Values.uploaderConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-uploader-config" $)) .Values.uploaderConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Logging ConfigMap fullname
 */}}
 {{- define "seleniumGrid.logging.configmap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-logging-config" .Release.Name) .Values.loggingConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-logging-config" $)) .Values.loggingConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Node ConfigMap fullname
 */}}
 {{- define "seleniumGrid.node.configmap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-node-config" .Release.Name) .Values.nodeConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-config" $)) .Values.nodeConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
 Server ConfigMap fullname
 */}}
 {{- define "seleniumGrid.server.configmap.fullname" -}}
-{{- tpl (default (printf "%s-selenium-server-config" .Release.Name) .Values.serverConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-server-config" $)) .Values.serverConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

@@ -65,6 +65,11 @@ else
     export UPLOAD_ENABLED=false
 fi
 export RELEASE_NAME=${RELEASE_NAME}
+if [ "${RELEASE_NAME}" = "selenium" ]; then
+  export SELENIUM_TLS_SECRET_NAME="selenium-tls-secret"
+else
+  export SELENIUM_TLS_SECRET_NAME="${RELEASE_NAME}-selenium-tls-secret"
+fi
 RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
 envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
 RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
