@@ -20,16 +20,20 @@ data:
 {{- end }}
   VIDEO_CONFIG_DIRECTORY: '{{ .Values.recorderConfigMap.extraScriptsDirectory }}'
   SE_UPLOAD_DESTINATION_PREFIX: '{{ .Values.videoRecorder.uploader.destinationPrefix }}'
+{{- $fileProceeded := list -}}
+{{- range $path, $_ :=  .Files.Glob $.Values.recorderConfigMap.extraScriptsImportFrom }}
+  {{- $fileName := base $path -}}
+  {{- $value := index $.Values.recorderConfigMap.extraScripts $fileName -}}
+  {{- if empty $value }}
+{{- $fileName | nindent 2 -}}: {{- toYaml ($.Files.Get $path) | indent 4 }}
+  {{- else }}
+{{- $fileName | nindent 2 -}}: {{- toYaml $value | indent 4 }}
+  {{- end }}
+  {{- $fileProceeded = append $fileProceeded $fileName -}}
+{{- end }}
 {{- range $fileName, $value := .Values.recorderConfigMap.extraScripts }}
-{{- if not (empty $value) }}
-{{ $fileName | indent 2 -}}: |
-{{ $value | indent 4 }}
-{{- else }}
-{{- $files := $.Files.Glob (printf "configs/recorder/%s" $fileName) }}
-{{- $cfg := $files.AsConfig }}
-{{- if and (gt (len $files) 0) (ne $cfg "") }}
-{{ indent 2 $cfg }}
-{{- end }}
-{{- end }}
+  {{- if not (has $fileName $fileProceeded) }}
+{{- $fileName | nindent 2 -}}: {{- toYaml (default "" $value) | indent 4 }}
+  {{- end }}
 {{- end }}
 {{- end }}

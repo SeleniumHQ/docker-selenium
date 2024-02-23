@@ -104,7 +104,9 @@ nodeConfigMap:
   # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
-  # File name of preStop script in ConfigMap
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/node/**"
+  # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
     nodePreStop.sh:
@@ -118,6 +120,8 @@ recorderConfigMap:
   # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/recorder/**"
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
@@ -134,6 +138,8 @@ uploaderConfigMap:
   # nameOverride:
   # Default mode for ConfigMap is mounted as file
   defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/uploader/**"
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
@@ -148,7 +154,6 @@ uploaderConfigMap:
   secretVolumeMountName:
   # Custom annotations for configmap
   annotations: {}
-
 
 # ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging)
 loggingConfigMap:
