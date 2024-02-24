@@ -1,16 +1,18 @@
-## :heavy_check_mark: selenium-grid-0.0.10.28.1
+## :heavy_check_mark: selenium-grid-0.28.1
 
-- Chart is using image tag "1.0.0"4.18.1-20240224
-- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2 
-
-### Added
-- feat(chart): option to disable release name prefix in object naming :: Viet Nguyen Duc
+- Chart is using image tag 4.18.0-20240220
+- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2
 
 ### Fixed
-- fix(chart): extra scripts can be imported in sub-chart by default :: Viet Nguyen Duc
+- bug(chart): template issue when chart is imported as dependency in umbrella charts :: Viet Nguyen Duc
+- bug(chart): SE_NODE_GRID_URL missing port when `hostname` is `selenium-grid.local` :: Viet Nguyen Duc
+- bug(chart) CRITICAL: Node startup probe loop infinite when ingress hostname is set :: Viet Nguyen Duc
 
 ### Changed
-- test(chart): test extra scripts import when import as sub-chart :: Viet Nguyen Duc
+- test(chart): update docs :: Viet Nguyen Duc
+- test(chart): add tests for the case basic auth is enabled :: Viet Nguyen Duc
+- test(chart): add tests for the case ingress is enabled with `hostname` set :: Viet Nguyen Duc
+- build(chart): change log and release notes for helm chart :: Viet Nguyen Duc
 
 ## :heavy_check_mark: selenium-grid-0.28.0
 

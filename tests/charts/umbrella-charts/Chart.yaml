@@ -6,5 +6,5 @@ version: 0.0.1
 appVersion: "1.0.0"
 dependencies:
   - name: selenium-grid
-    version: 0.28.1
+    version: 0.28.2
     repository: file://../../../charts/selenium-grid

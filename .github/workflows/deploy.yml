@@ -50,7 +50,7 @@ jobs:
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Update chart CHANGELOG
-        run: ./generate_chart_changelog.sh HEAD
+        run: ./generate_chart_changelog.sh
       - name: Build images
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub

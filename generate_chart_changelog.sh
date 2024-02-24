@@ -4,10 +4,11 @@
 CHART_DIR="./charts/selenium-grid"
 CHANGELOG_FILE="./charts/selenium-grid/CHANGELOG.md"
 TAG_PATTERN="selenium-grid"
-SET_TAG=${1:-""}
+DEFAULT_TAG="trunk"
+SET_TAG=${1:-$(git rev-parse --abbrev-ref HEAD)}
 
 # Get current chart app version
-CHART_APP_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
+CHART_APP_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
 
 # Generate the changelog
 generate_changelog() {
@@ -15,21 +16,21 @@ generate_changelog() {
     tags=($(git tag --sort=committerdate | grep "^$TAG_PATTERN"))
     tags_size=${#tags[@]}
 
-    CURRENT_CHART_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+    CURRENT_CHART_VERSION=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
 
     # Check if there are tags
     if [ ${#tags[@]} -eq 0 ]; then
-        commit_range="HEAD"
+        commit_range="$DEFAULT_TAG"
         change_title="${TAG_PATTERN}-${CURRENT_CHART_VERSION}"
-    elif [ ${#tags[@]} -eq 1 ] || [ "$SET_TAG" = "HEAD" ]; then
+    elif [ ${#tags[@]} -eq 1 ] || [ "$SET_TAG" = "$DEFAULT_TAG" ]; then
         previous_tag="${tags[$tags_size-1]}"
-        current_tag="HEAD"
-        commit_range="${previous_tag}..${current_tag}"
+        current_tag="$DEFAULT_TAG"
+        commit_range="${previous_tag}..origin/${current_tag}"
         change_title="${TAG_PATTERN}-${CURRENT_CHART_VERSION}"
     else
         previous_tag="${tags[$tags_size-2]}"
         current_tag="${tags[$tags_size-1]}"
-        commit_range="${previous_tag}..${current_tag}"
+        commit_range="${previous_tag}..origin/${current_tag}"
         change_title="$current_tag"
     fi
 
@@ -79,7 +80,7 @@ generate_changelog() {
 
     # Create chart_release_notes.md
     release_notes_file="$CHART_DIR/RELEASE_NOTES.md"
-    chart_description=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^description | cut -d ':' -f 2)
+    chart_description=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^description | cut -d ':' -f 2)
     echo "$chart_description" > "$release_notes_file"
     echo "" >> "$release_notes_file"
     cat $temp_file >> "$release_notes_file"

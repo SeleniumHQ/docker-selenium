@@ -27,19 +27,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Get chart release notes (chart_release_notes.md)
-        run: ./generate_chart_changelog.sh HEAD
-
-      - name: Commit files
-        run: |
-          git config --local user.email "selenium-ci@users.noreply.github.com"
-          git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files" -a
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
-          branch: trunk
+        run: ./generate_chart_changelog.sh
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@main
@@ -49,3 +37,15 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NOTES_FILE: RELEASE_NOTES.md
+
+      - name: Commit files
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update tag in docs and files" -a || true
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: trunk
