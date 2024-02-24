@@ -1,3 +1,19 @@
+## :heavy_check_mark: selenium-grid-0.28.2
+
+- Chart is using image tag 4.18.1-20240224
+- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2 
+
+### Added
+- feat(chart): option to disable release name prefix in object naming :: Viet Nguyen Duc
+
+### Fixed
+- fix(chart): extra scripts can be imported in sub-chart by default :: Viet Nguyen Duc
+
+### Changed
+- release(chart): 0.28.2 :: Viet Nguyen Duc
+- Update tag in docs and files :: Selenium CI Bot
+- test(chart): test extra scripts import when import as sub-chart :: Viet Nguyen Duc
+
 ## :heavy_check_mark: selenium-grid-0.28.1
 
 - Chart is using image tag 4.18.0-20240220
