@@ -292,9 +292,9 @@ For now, global configuration supported is:
 |-----------------------------------------------|-----------------------|----------------------------------------|
 | `global.K8S_PUBLIC_IP`                        | `""`                  | Public IP of the host running K8s      |
 | `global.seleniumGrid.imageRegistry`           | `selenium`            | Distribution registry to pull images   |
-| `global.seleniumGrid.imageTag`                | `4.18.0-20240220`     | Image tag for all selenium components  |
-| `global.seleniumGrid.nodesImageTag`           | `4.18.0-20240220`     | Image tag for browser's nodes          |
-| `global.seleniumGrid.videoImageTag`           | `ffmpeg-6.1-20240220` | Image tag for browser's video recorder |
+| `global.seleniumGrid.imageTag`                | `4.18.1-20240224`     | Image tag for all selenium components  |
+| `global.seleniumGrid.nodesImageTag`           | `4.18.1-20240224`     | Image tag for browser's nodes          |
+| `global.seleniumGrid.videoImageTag`           | `ffmpeg-6.1-20240224` | Image tag for browser's video recorder |
 | `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
 | `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
 | `global.seleniumGrid.affinity`                | `{}`                  | Affinity assigned globally             |
@@ -703,7 +703,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.18.0-20240220`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.18.1-20240224`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                            | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -746,7 +746,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.18.0-20240220`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.18.1-20240224`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                           | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -789,7 +789,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.18.0-20240220`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.18.1-20240224`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                              | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -830,7 +830,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240220`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240224`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
 | `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
