@@ -31,7 +31,7 @@ ingress:
     proxyTimeout: 360 # Set different proxy timout
     proxyBuffer:
       # size: 512M # Keep using sub-config default
-      number: # Disable sub-config
+      number: ! # Disable sub-config
   annotations: # Add you own annotations
     nginx.ingress.kubernetes.io/use-regex: "true" # Add new key
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -87,6 +87,7 @@ videoRecorder:
   enabled: true
   uploader:
     enabled: true
+    name: s3
     destinationPrefix: "s3://bucket-name"
     secrets:
       RCLONE_CONFIG_S3_TYPE: "s3"
@@ -97,3 +98,21 @@ videoRecorder:
       RCLONE_CONFIG_S3_ACL: "private"
       RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
       RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
+
+nodeConfigMap:
+  extraScripts:
+    nodeCustomTask.sh: |
+      #!/bin/bash
+      echo "This is a custom task"
+
+recorderConfigMap:
+  extraScripts:
+    video.sh: |
+      #!/bin/bash
+      echo "This is override script"
+
+uploaderConfigMap:
+  extraScripts:
+    upload.sh: |
+      #!/bin/bash
+      echo "This is override script"

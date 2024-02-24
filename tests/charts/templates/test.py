@@ -135,6 +135,41 @@ class ChartTemplateTests(unittest.TestCase):
             self.assertTrue(doc['metadata']['name'].startswith(RELEASE_NAME),
                             f"Metadata name {doc['metadata']['name']} is not prefixed with RELEASE NAME: {RELEASE_NAME}")
 
+    def test_extra_script_import_to_node_configmap(self):
+        resources_name = ['{0}-selenium-node-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert default file is imported to Node ConfigMap")
+                self.assertTrue(doc['data']['nodeProbe.sh'] is not None)
+                self.assertTrue(doc['data']['nodePreStop.sh'] is not None)
+                self.assertTrue(doc['data']['nodeCustomTask.sh'] is not None)
+                self.assertTrue(doc['data']['setFromCommand.sh'] is not None)
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
+
+    def test_extra_script_import_to_uploader_configmap(self):
+        resources_name = ['{0}-selenium-uploader-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert extra script is imported to Uploader ConfigMap")
+                self.assertTrue(doc['data']['upload.sh'] is not None)
+                self.assertTrue(doc['data']['setFromCommand.sh'] is not None)
+                count += 1
+        self.assertEqual(count, len(resources_name), "No uploader config resources found")
+
+    def test_extra_script_import_to_recorder_configmap(self):
+        resources_name = ['{0}-selenium-recorder-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert extra script is imported to Recorder ConfigMap")
+                self.assertTrue(doc['data']['video.sh'] is not None)
+                self.assertTrue(doc['data']['setFromCommand.sh'] is not None)
+                count += 1
+        self.assertEqual(count, len(resources_name), "No recorder config resources found")
+
 if __name__ == '__main__':
     failed = False
     try:

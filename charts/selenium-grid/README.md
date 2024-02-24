@@ -225,12 +225,11 @@ By default, ingress is enabled without annotations set. If NGINX ingress control
 
 To make the user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
 
-If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=null`) or via an override-values.yaml as below:
+If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=!`) or via an override-values.yaml as below:
 
 ```yaml
 ingress:
-  nginx:
-  # nginx: null (alternative way)
+  nginx: !
 ```
 
 Similarly, if you want to disable a sub-config of `ingress.nginx`. For example: `--set ingress.nginx.proxyBuffer=null`)

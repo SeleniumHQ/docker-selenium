@@ -18,6 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
         with:
+          persist-credentials: false
           fetch-depth: 0
 
       - name: Configure Git
@@ -27,6 +28,18 @@ jobs:
 
       - name: Get chart release notes (chart_release_notes.md)
         run: ./generate_chart_changelog.sh HEAD
+
+      - name: Commit files
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update tag in docs and files" -a
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: trunk
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@main

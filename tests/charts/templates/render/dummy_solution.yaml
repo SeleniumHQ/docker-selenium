@@ -1,0 +1,118 @@
+# This is dummy values file for chart template testing
+global:
+  K8S_PUBLIC_IP: "10.10.10.10"
+  seleniumGrid:
+    logLevel: FINE
+    affinity: &affinity
+      podAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - selenium
+            topologyKey: "kubernetes.io/hostname"
+
+selenium-grid:
+  autoscaling:
+    enableWithExistingKEDA: true
+    scalingType: deployment
+
+  basicAuth:
+    username: sysadmin
+    password: strongPassword
+
+  tls:
+    enabled: true
+    generateTLS: false
+
+  ingress:
+    nginx:
+      proxyTimeout: 360 # Set different proxy timout
+      proxyBuffer:
+        # size: 512M # Keep using sub-config default
+        number: ! # Disable sub-config
+    annotations: # Add you own annotations
+      nginx.ingress.kubernetes.io/use-regex: "true" # Add new key
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+      nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600" # Override default key
+      nginx.ingress.kubernetes.io/proxy-send-timeout: "3600" # Override default key
+    hostname: ""
+    ports:
+      http: 8081
+      https: 8443
+    paths:
+      - path: /selenium(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+            port:
+              number: 4444
+      - path: /(/?)(session/.*/se/vnc)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+            port:
+              number: 4444
+
+  isolateComponents: true
+
+  components:
+    subPath: *gridAppRoot
+    disableUI: true
+    router:
+      serviceType: NodePort
+    distributor:
+      serviceType: NodePort
+    eventBus:
+      serviceType: NodePort
+    sessionQueue:
+      serviceType: NodePort
+    sessionMap:
+      serviceType: NodePort
+
+  chromeNode:
+    affinity: *affinity
+
+  firefoxNode:
+      affinity: *affinity
+
+  edgeNode:
+      affinity: *affinity
+
+  videoRecorder:
+    enabled: true
+    uploader:
+      enabled: true
+      destinationPrefix: "s3://bucket-name"
+      secrets:
+        RCLONE_CONFIG_S3_TYPE: "s3"
+        RCLONE_CONFIG_S3_PROVIDER: "AWS"
+        RCLONE_CONFIG_S3_ENV_AUTH: "true"
+        RCLONE_CONFIG_S3_REGION: "ap-southeast-1"
+        RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-southeast-1"
+        RCLONE_CONFIG_S3_ACL: "private"
+        RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
+        RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
+
+  nodeConfigMap:
+    extraScripts:
+      nodeCustomTask.sh: |
+        #!/bin/bash
+        echo "This is a custom task"
+
+  recorderConfigMap:
+    extraScripts:
+      video.sh: |
+        #!/bin/bash
+        echo "This is override script"
+
+  uploaderConfigMap:
+    extraScripts:
+      upload.sh: |
+        #!/bin/bash
+        echo "This is override script"
