@@ -18,6 +18,7 @@ SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', '')
 SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', '')
 SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'false').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
+TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
 
 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
     SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
@@ -216,9 +217,15 @@ class Autoscaling():
 class DeploymentAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
-        runner.run([FirefoxTests, EdgeTests, ChromeTests])
+        if not TEST_PARALLEL_HARDENING:
+            runner.run([FirefoxTests, EdgeTests, ChromeTests])
+        else:
+            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests])
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
-        runner.run([FirefoxTests, EdgeTests, ChromeTests])
+        if not TEST_PARALLEL_HARDENING:
+            runner.run([FirefoxTests, EdgeTests, ChromeTests])
+        else:
+            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests])

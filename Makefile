@@ -382,6 +382,20 @@ test_firefox:
 test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
+test_parallel_likely_autoscaling:
+	TEST_DRAIN_AFTER_SESSION_COUNT=3 TEST_PARALLEL_HARDENING=false make test_parallel
+
+test_parallel: hub chrome firefox edge
+	for node in DeploymentAutoscaling ; do \
+			cd ./tests || true ; \
+			echo TAG=$(TAG_VERSION) > .env ; \
+			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
+			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "true") >> .env ; \
+			echo NODE=$$node >> .env ; \
+			echo UID=$$(id -u) >> .env ; \
+			docker-compose -f docker-compose-v3-test-parallel.yml up --exit-code-from tests --build ; \
+	done
+
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
