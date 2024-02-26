@@ -33,8 +33,16 @@ CHART_ENABLE_INGRESS_HOSTNAME=${CHART_ENABLE_INGRESS_HOSTNAME:-"false"}
 CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
 BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
 BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
+LOG_LEVEL=${LOG_LEVEL:-"FINE"}
 
 cleanup() {
+  # Get the list of pods
+  pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
+  # Iterate over the pods and print their logs
+  for pod in $pods; do
+    echo "Logs for pod $pod"
+    kubectl logs -n ${SELENIUM_NAMESPACE} $pod > tests/tests/pod_logs_${pod}.txt
+  done
   if [ "${SKIP_CLEANUP}" = "false" ]; then
     echo "Clean up chart release and namespace"
     helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE}
@@ -56,6 +64,7 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR EXIT
 
+rm -rf tests/tests/*
 touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 if [ -f .env ]
@@ -82,6 +91,7 @@ HELM_COMMAND_SET_IMAGES=" \
 --set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
 --set tracing.enabled=${CHART_ENABLE_TRACING} \
 --set isolateComponents=${CHART_FULL_DISTRIBUTED_MODE} \
+--set global.seleniumGrid.logLevel=${LOG_LEVEL} \
 "
 
 if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then

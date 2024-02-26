@@ -15,6 +15,10 @@ on:
         description: 'Test parameter for different request timeout'
         required: false
         default: '370'
+      log-level:
+        description: 'Test parameter for different log level'
+        required: false
+        default: 'FINE'
   schedule:
     - cron: '0 0 * * *'
 
@@ -102,6 +106,7 @@ jobs:
           echo "AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL}" >> $GITHUB_ENV
         env:
           AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '370' }}
+          LOG_LEVEL: ${{ github.event.inputs.log-level || 'FINE' }}
       - name: Test Selenium Grid on Kubernetes ${{ matrix.k8s-version }} with Autoscaling ${{ matrix.test-strategy }}
         uses: nick-invision/retry@master
         with:
