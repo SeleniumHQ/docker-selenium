@@ -94,6 +94,12 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.logLevel=${LOG_LEVEL} \
 "
 
+if [ -n "${SET_MAX_REPLICAS}" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set autoscaling.scaledOptions.maxReplicaCount=${SET_MAX_REPLICAS} \
+  "
+fi
+
 if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
   if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
     sudo -- sh -c -e "echo \"$(hostname -i) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"

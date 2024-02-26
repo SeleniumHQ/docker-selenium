@@ -187,6 +187,7 @@ class Autoscaling():
                     start_times[test] = time.time()
                     futures.append(executor.submit(test))
                     tests.append(test)
+            print(f"Number of tests were added to worker: {len(tests)}")
             failed_tests = []
             for future, test in zip(concurrent.futures.as_completed(futures), tests):
                 try:
@@ -220,7 +221,9 @@ class DeploymentAutoscalingTests(unittest.TestCase):
         if not TEST_PARALLEL_HARDENING:
             runner.run([FirefoxTests, EdgeTests, ChromeTests])
         else:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests])
+            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
+                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
+                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,])
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
@@ -228,4 +231,6 @@ class JobAutoscalingTests(unittest.TestCase):
         if not TEST_PARALLEL_HARDENING:
             runner.run([FirefoxTests, EdgeTests, ChromeTests])
         else:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests])
+            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
+                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
+                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,])

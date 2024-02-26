@@ -6,7 +6,7 @@ services:
   chrome:
     deploy:
       mode: replicated
-      replicas: 5
+      replicas: 10
     image: selenium/node-chrome:${TAG}
     user: ${UID}
     shm_size: 2gb
@@ -18,11 +18,12 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   firefox:
     deploy:
       mode: replicated
-      replicas: 5
+      replicas: 10
     image: selenium/node-firefox:${TAG}
     user: ${UID}
     shm_size: 2gb
@@ -34,11 +35,12 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   edge:
     deploy:
       mode: replicated
-      replicas: 5
+      replicas: 10
     image: selenium/node-edge:${TAG}
     user: ${UID}
     shm_size: 2gb
@@ -50,6 +52,7 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   selenium-hub:
     image: selenium/hub:${TAG}
@@ -59,6 +62,9 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+    environment:
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
 
   tests:
     image: docker-selenium-tests:latest
