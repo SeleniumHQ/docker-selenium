@@ -60,7 +60,7 @@ Selenium Hub fullname
 Event bus fullname
 */}}
 {{- define "seleniumGrid.eventBus.fullname" -}}
-{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-event-bus" $)) .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" | trimPrefix "selenium-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-event-bus" $)) .Values.components.eventBus.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
