@@ -1,3 +1,14 @@
+## :heavy_check_mark: selenium-grid-0.28.3
+
+- Chart is using image tag 4.18.1-20240224
+- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2 
+
+### Fixed
+- fix(chart): fix object naming and add test to verify :: Viet Nguyen Duc
+
+### Changed
+- Update tag in docs and files :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.28.2
 
 - Chart is using image tag 4.18.1-20240224
