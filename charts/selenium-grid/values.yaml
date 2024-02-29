@@ -546,7 +546,7 @@ autoscaling:
     # Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # Number of Failed jobs should be kept (for troubleshooting purposes)
-    failedJobsHistoryLimit: 100
+    failedJobsHistoryLimit: 0
     jobTargetRef:
       parallelism: 1
       completions: 1
@@ -709,7 +709,7 @@ chromeNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: chrome
+    browserName: 'chrome'
     sessionBrowserName: 'chrome'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -869,7 +869,7 @@ firefoxNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: firefox
+    browserName: 'firefox'
     sessionBrowserName: 'firefox'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1027,8 +1027,8 @@ edgeNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: MicrosoftEdge
-    sessionBrowserName: 'msedge'
+    browserName: 'MicrosoftEdge'
+    sessionBrowserName: 'MicrosoftEdge'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -1191,3 +1191,50 @@ jaeger:
     enabled: false
   query:
     enabled: false
+
+prometheus-stack:
+  defaultRules:
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
+  alertmanager:
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
+    enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - alertmanager.selenium-grid.prod
+  grafana:
+    enabled: true
+    adminPassword: admin
+    forceDeployDatasources: true
+    forceDeployDashboards: true
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.selenium-grid.prod
+  prometheus:
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
+    enabled: true
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - pts.selenium-grid.prod
+    prometheusSpec:
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: "standard"
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 5Gi
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: "prometheus"

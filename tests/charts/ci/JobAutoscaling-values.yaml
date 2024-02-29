@@ -2,12 +2,13 @@ autoscaling:
   enableWithExistingKEDA: true
   scalingType: job
   scaledJobOptions:
-    successfulJobsHistoryLimit: 100
+    successfulJobsHistoryLimit: 0
+    failedJobsHistoryLimit: 0
     scalingStrategy:
-      strategy: default
+      strategy: accurate
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 6
+    maxReplicaCount: 30
     pollingInterval: 20
 # Configuration for chrome nodes
 chromeNode:

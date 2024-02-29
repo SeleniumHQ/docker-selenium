@@ -28,7 +28,7 @@ SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
 CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
 CHART_FULL_DISTRIBUTED_MODE=${CHART_FULL_DISTRIBUTED_MODE:-"false"}
-HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.local"}
+HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.prod"}
 CHART_ENABLE_INGRESS_HOSTNAME=${CHART_ENABLE_INGRESS_HOSTNAME:-"false"}
 CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
 BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
@@ -113,6 +113,18 @@ else
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set global.K8S_PUBLIC_IP=${SELENIUM_GRID_HOST} \
   "
+fi
+
+if [[ ! $(cat /etc/hosts) == *"alertmanager.selenium-grid.prod"* ]]; then
+  sudo -- sh -c -e "echo \"$(hostname -i) alertmanager.selenium-grid.prod\" >> /etc/hosts"
+fi
+
+if [[ ! $(cat /etc/hosts) == *"grafana.selenium-grid.prod"* ]]; then
+  sudo -- sh -c -e "echo \"$(hostname -i) grafana.selenium-grid.prod\" >> /etc/hosts"
+fi
+
+if [[ ! $(cat /etc/hosts) == *"pts.selenium-grid.prod"* ]]; then
+  sudo -- sh -c -e "echo \"$(hostname -i) pts.selenium-grid.prod\" >> /etc/hosts"
 fi
 
 if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then

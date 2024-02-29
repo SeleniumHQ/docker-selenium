@@ -18,6 +18,11 @@ dependencies:
   version: 1.0.0
   name: jaeger
   condition: tracing.enabled
+- repository: https://prometheus-community.github.io/helm-charts
+  version: 56.15.0
+  name: kube-prometheus-stack
+  condition: monitoring.enabled
+  alias: prometheus-stack
 maintainers:
   - name: SeleniumHQ
     email: selenium-developers@googlegroups.com

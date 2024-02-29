@@ -15,6 +15,7 @@ UPLOAD_PIPE_FILE_NAME=${UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
 SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
+max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
 
 if [ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ];
 then
@@ -109,7 +110,6 @@ function graceful_exit() {
 
 if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto"  ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
   return_code=1
-  max_attempts=50
   attempts=0
   echo 'Checking if the display is open...'
   until [[ $return_code -eq 0 ]] || [[ $attempts -eq $max_attempts ]]; do
@@ -130,7 +130,6 @@ else
   trap graceful_exit SIGTERM SIGINT EXIT
   export DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
 
-  max_attempts=600
   attempts=0
 
   echo Checking if the display is open

@@ -2,6 +2,9 @@ global:
   seleniumGrid:
     logLevel: INFO
 
+monitoring:
+    enabled: true
+
 ingress:
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
