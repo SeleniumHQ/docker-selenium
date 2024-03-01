@@ -60,9 +60,6 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
 fi
 
-echo "Install KEDA core on kind kubernetes cluster"
-helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
-
 if [ "${CLUSTER}" = "kind" ]; then
   echo "Load built local Docker Images into Kind Cluster"
   image_list=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${NAMESPACE} | grep ${BUILD_DATE:-$VERSION})
@@ -70,6 +67,3 @@ if [ "${CLUSTER}" = "kind" ]; then
       kind load docker-image --name ${CLUSTER_NAME} "$image"
   done
 fi
-
-echo "Wait for KEDA core to be ready"
-kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s

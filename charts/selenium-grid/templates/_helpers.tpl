@@ -138,7 +138,8 @@ Common autoscaling spec template
   {{- with .node.scaledObjectOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
   {{- end -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name))) | toYaml -}}
+  {{- $advanced := (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name) "restoreToOriginalReplicaCount" true)) -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) $advanced | toYaml -}}
 {{- else if eq .Values.autoscaling.scalingType "job" -}}
   {{- with .Values.autoscaling.scaledJobOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}

@@ -17,7 +17,7 @@ keytool -genkeypair \
     -keyalg RSA \
     -v \
     -dname "CN=SeleniumHQ,OU=Software Freedom Conservancy,O=SeleniumHQ,L=Unknown,ST=Unknown,C=Unknown" \
-    -ext "SAN:c=DNS:localhost,DNS:selenium-grid.local" \
+    -ext "SAN:c=DNS:localhost,DNS:selenium-grid.local,DNS:selenium-grid.prod,DNS:selenium.dev" \
     -validity 3650 \
     -storepass ${STOREPASS} \
     -keypass ${KEYPASS} \

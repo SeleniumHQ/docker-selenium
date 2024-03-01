@@ -14,6 +14,21 @@ on_failure() {
 trap 'on_failure' ERR
 
 if [ "$(uname -m)" = "x86_64" ]; then
+    echo "Installing Docker for AMD64 / x86_64"
+    # Add Docker's official GPG key:
+    sudo apt-get update
+    sudo apt-get install ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    # Add the repository to Apt sources:
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    echo "==============================="
     if [ "${CLUSTER}" = "kind" ]; then
         echo "Installing kind for AMD64 / x86_64"
         curl -fsSL -o ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
@@ -40,8 +55,7 @@ if [ "$(uname -m)" = "x86_64" ]; then
         curl -sLO https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
         sudo tar -xf go$GO_VERSION.linux-amd64.tar.gz -C /usr/local
         rm -rf go$GO_VERSION.linux-amd64.tar.gz*
-        echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-        source ~/.bashrc || true
+        sudo ln -sf /usr/local/go/bin/go /usr/bin/go
         go version
         echo "==============================="
         echo "Installing CRI-CTL (CLI for CRI-compatible container runtimes)"

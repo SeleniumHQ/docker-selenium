@@ -1,5 +1,5 @@
 autoscaling:
-  enableWithExistingKEDA: true
+  enabled: true
   scalingType: deployment
   scaledOptions:
     minReplicaCount: 0

@@ -45,8 +45,9 @@ cleanup() {
   done
   if [ "${SKIP_CLEANUP}" = "false" ]; then
     echo "Clean up chart release and namespace"
-    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE}
-    kubectl delete namespace ${SELENIUM_NAMESPACE}
+    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --wait
+    kubectl patch ns ${SELENIUM_NAMESPACE} -p '{"metadata":{"finalizers":null}}'
+    kubectl delete namespace ${SELENIUM_NAMESPACE} --wait=false
   fi
 }
 

@@ -480,7 +480,7 @@ chart_test_autoscaling_job_hostname:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true RELEASE_NAME=selenium \
+	CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_HOST=selenium-grid.local RELEASE_NAME=selenium \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 

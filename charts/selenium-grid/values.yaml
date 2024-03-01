@@ -519,6 +519,9 @@ tracing:
         path: &jaegerBasePath "/jaeger"
         pathType: Prefix
 
+monitoring:
+  enabled: false
+
 # Keda scaled object configuration
 autoscaling:
   # Enable autoscaling. Implies installing KEDA
@@ -529,7 +532,7 @@ autoscaling:
   scalingType: job
   # Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
-    helm.sh/hook: post-install,post-upgrade
+    "helm.sh/hook": post-install,post-upgrade,post-rollback
   # Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     minReplicaCount: 0
@@ -1162,6 +1165,14 @@ customLabels: {}
 
 # Configuration for dependency chart keda
 keda:
+  additionalAnnotations:
+    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+  podAnnotations:
+    keda:
+      "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+  crds:
+    additionalAnnotations:
+      "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
   http:
     timeout: 60000
   webhooks:
@@ -1193,18 +1204,15 @@ jaeger:
     enabled: false
 
 prometheus-stack:
+  cleanPrometheusOperatorObjectNames: true
   defaultRules:
+    create: true
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback
   alertmanager:
+    enabled: true
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback
-    enabled: true
-    ingress:
-      enabled: true
-      ingressClassName: nginx
-      hosts:
-        - alertmanager.selenium-grid.prod
   grafana:
     enabled: true
     adminPassword: admin
@@ -1212,29 +1220,7 @@ prometheus-stack:
     forceDeployDashboards: true
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback
-    ingress:
-      enabled: true
-      ingressClassName: nginx
-      hosts:
-        - grafana.selenium-grid.prod
   prometheus:
+    enabled: true
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback
-    enabled: true
-    ingress:
-      enabled: true
-      ingressClassName: nginx
-      hosts:
-        - pts.selenium-grid.prod
-    prometheusSpec:
-      storageSpec:
-        volumeClaimTemplate:
-          spec:
-            storageClassName: "standard"
-            accessModes: ["ReadWriteOnce"]
-            resources:
-              requests:
-                storage: 5Gi
-            selector:
-              matchLabels:
-                app.kubernetes.io/name: "prometheus"

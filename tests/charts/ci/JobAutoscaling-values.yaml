@@ -1,5 +1,5 @@
 autoscaling:
-  enableWithExistingKEDA: true
+  enabled: true
   scalingType: job
   scaledJobOptions:
     successfulJobsHistoryLimit: 0
