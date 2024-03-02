@@ -76,9 +76,11 @@ components:
 
 chromeNode:
   affinity: *affinity
+  terminationGracePeriodSeconds: 7200
 
 firefoxNode:
     affinity: *affinity
+    terminationGracePeriodSeconds: 720
 
 edgeNode:
     affinity: *affinity

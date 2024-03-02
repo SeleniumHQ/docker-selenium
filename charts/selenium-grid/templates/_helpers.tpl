@@ -424,7 +424,7 @@ template:
   {{- with .node.priorityClassName }}
     priorityClassName: {{ . }}
   {{- end }}
-    terminationGracePeriodSeconds: {{ .node.terminationGracePeriodSeconds }}
+    terminationGracePeriodSeconds: {{ template "seleniumGrid.node.terminationGracePeriodSeconds" $ }}
     volumes:
       - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
         configMap:
@@ -582,7 +582,7 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- $autoscalingPeriod := default 0 .Values.autoscaling.terminationGracePeriodSeconds -}}
 {{- $nodePeriod := default 0 .node.terminationGracePeriodSeconds -}}
 {{- $period := $nodePeriod -}}
-{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true") -}}
+{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" $) "true") -}}
   {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
 {{- end -}}
 {{- $period -}}

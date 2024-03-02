@@ -171,6 +171,26 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No recorder config resources found")
 
+    def test_terminationGracePeriodSeconds_in_deployment_autoscaling(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert terminationGracePeriodSeconds is set in resource {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['template']['spec']['terminationGracePeriodSeconds'] == 7200)
+                count += 1
+        self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't override a higher value than autoscaling.terminationGracePeriodSeconds")
+
+        resources_name = ['{0}selenium-edge-node'.format(RELEASE_NAME),
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME),]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert terminationGracePeriodSeconds is set in resource {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['template']['spec']['terminationGracePeriodSeconds'] == 3600)
+                count += 1
+        self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds")
+
 if __name__ == '__main__':
     failed = False
     try:
