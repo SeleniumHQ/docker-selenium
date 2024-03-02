@@ -23,8 +23,12 @@ spec:
   template:
     metadata:
       labels: *hub_labels
+      annotations:
+        checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
+        checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
     {{- with .Values.hub.annotations }}
-      annotations: {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
     {{- end }}
     spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}

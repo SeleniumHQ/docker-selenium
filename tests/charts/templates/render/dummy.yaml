@@ -64,26 +64,42 @@ components:
   subPath: *gridAppRoot
   disableUI: true
   router:
+    annotations:
+      "restartOnUpdate": "true"
     serviceType: NodePort
   distributor:
+    annotations:
+      "restartOnUpdate": "true"
     serviceType: NodePort
   eventBus:
+    annotations:
+      "restartOnUpdate": "true"
     serviceType: NodePort
   sessionQueue:
+    annotations:
+      "restartOnUpdate": "true"
     serviceType: NodePort
   sessionMap:
+    annotations:
+      "restartOnUpdate": "true"
     serviceType: NodePort
 
 chromeNode:
+  annotations:
+    "restartOnUpdate": "true"
   affinity: *affinity
   terminationGracePeriodSeconds: 7200
 
 firefoxNode:
-    affinity: *affinity
-    terminationGracePeriodSeconds: 720
+  annotations:
+    "restartOnUpdate": "true"
+  affinity: *affinity
+  terminationGracePeriodSeconds: 720
 
 edgeNode:
-    affinity: *affinity
+  annotations:
+    "restartOnUpdate": "true"
+  affinity: *affinity
 
 videoRecorder:
   enabled: true

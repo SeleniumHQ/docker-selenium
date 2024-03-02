@@ -168,8 +168,8 @@ Common pod template
 template:
   metadata:
     labels:
-      app: {{.name}}
-      app.kubernetes.io/name: {{.name}}
+      app: {{ .name }}
+      app.kubernetes.io/name: {{ .name }}
       {{- include "seleniumGrid.commonLabels" . | nindent 6 }}
       {{- with .node.labels }}
         {{- toYaml . | nindent 6 }}
@@ -179,8 +179,11 @@ template:
       {{- end }}
     annotations:
       checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
+      checksum/node-configmap: {{ include (print $.Template.BasePath "/node-configmap.yaml") . | sha256sum }}
+      checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
+      checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
       {{- with .node.annotations }}
-        {{ toYaml . | nindent 6 }}
+        {{- toYaml . | nindent 6 }}
       {{- end }}
   spec:
     serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
@@ -194,7 +197,7 @@ template:
       {{- toYaml . | nindent 6 }}
   {{- end }}
     containers:
-      - name: {{.name}}
+      - name: {{ .name }}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
         {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
