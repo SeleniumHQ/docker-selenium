@@ -36,22 +36,28 @@ jobs:
           - k8s-version: 'v1.25.16'
             test-strategy: job
             cluster: 'kind'
+            helm-version: 'v3.10.3'
           - k8s-version: 'v1.26.14'
             test-strategy: deployment
             cluster: 'kind'
+            helm-version: 'v3.11.3'
           - k8s-version: 'v1.27.11'
             test-strategy: job_https
             cluster: 'kind'
+            helm-version: 'v3.12.3'
           - k8s-version: 'v1.28.7'
             test-strategy: job_hostname
             cluster: 'minikube'
+            helm-version: 'v3.13.3'
           - k8s-version: 'v1.29.2'
             test-strategy: deployment_https
             cluster: 'minikube'
+            helm-version: 'v3.14.2'
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
       ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
+      HELM_VERSION: ${{ matrix.helm-version }}
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
@@ -82,7 +88,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: CLUSTER=${CLUSTER} make chart_setup_env
+          command: CLUSTER=${CLUSTER} HELM_VERSION=${HELM_VERSION} make chart_setup_env
       - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build

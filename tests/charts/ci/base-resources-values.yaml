@@ -57,12 +57,6 @@ chromeNode:
     limits:
       cpu: 250m
       memory: 2500Mi
-  startupProbe:
-    initialDelaySeconds: 0
-    periodSeconds: 5
-    timeoutSeconds: 400
-    failureThreshold: 80
-    successThreshold: 1
 
 firefoxNode:
   resources:
@@ -72,12 +66,6 @@ firefoxNode:
     limits:
       cpu: 250m
       memory: 2500Mi
-  startupProbe:
-    initialDelaySeconds: 0
-    periodSeconds: 5
-    timeoutSeconds: 400
-    failureThreshold: 80
-    successThreshold: 1
 
 edgeNode:
   resources:
@@ -87,12 +75,6 @@ edgeNode:
     limits:
       cpu: 250m
       memory: 2500Mi
-  startupProbe:
-    initialDelaySeconds: 0
-    periodSeconds: 5
-    timeoutSeconds: 400
-    failureThreshold: 80
-    successThreshold: 1
 
 videoRecorder:
   resources:
