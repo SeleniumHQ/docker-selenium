@@ -1,53 +1,79 @@
 #!/bin/bash
 
+max_time=3
+probe_name="Probe.${1:-"Startup"}"
+
+ID=$(echo $RANDOM)
+tmp_node_file="/tmp/nodeProbe${ID}"
+tmp_grid_file="/tmp/gridProbe${ID}"
+
 function on_exit() {
-  rm -rf /tmp/nodeProbe${ID}
-  rm -rf /tmp/gridProbe${ID}
+  rm -rf ${tmp_node_file}
+  rm -rf ${tmp_grid_file}
 }
 trap on_exit EXIT
 
-ID=$(echo $RANDOM)
-
-function replace_localhost_by_service_name() {
-  internal="${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}"
-  echo "SE_NODE_GRID_URL: ${SE_NODE_GRID_URL}"
-  if [[ "${SE_NODE_GRID_URL}" == *"/localhost"* ]]; then
-      SE_GRID_URL=${SE_NODE_GRID_URL//localhost/${internal}}
-  elif [[ "${SE_NODE_GRID_URL}" == *"/127.0.0.1"* ]]; then
-      SE_GRID_URL=${SE_NODE_GRID_URL//127.0.0.1/${internal}}
-  elif [[ "${SE_NODE_GRID_URL}" == *"/0.0.0.0"* ]]; then
-      SE_GRID_URL=${SE_NODE_GRID_URL//0.0.0.0/${internal}}
-  else
-      SE_GRID_URL=${SE_NODE_GRID_URL}
-  fi
-  echo "Set SE_GRID_URL internally: ${SE_GRID_URL}"
+function init_file() {
+  echo "{}" > ${tmp_node_file}
+  echo "{}" > ${tmp_grid_file}
 }
-replace_localhost_by_service_name
+init_file
 
-if curl -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o /tmp/nodeProbe${ID}; then
-  NODE_ID=$(jq -r '.value.node.nodeId' /tmp/nodeProbe${ID})
-  NODE_STATUS=$(jq -r '.value.node.availability' /tmp/nodeProbe${ID})
+function help_message() {
+  echo "$(date +%FT%T%Z) [${probe_name}] - If you believe Node is registered successfully but probe still report this message and fail for a long time. Workaround by set 'global.seleniumGrid.defaultNodeStartupProbe' to 'httpGet' and report us an issue for Chart improvement with your scenario."
+}
+
+function get_grid_url() {
+  if [ -z "${SE_HUB_HOST:-$SE_ROUTER_HOST}" ] || [ -z "${SE_HUB_PORT:-$SE_ROUTER_PORT}" ]; then
+    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB or ROUTER host. Probe ignores the registration checks on upstream."
+    exit 0
+  fi
+  if [[ -n "${SE_BASIC_AUTH}" && "${SE_BASIC_AUTH}" != *@ ]]; then
+    SE_BASIC_AUTH="${SE_BASIC_AUTH}@"
+  fi
+  if [ "${SE_SUB_PATH}" = "/" ]; then
+    SE_SUB_PATH=""
+  fi
+  grid_url=${SE_SERVER_PROTOCOL}://${SE_BASIC_AUTH}${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
+  grid_url_checks=$(curl -m ${max_time} -skf -o /dev/null -w "%{http_code}" ${grid_url})
+  if [ "${grid_url_checks}" = "401" ]; then
+    echo "$(date +%FT%T%Z) [${probe_name}] - Host requires Basic Auth. Please add the credentials to the SE_BASIC_AUTH variable (e.g: user:password)."
+    help_message
+    exit 1
+  fi
+  if [ "${grid_url_checks}" = "404" ]; then
+    echo "$(date +%FT%T%Z) [${probe_name}] - The Grid is not available or it might have /subPath configured. Please wait a moment or check the SE_SUB_PATH variable if needed."
+    help_message
+    exit 1
+  fi
+}
+
+if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file}; then
+  NODE_ID=$(jq -r '.value.node.nodeId' ${tmp_node_file} || "")
+  NODE_STATUS=$(jq -r '.value.node.availability' ${tmp_node_file} || "")
   if [ -n "${NODE_ID}" ]; then
-    echo "Node responds the ID: ${NODE_ID} with status: ${NODE_STATUS}"
+    echo "$(date +%FT%T%Z) [${probe_name}] - Node responds the ID: ${NODE_ID} with status: ${NODE_STATUS}"
   else
-    echo "Wait for the Node to report its status"
+    echo "$(date +%FT%T%Z) [${probe_name}] - Wait for the Node to report its status"
     exit 1
   fi
 
-  curl -sfk "${SE_GRID_URL}/status" -o /tmp/gridProbe${ID}
-  GRID_NODE_ID=$(jq -e ".value.nodes[].id|select(. == \"${NODE_ID}\")" /tmp/gridProbe${ID} | tr -d '"' || true)
+  get_grid_url
+
+  curl -m ${max_time} -sfk "${grid_url}/status" -o ${tmp_grid_file}
+  GRID_NODE_ID=$(jq -e ".value.nodes[].id|select(. == \"${NODE_ID}\")" ${tmp_grid_file} | tr -d '"' || "")
   if [ -n "${GRID_NODE_ID}" ]; then
-    echo "Grid responds a matched Node ID: ${GRID_NODE_ID}"
+    echo "$(date +%FT%T%Z) [${probe_name}] - Grid responds a matched Node ID: ${GRID_NODE_ID}"
   fi
 
-  if [ "${NODE_STATUS}" = "UP" ] && [ -n "${NODE_ID}" ] && [ -n "${GRID_NODE_ID}" ] && [ "${NODE_ID}" = "${GRID_NODE_ID}" ]; then
-    echo "Node ID: ${NODE_ID} is found in the Grid. The registration is successful."
+  if [ -n "${NODE_ID}" ] && [ -n "${GRID_NODE_ID}" ] && [ "${NODE_ID}" = "${GRID_NODE_ID}" ]; then
+    echo "$(date +%FT%T%Z) [${probe_name}] - Node ID: ${NODE_ID} is found in the Grid. Node is ready."
     exit 0
   else
-    echo "Node ID: ${NODE_ID} is not found in the Grid. The registration could be in progress."
+    echo "$(date +%FT%T%Z) [${probe_name}] - Node ID: ${NODE_ID} is not found in the Grid. Node is not ready."
     exit 1
   fi
 else
-  echo "Wait for the Node to report its status"
+  echo "$(date +%FT%T%Z) [${probe_name}] - Wait for the Node to report its status"
   exit 1
 fi

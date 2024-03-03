@@ -19,6 +19,8 @@ global:
     # Set default startup probe for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     # startup probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeStartupProbe: exec
+    defaultNodeLivenessProbe: exec
+    stdoutProbeLog: true
 
 tls:
   enabled: false
@@ -665,8 +667,8 @@ chromeNode:
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5
-    timeoutSeconds: 125
-    failureThreshold: 25
+    timeoutSeconds: 60
+    failureThreshold: 12
     successThreshold: 1
 
   # Readiness probe settings
@@ -683,9 +685,9 @@ chromeNode:
   livenessProbe:
     enabled: false
     path: /status
-    initialDelaySeconds: 15
-    failureThreshold: 10
-    timeoutSeconds: 10
+    initialDelaySeconds: 30
+    failureThreshold: 6
+    timeoutSeconds: 60
     periodSeconds: 10
     successThreshold: 1
 
@@ -714,6 +716,7 @@ chromeNode:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'chrome'
     sessionBrowserName: 'chrome'
+    platformName: 'Linux'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -825,8 +828,8 @@ firefoxNode:
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5
-    timeoutSeconds: 125
-    failureThreshold: 25
+    timeoutSeconds: 60
+    failureThreshold: 12
     successThreshold: 1
 
   # Readiness probe settings
@@ -843,9 +846,9 @@ firefoxNode:
   livenessProbe:
     enabled: false
     path: /status
-    initialDelaySeconds: 15
-    failureThreshold: 10
-    timeoutSeconds: 10
+    initialDelaySeconds: 30
+    failureThreshold: 6
+    timeoutSeconds: 60
     periodSeconds: 10
     successThreshold: 1
 
@@ -874,6 +877,7 @@ firefoxNode:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'firefox'
     sessionBrowserName: 'firefox'
+    platformName: 'Linux'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -983,8 +987,8 @@ edgeNode:
     path: /status
     initialDelaySeconds: 0
     periodSeconds: 5
-    timeoutSeconds: 125
-    failureThreshold: 25
+    timeoutSeconds: 60
+    failureThreshold: 12
     successThreshold: 1
 
   # Readiness probe settings
@@ -1001,9 +1005,9 @@ edgeNode:
   livenessProbe:
     enabled: false
     path: /status
-    initialDelaySeconds: 15
-    failureThreshold: 10
-    timeoutSeconds: 10
+    initialDelaySeconds: 30
+    failureThreshold: 6
+    timeoutSeconds: 60
     periodSeconds: 10
     successThreshold: 1
 
@@ -1031,7 +1035,8 @@ edgeNode:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'MicrosoftEdge'
-    sessionBrowserName: 'MicrosoftEdge'
+    sessionBrowserName: 'msedge'
+    platformName: 'Linux'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -1166,13 +1171,13 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   additionalAnnotations:
-    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+    "helm.sh/hook": pre-install
   podAnnotations:
     keda:
-      "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+      "helm.sh/hook": pre-install
   crds:
     additionalAnnotations:
-      "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+      "helm.sh/hook": pre-install
   http:
     timeout: 60000
   webhooks:

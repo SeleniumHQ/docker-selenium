@@ -1,11 +1,10 @@
 autoscaling:
-  enabled: true
   scalingType: job
   scaledJobOptions:
     successfulJobsHistoryLimit: 0
     failedJobsHistoryLimit: 0
     scalingStrategy:
-      strategy: accurate
+      strategy: default
   scaledOptions:
     minReplicaCount: 0
     maxReplicaCount: 30
@@ -24,14 +23,10 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
-    - name: SE_NODE_REGISTER_PERIOD
-      value: "800"
-    - name: SE_NODE_REGISTER_CYCLE
-      value: "3"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:
-    enabled: &livenessProbe false
+    enabled: &livenessProbe true
 # Configuration for edge nodes
 edgeNode:
   nameOverride: my-edge-name
