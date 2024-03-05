@@ -1,3 +1,20 @@
+## :heavy_check_mark: selenium-grid-0.28.4
+
+- Chart is using image tag 4.18.1-20240224
+- Chart is tested on Kubernetes versions: v1.25.16 v1.26.14 v1.27.11 v1.28.7 v1.29.2 
+- Chart is tested on Helm versions: v3.10.3 v3.11.3 v3.12.3 v3.13.3 v3.14.2 
+
+### Fixed
+- fix(chart): connection in script of Node startup probe and preStop lifecycle :: Viet Nguyen Duc
+- fix(chart): `autoscaling.terminationGracePeriodSeconds` is not set in Node spec :: Viet Nguyen Duc
+
+### Changed
+- Release chart 0.28.4 :: Viet Nguyen Duc
+- update(chart): add annotations checksum for ConfigMap and Secret :: Viet Nguyen Duc
+- test(chart): update chart values for CI tests :: Viet Nguyen Duc
+- test(chart): autoscaling as job :: Viet Nguyen Duc
+- Update tag in docs and files :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.28.3
 
 - Chart is using image tag 4.18.1-20240224
