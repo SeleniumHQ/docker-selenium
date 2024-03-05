@@ -27,6 +27,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+rm -rf tests/charts/umbrella-charts/Chart.lock tests/charts/umbrella-charts/charts
 helm dependency update tests/charts/umbrella-charts
 helm dependency build tests/charts/umbrella-charts
 
