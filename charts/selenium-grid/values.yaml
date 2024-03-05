@@ -19,7 +19,9 @@ global:
     # Set default startup probe for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     # startup probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeStartupProbe: exec
+    # liveness probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeLivenessProbe: exec
+    # probe logs output can be retrieved using `kubectl logs`
     stdoutProbeLog: true
 
 tls:
