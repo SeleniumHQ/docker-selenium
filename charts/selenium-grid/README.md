@@ -527,6 +527,7 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
       RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
       RCLONE_CONFIG_MYS3_ENDPOINT: "https://storage.googleapis.com"
+      RCLONE_CONFIG_MYS3_NO_CHECK_BUCKET: "true"
 ```
 
 Those two ways are equivalent. You can choose one of them or combine them. When both config file and ENV vars are set, value in `upload.conf` will take precedence.

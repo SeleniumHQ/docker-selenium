@@ -100,6 +100,7 @@ selenium-grid:
         RCLONE_CONFIG_S3_ACL: "private"
         RCLONE_CONFIG_S3_ACCESS_KEY_ID: "xxx"
         RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "xxx"
+        RCLONE_CONFIG_S3_NO_CHECK_BUCKET: "true"
 
   nodeConfigMap:
     extraScripts:

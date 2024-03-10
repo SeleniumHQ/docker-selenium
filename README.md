@@ -562,6 +562,7 @@ services:
       - RCLONE_CONFIG_S3_ACCESS_KEY_ID=xxx
       - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=xxx
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+      - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 ```
 
 `SE_VIDEO_FILE_NAME=auto` will use the session id as the video file name. This ensures that the video file name is unique to upload.

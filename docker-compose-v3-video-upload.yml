@@ -53,6 +53,7 @@ services:
       - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
       - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+      - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   edge_video:
     image: selenium/video:ffmpeg-6.1-20240224
@@ -73,6 +74,7 @@ services:
       - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
       - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+      - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   firefox_video:
     image: selenium/video:ffmpeg-6.1-20240224
@@ -93,6 +95,7 @@ services:
       - RCLONE_CONFIG_S3_ACCESS_KEY_ID=${GS_ACCESS_KEY_ID}
       - RCLONE_CONFIG_S3_SECRET_ACCESS_KEY=${GS_SECRET_ACCESS_KEY}
       - RCLONE_CONFIG_S3_ENDPOINT=https://storage.googleapis.com
+      - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   selenium-hub:
     image: selenium/hub:4.18.1-20240224
