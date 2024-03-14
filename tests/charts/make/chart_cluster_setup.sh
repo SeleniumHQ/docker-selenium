@@ -74,7 +74,7 @@ if [ "${CLUSTER}" = "kind" ]; then
   done
 fi
 
-if [ "${TEST_EXISTING_INGRESS}" = "true" ]; then
+if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   echo "Wait for KEDA core to be ready"
   kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
 fi

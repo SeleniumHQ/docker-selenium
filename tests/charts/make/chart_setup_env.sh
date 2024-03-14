@@ -103,7 +103,7 @@ if [ "$(uname -m)" = "x86_64" ]; then
     echo "==============================="
 
     echo "Installing Helm for AMD64 / x86_64"
-    HELM_VERSION=${HELM_VERSION:-"v3.14.2"}
+    HELM_VERSION=${HELM_VERSION:-"v3.14.3"}
     curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
     mkdir -p helm
     tar -xf helm.tar.gz --strip-components 1 -C helm
