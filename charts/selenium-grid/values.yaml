@@ -1176,12 +1176,6 @@ customLabels: {}
 keda:
   additionalAnnotations:
     "helm.sh/hook": pre-install
-  podAnnotations:
-    keda:
-      "helm.sh/hook": pre-install
-  crds:
-    additionalAnnotations:
-      "helm.sh/hook": pre-install
   http:
     timeout: 60000
   webhooks:
