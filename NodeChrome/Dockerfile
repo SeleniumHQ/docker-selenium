@@ -30,6 +30,12 @@ COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
 RUN /opt/bin/wrap_chrome_binary
 
 #============================================
+# Chrome cleanup script and supervisord file
+#============================================
+COPY chrome-cleanup.sh /opt/bin/chrome-cleanup.sh
+COPY chrome-cleanup.conf /etc/supervisor/conf.d/
+
+#============================================
 # Chrome webdriver
 #============================================
 # can specify versions by CHROME_DRIVER_VERSION
