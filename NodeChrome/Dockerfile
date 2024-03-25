@@ -30,12 +30,6 @@ COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
 RUN /opt/bin/wrap_chrome_binary
 
 #============================================
-# Chrome cleanup script and supervisord file
-#============================================
-COPY chrome-cleanup.sh /opt/bin/chrome-cleanup.sh
-COPY chrome-cleanup.conf /etc/supervisor/conf.d/
-
-#============================================
 # Chrome webdriver
 #============================================
 # can specify versions by CHROME_DRIVER_VERSION
@@ -58,6 +52,16 @@ RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
   && mv /opt/selenium/chromedriver-linux64/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+
+#============================================
+# Chrome cleanup script and supervisord file
+#============================================
+ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP true
+ENV SE_BROWSER_LEFTOVERS_INTERVAL_SECS 3600
+ENV SE_BROWSER_LEFTOVERS_PROCESSES_SECS 1200
+ENV SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS 1
+COPY chrome-cleanup.sh /opt/bin/chrome-cleanup.sh
+COPY chrome-cleanup.conf /etc/supervisor/conf.d/chrome-cleanup.conf
 
 USER ${SEL_UID}
 
