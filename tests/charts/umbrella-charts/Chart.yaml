@@ -1,0 +1,10 @@
+apiVersion: v2
+name: umbrella-charts
+description: A Helm chart for Umbrella Chart Test
+type: application
+version: 0.0.1
+appVersion: "1.0.0"
+dependencies:
+  - name: selenium-grid
+    version: "*"
+    repository: file://../../../charts/selenium-grid

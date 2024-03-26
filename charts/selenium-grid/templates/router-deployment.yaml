@@ -20,8 +20,12 @@ spec:
   template:
     metadata:
       labels: *router_labels
+      annotations:
+        checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
+        checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
     {{- with .Values.components.router.annotations }}
-      annotations: {{- toYaml . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
     {{- end }}
     spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}

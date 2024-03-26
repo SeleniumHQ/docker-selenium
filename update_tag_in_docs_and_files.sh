@@ -4,7 +4,7 @@ LATEST_TAG=$1
 NEXT_TAG=$2
 LATEST_DATE=$(echo ${LATEST_TAG} | sed 's/.*-//')
 NEXT_DATE=$(echo ${NEXT_TAG} | sed 's/.*-//')
-latest_chart_app_version=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
+latest_chart_app_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
 FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 RCLONE_TAG_VERSION=$(grep RCLONE_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 
@@ -34,7 +34,7 @@ find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0
 if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_version" != "$NEXT_TAG" ]; then
   IFS='.' read -ra latest_version_parts <<< "$LATEST_TAG"
   IFS='.' read -ra next_version_parts <<< "$NEXT_TAG"
-  latest_chart_version=$(find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+  latest_chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
   IFS='.' read -ra latest_chart_version_parts <<< "$latest_chart_version"
   if [ "${latest_version_parts[0]}" != "${next_version_parts[0]}" ]; then
     ((latest_chart_version_parts[0]++))
@@ -51,7 +51,7 @@ if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_versio
   echo -e "\033[0;32m LATEST_CHART_VERSION -> ${latest_chart_version}\033[0m"
   echo -e "\033[0;32m NEXT_CHART_VERSION -> ${next_chart_version}\033[0m"
   # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
-  find . \( -type d -name .git -prune \) -o -type f -name 'Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
+  find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
   find . \( -type d -name .git -prune \) -o -type f -name 'bug_report.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
 fi
 

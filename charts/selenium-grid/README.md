@@ -9,6 +9,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
   * [Introduction](#introduction)
   * [Installing the chart](#installing-the-chart)
     * [Installing the Nightly chart](#installing-the-nightly-chart)
+    * [Chart Release Name convention](#chart-release-name-convention)
   * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
@@ -87,6 +88,20 @@ helm search repo docker-selenium --devel
 # Install basic grid Nightly version
 helm install selenium-grid docker-selenium/selenium-grid --version 1.0.0-nightly
 ```
+
+### Chart Release Name convention
+
+By default, all objects created by the chart will be prefixed with the release name. This is to avoid conflicts with other installations of the chart in the same namespace.
+
+- If you want to disable this behavior, you can deploy the chart with the release name is `selenium`.
+- You can override the component name via `.nameOverride` in a respective component. For example
+    
+    ```yaml
+    hub:
+      nameOverride: my-hub-name
+    chromeNode:
+      nameOverride: my-chrome-name
+    ```
 
 ## Enable Selenium Grid Autoscaling
 
@@ -210,12 +225,11 @@ By default, ingress is enabled without annotations set. If NGINX ingress control
 
 To make the user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
 
-If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=null`) or via an override-values.yaml as below:
+If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=!`) or via an override-values.yaml as below:
 
 ```yaml
 ingress:
-  nginx:
-  # nginx: null (alternative way)
+  nginx: !
 ```
 
 Similarly, if you want to disable a sub-config of `ingress.nginx`. For example: `--set ingress.nginx.proxyBuffer=null`)
@@ -274,18 +288,20 @@ ingress-nginx:
 ### Configuration global
 For now, global configuration supported is:
 
-| Parameter                                     | Default               | Description                            |
-|-----------------------------------------------|-----------------------|----------------------------------------|
-| `global.K8S_PUBLIC_IP`                        | `""`                  | Public IP of the host running K8s      |
-| `global.seleniumGrid.imageRegistry`           | `selenium`            | Distribution registry to pull images   |
-| `global.seleniumGrid.imageTag`                | `4.18.0-20240220`     | Image tag for all selenium components  |
-| `global.seleniumGrid.nodesImageTag`           | `4.18.0-20240220`     | Image tag for browser's nodes          |
-| `global.seleniumGrid.videoImageTag`           | `ffmpeg-6.1-20240220` | Image tag for browser's video recorder |
-| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.imagePullSecret`         | `""`                  | Pull secret to be used for all images  |
-| `global.seleniumGrid.affinity`                | `{}`                  | Affinity assigned globally             |
-| `global.seleniumGrid.logLevel`                | `INFO`                | Set log level for all components       |
-| `global.seleniumGrid.defaultNodeStartupProbe` | `exec`                | Default startup probe method in Nodes  |
+| Parameter                                       | Default               | Description                               |
+|-------------------------------------------------|-----------------------|-------------------------------------------|
+| `global.K8S_PUBLIC_IP`                          | `""`                  | Public IP of the host running K8s         |
+| `global.seleniumGrid.imageRegistry`             | `selenium`            | Distribution registry to pull images      |
+| `global.seleniumGrid.imageTag`                  | `4.18.1-20240224`     | Image tag for all selenium components     |
+| `global.seleniumGrid.nodesImageTag`             | `4.18.1-20240224`     | Image tag for browser's nodes             |
+| `global.seleniumGrid.videoImageTag`             | `ffmpeg-6.1-20240224` | Image tag for browser's video recorder    |
+| `global.seleniumGrid.imagePullSecret`           | `""`                  | Pull secret to be used for all images     |
+| `global.seleniumGrid.imagePullSecret`           | `""`                  | Pull secret to be used for all images     |
+| `global.seleniumGrid.affinity`                  | `{}`                  | Affinity assigned globally                |
+| `global.seleniumGrid.logLevel`                  | `INFO`                | Set log level for all components          |
+| `global.seleniumGrid.defaultNodeStartupProbe`   | `exec`                | Default startup probe method in Nodes     |
+| `global.seleniumGrid.defaultNodeLivenessProbe`  | `exec`                | Default liveness probe method in Nodes    |
+| `global.seleniumGrid.stdoutProbeLog`            | `true`                | Enable probe logs output in kubectl logs  |
 
 #### Configuration `global.K8S_PUBLIC_IP`
 
@@ -310,7 +326,7 @@ hub:
 
 SE_NODE_GRID_URL: 'http://admin:admin@10.10.10.10/selenium'
 ```
-Besides that, from the outside of the cluster, you can access via NodePort http://10.10.10.10:30444/selenium
+Besides that, from the outside of the cluster, you can access via NodePort `http://10.10.10.10:30444/selenium`
 
 ### Configuration of Nodes
 
@@ -511,6 +527,7 @@ videoRecorder:
       RCLONE_CONFIG_MYS3_ACCESS_KEY_ID: "xxx"
       RCLONE_CONFIG_MYS3_SECRET_ACCESS_KEY: "xxx"
       RCLONE_CONFIG_MYS3_ENDPOINT: "https://storage.googleapis.com"
+      RCLONE_CONFIG_MYS3_NO_CHECK_BUCKET: "true"
 ```
 
 Those two ways are equivalent. You can choose one of them or combine them. When both config file and ENV vars are set, value in `upload.conf` will take precedence.
@@ -689,7 +706,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.18.0-20240220`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.18.1-20240224`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                            | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -732,7 +749,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.18.0-20240220`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.18.1-20240224`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                           | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -775,7 +792,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.18.0-20240220`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.18.1-20240224`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                              | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -816,7 +833,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240220`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240224`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
 | `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |

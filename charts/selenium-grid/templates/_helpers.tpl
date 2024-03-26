@@ -35,6 +35,14 @@ Check user define custom probe method
 {{- $overrideProbe | toYaml -}}
 {{- end -}}
 
+{{- define "seleniumGrid.probe.stdout" -}}
+{{- $stdout := "" -}}
+{{- if .Values.global.seleniumGrid.stdoutProbeLog -}}
+  {{- $stdout = ">> /proc/1/fd/1" -}}
+{{- end -}}
+{{- $stdout -}}
+{{- end -}}
+
 {{/*
 Get probe settings
 */}}
@@ -138,7 +146,8 @@ Common autoscaling spec template
   {{- with .node.scaledObjectOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
   {{- end -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name))) | toYaml -}}
+  {{- $advanced := (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name) "restoreToOriginalReplicaCount" true)) -}}
+  {{- $spec = mergeOverwrite ($spec | fromYaml) $advanced | toYaml -}}
 {{- else if eq .Values.autoscaling.scalingType "job" -}}
   {{- with .Values.autoscaling.scaledJobOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -154,8 +163,10 @@ Common autoscaling spec template
 {{- if not .Values.autoscaling.scaledOptions.triggers }}
 triggers:
   - type: selenium-grid
+    metadata:
+      triggerIndex: '{{ default $.Values.autoscaling.scaledOptions.minReplicaCount (.node.scaledOptions).minReplicaCount }}'
   {{- with .node.hpa }}
-    metadata: {{- tpl (toYaml .) $ | nindent 6 }}
+    {{- tpl (toYaml .) $ | nindent 6 }}
   {{- end }}
 {{- end }}
 {{- end -}}
@@ -167,8 +178,8 @@ Common pod template
 template:
   metadata:
     labels:
-      app: {{.name}}
-      app.kubernetes.io/name: {{.name}}
+      app: {{ .name }}
+      app.kubernetes.io/name: {{ .name }}
       {{- include "seleniumGrid.commonLabels" . | nindent 6 }}
       {{- with .node.labels }}
         {{- toYaml . | nindent 6 }}
@@ -178,8 +189,11 @@ template:
       {{- end }}
     annotations:
       checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
+      checksum/node-configmap: {{ include (print $.Template.BasePath "/node-configmap.yaml") . | sha256sum }}
+      checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
+      checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
       {{- with .node.annotations }}
-        {{ toYaml . | nindent 6 }}
+        {{- toYaml . | nindent 6 }}
       {{- end }}
   spec:
     serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
@@ -193,7 +207,7 @@ template:
       {{- toYaml . | nindent 6 }}
   {{- end }}
     containers:
-      - name: {{.name}}
+      - name: {{ .name }}
         {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
         {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
@@ -203,6 +217,14 @@ template:
             value: {{ .name | quote }}
           - name: SE_NODE_PORT
             value: {{ .node.port | quote }}
+        {{- with .node.startupProbe.timeoutSeconds }}
+          - name: SE_NODE_REGISTER_PERIOD
+            value: {{ . | quote }}
+        {{- end }}
+        {{- with .node.startupProbe.periodSeconds }}
+          - name: SE_NODE_REGISTER_CYCLE
+            value: {{ . | quote }}
+        {{- end }}
         {{- with .node.extraEnvironmentVariables }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
@@ -264,7 +286,7 @@ template:
           {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
         {{- else if eq $.Values.global.seleniumGrid.defaultNodeStartupProbe "exec" }}
           exec:
-            command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh >> /proc/1/fd/1"]
+            command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh Startup {{ include "seleniumGrid.probe.stdout" $ }}"]
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -297,6 +319,9 @@ template:
         livenessProbe:
         {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
           {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
+        {{- else if eq $.Values.global.seleniumGrid.defaultNodeLivenessProbe "exec" }}
+          exec:
+            command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbe.sh Liveness {{ include "seleniumGrid.probe.stdout" $ }}"]
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -423,7 +448,7 @@ template:
   {{- with .node.priorityClassName }}
     priorityClassName: {{ . }}
   {{- end }}
-    terminationGracePeriodSeconds: {{ .node.terminationGracePeriodSeconds }}
+    terminationGracePeriodSeconds: {{ template "seleniumGrid.node.terminationGracePeriodSeconds" $ }}
     volumes:
       - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
         configMap:
@@ -543,7 +568,7 @@ Define preStop hook for the node pod. Node preStop script is stored in a ConfigM
 {{- define "seleniumGrid.node.deregisterLifecycle" -}}
 preStop:
   exec:
-    command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodePreStop.sh >> /proc/1/fd/1"]
+    command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodePreStop.sh {{ include "seleniumGrid.probe.stdout" $ }}"]
 {{- end -}}
 
 {{/*
@@ -581,7 +606,7 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- $autoscalingPeriod := default 0 .Values.autoscaling.terminationGracePeriodSeconds -}}
 {{- $nodePeriod := default 0 .node.terminationGracePeriodSeconds -}}
 {{- $period := $nodePeriod -}}
-{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" .) "true") -}}
+{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" $) "true") -}}
   {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
 {{- end -}}
 {{- $period -}}

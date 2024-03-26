@@ -18,6 +18,7 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 CNI=${CNI:-"calico"} # auto, calico, cilium
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"} # docker, containerd, cri-o
+TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
 
 # Function to clean up for retry step on workflow
 cleanup() {
@@ -60,8 +61,10 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
 fi
 
-echo "Install KEDA core on kind kubernetes cluster"
-helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
+if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+  echo "Install KEDA core on kind kubernetes cluster"
+  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
+fi
 
 if [ "${CLUSTER}" = "kind" ]; then
   echo "Load built local Docker Images into Kind Cluster"
@@ -71,5 +74,7 @@ if [ "${CLUSTER}" = "kind" ]; then
   done
 fi
 
-echo "Wait for KEDA core to be ready"
-kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
+if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+  echo "Wait for KEDA core to be ready"
+  kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
+fi

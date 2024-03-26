@@ -1,0 +1,80 @@
+# How to run this?
+# docker-compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build
+# To clean up, `docker-compose -f docker-compose-v3-test-video.yml down`
+version: "3"
+services:
+  chrome:
+    deploy:
+      mode: replicated
+      replicas: 10
+    image: selenium/node-chrome:${TAG}
+    user: ${UID}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+
+  firefox:
+    deploy:
+      mode: replicated
+      replicas: 10
+    image: selenium/node-firefox:${TAG}
+    user: ${UID}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+
+  edge:
+    deploy:
+      mode: replicated
+      replicas: 10
+    image: selenium/node-edge:${TAG}
+    user: ${UID}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+
+  selenium-hub:
+    image: selenium/hub:${TAG}
+    user: ${UID}
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+    environment:
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
+
+  tests:
+    image: docker-selenium-tests:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - selenium-hub
+    environment:
+      - RUN_IN_DOCKER_COMPOSE=true
+      - SELENIUM_GRID_HOST=selenium-hub
+      - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
+    command: ["./bootstrap.sh", "${NODE}"]

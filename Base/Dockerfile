@@ -1,4 +1,4 @@
-#FROM ubuntu:jammy-20240125
+#FROM ubuntu:jammy-20240227
 FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 

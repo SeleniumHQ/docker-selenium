@@ -205,8 +205,8 @@ jobs:
       BUILD_ARGS: << parameters.build-args >>
       MAKE_TARGETS: << parameters.make-targets >>
       DEPLOY_BRANCH: trunk
-      RELEASE: selenium-4.18.0
-      SELENIUM_VERSION: 4.18.0
+      RELEASE: selenium-4.18.1
+      SELENIUM_VERSION: 4.18.1
       GITHUB_USER: seleniumhq-community
       GITHUB_REPO: docker-seleniarm
     steps:

@@ -1,0 +1,26 @@
+ingress:
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+  paths:
+    - path: /selenium(/|$)(.*)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+          port:
+            number: 4444
+    - path: /(/?)(session/.*/element)
+      pathType: ImplementationSpecific
+      backend:
+        service:
+          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
+          port:
+            number: 4444
+
+hub:
+  subPath: *gridAppRoot
+
+components:
+  subPath: *gridAppRoot

@@ -14,6 +14,20 @@ on_failure() {
 trap 'on_failure' ERR
 
 if [ "$(uname -m)" = "x86_64" ]; then
+    echo "Installing Docker for AMD64 / x86_64"
+    sudo apt-get update -qq
+    sudo apt-get install -yq ca-certificates curl
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update -qq
+    sudo apt-get install -yq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    sudo docker version
+    echo "==============================="
     if [ "${CLUSTER}" = "kind" ]; then
         echo "Installing kind for AMD64 / x86_64"
         curl -fsSL -o ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
@@ -40,8 +54,7 @@ if [ "$(uname -m)" = "x86_64" ]; then
         curl -sLO https://go.dev/dl/go$GO_VERSION.linux-amd64.tar.gz
         sudo tar -xf go$GO_VERSION.linux-amd64.tar.gz -C /usr/local
         rm -rf go$GO_VERSION.linux-amd64.tar.gz*
-        echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-        source ~/.bashrc || true
+        sudo ln -sf /usr/local/go/bin/go /usr/bin/go
         go version
         echo "==============================="
         echo "Installing CRI-CTL (CLI for CRI-compatible container runtimes)"
@@ -90,10 +103,13 @@ if [ "$(uname -m)" = "x86_64" ]; then
     echo "==============================="
 
     echo "Installing Helm for AMD64 / x86_64"
-    curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-    chmod 700 get_helm.sh
-    ./get_helm.sh
-    rm -rf get_helm.sh
+    HELM_VERSION=${HELM_VERSION:-"v3.14.3"}
+    curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz
+    mkdir -p helm
+    tar -xf helm.tar.gz --strip-components 1 -C helm
+    sudo cp -frp helm/helm /usr/local/bin/helm
+    sudo ln -sf /usr/local/bin/helm /usr/bin/helm
+    rm -rf helm.tar.gz helm
     helm version
     echo "==============================="
 
@@ -109,7 +125,7 @@ if [ "$(uname -m)" = "x86_64" ]; then
     ct version
     echo "==============================="
     echo "Installing envsubst for AMD64 / x86_64"
-    curl -L https://github.com/a8m/envsubst/releases/download/v1.4.2/envsubst-`uname -s`-`uname -m` -o envsubst
+    curl -fsSL https://github.com/a8m/envsubst/releases/download/v1.4.2/envsubst-`uname -s`-`uname -m` -o envsubst
     chmod +x envsubst
     sudo mv envsubst /usr/local/bin
     sudo ln -sf /usr/local/bin/envsubst /usr/bin/envsubst

@@ -2,10 +2,10 @@ NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
 BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.18.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.18.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.18.1)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
 BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.19.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.18.0)
+VERSION := $(or $(VERSION),$(VERSION),4.18.1)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -506,6 +506,7 @@ test_firefox:
 test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
+<<<<<<< HEAD
 
 # Test multi-arch container images
 test_multi_arch: test_chromium_multi \
@@ -526,6 +527,20 @@ test_firefox_multi:
 test_firefox_standalone_multi:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
+=======
+test_parallel: hub chrome firefox edge
+	for node in DeploymentAutoscaling JobAutoscaling ; do \
+			cd ./tests || true ; \
+			echo TAG=$(TAG_VERSION) > .env ; \
+			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
+			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
+			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
+			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
+			echo NODE=$$node >> .env ; \
+			echo UID=$$(id -u) >> .env ; \
+			docker-compose -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests --build ; \
+	done
+>>>>>>> origin/4.18.1
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
@@ -593,16 +608,18 @@ chart_test_edge:
 
 chart_test_autoscaling_deployment_https:
 	CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true CHART_ENABLE_BASIC_AUTH=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
-	CHART_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_HOST=$$(hostname -i) \
+	CHART_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_HOST=$$(hostname -i) RELEASE_NAME=selenium \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_job_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_BASIC_AUTH=true SELENIUM_GRID_PORT=443 \
+	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_BASIC_AUTH=true RELEASE_NAME=selenium SELENIUM_GRID_PORT=443 SUB_PATH=/ \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
@@ -612,7 +629,7 @@ chart_test_autoscaling_job_hostname:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true \
+	CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_HOST=selenium-grid.local RELEASE_NAME=selenium SUB_PATH=/ \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 

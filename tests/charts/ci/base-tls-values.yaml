@@ -4,3 +4,38 @@ tls:
   registrationSecret:
     enabled: true
     value: "HappyTestOps"
+
+monitoring:
+  enabled: false
+
+prometheus-stack:
+  alertmanager:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - alertmanager.selenium-grid.prod
+  grafana:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - grafana.selenium-grid.prod
+  prometheus:
+    ingress:
+      enabled: true
+      ingressClassName: nginx
+      hosts:
+        - pts.selenium-grid.prod
+    prometheusSpec:
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            storageClassName: "standard"
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 5Gi
+            selector:
+              matchLabels:
+                app.kubernetes.io/name: "prometheus"

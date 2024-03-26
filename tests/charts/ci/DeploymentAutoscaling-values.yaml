@@ -1,9 +1,8 @@
 autoscaling:
-  enableWithExistingKEDA: true
   scalingType: deployment
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 2
+    maxReplicaCount: 3
     pollingInterval: 20
   scaledObjectOptions:
     cooldownPeriod: 30
@@ -45,10 +44,6 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
-    - name: SE_NODE_REGISTER_PERIOD
-      value: "800"
-    - name: SE_NODE_REGISTER_CYCLE
-      value: "3"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:
