@@ -40,12 +40,12 @@ jobs:
             test-existing-keda: true
           - k8s-version: 'v1.26.15'
             test-strategy: deployment
-            cluster: 'kind'
+            cluster: 'minikube'
             helm-version: 'v3.11.3'
             test-existing-keda: true
           - k8s-version: 'v1.27.12'
             test-strategy: job_https
-            cluster: 'kind'
+            cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
           - k8s-version: 'v1.28.8'

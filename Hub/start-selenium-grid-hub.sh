@@ -66,6 +66,11 @@ if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
   SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
 fi
 
+if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
+  echo "Appending Selenium options: --newsession-threadpool-size ${SE_NEW_SESSION_THREAD_POOL_SIZE}"
+  SE_OPTS="$SE_OPTS --newsession-threadpool-size ${SE_NEW_SESSION_THREAD_POOL_SIZE}"
+fi
+
 EXTRA_LIBS=""
 
 if [ "$SE_ENABLE_TRACING" = "true" ]; then

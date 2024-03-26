@@ -63,8 +63,8 @@ selenium-grid:
 
   components:
     subPath: *gridAppRoot
-    disableUI: true
     router:
+      disableUI: true
       serviceType: NodePort
     distributor:
       serviceType: NodePort

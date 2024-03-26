@@ -62,8 +62,8 @@ isolateComponents: true
 
 components:
   subPath: *gridAppRoot
-  disableUI: true
   router:
+    disableUI: true
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort

@@ -201,6 +201,8 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # Disable the Grid UI
+    disableUI: false
     # Custom annotations for router pods
     annotations: {}
     # Router port
@@ -263,6 +265,8 @@ components:
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
+    newSessionThreadPoolSize:
     # Custom annotations for Distributor pods
     annotations: {}
     # Distributor port
@@ -387,8 +391,6 @@ components:
 
   # Custom sub path for all components
   subPath: ""
-  # Disable the Grid UI
-  disableUI: false
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -425,6 +427,8 @@ hub:
   labels: {}
   # Disable the Grid UI
   disableUI: false
+  # Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
+  newSessionThreadPoolSize:
   # Port where events are published
   publishPort: 4442
   publishNodePort: 31442

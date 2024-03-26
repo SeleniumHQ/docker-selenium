@@ -109,6 +109,10 @@ spec:
             - name: SE_DISABLE_UI
               value: {{ .Values.hub.disableUI | quote }}
             {{- end }}
+            {{- with .Values.hub.newSessionThreadPoolSize }}
+            - name: SE_NEW_SESSION_THREAD_POOL_SIZE
+              value: {{ . | quote }}
+            {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
