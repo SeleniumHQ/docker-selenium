@@ -56,7 +56,7 @@ RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
 #============================================
 # Chrome cleanup script and supervisord file
 #============================================
-ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP true
+ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP false
 ENV SE_BROWSER_LEFTOVERS_INTERVAL_SECS 3600
 ENV SE_BROWSER_LEFTOVERS_PROCESSES_SECS 1200
 ENV SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS 1
