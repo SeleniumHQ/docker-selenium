@@ -39,10 +39,6 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
 #============================================
 # Firefox cleanup script and supervisord file
 #============================================
-ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP false
-ENV SE_BROWSER_LEFTOVERS_INTERVAL_SECS 3600
-ENV SE_BROWSER_LEFTOVERS_PROCESSES_SECS 1200
-ENV SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS 1
 COPY firefox-cleanup.sh /opt/bin/firefox-cleanup.sh
 COPY firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
 

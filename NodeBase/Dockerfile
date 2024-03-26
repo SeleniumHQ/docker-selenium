@@ -133,6 +133,14 @@ RUN chmod -R 775 ${HOME} /tmp/.X11-unix \
   && chgrp -R 0 ${HOME} /tmp/.X11-unix \
   && chmod -R g=u ${HOME} /tmp/.X11-unix
 
+#============================================
+# Shared cleanup script environment variables
+#============================================
+ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP false
+ENV SE_BROWSER_LEFTOVERS_INTERVAL_SECS 3600
+ENV SE_BROWSER_LEFTOVERS_PROCESSES_SECS 1200
+ENV SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS 1
+
 #===================================================
 # Run the following commands as non-privileged user
 #===================================================

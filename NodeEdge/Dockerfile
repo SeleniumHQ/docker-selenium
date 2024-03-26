@@ -49,10 +49,6 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
 #============================================
 # Edge cleanup script and supervisord file
 #============================================
-ENV SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP false
-ENV SE_BROWSER_LEFTOVERS_INTERVAL_SECS 3600
-ENV SE_BROWSER_LEFTOVERS_PROCESSES_SECS 1200
-ENV SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS 1
 COPY edge-cleanup.sh /opt/bin/edge-cleanup.sh
 COPY edge-cleanup.conf /etc/supervisor/conf.d/edge-cleanup.conf
 
