@@ -950,9 +950,9 @@ In long-running containers, it can happen that browsers leave some leftovers. Th
 of jobs that have already finished but failed to fully stop the browser, or temporary files written to the `/tmp`
 file system (notably on Chrome-based browsers). To avoid these filling up resources like process IDs and file system
 usage in the container, there is an automatic cleanup script running every hour in the node containers. This will
-clean up old processes and old temporary files. By default, this is enabled, and cleans up browsers running for longer
-than 20 minutes, and files older than 1 day. These can be tweaked or fully disabled with the following environment
-variables:
+clean up old processes and old temporary files. By default, this is disabled. When enabled, this will clean up browsers
+running for longer than 20 minutes, and files older than 1 day. These can be enabled and tweaked with the following
+environment variables:
 
 * `SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP`: default value `false`, set to `true` to enable the cleanup.
 * `SE_BROWSER_LEFTOVERS_INTERVAL_SECS`: default value `3600` (1 hour), cleanup interval in seconds.
