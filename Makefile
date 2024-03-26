@@ -506,8 +506,6 @@ test_firefox:
 test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
-<<<<<<< HEAD
-
 # Test multi-arch container images
 test_multi_arch: test_chromium_multi \
  test_firefox_multi \
@@ -527,7 +525,6 @@ test_firefox_multi:
 test_firefox_standalone_multi:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
-=======
 test_parallel: hub chrome firefox edge
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd ./tests || true ; \
@@ -540,7 +537,6 @@ test_parallel: hub chrome firefox edge
 			echo UID=$$(id -u) >> .env ; \
 			docker-compose -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests --build ; \
 	done
->>>>>>> origin/4.18.1
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
