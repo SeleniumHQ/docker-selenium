@@ -53,6 +53,12 @@ RUN if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
   && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
   && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
 
+#============================================
+# Chrome cleanup script and supervisord file
+#============================================
+COPY chrome-cleanup.sh /opt/bin/chrome-cleanup.sh
+COPY chrome-cleanup.conf /etc/supervisor/conf.d/chrome-cleanup.conf
+
 USER ${SEL_UID}
 
 #============================================

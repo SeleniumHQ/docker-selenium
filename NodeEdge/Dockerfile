@@ -46,6 +46,12 @@ RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver
 
+#============================================
+# Edge cleanup script and supervisord file
+#============================================
+COPY edge-cleanup.sh /opt/bin/edge-cleanup.sh
+COPY edge-cleanup.conf /etc/supervisor/conf.d/edge-cleanup.conf
+
 USER ${SEL_UID}
 
 #============================================
