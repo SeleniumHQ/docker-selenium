@@ -38,22 +38,22 @@ jobs:
             cluster: 'kind'
             helm-version: 'v3.10.3'
             test-existing-keda: true
-          - k8s-version: 'v1.26.14'
+          - k8s-version: 'v1.26.15'
             test-strategy: deployment
             cluster: 'kind'
             helm-version: 'v3.11.3'
             test-existing-keda: true
-          - k8s-version: 'v1.27.11'
+          - k8s-version: 'v1.27.12'
             test-strategy: job_https
             cluster: 'kind'
             helm-version: 'v3.12.3'
             test-existing-keda: true
-          - k8s-version: 'v1.28.7'
+          - k8s-version: 'v1.28.8'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-existing-keda: false
-          - k8s-version: 'v1.29.2'
+          - k8s-version: 'v1.29.3'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
