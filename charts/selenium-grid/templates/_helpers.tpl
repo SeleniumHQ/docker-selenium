@@ -133,14 +133,14 @@ Common autoscaling spec template
 {{- define "seleniumGrid.autoscalingTemplate" -}}
 {{- $spec := toYaml (dict) -}}
 {{/* Merge with precedence from right to left */}}
-{{- with .Values.autoscaling.scaledOptions -}}
+{{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
 {{- end -}}
 {{- with .node.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
 {{- end -}}
-{{- if eq .Values.autoscaling.scalingType "deployment" -}}
-  {{- with .Values.autoscaling.scaledObjectOptions -}}
+{{- if eq $.Values.autoscaling.scalingType "deployment" -}}
+  {{- with $.Values.autoscaling.scaledObjectOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
   {{- end -}}
   {{- with .node.scaledObjectOptions -}}
@@ -148,8 +148,8 @@ Common autoscaling spec template
   {{- end -}}
   {{- $advanced := (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name) "restoreToOriginalReplicaCount" true)) -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) $advanced | toYaml -}}
-{{- else if eq .Values.autoscaling.scalingType "job" -}}
-  {{- with .Values.autoscaling.scaledJobOptions -}}
+{{- else if eq $.Values.autoscaling.scalingType "job" -}}
+  {{- with $.Values.autoscaling.scaledJobOptions -}}
     {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
   {{- end -}}
   {{- with .node.scaledJobOptions -}}
@@ -160,7 +160,7 @@ Common autoscaling spec template
 {{- if and $spec (ne $spec "{}") -}}
   {{ tpl $spec $ }}
 {{- end -}}
-{{- if not .Values.autoscaling.scaledOptions.triggers }}
+{{- if not $.Values.autoscaling.scaledOptions.triggers }}
 triggers:
   - type: selenium-grid
     metadata:
@@ -184,7 +184,7 @@ template:
       {{- with .node.labels }}
         {{- toYaml . | nindent 6 }}
       {{- end }}
-      {{- with .Values.customLabels }}
+      {{- with $.Values.customLabels }}
         {{- toYaml . | nindent 6 }}
       {{- end }}
     annotations:
@@ -208,8 +208,8 @@ template:
   {{- end }}
     containers:
       - name: {{ .name }}
-        {{- $imageTag := default .Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
-        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
+        {{- $imageTag := default $.Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
+        {{- $imageRegistry := default $.Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
@@ -259,14 +259,14 @@ template:
         volumeMounts:
           - name: dshm
             mountPath: /dev/shm
-        {{- range $fileName, $value := .Values.nodeConfigMap.extraScripts }}
+        {{- range $fileName, $value := $.Values.nodeConfigMap.extraScripts }}
           - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
             mountPath: {{ $.Values.nodeConfigMap.extraScriptsDirectory }}/{{ $fileName }}
             subPath: {{ $fileName }}
         {{- end }}
-        {{- if .Values.tls.enabled }}
+        {{- if $.Values.tls.enabled }}
           - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
-            mountPath: {{ .Values.serverConfigMap.certVolumeMountPath }}
+            mountPath: {{ $.Values.serverConfigMap.certVolumeMountPath }}
             readOnly: true
         {{- end }}
         {{- if .node.extraVolumeMounts }}
@@ -336,12 +336,12 @@ template:
     {{- if .node.sidecars }}
       {{- toYaml .node.sidecars | nindent 6 }}
     {{- end }}
-    {{- if .Values.videoRecorder.enabled }}
+    {{- if $.Values.videoRecorder.enabled }}
       - name: video
-        {{- $imageTag := default .Values.global.seleniumGrid.videoImageTag .Values.videoRecorder.imageTag }}
-        {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.videoRecorder.imageRegistry }}
-        image: {{ printf "%s/%s:%s" $imageRegistry .Values.videoRecorder.imageName $imageTag }}
-        imagePullPolicy: {{ .Values.videoRecorder.imagePullPolicy }}
+        {{- $imageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag }}
+        {{- $imageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry }}
+        image: {{ printf "%s/%s:%s" $imageRegistry $.Values.videoRecorder.imageName $imageTag }}
+        imagePullPolicy: {{ $.Values.videoRecorder.imagePullPolicy }}
         env:
         - name: SE_NODE_PORT
           value: {{ .node.port | quote }}
@@ -349,7 +349,7 @@ template:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-      {{- with .Values.videoRecorder.extraEnvironmentVariables }}
+      {{- with $.Values.videoRecorder.extraEnvironmentVariables }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
         envFrom:
@@ -361,16 +361,16 @@ template:
             name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
         - configMapRef:
             name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
-        {{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
+        {{- if and $.Values.videoRecorder.uploader.enabled (not $.Values.videoRecorder.uploader.name) }}
         - secretRef:
-            name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) .Values.uploaderConfigMap.secretVolumeMountName) $ }}
+            name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- end }}
-      {{- with .Values.videoRecorder.extraEnvFrom }}
+      {{- with $.Values.videoRecorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
-      {{- if gt (len .Values.videoRecorder.ports) 0 }}
+      {{- if gt (len $.Values.videoRecorder.ports) 0 }}
         ports:
-      {{- range .Values.videoRecorder.ports }}
+      {{- range $.Values.videoRecorder.ports }}
         - containerPort: {{ . }}
           protocol: TCP
       {{- end }}
@@ -379,22 +379,22 @@ template:
         - name: dshm
           mountPath: /dev/shm
       {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 8 }}
-      {{- with .Values.videoRecorder.resources }}
+      {{- with $.Values.videoRecorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with .Values.videoRecorder.securityContext }}
+      {{- with $.Values.videoRecorder.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with .Values.videoRecorder.startupProbe }}
+      {{- with $.Values.videoRecorder.startupProbe }}
         startupProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with .Values.videoRecorder.livenessProbe }}
+      {{- with $.Values.videoRecorder.livenessProbe }}
         livenessProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with .Values.videoRecorder.lifecycle }}
+      {{- with $.Values.videoRecorder.lifecycle }}
         lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if and .Values.videoRecorder.uploader.enabled (not (empty .Values.videoRecorder.uploader.name)) }}
+    {{- if and $.Values.videoRecorder.uploader.enabled (not (empty $.Values.videoRecorder.uploader.name)) }}
       - name: uploader
         {{- $imageTag := .uploader.imageTag }}
         {{- $imageRegistry := .uploader.imageRegistry }}
@@ -417,7 +417,7 @@ template:
           - configMapRef:
               name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
           - secretRef:
-              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) .Values.uploaderConfigMap.secretVolumeMountName) $ }}
+              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- with .uploader.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
@@ -431,9 +431,9 @@ template:
       {{- end }}
     {{- end }}
     {{- end }}
-  {{- if or .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
+  {{- if or $.Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
     imagePullSecrets:
-      - name: {{ default .Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
+      - name: {{ default $.Values.global.seleniumGrid.imagePullSecret .node.imagePullSecret }}
   {{- end }}
   {{- with .node.nodeSelector }}
     nodeSelector: {{- toYaml . | nindent 6 }}
@@ -453,12 +453,12 @@ template:
       - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
         configMap:
           name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
-          defaultMode: {{ .Values.nodeConfigMap.defaultMode }}
+          defaultMode: {{ $.Values.nodeConfigMap.defaultMode }}
       - name: dshm
         emptyDir:
           medium: Memory
           sizeLimit: {{ default "1Gi" .node.dshmVolumeSizeLimit }}
-    {{- if .Values.tls.enabled }}
+    {{- if $.Values.tls.enabled }}
       - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
         secret:
           secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
@@ -466,7 +466,7 @@ template:
     {{- if .node.extraVolumes }}
       {{ tpl (toYaml .node.extraVolumes) $ | nindent 6 }}
     {{- end }}
-    {{- if .Values.videoRecorder.enabled }}
+    {{- if $.Values.videoRecorder.enabled }}
       {{- tpl (include "seleniumGrid.video.volumes" .) $ | nindent 6 }}
     {{- end }}
 {{- end -}}
