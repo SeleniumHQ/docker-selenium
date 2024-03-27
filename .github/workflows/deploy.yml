@@ -82,6 +82,12 @@ jobs:
           timeout_minutes: 20
           max_attempts: 3
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+      - name: Delete previous nightly tag & release if any
+        uses: dev-drprasad/delete-tag-and-release@master
+        with:
+          tag_name: nightly
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          delete_release: true
       - name: Commit files
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
