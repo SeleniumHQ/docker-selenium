@@ -4,8 +4,14 @@ ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
 LABEL authors=${AUTHORS}
 
-ARG NOVNC_VERSION="1.4.0"
-ARG WEBSOCKIFY_VERSION="0.11.0"
+# Inputs: heads, tags
+ARG NOVNC_SOURCE="heads"
+# Inputs: master, "v1.4.0"
+ARG NOVNC_VERSION="master"
+# Inputs: heads, tags
+ARG WEBSOCKIFY_SOURCE="heads"
+# Inputs: master, "v0.11.0"
+ARG WEBSOCKIFY_VERSION="master"
 
 USER root
 
@@ -97,13 +103,13 @@ RUN apt-get -qqy update \
 # noVNC exposes VNC through a web page #
 ########################################
 RUN  wget -nv -O noVNC.zip \
-       "https://github.com/novnc/noVNC/archive/refs/tags/v${NOVNC_VERSION}.zip" \
+       "https://github.com/novnc/noVNC/archive/refs/${NOVNC_SOURCE}/${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
   && mv noVNC-${NOVNC_VERSION} /opt/bin/noVNC \
   && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
   && rm noVNC.zip \
   && wget -nv -O websockify.zip \
-      "https://github.com/novnc/websockify/archive/refs/tags/v${WEBSOCKIFY_VERSION}.zip" \
+      "https://github.com/novnc/websockify/archive/refs/${WEBSOCKIFY_SOURCE}/${WEBSOCKIFY_VERSION}.zip" \
   && unzip -x websockify.zip \
   && rm websockify.zip \
   && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify \
