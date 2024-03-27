@@ -14,6 +14,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
     * [Settings when scalingType with `job`](#settings-when-scalingtype-with-job)
+    * [Settings fixed-sized thread pool for the Distributor to create new sessions](#settings-fixed-sized-thread-pool-for-the-distributor-to-create-new-sessions)
   * [Updating Selenium-Grid release](#updating-selenium-grid-release)
   * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
   * [Ingress Configuration](#ingress-configuration)
@@ -194,6 +195,16 @@ autoscaling:
 ### Settings when scalingType with `job`
 
 Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
+
+### Settings fixed-sized thread pool for the Distributor to create new sessions
+
+When enabling autoscaling, the Distributor might be under a high workload with parallelism tests, which are many requests incoming and nodes scaling up simultaneously. (Refer to: [SeleniumHQ/selenium#13723](https://github.com/SeleniumHQ/selenium/issues/13723)).
+
+By default, the Distributor uses a fixed-sized thread pool with default value is `no. of available processors * 3`.
+
+In autoscaling, by default, it will calculate based on `no. of node types * maxReplicaCount`. For example: `autoscaling.scaledOptions.maxReplicaCount=50`, 3 node types (`Chrome, Firefox, Edge` enabled), the value is `50 * 3 + 1 = 151` is set to environment variable `SE_NEW_SESSION_THREAD_POOL_SIZE` to adjust the Distributor config `--newsession-threadpool-size`
+
+You can override the default calculation by another value via `components.distributor.newSessionThreadPoolSize` (in full distributed mode) or `hub.newSessionThreadPoolSize` (in basic mode).
 
 ## Updating Selenium-Grid release
 

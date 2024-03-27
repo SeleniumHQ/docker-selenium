@@ -109,9 +109,12 @@ spec:
             - name: SE_DISABLE_UI
               value: {{ .Values.hub.disableUI | quote }}
             {{- end }}
-            {{- with .Values.hub.newSessionThreadPoolSize }}
+            {{- if .Values.hub.newSessionThreadPoolSize }}
             - name: SE_NEW_SESSION_THREAD_POOL_SIZE
-              value: {{ . | quote }}
+              value: {{ .Values.hub.newSessionThreadPoolSize | quote }}
+            {{- else if (eq (include "seleniumGrid.useKEDA" $) "true") }}
+            - name: SE_NEW_SESSION_THREAD_POOL_SIZE
+              value: '{{ template "seleniumGrid.autoscaling.distributor.threadPoolSize" $ }}'
             {{- end }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}

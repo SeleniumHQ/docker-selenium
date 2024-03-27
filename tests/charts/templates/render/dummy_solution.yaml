@@ -67,6 +67,7 @@ selenium-grid:
       disableUI: true
       serviceType: NodePort
     distributor:
+      newSessionThreadPoolSize: 24
       serviceType: NodePort
     eventBus:
       serviceType: NodePort

@@ -52,9 +52,12 @@ spec:
               value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
-            {{- with .Values.components.distributor.newSessionThreadPoolSize }}
+            {{- if .Values.components.distributor.newSessionThreadPoolSize }}
             - name: SE_NEW_SESSION_THREAD_POOL_SIZE
-              value: {{ . | quote }}
+              value: {{ .Values.components.distributor.newSessionThreadPoolSize | quote }}
+            {{- else if (eq (include "seleniumGrid.useKEDA" $) "true") }}
+            - name: SE_NEW_SESSION_THREAD_POOL_SIZE
+              value: '{{ template "seleniumGrid.autoscaling.distributor.threadPoolSize" $ }}'
             {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}

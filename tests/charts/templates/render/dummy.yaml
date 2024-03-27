@@ -68,6 +68,7 @@ components:
       "restartOnUpdate": "true"
     serviceType: NodePort
   distributor:
+    newSessionThreadPoolSize: 24
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort

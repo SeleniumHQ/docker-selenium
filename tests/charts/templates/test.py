@@ -73,6 +73,18 @@ class ChartTemplateTests(unittest.TestCase):
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
+    def test_distributor_new_session_thread_pool_size(self):
+        resources_name = ['{0}selenium-distributor'.format(RELEASE_NAME)]
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert newSessionThreadPoolSize is set to Distributor env SE_NEW_SESSION_THREAD_POOL_SIZE")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_NEW_SESSION_THREAD_POOL_SIZE' and env['value'] == '24':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_NEW_SESSION_THREAD_POOL_SIZE is not populated")
+
     def test_disable_ui_set_to_grid_env_var(self):
         resources_name = ['{0}selenium-router'.format(RELEASE_NAME)]
         is_present = False

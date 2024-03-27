@@ -128,6 +128,27 @@ Is tracing enabled
 {{- end -}}
 
 {{/*
+Configure fixed-sized thread pool for the Distributor to create new sessions
+based on sum of maxReplicaCount of all enabled Nodes in autoscaling
+*/}}
+{{- define "seleniumGrid.autoscaling.distributor.threadPoolSize" -}}
+{{- $threadPoolSize := 1 -}}
+{{- if .Values.chromeNode.enabled -}}
+{{- $maxReplicaCount := default .Values.autoscaling.scaledOptions.maxReplicaCount (.Values.chromeNode.scaledOptions).maxReplicaCount -}}
+{{- $threadPoolSize = add $threadPoolSize $maxReplicaCount -}}
+{{- end -}}
+{{- if $.Values.firefoxNode.enabled -}}
+{{- $maxReplicaCount := default .Values.autoscaling.scaledOptions.maxReplicaCount (.Values.firefoxNode.scaledOptions).maxReplicaCount -}}
+{{- $threadPoolSize = add $threadPoolSize $maxReplicaCount -}}
+{{- end -}}
+{{- if $.Values.edgeNode.enabled -}}
+{{- $maxReplicaCount := default .Values.autoscaling.scaledOptions.maxReplicaCount (.Values.edgeNode.scaledOptions).maxReplicaCount -}}
+{{- $threadPoolSize = add $threadPoolSize $maxReplicaCount -}}
+{{- end -}}
+{{- $threadPoolSize -}}
+{{- end -}}
+
+{{/*
 Common autoscaling spec template
 */}}
 {{- define "seleniumGrid.autoscalingTemplate" -}}

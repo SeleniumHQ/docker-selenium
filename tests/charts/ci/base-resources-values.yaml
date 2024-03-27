@@ -10,11 +10,11 @@ components:
   distributor:
     resources:
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: "1"
+        memory: 1Gi
       limits:
-        cpu: 200m
-        memory: 2500Mi
+        cpu: "2"
+        memory: 2Gi
   eventBus:
     resources:
       requests:
@@ -43,11 +43,11 @@ components:
 hub:
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: "1"
+      memory: 1Gi
     limits:
-      cpu: 500m
-      memory: 2500Mi
+      cpu: "2"
+      memory: 2Gi
 
 chromeNode:
   resources:
