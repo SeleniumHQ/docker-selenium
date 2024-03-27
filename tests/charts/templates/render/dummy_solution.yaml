@@ -104,6 +104,8 @@ selenium-grid:
         RCLONE_CONFIG_S3_NO_CHECK_BUCKET: "true"
 
   nodeConfigMap:
+    leftoversCleanup:
+      enabled: true
     extraScripts:
       nodeCustomTask.sh: |
         #!/bin/bash

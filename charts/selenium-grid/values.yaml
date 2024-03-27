@@ -22,7 +22,7 @@ global:
     # liveness probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeLivenessProbe: exec
     # probe logs output can be retrieved using `kubectl logs`
-    stdoutProbeLog: true
+    stdoutProbeLog: false
 
 tls:
   enabled: false
@@ -117,6 +117,12 @@ nodeConfigMap:
     nodeProbe.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
+  # Automatic browser leftovers cleanup stuck browser processes, tmp files
+  leftoversCleanup:
+    enabled: false
+    jobIntervalInSecs: 3600
+    browserElapsedTimeInSecs: 7200
+    tmpFilesAfterDays: 1
   # Custom annotations for configmap
   annotations: {}
 

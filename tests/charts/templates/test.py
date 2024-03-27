@@ -203,6 +203,19 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds")
 
+    def test_enable_leftovers_cleanup(self):
+        resources_name = ['{0}selenium-node-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert ENV vars for function leftovers cleanup is set to Node ConfigMap")
+                self.assertEqual(doc['data']['SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP'], 'true')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_INTERVAL_SECS'], '3600')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_PROCESSES_SECS'], '7200')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS'], '1')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
+
 if __name__ == '__main__':
     failed = False
     try:
