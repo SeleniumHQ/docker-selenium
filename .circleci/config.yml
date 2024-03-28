@@ -227,8 +227,9 @@ jobs:
       - run:
           name: "Prepare workflow environment variables"
           command: |
-            echo 'export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)' >> $BASH_ENV
-            echo 'export RELEASE=$(grep BASE_RELEASE Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)' >> $BASH_ENV
+            echo "export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)" >> $BASH_ENV
+            echo "export RELEASE=$(grep BASE_RELEASE Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)" >> $BASH_ENV
+            source $BASH_ENV
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
