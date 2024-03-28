@@ -1,3 +1,22 @@
+## :heavy_check_mark: selenium-grid-0.29.0
+
+- Chart is using image tag 4.19.0-20240328
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.12, v1.28.8, v1.29.3, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, 
+
+### Added
+- [`fed2e1c6`](http://github.com/seleniumhq/docker-selenium/commit/fed2e1c6a0489584b6cc8af8bbd04b37815007d2) - feat(chart): enable automatic browser leftovers cleanup in chart :: Viet Nguyen Duc
+- [`2eca4bbe`](http://github.com/seleniumhq/docker-selenium/commit/2eca4bbea12157928fdc3cd14decd2503456670b) - feat(chart): Configure fixed-sized thread pool for the Distributor in autoscaling :: Viet Nguyen Duc
+- [`97941f86`](http://github.com/seleniumhq/docker-selenium/commit/97941f86643a0f3238f8fdb0c72b83d01fe430f0) - feat(chart): Configure fixed-sized thread pool for the Distributor to create new sessions :: Viet Nguyen Duc
+
+### Fixed
+- [`6f03eb1d`](http://github.com/seleniumhq/docker-selenium/commit/6f03eb1d06ac9d7e60f5912f5986e8a4eabc4049) - fix(chart): accessing .Values in templates (#2174) :: Maxim Manuylov
+- [`db915980`](http://github.com/seleniumhq/docker-selenium/commit/db9159801c087b75031fb5ecacd368fdae54f3d4) - fix(chart): remove duplicate annotation (#2167) :: Mårten Svantesson
+
+### Changed
+- [`5a231077`](http://github.com/seleniumhq/docker-selenium/commit/5a2310778c03877043cdc585dc2265a976c21e9b) - docs: update rclone configs in sample :: Viet Nguyen Duc
+- [`3c6015c0`](http://github.com/seleniumhq/docker-selenium/commit/3c6015c03f31121b2ece62ebbc925bbf88a4d67d) - Update tag in docs and files :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.28.4
 
 - Chart is using image tag 4.18.1-20240224
