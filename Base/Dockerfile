@@ -1,4 +1,5 @@
-FROM ubuntu:jammy
+#FROM ubuntu:jammy
+FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
@@ -19,15 +20,16 @@ USER root
 #================================================
 # Customize sources for apt-get
 #================================================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
-ARG TARGETARCH=amd64
+#RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+#  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+#  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
+ARG TARGETARCH
 ARG TARGETVARIANT
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
     DEBCONF_NONINTERACTIVE_SEEN=true
+RUN echo "VERSION is $VERSION" && echo "RELEASE is $RELEASE"
 
 #========================
 # Miscellaneous packages
@@ -129,16 +131,21 @@ RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/sup
 # Download observability related jaegar jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
 #=====
-RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
-  && chmod +x /tmp/cs \
-  && mkdir -p /external_jars \
-  && chmod -R 775 /external_jars
+#RUN curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
+RUN if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
+    curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
+    && chmod +x /tmp/cs \
+    && mkdir -p /external_jars \
+    && chmod -R 775 /external_jars ; \
+    fi
 
-RUN /tmp/cs fetch --classpath --cache /external_jars \
+RUN if [ -f "/tmp/cs" ]; then \
+    /tmp/cs fetch --classpath --cache /external_jars \
     io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt
+    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt; \
+    fi
 
-RUN chmod 664 /external_jars/.classpath.txt
+RUN if [ -f "/tmp/cs" ]; then chmod 664 /external_jars/.classpath.txt ; fi
 RUN rm -fr /root/.cache/*
 
 #===================================================

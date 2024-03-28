@@ -1,0 +1,404 @@
+# .circleci/config.yml
+version: 2.1
+
+executors:
+  ubuntu2004arm64:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm-medium
+  ubuntu2004amd64:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: medium
+  ubuntu2004arm64large:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm-large
+
+jobs:
+  build-multi-arch:
+    parameters:
+      platforms: 
+        type: string
+      machine-type:
+        type: executor
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: seleniarm
+      BUILD_DATE: today
+      PLATFORMS: << parameters.platforms >>
+    steps:
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo 'export BRANCH="${CIRCLE_BRANCH//\//-}"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo $BRANCH
+      - run: uname -a
+      - run: docker info
+      - checkout
+      - run:
+          name: "Build Docker images"
+          command: |
+            echo "Branch is $BRANCH"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Save Docker Images in Cache"
+          command: |  
+            export VERSION=${CIRCLE_BRANCH//\//-}
+            echo $NAMESPACE/base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-base:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/hub:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE 
+            echo $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE 
+            docker save -o multi-arch-images.tar \
+              $NAMESPACE/base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-base:$VERSION-$BUILD_DATE \
+              $NAMESPACE/hub:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-chromium:$VERSION-$BUILD_DATE \
+              $NAMESPACE/node-firefox:$VERSION-$BUILD_DATE \
+              $NAMESPACE/standalone-firefox:$VERSION-$BUILD_DATE
+      - save_cache:
+          key: multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
+          paths: 
+            - multi-arch-images.tar
+
+  test-multi-arch:
+    parameters:
+      platforms: 
+        type: string
+      machine-type:
+        type: executor
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: seleniarm
+      BUILD_DATE: today
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - multi-arch-images-{{ .Branch }}-{{ .Environment.CIRCLE_WORKFLOW_ID }}-<< parameters.platforms >>
+      - run: uname -a
+      - run: docker info
+      - run:
+          name: "Load built images from cache into Docker"
+          command: |
+            echo "CIRCLE_WORKFLOW_ID = " $CIRCLE_WORKFLOW_ID
+            docker load -i multi-arch-images.tar
+      - run:
+          name: "Use Python3 and pip3 instead of Python2.7"
+          command: |
+            echo "Use Python3 and pip3 instead of Python2.7"
+            sed -i 's/pip /pip3 /g' tests/bootstrap.sh
+            sed -i 's/python /python3 /g' tests/bootstrap.sh
+            sed -i 's/-m pip3 /-m pip /g' tests/bootstrap.sh
+      - run: 
+          name: "Test Docker images"
+          no_output_timeout: 2m
+          command: |
+            export USE_RANDOM_USER=false
+            export BRANCH=${CIRCLE_BRANCH//\//-}
+            USE_RANDOM_USER_ID=${USE_RANDOM_USER} NAMESPACE=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SKIP_BUILD=true make test_multi_arch
+
+  deploy-multi-arch:
+    parameters:
+      platforms: 
+        type: string
+      build-args:
+        type: string
+      machine-type:
+        type: executor
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: seleniarm
+      PLATFORMS: << parameters.platforms >>
+      BUILD_ARGS: << parameters.build-args >>
+      DEPLOY_BRANCH: trunk
+      GITHUB_USER: seleniumhq-community
+      GITHUB_REPO: docker-seleniarm
+    steps:
+      - checkout
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
+            echo "Prepare workflow environment variables"
+            echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
+            echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            echo NAMESPACE="$NAMESPACE"
+            echo PLATFORMS="$PLATFORMS"
+            echo BUILD_ARGS="$BUILD_ARGS"
+            echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
+            echo GITHUB_USER="$GITHUB_USER"
+            echo GITHUB_REPO="$GITHUB_REPO"
+      - run: uname -a
+      - run: docker info
+      - run:
+          name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          command: |
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+      - run:
+          name: "Build and Push Docker images"
+          command: |
+            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+            docker buildx use `docker buildx create`
+            docker buildx ls
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} make build_multi
+      - run:
+          name: "Tag browser images and update latest tag"
+          command: |
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_multi_arch_browser_images
+            NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make tag_multi_arch_latest
+      - run:
+          name: "Generate release notes"
+          command: |
+            export LATEST_TAG=$(git describe --tags --abbrev=0)
+            sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+            sudo apt-get update -y && sudo apt-get install python3-venv
+            go install github.com/github-release/github-release@v0.10.0
+            cat release_notes.md
+            export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
+            github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
+
+  deploy-multi-arch-full-grid:
+    parameters:
+      platforms: 
+        type: string
+      build-args:
+        type: string
+      machine-type:
+        type: executor
+      circle-job:
+        type: env_var_name
+        default: CIRCLE_JOB
+      make-targets:
+        type: string
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: seleniarm
+      PLATFORMS: << parameters.platforms >>
+      BUILD_ARGS: << parameters.build-args >>
+      MAKE_TARGETS: << parameters.make-targets >>
+      DEPLOY_BRANCH: trunk
+      RELEASE: selenium-4.18.0
+      SELENIUM_VERSION: 4.18.1
+      GITHUB_USER: seleniumhq-community
+      GITHUB_REPO: docker-seleniarm
+    steps:
+      - checkout
+      - run:
+          name: Debug
+          command: |
+            echo $CIRCLE_JOB
+            echo ${<< parameters.circle-job >>}
+      - when:
+          condition:
+            equal: [ base_multi, << parameters.make-targets >> ]
+          steps:
+            - run: echo "CIRCLE_JOB name is deploy-multi-arch-base"
+      - when:
+          condition:
+            equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
+          steps:
+            - run: echo "CIRCLE_JOB name is release notes, so we proceed"
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            #export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
+            echo "Prepare workflow environment variables"
+            echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
+            echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
+            #echo 'export BUILD_DATE=20230110' >> $BASH_ENV
+            echo 'export RELEASE_TAG="seleniarm-v`echo $BRANCH`-`echo $BUILD_DATE`"' >> $BASH_ENV
+            source $BASH_ENV
+            echo "Workflow environment variables:"
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            echo NAMESPACE="$NAMESPACE"
+            echo PLATFORMS="$PLATFORMS"
+            echo BUILD_ARGS="$BUILD_ARGS"
+            echo DEPLOY_BRANCH="$DEPLOY_BRANCH"
+            echo GITHUB_USER="$GITHUB_USER"
+            echo GITHUB_REPO="$GITHUB_REPO"
+            echo SELENIUM_VERSION="$SELENIUM_VERSION"
+            echo RELEASE="$RELEASE"
+      - run: uname -a
+      - run: docker info
+      - run:
+          name: "Check if branch is deployable (contains [deploy] in commit msg on $DEPLOY_BRANCH"
+          command: |
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
+            if [ -z "$CI_DEPLOY" ] || [ "$CIRCLE_BRANCH" != "$DEPLOY_BRANCH" ]; then
+              echo "Cancelling run. Pass [deploy] in commit message on $DEPLOY_BRANCH to deploy"
+              circleci-agent step halt
+            else 
+              echo "[deploy] is present in commit message to $DEPLOY_BRANCH. Running workflow to deploy container images"
+            fi
+      - run:
+          name: "Build and Push Docker images"
+          command: |
+            echo "Login to Docker, and setup to use a buildx builder and push built multi-arch images"
+            docker buildx use `docker buildx create`
+            docker buildx ls
+            # For release notes, we'll pull images anonymously without login.
+            # if [ "$MAKE_TARGETS" != "tag_and_push_multi_arch_browser_images" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+            # fi
+            echo BRANCH="$BRANCH"
+            echo BUILD_DATE="$BUILD_DATE"
+            echo RELEASE_TAG="$RELEASE_TAG"
+            export CI_DEPLOY=`git log --format=oneline -n 1 | grep '\[deploy\]'` && echo "$CI_DEPLOY"
+            #NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PLATFORMS=${PLATFORMS} BUILD_ARGS=${BUILD_ARGS} sh build-and-push.sh $MAKE_TARGETS
+            
+            export NAME=${NAMESPACE}
+            export VERSION=${BRANCH}
+            export RELEASE=${RELEASE}
+            export BUILD_DATE=${BUILD_DATE}
+            export PLATFORMS=${PLATFORMS}
+            export BUILD_ARGS=${BUILD_ARGS}
+            # If there are build errors, let's retry
+            max=5; until sh build-and-push.sh $MAKE_TARGETS; do if [ $((--max)) = 0 ]; then echo Giving up; exit 1; fi; done
+
+      - when:
+          condition:
+            equal: [ tag_and_push_multi_arch_browser_images, << parameters.make-targets >> ]
+          steps:
+            - run:
+                name: "Push major/minor and browser tags to Docker Hub and update latest tag"
+                command: |
+                  NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_multi_arch_browser_images
+                  NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make tag_multi_arch_latest
+            - run:
+                name: "Push major/minor tags to Docker Hub for non-browser images"
+                command: |
+                  NAME=${NAMESPACE} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_major_minor_multi_arch
+            - run:
+                name: "Generate release notes"
+                command: |
+                  docker logout
+                  export LATEST_TAG=$(git describe --tags --abbrev=0)
+                  sh generate_multi-arch-release_notes.sh $LATEST_TAG $CIRCLE_BRANCH $BRANCH $BUILD_DATE
+                  sudo apt-get update -y && sudo apt-get install python3-venv
+                  go install github.com/github-release/github-release@v0.10.0
+                  cat release_notes.md
+                  export GITHUB_TOKEN=$(sh get-access-token.sh | tail -n 1)
+                  github-release release --tag $RELEASE_TAG --name $RELEASE_TAG --description "`cat release_notes.md`"
+
+workflows:
+  build-and-test-multi-arch:
+    jobs:
+      - build-multi-arch:
+          name: build-multi-arch-arm64
+          platforms: linux/arm64
+          machine-type: ubuntu2004arm64
+      - build-multi-arch:
+          name: build-multi-arch-amd64
+          platforms: linux/amd64
+          machine-type: ubuntu2004amd64
+      - test-multi-arch:
+          name: test-multi-arch-arm64
+          requires: [build-multi-arch-arm64]
+          platforms: linux/arm64
+          machine-type: ubuntu2004arm64
+      - test-multi-arch:
+          name: test-multi-arch-amd64
+          requires: [build-multi-arch-amd64]
+          platforms: linux/amd64
+          machine-type: ubuntu2004amd64
+
+  deploy-multi-arch-full-grid:
+    jobs:
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-base
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: base_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - trunk
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-full-grid
+          requires: [deploy-multi-arch-base]
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: grid_multi
+          machine-type: ubuntu2004arm64
+          filters: 
+            branches: 
+              only: 
+                - trunk
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-node-base
+          requires: [deploy-multi-arch-base]
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: node_base_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - trunk
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-firefox
+          requires: [deploy-multi-arch-node-base]
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: firefox_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - trunk
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-chromium
+          requires: [deploy-multi-arch-node-base]
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: chromium_multi
+          machine-type: ubuntu2004arm64large
+          filters: 
+            branches: 
+              only: 
+                - trunk
+      - deploy-multi-arch-full-grid:
+          name: deploy-multi-arch-release-notes
+          requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
+          platforms: linux/arm64,linux/amd64
+          build-args: --push
+          make-targets: tag_and_push_multi_arch_browser_images
+          machine-type: ubuntu2004arm64
+          filters: 
+            branches: 
+              only: 
+                - trunk
