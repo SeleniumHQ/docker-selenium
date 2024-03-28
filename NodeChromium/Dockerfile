@@ -16,6 +16,7 @@ USER root
 # Install Chromium 
 # RUN echo "deb http://http.us.debian.org/debian/ stable non-free contrib main" >> /etc/apt/sources.list \
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 \
   && apt-get update -qqy \
   # && apt-get -qqy install chromium=89.0.4389.82-1 \
   # && apt-get -qqy install chromium=90.0.4430.212-1 \

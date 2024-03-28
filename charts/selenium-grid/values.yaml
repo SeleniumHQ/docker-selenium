@@ -7,11 +7,11 @@ global:
     # Image registry for all selenium components
     imageRegistry: selenium
     # Image tag for all selenium components
-    imageTag: 4.18.1-20240224
+    imageTag: 4.19.0-20240328
     # Image tag for browser's nodes
-    nodesImageTag: 4.18.1-20240224
+    nodesImageTag: 4.19.0-20240328
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.1-20240224
+    videoImageTag: ffmpeg-6.1-20240328
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -22,7 +22,7 @@ global:
     # liveness probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeLivenessProbe: exec
     # probe logs output can be retrieved using `kubectl logs`
-    stdoutProbeLog: true
+    stdoutProbeLog: false
 
 tls:
   enabled: false
@@ -117,6 +117,12 @@ nodeConfigMap:
     nodeProbe.sh:
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
+  # Automatic browser leftovers cleanup stuck browser processes, tmp files
+  leftoversCleanup:
+    enabled: false
+    jobIntervalInSecs: 3600
+    browserElapsedTimeInSecs: 7200
+    tmpFilesAfterDays: 1
   # Custom annotations for configmap
   annotations: {}
 
@@ -194,13 +200,15 @@ components:
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.18.1-20240224
+    # imageTag: 4.19.0-20240328
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # Disable the Grid UI
+    disableUI: false
     # Custom annotations for router pods
     annotations: {}
     # Router port
@@ -256,13 +264,15 @@ components:
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.18.1-20240224
+    # imageTag: 4.19.0-20240328
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
     # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
+    newSessionThreadPoolSize:
     # Custom annotations for Distributor pods
     annotations: {}
     # Distributor port
@@ -289,7 +299,7 @@ components:
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.18.1-20240224
+    # imageTag: 4.19.0-20240328
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -328,7 +338,7 @@ components:
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.18.1-20240224
+    # imageTag: 4.19.0-20240328
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -359,7 +369,7 @@ components:
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.18.1-20240224
+    # imageTag: 4.19.0-20240328
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -387,8 +397,6 @@ components:
 
   # Custom sub path for all components
   subPath: ""
-  # Disable the Grid UI
-  disableUI: false
 
   # Custom environment variables for all components
   extraEnvironmentVariables:
@@ -413,7 +421,7 @@ hub:
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.18.1-20240224
+  # imageTag: 4.19.0-20240328
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -425,6 +433,8 @@ hub:
   labels: {}
   # Disable the Grid UI
   disableUI: false
+  # Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
+  newSessionThreadPoolSize:
   # Port where events are published
   publishPort: 4442
   publishNodePort: 31442
@@ -588,7 +598,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.18.1-20240224
+  # imageTag: 4.19.0-20240328
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -718,7 +728,7 @@ chromeNode:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'chrome'
     sessionBrowserName: 'chrome'
-    platformName: 'Linux'
+    platformName: 'linux'
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -749,7 +759,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.18.1-20240224
+  # imageTag: 4.19.0-20240328
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -879,7 +889,7 @@ firefoxNode:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'firefox'
     sessionBrowserName: 'firefox'
-    platformName: 'Linux'
+    platformName: 'linux'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -908,7 +918,7 @@ edgeNode:
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.18.1-20240224
+  # imageTag: 4.19.0-20240328
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -1038,7 +1048,7 @@ edgeNode:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
     browserName: 'MicrosoftEdge'
     sessionBrowserName: 'msedge'
-    platformName: 'Linux'
+    platformName: 'linux'
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -1056,7 +1066,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.1-20240224
+  # imageTag: ffmpeg-6.1-20240328
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)

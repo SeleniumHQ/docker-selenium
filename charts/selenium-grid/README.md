@@ -14,6 +14,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
     * [Settings when scalingType with `job`](#settings-when-scalingtype-with-job)
+    * [Settings fixed-sized thread pool for the Distributor to create new sessions](#settings-fixed-sized-thread-pool-for-the-distributor-to-create-new-sessions)
   * [Updating Selenium-Grid release](#updating-selenium-grid-release)
   * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
   * [Ingress Configuration](#ingress-configuration)
@@ -195,6 +196,16 @@ autoscaling:
 
 Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
 
+### Settings fixed-sized thread pool for the Distributor to create new sessions
+
+When enabling autoscaling, the Distributor might be under a high workload with parallelism tests, which are many requests incoming and nodes scaling up simultaneously. (Refer to: [SeleniumHQ/selenium#13723](https://github.com/SeleniumHQ/selenium/issues/13723)).
+
+By default, the Distributor uses a fixed-sized thread pool with default value is `no. of available processors * 3`.
+
+In autoscaling, by default, it will calculate based on `no. of node types * maxReplicaCount`. For example: `autoscaling.scaledOptions.maxReplicaCount=50`, 3 node types (`Chrome, Firefox, Edge` enabled), the value is `50 * 3 + 1 = 151` is set to environment variable `SE_NEW_SESSION_THREAD_POOL_SIZE` to adjust the Distributor config `--newsession-threadpool-size`
+
+You can override the default calculation by another value via `components.distributor.newSessionThreadPoolSize` (in full distributed mode) or `hub.newSessionThreadPoolSize` (in basic mode).
+
 ## Updating Selenium-Grid release
 
 Once you have a new chart version, you can update your selenium-grid running:
@@ -292,9 +303,9 @@ For now, global configuration supported is:
 |-------------------------------------------------|-----------------------|-------------------------------------------|
 | `global.K8S_PUBLIC_IP`                          | `""`                  | Public IP of the host running K8s         |
 | `global.seleniumGrid.imageRegistry`             | `selenium`            | Distribution registry to pull images      |
-| `global.seleniumGrid.imageTag`                  | `4.18.1-20240224`     | Image tag for all selenium components     |
-| `global.seleniumGrid.nodesImageTag`             | `4.18.1-20240224`     | Image tag for browser's nodes             |
-| `global.seleniumGrid.videoImageTag`             | `ffmpeg-6.1-20240224` | Image tag for browser's video recorder    |
+| `global.seleniumGrid.imageTag`                  | `4.19.0-20240328`     | Image tag for all selenium components     |
+| `global.seleniumGrid.nodesImageTag`             | `4.19.0-20240328`     | Image tag for browser's nodes             |
+| `global.seleniumGrid.videoImageTag`             | `ffmpeg-6.1-20240328` | Image tag for browser's video recorder    |
 | `global.seleniumGrid.imagePullSecret`           | `""`                  | Pull secret to be used for all images     |
 | `global.seleniumGrid.imagePullSecret`           | `""`                  | Pull secret to be used for all images     |
 | `global.seleniumGrid.affinity`                  | `{}`                  | Affinity assigned globally                |
@@ -706,7 +717,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.replicas`                         | `1`                                         | Number of chrome nodes. Disabled if autoscaling is enabled.                                                                |
 | `chromeNode.imageRegistry`                    | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `chromeNode.imageName`                        | `node-chrome`                               | Image of chrome nodes                                                                                                      |
-| `chromeNode.imageTag`                         | `4.18.1-20240224`                           | Image of chrome nodes                                                                                                      |
+| `chromeNode.imageTag`                         | `4.19.0-20240328`                           | Image of chrome nodes                                                                                                      |
 | `chromeNode.imagePullPolicy`                  | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `chromeNode.imagePullSecret`                  | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `chromeNode.ports`                            | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -749,7 +760,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.replicas`                        | `1`                                         | Number of firefox nodes. Disabled if autoscaling is enabled.                                                               |
 | `firefoxNode.imageRegistry`                   | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `firefoxNode.imageName`                       | `node-firefox`                              | Image of firefox nodes                                                                                                     |
-| `firefoxNode.imageTag`                        | `4.18.1-20240224`                           | Image of firefox nodes                                                                                                     |
+| `firefoxNode.imageTag`                        | `4.19.0-20240328`                           | Image of firefox nodes                                                                                                     |
 | `firefoxNode.imagePullPolicy`                 | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `firefoxNode.imagePullSecret`                 | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `firefoxNode.ports`                           | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -792,7 +803,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.replicas`                           | `1`                                         | Number of edge nodes. Disabled if autoscaling is enabled.                                                                  |
 | `edgeNode.imageRegistry`                      | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `edgeNode.imageName`                          | `node-edge`                                 | Image of edge nodes                                                                                                        |
-| `edgeNode.imageTag`                           | `4.18.1-20240224`                           | Image of edge nodes                                                                                                        |
+| `edgeNode.imageTag`                           | `4.19.0-20240328`                           | Image of edge nodes                                                                                                        |
 | `edgeNode.imagePullPolicy`                    | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `edgeNode.imagePullSecret`                    | `""`                                        | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)               |
 | `edgeNode.ports`                              | `[]`                                        | Extra ports list to enable on container (e.g VNC, NoVNC, SSH if any)                                                       |
@@ -833,7 +844,7 @@ This table contains the configuration parameters of the chart and their default 
 | `videoRecorder.enabled`                       | `false`                                     | Enable video recorder for node                                                                                             |
 | `videoRecorder.imageRegistry`                 | `nil`                                       | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                       |
 | `videoRecorder.imageName`                     | `video`                                     | Selenium video recorder image name                                                                                         |
-| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240224`                       | Image tag of video recorder                                                                                                |
+| `videoRecorder.imageTag`                      | `ffmpeg-6.1-20240328`                       | Image tag of video recorder                                                                                                |
 | `videoRecorder.imagePullPolicy`               | `IfNotPresent`                              | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                             |
 | `videoRecorder.uploader.enabled`              | `false`                                     | Enable the uploader for videos                                                                                             |
 | `videoRecorder.uploader.destinationPrefix`    | ``                                          | Destination for uploading video file. It is following `rclone` config                                                      |
@@ -888,6 +899,7 @@ You can configure the Selenium Hub with these values:
 | `hub.annotations`               | `{}`              | Custom annotations for Selenium Hub pod                                                                                                          |
 | `hub.labels`                    | `{}`              | Custom labels for Selenium Hub pod                                                                                                               |
 | `hub.disableUI`                 | `false`           | Disable the Grid UI                                                                                                                              |
+| `hub.newSessionThreadPoolSize`  | `nil`             | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue                  |
 | `hub.publishPort`               | `4442`            | Port where events are published                                                                                                                  |
 | `hub.publishNodePort`           | `31442`           | NodePort where events are published                                                                                                              |
 | `hub.subscribePort`             | `4443`            | Port where to subscribe for events                                                                                                               |
@@ -916,96 +928,97 @@ You can configure the Selenium Hub with these values:
 
 If you implement selenium-grid with separate components (`isolateComponents: true`), you can configure all components via the following values:
 
-| Parameter                                    | Default           | Description                                                                                                                                      |
-|----------------------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
-| `components.router.imageRegistry`            | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
-| `components.router.imageName`                | `router`          | Router image name                                                                                                                                |
-| `components.router.imageTag`                 | `nil`             | Router image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                                         |
-| `components.router.imagePullPolicy`          | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
-| `components.router.imagePullSecret`          | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
-| `components.router.annotations`              | `{}`              | Custom annotations for router pod                                                                                                                |
-| `components.router.port`                     | `4444`            | Router port                                                                                                                                      |
-| `components.router.nodePort`                 | `30444`           | Router NodePort                                                                                                                                  |
-| `components.router.livenessProbe`            | `See values.yaml` | Liveness probe settings                                                                                                                          |
-| `components.router.readinessProbe`           | `See values.yaml` | Readiness probe settings                                                                                                                         |
-| `components.router.resources`                | `{}`              | Resources for router pod                                                                                                                         |
-| `components.router.securityContext`          | `See values.yaml` | Security context for router pod                                                                                                                  |
-| `components.router.serviceType`              | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
-| `components.router.loadBalancerIP`           | `nil`             | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
-| `components.router.serviceAnnotations`       | `{}`              | Custom annotations for router service                                                                                                            |
-| `components.router.tolerations`              | `[]`              | Tolerations for router pods                                                                                                                      |
-| `components.router.nodeSelector`             | `{}`              | Node Selector for router pods                                                                                                                    |
-| `components.router.affinity`                 | `{}`              | Affinity for router pods                                                                                                                         |
-| `components.router.priorityClassName`        | `""`              | Priority class name for router pods                                                                                                              |
-| `components.distributor.imageRegistry`       | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
-| `components.distributor.imageName`           | `distributor`     | Distributor image name                                                                                                                           |
-| `components.distributor.imageTag`            | `nil`             | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
-| `components.distributor.imagePullPolicy`     | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
-| `components.distributor.imagePullSecret`     | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
-| `components.distributor.annotations`         | `{}`              | Custom annotations for Distributor pod                                                                                                           |
-| `components.distributor.port`                | `5553`            | Distributor port                                                                                                                                 |
-| `components.distributor.nodePort`            | `30553`           | Distributor NodePort                                                                                                                             |
-| `components.distributor.resources`           | `{}`              | Resources for Distributor pod                                                                                                                    |
-| `components.distributor.securityContext`     | `See values.yaml` | Security context for Distributor pod                                                                                                             |
-| `components.distributor.serviceType`         | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
-| `components.distributor.serviceAnnotations`  | `{}`              | Custom annotations for Distributor service                                                                                                       |
-| `components.distributor.tolerations`         | `[]`              | Tolerations for Distributor pods                                                                                                                 |
-| `components.distributor.nodeSelector`        | `{}`              | Node Selector for Distributor pods                                                                                                               |
-| `components.distributor.affinity`            | `{}`              | Affinity for Distributor pods                                                                                                                    |
-| `components.distributor.priorityClassName`   | `""`              | Priority class name for Distributor pods                                                                                                         |
-| `components.eventBus.imageRegistry`          | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
-| `components.eventBus.imageName`              | `event-bus`       | Event Bus image name                                                                                                                             |
-| `components.eventBus.imageTag`               | `nil`             | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                     |
-| `components.eventBus.imagePullPolicy`        | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
-| `components.eventBus.imagePullSecret`        | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
-| `components.eventBus.annotations`            | `{}`              | Custom annotations for Event Bus pod                                                                                                             |
-| `components.eventBus.port`                   | `5557`            | Event Bus port                                                                                                                                   |
-| `components.eventBus.nodePort`               | `30557`           | Event Bus NodePort                                                                                                                               |
-| `components.eventBus.publishPort`            | `4442`            | Port where events are published                                                                                                                  |
-| `components.eventBus.publishNodePort`        | `30442`           | NodePort where events are published                                                                                                              |
-| `components.eventBus.subscribePort`          | `4443`            | Port where to subscribe for events                                                                                                               |
-| `components.eventBus.subscribeNodePort`      | `30443`           | NodePort where to subscribe for events                                                                                                           |
-| `components.eventBus.resources`              | `{}`              | Resources for event-bus pod                                                                                                                      |
-| `components.eventBus.securityContext`        | `See values.yaml` | Security context for event-bus pod                                                                                                               |
-| `components.eventBus.serviceType`            | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
-| `components.eventBus.serviceAnnotations`     | `{}`              | Custom annotations for Event Bus service                                                                                                         |
-| `components.eventBus.tolerations`            | `[]`              | Tolerations for Event Bus pods                                                                                                                   |
-| `components.eventBus.nodeSelector`           | `{}`              | Node Selector for Event Bus pods                                                                                                                 |
-| `components.eventBus.affinity`               | `{}`              | Affinity for Event Bus pods                                                                                                                      |
-| `components.eventBus.priorityClassName`      | `""`              | Priority class name for Event Bus pods                                                                                                           |
-| `components.sessionMap.imageRegistry`        | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
-| `components.sessionMap.imageName`            | `sessions`        | Session Map image name                                                                                                                           |
-| `components.sessionMap.imageTag`             | `nil`             | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
-| `components.sessionMap.imagePullPolicy`      | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
-| `components.sessionMap.imagePullSecret`      | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
-| `components.sessionMap.annotations`          | `{}`              | Custom annotations for Session Map pod                                                                                                           |
-| `components.sessionMap.resources`            | `{}`              | Resources for Session Map pod                                                                                                                    |
-| `components.sessionMap.securityContext`      | `See values.yaml` | Security context for Session Map pod                                                                                                             |
-| `components.sessionMap.serviceType`          | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
-| `components.sessionMap.serviceAnnotations`   | `{}`              | Custom annotations for Session Map service                                                                                                       |
-| `components.sessionMap.tolerations`          | `[]`              | Tolerations for Session Map pods                                                                                                                 |
-| `components.sessionMap.nodeSelector`         | `{}`              | Node Selector for Session Map pods                                                                                                               |
-| `components.sessionMap.affinity`             | `{}`              | Affinity for Session Map pods                                                                                                                    |
-| `components.sessionMap.priorityClassName`    | `""`              | Priority class name for Session Map pods                                                                                                         |
-| `components.sessionQueue.imageRegistry`      | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
-| `components.sessionQueue.imageName`          | `session-queue`   | Session Queue image name                                                                                                                         |
-| `components.sessionQueue.imageTag`           | `nil`             | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                 |
-| `components.sessionQueue.imagePullPolicy`    | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
-| `components.sessionQueue.imagePullSecret`    | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
-| `components.sessionQueue.annotations`        | `{}`              | Custom annotations for Session Queue pod                                                                                                         |
-| `components.sessionQueue.port`               | `5559`            | Session Queue Port                                                                                                                               |
-| `components.sessionQueue.nodePort`           | `30559`           | Session Queue NodePort                                                                                                                           |
-| `components.sessionQueue.resources`          | `{}`              | Resources for Session Queue pod                                                                                                                  |
-| `components.sessionQueue.securityContext`    | `See values.yaml` | Security context for Session Queue pod                                                                                                           |
-| `components.sessionQueue.serviceType`        | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
-| `components.sessionQueue.serviceAnnotations` | `{}`              | Custom annotations for Session Queue service                                                                                                     |
-| `components.sessionQueue.tolerations`        | `[]`              | Tolerations for Session Queue pods                                                                                                               |
-| `components.sessionQueue.nodeSelector`       | `{}`              | Node Selector for Session Queue pods                                                                                                             |
-| `components.sessionQueue.affinity`           | `{}`              | Affinity for Session Queue pods                                                                                                                  |
-| `components.sessionQueue.priorityClassName`  | `""`              | Priority class name for Session Queue pods                                                                                                       |
-| `components.subPath`                         | `/`               | Custom sub path for all components                                                                                                               |
-| `components.disableUI`                       | `false`           | Disable the Grid UI                                                                                                                              |
-| `components.extraEnvironmentVariables`       | `nil`             | Custom environment variables for all components                                                                                                  |
-| `components.extraEnvFrom`                    | `nil`             | Custom environment variables taken from `configMap` or `secret` for all components                                                               |
+| Parameter                                         | Default           | Description                                                                                                                                      |
+|---------------------------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|
+| `components.router.imageRegistry`                 | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
+| `components.router.imageName`                     | `router`          | Router image name                                                                                                                                |
+| `components.router.imageTag`                      | `nil`             | Router image tag (this overwrites `.global.seleniumGrid.imageTag` value)                                                                         |
+| `components.router.imagePullPolicy`               | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
+| `components.router.imagePullSecret`               | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
+| `components.router.annotations`                   | `{}`              | Custom annotations for router pod                                                                                                                |
+| `components.router.port`                          | `4444`            | Router port                                                                                                                                      |
+| `components.router.nodePort`                      | `30444`           | Router NodePort                                                                                                                                  |
+| `components.router.livenessProbe`                 | `See values.yaml` | Liveness probe settings                                                                                                                          |
+| `components.router.readinessProbe`                | `See values.yaml` | Readiness probe settings                                                                                                                         |
+| `components.router.resources`                     | `{}`              | Resources for router pod                                                                                                                         |
+| `components.router.securityContext`               | `See values.yaml` | Security context for router pod                                                                                                                  |
+| `components.router.serviceType`                   | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
+| `components.router.loadBalancerIP`                | `nil`             | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
+| `components.router.serviceAnnotations`            | `{}`              | Custom annotations for router service                                                                                                            |
+| `components.router.tolerations`                   | `[]`              | Tolerations for router pods                                                                                                                      |
+| `components.router.nodeSelector`                  | `{}`              | Node Selector for router pods                                                                                                                    |
+| `components.router.affinity`                      | `{}`              | Affinity for router pods                                                                                                                         |
+| `components.router.priorityClassName`             | `""`              | Priority class name for router pods                                                                                                              |
+| `components.router.disableUI`                     | `false`           | Disable the Grid UI                                                                                                                              |
+| `components.distributor.imageRegistry`            | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
+| `components.distributor.imageName`                | `distributor`     | Distributor image name                                                                                                                           |
+| `components.distributor.imageTag`                 | `nil`             | Distributor image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
+| `components.distributor.imagePullPolicy`          | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
+| `components.distributor.imagePullSecret`          | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
+| `components.distributor.annotations`              | `{}`              | Custom annotations for Distributor pod                                                                                                           |
+| `components.distributor.port`                     | `5553`            | Distributor port                                                                                                                                 |
+| `components.distributor.nodePort`                 | `30553`           | Distributor NodePort                                                                                                                             |
+| `components.distributor.resources`                | `{}`              | Resources for Distributor pod                                                                                                                    |
+| `components.distributor.securityContext`          | `See values.yaml` | Security context for Distributor pod                                                                                                             |
+| `components.distributor.serviceType`              | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
+| `components.distributor.serviceAnnotations`       | `{}`              | Custom annotations for Distributor service                                                                                                       |
+| `components.distributor.tolerations`              | `[]`              | Tolerations for Distributor pods                                                                                                                 |
+| `components.distributor.nodeSelector`             | `{}`              | Node Selector for Distributor pods                                                                                                               |
+| `components.distributor.affinity`                 | `{}`              | Affinity for Distributor pods                                                                                                                    |
+| `components.distributor.priorityClassName`        | `""`              | Priority class name for Distributor pods                                                                                                         |
+| `components.distributor.newSessionThreadPoolSize` | `nil`             | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue                  |
+| `components.eventBus.imageRegistry`               | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
+| `components.eventBus.imageName`                   | `event-bus`       | Event Bus image name                                                                                                                             |
+| `components.eventBus.imageTag`                    | `nil`             | Event Bus image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                     |
+| `components.eventBus.imagePullPolicy`             | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
+| `components.eventBus.imagePullSecret`             | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
+| `components.eventBus.annotations`                 | `{}`              | Custom annotations for Event Bus pod                                                                                                             |
+| `components.eventBus.port`                        | `5557`            | Event Bus port                                                                                                                                   |
+| `components.eventBus.nodePort`                    | `30557`           | Event Bus NodePort                                                                                                                               |
+| `components.eventBus.publishPort`                 | `4442`            | Port where events are published                                                                                                                  |
+| `components.eventBus.publishNodePort`             | `30442`           | NodePort where events are published                                                                                                              |
+| `components.eventBus.subscribePort`               | `4443`            | Port where to subscribe for events                                                                                                               |
+| `components.eventBus.subscribeNodePort`           | `30443`           | NodePort where to subscribe for events                                                                                                           |
+| `components.eventBus.resources`                   | `{}`              | Resources for event-bus pod                                                                                                                      |
+| `components.eventBus.securityContext`             | `See values.yaml` | Security context for event-bus pod                                                                                                               |
+| `components.eventBus.serviceType`                 | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
+| `components.eventBus.serviceAnnotations`          | `{}`              | Custom annotations for Event Bus service                                                                                                         |
+| `components.eventBus.tolerations`                 | `[]`              | Tolerations for Event Bus pods                                                                                                                   |
+| `components.eventBus.nodeSelector`                | `{}`              | Node Selector for Event Bus pods                                                                                                                 |
+| `components.eventBus.affinity`                    | `{}`              | Affinity for Event Bus pods                                                                                                                      |
+| `components.eventBus.priorityClassName`           | `""`              | Priority class name for Event Bus pods                                                                                                           |
+| `components.sessionMap.imageRegistry`             | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
+| `components.sessionMap.imageName`                 | `sessions`        | Session Map image name                                                                                                                           |
+| `components.sessionMap.imageTag`                  | `nil`             | Session Map image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                   |
+| `components.sessionMap.imagePullPolicy`           | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
+| `components.sessionMap.imagePullSecret`           | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
+| `components.sessionMap.annotations`               | `{}`              | Custom annotations for Session Map pod                                                                                                           |
+| `components.sessionMap.resources`                 | `{}`              | Resources for Session Map pod                                                                                                                    |
+| `components.sessionMap.securityContext`           | `See values.yaml` | Security context for Session Map pod                                                                                                             |
+| `components.sessionMap.serviceType`               | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
+| `components.sessionMap.serviceAnnotations`        | `{}`              | Custom annotations for Session Map service                                                                                                       |
+| `components.sessionMap.tolerations`               | `[]`              | Tolerations for Session Map pods                                                                                                                 |
+| `components.sessionMap.nodeSelector`              | `{}`              | Node Selector for Session Map pods                                                                                                               |
+| `components.sessionMap.affinity`                  | `{}`              | Affinity for Session Map pods                                                                                                                    |
+| `components.sessionMap.priorityClassName`         | `""`              | Priority class name for Session Map pods                                                                                                         |
+| `components.sessionQueue.imageRegistry`           | `nil`             | Distribution registry to pull the image (this overwrites `.global.seleniumGrid.imageRegistry` value)                                             |
+| `components.sessionQueue.imageName`               | `session-queue`   | Session Queue image name                                                                                                                         |
+| `components.sessionQueue.imageTag`                | `nil`             | Session Queue image tag  (this overwrites `.global.seleniumGrid.imageTag` value)                                                                 |
+| `components.sessionQueue.imagePullPolicy`         | `IfNotPresent`    | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)                                                   |
+| `components.sessionQueue.imagePullSecret`         | `""`              | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry)                                     |
+| `components.sessionQueue.annotations`             | `{}`              | Custom annotations for Session Queue pod                                                                                                         |
+| `components.sessionQueue.port`                    | `5559`            | Session Queue Port                                                                                                                               |
+| `components.sessionQueue.nodePort`                | `30559`           | Session Queue NodePort                                                                                                                           |
+| `components.sessionQueue.resources`               | `{}`              | Resources for Session Queue pod                                                                                                                  |
+| `components.sessionQueue.securityContext`         | `See values.yaml` | Security context for Session Queue pod                                                                                                           |
+| `components.sessionQueue.serviceType`             | `ClusterIP`       | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)                 |
+| `components.sessionQueue.serviceAnnotations`      | `{}`              | Custom annotations for Session Queue service                                                                                                     |
+| `components.sessionQueue.tolerations`             | `[]`              | Tolerations for Session Queue pods                                                                                                               |
+| `components.sessionQueue.nodeSelector`            | `{}`              | Node Selector for Session Queue pods                                                                                                             |
+| `components.sessionQueue.affinity`                | `{}`              | Affinity for Session Queue pods                                                                                                                  |
+| `components.sessionQueue.priorityClassName`       | `""`              | Priority class name for Session Queue pods                                                                                                       |
+| `components.subPath`                              | `/`               | Custom sub path for all components                                                                                                               |
+| `components.extraEnvironmentVariables`            | `nil`             | Custom environment variables for all components                                                                                                  |
+| `components.extraEnvFrom`                         | `nil`             | Custom environment variables taken from `configMap` or `secret` for all components                                                               |
 
 See how to customize a helm chart installation in the [Helm Docs](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more information.

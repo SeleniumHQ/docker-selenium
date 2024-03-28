@@ -3,7 +3,7 @@ autoscaling:
   scaledOptions:
     minReplicaCount: 0
     maxReplicaCount: 3
-    pollingInterval: 20
+    pollingInterval: 10
   scaledObjectOptions:
     cooldownPeriod: 30
   terminationGracePeriodSeconds: 360

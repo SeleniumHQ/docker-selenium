@@ -7,8 +7,8 @@ autoscaling:
       strategy: default
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 30
-    pollingInterval: 20
+    maxReplicaCount: 7
+    pollingInterval: 10
 # Configuration for chrome nodes
 chromeNode:
   nameOverride: my-chrome-name

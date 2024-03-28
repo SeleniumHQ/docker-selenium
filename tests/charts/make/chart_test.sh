@@ -118,6 +118,15 @@ if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ]; then
   if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
     sudo -- sh -c -e "echo \"$(hostname -i) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi
+  if [[ ! $(cat /etc/hosts) == *"alertmanager.${HOSTNAME_ADDRESS}"* ]]; then
+    sudo -- sh -c -e "echo \"$(hostname -i) alertmanager.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+  fi
+  if [[ ! $(cat /etc/hosts) == *"grafana.${HOSTNAME_ADDRESS}"* ]]; then
+    sudo -- sh -c -e "echo \"$(hostname -i) grafana.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+  fi
+  if [[ ! $(cat /etc/hosts) == *"pts.${HOSTNAME_ADDRESS}"* ]]; then
+    sudo -- sh -c -e "echo \"$(hostname -i) pts.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+  fi
   ping -c 2 ${HOSTNAME_ADDRESS}
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set ingress.hostname=${HOSTNAME_ADDRESS} \
@@ -127,15 +136,6 @@ else
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set global.K8S_PUBLIC_IP=${SELENIUM_GRID_HOST} \
   "
-  if [[ ! $(cat /etc/hosts) == *"alertmanager.selenium-grid.prod"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -i) alertmanager.selenium-grid.prod\" >> /etc/hosts"
-  fi
-  if [[ ! $(cat /etc/hosts) == *"grafana.selenium-grid.prod"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -i) grafana.selenium-grid.prod\" >> /etc/hosts"
-  fi
-  if [[ ! $(cat /etc/hosts) == *"pts.selenium-grid.prod"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -i) pts.selenium-grid.prod\" >> /etc/hosts"
-  fi
 fi
 
 if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then

@@ -1,4 +1,4 @@
-#FROM ubuntu:jammy-20240227
+#FROM ubuntu:jammy
 FROM debian:bookworm
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
@@ -6,8 +6,8 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.34.1
-ARG GRPC_VERSION=1.61.0
+ARG OPENTELEMETRY_VERSION=1.35.0
+ARG GRPC_VERSION=1.61.1
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -35,6 +35,7 @@ RUN echo "VERSION is $VERSION" && echo "RELEASE is $RELEASE"
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
+ARG JRE_VERSION=17
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
@@ -51,11 +52,12 @@ RUN apt-get -qqy update \
     gnupg2 \
     libnss3-tools \
   && mkdir -p /etc/apt/keyrings \
-  && wget -O - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc \
-  && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list \
-  && apt-get update -y \
-  && apt-get install temurin-11-jre -y \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* 
+  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
+  && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc >dev/null \
+  && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list >dev/null \
+  && apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install temurin-${JRE_VERSION}-jre -y \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
 
@@ -64,7 +66,7 @@ RUN if [ $TARGETARCH = "arm" ] && [ $TARGETVARIANT = "v7" ]; then \
     else \
        export ARCH=$TARGETARCH ; \
     fi \
-    && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-11-jre-$ARCH/conf/security/java.security
+    && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-${JRE_VERSION}-jre-$ARCH/conf/security/java.security
 
 
 #===================

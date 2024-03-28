@@ -36,6 +36,12 @@ RUN GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "0.
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
+#============================================
+# Firefox cleanup script and supervisord file
+#============================================
+COPY firefox-cleanup.sh /opt/bin/firefox-cleanup.sh
+COPY firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
+
 USER ${SEL_UID}
 
 #============================================

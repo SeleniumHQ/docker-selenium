@@ -73,6 +73,18 @@ class ChartTemplateTests(unittest.TestCase):
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
+    def test_distributor_new_session_thread_pool_size(self):
+        resources_name = ['{0}selenium-distributor'.format(RELEASE_NAME)]
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert newSessionThreadPoolSize is set to Distributor env SE_NEW_SESSION_THREAD_POOL_SIZE")
+                list_env = doc['spec']['template']['spec']['containers'][0]['env']
+                for env in list_env:
+                    if env['name'] == 'SE_NEW_SESSION_THREAD_POOL_SIZE' and env['value'] == '24':
+                        is_present = True
+        self.assertTrue(is_present, "ENV variable SE_NEW_SESSION_THREAD_POOL_SIZE is not populated")
+
     def test_disable_ui_set_to_grid_env_var(self):
         resources_name = ['{0}selenium-router'.format(RELEASE_NAME)]
         is_present = False
@@ -190,6 +202,19 @@ class ChartTemplateTests(unittest.TestCase):
                 self.assertTrue(doc['spec']['template']['spec']['terminationGracePeriodSeconds'] == 3600)
                 count += 1
         self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds")
+
+    def test_enable_leftovers_cleanup(self):
+        resources_name = ['{0}selenium-node-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert ENV vars for function leftovers cleanup is set to Node ConfigMap")
+                self.assertEqual(doc['data']['SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP'], 'true')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_INTERVAL_SECS'], '3600')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_PROCESSES_SECS'], '7200')
+                self.assertEqual(doc['data']['SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS'], '1')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
 
 if __name__ == '__main__':
     failed = False
