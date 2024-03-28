@@ -25,12 +25,10 @@ USER root
 
 # Pulling Firefox from Debian Snapshots so we can control which version we use as latest
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
+  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 \
   && apt-get update -qqy \
-  && apt-get install libavcodec-extra -y \
-  && wget http://http.us.debian.org/debian/pool/main/f/firefox/firefox_124.0.1-1_`dpkg --print-architecture`.deb -O firefox.deb
-
-RUN apt install ./firefox.deb -y \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ./firefox.deb
+  && apt-get install libavcodec-extra firefox -y \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=============
 # geckodriver
