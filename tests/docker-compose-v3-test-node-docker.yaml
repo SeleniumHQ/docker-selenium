@@ -2,10 +2,9 @@ version: "3"
 services:
   node-docker:
     image: ${NAMESPACE}/node-docker:${TAG}
-    user: ${UID}
     volumes:
-      - ./tests/assets:/opt/selenium/assets
-      - ./tests/config.toml:/opt/bin/config.toml
+      - ./videos:/opt/selenium/assets
+      - ./videos/config.toml:/opt/bin/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - selenium-hub
@@ -13,12 +12,14 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   selenium-hub:
-    user: ${UID}
     image: ${NAMESPACE}/hub:${TAG}
     container_name: selenium-hub
     environment:
+      - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
     ports:
       - "4442:4442"

@@ -8,7 +8,7 @@ if [ "${CI:-false}" = "false" ]; then
 fi
 
 python -m pip install selenium==4.19.0 \
-                      docker===6.1.3 \
+                      docker===7.0.0 \
                       | grep -v 'Requirement already satisfied'
 
 if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then

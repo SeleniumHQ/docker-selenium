@@ -1,4 +1,4 @@
-name: Test video files
+name: Test Docker Selenium
 concurrency:
   group: ${{ github.workflow }}
 

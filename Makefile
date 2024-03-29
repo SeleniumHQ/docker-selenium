@@ -426,8 +426,8 @@ test_video: video hub chrome firefox edge
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
-test_node_docker: docker chrome firefox edge
-	rm -rf ./tests/tests; mkdir -p ./tests/tests/assets
+test_node_docker: docker hub chrome firefox edge
+	rm -rf ./tests/videos; mkdir -p ./tests/videos
 	for node in StandaloneChrome StandaloneFirefox StandaloneEdge ; do \
 			cd tests || true ; \
 			echo NAMESPACE=$(NAME) > .env ; \
@@ -440,9 +440,9 @@ test_node_docker: docker chrome firefox edge
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			export $$(cat .env | xargs) ; \
-			envsubst < config.toml > ./tests/config.toml ; \
+			envsubst < config.toml > ./videos/config.toml ; \
 			docker-compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests --build ; \
-			cd .. ; \
+			if [ $$? -ne 0 ]; then exit 1; fi ; \
 	done
 
 test_custom_ca_cert:
