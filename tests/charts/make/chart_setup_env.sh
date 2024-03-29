@@ -28,6 +28,13 @@ if [ "$(uname -m)" = "x86_64" ]; then
     sudo apt-get install -yq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
     sudo docker version
     echo "==============================="
+    echo "Installing Docker compose for AMD64 / x86_64"
+    DOCKER_COMPOSE_VERSION="v2.26.0"
+    curl -fsSL -o ./docker-compose "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64"
+    chmod +x ./docker-compose
+    sudo mv ./docker-compose /usr/libexec/docker/cli-plugins
+    docker compose version
+    echo "==============================="
     if [ "${CLUSTER}" = "kind" ]; then
         echo "Installing kind for AMD64 / x86_64"
         curl -fsSL -o ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
