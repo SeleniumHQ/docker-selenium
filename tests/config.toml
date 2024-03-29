@@ -1,0 +1,11 @@
+[docker]
+
+configs = [
+    "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux"}',
+    "${NAMESPACE}/standalone-chrome:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
+    "${NAMESPACE}/standalone-edge:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    ]
+
+url = "http://127.0.0.1:2375"
+
+video-image = "${NAMESPACE}/video:${VIDEO_TAG}"

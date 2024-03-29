@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          test-strategy: [test_video, test_parallel]
+          test-strategy: [test_video, test_parallel, test_node_docker]
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
