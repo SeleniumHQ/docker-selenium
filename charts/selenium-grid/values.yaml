@@ -113,8 +113,8 @@ nodeConfigMap:
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
-    nodePreStop.sh:
-    nodeProbe.sh:
+    nodePreStop.sh: ""
+    nodeProbe.sh: ""
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
   # Automatic browser leftovers cleanup stuck browser processes, tmp files
@@ -136,8 +136,8 @@ recorderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-  #  video.sh:
-  #  video_graphQLQuery.sh:
+  #  video.sh: ""
+  #  video_graphQLQuery.sh: ""
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
   videoVolumeMountName: videos
@@ -154,7 +154,7 @@ uploaderConfigMap:
   extraScriptsDirectory: "/opt/bin"
   # List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
-    upload.sh:
+    upload.sh: ""
   # Extra files stored in Secret to be mounted to the container.
   secretFiles:
     upload.conf: "[sample]"
