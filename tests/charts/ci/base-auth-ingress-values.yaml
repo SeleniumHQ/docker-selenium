@@ -1,6 +1,7 @@
 global:
   seleniumGrid:
     logLevel: INFO
+    stdoutProbeLog: true
 
 ingress:
   className: nginx

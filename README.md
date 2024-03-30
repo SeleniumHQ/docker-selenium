@@ -1,6 +1,10 @@
-![Build & test](https://github.com/SeleniumHQ/docker-selenium/workflows/Build%20&%20test/badge.svg?branch=trunk)
-![Deployments](https://github.com/SeleniumHQ/docker-selenium/workflows/Deploys/badge.svg)
-![Helm Charts](https://github.com/SeleniumHQ/docker-selenium/workflows/Lint%20and%20Test%20Helm%20Charts/badge.svg)
+[![Build & test](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml)
+[![Test Docker Selenium](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/test-video.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/test-video.yml)
+[![Test Helm Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-test.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-test.yml)
+[![Deploys](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml)
+[![Release Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml)
+[![Nightly](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yaml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yaml)
+[![Update Dev/Beta Browser Images](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml)
 
 # Docker images for the Selenium Grid Server
 

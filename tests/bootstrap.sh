@@ -9,6 +9,7 @@ fi
 
 python -m pip install selenium==4.19.0 \
                       docker===7.0.0 \
+                      chardet \
                       | grep -v 'Requirement already satisfied'
 
 if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then

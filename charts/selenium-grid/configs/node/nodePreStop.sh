@@ -3,12 +3,14 @@
 probe_name="lifecycle.${1:-"preStop"}"
 
 max_time=3
+retry_time=5
 
 ID=$(echo $RANDOM)
 tmp_node_file="/tmp/nodeProbe${ID}"
 
 function on_exit() {
   rm -rf ${tmp_node_file}
+  echo "$(date +%FT%T%Z) [${probe_name}] - Exiting Node preStop..."
 }
 trap on_exit EXIT
 
@@ -89,8 +91,12 @@ if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/st
     fi
     signal_node_to_drain
     # Wait for the current session to be finished if any
-    while curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file};
-    do
+    while true; do
+      # Attempt the cURL request and capture the exit status
+      endpoint_http_code=$(curl --retry ${retry_time} -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file} -w "%{http_code}")
+      endpoint_status=$?
+      echo "$(date +%FT%T%Z) [${probe_name}] - Fetch the Node status via cURL with exit status: ${endpoint_status}, HTTP code: ${endpoint_http_code}"
+
       SLOT_HAS_SESSION=$(jq -e ".value.node.slots[]|select(.session != null).id.id" ${tmp_node_file} | tr -d '"' || "")
       if [ -z "${SLOT_HAS_SESSION}" ]; then
         echo "$(date +%FT%T%Z) [${probe_name}] - There is no session running. Node is ready to be terminated."
@@ -99,7 +105,13 @@ if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/st
         exit 0
       else
         echo "$(date +%FT%T%Z) [${probe_name}] - Node preStop is waiting for current session on slot ${SLOT_HAS_SESSION} to be finished. Node details: message: $(jq -r '.value.message' ${tmp_node_file} || "unknown"), availability: $(jq -r '.value.node.availability' ${tmp_node_file} || "unknown")"
-        sleep 1;
+        sleep 2;
+      fi
+
+      # If the cURL command failed, break the loop
+      if [ ${endpoint_status} -ne 0 ] || [ "${endpoint_http_code}" != "200" ]; then
+        echo "$(date +%FT%T%Z) [${probe_name}] - Node endpoint returned status ${endpoint_http_code:-"exit ${endpoint_status}"}, probably Node draining complete!"
+        break
       fi
     done
 else
