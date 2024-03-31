@@ -78,6 +78,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Headless](#headless)
   * [Mounting volumes to retrieve downloaded files](#mounting-volumes-to-retrieve-downloaded-files)
   * [Mounting volumes to retrieve video files](#mounting-volumes-to-retrieve-video-files)
+* [Stargazers over time](#stargazers-over-time)
 <!-- TOC -->
 
 ## Quick start
@@ -1428,3 +1429,6 @@ Similar to mount volumes to retrieve downloaded files. For video files, you migh
 mkdir /tmp/videos
 chown 1200:1201 /tmp/videos
 ```
+
+## Stargazers over time
+[![Stargazers over time](https://starchart.cc/SeleniumHQ/docker-selenium.svg?variant=adaptive)](https://starchart.cc/SeleniumHQ/docker-selenium)
