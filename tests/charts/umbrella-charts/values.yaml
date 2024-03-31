@@ -1,0 +1,6 @@
+global:
+  seleniumGrid:
+    imageRegistry: selenium
+
+selenium-grid:
+  enabled: true

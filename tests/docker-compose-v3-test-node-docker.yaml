@@ -1,0 +1,39 @@
+version: "3"
+services:
+  node-docker:
+    image: ${NAMESPACE}/node-docker:${TAG}
+    volumes:
+      - ./videos:/opt/selenium/assets
+      - ./videos/config.toml:/opt/bin/config.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_LOG_LEVEL=FINE
+
+  selenium-hub:
+    image: ${NAMESPACE}/hub:${TAG}
+    container_name: selenium-hub
+    environment:
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  tests:
+    image: docker-selenium-tests:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - selenium-hub
+    environment:
+      - RUN_IN_DOCKER_COMPOSE=true
+      - SELENIUM_GRID_HOST=selenium-hub
+    command: ["./bootstrap.sh", "${NODE}"]

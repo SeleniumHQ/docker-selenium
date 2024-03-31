@@ -338,7 +338,7 @@ workflows:
     jobs:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-base
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: base_multi
           machine-type: ubuntu2004arm64large
@@ -349,7 +349,7 @@ workflows:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-full-grid
           requires: [deploy-multi-arch-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: grid_multi
           machine-type: ubuntu2004arm64
@@ -360,7 +360,7 @@ workflows:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-node-base
           requires: [deploy-multi-arch-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: node_base_multi
           machine-type: ubuntu2004arm64large
@@ -371,7 +371,7 @@ workflows:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-firefox
           requires: [deploy-multi-arch-node-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: firefox_multi
           machine-type: ubuntu2004arm64large
@@ -382,7 +382,7 @@ workflows:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-chromium
           requires: [deploy-multi-arch-node-base]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: chromium_multi
           machine-type: ubuntu2004arm64large
@@ -393,7 +393,7 @@ workflows:
       - deploy-multi-arch-full-grid:
           name: deploy-multi-arch-release-notes
           requires: [deploy-multi-arch-firefox,deploy-multi-arch-chromium]
-          platforms: linux/arm64,linux/amd64,linux/arm/v7
+          platforms: linux/arm64,linux/amd64
           build-args: --push
           make-targets: tag_and_push_multi_arch_browser_images
           machine-type: ubuntu2004arm64

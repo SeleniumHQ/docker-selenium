@@ -154,10 +154,10 @@ class ChartTemplateTests(unittest.TestCase):
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
                 logger.info(f"Assert default file is imported to Node ConfigMap")
-                self.assertTrue(doc['data']['nodeProbe.sh'] is not None)
-                self.assertTrue(doc['data']['nodePreStop.sh'] is not None)
-                self.assertTrue(doc['data']['nodeCustomTask.sh'] is not None)
-                self.assertTrue(doc['data']['setFromCommand.sh'] is not None)
+                self.assertTrue(doc['data']['nodeProbe.sh'] != "")
+                self.assertTrue(doc['data']['nodePreStop.sh'] != "")
+                self.assertTrue(doc['data']['nodeCustomTask.sh'] != "")
+                self.assertTrue(doc['data']['setFromCommand.sh'] != "")
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
 

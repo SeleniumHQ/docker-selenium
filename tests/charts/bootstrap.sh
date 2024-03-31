@@ -13,13 +13,15 @@ python -m pip install pyyaml==6.0.1 \
 
 cd ..
 
+helm package charts/selenium-grid --version 1.0.0-SNAPSHOT -d tests/tests
+
 RELEASE_NAME="selenium"
 
 helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml \
   --set-file 'nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
-  charts/selenium-grid > ./tests/tests/dummy_template_manifests.yaml
+  tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_template_manifests.yaml
 
 python tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml" ${RELEASE_NAME}
 if [ $? -ne 0 ]; then
@@ -30,6 +32,7 @@ fi
 rm -rf tests/charts/umbrella-charts/Chart.lock tests/charts/umbrella-charts/charts
 helm dependency update tests/charts/umbrella-charts
 helm dependency build tests/charts/umbrella-charts
+helm package tests/charts/umbrella-charts --version 1.0.0-SNAPSHOT -d tests/tests
 
 RELEASE_NAME="test"
 
@@ -37,7 +40,7 @@ helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy_solut
   --set-file 'selenium-grid.nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'selenium-grid.recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'selenium-grid.uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
-  tests/charts/umbrella-charts > ./tests/tests/dummy_solution_template_manifests.yaml
+  tests/tests/umbrella-charts-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_solution_template_manifests.yaml
 
 python tests/charts/templates/test.py "./tests/tests/dummy_solution_template_manifests.yaml" ${RELEASE_NAME}
 if [ $? -ne 0 ]; then

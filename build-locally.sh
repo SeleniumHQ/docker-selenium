@@ -5,7 +5,7 @@ RELEASE=$(grep BASE_RELEASE Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 NAME="${NAME:-seleniarm}"
 VERSION="${VERSION:-$SELENIUM_VERSION}"
 BUILD_DATE="${BUILD_DATE:-$(date '+%Y%m%d')}"
-PLATFORMS="${PLATFORMS:-linux/arm64,linux/arm/v7,linux/amd64}"
+PLATFORMS="${PLATFORMS:-linux/arm64,linux/amd64}"
 #BUILD_ARGS=--push
 
 FROM_IMAGE_ARGS="--build-arg NAMESPACE=$NAME --build-arg VERSION=$VERSION-$BUILD_DATE"

@@ -6,8 +6,8 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.35.0
-ARG GRPC_VERSION=1.61.1
+ARG OPENTELEMETRY_VERSION=1.36.0
+ARG GRPC_VERSION=1.62.2
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
