@@ -1,10 +1,95 @@
-[![Build & test](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml)
-[![Test Docker Selenium](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/test-video.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/test-video.yml)
-[![Test Helm Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-test.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-test.yml)
-[![Deploys](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml)
-[![Release Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml)
-[![Nightly](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yaml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yaml)
-[![Update Dev/Beta Browser Images](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml)
+
+# Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64 
+
+[![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](https://app.circleci.com/pipelines/github/seleniumhq-community/docker-seleniarm)
+
+This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) for building and maintaining docker-selenium ARM images. This fork is inspired by and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium) and [rows/docker-selenium](https://github.com/rows/docker-selenium). 
+
+NOTE: If you only need the Intel/amd64 images, please see the official upstream [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) repository for best results.
+
+## Running the ARM Container Images
+
+The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
+
+The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
+
+To start the standalone container images, run:
+
+![Chromium](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chromium/chromium_24x24.png) Chromium
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
+```
+> NOTE: Google does not build Chrome for Linux ARM platforms. Instead, docker-seleniarm uses the open source Chromium browser instead, which _is_ built for ARM.
+
+![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox:latest
+```
+
+Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
+
+The following multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
+
+- [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
+- [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
+- [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
+- [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
+- [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
+- [Distributor](https://hub.docker.com/r/seleniarm/distributor)
+- [Router](https://hub.docker.com/r/seleniarm/router)
+- [Node Docker](https://hub.docker.com/r/seleniarm/node-docker)
+- [Standalone Docker](https://hub.docker.com/r/seleniarm/standalone-docker)
+- [Event Bus](https://hub.docker.com/r/seleniarm/event-bus)
+- [Session Queue](https://hub.docker.com/r/seleniarm/session-queue)
+- [Sessions](https://hub.docker.com/r/seleniarm/sessions)
+- [NodeBase](https://hub.docker.com/r/seleniarm/node-base)
+- [Base](https://hub.docker.com/r/seleniarm/base)
+
+
+All of the images are here in order to run in standalone mode, full grid mode, and dynamic grid mode. However, browser binaries are only available for Chromium and Firefox.
+
+> NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
+
+## Building the ARM Images
+
+The entire build process is managed via a Makefile. If you want to build the images locally, without pushing to any registry, then use `make`. 
+
+### Structure of container images:
+
+- The Standalone folder is the base for all Standalone${browser} images and includes a script that starts the selenium server in standalone mode. 
+- The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
+
+To build with a different version of Chromium, change it in NodeChromium/Dockerfile.
+
+To build the images, run the following make command from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
+
+**To build all arm64 images:**
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
+```
+
+**To build standalone/firefox for arm64:**
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_firefox_multi
+```
+
+**To build standalone/chromium for arm64:**
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_chromium_multi
+```
+
+To build for armv7l/armhf, replace PLATFORMS environment variable with `linux/arm/v7` like so:
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm/v7 BUILD_ARGS=--load make standalone_chromium_multi
+```
+
+----
+# -- The official documentation from seleniumHQ begins here --
+----
+
 
 # Docker images for the Selenium Grid Server
 
