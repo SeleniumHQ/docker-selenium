@@ -1,3 +1,13 @@
+## :heavy_check_mark: selenium-grid-0.29.1
+
+- Chart is using image tag 4.19.1-20240402
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.12, v1.28.8, v1.29.3, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, 
+
+### Fixed
+- [`ca7155fa`](http://github.com/seleniumhq/docker-selenium/commit/ca7155faf587577d1e69d6d96c7cc5312b7a16ab) - fix(chart): node preStop - refresh node status in loop :: Viet Nguyen Duc
+- [`6a6d1e1f`](http://github.com/seleniumhq/docker-selenium/commit/6a6d1e1f188a6992431925474ad16bb0ef688e52) - fix(chart: Use empty strings as defaults for some empty values (#2176) :: Maxim Manuylov
+
 ## :heavy_check_mark: selenium-grid-0.29.0
 
 - Chart is using image tag 4.19.0-20240328
