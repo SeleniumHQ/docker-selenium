@@ -36,4 +36,5 @@ services:
     environment:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
+      - BINDING_VERSION=${BINDING_VERSION}
     command: ["./bootstrap.sh", "${NODE}"]
