@@ -11,7 +11,7 @@ dependencies:
   name: keda
   condition: autoscaling.enabled
 - repository: https://kubernetes.github.io/ingress-nginx
-  version: 4.9.0
+  version: 4.10.0
   name: ingress-nginx
   condition: ingress-nginx.enabled
 - repository: https://jaegertracing.github.io/helm-charts
