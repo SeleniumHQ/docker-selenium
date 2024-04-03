@@ -499,6 +499,13 @@ instructions on top of it.
 
 [`docker-compose-v3-full-grid.yml`](docker-compose-v3-full-grid.yml)
 
+#### Distributor configuration
+
+| Environment variable         | Option                      | Type    | Default value | Description                                                                                                  |
+|------------------------------|-----------------------------|---------|---------------|--------------------------------------------------------------------------------------------------------------|
+| `SE_REJECT_UNSUPPORTED_CAPS` | `--reject-unsupported-caps` | boolean | `false`       | Allow the Distributor to reject a request immediately if the Grid does not support the requested capability. |
+| `SE_HEALTHCHECK_INTERVAL`    | `--healthcheck-interval`    | int     | `120`         | This ensures the server can ping all the Nodes successfully after an interval.                               |
+
 ___
 
 ## Video recording
