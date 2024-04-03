@@ -99,7 +99,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.19.1-20240402
+    image: selenium/node-firefox:124.0.2-20240402
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
