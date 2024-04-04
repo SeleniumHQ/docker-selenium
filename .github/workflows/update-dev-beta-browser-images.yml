@@ -26,7 +26,9 @@ jobs:
     - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
+        export BINDING_VERSION=$(grep BINDING_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
         echo "SELENIUM_VERSION="$SELENIUM_VERSION >> $GITHUB_ENV
+        echo "BINDING_VERSION="$BINDING_VERSION >> $GITHUB_ENV
         export BUILD_DATE=$(date '+%Y%m%d')
         echo "BUILD_DATE="$BUILD_DATE >> $GITHUB_ENV
         export BROWSER_CAPS=`node -p "process.argv[1][0].toUpperCase() + process.argv[1].toString().substring(1)" $BROWSER`
