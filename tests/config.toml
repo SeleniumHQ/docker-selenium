@@ -1,5 +1,4 @@
 [docker]
-
 configs = [
     "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux"}',
     "${NAMESPACE}/standalone-chrome:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
@@ -9,3 +8,8 @@ configs = [
 url = "http://127.0.0.1:2375"
 
 video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
+
+[node]
+enable-managed-downloads = true
+override-max-sessions = true
+max-sessions = 4

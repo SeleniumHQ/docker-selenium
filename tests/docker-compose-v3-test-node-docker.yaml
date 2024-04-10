@@ -13,7 +13,7 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
-      - SE_LOG_LEVEL=FINE
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}

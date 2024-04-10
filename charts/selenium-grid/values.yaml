@@ -1208,7 +1208,7 @@ jaeger:
       - name: QUERY_BASE_PATH
         value: *jaegerBasePath
   storage:
-    type: none
+    type: badger
   agent:
     enabled: false
   collector:

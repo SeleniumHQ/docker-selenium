@@ -433,9 +433,9 @@ test_video: video hub chrome firefox edge
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
-test_node_docker: docker hub chrome firefox edge
+test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
 	rm -rf ./tests/videos; mkdir -p ./tests/videos
-	for node in StandaloneChrome StandaloneFirefox StandaloneEdge ; do \
+	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd tests || true ; \
 			echo NAMESPACE=$(NAME) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
@@ -443,7 +443,7 @@ test_node_docker: docker hub chrome firefox edge
 			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
 			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
-			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 30) >> .env ; \
+			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
