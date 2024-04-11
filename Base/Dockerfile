@@ -117,7 +117,7 @@ RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/sup
   && touch /opt/selenium/config.toml \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
+  && wget --no-verbose https://github.com/ndviet/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
   && echo "${SEL_PASSWD}" > /opt/selenium/initialPasswd \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \

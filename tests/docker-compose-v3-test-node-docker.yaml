@@ -7,6 +7,11 @@ services:
       - ./videos:/opt/selenium/assets
       - ./videos/config.toml:/opt/bin/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    dns_search:
+      - selenium-grid.local
     depends_on:
       - selenium-hub
     environment:
