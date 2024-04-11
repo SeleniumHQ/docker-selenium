@@ -398,13 +398,13 @@ test_parallel: hub chrome firefox edge
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
-			docker-compose -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests --build ; \
+			docker compose -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests --build ; \
 	done
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
-	# Running a few tests with docker-compose to generate the videos
+	# Running a few tests with docker compose to generate the videos
 	rm -rf ./tests/videos; mkdir -p ./tests/videos
 	for node in NodeChrome NodeFirefox NodeEdge ; do \
 			cd ./tests || true ; \
@@ -425,7 +425,7 @@ test_video: video hub chrome firefox edge
 					echo BROWSER=firefox >> .env ; \
 					echo VIDEO_FILE_NAME=firefox_video.mp4 >> .env ; \
 			fi ; \
-			docker-compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build ; \
+			docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build ; \
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
@@ -435,6 +435,7 @@ test_video: video hub chrome firefox edge
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
 	rm -rf ./tests/videos; mkdir -p ./tests/videos
+	sudo chmod 777 ./tests/videos
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd tests || true ; \
 			echo NAMESPACE=$(NAME) > .env ; \
@@ -449,7 +450,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < config.toml > ./videos/config.toml ; \
-			docker-compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests --build ; \
+			docker compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests --build ; \
 			if [ $$? -ne 0 ]; then exit 1; fi ; \
 	done
 

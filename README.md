@@ -183,9 +183,9 @@ $ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalon
 
 **docker-compose-v3-beta-channel.yml:**
 ```bash
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-beta-channel.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-beta-channel.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-beta-channel.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-beta-channel.yml down`
 version: "3"
 services:
   chrome:
@@ -229,9 +229,9 @@ services:
 
 **docker-compose-v3-dev-channel.yml:**
 ```bash
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-dev-channel.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-dev-channel.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-dev-channel.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-dev-channel.yml down`
 version: "3"
 services:
   chrome:
@@ -484,7 +484,7 @@ linked resources below, save them locally and check the execution instructions o
 ##### Version 3
 [`docker-compose-v3.yml`](docker-compose-v3.yml)
 
-To stop the Grid and cleanup the created containers, run `docker-compose down`.
+To stop the Grid and cleanup the created containers, run `docker compose down`.
 
 ##### Version 3 with Swarm support 
 [`docker-compose-v3-swarm.yml`](docker-compose-v3-swarm.yml)
@@ -494,7 +494,7 @@ ___
 ### Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes
 
 It is possible to start a Selenium Grid with all its components apart. For simplicity, only an
-example with docker-compose will be provided. Save the file locally, and check the execution 
+example with docker compose will be provided. Save the file locally, and check the execution 
 instructions on top of it.
 
 [`docker-compose-v3-full-grid.yml`](docker-compose-v3-full-grid.yml)
@@ -515,7 +515,7 @@ Docker image. One container is needed per each container where a browser is runn
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
 Currently, the only way to do this mapping is manually (either starting the containers manually or through
-`docker-compose`). We are iterating on this process and probably this setup will be more simple in the future.
+`docker compose`). We are iterating on this process and probably this setup will be more simple in the future.
 
 The video Docker image we provide is based on the ffmpeg Ubuntu image provided by the 
 [jrottenberg/ffmpeg](https://github.com/jrottenberg/ffmpeg) project, thank you for providing this image and
@@ -1345,7 +1345,7 @@ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     selenium/node-firefox:4.19.1-20240402
 ```
 
-You can also refer to the below docker-compose yaml files to be able to start a simple grid (or) a dynamic grid.
+You can also refer to the below docker compose yaml files to be able to start a simple grid (or) a dynamic grid.
 
 * Simple Grid [v3 yaml file](docker-compose-v3-tracing.yml)
 * Simple Grid [v2 yaml file](docker-compose-v2-tracing.yml)

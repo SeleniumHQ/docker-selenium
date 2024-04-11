@@ -1,6 +1,6 @@
 # How to run this?
-# docker-compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build
-# To clean up, `docker-compose -f docker-compose-v3-test-video.yml down`
+# docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build
+# To clean up, `docker compose -f docker-compose-v3-test-video.yml down`
 version: "3"
 services:
   chrome:

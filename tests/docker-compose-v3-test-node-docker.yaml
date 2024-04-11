@@ -2,6 +2,7 @@ version: "3"
 services:
   node-docker:
     image: ${NAMESPACE}/node-docker:${TAG}
+    user: root
     volumes:
       - ./videos:/opt/selenium/assets
       - ./videos/config.toml:/opt/bin/config.toml
@@ -17,6 +18,7 @@ services:
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
+    user: ${UID}
     container_name: selenium-hub
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}

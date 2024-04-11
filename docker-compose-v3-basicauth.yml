@@ -1,6 +1,6 @@
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-basicauth.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-basicauth.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-basicauth.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-basicauth.yml down`
 version: "3"
 services:
   chrome:
