@@ -4,6 +4,7 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
+ARG GH_ORG=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
 ARG OPENTELEMETRY_VERSION=1.36.0
 ARG GRPC_VERSION=1.62.2
@@ -117,7 +118,7 @@ RUN mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/sup
   && touch /opt/selenium/config.toml \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
-  && wget --no-verbose https://github.com/SeleniumHQ/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
+  && wget --no-verbose https://github.com/${GH_ORG}/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
   && echo "${SEL_PASSWD}" > /opt/selenium/initialPasswd \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \

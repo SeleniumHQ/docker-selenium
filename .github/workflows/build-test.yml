@@ -47,7 +47,9 @@ jobs:
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           make set_nightly_env
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
-          echo $BASE_RELEASE $BASE_VERSION
+          echo "GH_ORG=${GH_ORG}" >> $GITHUB_ENV
+        env:
+          GH_ORG: ${{ vars.GH_ORG || 'SeleniumHQ' }}
       - name: Build Docker images
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Test Docker images

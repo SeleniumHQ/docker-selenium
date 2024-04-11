@@ -9,9 +9,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     dns:
       - 8.8.8.8
-      - 1.1.1.1
-    dns_search:
-      - selenium-grid.local
+      - 8.8.4.4
+    dns_search: selenium-grid.local
+    extra_hosts:
+      - "prod.domain.com:${HOST_IP}"
     depends_on:
       - selenium-hub
     environment:

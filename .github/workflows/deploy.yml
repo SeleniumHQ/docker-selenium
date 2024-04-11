@@ -27,6 +27,7 @@ jobs:
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+          GH_ORG: ${{ vars.GH_ORG || 'SeleniumHQ' }}
       - name: Sets prerelease to false by default
         run: echo "PRERELEASE=false" >> $GITHUB_ENV
       - name: Build base image to get Grid version

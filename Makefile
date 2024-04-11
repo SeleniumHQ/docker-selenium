@@ -1,6 +1,7 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
+GH_ORG := $(or $(GH_ORG),$(GH_ORG),SeleniumHQ)
 BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.19.0)
 BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.19.1)
 BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.19.0)
@@ -49,10 +50,10 @@ build: all
 ci: build test
 
 base:
-	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg GH_ORG=$(GH_ORG) -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
-	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg GH_ORG=$(GH_ORG) -t $(NAME)/base:$(TAG_VERSION) .
 
 hub: base
 	cd ./Hub && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
@@ -448,6 +449,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
+			echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < config.toml > ./videos/config.toml ; \
 			docker compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests --build ; \
