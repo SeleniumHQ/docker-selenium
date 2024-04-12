@@ -5,13 +5,13 @@ configs = [
     "${NAMESPACE}/standalone-edge:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 
-host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts"]
+host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 
 url = "http://127.0.0.1:2375"
 
 video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
 
 [node]
-enable-managed-downloads = true
+enable-managed-downloads = "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
 override-max-sessions = true
-max-sessions = 4
+max-sessions = 3

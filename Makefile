@@ -389,6 +389,7 @@ test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) ./tests/bootstrap.sh StandaloneFirefox
 
 test_parallel: hub chrome firefox edge
+	sudo rm -rf ./tests/tests
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd ./tests || true ; \
 			echo TAG=$(TAG_VERSION) > .env ; \
@@ -406,7 +407,8 @@ test_parallel: hub chrome firefox edge
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
 	# Running a few tests with docker compose to generate the videos
-	rm -rf ./tests/videos; mkdir -p ./tests/videos
+	sudo rm -rf ./tests/tests
+	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos
 	for node in NodeChrome NodeFirefox NodeEdge ; do \
 			cd ./tests || true ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) > .env ; \
@@ -435,10 +437,13 @@ test_video: video hub chrome firefox edge
 	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
-	rm -rf ./tests/videos; mkdir -p ./tests/videos
-	sudo chmod 777 ./tests/videos
+	sudo rm -rf ./tests/tests
+	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos/Downloads
+	sudo chmod -R 777 ./tests/videos
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd tests || true ; \
+			DOWNLOADS_DIR="./videos/Downloads" ; \
+			sudo rm -rf $$DOWNLOADS_DIR/* ; \
 			echo NAMESPACE=$(NAME) > .env ; \
 			echo TAG=$(TAG_VERSION) >> .env ; \
 			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) >> .env ; \
@@ -446,6 +451,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
+			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
@@ -454,6 +460,10 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			envsubst < config.toml > ./videos/config.toml ; \
 			docker compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests --build ; \
 			if [ $$? -ne 0 ]; then exit 1; fi ; \
+			if [ -d "$$DOWNLOADS_DIR" ] && [ $$(ls -1q $$DOWNLOADS_DIR | wc -l) -eq 0 ]; then \
+					echo "Mounted downloads directory is empty. Downloaded files could not be retrieved!" ; \
+					exit 1 ; \
+			fi ; \
 	done
 
 test_custom_ca_cert:
