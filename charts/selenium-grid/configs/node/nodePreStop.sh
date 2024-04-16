@@ -49,7 +49,7 @@ function get_grid_url() {
     SE_SUB_PATH=""
   fi
   grid_url=${SE_SERVER_PROTOCOL}://${SE_BASIC_AUTH}${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
-  grid_url_checks=$(curl -m ${max_time} -s -o /dev/null -w "%{http_code}" ${grid_url})
+  grid_url_checks=$(curl --noproxy "*" -m ${max_time} -s -o /dev/null -w "%{http_code}" ${grid_url})
   if [ "${grid_url_checks}" = "401" ]; then
     echo "$(date +%FT%T%Z) [${probe_name}] - Host requires Basic Auth. Please add the credentials to the SE_BASIC_AUTH variable (e.g: user:password). preStop ignores to send drain request to upstream."
     grid_url=""
@@ -62,7 +62,7 @@ function get_grid_url() {
 function signal_distributor_to_drain_node() {
   if [ "${DISTRIBUTED_MODE}" = true ]; then
     echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Distributor to drain node"
-    curl -m ${max_time} -k -X POST ${SE_SERVER_PROTOCOL}://${SE_DISTRIBUTOR_HOST}:${SE_DISTRIBUTOR_PORT}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
+    curl --noproxy "*" -m ${max_time} -k -X POST ${SE_SERVER_PROTOCOL}://${SE_DISTRIBUTOR_HOST}:${SE_DISTRIBUTOR_PORT}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
   fi
 }
 
@@ -71,17 +71,17 @@ function signal_hub_to_drain_node() {
     get_grid_url
     if [ -n "${grid_url}" ]; then
       echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Hub to drain node"
-      curl -m ${max_time} -k -X POST ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
+      curl --noproxy "*" -m ${max_time} -k -X POST ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
     fi
   fi
 }
 
 function signal_node_to_drain() {
     echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Node to drain itself"
-    curl -m ${max_time} -k -X POST ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/se/grid/node/drain --header "${HEADERS}"
+    curl --noproxy "*" -m ${max_time} -k -X POST ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/se/grid/node/drain --header "${HEADERS}"
 }
 
-if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status > ${tmp_node_file}; then
+if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status > ${tmp_node_file}; then
     NODE_ID=$(jq -r '.value.node.nodeId' ${tmp_node_file} || "")
     if [ -n "${NODE_ID}" ]; then
       echo "$(date +%FT%T%Z) [${probe_name}] - Current Node ID is: ${NODE_ID}"
@@ -93,7 +93,7 @@ if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/st
     # Wait for the current session to be finished if any
     while true; do
       # Attempt the cURL request and capture the exit status
-      endpoint_http_code=$(curl --retry ${retry_time} -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file} -w "%{http_code}")
+      endpoint_http_code=$(curl --noproxy "*" --retry ${retry_time} -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file} -w "%{http_code}")
       endpoint_status=$?
       echo "$(date +%FT%T%Z) [${probe_name}] - Fetch the Node status via cURL with exit status: ${endpoint_status}, HTTP code: ${endpoint_http_code}"
 

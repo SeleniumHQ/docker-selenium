@@ -35,7 +35,7 @@ function get_grid_url() {
     SE_SUB_PATH=""
   fi
   grid_url=${SE_SERVER_PROTOCOL}://${SE_BASIC_AUTH}${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
-  grid_url_checks=$(curl -m ${max_time} -skf -o /dev/null -w "%{http_code}" ${grid_url})
+  grid_url_checks=$(curl --noproxy "*" -m ${max_time} -skf -o /dev/null -w "%{http_code}" ${grid_url})
   if [ "${grid_url_checks}" = "401" ]; then
     echo "$(date +%FT%T%Z) [${probe_name}] - Host requires Basic Auth. Please add the credentials to the SE_BASIC_AUTH variable (e.g: user:password)."
     help_message
@@ -48,7 +48,7 @@ function get_grid_url() {
   fi
 }
 
-if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file}; then
+if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file}; then
   NODE_ID=$(jq -r '.value.node.nodeId' ${tmp_node_file} || "")
   NODE_STATUS=$(jq -r '.value.node.availability' ${tmp_node_file} || "")
   if [ -n "${NODE_ID}" ]; then
@@ -60,7 +60,7 @@ if curl -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/st
 
   get_grid_url
 
-  curl -m ${max_time} -sfk "${grid_url}/status" -o ${tmp_grid_file}
+  curl --noproxy "*" -m ${max_time} -sfk "${grid_url}/status" -o ${tmp_grid_file}
   GRID_NODE_ID=$(jq -e ".value.nodes[].id|select(. == \"${NODE_ID}\")" ${tmp_grid_file} | tr -d '"' || "")
   if [ -n "${GRID_NODE_ID}" ]; then
     echo "$(date +%FT%T%Z) [${probe_name}] - Grid responds a matched Node ID: ${GRID_NODE_ID}"
