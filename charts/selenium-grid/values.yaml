@@ -546,7 +546,7 @@ autoscaling:
   scalingType: job
   # Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
-    "helm.sh/hook": post-install,post-upgrade,post-rollback
+    "helm.sh/hook": post-install
   # Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     minReplicaCount: 0
@@ -1221,19 +1221,19 @@ prometheus-stack:
   defaultRules:
     create: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook": post-install
   alertmanager:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook": post-install
   grafana:
     enabled: true
     adminPassword: admin
     forceDeployDatasources: true
     forceDeployDashboards: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook": post-install
   prometheus:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook": post-install

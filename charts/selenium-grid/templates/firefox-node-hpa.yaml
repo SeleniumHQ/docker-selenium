@@ -5,7 +5,6 @@ metadata:
   name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: delete
     {{- with .Values.autoscaling.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}

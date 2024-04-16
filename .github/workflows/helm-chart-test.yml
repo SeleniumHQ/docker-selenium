@@ -42,32 +42,38 @@ jobs:
             cluster: 'kind'
             helm-version: 'v3.10.3'
             test-existing-keda: true
+            test-upgrade: true
           - k8s-version: 'v1.26.15'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.11.3'
             test-existing-keda: true
+            test-upgrade: true
           - k8s-version: 'v1.27.12'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
+            test-upgrade: true
           - k8s-version: 'v1.28.8'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-existing-keda: false
+            test-upgrade: true
           - k8s-version: 'v1.29.3'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
             test-existing-keda: false
+            test-upgrade: true
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
       ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
       HELM_VERSION: ${{ matrix.helm-version }}
       TEST_EXISTING_KEDA: ${{ matrix.test-existing-keda }}
+      TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
@@ -138,6 +144,10 @@ jobs:
           max_attempts: 3
           command: |
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_test_autoscaling_${{ matrix.test-strategy }}
+      - name: Test chart upgrade
+        if: (matrix.test-upgrade == true)
+        run: |
+          NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} SET_MAX_REPLICAS=10 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART} make chart_test_autoscaling_${{ matrix.test-strategy }}
       - name: Cleanup Kubernetes cluster
         if: always()
         run: CLUSTER=${CLUSTER} make chart_cluster_cleanup

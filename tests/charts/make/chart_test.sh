@@ -35,6 +35,7 @@ BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
 BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
+TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 
 cleanup() {
   # Get the list of pods
@@ -194,6 +195,11 @@ echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
 
 kubectl get pods -A
+
+if [ "${TEST_UPGRADE_CHART}" = "true" ]; then
+  echo "Focus on verify chart upgrade, skip Selenium tests"
+  exit 0
+fi
 
 echo "Run Tests"
 export CHART_CERT_PATH=$(readlink -f ${CHART_CERT_PATH})
