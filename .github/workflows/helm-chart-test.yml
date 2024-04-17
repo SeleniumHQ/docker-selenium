@@ -101,9 +101,9 @@ jobs:
           echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
           make set_nightly_env
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
-          echo "GH_ORG=${GH_ORG}" >> $GITHUB_ENV
+          echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
-          GH_ORG: ${{ vars.GH_ORG || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Setup Kubernetes environment
         uses: nick-invision/retry@master
         with:

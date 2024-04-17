@@ -23,10 +23,10 @@ jobs:
         run: |
           echo "PRERELEASE=true" >> $GITHUB_ENV
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
-          echo "GH_ORG=${GH_ORG}" >> $GITHUB_ENV
+          echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          GH_ORG: ${{ vars.GH_ORG || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Build base image to get Grid version
         run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base_nightly
       - name: Get Grid version
