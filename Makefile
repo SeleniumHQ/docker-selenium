@@ -139,6 +139,24 @@ standalone_edge_beta: edge_beta
 video:
 	cd ./Video && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
+count_image_layers:
+	docker history $(NAME)/base:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/hub:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/distributor:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/router:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/sessions:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/session-queue:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/event-bus:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-base:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-chrome:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-edge:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-firefox:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-docker:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-chrome:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-edge:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-firefox:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-docker:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) -q | wc -l
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
