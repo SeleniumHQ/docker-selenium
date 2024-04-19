@@ -63,6 +63,8 @@ Talk to us at https://www.selenium.dev/support/
   * [Stopping the Node/Standalone after N sessions have been executed](#stopping-the-nodestandalone-after-n-sessions-have-been-executed)
   * [Automatic browser leftovers cleanup](#automatic-browser-leftovers-cleanup)
 * [Building the images](#building-the-images)
+* [Build the images with specific versions](#build-the-images-with-specific-versions)
+* [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
 * [Waiting for the Grid to be ready](#waiting-for-the-grid-to-be-ready)
   * [Adding a HEALTHCHECK to the Grid](#adding-a-healthcheck-to-the-grid)
   * [Using a bash script to wait for the Grid](#using-a-bash-script-to-wait-for-the-grid)
@@ -1026,6 +1028,33 @@ If you want to build the image with different default user/password, simply set 
 $ BUILD_ARGS="--build-arg SEL_USER=yourseluser --build-arg SEL_PASSWD=welcome" make build
 ```
 ___
+
+# Build the images with specific versions
+
+Based on the latest Dockerfile (by cloning the repo and from the project directory root), you can build the images with a specific combination of Selenium Grid, and browser versions.
+
+For example, you would like to build `node-chrome` and `standalone-chrome` images with the Grid based version `4.17.0`, Chrome browser versions `119`, `120`, `123` respectively.
+
+```bash
+$ ./tests/build-backward-compatible/bootstrap.sh 4.17.0 119,120,123 chrome
+```
+
+In generic, the script takes the following arguments:
+- `$1` (mandatory): Selenium Grid version. Details are fetching from matrix [file](tests/build-backward-compatible/selenium-matrix.yml)
+- `$2` (mandatory): Browser major version, multiple values separated by comma. Details are fetching from matrix [file](tests/build-backward-compatible/cdp-matrix.yml)
+- `$3` (optional): browser name. If not provided, it will iterate over all the browsers (`chrome`, `edge`, `firefox`)
+- `$4` (optional): Push image to registry. By default, it is `false`. If you want to push the image to the registry, set it to `true` (required Docker login to your namespace done before running the script).
+
+To set your namespace for the images, you can set the environment variable `NAME` before running the script. For example:
+
+```bash
+$ export NAME=artifactory.yourcompany.com/selenium
+$ ./tests/build-backward-compatible/bootstrap.sh 4.17.0 119,120,123 chrome
+```
+
+After running the script, you will see list images with a full tag to pin specific Grid and browser version following [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tagging-Convention)
+
+---
 
 ## Upgrade browser version in the images
 
