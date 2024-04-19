@@ -157,6 +157,27 @@ count_image_layers:
 	docker history $(NAME)/standalone-docker:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) -q | wc -l
 
+chrome_upgrade_version:
+	cd ./NodeChrome && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
+	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
+	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) google-chrome --version
+	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) chromedriver --version
+
+firefox_upgrade_version:
+	cd ./NodeFirefox && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
+	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) firefox --version
+	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) geckodriver --version
+
+edge_upgrade_version:
+	cd ./NodeEdge && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-edge:$(TAG_VERSION) .
+	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge -t $(NAME)/standalone-edge:$(TAG_VERSION) .
+	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
+	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) microsoft-edge --version
+	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) msedgedriver --version
+
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
 tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_edge_images
