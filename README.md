@@ -1027,6 +1027,31 @@ $ BUILD_ARGS="--build-arg SEL_USER=yourseluser --build-arg SEL_PASSWD=welcome" m
 ```
 ___
 
+## Upgrade browser version in the images
+
+Selenium server, browser and driver are pre-installed in the image. In case you would like to remain on the same Selenium version and just upgrade the browser and its driver to the latest. You can follow below steps
+
+Clone the repo and from the project directory root you can upgrade by running:
+
+```bash
+$ VERSION=$EXPECTED_SELENIUM_VERSION make chrome_upgrade_version
+```
+For example: `VERSION=4.16.1 make chrome_upgrade_version`
+
+The new image has tag `$VERSION_YYYYMMDD` where `YYYYMMDD` is the current date.
+
+```bash
+$ VERSION=$SELENIUM_VERSION make firefox_upgrade_version
+```
+
+```bash
+$ VERSION=$SELENIUM_VERSION make edge_upgrade_version
+```
+
+You can refer to detail commands in the [Makefile](Makefile) file.
+
+---
+
 ## Waiting for the Grid to be ready
 
 It is a good practice to check first if the Grid is up and ready to receive requests, this can be done by checking the `/wd/hub/status` endpoint.
