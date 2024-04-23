@@ -57,6 +57,8 @@ chrome)
   do
     docker tag ${NAMESPACE}/node-chrome:${TAG_VERSION} ${NAMESPACE}/node-chrome:${chrome_tag}
     docker tag ${NAMESPACE}/standalone-chrome:${TAG_VERSION} ${NAMESPACE}/standalone-chrome:${chrome_tag}
+    echo "Tagged ${NAMESPACE}/node-chrome:${chrome_tag}"
+    echo "Tagged ${NAMESPACE}/standalone-chrome:${chrome_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
         docker push ${NAMESPACE}/node-chrome:${chrome_tag}
         docker push ${NAMESPACE}/standalone-chrome:${chrome_tag}
@@ -101,6 +103,8 @@ edge)
   do
     docker tag ${NAMESPACE}/node-edge:${TAG_VERSION} ${NAMESPACE}/node-edge:${edge_tag}
     docker tag ${NAMESPACE}/standalone-edge:${TAG_VERSION} ${NAMESPACE}/standalone-edge:${edge_tag}
+    echo "Tagged ${NAMESPACE}/node-edge:${edge_tag}"
+    echo "Tagged ${NAMESPACE}/standalone-edge:${edge_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
         docker push ${NAMESPACE}/node-edge:${edge_tag}
         docker push ${NAMESPACE}/standalone-edge:${edge_tag}
@@ -144,6 +148,8 @@ firefox)
   do
     docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
     docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
+    echo "Tagged ${NAMESPACE}/node-firefox:${firefox_tag}"
+    echo "Tagged ${NAMESPACE}/standalone-firefox:${firefox_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
         docker push ${NAMESPACE}/node-firefox:${firefox_tag}
         docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}

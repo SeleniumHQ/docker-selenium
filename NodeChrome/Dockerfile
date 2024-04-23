@@ -19,9 +19,10 @@ ARG TARGETARCH=amd64
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor | tee /etc/apt/trusted.gpg.d/google.gpg >/dev/null \
   && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
   && apt-get update -qqy \
-  && if echo "${CHROME_VERSION}" | grep -qE "google-chrome-stable_[0-9]*"; \
+  && if echo "${CHROME_VERSION}" | grep -qE "google-chrome-stable[_|=][0-9]*"; \
     then \
-      wget -qO google-chrome.deb "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/${CHROME_VERSION}_${TARGETARCH}.deb" \
+      CHROME_VERSION=$(echo "$CHROME_VERSION" | tr '=' '_') \
+      && wget -qO google-chrome.deb "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/${CHROME_VERSION}_${TARGETARCH}.deb" \
       && apt-get -qqy --no-install-recommends install --allow-downgrades ./google-chrome.deb \
       && rm -rf google-chrome.deb ; \
     else \

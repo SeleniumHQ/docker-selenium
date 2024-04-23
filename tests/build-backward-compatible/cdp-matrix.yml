@@ -1,0 +1,58 @@
+matrix:
+  # List of versions get from
+  # Edge: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable
+  # Chrome: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
+  # Firefox: https://download-installer.cdn.mozilla.net/pub/firefox/releases
+  CDP:
+    124:
+      EDGE_VERSION: 'microsoft-edge-stable=124.0.2478.51-1'
+      CHROME_VERSION: 'google-chrome-stable=124.0.6367.60-1'
+      FIREFOX_VERSION: '124.0.2'
+    123:
+      EDGE_VERSION: 'microsoft-edge-stable=123.0.2420.97-1'
+      CHROME_VERSION: 'google-chrome-stable=123.0.6312.122-1'
+      FIREFOX_VERSION: '123.0.1'
+    122:
+      EDGE_VERSION: 'microsoft-edge-stable=122.0.2365.92-1'
+      CHROME_VERSION: 'google-chrome-stable=122.0.6261.128-1'
+      FIREFOX_VERSION: '122.0.1'
+    121:
+      EDGE_VERSION: 'microsoft-edge-stable=121.0.2277.98-1'
+      CHROME_VERSION: 'google-chrome-stable=121.0.6167.184-1'
+      FIREFOX_VERSION: '121.0.1'
+    120:
+      EDGE_VERSION: 'microsoft-edge-stable=120.0.2210.91-1'
+      CHROME_VERSION: 'google-chrome-stable=120.0.6099.224-1'
+      FIREFOX_VERSION: '120.0.1'
+    119:
+      EDGE_VERSION: 'microsoft-edge-stable=119.0.2151.97-1'
+      CHROME_VERSION: 'google-chrome-stable=119.0.6045.199-1'
+      FIREFOX_VERSION: '119.0.1'
+    118:
+      EDGE_VERSION: 'microsoft-edge-stable=118.0.2088.76-1'
+      CHROME_VERSION: 'google-chrome-stable=118.0.5993.117-1'
+      FIREFOX_VERSION: '118.0.2'
+    117:
+      EDGE_VERSION: 'microsoft-edge-stable=117.0.2045.55-1'
+      CHROME_VERSION: 'google-chrome-stable=117.0.5938.149-1'
+      FIREFOX_VERSION: '117.0.1'
+    116:
+      EDGE_VERSION: 'microsoft-edge-stable=116.0.1938.81-1'
+      CHROME_VERSION: 'google-chrome-stable=116.0.5845.187-1'
+      FIREFOX_VERSION: '116.0.3'
+    115:
+      EDGE_VERSION: 'microsoft-edge-stable=115.0.1901.203-1'
+      CHROME_VERSION: 'google-chrome-stable=115.0.5790.170-1'
+      FIREFOX_VERSION: '115.0.3'
+    114:
+      EDGE_VERSION: 'microsoft-edge-stable=114.0.1823.82-1'
+      CHROME_VERSION: 'google-chrome-stable=114.0.5735.198-1'
+      FIREFOX_VERSION: '114.0.2'
+    113:
+      EDGE_VERSION: 'microsoft-edge-stable=113.0.1774.57-1'
+      CHROME_VERSION: 'google-chrome-stable=113.0.5672.126-1'
+      FIREFOX_VERSION: '113.0.2'
+    112:
+      EDGE_VERSION: 'microsoft-edge-stable=112.0.1722.64-1'
+      CHROME_VERSION: 'google-chrome-stable=112.0.5615.165-1'
+      FIREFOX_VERSION: '112.0.2'
