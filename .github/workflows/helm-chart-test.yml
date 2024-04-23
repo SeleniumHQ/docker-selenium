@@ -37,40 +37,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.25.16'
+          - k8s-version: 'v1.26.15'
             test-strategy: job
-            cluster: 'kind'
+            cluster: 'minikube'
             helm-version: 'v3.10.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.26.15'
+          - k8s-version: 'v1.27.13'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.11.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.27.12'
+          - k8s-version: 'v1.28.9'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.28.8'
+          - k8s-version: 'v1.29.4'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-existing-keda: false
             test-upgrade: true
-          - k8s-version: 'v1.29.3'
+          - k8s-version: 'v1.30.0'
             test-strategy: deployment_https
             cluster: 'minikube'
-            helm-version: 'v3.14.3'
+            helm-version: 'v3.14.4'
             test-existing-keda: false
             test-upgrade: true
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
-      ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
+      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}"
       HELM_VERSION: ${{ matrix.helm-version }}
       TEST_EXISTING_KEDA: ${{ matrix.test-existing-keda }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
@@ -155,7 +155,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}
+          name: "${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}"
           path: ${{ env.CHART_PACKAGE_PATH }}
       - name: Upload chart test artifacts
         if: always()

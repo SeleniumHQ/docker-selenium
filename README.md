@@ -512,7 +512,7 @@ ___
 
 ## Video recording
 
-Tests execution can be recorded by using the `selenium/video:ffmpeg-6.1-20240402`
+Tests execution can be recorded by using the `selenium/video:ffmpeg-7.0-20240402`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -539,7 +539,7 @@ This example shows how to start the containers manually:
 ``` bash
 $ docker network create grid
 $ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium --shm-size="2g" selenium/standalone-chrome:4.19.1-20240402
-$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-6.1-20240402
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-7.0-20240402
 # Run your tests
 $ docker stop video && docker rm video
 $ docker stop selenium && docker rm selenium
@@ -618,6 +618,8 @@ configs = [
     "selenium/standalone-edge:4.19.1-20240402", '{"browserName": "MicrosoftEdge"}'
 ]
 
+host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
+
 # URL for connecting to the docker daemon
 # Most simple approach, leave it as http://127.0.0.1:2375, and mount /var/run/docker.sock.
 # 127.0.0.1 is used because internally the container uses socat when /var/run/docker.sock is mounted 
@@ -628,7 +630,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-6.1-20240402"
+video-image = "selenium/video:ffmpeg-7.0-20240402"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -636,6 +638,10 @@ video-image = "selenium/video:ffmpeg-6.1-20240402"
 #host = <ip-from-node-machine>
 #port = <port-from-node-machine>
 ```
+
+With the optional config key `host-config-keys` under section [docker] in a config.toml file (or CLI option --docker-host-config-keys). Users can specify a list of docker host configuration keys that should be passed to browser containers.
+
+Valid key names for Docker host config can be found in the Docker API [documentation](https://docs.docker.com/engine/api/latest/#tag/Container/operation/ContainerCreate) or via the command `docker inspect` the node-docker container.
 
 ### Execution with Hub & Node roles
 
@@ -759,7 +765,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-6.1-20240402"
+video-image = "selenium/video:ffmpeg-7.0-20240402"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values

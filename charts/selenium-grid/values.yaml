@@ -11,7 +11,7 @@ global:
     # Image tag for browser's nodes
     nodesImageTag: 4.19.1-20240402
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.1-20240402
+    videoImageTag: ffmpeg-7.0-20240402
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -1066,7 +1066,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.1-20240402
+  # imageTag: ffmpeg-7.0-20240402
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
