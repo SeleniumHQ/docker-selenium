@@ -55,7 +55,7 @@ RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/ap
     gnupg2 \
     libnss3-tools \
   && mkdir -p /etc/apt/keyrings \
-  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
+  && apt-key adv --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 843C48A565F8F04B || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
   && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc >dev/null \
   && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list >dev/null \
   && apt-get -qqy update \

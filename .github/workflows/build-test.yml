@@ -51,7 +51,11 @@ jobs:
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Build Docker images
-        run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          command: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Count image layers
         run: VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make count_image_layers
       - name: Test Docker images

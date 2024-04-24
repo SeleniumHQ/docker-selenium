@@ -12,6 +12,8 @@ global:
     nodesImageTag: 4.19.1-20240402
     # Image tag for browser's video recorder
     videoImageTag: ffmpeg-7.0-20240402
+    # kubectl image is used to execute kubectl commands in utility jobs
+    kubectlImage: bitnami/kubectl:latest
     # Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -546,7 +548,7 @@ autoscaling:
   scalingType: job
   # Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
   # Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     minReplicaCount: 0
@@ -1185,7 +1187,7 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   additionalAnnotations:
-    "helm.sh/hook": pre-install
+    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback,post-delete
   http:
     timeout: 60000
   webhooks:
@@ -1221,19 +1223,19 @@ prometheus-stack:
   defaultRules:
     create: true
     annotations:
-      "helm.sh/hook": post-install
+      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
   alertmanager:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install
+      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
   grafana:
     enabled: true
     adminPassword: admin
     forceDeployDatasources: true
     forceDeployDashboards: true
     annotations:
-      "helm.sh/hook": post-install
+      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
   prometheus:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install
+      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
