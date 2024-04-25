@@ -47,7 +47,12 @@ jobs:
       - name: Remove local Docker tag
         run: docker rmi ${{ env.NAME }}/base:local-${BUILD_DATE}
       - name: Build images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
