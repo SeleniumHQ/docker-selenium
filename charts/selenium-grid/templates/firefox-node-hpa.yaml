@@ -11,6 +11,7 @@ metadata:
   labels:
     deploymentName: {{ template "seleniumGrid.firefoxNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
     {{- with .Values.firefoxNode.labels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}

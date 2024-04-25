@@ -67,11 +67,15 @@ jobs:
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Pre-build to reduce logs in test phase
-        run: |
-          VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make hub
-          VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chrome
-          VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make firefox
-          VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make edge
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          command: |
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make hub
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chrome
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make firefox
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make edge
       - name: Set test parameters
         if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         run: |
