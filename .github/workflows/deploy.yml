@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     # Only continue if the commit message has '[deploy]' in it
-    if: contains(toJson(github.event.commits), '[deploy]') == true
+    if: contains(toJson(github.event.commits), '[deploy]') == true || github.event_name == 'workflow_dispatch'
     name: Deploy Docker images
     runs-on: ubuntu-latest
     permissions: write-all
