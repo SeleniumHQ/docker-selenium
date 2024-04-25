@@ -20,6 +20,7 @@ MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),ndviet)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0-ubuntu2204)
+PLATFORMS := $(or $(PLATFORMS),$(PLATFORMS),linux/arm64)
 
 all: hub \
 	distributor \
@@ -178,6 +179,77 @@ edge_upgrade_version:
 	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) microsoft-edge --version
 	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) msedgedriver --version
 
+# Register linux/arm64 and linux/arm/v7 architectures for building with BuildKit
+# docker run --rm --privileged aptman/qus -s -- -p  # for actions
+qemu_user_static:
+	docker run --rm --privileged aptman/qus -- -r ; \
+	docker run --rm --privileged aptman/qus -s -- -p
+
+# Build multi-arch images
+all_multi: base_multi \
+	hub_multi \
+	chromium_multi \
+	firefox_multi \
+	docker_multi \
+	standalone_chromium_multi \
+	standalone_firefox_multi \
+	standalone_docker_multi \
+	distributor_multi \
+	router_multi \
+	sessions_multi \
+	sessionqueue_multi \
+	event_bus_multi \
+	video_multi
+
+build_multi: all_multi
+
+ci_multi: build_multi test_multi_arch
+
+base_multi: qemu_user_static
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) -t $(NAME)/base:$(TAG_VERSION) .
+
+hub_multi: base_multi
+	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+
+distributor_multi:
+	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+
+router_multi:
+	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+
+sessions_multi:
+	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+
+sessionqueue_multi:
+	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
+
+event_bus_multi: base_multi
+	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
+
+node_base_multi: base_multi
+	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+
+chromium_multi: node_base_multi
+	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chromium:$(TAG_VERSION) .
+
+firefox_multi: node_base_multi
+	cd ./NodeFirefox && docker buildx build -f Dockerfile.multi-arch --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+
+docker_multi: base_multi
+	cd ./NodeDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
+
+standalone_firefox_multi: firefox_multi
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+
+standalone_chromium_multi: chromium_multi
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
+
+standalone_docker_multi: docker_multi
+	cd ./StandaloneDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
+
+video_multi:
+	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
 tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_edge_images
@@ -209,6 +281,58 @@ tag_latest:
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+
+# Additional tags for browser images
+tag_and_push_multi_arch_browser_images: tag_and_push_multi_arch_chromium_images tag_and_push_multi_arch_firefox_images
+
+tag_and_push_multi_arch_chromium_images:
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium
+
+tag_and_push_multi_arch_firefox_images:
+	./tag_and_push_multi-arch_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
+
+tag_major_minor_multi_arch:
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) base
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) hub
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) node-base
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) node-docker
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) standalone-docker
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) sessions
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) session-queue
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) event-bus
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) router
+	./tag_and_push_multi-arch_major_minor.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) distributor
+
+tag_multi_arch_latest:
+	docker buildx imagetools create -t ${NAMESPACE}/base:latest ${NAMESPACE}/base:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/hub:latest ${NAMESPACE}/hub:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-base:latest ${NAMESPACE}/node-base:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-chromium:latest ${NAMESPACE}/node-chromium:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-firefox:latest ${NAMESPACE}/node-firefox:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-chromium:latest ${NAMESPACE}/standalone-chromium:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-firefox:latest ${NAMESPACE}/standalone-firefox:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/node-docker:latest ${NAMESPACE}/node-docker:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/standalone-docker:latest ${NAMESPACE}/standalone-docker:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/sessions:latest ${NAMESPACE}/sessions:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/session-queue:latest ${NAMESPACE}/session-queue:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/event-bus:latest ${NAMESPACE}/event-bus:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/router:latest ${NAMESPACE}/router:${TAG_VERSION}
+	docker buildx imagetools create -t ${NAMESPACE}/distributor:latest ${NAMESPACE}/distributor:${TAG_VERSION}
+
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) base latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) hub latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-base latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-chromium latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-firefox latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-chromium latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-firefox latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) node-docker latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) standalone-docker latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) sessions latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) session-queue latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) event-bus latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) router latest
+	# ./tag-and-push-multi-arch-image.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) distributor latest
 
 release_latest:
 	docker push $(NAME)/base:latest
@@ -425,6 +549,25 @@ test_firefox:
 
 test_firefox_standalone:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) ./tests/bootstrap.sh StandaloneFirefox
+
+# Test multi-arch container images
+test_multi_arch: test_chromium_multi \
+ test_firefox_multi \
+ test_chromium_standalone_multi \
+ test_firefox_standalone_multi
+
+
+test_chromium_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeChromium
+
+test_chromium_standalone_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneChromium
+
+test_firefox_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh NodeFirefox
+
+test_firefox_standalone_multi:
+	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/bootstrap.sh StandaloneFirefox
 
 test_parallel: hub chrome firefox edge
 	sudo rm -rf ./tests/tests

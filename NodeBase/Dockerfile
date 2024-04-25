@@ -88,13 +88,13 @@ RUN apt-get update -qqy \
     locales \
     libfontconfig \
     libfreetype6 \
-    xfonts-cyrillic \
+    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    fonts-ubuntu \
+    #fonts-ubuntu \
     fonts-noto-color-emoji \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
