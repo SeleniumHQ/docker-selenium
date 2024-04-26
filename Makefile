@@ -12,8 +12,7 @@ CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
-TARGETARCH := $(or $(TARGETARCH),$(TARGETARCH),amd64)
-FROM_IMAGE_ARGS := --build-arg TARGETARCH=$(TARGETARCH) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS)
+FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS)
 BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
@@ -56,7 +55,7 @@ build: all
 ci: build test
 
 base:
-	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --load --build-arg TARGETARCH=$(TARGETARCH) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --load --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
 	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/base:$(TAG_VERSION) .
