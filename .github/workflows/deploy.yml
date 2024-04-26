@@ -19,6 +19,13 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          platforms: linux/amd64,linux/arm64
+          use: false
       - name: Output Docker info
         run: docker info
       - name: Sets build date
