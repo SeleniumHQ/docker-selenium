@@ -15,6 +15,7 @@ ARG WEBSOCKIFY_VERSION="master"
 ARG LANG_WHICH=en
 ARG LANG_WHERE=US
 ARG ENCODING=UTF-8
+ARG TARGETARCH
 
 USER root
 
@@ -84,17 +85,14 @@ RUN apt-get update -qqy \
 #==============================
 # Locale and encoding settings
 #==============================
-    language-pack-en \
     locales \
     libfontconfig \
     libfreetype6 \
-    #xfonts-cyrillic \
     xfonts-scalable \
     fonts-liberation \
     fonts-ipafont-gothic \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
-    #fonts-ubuntu \
     fonts-noto-color-emoji \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
