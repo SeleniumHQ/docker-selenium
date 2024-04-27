@@ -1,10 +1,10 @@
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-video.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-video.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video.yml down`
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:4.19.0-20240328
+    image: selenium/node-chrome:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -14,7 +14,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:4.19.0-20240328
+    image: selenium/node-edge:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -24,7 +24,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.19.0-20240328
+    image: selenium/node-firefox:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -34,7 +34,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:ffmpeg-6.1-20240328
+    image: selenium/video:ffmpeg-7.0-20240425
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -44,7 +44,7 @@ services:
       - FILE_NAME=chrome_video.mp4
 
   edge_video:
-    image: selenium/video:ffmpeg-6.1-20240328
+    image: selenium/video:ffmpeg-7.0-20240425
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -54,7 +54,7 @@ services:
       - FILE_NAME=edge_video.mp4
 
   firefox_video:
-    image: selenium/video:ffmpeg-6.1-20240328
+    image: selenium/video:ffmpeg-7.0-20240425
     volumes:
       - /tmp/videos:/videos
     depends_on:
@@ -64,7 +64,7 @@ services:
       - FILE_NAME=firefox_video.mp4
 
   selenium-hub:
-    image: selenium/hub:4.19.0-20240328
+    image: selenium/hub:4.20.0-20240425
     container_name: selenium-hub
     ports:
       - "4442:4442"

@@ -126,7 +126,8 @@ jobs:
       - run:
           name: "Prepare workflow environment variables"
           command: |
-            export SELENIUM_VERSION=$(grep selenium-server Base/Dockerfile | sed 's/.*-\([^-]*\)\.jar \\/\1/' | head -n 1)
+            export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
+            export BINDING_VERSION=$(grep BINDING_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV
             echo 'export BUILD_DATE=$(date '+%Y%m%d')' >> $BASH_ENV
@@ -229,6 +230,7 @@ jobs:
           command: |
             echo "export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)" >> $BASH_ENV
             echo "export RELEASE=$(grep BASE_RELEASE Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)" >> $BASH_ENV
+            echo "export BINDING_VERSION=$(grep BINDING_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)" >> $BASH_ENV
             source $BASH_ENV
             echo "Prepare workflow environment variables"
             echo 'export BRANCH='$SELENIUM_VERSION >> $BASH_ENV

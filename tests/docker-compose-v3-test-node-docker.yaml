@@ -2,21 +2,30 @@ version: "3"
 services:
   node-docker:
     image: ${NAMESPACE}/node-docker:${TAG}
+    user: root
     volumes:
       - ./videos:/opt/selenium/assets
       - ./videos/config.toml:/opt/bin/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./videos/Downloads:/home/seluser/Downloads
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    dns_search: selenium-grid.local
+    extra_hosts:
+      - "prod.domain.com:${HOST_IP}"
     depends_on:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
-      - SE_LOG_LEVEL=FINE
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+      - SE_LOG_LEVEL=${LOG_LEVEL}
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
+    user: ${UID}
     container_name: selenium-hub
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}
@@ -36,4 +45,6 @@ services:
     environment:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
+      - BINDING_VERSION=${BINDING_VERSION}
+      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
     command: ["./bootstrap.sh", "${NODE}"]

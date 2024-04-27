@@ -193,7 +193,7 @@ if __name__ == '__main__':
     # Flag for failure (for posterity)
     failed = False
 
-    # Avoiding to start the containers when running inside docker-compose
+    # Avoiding to start the containers when running inside docker compose
     test_container_id = ''
     hub_id = ''
     if not run_in_docker_compose:
@@ -248,7 +248,7 @@ if __name__ == '__main__':
         logger.fatal(e)
         failed = True
 
-    # Avoiding a container cleanup if tests run inside docker-compose
+    # Avoiding a container cleanup if tests run inside docker compose
     if not run_in_docker_compose:
         logger.info("Cleaning up...")
 

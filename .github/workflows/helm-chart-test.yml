@@ -37,41 +37,54 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.25.16'
+          - k8s-version: 'v1.26.15'
             test-strategy: job
-            cluster: 'kind'
+            cluster: 'minikube'
             helm-version: 'v3.10.3'
             test-existing-keda: true
-          - k8s-version: 'v1.26.15'
+            test-upgrade: true
+          - k8s-version: 'v1.27.13'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.11.3'
             test-existing-keda: true
-          - k8s-version: 'v1.27.12'
+            test-upgrade: true
+          - k8s-version: 'v1.28.9'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
-          - k8s-version: 'v1.28.8'
+            test-upgrade: true
+          - k8s-version: 'v1.29.4'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-existing-keda: false
-          - k8s-version: 'v1.29.3'
+            test-upgrade: true
+          - k8s-version: 'v1.30.0'
             test-strategy: deployment_https
             cluster: 'minikube'
-            helm-version: 'v3.14.3'
+            helm-version: 'v3.14.4'
             test-existing-keda: false
+            test-upgrade: true
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
-      ARTIFACT_NAME: ${{ matrix.k8s-version }}-${{ matrix.test-strategy }}
+      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}"
       HELM_VERSION: ${{ matrix.helm-version }}
       TEST_EXISTING_KEDA: ${{ matrix.test-existing-keda }}
+      TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
     steps:
       - uses: actions/checkout@main
       - name: Output Docker info
         run: docker info
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          platforms: linux/amd64,linux/arm64
+          use: false
       - name: Set up Python
         uses: actions/setup-python@main
         with:
@@ -89,10 +102,18 @@ jobs:
           TARGET_BRANCH: ${{ github.head_ref }}
       - name: Output branch name
         run: echo ${BRANCH}
+      - name: Set Selenium base version
+        if: contains(toJson(github.event.commits), '[deploy]') == false
+        run: |
+          make set_nightly_env
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
+          echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
+        env:
+          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Setup Kubernetes environment
         uses: nick-invision/retry@master
         with:
@@ -105,7 +126,12 @@ jobs:
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Setup Kubernetes cluster
         uses: nick-invision/retry@master
         with:
@@ -133,6 +159,10 @@ jobs:
           max_attempts: 3
           command: |
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_test_autoscaling_${{ matrix.test-strategy }}
+      - name: Test chart upgrade
+        if: (matrix.test-upgrade == true)
+        run: |
+          NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} SET_MAX_REPLICAS=10 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART} make chart_test_autoscaling_${{ matrix.test-strategy }}
       - name: Cleanup Kubernetes cluster
         if: always()
         run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
@@ -140,7 +170,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@main
         with:
-          name: ${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}
+          name: "${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}"
           path: ${{ env.CHART_PACKAGE_PATH }}
       - name: Upload chart test artifacts
         if: always()

@@ -1,0 +1,157 @@
+matrix:
+  # List CDP versions get from release notes https://www.selenium.dev/categories/releases/
+  # https://github.com/SeleniumHQ/selenium/releases
+  selenium:
+    nightly:
+      BASE_RELEASE: nightly
+      BASE_VERSION: 4.21.0-SNAPSHOT
+      VERSION: 4.21.0-SNAPSHOT
+      BINDING_VERSION: nightly
+      CDP:
+        - 124
+        - 123
+        - 122
+    4.20.0:
+      BASE_RELEASE: selenium-4.20.0
+      BASE_VERSION: 4.20.0
+      VERSION: 4.20.0
+      BINDING_VERSION: 4.20.0
+      CDP:
+        - 124
+        - 123
+        - 122
+    4.19.1:
+      BASE_RELEASE: selenium-4.19.0
+      BASE_VERSION: 4.19.1
+      VERSION: 4.19.1
+      BINDING_VERSION: 4.19.0
+      CDP:
+        - 123
+        - 122
+        - 121
+    4.19.0:
+      BASE_RELEASE: selenium-4.19.0
+      BASE_VERSION: 4.19.0
+      VERSION: 4.19.0
+      BINDING_VERSION: 4.19.0
+      CDP:
+        - 123
+        - 122
+        - 121
+    4.18.1:
+      BASE_RELEASE: selenium-4.18.0
+      BASE_VERSION: 4.18.1
+      VERSION: 4.18.1
+      BINDING_VERSION: 4.18.1
+      CDP:
+        - 122
+        - 121
+        - 120
+    4.18.0:
+      BASE_RELEASE: selenium-4.18.0
+      BASE_VERSION: 4.18.0
+      VERSION: 4.18.0
+      BINDING_VERSION: 4.18.0
+      CDP:
+        - 122
+        - 121
+        - 120
+    4.17.0:
+      BASE_RELEASE: selenium-4.17.0
+      BASE_VERSION: 4.17.0
+      VERSION: 4.17.0
+      BINDING_VERSION: 4.17.2
+      CDP:
+        - 121
+        - 120
+        - 119
+    4.16.1:
+      BASE_RELEASE: selenium-4.16.0
+      BASE_VERSION: 4.16.1
+      VERSION: 4.16.1
+      BINDING_VERSION: 4.16.0
+      CDP:
+        - 120
+        - 119
+        - 118
+    4.16.0:
+      BASE_RELEASE: selenium-4.16.0
+      BASE_VERSION: 4.16.0
+      VERSION: 4.16.0
+      BINDING_VERSION: 4.16.0
+      CDP:
+        - 120
+        - 119
+        - 118
+    4.15.0:
+      BASE_RELEASE: selenium-4.15.0
+      BASE_VERSION: 4.15.0
+      VERSION: 4.15.0
+      BINDING_VERSION: 4.15.2
+      CDP:
+        - 119
+        - 118
+        - 117
+    4.14.1:
+      BASE_RELEASE: selenium-4.14.0
+      BASE_VERSION: 4.14.1
+      VERSION: 4.14.1
+      BINDING_VERSION: 4.14.0
+      CDP:
+        - 118
+        - 117
+        - 116
+    4.14.0:
+      BASE_RELEASE: selenium-4.14.0
+      BASE_VERSION: 4.14.0
+      VERSION: 4.14.0
+      BINDING_VERSION: 4.14.0
+      CDP:
+        - 118
+        - 117
+        - 116
+    4.13.0:
+      BASE_RELEASE: selenium-4.13.0
+      BASE_VERSION: 4.13.0
+      VERSION: 4.13.0
+      BINDING_VERSION: 4.13.0
+      CDP:
+        - 117
+        - 116
+        - 115
+    4.12.1:
+      BASE_RELEASE: selenium-4.12.0
+      BASE_VERSION: 4.12.1
+      VERSION: 4.12.1
+      BINDING_VERSION: 4.12.0
+      CDP:
+        - 116
+        - 115
+        - 114
+    4.12.0:
+      BASE_RELEASE: selenium-4.12.0
+      BASE_VERSION: 4.12.0
+      VERSION: 4.12.0
+      BINDING_VERSION: 4.12.0
+      CDP:
+        - 116
+        - 115
+        - 114
+    4.11.0:
+      BASE_RELEASE: selenium-4.11.0
+      BASE_VERSION: 4.11.0
+      VERSION: 4.11.0
+      BINDING_VERSION: 4.11.2
+      CDP:
+        - 115
+        - 114
+        - 113
+    4.10.0:
+      BASE_RELEASE: selenium-4.10.0
+      BASE_VERSION: 4.10.0
+      VERSION: 4.10.0
+      BINDING_VERSION: 4.10.0
+      CDP:
+        - 114
+        - 113
+        - 112

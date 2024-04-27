@@ -35,6 +35,7 @@ BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
 BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
+TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 
 cleanup() {
   # Get the list of pods
@@ -96,19 +97,19 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.logLevel=${LOG_LEVEL} \
 "
 
-if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=false \
   --set autoscaling.enableWithExistingKEDA=true \
   "
-else
+elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=true \
   --set autoscaling.enableWithExistingKEDA=false \
   "
 fi
 
-if [ -n "${SET_MAX_REPLICAS}" ]; then
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ -n "${SET_MAX_REPLICAS}" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.scaledOptions.maxReplicaCount=${SET_MAX_REPLICAS} \
   "
@@ -150,7 +151,6 @@ fi
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_AUTOSCALING=" \
-  --set autoscaling.enableWithExistingKEDA=${SELENIUM_GRID_AUTOSCALING} \
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
   "
 fi
@@ -194,6 +194,11 @@ echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
 
 kubectl get pods -A
+
+if [ "${TEST_UPGRADE_CHART}" = "true" ]; then
+  echo "Focus on verify chart upgrade, skip Selenium tests"
+  exit 0
+fi
 
 echo "Run Tests"
 export CHART_CERT_PATH=$(readlink -f ${CHART_CERT_PATH})

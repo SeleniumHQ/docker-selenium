@@ -13,10 +13,19 @@ USER root
 #  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
+ARG TARGETARCH
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
-  && apt-get -qqy --no-install-recommends install ${EDGE_VERSION} \
+  && if echo "${EDGE_VERSION}" | grep -qE "microsoft-edge-stable[_|=][0-9]*"; \
+    then \
+      EDGE_VERSION=$(echo "$EDGE_VERSION" | tr '=' '_') \
+      && wget -qO microsoft-edge.deb "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/${EDGE_VERSION}_${TARGETARCH}.deb" \
+      && apt-get -qqy --no-install-recommends install --allow-downgrades ./microsoft-edge.deb \
+      && rm -rf microsoft-edge.deb ; \
+    else \
+      apt-get -qqy --no-install-recommends install ${EDGE_VERSION} ; \
+    fi \
   && rm /etc/apt/sources.list.d/microsoft-edge.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 

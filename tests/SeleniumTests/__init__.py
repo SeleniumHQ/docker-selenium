@@ -17,6 +17,7 @@ SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', '')
 SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', '')
 SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'false').lower() == 'true'
+SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWNLOADS', 'true').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
 
@@ -90,6 +91,9 @@ class SeleniumGenericTests(unittest.TestCase):
         )
         driver.execute_script("arguments[0].scrollIntoView();", file_link)
         file_link.click()
+        if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
+            time.sleep(4)
+            return
         wait.until(
             lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
         )
@@ -108,7 +112,7 @@ class ChromeTests(SeleniumGenericTests):
     def setUp(self):
         try:
             options = ChromeOptions()
-            options.enable_downloads = True
+            options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             options.set_capability('se:recordVideo', True)
             if SELENIUM_GRID_TEST_HEADLESS:
@@ -129,7 +133,7 @@ class EdgeTests(SeleniumGenericTests):
     def setUp(self):
         try:
             options = EdgeOptions()
-            options.enable_downloads = True
+            options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             options.set_capability('se:recordVideo', True)
             if SELENIUM_GRID_TEST_HEADLESS:
@@ -154,7 +158,7 @@ class FirefoxTests(SeleniumGenericTests):
             profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
             options = FirefoxOptions()
             options.profile = profile
-            options.enable_downloads = True
+            options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.set_capability('se:recordVideo', True)
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('-headless')

@@ -1,10 +1,10 @@
-# To execute this docker-compose yml file use `docker-compose -f docker-compose-v2.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v2.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v2.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v2.yml down`
 version: '2'
 services:
   chrome:
-    image: selenium/node-chrome:4.19.0-20240328
+    image: selenium/node-chrome:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -16,7 +16,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.19.0-20240328
+    image: selenium/node-edge:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -28,7 +28,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.19.0-20240328
+    image: selenium/node-firefox:4.20.0-20240425
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -40,7 +40,7 @@ services:
       - "6902:5900"
 
   selenium-hub:
-    image: selenium/hub:4.19.0-20240328
+    image: selenium/hub:4.20.0-20240425
     ports:
       - "4442:4442"
       - "4443:4443"

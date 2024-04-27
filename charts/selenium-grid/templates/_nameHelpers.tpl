@@ -39,6 +39,13 @@ app.kubernetes.io/component: {{ printf "selenium-grid-%s" .Chart.AppVersion }}
 helm.sh/chart: {{ include "seleniumGrid.chart" . }}
 {{- end -}}
 
+{{/*
+Autoscaling labels
+*/}}
+{{- define "seleniumGrid.autoscalingLabels" -}}
+component.autoscaling: "true"
+{{- end -}}
+
 {{- define "seleniumGrid.component.name" -}}
 {{- $component := index . 0 }}
 {{- $root := index . 1 }}
@@ -180,4 +187,25 @@ Server ConfigMap fullname
 */}}
 {{- define "seleniumGrid.server.configmap.fullname" -}}
 {{- tpl (default (include "seleniumGrid.component.name" (list "selenium-server-config" $)) .Values.serverConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Patch scaledObjects finalizers job fullname
+*/}}
+{{- define "seleniumGrid.keda.patchObjectsJob.fullname" -}}
+{{- printf "%s-%s" .Release.Name "patch-scaledobjects-finalizers" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Patch scaled objects RoleBinding fullname
+*/}}
+{{- define "seleniumGrid.keda.roleBinding.fullname" -}}
+{{- printf "%s-%s" .Release.Name "patch-keda-rb" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Patch scaled objects Role fullname
+*/}}
+{{- define "seleniumGrid.keda.role.fullname" -}}
+{{- printf "%s-%s" .Release.Name "patch-keda-role" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

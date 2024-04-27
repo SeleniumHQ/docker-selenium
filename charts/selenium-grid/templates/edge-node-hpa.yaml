@@ -5,13 +5,13 @@ metadata:
   name: {{ template "seleniumGrid.edgeNode.fullname" . }}
   namespace: {{ .Release.Namespace }}
   annotations:
-    helm.sh/resource-policy: delete
     {{- with .Values.autoscaling.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
     deploymentName: {{ template "seleniumGrid.edgeNode.fullname" . }}
     {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
     {{- with .Values.edgeNode.labels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
