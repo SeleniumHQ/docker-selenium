@@ -1,0 +1,25 @@
+{{- if $.Values.rbacRoleBinding.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with $.Values.rbacRoleBinding.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- with $.Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
+{{ with $.Values.rbacRoleBinding.roleRef }}
+{{- $roleRef := merge (dict "name" (include "seleniumGrid.rbac.role.fullname" $)) . -}}
+roleRef:
+  {{ $roleRef | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}
