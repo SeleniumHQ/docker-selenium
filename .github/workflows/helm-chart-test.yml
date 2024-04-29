@@ -78,6 +78,13 @@ jobs:
       - uses: actions/checkout@main
       - name: Output Docker info
         run: docker info
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          platforms: linux/amd64,linux/arm64
+          use: false
       - name: Set up Python
         uses: actions/setup-python@main
         with:
@@ -95,12 +102,15 @@ jobs:
           TARGET_BRANCH: ${{ github.head_ref }}
       - name: Output branch name
         run: echo ${BRANCH}
+      - name: Set Selenium base version
+        if: contains(toJson(github.event.commits), '[deploy]') == false
+        run: |
+          make set_nightly_env
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
-          make set_nightly_env
-          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
@@ -116,7 +126,12 @@ jobs:
           echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
           echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Build Docker images
-        run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Setup Kubernetes cluster
         uses: nick-invision/retry@master
         with:

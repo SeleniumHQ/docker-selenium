@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.19.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.19.1)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.19.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.20.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.20.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.20.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.20.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.19.1)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.21.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.20.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -20,6 +20,7 @@ MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),ndviet)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0-ubuntu2204)
+PLATFORMS := $(or $(PLATFORMS),$(PLATFORMS),linux/amd64)
 
 all: hub \
 	distributor \
@@ -41,6 +42,11 @@ set_nightly_env:
 	echo BASE_VERSION=$(BASE_VERSION_NIGHTLY) > .env ; \
 	echo BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) >> .env ;
 
+docker_buildx_setup:
+	sudo apt-get install --upgrade docker-buildx-plugin
+	docker buildx version
+	docker buildx use default
+
 build_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
@@ -49,94 +55,94 @@ build: all
 ci: build test
 
 base:
-	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --load --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
-	cd ./Base && docker build $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/base:$(TAG_VERSION) .
 
 hub: base
-	cd ./Hub && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/hub:$(TAG_VERSION) .
 
 distributor: base
-	cd ./Distributor && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/distributor:$(TAG_VERSION) .
 
 router: base
-	cd ./Router && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/router:$(TAG_VERSION) .
 
 sessions: base
-	cd ./Sessions && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue: base
-	cd ./SessionQueue && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
+	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 event_bus: base
-	cd ./EventBus && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
+	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/event-bus:$(TAG_VERSION) .
 
 node_base: base
-	cd ./NodeBase && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-base:$(TAG_VERSION) .
+	cd ./NodeBase && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/node-base:$(TAG_VERSION) .
 
 chrome: node_base
-	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
 chrome_dev:
-	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-unstable -t $(NAME)/node-chrome:dev .
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-unstable --load -t $(NAME)/node-chrome:dev .
 
 chrome_beta:
-	cd ./NodeChrome && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-beta -t $(NAME)/node-chrome:beta .
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-beta --load -t $(NAME)/node-chrome:beta .
 
 edge: node_base
-	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) .
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/node-edge:$(TAG_VERSION) .
 
 edge_dev:
-	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-dev -t $(NAME)/node-edge:dev .
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-dev --load -t $(NAME)/node-edge:dev .
 
 edge_beta:
-	cd ./NodeEdge && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-beta -t $(NAME)/node-edge:beta .
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-beta --load -t $(NAME)/node-edge:beta .
 
 firefox: node_base
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 firefox_dev:
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=nightly-latest -t $(NAME)/node-firefox:dev .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load --build-arg FIREFOX_VERSION=nightly-latest -t $(NAME)/node-firefox:dev .
 
 firefox_beta:
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:beta .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:beta .
 
 docker: base
-	cd ./NodeDocker && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-docker:$(TAG_VERSION) .
+	cd ./NodeDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/node-docker:$(TAG_VERSION) .
 
 standalone_docker: docker
-	cd ./StandaloneDocker && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/standalone-docker:$(TAG_VERSION) .
+	cd ./StandaloneDocker && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --load -t $(NAME)/standalone-docker:$(TAG_VERSION) .
 
 standalone_firefox: firefox
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox --load -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 standalone_firefox_dev: firefox_dev
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-firefox --load -t $(NAME)/standalone-firefox:dev .
 
 standalone_firefox_beta: firefox_beta
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox --load -t $(NAME)/standalone-firefox:beta .
 
 standalone_chrome: chrome
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome --load -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 
 standalone_chrome_dev: chrome_dev
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-chrome --load -t $(NAME)/standalone-chrome:dev .
 
 standalone_chrome_beta: chrome_beta
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:beta .
 
 standalone_edge: edge
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge -t $(NAME)/standalone-edge:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge --load -t $(NAME)/standalone-edge:$(TAG_VERSION) .
 
 standalone_edge_dev: edge_dev
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-edge -t $(NAME)/standalone-edge:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-edge --load -t $(NAME)/standalone-edge:dev .
 
 standalone_edge_beta: edge_beta
-	cd ./Standalone && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge --load -t $(NAME)/standalone-edge:beta .
 
 video:
-	cd ./Video && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) --load -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
 
 count_image_layers:
 	docker history $(NAME)/base:$(TAG_VERSION) -q | wc -l
@@ -158,22 +164,22 @@ count_image_layers:
 	docker history $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) -q | wc -l
 
 chrome_upgrade_version:
-	cd ./NodeChrome && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/node-chrome:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome --load -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
 	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) google-chrome --version
 	docker run --rm $(NAME)/standalone-chrome:$(TAG_VERSION) chromedriver --version
 
 firefox_upgrade_version:
-	cd ./NodeFirefox && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-firefox:$(TAG_VERSION) .
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/node-firefox:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox --load -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
 	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) firefox --version
 	docker run --rm $(NAME)/standalone-firefox:$(TAG_VERSION) geckodriver --version
 
 edge_upgrade_version:
-	cd ./NodeEdge && docker build $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/node-edge:$(TAG_VERSION) .
-	cd ./Standalone && docker build $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge -t $(NAME)/standalone-edge:$(TAG_VERSION) .
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(VERSION) --build-arg AUTHORS=$(AUTHORS) --load -t $(NAME)/node-edge:$(TAG_VERSION) .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge --load -t $(NAME)/standalone-edge:$(TAG_VERSION) .
 	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) /opt/selenium/selenium-server.jar info --version
 	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) microsoft-edge --version
 	docker run --rm $(NAME)/standalone-edge:$(TAG_VERSION) msedgedriver --version

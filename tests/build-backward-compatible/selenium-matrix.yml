@@ -4,9 +4,18 @@ matrix:
   selenium:
     nightly:
       BASE_RELEASE: nightly
-      BASE_VERSION: 4.20.0-SNAPSHOT
-      VERSION: 4.20.0-SNAPSHOT
+      BASE_VERSION: 4.21.0-SNAPSHOT
+      VERSION: 4.21.0-SNAPSHOT
       BINDING_VERSION: nightly
+      CDP:
+        - 124
+        - 123
+        - 122
+    4.20.0:
+      BASE_RELEASE: selenium-4.20.0
+      BASE_VERSION: 4.20.0
+      VERSION: 4.20.0
+      BINDING_VERSION: 4.20.0
       CDP:
         - 124
         - 123

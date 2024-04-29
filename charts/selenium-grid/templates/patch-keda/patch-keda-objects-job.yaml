@@ -1,0 +1,35 @@
+{{- if eq (include "seleniumGrid.useKEDA" $) "true" }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook-delete-policy": hook-succeeded
+    "helm.sh/resource-policy": delete
+    {{- with $.Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- with $.Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  template:
+    metadata:
+      name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+    spec:
+      activeDeadlineSeconds: 120
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
+      containers:
+        - name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+          image: {{ $.Values.global.seleniumGrid.kubectlImage }}
+          command:
+            - "bin/bash"
+            - "-c"
+            - "kubectl get ScaledObjects,ScaledJobs -n {{ .Release.Namespace }} -l component.autoscaling=true -o=json | jq '.metadata.finalizers = null' | kubectl apply -f -"
+      restartPolicy: Never
+{{- end }}

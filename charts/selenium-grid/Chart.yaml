@@ -2,20 +2,20 @@ apiVersion: v2
 name: selenium-grid
 description: A Helm chart for creating a Selenium Grid Server in Kubernetes
 type: application
-version: 0.29.1
-appVersion: 4.19.1-20240402
+version: 0.30.0
+appVersion: 4.20.0-20240425
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.13.2
+  version: 2.14.1
   name: keda
   condition: autoscaling.enabled
 - repository: https://kubernetes.github.io/ingress-nginx
-  version: 4.10.0
+  version: 4.10.1
   name: ingress-nginx
   condition: ingress-nginx.enabled
 - repository: https://jaegertracing.github.io/helm-charts
-  version: 3.0.0
+  version: 3.0.4
   name: jaeger
   condition: tracing.enabled
 - repository: https://prometheus-community.github.io/helm-charts

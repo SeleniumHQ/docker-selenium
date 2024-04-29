@@ -1,3 +1,32 @@
+## :heavy_check_mark: selenium-grid-0.30.0
+
+- Chart is using image tag 4.20.0-20240425
+- Chart is tested on Kubernetes versions: v1.26.15, v1.27.13, v1.28.9, v1.29.4, v1.30.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, 
+
+### Fixed
+- [`a83f0d6a`](http://github.com/seleniumhq/docker-selenium/commit/a83f0d6ab9d9337835ced36ceda4a44554d8a12c) - fix(chart): job to patch scaledobject stuck in deleting (#2222) :: Viet Nguyen Duc
+- [`be0fe120`](http://github.com/seleniumhq/docker-selenium/commit/be0fe1207bb81a2fcf20bda6d2e50c7a14de4059) - fix(chart): remove hook post-upgrade, add test for chart upgrade capability :: Viet Nguyen Duc
+- [`bd50206b`](http://github.com/seleniumhq/docker-selenium/commit/bd50206b1f92f237b054abaf312f0661a8ce2fa6) - fix(chart): node probe ignore proxy in sending request :: Viet Nguyen Duc
+
+### Changed
+- [`f39a9da8`](http://github.com/seleniumhq/docker-selenium/commit/f39a9da86f635b21d6dff0572e7713dc80c20d69) - [docs] pre-update for release docs generation :: Viet Nguyen Duc
+- [`df742c98`](http://github.com/seleniumhq/docker-selenium/commit/df742c982f97a6552d11585c7fc7e9f4446073cb) - chore(deps): update helm release jaeger to v3 (#2213) :: renovate[bot]
+- [`311b6382`](http://github.com/seleniumhq/docker-selenium/commit/311b63829cf652cad0f32fff2061cb45a7cd46d0) - chore(deps): update helm release kube-prometheus-stack to v58.1.2 (#2208) :: renovate[bot]
+- [`ab3f8b85`](http://github.com/seleniumhq/docker-selenium/commit/ab3f8b8546f30da7ae88a308f63bc014718b6355) - chore(deps): update helm release kube-prometheus-stack to v58.1.1 (#2206) :: renovate[bot]
+- [`70ed587d`](http://github.com/seleniumhq/docker-selenium/commit/70ed587dd3b99dd2633b23d313da7ac0a9ec12c9) - chore(deps): update helm release kube-prometheus-stack to v58.1.0 (#2205) :: renovate[bot]
+- [`a3912b29`](http://github.com/seleniumhq/docker-selenium/commit/a3912b295e359601710bbf86018692194e3d9fbb) - chore(deps): update helm release kube-prometheus-stack to v58.0.1 (#2203) :: renovate[bot]
+- [`12eb550a`](http://github.com/seleniumhq/docker-selenium/commit/12eb550a45559742fe161e949ffc34722261c3b9) - test: update CI test node-docker :: Viet Nguyen Duc
+- [`033f77c0`](http://github.com/seleniumhq/docker-selenium/commit/033f77c02dde9d61d1a4d44be7526ef689244606) - chore(deps): update helm release jaeger to v2.1.0 (#2198) :: renovate[bot]
+- [`2eab3722`](http://github.com/seleniumhq/docker-selenium/commit/2eab37227e01a9693ea604e08dcb3a4587525b5d) - chore(deps): update helm release kube-prometheus-stack to v58 (#2194) :: renovate[bot]
+- [`25fdfee9`](http://github.com/seleniumhq/docker-selenium/commit/25fdfee9ddc79a19bee21d6e6da0492926c9b517) - chore(deps): update helm release kube-prometheus-stack to v57.2.1 (#2193) :: renovate[bot]
+- [`74619b4c`](http://github.com/seleniumhq/docker-selenium/commit/74619b4c72700e52511f6e312b28a798cb04ac49) - chore(deps): update helm release kube-prometheus-stack to v57 (#2190) :: renovate[bot]
+- [`ea556767`](http://github.com/seleniumhq/docker-selenium/commit/ea556767789a94124754172bd5c4dbc92ced17b0) - chore(deps): update helm release jaeger to v2 (#2189) :: renovate[bot]
+- [`2ed16c21`](http://github.com/seleniumhq/docker-selenium/commit/2ed16c21425b44215960207d8a2b717a64e98e8a) - chore(deps): update helm release kube-prometheus-stack to v56.21.4 (#2187) :: renovate[bot]
+- [`97781912`](http://github.com/seleniumhq/docker-selenium/commit/97781912a48b8262ae516fe62dfd05becdc70a71) - chore(deps): update helm release ingress-nginx to v4.10.0 (#2186) :: renovate[bot]
+- [`06d8c18d`](http://github.com/seleniumhq/docker-selenium/commit/06d8c18de4c1bd703b41535190f27e767eee1bb4) - chore(deps): update helm release keda to v2.13.2 (#2184) :: renovate[bot]
+- [`ce75e223`](http://github.com/seleniumhq/docker-selenium/commit/ce75e223c5cc306f0b7b0886a2ad2e4c0f74bc4b) - chore(deps): update helm release jaeger to v1.0.2 (#2183) :: renovate[bot]
+
 ## :heavy_check_mark: selenium-grid-0.29.1
 
 - Chart is using image tag 4.19.1-20240402

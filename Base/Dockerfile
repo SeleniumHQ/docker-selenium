@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20240405
+FROM ubuntu:jammy-20240416
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
@@ -17,7 +17,7 @@ ARG UID=1200
 ARG GID=1201
 ARG TZ="UTC"
 ARG JRE_VERSION=17
-ARG TARGETARCH=amd64
+ARG TARGETARCH
 ARG TARGETVARIANT
 
 USER root
@@ -36,9 +36,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list \
+RUN  if [ "${TARGETARCH}" = "amd64" ]; then \
+      echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+      && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+      && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list ; \
+     fi \
   && apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
@@ -55,7 +57,7 @@ RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/ap
     gnupg2 \
     libnss3-tools \
   && mkdir -p /etc/apt/keyrings \
-  && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
+  && apt-key adv --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 843C48A565F8F04B || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
   && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc >dev/null \
   && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list >dev/null \
   && apt-get -qqy update \
@@ -107,14 +109,18 @@ RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/ap
 #=====
 # Download observability related OpenTelemetry jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up
-#=====
-  && curl -fLo /tmp/cs https://github.com/coursier/launchers/raw/master/coursier \
-  && chmod +x /tmp/cs \
-  && mkdir -p /external_jars \
-  && chmod -R 775 /external_jars \
-  && /tmp/cs fetch --classpath --cache /external_jars \
-    io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-    io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt \
+#===== \
+  && if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
+        curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
+        && chmod +x /tmp/cs \
+        && mkdir -p /external_jars \
+        && chmod -R 775 /external_jars ; \
+     fi \
+  && if [ -f "/tmp/cs" ]; then \
+        /tmp/cs fetch --classpath --cache /external_jars \
+        io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
+        io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt ; \
+     fi \
   && chmod 664 /external_jars/.classpath.txt \
   && rm -fr /root/.cache/* \
   # (Note that .bashrc is only executed in interactive bash shells.)

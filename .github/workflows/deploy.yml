@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     # Only continue if the commit message has '[deploy]' in it
-    if: contains(toJson(github.event.commits), '[deploy]') == true
+    if: contains(toJson(github.event.commits), '[deploy]') == true || github.event_name == 'workflow_dispatch'
     name: Deploy Docker images
     runs-on: ubuntu-latest
     permissions: write-all
@@ -19,6 +19,13 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+        with:
+          platforms: linux/amd64,linux/arm64
+          use: false
       - name: Output Docker info
         run: docker info
       - name: Sets build date
@@ -53,7 +60,12 @@ jobs:
       - name: Update chart CHANGELOG
         run: ./generate_chart_changelog.sh
       - name: Build images
-        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 12
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
