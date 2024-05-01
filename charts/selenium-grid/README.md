@@ -479,7 +479,7 @@ options.set_capability('se:recordVideo', False)
 driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
 ```
 
-In Node will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
+In recorder container will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not. You can customize by reading on section [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container).
 
 #### Video uploader
 

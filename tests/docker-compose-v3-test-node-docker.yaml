@@ -2,7 +2,6 @@ version: "3"
 services:
   node-docker:
     image: ${NAMESPACE}/node-docker:${TAG}
-    user: root
     volumes:
       - ./videos:/opt/selenium/assets
       - ./videos/config.toml:/opt/bin/config.toml
@@ -47,4 +46,5 @@ services:
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
       - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+      - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
     command: ["./bootstrap.sh", "${NODE}"]

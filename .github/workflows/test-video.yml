@@ -36,7 +36,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          test-strategy: [test_video, test_parallel, test_node_docker]
+        include:
+          - test-strategy: test_video
+            test-video: true
+          - test-strategy: test_video_dynamic_name
+            test-video: true
+          - test-strategy: test_node_docker
+            test-video: true
+          - test-strategy: test_parallel
+            test-video: false
     steps:
       - uses: actions/checkout@main
       - name: Set up QEMU
@@ -99,21 +107,9 @@ jobs:
           REQUEST_TIMEOUT: ${{ github.event.inputs.request-timeout || '400' }}
       - name: Run Docker Compose to ${{ matrix.test-strategy }}
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
-      - name: Upload recorded Chrome video
-        if: matrix.test-strategy == 'test_video'
+      - name: Upload recorded video
+        if: matrix.test-video == true
         uses: actions/upload-artifact@main
         with:
-          name: chrome_video
-          path: ./tests/videos/chrome_video.mp4
-      - name: Upload recorded Edge video
-        if: matrix.test-strategy == 'test_video'
-        uses: actions/upload-artifact@main
-        with:
-          name: edge_video
-          path: ./tests/videos/edge_video.mp4
-      - name: Upload recorded Firefox video
-        if: matrix.test-strategy == 'test_video'
-        uses: actions/upload-artifact@main
-        with:
-          name: firefox_video
-          path: ./tests/videos/firefox_video.mp4
+          name: "${{ matrix.test-strategy }}_artifacts"
+          path: ./tests/videos/

@@ -41,7 +41,9 @@ services:
       - chrome
     environment:
       - DISPLAY_CONTAINER_NAME=chrome
-      - FILE_NAME=chrome_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=chrome_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   edge_video:
     image: selenium/video:ffmpeg-6.1.1-20240425
@@ -51,7 +53,9 @@ services:
       - edge
     environment:
       - DISPLAY_CONTAINER_NAME=edge
-      - FILE_NAME=edge_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=edge_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   firefox_video:
     image: selenium/video:ffmpeg-6.1.1-20240425
@@ -61,7 +65,9 @@ services:
       - firefox
     environment:
       - DISPLAY_CONTAINER_NAME=firefox
-      - FILE_NAME=firefox_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=firefox_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   selenium-hub:
     image: selenium/hub:4.20.0-20240425
