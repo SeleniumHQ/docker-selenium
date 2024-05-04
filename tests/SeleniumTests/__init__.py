@@ -68,14 +68,18 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_play_video(self):
         driver = self.driver
-        driver.get('https://hls-js.netlify.com/demo/')
+        driver.get('https://docs.flowplayer.com/tools/stream-tester')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
-        video = wait.until(
-            EC.element_to_be_clickable((By.TAG_NAME, 'video'))
+        play_button = wait.until(
+            EC.element_to_be_clickable((By.TAG_NAME, 'flowplayer-play-icon'))
         )
-        video.click()
+        play_button.click()
+        video = driver.find_element(By.TAG_NAME, 'video')
         wait.until(
             lambda d: d.find_element(By.TAG_NAME, 'video').get_property('currentTime')
+        )
+        wait.until(
+            lambda d: d.find_element(By.TAG_NAME, 'video').get_property('paused') == False
         )
         paused = video.get_property('paused')
         self.assertFalse(paused)

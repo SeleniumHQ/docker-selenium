@@ -17,9 +17,9 @@ BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
-FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0)
-FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),ndviet)
-FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0-ubuntu2204)
+FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-6.1.1)
+FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),linuxserver)
+FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),version-6.1.1-cli)
 PLATFORMS := $(or $(PLATFORMS),$(PLATFORMS),linux/amd64)
 
 all: hub \
@@ -476,9 +476,9 @@ test_video: video hub chrome firefox edge
 	done
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
+	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
 	sudo rm -rf ./tests/tests
