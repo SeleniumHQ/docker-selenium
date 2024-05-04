@@ -512,7 +512,7 @@ ___
 
 ## Video recording
 
-Tests execution can be recorded by using the `selenium/video:ffmpeg-7.0-20240425`
+Tests execution can be recorded by using the `selenium/video:ffmpeg-6.1.1-20240425`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -522,6 +522,10 @@ Currently, the only way to do this mapping is manually (either starting the cont
 The video Docker image we provide is based on the ffmpeg Ubuntu image provided by the 
 [jrottenberg/ffmpeg](https://github.com/jrottenberg/ffmpeg) project, thank you for providing this image and
 simplifying our work :tada:
+
+From image tag based `4.20.0` onwards, the video Docker image is based on the FFmpeg Ubuntu image provided by
+[linuxserver/docker-ffmpeg](https://github.com/linuxserver/docker-ffmpeg) project since the image is available for multi-platform.
+Thank you for simplifying our project and helping us move forward with multiple architecture support.
 
 **Notes**:
 - If you have questions or feedback, please use the community contact points shown [here](https://www.selenium.dev/support/). 
@@ -539,7 +543,7 @@ This example shows how to start the containers manually:
 ``` bash
 $ docker network create grid
 $ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium --shm-size="2g" selenium/standalone-chrome:4.20.0-20240425
-$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-7.0-20240425
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-6.1.1-20240425
 # Run your tests
 $ docker stop video && docker rm video
 $ docker stop selenium && docker rm selenium
@@ -559,7 +563,7 @@ Besides the video recording mentioned above, you can enable the upload functiona
 version: "3"
 services:
   chrome_video:
-    image: selenium/video:nightly
+    image: selenium/video:ffmpeg-6.1.1-20240425
     depends_on:
       - chrome
     environment:
@@ -630,7 +634,7 @@ host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-7.0-20240425"
+video-image = "selenium/video:ffmpeg-6.1.1-20240425"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -765,7 +769,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-7.0-20240425"
+video-image = "selenium/video:ffmpeg-6.1.1-20240425"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
