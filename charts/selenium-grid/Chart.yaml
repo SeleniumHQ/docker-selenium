@@ -19,7 +19,7 @@ dependencies:
   name: jaeger
   condition: tracing.enabled
 - repository: https://prometheus-community.github.io/helm-charts
-  version: 58.3.3
+  version: 58.4.0
   name: kube-prometheus-stack
   condition: monitoring.enabled
   alias: prometheus-stack
