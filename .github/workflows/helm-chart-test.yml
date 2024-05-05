@@ -37,6 +37,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - k8s-version: 'v1.25.16'
+            test-strategy: disabled
+            cluster: 'minikube'
+            helm-version: 'v3.10.3'
+            test-existing-keda: false
+            test-upgrade: true
           - k8s-version: 'v1.26.15'
             test-strategy: job
             cluster: 'minikube'
@@ -158,7 +164,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: |
-            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_test_autoscaling_${{ matrix.test-strategy }}
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }}
       - name: Test chart upgrade
         if: (matrix.test-upgrade == true)
         run: |
@@ -179,3 +185,13 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}-artifacts
           path: ./tests/tests/
           if-no-files-found: ignore
+      - name: Check video integrity
+        if: always()
+        run: |
+          make test_video_integrity
+      - name: Upload test video artifacts
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-videos
+          path: ./tests/videos/

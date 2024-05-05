@@ -30,7 +30,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils x11-utils curl jq python3-pip tzdata acl unzip \
+    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip \
   && python3 -m pip install --upgrade pip \
   && python3 -m pip install --upgrade setuptools \
   && python3 -m pip install --upgrade wheel \
@@ -108,5 +108,6 @@ ENV SE_FRAME_RATE 15
 ENV SE_CODEC libx264
 ENV SE_PRESET "-preset ultrafast"
 ENV SE_VIDEO_FILE_NAME video.mp4
+ENV SE_VIDEO_FILE_NAME_TRIM_REGEX "[:alnum:]-_"
 
 EXPOSE 9000

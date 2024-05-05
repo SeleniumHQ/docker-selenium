@@ -72,6 +72,7 @@ RUN apt-get update -qqy \
 # Xvfb
 #==============
     xvfb \
+    libxcb1 \
     xauth \
     pulseaudio \
 #=====

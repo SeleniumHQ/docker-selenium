@@ -40,6 +40,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Hub and Nodes](#hub-and-nodes)
   * [Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes](#fully-distributed-mode---router-queue-distributor-eventbus-sessionmap-and-nodes)
 * [Video recording](#video-recording)
+* [Video recording with dynamic file name based on metadata in tests](#video-recording-with-dynamic-file-name-based-on-metadata-in-tests)
 * [Video recording and uploading](#video-recording-and-uploading)
 * [Dynamic Grid](#dynamic-grid)
   * [Configuration example](#configuration-example)
@@ -554,6 +555,41 @@ Here is an example using a Hub and a few Nodes:
 
 [`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
 
+## Video recording with dynamic file name based on metadata in tests
+
+Based on the support of [Metadata in tests](https://www.selenium.dev/documentation/grid/getting_started/#metadata-in-tests). When the video recorder is sidecar deployed with the browser node with enabling `SE_VIDEO_FILE_NAME=auto` and adding metadata to your tests, video file name will extract value of capability `se:name` and use it as the video file name.
+
+For example in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:name', 'test_visit_basic_auth_secured_page (ChromeTests)')
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+driver.get("https://selenium.dev")
+driver.quit()
+```
+
+The output video file name will be `test_visit_basic_auth_secured_page_ChromeTests_<sessionId>.mp4`.
+
+If your test name is handled by the test framework, and it is unique for sure, you also can disable the session id appends to the video file name by setting `SE_VIDEO_FILE_NAME_SUFFIX=false`.
+
+File name will be trimmed to 255 characters to avoid long file names. Moreover, `space` character will be replaced by `_` and only characters alphabets, numbers, `-` (hyphen), `_` (underscore) are retained in the file name.
+
+The trim regex is able to be customized by setting `SE_VIDEO_FILE_NAME_TRIM_REGEX` environment variable. The default value is `[:alnum:]-_`. The regex should be compatible with the `tr` command in bash.
+
+At deployment level, the recorder container is up always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
+
+```python
+options.set_capability('se:recordVideo', False)
+```
+
+In recorder container will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not.
+
+Notes: To reach the GraphQL endpoint, the recorder container needs to know the Hub URL. The Hub URL can be passed via environment variable `SE_NODE_GRID_URL`. For example `SE_NODE_GRID_URL` is `http://selenium-hub:4444`.
+
 ## Video recording and uploading
 
 [RCLONE](https://rclone.org/) is installed in the video recorder image. You can use it to upload the videos to a cloud storage service.
@@ -836,6 +872,25 @@ for example:
 
 After running a test, check the path you mounted to the Docker container, 
 (`${PWD}/assets`), and you should see videos and session information. 
+
+From language bindings, you can set the `se:name` capability to change output video file name dynamically. For example, in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:recordVideo', True)
+options.set_capability('se:screenResolution', '1920x1080')
+options.set_capability('se:name', 'test_visit_basic_auth_secured_page (ChromeTests)')
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+driver.get("https://selenium.dev")
+driver.quit()
+```
+
+After test executed, under (`${PWD}/assets`) you can see the video file name in path `/<sessionId>/test_visit_basic_auth_secured_page_ChromeTests.mp4`
+
+The file name will be trimmed to 255 characters to avoid long file names. Moreover, the `space` character will be replaced by `_`, and only the characters alphabets, numbers, `-` (hyphen), and `_` (underscore) are retained in the file name. (This feat is available once this [PR](https://github.com/SeleniumHQ/selenium/pull/13907) merged)
 ___
 
 ## Deploying to Kubernetes

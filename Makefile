@@ -447,6 +447,10 @@ test_parallel: hub chrome firefox edge
 			docker compose -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests --build ; \
 	done
 
+test_video_dynamic_name:
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=10 \
+	make test_video
+
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge
@@ -460,31 +464,31 @@ test_video: video hub chrome firefox edge
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 			if [ $$node = "NodeChrome" ] ; then \
 					echo BROWSER=chrome >> .env ; \
-					echo VIDEO_FILE_NAME=chrome_video.mp4 >> .env ; \
+					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"chrome_video.mp4"} >> .env ; \
+					echo VIDEO_FILE_NAME_SUFFIX=$${VIDEO_FILE_NAME_SUFFIX:-"true"} >> .env ; \
 			fi ; \
 			if [ $$node = "NodeEdge" ] ; then \
 					echo BROWSER=edge >> .env ; \
-					echo VIDEO_FILE_NAME=edge_video.mp4 >> .env ; \
+					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"edge_video.mp4"} >> .env ; \
+					echo VIDEO_FILE_NAME_SUFFIX=$${VIDEO_FILE_NAME_SUFFIX:-"false"} >> .env ; \
 			fi ; \
 			if [ $$node = "NodeFirefox" ] ; then \
 					echo BROWSER=firefox >> .env ; \
-					echo VIDEO_FILE_NAME=firefox_video.mp4 >> .env ; \
+					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"firefox_video.mp4"} >> .env ; \
+					echo VIDEO_FILE_NAME_SUFFIX=$${VIDEO_FILE_NAME_SUFFIX:-"true"} >> .env ; \
 			fi ; \
 			docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build ; \
 	done
-	# Using ffmpeg to verify file integrity
-	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/chrome_video.mp4 -f null - 2>error.log
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/firefox_video.mp4 -f null - 2>error.log
-	docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i ./tests/videos/edge_video.mp4 -f null - 2>error.log
+	make test_video_integrity
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
 	sudo rm -rf ./tests/tests
 	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos/Downloads
 	sudo chmod -R 777 ./tests/videos
-	for node in DeploymentAutoscaling JobAutoscaling ; do \
+	for node in NodeChrome NodeFirefox NodeEdge ; do \
 			cd tests || true ; \
 			DOWNLOADS_DIR="./videos/Downloads" ; \
 			sudo rm -rf $$DOWNLOADS_DIR/* ; \
@@ -496,6 +500,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 5) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
@@ -509,6 +514,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 					exit 1 ; \
 			fi ; \
 	done
+	make test_video_integrity
 
 test_custom_ca_cert:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/customCACert/bootstrap.sh
@@ -528,20 +534,37 @@ chart_build_nightly:
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
+test_video_integrity:
+	# Using ffmpeg to verify file integrity
+	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
+	list_files=$$(find ./tests/videos -type f -name "*.mp4"); \
+	echo "Number of video files: $$(echo $$list_files | wc -w)"; \
+	number_corrupted_files=0; \
+	if [ -z "$$list_files" ]; then \
+		echo "No video files found"; \
+		exit 1; \
+	fi; \
+	for file in $$list_files; do \
+		echo "Checking video file: $$file"; \
+	  docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i "$$file" -f null - ; \
+	  if [ $$? -ne 0 ]; then \
+	    echo "Video file $$file is corrupted"; \
+	    number_corrupted_files=$$((number_corrupted_files+1)); \
+	  fi; \
+	  echo "------"; \
+	done; \
+	if [ $$((number_corrupted_files)) -gt 0 ]; then \
+		echo "Number of corrupted video files: $$number_corrupted_files"; \
+		exit 1; \
+	fi
+
 chart_test_template:
 	./tests/charts/bootstrap.sh
 
-chart_test_chrome:
+chart_test_autoscaling_disabled:
+	SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=15 CHART_ENABLE_TRACING=true SELENIUM_GRID_HOST=$$(hostname -i) RELEASE_NAME=selenium \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	./tests/charts/make/chart_test.sh NodeChrome
-
-chart_test_firefox:
-	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	./tests/charts/make/chart_test.sh NodeFirefox
-
-chart_test_edge:
-	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	./tests/charts/make/chart_test.sh NodeEdge
+	./tests/charts/make/chart_test.sh NoAutoscaling
 
 chart_test_autoscaling_deployment_https:
 	CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_INGRESS_HOSTNAME=true CHART_ENABLE_BASIC_AUTH=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 \
@@ -550,13 +573,13 @@ chart_test_autoscaling_deployment_https:
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
-	CHART_ENABLE_TRACING=true SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_HOST=$$(hostname -i) RELEASE_NAME=selenium \
+	CHART_ENABLE_TRACING=true SELENIUM_GRID_HOST=$$(hostname -i) RELEASE_NAME=selenium \
 	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_job_https:
-	SELENIUM_GRID_TEST_HEADLESS=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_BASIC_AUTH=true RELEASE_NAME=selenium SELENIUM_GRID_PORT=443 SUB_PATH=/ \
+	SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_BASIC_AUTH=true RELEASE_NAME=selenium SELENIUM_GRID_PORT=443 SUB_PATH=/ \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 

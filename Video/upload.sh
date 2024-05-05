@@ -48,9 +48,10 @@ function graceful_exit() {
         wait ${pid}
     done
     rm -rf ${FORCE_EXIT_FILE}
+    rm -rf ${UPLOAD_PIPE_FILE} || true
     echo "Uploader is ready to shutdown"
 }
-trap graceful_exit EXIT
+trap graceful_exit SIGTERM SIGINT EXIT
 
 while [ ! -p ${UPLOAD_PIPE_FILE} ];
 do
