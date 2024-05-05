@@ -1,4 +1,4 @@
-{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
+{{- if $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -28,6 +28,7 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |
+              echo "Cleaning up ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
               kubectl get ScaledObjects,ScaledJobs -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} -o=json | jq '.metadata.finalizers = null' | kubectl apply -f - || true ;
               kubectl delete ScaledObjects,ScaledJobs -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait || true ;
               kubectl delete hpa -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait || true ;

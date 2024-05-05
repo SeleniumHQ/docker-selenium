@@ -1226,7 +1226,6 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   additionalAnnotations:
-    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
   http:
     timeout: 60000
   webhooks:
