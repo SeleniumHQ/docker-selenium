@@ -21,9 +21,14 @@ SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWN
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
 TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
+TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
+TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 
 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
     SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
+
+if TEST_NODE_RELAY == 'Android':
+    time.sleep(90)
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -126,6 +131,14 @@ class ChromeTests(SeleniumGenericTests):
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('--headless=new')
+            if TEST_NODE_RELAY == 'Android':
+                options.set_capability('platformName', TEST_NODE_RELAY)
+                options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
+                options.set_capability('appium:deviceName', 'emulator-5554')
+                options.set_capability('appium:automationName', 'uiautomator2')
+                options.set_capability('appium:browserName', 'chrome')
+            else:
+                options.set_capability('platformName', 'Linux')
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,

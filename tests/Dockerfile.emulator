@@ -1,0 +1,13 @@
+ARG ANDROID_BASED_NAME
+ARG ANDROID_BASED_IMAGE
+ARG ANDROID_BASED_TAG
+FROM ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:${ANDROID_BASED_TAG} AS android_based
+
+ARG CHROME_DRIVER_URL
+# Download appium chromedriver
+RUN curl ${CHROME_DRIVER_URL} -o /tmp/chromedriver.zip \
+  && rm -rf ~/.appium/node_modules/appium-uiautomator2-driver/node_modules/appium-chromedriver/chromedriver/linux \
+  && mkdir -p ~/.appium/node_modules/appium-uiautomator2-driver/node_modules/appium-chromedriver/chromedriver/linux \
+  && unzip /tmp/chromedriver.zip -d ~/.appium/node_modules/appium-uiautomator2-driver/node_modules/appium-chromedriver/chromedriver/linux \
+  && ~/.appium/node_modules/appium-uiautomator2-driver/node_modules/appium-chromedriver/chromedriver/linux/chromedriver --version \
+  && rm -rf /tmp/chromedriver.zip

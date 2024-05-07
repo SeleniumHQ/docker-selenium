@@ -86,6 +86,7 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
 fi
 
 /opt/bin/generate_config
+/opt/bin/generate_relay_config
 
 echo "Selenium Grid Standalone configuration: "
 cat /opt/selenium/config.toml

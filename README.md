@@ -940,6 +940,35 @@ $ docker run -d \
   --shm-size="2g" selenium/node-chrome:4.20.0-20240505
 ```
 
+### Node configuration relay commands
+
+Relaying commands to a service endpoint that supports WebDriver.
+It is useful to connect an external service that supports WebDriver to Selenium Grid. An example of such service could be a cloud provider or an Appium server. 
+In this way, Grid can enable more coverage to platforms and versions not present locally.
+
+The following is an en example of configuration relay commands.
+
+[docker-compose-v3-test-node-relay.yml](tests/docker-compose-v3-test-node-relay.yml)
+
+If you want to relay commands only, `selenium/node-base` is suitable and lightweight for this purpose.
+In case you want to configure node with both browsers and relay commands, respective node images can be used.
+
+To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below
+
+```toml
+[relay]
+url = "${SE_NODE_RELAY_URL}"
+status-endpoint = "${SE_NODE_RELAY_STATUS_ENDPOINT}"
+protocol-version = "${SE_NODE_RELAY_PROTOCOL_VERSION}"
+configs = [ '${SE_NODE_RELAY_MAX_SESSIONS}', '{"browserName": "${SE_NODE_RELAY_BROWSER_NAME}", "platformName": "${SE_NODE_RELAY_PLATFORM_NAME}", "appium:platformVersion": "${SE_NODE_RELAY_PLATFORM_VERSION}"}' ]
+```
+
+To run a sample test with the relayed node, you can clone the project and try below command:
+
+```bash
+make test_node_relay
+```
+
 ### Setting Sub Path
 
 By default, Selenium is reachable at `http://127.0.0.1:4444/`. Selenium can be configured to use a custom subpath by specifying the `SE_SUB_PATH`
