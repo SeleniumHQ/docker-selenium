@@ -1,0 +1,17 @@
+[events]
+publish = "tcp://selenium-hub:4442"
+subscribe = "tcp://selenium-hub:4443"
+
+[node]
+session-timeout = "300"
+override-max-sessions = false
+detect-drivers = false
+drain-after-session-count = 0
+max-sessions = 1
+
+[relay]
+url = "http://firefox-receiver:4444/wd/hub"
+status-endpoint = "/status"
+configs = [
+    '1', '{"browserName":"firefox","platformName":"linux"}'
+]

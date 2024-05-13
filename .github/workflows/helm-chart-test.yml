@@ -23,8 +23,6 @@ on:
         description: 'Test parameter for different log level'
         required: false
         default: 'FINE'
-  schedule:
-    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -111,7 +109,7 @@ jobs:
       - name: Set Selenium base version
         if: contains(toJson(github.event.commits), '[deploy]') == false
         run: |
-          make set_nightly_env
+          make set_build_nightly
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Sets build date
         run: |

@@ -23,8 +23,6 @@ on:
   pull_request:
     paths-ignore:
       - '**.md'
-  schedule:
-    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -45,6 +43,8 @@ jobs:
             test-video: true
           - test-strategy: test_parallel
             test-video: false
+          - test-strategy: test_node_relay
+            test-video: false
     steps:
       - uses: actions/checkout@main
       - name: Set up QEMU
@@ -61,6 +61,12 @@ jobs:
         with:
           python-version: '3.11'
           check-latest: true
+      - name: Enable KVM
+        if: matrix.test-strategy == 'test_node_relay'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
@@ -76,7 +82,7 @@ jobs:
       - name: Set Selenium base version
         if: contains(toJson(github.event.commits), '[deploy]') == false
         run: |
-          make set_nightly_env
+          make set_build_nightly
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Sets build date
         run: |
