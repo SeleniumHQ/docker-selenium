@@ -1,8 +1,13 @@
 name: Test Docker Selenium
-concurrency:
-  group: ${{ github.workflow }}
 
 on:
+  workflow_call:
+    inputs:
+      release:
+        description: 'Test a new release process'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       request-timeout:
@@ -17,12 +22,6 @@ on:
         description: 'Test parameter for different log level'
         required: false
         default: 'INFO'
-  push:
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - '**.md'
 
 permissions:
   contents: read
@@ -80,7 +79,7 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Set Selenium base version
-        if: contains(toJson(github.event.commits), '[deploy]') == false
+        if: inputs.release != 'true'
         run: |
           make set_build_nightly
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV

@@ -2,14 +2,27 @@ name: Deploys
 
 on:
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Deploy a new release'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - trunk
 
 jobs:
-  deploy:
-    # Only continue if the commit message has '[deploy]' in it
+  build-test:
     if: contains(toJson(github.event.commits), '[deploy]') == true || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/build-test.yml
+    with:
+      release: ${{ github.event.inputs.release == 'true' }}
+
+  deploy:
+    needs:
+      - build-test
+    if: contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true')
     name: Deploy Docker images
     runs-on: ubuntu-latest
     permissions: write-all
@@ -118,8 +131,8 @@ jobs:
         uses: softprops/action-gh-release@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
-          name: ${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}
+          tag_name: "${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}"
+          name: "${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}"
           body_path: "release_notes.md"
           generate_release_notes: true
           prerelease: ${{ env.PRERELEASE }}

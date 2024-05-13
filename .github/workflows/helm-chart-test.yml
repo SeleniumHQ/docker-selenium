@@ -1,14 +1,13 @@
 name: Test Helm Charts
-concurrency:
-  group: ${{ github.workflow }}
 
 on:
-  push:
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - '**.md'
+  workflow_call:
+    inputs:
+      release:
+        description: 'Test a new release process'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       request-timeout:
@@ -107,7 +106,7 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Set Selenium base version
-        if: contains(toJson(github.event.commits), '[deploy]') == false
+        if: inputs.release != 'true'
         run: |
           make set_build_nightly
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
