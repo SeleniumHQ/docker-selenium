@@ -36,12 +36,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-RUN  if [ "${TARGETARCH}" = "amd64" ]; then \
-      echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-      && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-      && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list ; \
-     fi \
-  && apt-get -qqy update \
+RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
     acl \

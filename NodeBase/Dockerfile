@@ -97,12 +97,6 @@ RUN apt-get update -qqy \
     fonts-noto-color-emoji \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
-  && if [ "${TARGETARCH}" = "amd64" ]; then \
-        apt-get -qqy --no-install-recommends install \
-        language-pack-en \
-        xfonts-cyrillic \
-        fonts-ubuntu ; \
-     fi \
   && apt-get -qyy autoremove \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get -qyy clean \
