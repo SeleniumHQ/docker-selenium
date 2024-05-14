@@ -43,7 +43,7 @@ helm.sh/chart: {{ include "seleniumGrid.chart" . }}
 Autoscaling labels
 */}}
 {{- define "seleniumGrid.autoscalingLabels" -}}
-component.autoscaling: "true"
+component.autoscaling: "{{ .Release.Name }}"
 {{- end -}}
 
 {{- define "seleniumGrid.component.name" -}}
@@ -193,19 +193,19 @@ Server ConfigMap fullname
 Patch scaledObjects finalizers job fullname
 */}}
 {{- define "seleniumGrid.keda.patchObjectsJob.fullname" -}}
-{{- printf "%s-%s" .Release.Name "patch-scaledobjects-finalizers" | trunc 63 | trimSuffix "-" -}}
+{{- tpl (include "seleniumGrid.component.name" (list "selenium-patch-scaledobjects-finalizers" $)) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Patch scaled objects RoleBinding fullname
+RBAC RoleBinding fullname
 */}}
-{{- define "seleniumGrid.keda.roleBinding.fullname" -}}
-{{- printf "%s-%s" .Release.Name "patch-keda-rb" | trunc 63 | trimSuffix "-" -}}
+{{- define "seleniumGrid.rbac.roleBinding.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-rolebinding" $)) .Values.rbacRoleBinding.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
-Patch scaled objects Role fullname
+RBAC Role fullname
 */}}
-{{- define "seleniumGrid.keda.role.fullname" -}}
-{{- printf "%s-%s" .Release.Name "patch-keda-role" | trunc 63 | trimSuffix "-" -}}
+{{- define "seleniumGrid.rbac.role.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-role" $)) .Values.rbacRole.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

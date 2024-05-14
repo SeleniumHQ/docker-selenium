@@ -1,95 +1,8 @@
-
-# Docker images for Selenium, built for Debian ARM64, ARM/v7, and AMD64 
-
-[![seleniumhq-community](https://circleci.com/gh/seleniumhq-community/docker-seleniarm.svg?style=shield)](https://app.circleci.com/pipelines/github/seleniumhq-community/docker-seleniarm)
-
-This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) for building and maintaining docker-selenium ARM images. This fork is inspired by and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium) and [rows/docker-selenium](https://github.com/rows/docker-selenium). 
-
-NOTE: If you only need the Intel/amd64 images, please see the official upstream [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) repository for best results.
-
-## Running the ARM Container Images
-
-The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
-
-The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
-
-To start the standalone container images, run:
-
-![Chromium](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chromium/chromium_24x24.png) Chromium
-```
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
-```
-> NOTE: Google does not build Chrome for Linux ARM platforms. Instead, docker-seleniarm uses the open source Chromium browser instead, which _is_ built for ARM.
-
-![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox
-```
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox:latest
-```
-
-Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
-
-The following multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
-
-- [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
-- [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
-- [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
-- [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
-- [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
-- [Distributor](https://hub.docker.com/r/seleniarm/distributor)
-- [Router](https://hub.docker.com/r/seleniarm/router)
-- [Node Docker](https://hub.docker.com/r/seleniarm/node-docker)
-- [Standalone Docker](https://hub.docker.com/r/seleniarm/standalone-docker)
-- [Event Bus](https://hub.docker.com/r/seleniarm/event-bus)
-- [Session Queue](https://hub.docker.com/r/seleniarm/session-queue)
-- [Sessions](https://hub.docker.com/r/seleniarm/sessions)
-- [NodeBase](https://hub.docker.com/r/seleniarm/node-base)
-- [Base](https://hub.docker.com/r/seleniarm/base)
-
-
-All of the images are here in order to run in standalone mode, full grid mode, and dynamic grid mode. However, browser binaries are only available for Chromium and Firefox.
-
-> NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
-
-## Building the ARM Images
-
-The entire build process is managed via a Makefile. If you want to build the images locally, without pushing to any registry, then use `make`. 
-
-### Structure of container images:
-
-- The Standalone folder is the base for all Standalone${browser} images and includes a script that starts the selenium server in standalone mode. 
-- The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
-
-To build with a different version of Chromium, change it in NodeChromium/Dockerfile.
-
-To build the images, run the following make command from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
-
-**To build all arm64 images:**
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
-```
-
-**To build standalone/firefox for arm64:**
-
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_firefox_multi
-```
-
-**To build standalone/chromium for arm64:**
-
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_chromium_multi
-```
-
-To build for armv7l/armhf, replace PLATFORMS environment variable with `linux/arm/v7` like so:
-
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm/v7 BUILD_ARGS=--load make standalone_chromium_multi
-```
-
-----
-# -- The official documentation from seleniumHQ begins here --
-----
-
+[![Build & test](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/build-test.yml)
+[![Deploys](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/deploy.yml)
+[![Release Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml)
+[![Nightly](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yml)
+[![Update Dev/Beta Browser Images](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml)
 
 # Docker images for the Selenium Grid Server
 
@@ -97,7 +10,7 @@ The project is made possible by volunteer contributors who have put in thousands
 and made the source code freely available under the [Apache License 2.0](LICENSE.md).
 
 These Docker images come with a handful of tags to simplify its usage, have a look at them in one of 
-our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.20.0-20240425).
+our [releases](https://github.com/SeleniumHQ/docker-selenium/releases/tag/4.20.0-20240505).
 
 To get notifications of new releases, add yourself as a "Releases only" watcher. 
 
@@ -125,6 +38,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Hub and Nodes](#hub-and-nodes)
   * [Fully distributed mode - Router, Queue, Distributor, EventBus, SessionMap and Nodes](#fully-distributed-mode---router-queue-distributor-eventbus-sessionmap-and-nodes)
 * [Video recording](#video-recording)
+* [Video recording with dynamic file name based on metadata in tests](#video-recording-with-dynamic-file-name-based-on-metadata-in-tests)
 * [Video recording and uploading](#video-recording-and-uploading)
 * [Dynamic Grid](#dynamic-grid)
   * [Configuration example](#configuration-example)
@@ -139,6 +53,7 @@ Talk to us at https://www.selenium.dev/support/
   * [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
   * [SE_JAVA_OPTS Java Environment Options](#se_java_opts-java-environment-options)
   * [Node configuration options](#node-configuration-options)
+  * [Node configuration relay commands](#node-configuration-relay-commands)
   * [Setting Sub Path](#setting-sub-path)
   * [Setting Screen Resolution](#setting-screen-resolution)
   * [Grid Url and Session Timeout](#grid-url-and-session-timeout)
@@ -173,7 +88,7 @@ Talk to us at https://www.selenium.dev/support/
 1. Start a Docker container with Firefox
 
 ```bash
-docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240425
+docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240505
 ```
 
 2. Point your WebDriver tests to http://localhost:4444
@@ -211,6 +126,89 @@ See issue [#1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for
 
 If you're working on an Intel or AMD64 architecture, we recommend using the container images 
 in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
+
+
+### Docker images for Selenium, built for Ubuntu ARM64, ARM/v7, and AMD64 
+
+This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) for building and maintaining docker-selenium ARM images. This fork is inspired by and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium) and [rows/docker-selenium](https://github.com/rows/docker-selenium). 
+
+#### Running the ARM Container Images
+
+The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
+
+The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
+
+To start the standalone container images, run:
+
+![Chromium](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chromium/chromium_24x24.png) Chromium
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
+```
+> NOTE: Google does not build Chrome for Linux ARM platforms. Instead, docker-seleniarm uses the open source Chromium browser instead, which _is_ built for ARM.
+
+![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox
+```
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox:latest
+```
+
+Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
+
+The following multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
+
+- [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
+- [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
+- [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
+- [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
+- [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
+- [Distributor](https://hub.docker.com/r/seleniarm/distributor)
+- [Router](https://hub.docker.com/r/seleniarm/router)
+- [Node Docker](https://hub.docker.com/r/seleniarm/node-docker)
+- [Standalone Docker](https://hub.docker.com/r/seleniarm/standalone-docker)
+- [Event Bus](https://hub.docker.com/r/seleniarm/event-bus)
+- [Session Queue](https://hub.docker.com/r/seleniarm/session-queue)
+- [Sessions](https://hub.docker.com/r/seleniarm/sessions)
+- [NodeBase](https://hub.docker.com/r/seleniarm/node-base)
+- [Base](https://hub.docker.com/r/seleniarm/base)
+
+All of the images are here in order to run in standalone mode, full grid mode, and dynamic grid mode. However, browser binaries are only available for Chromium and Firefox.
+
+> NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
+
+#### Building the ARM Images
+
+The entire build process is managed via a Makefile. If you want to build the images locally, without pushing to any registry, then use `make`. 
+
+#### Structure of container images:
+
+- The Standalone folder is the base for all Standalone${browser} images and includes a script that starts the selenium server in standalone mode. 
+- The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
+
+To build with a different version of Chromium, change it in NodeChromium/Dockerfile.
+
+To build the images, run the following make command from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
+
+**To build all arm64 images:**
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
+```
+
+**To build standalone/firefox for arm64:**
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_firefox_multi
+```
+
+**To build standalone/chromium for arm64:**
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_chromium_multi
+```
+
+To build for armv7l/armhf, replace PLATFORMS environment variable with `linux/arm/v7` like so:
+
+```
+$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm/v7 BUILD_ARGS=--load make standalone_chromium_multi
+```
 
 ___
 
@@ -368,17 +366,17 @@ For more information on the Dev and Beta channel container images, see the blog 
 
 ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
 ```bash
-docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240425
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240505
 ```
 
 ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
 ```bash
-docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240425
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240505
 ```
 
 ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Edge
 ```bash
-docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-edge:4.20.0-20240425
+docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-edge:4.20.0-20240505
 ```
 
 _Note: Only one Standalone container can run on port_ `4444` _at the same time._
@@ -397,44 +395,44 @@ A Docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ```bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 ```
 
 ##### Windows PowerShell
 
 ```powershell
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:
@@ -451,7 +449,7 @@ configured to expose different ports.
 
 ##### Hub - Machine/VM 1
 ```bash
-$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.20.0-20240505
 ```
 
 ##### Node Chrome - Machine/VM 2
@@ -465,7 +463,7 @@ $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-2> \
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 ```
 
 ###### Windows PowerShell
@@ -477,7 +475,7 @@ $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-2> `
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 ```
 
 
@@ -492,7 +490,7 @@ $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-3> \
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 ```
 
 ###### Windows PowerShell
@@ -504,7 +502,7 @@ $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-3> `
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 ```
 
 ##### Node Firefox - Machine/VM 4
@@ -518,7 +516,7 @@ $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 ```
 
 ###### Windows PowerShell
@@ -530,7 +528,7 @@ $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-4> `
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 ```
 
 ##### Node Chrome - Machine/VM 4
@@ -545,7 +543,7 @@ $ docker run -d -p 5556:5556 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
     -e SE_NODE_PORT=5556 \
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 ```
 
 ###### Windows PowerShell
@@ -558,7 +556,7 @@ $ docker run -d -p 5556:5556 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-4> `
     -e SE_NODE_PORT=5556 `
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 ```
 
 #### Docker Compose
@@ -597,7 +595,7 @@ ___
 
 ## Video recording
 
-Tests execution can be recorded by using the `selenium/video:ffmpeg-7.0-20240425`
+Tests execution can be recorded by using the `selenium/video:ffmpeg-6.1.1-20240505`
 Docker image. One container is needed per each container where a browser is running. This means if you are
 running 5 Nodes/Standalone containers, you will need 5 video containers, the mapping is 1-1.
 
@@ -607,6 +605,10 @@ Currently, the only way to do this mapping is manually (either starting the cont
 The video Docker image we provide is based on the ffmpeg Ubuntu image provided by the 
 [jrottenberg/ffmpeg](https://github.com/jrottenberg/ffmpeg) project, thank you for providing this image and
 simplifying our work :tada:
+
+From image tag based `4.20.0` onwards, the video Docker image is based on the FFmpeg Ubuntu image provided by
+[linuxserver/docker-ffmpeg](https://github.com/linuxserver/docker-ffmpeg) project since the image is available for multi-platform.
+Thank you for simplifying our project and helping us move forward with multiple architecture support.
 
 **Notes**:
 - If you have questions or feedback, please use the community contact points shown [here](https://www.selenium.dev/support/). 
@@ -623,8 +625,8 @@ This example shows how to start the containers manually:
 
 ``` bash
 $ docker network create grid
-$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium --shm-size="2g" selenium/standalone-chrome:4.20.0-20240425
-$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-7.0-20240425
+$ docker run -d -p 4444:4444 -p 6900:5900 --net grid --name selenium --shm-size="2g" selenium/standalone-chrome:4.20.0-20240505
+$ docker run -d --net grid --name video -v /tmp/videos:/videos selenium/video:ffmpeg-6.1.1-20240505
 # Run your tests
 $ docker stop video && docker rm video
 $ docker stop selenium && docker rm selenium
@@ -635,6 +637,41 @@ Here is an example using a Hub and a few Nodes:
 
 [`docker-compose-v3-video.yml`](docker-compose-v3-video.yml)
 
+## Video recording with dynamic file name based on metadata in tests
+
+Based on the support of [Metadata in tests](https://www.selenium.dev/documentation/grid/getting_started/#metadata-in-tests). When the video recorder is sidecar deployed with the browser node with enabling `SE_VIDEO_FILE_NAME=auto` and adding metadata to your tests, video file name will extract value of capability `se:name` and use it as the video file name.
+
+For example in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:name', 'test_visit_basic_auth_secured_page (ChromeTests)')
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+driver.get("https://selenium.dev")
+driver.quit()
+```
+
+The output video file name will be `test_visit_basic_auth_secured_page_ChromeTests_<sessionId>.mp4`.
+
+If your test name is handled by the test framework, and it is unique for sure, you also can disable the session id appends to the video file name by setting `SE_VIDEO_FILE_NAME_SUFFIX=false`.
+
+File name will be trimmed to 255 characters to avoid long file names. Moreover, `space` character will be replaced by `_` and only characters alphabets, numbers, `-` (hyphen), `_` (underscore) are retained in the file name.
+
+The trim regex is able to be customized by setting `SE_VIDEO_FILE_NAME_TRIM_REGEX` environment variable. The default value is `[:alnum:]-_`. The regex should be compatible with the `tr` command in bash.
+
+At deployment level, the recorder container is up always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
+
+```python
+options.set_capability('se:recordVideo', False)
+```
+
+In recorder container will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not.
+
+Notes: To reach the GraphQL endpoint, the recorder container needs to know the Hub URL. The Hub URL can be passed via environment variable `SE_NODE_GRID_URL`. For example `SE_NODE_GRID_URL` is `http://selenium-hub:4444`.
+
 ## Video recording and uploading
 
 [RCLONE](https://rclone.org/) is installed in the video recorder image. You can use it to upload the videos to a cloud storage service.
@@ -644,7 +681,7 @@ Besides the video recording mentioned above, you can enable the upload functiona
 version: "3"
 services:
   chrome_video:
-    image: selenium/video:nightly
+    image: selenium/video:ffmpeg-6.1.1-20240505
     depends_on:
       - chrome
     environment:
@@ -698,9 +735,9 @@ You can save this file locally and name it, for example, `config.toml`.
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.20.0-20240425", '{"browserName": "firefox"}',
-    "selenium/standalone-chrome:4.20.0-20240425", '{"browserName": "chrome"}',
-    "selenium/standalone-edge:4.20.0-20240425", '{"browserName": "MicrosoftEdge"}'
+    "selenium/standalone-firefox:4.20.0-20240505", '{"browserName": "firefox"}',
+    "selenium/standalone-chrome:4.20.0-20240505", '{"browserName": "chrome"}',
+    "selenium/standalone-edge:4.20.0-20240505", '{"browserName": "MicrosoftEdge"}'
 ]
 
 host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
@@ -715,7 +752,7 @@ host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-7.0-20240425"
+video-image = "selenium/video:ffmpeg-6.1.1-20240505"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -738,28 +775,28 @@ virtual machines.
 
 ```bash
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    selenium/node-docker:4.20.0-20240425
+    selenium/node-docker:4.20.0-20240505
 ```
 
 #### Windows PowerShell
 
 ```powershell
 $ docker network create grid
-$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -v ${PWD}/config.toml:/opt/bin/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
-    selenium/node-docker:4.20.0-20240425
+    selenium/node-docker:4.20.0-20240505
 ```
 
 To have the assets saved on your host, please mount your host path to `/opt/selenium/assets`.
@@ -780,7 +817,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    selenium/standalone-docker:4.20.0-20240425
+    selenium/standalone-docker:4.20.0-20240505
 ```
 
 #### Windows PowerShell
@@ -790,7 +827,7 @@ docker run --rm --name selenium-docker -p 4444:4444 `
     -v ${PWD}/config.toml:/opt/bin/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
-    selenium/standalone-docker:4.20.0-20240425
+    selenium/standalone-docker:4.20.0-20240505
 ```
 
 ### Using Dynamic Grid in different machines/VMs
@@ -798,7 +835,7 @@ docker run --rm --name selenium-docker -p 4444:4444 `
 #### Hub - Machine/VM 1
 
 ```bash
-$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.20.0-20240505
 ```
 
 #### Node Chrome - Machine/VM 2
@@ -813,7 +850,7 @@ $ docker run -d -p 5555:5555 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    selenium/node-docker:4.20.0-20240425
+    selenium/node-docker:4.20.0-20240505
 ```
 
 #### Windows PowerShell
@@ -826,7 +863,7 @@ $ docker run -d -p 5555:5555 `
     -v ${PWD}/config.toml:/opt/bin/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
-    selenium/node-docker:4.20.0-20240425
+    selenium/node-docker:4.20.0-20240505
 ```
 
 Complete the `[server]` section in the `config.toml` file.
@@ -835,9 +872,9 @@ Complete the `[server]` section in the `config.toml` file.
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.20.0-20240425", "{\"browserName\": \"firefox\"}",
-    "selenium/standalone-chrome:4.20.0-20240425", "{\"browserName\": \"chrome\"}",
-    "selenium/standalone-edge:4.20.0-20240425", "{\"browserName\": \"MicrosoftEdge\"}"
+    "selenium/standalone-firefox:4.20.0-20240505", "{\"browserName\": \"firefox\"}",
+    "selenium/standalone-chrome:4.20.0-20240505", "{\"browserName\": \"chrome\"}",
+    "selenium/standalone-edge:4.20.0-20240505", "{\"browserName\": \"MicrosoftEdge\"}"
     ]
 
 # URL for connecting to the docker daemon
@@ -850,7 +887,7 @@ configs = [
 # Linux: varies from machine to machine, please mount /var/run/docker.sock. If this does not work, please create an issue.
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-7.0-20240425"
+video-image = "selenium/video:ffmpeg-6.1.1-20240505"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values
@@ -884,7 +921,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
     -v ${PWD}/config.toml:/opt/bin/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    selenium/standalone-docker:4.20.0-20240425
+    selenium/standalone-docker:4.20.0-20240505
 ```
 
 #### Windows PowerShell
@@ -895,7 +932,7 @@ docker run --rm --name selenium-docker -p 4444:4444 `
     -v ${PWD}/config.toml:/opt/bin/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
-    selenium/standalone-docker:4.20.0-20240425
+    selenium/standalone-docker:4.20.0-20240505
 ```
 
 
@@ -917,6 +954,25 @@ for example:
 
 After running a test, check the path you mounted to the Docker container, 
 (`${PWD}/assets`), and you should see videos and session information. 
+
+From language bindings, you can set the `se:name` capability to change output video file name dynamically. For example, in Python binding:
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:recordVideo', True)
+options.set_capability('se:screenResolution', '1920x1080')
+options.set_capability('se:name', 'test_visit_basic_auth_secured_page (ChromeTests)')
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+driver.get("https://selenium.dev")
+driver.quit()
+```
+
+After test executed, under (`${PWD}/assets`) you can see the video file name in path `/<sessionId>/test_visit_basic_auth_secured_page_ChromeTests.mp4`
+
+The file name will be trimmed to 255 characters to avoid long file names. Moreover, the `space` character will be replaced by `_`, and only the characters alphabets, numbers, `-` (hyphen), and `_` (underscore) are retained in the file name. (This feat is available once this [PR](https://github.com/SeleniumHQ/selenium/pull/13907) merged)
 ___
 
 ## Deploying to Kubernetes
@@ -933,7 +989,7 @@ ___
 You can pass `SE_OPTS` variable with additional command line parameters for starting a hub or a node.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_OPTS="--log-level FINE" --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4444:4444 -e SE_OPTS="--log-level FINE" --name selenium-hub selenium/hub:4.20.0-20240505
 ```
 
 ### SE_JAVA_OPTS Java Environment Options
@@ -941,7 +997,7 @@ $ docker run -d -p 4444:4444 -e SE_OPTS="--log-level FINE" --name selenium-hub s
 You can pass `SE_JAVA_OPTS` environment variable to the Java process.
 
 ``` bash
-$ docker run -d -p 4444:4444 -e SE_JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.20.0-20240425
+$ docker run -d -p 4444:4444 -e SE_JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.20.0-20240505
 ```
 
 ### Node configuration options
@@ -963,7 +1019,36 @@ $ docker run -d \
   -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
   -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
   -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\",\"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\",\"platformName\": \"Linux\"}" \
-  --shm-size="2g" selenium/node-chrome:4.20.0-20240425
+  --shm-size="2g" selenium/node-chrome:4.20.0-20240505
+```
+
+### Node configuration relay commands
+
+Relaying commands to a service endpoint that supports WebDriver.
+It is useful to connect an external service that supports WebDriver to Selenium Grid. An example of such service could be a cloud provider or an Appium server. 
+In this way, Grid can enable more coverage to platforms and versions not present locally.
+
+The following is an en example of configuration relay commands.
+
+[docker-compose-v3-test-node-relay.yml](tests/docker-compose-v3-test-node-relay.yml)
+
+If you want to relay commands only, `selenium/node-base` is suitable and lightweight for this purpose.
+In case you want to configure node with both browsers and relay commands, respective node images can be used.
+
+To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below
+
+```toml
+[relay]
+url = "${SE_NODE_RELAY_URL}"
+status-endpoint = "${SE_NODE_RELAY_STATUS_ENDPOINT}"
+protocol-version = "${SE_NODE_RELAY_PROTOCOL_VERSION}"
+configs = [ '${SE_NODE_RELAY_MAX_SESSIONS}', '{"browserName": "${SE_NODE_RELAY_BROWSER_NAME}", "platformName": "${SE_NODE_RELAY_PLATFORM_NAME}", "appium:platformVersion": "${SE_NODE_RELAY_PLATFORM_VERSION}"}' ]
+```
+
+To run a sample test with the relayed node, you can clone the project and try below command:
+
+```bash
+make test_node_relay
 ```
 
 ### Setting Sub Path
@@ -982,7 +1067,7 @@ These settings can be adjusted by specifying `SE_SCREEN_WIDTH`, `SE_SCREEN_HEIGH
 environmental variables when starting the container.
 
 ``` bash
-docker run -d -e SE_SCREEN_WIDTH=1366 -e SE_SCREEN_HEIGHT=768 -e SE_SCREEN_DEPTH=24 -e SE_SCREEN_DPI=74 selenium/standalone-firefox:4.20.0-20240425
+docker run -d -e SE_SCREEN_WIDTH=1366 -e SE_SCREEN_HEIGHT=768 -e SE_SCREEN_DEPTH=24 -e SE_SCREEN_DPI=74 selenium/standalone-firefox:4.20.0-20240505
 ```
 
 ### Grid Url and Session Timeout
@@ -1032,7 +1117,7 @@ To avoid starting the server you can set the `SE_START_XVFB` environment variabl
 
 ``` bash
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.20.0-20240425
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.20.0-20240505
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
@@ -1045,7 +1130,7 @@ pod and then scale a new one after N sessions. Set the environment variable `SE_
 a value higher than zero to enable this behaviour. 
 
 ``` bash
-$ docker run -e SE_DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240425
+$ docker run -e SE_DRAIN_AFTER_SESSION_COUNT=5 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240505
 ```
 
 With the previous command, the Standalone container will shut down after 5 sessions have been executed.
@@ -1070,7 +1155,7 @@ not set `SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP` to `true` (leave the default value
 `SE_BROWSER_LEFTOVERS_PROCESSES_SECS` to set a value higher than your expected long-running browser processes.
 
 ``` bash
-$ docker run -e SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=true --shm-size="2g" selenium/node-chrome:4.20.0-20240425
+$ docker run -e SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=true --shm-size="2g" selenium/node-chrome:4.20.0-20240505
 ```
 
 With the previous command, the cleanup will be enabled with the default timings.
@@ -1080,7 +1165,7 @@ $ docker run -e SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=true \
 -e SE_BROWSER_LEFTOVERS_INTERVAL_SECS=7200 \
 -e SE_BROWSER_LEFTOVERS_PROCESSES_SECS=3600 \
 -e SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS=2 \
---shm-size="2g" selenium/node-chrome:4.20.0-20240425
+--shm-size="2g" selenium/node-chrome:4.20.0-20240505
 ```
 
 With the previous command, the cleanup will be enabled, but will run every 2 hours (instead of 1), will kill browsers
@@ -1236,22 +1321,22 @@ $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub \
   --health-cmd='/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444' \
   --health-interval=15s --health-timeout=30s --health-retries=5 \
-  selenium/hub:4.20.0-20240425
+  selenium/hub:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 
 ```
 **Note:** The `\` line delimiter won't work on Windows-based terminals, try either `^` or a backtick.
@@ -1368,7 +1453,7 @@ RUN mkdir -p -m755 /seluser/.pki/nssdb \
     && chown -R 1200:1201 /seluser
 
 # Start from Selenium image and add relevant files from build image
-FROM selenium/node-chrome:4.20.0-20240425
+FROM selenium/node-chrome:4.20.0-20240505
 USER root
 COPY --from=build /seluser/ /home/seluser/
 USER seluser
@@ -1383,7 +1468,7 @@ RUN mkdir -p "/distribution" "/certs" && \
     echo '{ "policies": { "Certificates": { "Install": ["/opt/firefox-latest/YOUR_CA.pem"] }} }' >"/distribution/policies.json"
 
 # Start from Selenium image and add relevant files from build image
-FROM selenium/node-firefox:4.20.0-20240425
+FROM selenium/node-firefox:4.20.0-20240505
 USER root
 COPY --from=build /certs /opt/firefox-latest
 COPY --from=build /distribution /opt/firefox-latest/distribution
@@ -1406,9 +1491,9 @@ You can override it with the `SE_VNC_PORT` environment variable in case you want
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
-$ docker run -d -p 4444:4444 -p 5900:5900 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240425
-$ docker run -d -p 4445:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-edge:4.20.0-20240425
-$ docker run -d -p 4446:4444 -p 5902:5900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240425
+$ docker run -d -p 4444:4444 -p 5900:5900 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240505
+$ docker run -d -p 4445:4444 -p 5901:5900 --shm-size="2g" selenium/standalone-edge:4.20.0-20240505
+$ docker run -d -p 4446:4444 -p 5902:5900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240505
 ```
 
 Then, you would use in your VNC client:
@@ -1436,9 +1521,9 @@ You can also override it with the `SE_NO_VNC_PORT` environment variable in case 
 
 Here is an example with the standalone images, the same concept applies to the node images.
 ``` bash
-$ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240425
-$ docker run -d -p 4445:4444 -p 7901:7900 --shm-size="2g" selenium/standalone-edge:4.20.0-20240425
-$ docker run -d -p 4446:4444 -p 7902:7900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240425
+$ docker run -d -p 4444:4444 -p 7900:7900 --shm-size="2g" selenium/standalone-chrome:4.20.0-20240505
+$ docker run -d -p 4445:4444 -p 7901:7900 --shm-size="2g" selenium/standalone-edge:4.20.0-20240505
+$ docker run -d -p 4446:4444 -p 7902:7900 --shm-size="2g" selenium/standalone-firefox:4.20.0-20240505
 ```
 
 Then, you would use in your browser:
@@ -1463,7 +1548,7 @@ In order to enable tracing in the Selenium Grid container, the following command
 ```bash
 docker network create grid
 docker run -d -p 16686:16686 -p 4317:4317 --net grid --name jaeger jaegertracing/all-in-one:1.54
-docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240425
+docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.20.0-20240505
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
@@ -1471,7 +1556,7 @@ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-chrome:4.20.0-20240425
+    selenium/node-chrome:4.20.0-20240505
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
@@ -1479,7 +1564,7 @@ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-edge:4.20.0-20240425
+    selenium/node-edge:4.20.0-20240505
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
@@ -1487,7 +1572,7 @@ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    selenium/node-firefox:4.20.0-20240425
+    selenium/node-firefox:4.20.0-20240505
 ```
 
 You can also refer to the below docker compose yaml files to be able to start a simple grid (or) a dynamic grid.
@@ -1547,7 +1632,7 @@ container in the following way:
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" \
   -v /home/ubuntu/files:/home/seluser/Downloads \
-  selenium/standalone-chrome:4.20.0-20240425
+  selenium/standalone-chrome:4.20.0-20240505
 ```
 
 That will mount the host `/home/ubuntu/files` directory

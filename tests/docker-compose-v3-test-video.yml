@@ -25,8 +25,10 @@ services:
     depends_on:
       - browser
     environment:
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
       - DISPLAY_CONTAINER_NAME=browser
-      - FILE_NAME=${VIDEO_FILE_NAME}
+      - SE_VIDEO_FILE_NAME=${VIDEO_FILE_NAME}
+      - SE_VIDEO_FILE_NAME_SUFFIX=${VIDEO_FILE_NAME_SUFFIX}
 
   selenium-hub:
     image: selenium/hub:${TAG}
@@ -48,4 +50,5 @@ services:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
+      - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
     command: ["./bootstrap.sh", "${NODE}"]

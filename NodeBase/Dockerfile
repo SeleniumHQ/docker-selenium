@@ -72,6 +72,7 @@ RUN apt-get update -qqy \
 # Xvfb
 #==============
     xvfb \
+    libxcb1 \
     xauth \
     pulseaudio \
 #=====
@@ -136,7 +137,7 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
       start-xvfb.sh \
       start-vnc.sh \
       start-novnc.sh \
-      generate_config /opt/bin/
+      generate_config generate_relay_config /opt/bin/
 
 # Selenium Grid logo as wallpaper for Fluxbox
 COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png

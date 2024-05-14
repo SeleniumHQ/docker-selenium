@@ -12,6 +12,10 @@
 
 videoRecorder:
   enabled: true
+  extraVolumes:
+   - name: videos
+     persistentVolumeClaim:
+       claimName: ${TEST_PV_CLAIM_NAME}
   uploader:
     enabled: "${UPLOAD_ENABLED}"
     destinationPrefix: "gs://${BUCKET_NAME}"

@@ -2,6 +2,16 @@
 #
 # IMPORTANT: Change this file only in directory Standalone!
 
+# Start the pulseaudio server
+pulseaudio -D --exit-idle-time=-1
+
+# Load the virtual sink and set it as default
+pacmd load-module module-virtual-sink sink_name=v1
+pacmd set-default-sink v1
+
+# set the monitor of v1 sink to be the default source
+pacmd set-default-source v1.monitor
+
 if [ ! -z "$SE_SUB_PATH" ]; then
   echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
   SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
@@ -76,6 +86,7 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
 fi
 
 /opt/bin/generate_config
+/opt/bin/generate_relay_config
 
 echo "Selenium Grid Standalone configuration: "
 cat /opt/selenium/config.toml

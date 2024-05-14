@@ -7,11 +7,11 @@ global:
     # Image registry for all selenium components
     imageRegistry: selenium
     # Image tag for all selenium components
-    imageTag: 4.20.0-20240425
+    imageTag: 4.20.0-20240505
     # Image tag for browser's nodes
-    nodesImageTag: 4.20.0-20240425
+    nodesImageTag: 4.20.0-20240505
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.0-20240425
+    videoImageTag: ffmpeg-6.1.1-20240505
     # kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # Pull secret for all components, can be overridden individually
@@ -69,6 +69,36 @@ serviceAccount:
   # nameOverride:
   annotations: {}
   #  eks.amazonaws.com/role-arn: "arn:aws:iam::12345678:role/video-bucket-permissions"
+
+# RBAC settings
+rbacRole:
+  create: true
+  # nameOverride:
+  annotations: {}
+  rules:
+    - apiGroups:
+        - keda.sh
+      resources:
+        - scaledjobs
+      verbs: [get, list, patch, update, delete]
+    - apiGroups:
+        - keda.sh
+      resources:
+        - scaledobjects
+      verbs: [get, list, patch, update, delete]
+    - apiGroups:
+        - autoscaling
+      resources:
+        - horizontalpodautoscalers
+      verbs: [get, list, patch, update, delete]
+
+rbacRoleBinding:
+  create: true
+  # nameOverride:
+  annotations: {}
+  roleRef:
+    kind: Role
+    apiGroup: rbac.authorization.k8s.io
 
 # Configure the ingress resource to access the Grid installation.
 ingress:
@@ -202,7 +232,7 @@ components:
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.20.0-20240425
+    # imageTag: 4.20.0-20240505
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -266,7 +296,7 @@ components:
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.20.0-20240425
+    # imageTag: 4.20.0-20240505
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -301,7 +331,7 @@ components:
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.20.0-20240425
+    # imageTag: 4.20.0-20240505
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -340,7 +370,7 @@ components:
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.20.0-20240425
+    # imageTag: 4.20.0-20240505
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -371,7 +401,7 @@ components:
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.20.0-20240425
+    # imageTag: 4.20.0-20240505
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -423,7 +453,7 @@ hub:
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.20.0-20240425
+  # imageTag: 4.20.0-20240505
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -548,7 +578,16 @@ autoscaling:
   scalingType: job
   # Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
-    "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+    "helm.sh/hook": post-install,post-upgrade,post-rollback
+    "helm.sh/hook-weight": "1"
+  # Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists
+  patchObjectFinalizers:
+    enabled: true
+    activeDeadlineSeconds: 120
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+      "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+      "helm.sh/hook-weight": "-1"
   # Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     minReplicaCount: 0
@@ -600,7 +639,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.20.0-20240425
+  # imageTag: 4.20.0-20240505
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -761,7 +800,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.20.0-20240425
+  # imageTag: 4.20.0-20240505
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -920,7 +959,7 @@ edgeNode:
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.20.0-20240425
+  # imageTag: 4.20.0-20240505
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -1068,7 +1107,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-7.0-20240425
+  # imageTag: ffmpeg-6.1.1-20240505
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -1187,7 +1226,6 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   additionalAnnotations:
-    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback,post-delete
   http:
     timeout: 60000
   webhooks:
@@ -1223,19 +1261,19 @@ prometheus-stack:
   defaultRules:
     create: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
   alertmanager:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
   grafana:
     enabled: true
     adminPassword: admin
     forceDeployDatasources: true
     forceDeployDashboards: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
   prometheus:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
+      "helm.sh/hook": post-install,post-upgrade,post-rollback

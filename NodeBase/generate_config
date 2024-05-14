@@ -48,24 +48,34 @@ echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >> "$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >> "$FILENAME"
 echo "detect-drivers = false" >> "$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >> "$FILENAME"
-echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
+# When node is handled both browser and relay, SE_NODE_MAX_CONCURRENCY is used to configure max concurrency based on sum of them
+echo "max-sessions = ${SE_NODE_MAX_CONCURRENCY:-${SE_NODE_MAX_SESSIONS}}
 " >> "$FILENAME"
 
-SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
-SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
-SE__BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
-
-if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
-SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}}"
-else
-SE_NODE_STEREOTYPE="$SE_NODE_STEREOTYPE"
+if [ -f /opt/selenium/browser_name ]; then
+  SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
+fi
+if [ -f /opt/selenium/browser_version ]; then
+  SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
+fi
+if [ -f /opt/selenium/browser_binary_location ]; then
+  SE__BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
 fi
 
-echo "[[node.driver-configuration]]" >> "$FILENAME"
-echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >> "$FILENAME"
-echo "stereotype = '${SE_NODE_STEREOTYPE}'" >> "$FILENAME"
-echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
-" >> "$FILENAME"
+# 'browserName' is mandatory for default stereotype
+if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]]; then
+SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}}"
+else
+SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
+fi
 
+# 'stereotype' setting is mandatory
+if [[ -n "${SE_NODE_STEREOTYPE}" ]]; then
+    echo "[[node.driver-configuration]]" >> "$FILENAME"
+    echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >> "$FILENAME"
+    echo "stereotype = '${SE_NODE_STEREOTYPE}'" >> "$FILENAME"
+    echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
+    " >> "$FILENAME"
+fi
 
 

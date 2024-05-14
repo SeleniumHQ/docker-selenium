@@ -1,3 +1,38 @@
+## :heavy_check_mark: selenium-grid-0.30.2
+
+- Chart is using image tag 4.20.0-20240505
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.13, v1.28.9, v1.29.4, v1.30.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, 
+
+### Fixed
+- [`62ea271f`](http://github.com/seleniumhq/docker-selenium/commit/62ea271f36e711365b71442fec16f89ff00509e4) - fix(chart): upload.conf is missing in volumeMounts :: Viet Nguyen Duc
+
+## :heavy_check_mark: selenium-grid-0.30.1
+
+- Chart is using image tag 4.20.0-20240505
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.13, v1.28.9, v1.29.4, v1.30.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, 
+
+### Added
+- [`6d3a8a72`](http://github.com/seleniumhq/docker-selenium/commit/6d3a8a724f7d6909955c263536960eec4e14a4ec) - feat: Video recording with dynamic file name based on metadata in tests (#2249) :: Viet Nguyen Duc
+
+### Fixed
+- [`32d0aea8`](http://github.com/seleniumhq/docker-selenium/commit/32d0aea88524f0a7262efba804a4d9dbee555149) - fix(chart): job to cleanup scaled objects run always :: Viet Nguyen Duc
+- [`07e13f6c`](http://github.com/seleniumhq/docker-selenium/commit/07e13f6c61ac014271d57d98dfcf1869def06a78) - fix(chart): RBAC settings for job patch finalizers (#2239) :: Viet Nguyen Duc
+
+### Changed
+- [`409a46f2`](http://github.com/seleniumhq/docker-selenium/commit/409a46f232c74f55b9b6b9e4f93e15853bf80bfa) - chore(deps): update helm release kube-prometheus-stack to v58.4.0 (#2248) :: renovate[bot]
+- [`6e859e0b`](http://github.com/seleniumhq/docker-selenium/commit/6e859e0b95a75798500666a6e56eac3170b651d2) - chore(deps): update helm release jaeger to v3.0.6 (#2246) :: renovate[bot]
+- [`8fcc44b0`](http://github.com/seleniumhq/docker-selenium/commit/8fcc44b0b503670e8a3265a69efd983f060d27ad) - chore(deps): update helm release keda to v2.14.2 (#2244) :: renovate[bot]
+- [`b0799353`](http://github.com/seleniumhq/docker-selenium/commit/b07993539f78587a30db04680ae46464de06eec1) - update: Rollback FFmpeg v6.1.1 (#2247) :: Viet Nguyen Duc
+- [`b279999a`](http://github.com/seleniumhq/docker-selenium/commit/b279999a26e1d50086d382622782a8725edaab23) - chore(deps): update helm release kube-prometheus-stack to v58.3.3 (#2240) :: renovate[bot]
+- [`322741e9`](http://github.com/seleniumhq/docker-selenium/commit/322741e9537a7dc6fd8af926cae533b54a813146) - chore(deps): update helm release kube-prometheus-stack to v58.3.0 (#2238) :: renovate[bot]
+- [`0762e873`](http://github.com/seleniumhq/docker-selenium/commit/0762e873b583c4ad3241b2311e50b8a95c1d288f) - chore(deps): update helm release kube-prometheus-stack to v58.2.2 (#2211) :: renovate[bot]
+- [`4631baa5`](http://github.com/seleniumhq/docker-selenium/commit/4631baa5d27951992bf2565e509d475dafbd499a) - chore(deps): update helm release jaeger to v3.0.4 (#2219) :: renovate[bot]
+- [`96550ead`](http://github.com/seleniumhq/docker-selenium/commit/96550eadc93e63f4883c8b3a15069867c919a62e) - chore(deps): update helm release ingress-nginx to v4.10.1 (#2230) :: renovate[bot]
+- [`67099bbe`](http://github.com/seleniumhq/docker-selenium/commit/67099bbe1cb000e62bdae3491aed02b09db02179) - chore(deps): update helm release keda to v2.14.1 (#2234) :: renovate[bot]
+- [`fe7c16cc`](http://github.com/seleniumhq/docker-selenium/commit/fe7c16cc8d0310283b65f9ef03a96d2e5850a9e5) - chore(deps): update helm release keda to v2.14.0 (#2226) :: renovate[bot]
+
 ## :heavy_check_mark: selenium-grid-0.30.0
 
 - Chart is using image tag 4.20.0-20240425

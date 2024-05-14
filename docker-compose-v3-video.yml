@@ -4,7 +4,7 @@
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:4.20.0-20240425
+    image: selenium/node-chrome:4.20.0-20240505
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -14,7 +14,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:4.20.0-20240425
+    image: selenium/node-edge:4.20.0-20240505
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -24,7 +24,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.20.0-20240425
+    image: selenium/node-firefox:4.20.0-20240505
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -34,37 +34,43 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.0-20240425
+    image: selenium/video:ffmpeg-6.1.1-20240505
     volumes:
       - /tmp/videos:/videos
     depends_on:
       - chrome
     environment:
       - DISPLAY_CONTAINER_NAME=chrome
-      - FILE_NAME=chrome_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=chrome_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   edge_video:
-    image: selenium/video:ffmpeg-7.0-20240425
+    image: selenium/video:ffmpeg-6.1.1-20240505
     volumes:
       - /tmp/videos:/videos
     depends_on:
       - edge
     environment:
       - DISPLAY_CONTAINER_NAME=edge
-      - FILE_NAME=edge_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=edge_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.0-20240425
+    image: selenium/video:ffmpeg-6.1.1-20240505
     volumes:
       - /tmp/videos:/videos
     depends_on:
       - firefox
     environment:
       - DISPLAY_CONTAINER_NAME=firefox
-      - FILE_NAME=firefox_video.mp4
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+#      - FILE_NAME=firefox_video.mp4
+      - SE_VIDEO_FILE_NAME=auto
 
   selenium-hub:
-    image: selenium/hub:4.20.0-20240425
+    image: selenium/hub:4.20.0-20240505
     container_name: selenium-hub
     ports:
       - "4442:4442"

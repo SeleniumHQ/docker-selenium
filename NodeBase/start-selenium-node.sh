@@ -98,6 +98,7 @@ fi
 if [ "$GENERATE_CONFIG" = true ]; then
   echo "Generating Selenium Config"
   /opt/bin/generate_config
+  /opt/bin/generate_relay_config
 fi
 
 EXTRA_LIBS=""

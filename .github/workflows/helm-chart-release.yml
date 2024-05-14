@@ -9,9 +9,22 @@ on:
     paths:
       - 'charts/selenium-grid/Chart.yaml'
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Deploy a new release'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
+  helm-chart-test:
+    uses: ./.github/workflows/helm-chart-test.yml
+    with:
+      release: ${{ github.event.inputs.release == 'true' }}
+
   release:
+    needs:
+      - helm-chart-test
     runs-on: ubuntu-latest
     permissions: write-all
     steps:

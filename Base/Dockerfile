@@ -1,4 +1,4 @@
-FROM debian:bookworm
+FROM ubuntu:jammy-20240427
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download

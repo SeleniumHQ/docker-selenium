@@ -20,9 +20,15 @@ SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'fal
 SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWNLOADS', 'true').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
+TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
+TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
+TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 
 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
     SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
+
+if TEST_NODE_RELAY == 'Android':
+    time.sleep(90)
 
 class SeleniumGenericTests(unittest.TestCase):
 
@@ -68,14 +74,18 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_play_video(self):
         driver = self.driver
-        driver.get('https://hls-js.netlify.com/demo/')
+        driver.get('https://docs.flowplayer.com/tools/stream-tester')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
-        video = wait.until(
-            EC.element_to_be_clickable((By.TAG_NAME, 'video'))
+        play_button = wait.until(
+            EC.element_to_be_clickable((By.TAG_NAME, 'flowplayer-play-icon'))
         )
-        video.click()
+        play_button.click()
+        video = driver.find_element(By.TAG_NAME, 'video')
         wait.until(
             lambda d: d.find_element(By.TAG_NAME, 'video').get_property('currentTime')
+        )
+        wait.until(
+            lambda d: d.find_element(By.TAG_NAME, 'video').get_property('paused') == False
         )
         paused = video.get_property('paused')
         self.assertFalse(paused)
@@ -101,6 +111,8 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def tearDown(self):
         try:
+            if TEST_DELAY_AFTER_TEST:
+                time.sleep(TEST_DELAY_AFTER_TEST)
             self.driver.quit()
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
@@ -115,15 +127,25 @@ class ChromeTests(SeleniumGenericTests):
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             options.set_capability('se:recordVideo', True)
+            options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
+            options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('--headless=new')
+            if TEST_NODE_RELAY == 'Android':
+                options.set_capability('platformName', TEST_NODE_RELAY)
+                options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
+                options.set_capability('appium:deviceName', 'emulator-5554')
+                options.set_capability('appium:automationName', 'uiautomator2')
+                options.set_capability('appium:browserName', 'chrome')
+            else:
+                options.set_capability('platformName', 'Linux')
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
                 command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
             )
             end_time = time.time()
-            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -136,6 +158,8 @@ class EdgeTests(SeleniumGenericTests):
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             options.set_capability('se:recordVideo', True)
+            options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
+            options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('--headless=new')
             start_time = time.time()
@@ -144,7 +168,7 @@ class EdgeTests(SeleniumGenericTests):
                 command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
             )
             end_time = time.time()
-            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -160,6 +184,8 @@ class FirefoxTests(SeleniumGenericTests):
             options.profile = profile
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             options.set_capability('se:recordVideo', True)
+            options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
+            options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('-headless')
             start_time = time.time()
@@ -168,7 +194,7 @@ class FirefoxTests(SeleniumGenericTests):
                 command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
             )
             end_time = time.time()
-            print(f"<< {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -196,7 +222,7 @@ class Autoscaling():
             for future, test in zip(concurrent.futures.as_completed(futures), tests):
                 try:
                     completion_time = time.time() - start_times[test]
-                    print(f">> {str(test)} completed in {str(completion_time)} (s)")
+                    print(f"Finish: {str(test)} completed in {str(completion_time)} (s)")
                     if not future.result().wasSuccessful():
                         raise Exception
                 except Exception as e:

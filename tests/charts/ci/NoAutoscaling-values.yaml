@@ -1,0 +1,38 @@
+# This is used in Helm chart testing
+# Configuration for chrome nodes
+chromeNode:
+  port: 6666
+  nameOverride: my-chrome-name
+  extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+      value: "true"
+    - name: SE_VNC_NO_PASSWORD
+      value: "true"
+    - name: SE_SCREEN_WIDTH
+      value: "1920"
+    - name: SE_SCREEN_HEIGHT
+      value: "1080"
+    - name: TZ
+      value: "Asia/Saigon"
+  readinessProbe:
+    enabled: &readinessProbe false
+  livenessProbe:
+    enabled: &livenessProbe true
+# Configuration for edge nodes
+edgeNode:
+  port: 8888
+  nameOverride: my-edge-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe
+# Configuration for firefox nodes
+firefoxNode:
+  port: 7777
+  nameOverride: my-firefox-name
+  extraEnvironmentVariables: *extraEnvironmentVariables
+  readinessProbe:
+    enabled: *readinessProbe
+  livenessProbe:
+    enabled: *livenessProbe

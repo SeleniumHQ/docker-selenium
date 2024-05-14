@@ -1,8 +1,13 @@
 name: Test Docker Selenium
-concurrency:
-  group: ${{ github.workflow }}
 
 on:
+  workflow_call:
+    inputs:
+      release:
+        description: 'Test a new release process'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       request-timeout:
@@ -17,14 +22,6 @@ on:
         description: 'Test parameter for different log level'
         required: false
         default: 'INFO'
-  push:
-    paths-ignore:
-      - '**.md'
-  pull_request:
-    paths-ignore:
-      - '**.md'
-  schedule:
-    - cron: '0 0 * * *'
 
 permissions:
   contents: read
@@ -36,7 +33,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          test-strategy: [test_video, test_parallel, test_node_docker]
+        include:
+          - test-strategy: test_video
+            test-video: true
+          - test-strategy: test_video_dynamic_name
+            test-video: true
+          - test-strategy: test_node_docker
+            test-video: true
+          - test-strategy: test_parallel
+            test-video: false
+          - test-strategy: test_node_relay
+            test-video: false
     steps:
       - uses: actions/checkout@main
       - name: Set up QEMU
@@ -53,6 +60,12 @@ jobs:
         with:
           python-version: '3.11'
           check-latest: true
+      - name: Enable KVM
+        if: matrix.test-strategy == 'test_node_relay'
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
@@ -66,9 +79,9 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Set Selenium base version
-        if: contains(toJson(github.event.commits), '[deploy]') == false
+        if: inputs.release != 'true'
         run: |
-          make set_nightly_env
+          make set_build_nightly
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Sets build date
         run: |
@@ -99,21 +112,9 @@ jobs:
           REQUEST_TIMEOUT: ${{ github.event.inputs.request-timeout || '400' }}
       - name: Run Docker Compose to ${{ matrix.test-strategy }}
         run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
-      - name: Upload recorded Chrome video
-        if: matrix.test-strategy == 'test_video'
+      - name: Upload recorded video
+        if: matrix.test-video == true
         uses: actions/upload-artifact@main
         with:
-          name: chrome_video
-          path: ./tests/videos/chrome_video.mp4
-      - name: Upload recorded Edge video
-        if: matrix.test-strategy == 'test_video'
-        uses: actions/upload-artifact@main
-        with:
-          name: edge_video
-          path: ./tests/videos/edge_video.mp4
-      - name: Upload recorded Firefox video
-        if: matrix.test-strategy == 'test_video'
-        uses: actions/upload-artifact@main
-        with:
-          name: firefox_video
-          path: ./tests/videos/firefox_video.mp4
+          name: "${{ matrix.test-strategy }}_artifacts"
+          path: ./tests/videos/

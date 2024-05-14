@@ -382,7 +382,7 @@ template:
             name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
         - configMapRef:
             name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
-        {{- if and $.Values.videoRecorder.uploader.enabled (not $.Values.videoRecorder.uploader.name) }}
+        {{- if and $.Values.videoRecorder.uploader.enabled (empty $.Values.videoRecorder.uploader.name) }}
         - secretRef:
             name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- end }}
@@ -647,7 +647,7 @@ Define terminationGracePeriodSeconds of the node pod.
   mountPath: {{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $fileName }}
   subPath: {{ $fileName }}
 {{- end }}
-{{- if and .Values.videoRecorder.uploader.enabled (not .Values.videoRecorder.uploader.name) }}
+{{- if and $.Values.videoRecorder.uploader.enabled (empty $.Values.videoRecorder.uploader.name) }}
 {{- range $fileName, $value := .Values.uploaderConfigMap.secretFiles }}
 - name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
   mountPath: {{ $.Values.uploaderConfigMap.extraScriptsDirectory }}/{{ $fileName }}

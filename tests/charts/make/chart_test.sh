@@ -15,7 +15,7 @@ SELENIUM_GRID_PROTOCOL=${SELENIUM_GRID_PROTOCOL:-"http"}
 SELENIUM_GRID_HOST=${SELENIUM_GRID_HOST:-"localhost"}
 SELENIUM_GRID_PORT=${SELENIUM_GRID_PORT:-"80"}
 MATRIX_BROWSER=${1:-"NodeChrome"}
-SELENIUM_GRID_AUTOSCALING=${2:-"true"}
+SELENIUM_GRID_AUTOSCALING=${SELENIUM_GRID_AUTOSCALING:-"true"}
 SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA:-"0"}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-"90s"}
 HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL:-45}
@@ -36,6 +36,8 @@ BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
+TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
+LIMIT_RESOURCES=${LIMIT_RESOURCES:-"true"}
 
 cleanup() {
   # Get the list of pods
@@ -43,7 +45,7 @@ cleanup() {
   # Iterate over the pods and print their logs
   for pod in $pods; do
     echo "Logs for pod $pod"
-    kubectl logs -n ${SELENIUM_NAMESPACE} $pod > tests/tests/pod_logs_${pod}.txt
+    kubectl logs -n ${SELENIUM_NAMESPACE} $pod --all-containers > tests/tests/pod_logs_${pod}.txt
   done
   if [ "${SKIP_CLEANUP}" = "false" ]; then
     echo "Clean up chart release and namespace"
@@ -77,6 +79,9 @@ else
     export UPLOAD_ENABLED=false
 fi
 export RELEASE_NAME=${RELEASE_NAME}
+export SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE}
+export TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME}
+export HOST_PATH=$(realpath ./tests/videos)
 if [ "${RELEASE_NAME}" = "selenium" ]; then
   export SELENIUM_TLS_SECRET_NAME="selenium-tls-secret"
 else
@@ -85,6 +90,17 @@ fi
 RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
 envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
 RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
+
+if [ "${TEST_UPGRADE_CHART}" = "false" ]; then
+  LOCAL_PVC_YAML="${TEST_VALUES_PATH}/local-pvc.yaml"
+  envsubst < ${LOCAL_PVC_YAML} > ./tests/tests/local-pvc.yaml
+  LOCAL_PVC_YAML=./tests/tests/local-pvc.yaml
+  sudo rm -rf ${HOST_PATH}; sudo mkdir -p ${HOST_PATH}
+  sudo chmod -R 777 ${HOST_PATH}
+  kubectl create ns ${SELENIUM_NAMESPACE} || true
+  kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
+  kubectl describe pv,pvc -n ${SELENIUM_NAMESPACE}
+fi
 
 HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.imageRegistry=${NAMESPACE} \
@@ -102,7 +118,7 @@ if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "t
   --set autoscaling.enabled=false \
   --set autoscaling.enableWithExistingKEDA=true \
   "
-elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "false" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=true \
   --set autoscaling.enableWithExistingKEDA=false \
@@ -158,8 +174,13 @@ fi
 HELM_COMMAND_SET_BASE_VALUES=" \
 --values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
 --values ${RECORDER_VALUES_FILE} \
---values ${TEST_VALUES_PATH}/base-resources-values.yaml \
 "
+
+if [ "${LIMIT_RESOURCES}" = "true" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${TEST_VALUES_PATH}/base-resources-values.yaml \
+  "
+fi
 
 if [ "${SUB_PATH}" = "/selenium" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
@@ -212,7 +233,14 @@ export HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL}
 export HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS}
 export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
 export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
-./tests/bootstrap.sh ${MATRIX_BROWSER}
+export TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST:-"10"}
+if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
+  ./tests/bootstrap.sh NodeChrome
+  ./tests/bootstrap.sh NodeFirefox
+  ./tests/bootstrap.sh NodeEdge
+else
+  ./tests/bootstrap.sh ${MATRIX_BROWSER}
+fi
 
 echo "Get pods status"
 kubectl get pods -n ${SELENIUM_NAMESPACE}
