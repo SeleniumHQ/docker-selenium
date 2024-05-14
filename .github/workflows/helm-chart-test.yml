@@ -43,31 +43,31 @@ jobs:
           - k8s-version: 'v1.26.15'
             test-strategy: job
             cluster: 'minikube'
-            helm-version: 'v3.10.3'
-            test-existing-keda: true
-            test-upgrade: true
-          - k8s-version: 'v1.27.13'
-            test-strategy: deployment
-            cluster: 'minikube'
             helm-version: 'v3.11.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.28.9'
-            test-strategy: job_https
+          - k8s-version: 'v1.27.14'
+            test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.29.4'
-            test-strategy: job_hostname
+          - k8s-version: 'v1.28.10'
+            test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.13.3'
-            test-existing-keda: false
+            test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.30.0'
-            test-strategy: deployment_https
+          - k8s-version: 'v1.29.5'
+            test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.14.4'
+            test-existing-keda: false
+            test-upgrade: true
+          - k8s-version: 'v1.30.1'
+            test-strategy: deployment_https
+            cluster: 'minikube'
+            helm-version: 'v3.15.0'
             test-existing-keda: false
             test-upgrade: true
     env:
@@ -78,16 +78,18 @@ jobs:
       TEST_EXISTING_KEDA: ${{ matrix.test-existing-keda }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
     steps:
-      - uses: actions/checkout@main
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make chart_setup_env
+            make set_containerd_image_store
       - name: Output Docker info
         run: docker info
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@master
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@master
-        with:
-          platforms: linux/amd64,linux/arm64
-          use: false
       - name: Set up Python
         uses: actions/setup-python@main
         with:
@@ -117,12 +119,6 @@ jobs:
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
-      - name: Setup Kubernetes environment
-        uses: nick-invision/retry@master
-        with:
-          timeout_minutes: 10
-          max_attempts: 3
-          command: CLUSTER=${CLUSTER} HELM_VERSION=${HELM_VERSION} make chart_setup_env
       - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build
@@ -192,3 +188,6 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}-videos
           path: ./tests/videos/
+      - name: Clean up Docker
+        if: always()
+        run: docker system prune -af

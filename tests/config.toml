@@ -1,8 +1,8 @@
 [docker]
 configs = [
     "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux"}',
-    "${NAMESPACE}/standalone-chrome:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
-    "${NAMESPACE}/standalone-edge:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    "${NAMESPACE}/standalone-${NODE_CHROME}:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
+    "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 
 host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]

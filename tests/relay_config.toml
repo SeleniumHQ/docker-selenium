@@ -10,8 +10,10 @@ drain-after-session-count = 0
 max-sessions = 1
 
 [relay]
-url = "http://firefox-receiver:4444/wd/hub"
+url = "http://standalone-receiver:4444/wd/hub"
 status-endpoint = "/status"
 configs = [
-    '1', '{"browserName":"firefox","platformName":"linux"}'
+    '1', '{"browserName":"firefox","platformName":"linux"}',
+    '1', '{"browserName":"chrome","platformName":"linux"}',
+    '1', '{"browserName":"MicrosoftEdge","platformName":"linux"}'
 ]

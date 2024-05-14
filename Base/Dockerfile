@@ -8,6 +8,7 @@ ARG AUTHORS=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
 ARG OPENTELEMETRY_VERSION=1.36.0
 ARG GRPC_VERSION=1.62.2
+ARG CS_VERSION=2.1.10
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -36,7 +37,12 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-RUN apt-get -qqy update \
+RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+      echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+      && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+      && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list ; \
+     fi \
+  && apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
     acl \
@@ -60,7 +66,7 @@ RUN apt-get -qqy update \
   && if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
        export ARCH=armhf ; \
     else \
-       export ARCH=${TARGETARCH} ; \
+       export ARCH=$(dpkg --print-architecture) ; \
     fi \
   && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-${JRE_VERSION}-jre-${ARCH}/conf/security/java.security \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
@@ -106,17 +112,17 @@ RUN apt-get -qqy update \
 # so that the container can skip downloading them everytime it comes up
 #===== \
   && if [ `arch` = "aarch64" ] || [ `arch` = "x86_64" ]; then \
-        curl -fL https://github.com/coursier/launchers/raw/master/cs-`arch`-pc-linux.gz | gzip -d > /tmp/cs \
+        curl -fL https://github.com/coursier/coursier/releases/download/v${CS_VERSION}/coursier.jar > /tmp/cs \
         && chmod +x /tmp/cs \
         && mkdir -p /external_jars \
         && chmod -R 775 /external_jars ; \
      fi \
   && if [ -f "/tmp/cs" ]; then \
-        /tmp/cs fetch --classpath --cache /external_jars \
+        java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-        io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt ; \
+        io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt \
+        && chmod 664 /external_jars/.classpath.txt ; \
      fi \
-  && chmod 664 /external_jars/.classpath.txt \
   && rm -fr /root/.cache/* \
   # (Note that .bashrc is only executed in interactive bash shells.)
   && echo 'if [[ $(ulimit -n) -gt 200000 ]]; then echo "WARNING: Very high value reported by \"ulimit -n\". Consider passing \"--ulimit nofile=32768\" to \"docker run\"."; fi' >> ${HOME}/.bashrc

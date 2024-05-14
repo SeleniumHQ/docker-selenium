@@ -165,6 +165,13 @@ if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then
   export SELENIUM_GRID_PASSWORD=${BASIC_AUTH_PASSWORD}
 fi
 
+if [ "${PLATFORMS}" != "linux/amd64" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set edgeNode.enabled=false \
+  --set chromeNode.imageName=node-chromium \
+  "
+fi
+
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_AUTOSCALING=" \
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
@@ -234,10 +241,15 @@ export HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS}
 export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
 export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
 export TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST:-"10"}
+export PLATFORMS=${PLATFORMS:-"linux/amd64"}
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
-  ./tests/bootstrap.sh NodeChrome
   ./tests/bootstrap.sh NodeFirefox
-  ./tests/bootstrap.sh NodeEdge
+  if [ "${PLATFORMS}" = "linux/amd64" ]; then
+    ./tests/bootstrap.sh NodeChrome
+    ./tests/bootstrap.sh NodeEdge
+  else
+    ./tests/bootstrap.sh NodeChromium
+  fi
 else
   ./tests/bootstrap.sh ${MATRIX_BROWSER}
 fi

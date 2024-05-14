@@ -34,25 +34,45 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - test-strategy: test
+            use-random-user: true
+            test-video: false
+            build-all: true
+          - test-strategy: test
+            use-random-user: false
+            test-video: false
+            build-all: true
           - test-strategy: test_video
+            use-random-user: false
             test-video: true
+            build-all: false
           - test-strategy: test_video_dynamic_name
+            use-random-user: false
             test-video: true
+            build-all: false
           - test-strategy: test_node_docker
+            use-random-user: false
             test-video: true
+            build-all: false
           - test-strategy: test_parallel
+            use-random-user: false
             test-video: false
+            build-all: false
           - test-strategy: test_node_relay
+            use-random-user: false
             test-video: false
+            build-all: false
     steps:
-      - uses: actions/checkout@main
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@master
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@master
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
         with:
-          platforms: linux/amd64,linux/arm64
-          use: false
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make chart_setup_env
+            make set_containerd_image_store
       - name: Output Docker info
         run: docker info
       - name: Set up Python
@@ -89,10 +109,20 @@ jobs:
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+      - name: Build Docker images
+        uses: nick-invision/retry@master
+        if: matrix.build-all == true
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Pre-build to reduce logs in test phase
         uses: nick-invision/retry@master
+        if: matrix.build-all != true
         with:
-          timeout_minutes: 12
+          timeout_minutes: 20
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
@@ -111,10 +141,13 @@ jobs:
           TEST_PARALLEL_HARDENING: ${{ github.event.inputs.parallel-hardening || 'true' }}
           REQUEST_TIMEOUT: ${{ github.event.inputs.request-timeout || '400' }}
       - name: Run Docker Compose to ${{ matrix.test-strategy }}
-        run: USE_RANDOM_USER_ID=${USE_RANDOM_USER} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
+        run: USE_RANDOM_USER_ID=${{ matrix.use-random-user }} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
       - name: Upload recorded video
         if: matrix.test-video == true
         uses: actions/upload-artifact@main
         with:
           name: "${{ matrix.test-strategy }}_artifacts"
           path: ./tests/videos/
+      - name: Clean up Docker
+        if: always()
+        run: docker system prune -af
