@@ -1,3 +1,12 @@
+## :heavy_check_mark: selenium-grid-0.31.0
+
+- Chart is using image tag 4.21.0-20240517
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.13, v1.28.9, v1.29.4, v1.30.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, 
+
+### Changed
+- [`471adc38`](http://github.com/seleniumhq/docker-selenium/commit/471adc388530ed85d0f67871fc19c72debd8ac98) - Update tag in docs and files :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.30.2
 
 - Chart is using image tag 4.20.0-20240505
