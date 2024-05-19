@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.20.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.20.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.20.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.21.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.21.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.21.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.21.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.20.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.22.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.21.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -38,9 +38,10 @@ all: hub \
 	standalone_docker \
 	video
 
-set_nightly_env:
+set_build_nightly:
 	echo BASE_VERSION=$(BASE_VERSION_NIGHTLY) > .env ; \
 	echo BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) >> .env ;
+	echo "Execute 'source .env' to set the environment variables"
 
 docker_buildx_setup:
 	sudo apt-get install --upgrade docker-buildx-plugin
@@ -483,6 +484,27 @@ test_video: video hub chrome firefox edge
 			docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build ; \
 	done
 	make test_video_integrity
+
+test_node_relay: hub node_base standalone_firefox
+	sudo rm -rf ./tests/tests
+	for node in Android NodeFirefox ; do \
+			cd ./tests || true ; \
+			echo TAG=$(TAG_VERSION) > .env ; \
+			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
+			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
+			echo SESSION_TIMEOUT=$(or $(SESSION_TIMEOUT), 300) >> .env ; \
+			echo ANDROID_BASED_NAME=$(or $(ANDROID_BASED_NAME),budtmo) >> .env ; \
+			echo ANDROID_BASED_IMAGE=$(or $(ANDROID_BASED_IMAGE),docker-android) >> .env ; \
+			echo ANDROID_BASED_TAG=$(or $(ANDROID_BASED_TAG),emulator_14.0) >> .env ; \
+			echo ANDROID_PLATFORM_API=$(or $(ANDROID_PLATFORM_API),14) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 15) >> .env ; \
+			echo NODE=$$node >> .env ; \
+			echo TEST_NODE_RELAY=$$node >> .env ; \
+			echo UID=$$(id -u) >> .env ; \
+			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
+			docker compose -f docker-compose-v3-test-node-relay.yml up --no-log-prefix --exit-code-from tests --build ; \
+			if [ $$? -ne 0 ]; then exit 1; fi ; \
+	done
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge video
 	sudo rm -rf ./tests/tests

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+if [[ -z "$CONFIG_FILE" ]]; then
+FILENAME="/opt/selenium/config.toml"
+else
+FILENAME="$CONFIG_FILE"
+fi
+
+if [[ -n "${SE_NODE_RELAY_URL}" ]]; then
+  echo "[relay]" >> "$FILENAME"
+  echo "url = \"${SE_NODE_RELAY_URL}\"" >> "$FILENAME"
+  if [[ -z "${SE_NODE_RELAY_STATUS_ENDPOINT}" ]]; then
+    echo "status-endpoint = \"/status\"" >> "$FILENAME"
+  else
+    echo "status-endpoint = \"${SE_NODE_RELAY_STATUS_ENDPOINT}\"" >> "$FILENAME"
+  fi
+  if [[ -n "${SE_NODE_RELAY_PROTOCOL_VERSION}" ]]; then
+    echo "protocol-version = \"${SE_NODE_RELAY_PROTOCOL_VERSION}\"" >> "$FILENAME"
+  fi
+  echo "configs = [
+  \"${SE_NODE_RELAY_MAX_SESSIONS}\", \"{\\\"browserName\\\": \\\"${SE_NODE_RELAY_BROWSER_NAME}\\\", \\\"platformName\\\": \\\"${SE_NODE_RELAY_PLATFORM_NAME}\\\", \\\"appium:platformVersion\\\": \\\"${SE_NODE_RELAY_PLATFORM_VERSION}\\\"}\"
+  ]
+  " >> "$FILENAME"
+fi

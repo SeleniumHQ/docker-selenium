@@ -1,0 +1,94 @@
+version: "3"
+services:
+  node-relay-emulator:
+    image: selenium/node-base:${TAG}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+      - appium-emulator
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_NODE_SESSION_TIMEOUT=${SESSION_TIMEOUT}
+      - SE_NODE_RELAY_URL=http://appium-emulator:4723
+      - SE_NODE_RELAY_PROTOCOL_VERSION=HTTP/1.1
+      - SE_NODE_RELAY_MAX_SESSIONS=1
+      - SE_NODE_RELAY_PLATFORM_NAME=Android
+      - SE_NODE_RELAY_PLATFORM_VERSION=${ANDROID_PLATFORM_API}
+      - SE_NODE_RELAY_BROWSER_NAME=chrome
+      - SE_NODE_RELAY_WEB_VNC=ws://appium-emulator:6080/websockify
+
+  node-relay-standalone:
+    image: selenium/node-base:${TAG}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+      - firefox-receiver
+    volumes:
+      - ./relay_config.toml:/opt/selenium/config.toml
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - GENERATE_CONFIG=false
+
+  selenium-hub:
+    image: selenium/hub:${TAG}
+    container_name: selenium-hub
+    environment:
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  tests:
+    image: docker-selenium-tests:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - selenium-hub
+    environment:
+      - RUN_IN_DOCKER_COMPOSE=true
+      - SELENIUM_GRID_HOST=selenium-hub
+      - BINDING_VERSION=${BINDING_VERSION}
+      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=false
+      - TEST_NODE_RELAY=${TEST_NODE_RELAY}
+      - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
+      - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
+    command: ["./bootstrap.sh", "${NODE}"]
+
+  firefox-receiver:
+    image: selenium/standalone-firefox:${TAG}
+    shm_size: 2gb
+    container_name: firefox-receiver
+
+  appium-emulator:
+    image: ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:latest
+    shm_size: 2gb
+    build:
+      args:
+        ANDROID_BASED_NAME: ${ANDROID_BASED_NAME}
+        ANDROID_BASED_IMAGE: ${ANDROID_BASED_IMAGE}
+        ANDROID_BASED_TAG: ${ANDROID_BASED_TAG}
+        CHROME_DRIVER_URL: https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip
+      dockerfile: ./Dockerfile.emulator
+    container_name: appium-emulator
+    environment:
+      - EMULATOR_DEVICE=Nexus 5
+      - WEB_VNC=true
+      - APPIUM=true
+      - WEB_LOG=true
+      - WEB_LOG_PORT=9001
+      - EMULATOR_NO_SKIN=true
+      - EMULATOR_NAME=emulator-5554
+    devices:
+      - /dev/kvm
+    ports:
+      - "6080:6080"
+      - "4723:4723"

@@ -183,6 +183,31 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No recorder config resources found")
 
+    def test_upload_conf_mount_to_video_container(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),
+                          '{0}selenium-edge-node'.format(RELEASE_NAME),
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME),]
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert upload config is mounted to the container")
+                video_container = None
+                uploader_container = None
+                for container in doc['spec']['template']['spec']['containers']:
+                    if container['name'] == 'video':
+                        video_container = container
+                    if container['name'] == 'uploader':
+                        uploader_container = container
+                list_volume_mounts = None
+                if uploader_container is not None:
+                    list_volume_mounts = uploader_container['volumeMounts']
+                else:
+                    list_volume_mounts = video_container['volumeMounts']
+                for volume in list_volume_mounts:
+                    if volume['mountPath'] == '/opt/bin/upload.conf':
+                        is_present = True
+        self.assertTrue(is_present, "Volume mount for upload config is not present in the container")
+
     def test_terminationGracePeriodSeconds_in_deployment_autoscaling(self):
         resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),]
         count = 0
