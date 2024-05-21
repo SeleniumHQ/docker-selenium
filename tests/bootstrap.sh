@@ -9,6 +9,7 @@ fi
 
 python -m pip install selenium==${BINDING_VERSION} \
                       docker===7.0.0 \
+                      requests===2.31.0 \
                       chardet \
                       | grep -v 'Requirement already satisfied'
 
