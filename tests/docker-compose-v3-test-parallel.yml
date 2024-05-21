@@ -4,10 +4,13 @@
 version: "3"
 services:
   chrome:
+    profiles:
+      - linux/amd64
+      - linux/arm64
     deploy:
       mode: replicated
       replicas: 10
-    image: selenium/node-chrome:${TAG}
+    image: selenium/node-${NODE_CHROME}:${TAG}
     user: ${UID}
     shm_size: 2gb
     depends_on:
@@ -21,6 +24,9 @@ services:
       - SE_LOG_LEVEL=${LOG_LEVEL}
 
   firefox:
+    profiles:
+      - linux/amd64
+      - linux/arm64
     deploy:
       mode: replicated
       replicas: 10
@@ -38,6 +44,8 @@ services:
       - SE_LOG_LEVEL=${LOG_LEVEL}
 
   edge:
+    profiles:
+      - linux/amd64
     deploy:
       mode: replicated
       replicas: 10
@@ -78,4 +86,5 @@ services:
       - SELENIUM_GRID_HOST=selenium-hub
       - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
       - BINDING_VERSION=${BINDING_VERSION}
+      - TEST_PLATFORMS=${PLATFORMS}
     command: ["./bootstrap.sh", "${NODE}"]

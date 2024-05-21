@@ -1,7 +1,10 @@
 version: "3"
 services:
   node-relay-emulator:
-    image: selenium/node-base:${TAG}
+    profiles:
+      - relay_appium
+    image: ${NAMESPACE}/node-base:${TAG}
+    container_name: node-relay-emulator
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -21,11 +24,12 @@ services:
       - SE_NODE_RELAY_WEB_VNC=ws://appium-emulator:6080/websockify
 
   node-relay-standalone:
-    image: selenium/node-base:${TAG}
+    image: ${NAMESPACE}/node-base:${TAG}
+    container_name: node-relay-standalone
     shm_size: 2gb
     depends_on:
       - selenium-hub
-      - firefox-receiver
+      - standalone-receiver
     volumes:
       - ./relay_config.toml:/opt/selenium/config.toml
     environment:
@@ -36,7 +40,7 @@ services:
       - GENERATE_CONFIG=false
 
   selenium-hub:
-    image: selenium/hub:${TAG}
+    image: ${NAMESPACE}/hub:${TAG}
     container_name: selenium-hub
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}
@@ -63,12 +67,15 @@ services:
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
     command: ["./bootstrap.sh", "${NODE}"]
 
-  firefox-receiver:
-    image: selenium/standalone-firefox:${TAG}
+  standalone-receiver:
+    image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
     shm_size: 2gb
-    container_name: firefox-receiver
+    container_name: standalone-receiver
 
   appium-emulator:
+    profiles:
+      - relay_appium
+    platform: linux/amd64
     image: ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:latest
     shm_size: 2gb
     build:

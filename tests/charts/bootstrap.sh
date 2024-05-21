@@ -8,7 +8,7 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 fi
 
-python -m pip install pyyaml==6.0.1 \
+python3 -m pip install pyyaml==6.0.1 \
                       | grep -v 'Requirement already satisfied'
 
 cd ..
@@ -23,7 +23,7 @@ helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml 
   --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_template_manifests.yaml
 
-python tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml" ${RELEASE_NAME}
+python3 tests/charts/templates/test.py "./tests/tests/dummy_template_manifests.yaml" ${RELEASE_NAME}
 if [ $? -ne 0 ]; then
   echo "Failed to validate the chart"
   exit 1
@@ -42,7 +42,7 @@ helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy_solut
   --set-file 'selenium-grid.uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   tests/tests/umbrella-charts-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_solution_template_manifests.yaml
 
-python tests/charts/templates/test.py "./tests/tests/dummy_solution_template_manifests.yaml" ${RELEASE_NAME}
+python3 tests/charts/templates/test.py "./tests/tests/dummy_solution_template_manifests.yaml" ${RELEASE_NAME}
 if [ $? -ne 0 ]; then
   echo "Failed to validate the umbrella chart"
   exit 1

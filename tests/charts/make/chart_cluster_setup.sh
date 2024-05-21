@@ -62,6 +62,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
 fi
 
 if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+  helm repo add kedacore https://kedacore.github.io/charts
   echo "Install KEDA core on kind kubernetes cluster"
   helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
 fi

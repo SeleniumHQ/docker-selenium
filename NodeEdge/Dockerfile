@@ -20,7 +20,7 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
   && if echo "${EDGE_VERSION}" | grep -qE "microsoft-edge-stable[_|=][0-9]*"; \
     then \
       EDGE_VERSION=$(echo "$EDGE_VERSION" | tr '=' '_') \
-      && wget -qO microsoft-edge.deb "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/${EDGE_VERSION}_${TARGETARCH}.deb" \
+      && wget -qO microsoft-edge.deb "https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable/${EDGE_VERSION}_$(dpkg --print-architecture).deb" \
       && apt-get -qqy --no-install-recommends install --allow-downgrades ./microsoft-edge.deb \
       && rm -rf microsoft-edge.deb ; \
     else \
@@ -42,15 +42,16 @@ RUN /opt/bin/wrap_edge_binary
 # Latest released version will be used by default
 #============================================
 ARG EDGE_DRIVER_VERSION
-RUN if [ -z "$EDGE_DRIVER_VERSION" ]; \
+RUN DRIVER_ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "linux64"; else echo "linux-aarch64"; fi) \
+  && if [ -z "$EDGE_DRIVER_VERSION" ]; \
   then EDGE_MAJOR_VERSION=$(microsoft-edge --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
     && EDGE_DRIVER_VERSION=$(wget --no-verbose -O - "https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION}_LINUX" | tr -cd "\11\12\15\40-\176" | tr -d "\r"); \
   fi \
   && echo "Using msedgedriver version: "$EDGE_DRIVER_VERSION \
-  && wget --no-verbose -O /tmp/msedgedriver_linux64.zip https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_linux64.zip \
+  && wget --no-verbose -O /tmp/msedgedriver_${DRIVER_ARCH}.zip https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_${DRIVER_ARCH}.zip \
   && rm -rf /opt/selenium/msedgedriver \
-  && unzip /tmp/msedgedriver_linux64.zip -d /opt/selenium \
-  && rm /tmp/msedgedriver_linux64.zip \
+  && unzip /tmp/msedgedriver_${DRIVER_ARCH}.zip -d /opt/selenium \
+  && rm /tmp/msedgedriver_${DRIVER_ARCH}.zip \
   && mv /opt/selenium/msedgedriver /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && chmod 755 /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION \
   && ln -fs /opt/selenium/msedgedriver-$EDGE_DRIVER_VERSION /usr/bin/msedgedriver

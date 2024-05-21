@@ -28,7 +28,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Contents](#contents)
 * [Quick start](#quick-start)
   * [Try them out in a ready-to-use GitPod environment!](#try-them-out-in-a-ready-to-use-gitpod-environment)
-* [Experimental Mult-Arch aarch64/armhf/amd64 Images](#experimental-mult-arch-aarch64armhfamd64-images)
+* [Experimental Multi-Arch amd64/aarch64/armhf Images](#experimental-multi-arch-amd64aarch64armhf-images)
 * [Nightly Images](#nightly-images)
 * [Dev and Beta Channel Browser Images](#dev-and-beta-channel-browser-images)
   * [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
@@ -111,104 +111,71 @@ See [Tagging Conventions](https://github.com/SeleniumHQ/docker-selenium/wiki/Tag
 
 ___
 
-## Experimental Mult-Arch aarch64/armhf/amd64 Images
+## Experimental Multi-Arch amd64/aarch64/armhf Images
 
-For experimental docker container images, which run on platforms such as the Mac M1 or Raspberry Pi, 
+For experimental docker container images, which run on platforms such as the Apple M-series or Raspberry Pi, 
 see the community-driven repository hosted at 
 [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).
 These images are built for three separate architectures: linux/arm64 (aarch64), linux/arm/v7 (armhf), 
-and linux/amd64. 
+and linux/amd64.
 
 Furthermore, these experimental container images are published on 
 [Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
 
 See issue [#1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
 
-If you're working on an Intel or AMD64 architecture, we recommend using the container images 
-in _this_ repository (SeleniumHQ/docker-selenium) instead of the experimental ones.
+Now, the fork [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm) was merged.
+From image tag based `4.21.0` onwards, the architectures supported by this project as below.
 
+|       Architecture        | Available |
+|:-------------------------:|:---------:|
+|    x86_64 (aka amd64)     |     ✅     |
+| aarch64 (aka arm64/armv8) |     ✅     |
+| armhf (aka arm32/armv7l)  |     ❌     |
 
-### Docker images for Selenium, built for Ubuntu ARM64, ARM/v7, and AMD64 
+### Build the multi-arch images locally
 
-This is a fork of [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium) for building and maintaining docker-selenium ARM images. This fork is inspired by and based on changes from [sj26/docker-selenium](https://github.com/sj26/docker-selenium) and [rows/docker-selenium](https://github.com/rows/docker-selenium). 
+Recommend to enable the experimental feature [containerd image store](https://docs.docker.com/storage/containerd/) in Docker Engine.
+`containerd` understands multiplatform images, where a single image tag can refer to different variants covering a range of OS and hardware architectures.
+It simplifies the process of building, storing, and distributing images across different platforms.
 
-#### Running the ARM Container Images
+A single command in project to enable that feature
 
-The primary motivation for creating this fork and updating the images was so I can use the noVNC client on the latest Selenium versions on the Mac M1, an arm64 architecture. To use noVNC, make sure you open port 7900, and visit localhost:7900 in your browser.
-
-The images are also successfully tested on AWS graviton nodes, resulting in better price-performance ratio and lower carbon footprint.
-
-To start the standalone container images, run:
-
-![Chromium](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chromium/chromium_24x24.png) Chromium
-```
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-chromium:latest
-```
-> NOTE: Google does not build Chrome for Linux ARM platforms. Instead, docker-seleniarm uses the open source Chromium browser instead, which _is_ built for ARM.
-
-![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox
-```
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g seleniarm/standalone-firefox:latest
+```bash
+make set_containerd_image_store
 ```
 
-Use your traditional VNC client via port 5900, and noVNC in the browser via port 7900.
+To build all the images for multiplatform, run the following command:
 
-The following multi-arch Seleniarm container images are available on [Docker Hub](https://hub.docker.com/u/seleniarm):
-
-- [Standalone Chromium](https://hub.docker.com/r/seleniarm/standalone-chromium)
-- [Standalone Firefox](https://hub.docker.com/r/seleniarm/standalone-firefox)
-- [Node Chromium](https://hub.docker.com/r/seleniarm/node-chromium)
-- [Node Firefox](https://hub.docker.com/r/seleniarm/node-firefox)
-- [Selenium Hub](https://hub.docker.com/r/seleniarm/hub)
-- [Distributor](https://hub.docker.com/r/seleniarm/distributor)
-- [Router](https://hub.docker.com/r/seleniarm/router)
-- [Node Docker](https://hub.docker.com/r/seleniarm/node-docker)
-- [Standalone Docker](https://hub.docker.com/r/seleniarm/standalone-docker)
-- [Event Bus](https://hub.docker.com/r/seleniarm/event-bus)
-- [Session Queue](https://hub.docker.com/r/seleniarm/session-queue)
-- [Sessions](https://hub.docker.com/r/seleniarm/sessions)
-- [NodeBase](https://hub.docker.com/r/seleniarm/node-base)
-- [Base](https://hub.docker.com/r/seleniarm/base)
-
-All of the images are here in order to run in standalone mode, full grid mode, and dynamic grid mode. However, browser binaries are only available for Chromium and Firefox.
-
-> NOTE: Google does not build Chrome for ARM on Linux. Instead, we use Chromium ARM.
-
-#### Building the ARM Images
-
-The entire build process is managed via a Makefile. If you want to build the images locally, without pushing to any registry, then use `make`. 
-
-#### Structure of container images:
-
-- The Standalone folder is the base for all Standalone${browser} images and includes a script that starts the selenium server in standalone mode. 
-- The NodeBase folder is the base for all Node${browser} images and includes a script that starts the selenium server in node mode.
-
-To build with a different version of Chromium, change it in NodeChromium/Dockerfile.
-
-To build the images, run the following make command from the root directory of this repo, and specify your architecture, either arm64, arm/v7, or amd64:
-
-**To build all arm64 images:**
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make build_multi
+```bash
+PLATFORMS=linux/amd64,linux/arm64 make build
 ```
 
-**To build standalone/firefox for arm64:**
+To build the images for a specific platform, run the following command:
 
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_firefox_multi
-```
-
-**To build standalone/chromium for arm64:**
-
-```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm64 BUILD_ARGS=--load make standalone_chromium_multi
+```bash
+PLATFORMS=linux/arm64 make build
 ```
 
-To build for armv7l/armhf, replace PLATFORMS environment variable with `linux/arm/v7` like so:
+By default, without specifying the `PLATFORMS` variable, the images are built for the `linux/amd64` platform.
 
+### Browser images in multi-arch
+
+- Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
+Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
+
+- Instead, the open source Chromium browser is used, which is built for Linux/ARM. The Chromium (node and standalone) images are available in multi-arch.
+
+```bash
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selenium/standalone-chromium:latest
 ```
-$ NAME=local-seleniarm VERSION=4.5.0 BUILD_DATE=$(date '+%Y%m%d') PLATFORMS=linux/arm/v7 BUILD_ARGS=--load make standalone_chromium_multi
-```
+
+- Mozilla Firefox now is available for Linux/ARM64 via [Nightly channel](https://blog.nightly.mozilla.org/2024/04/19/firefox-nightly-now-available-for-linux-on-arm64/).
+The Firefox version in ARM64 will be different with the AMD64 until the stable release is available. The Firefox (node and standalone) images are available in multi-arch.
+
+Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.
+
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/SeleniumHQ/docker-selenium/tree/trunk.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/SeleniumHQ/docker-selenium/tree/trunk)
 
 ___
 
@@ -1393,7 +1360,7 @@ to tweak it and establish a timeout.
 Let's say that the normal command to execute your tests is `mvn clean test`. Here is a way to use the above script and execute your tests:
 
 ```bash
-$ ./wait-for-grid.sh mvn clean test
+$ ./wait-for-grid.sh && mvn clean test
 ```
 
 Like this, the script will poll until the Grid is ready, and then your tests will start.

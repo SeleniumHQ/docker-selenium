@@ -15,9 +15,11 @@ USER root
 #================================================
 # Customize sources for apt-get
 #================================================
-RUN  echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-  && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-  && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list
+RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+      echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
+      && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
+      && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list ; \
+    fi
 
 # No interactive frontend during docker build
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -30,11 +32,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip \
-  && python3 -m pip install --upgrade pip \
-  && python3 -m pip install --upgrade setuptools \
-  && python3 -m pip install --upgrade wheel \
-  && python3 -m pip install psutil \
+    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip python3-psutil \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
@@ -77,9 +75,9 @@ COPY --chown="${SEL_UID}:${SEL_GID}" entry_point.sh video.sh video_ready.py vide
 #======================================
 # Add RCLONE for uploading videos
 #======================================
-RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSION}-linux-amd64.zip \
+RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSION}-linux-$(dpkg --print-architecture).zip \
   && unzip -a /tmp/rclone.zip -d /tmp \
-  && mv /tmp/rclone-*-linux-amd64/rclone /usr/local/bin/ \
+  && mv /tmp/rclone-*-linux-*/rclone /usr/local/bin/ \
   && rm -rf /tmp/rclone-*
 COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
 ENV SE_VIDEO_UPLOAD_ENABLED false

@@ -1,9 +1,3 @@
-## :heavy_check_mark: selenium-grid-0.31.1
-
-- Chart is using image tag 4.21.0-20240521
-- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.13, v1.28.9, v1.29.4, v1.30.0, 
-- Chart is tested on Helm versions: v3.10.3, v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, 
-
 ## :heavy_check_mark: selenium-grid-0.31.0
 
 - Chart is using image tag 4.21.0-20240517

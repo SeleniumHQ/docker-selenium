@@ -22,19 +22,28 @@ FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firef
 GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
 FFMPEG_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
 RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} rclone version | head -n 1 | awk '{print $2}')
+JRE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} java --version | grep -oP '\b\d+\.\d+\.\d+\b' | head -1)
+FIREFOX_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
+CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
+CHROMIUMDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 
 
 echo "" >> release_notes.md
 echo "### Released versions" >> release_notes.md
-echo "* Selenium: ${GRID_VERSION}" >> release_notes.md
-echo "* Chrome: ${CHROME_VERSION}" >> release_notes.md
-echo "* ChromeDriver: ${CHROMEDRIVER_VERSION}" >> release_notes.md
-echo "* Edge: ${EDGE_VERSION}" >> release_notes.md
-echo "* EdgeDriver: ${EDGEDRIVER_VERSION}" >> release_notes.md
-echo "* Firefox: ${FIREFOX_VERSION}" >> release_notes.md
-echo "* GeckoDriver: ${GECKODRIVER_VERSION}" >> release_notes.md
-echo "* ffmpeg: ${FFMPEG_VERSION}" >> release_notes.md
-echo "* rclone: ${RCLONE_VERSION}" >> release_notes.md
+echo "| Components | x86_64 (amd64) | aarch64 (arm64/armv8) |" >> release_notes.md
+echo "|:----------:|:--------------:|:---------------------:|" >> release_notes.md
+echo "| Selenium | ${GRID_VERSION} | ${GRID_VERSION} |" >> release_notes.md
+echo "| Chrome | ${CHROME_VERSION} | x |" >> release_notes.md
+echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | x |" >> release_notes.md
+echo "| Edge | ${EDGE_VERSION} | x |" >> release_notes.md
+echo "| EdgeDriver | ${EDGEDRIVER_VERSION} | x |" >> release_notes.md
+echo "| Chromium | ${CHROMIUM_VERSION} | ${CHROMIUM_VERSION} |" >> release_notes.md
+echo "| ChromiumDriver | ${CHROMIUMDRIVER_VERSION} | ${CHROMIUMDRIVER_VERSION} |" >> release_notes.md
+echo "| Firefox | ${FIREFOX_VERSION} | ${FIREFOX_ARM64_VERSION} |" >> release_notes.md
+echo "| GeckoDriver | ${GECKODRIVER_VERSION} | ${GECKODRIVER_VERSION} |" >> release_notes.md
+echo "| ffmpeg | ${FFMPEG_VERSION} | ${FFMPEG_VERSION} |" >> release_notes.md
+echo "| rclone | ${RCLONE_VERSION} | ${RCLONE_VERSION} |" >> release_notes.md
+echo "| Java Runtime | ${JRE_VERSION} | ${JRE_VERSION} |" >> release_notes.md
 
 echo "" >> release_notes.md
 echo "### Published Docker images" >> release_notes.md
@@ -42,7 +51,7 @@ echo "<details>" >> release_notes.md
 echo "<summary>Click to see published Docker images</summary>" >> release_notes.md
 echo "" >> release_notes.md
 echo '```' >> release_notes.md
-docker images --filter=reference=${NAMESPACE}'/*:'${FILTER_IMAGE_TAG:-"*"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >> release_notes.md
+docker images --filter=reference=${NAMESPACE}'/*:'${FILTER_IMAGE_TAG:-"*${BUILD_DATE}"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" | sort -k 4 -h >> release_notes.md
 echo '```' >> release_notes.md
 echo "" >> release_notes.md
 echo "</details>" >> release_notes.md

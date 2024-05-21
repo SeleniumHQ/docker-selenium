@@ -4,6 +4,7 @@ import random
 import sys
 import unittest
 import re
+import platform
 
 import docker
 from docker.errors import NotFound
@@ -20,6 +21,9 @@ http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
 SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
+PLATFORMS = os.environ.get('PLATFORMS', 'linux/amd64')
+BASE_VERSION = os.environ.get('BASE_VERSION')
+BASE_RELEASE = os.environ.get('BASE_RELEASE')
 
 try:
     client = docker.from_env()
@@ -73,8 +77,19 @@ TEST_NAME_MAP = {
 
 FROM_IMAGE_ARGS = {
     'NAMESPACE': NAMESPACE,
-    'VERSION': VERSION
+    'VERSION': VERSION,
+    'BASE_VERSION': BASE_VERSION,
+    'BASE_RELEASE': BASE_RELEASE,
 }
+
+def get_platform():
+    os_arch = platform.machine()
+    if os_arch == 'x86_64':
+        os_arch = 'linux/amd64'
+    else:
+        os_arch = 'linux/arm64'
+    logger.info("Current OS platform: %s" % os_arch)
+    return os_arch
 
 def launch_hub(network_name):
     """
@@ -112,7 +127,7 @@ def launch_hub(network_name):
 
 
 def create_network(network_name):
-    client.networks.create(network_name, driver="bridge")
+    client.networks.create(network_name, driver="bridge", check_duplicate=True)
 
 
 def prune_networks():
@@ -129,15 +144,20 @@ def launch_container(container, **kwargs):
     if skip_building_images:
         logger.info("SKIP_BUILD is true...not rebuilding images...")
     else:
-        # Build the container if it doesn't exist
-        logger.info("Building %s container..." % container)
-        set_from_image_base_for_standalone(container)
-        build_path = get_build_path(container)
-        client.images.build(path='../%s' % build_path,
-                            tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                            rm=True,
-                            buildargs=FROM_IMAGE_ARGS)
-        logger.info("Done building %s" % container)
+        PLATFORM_LIST = PLATFORMS.split(',')
+        for PLATFORM in PLATFORM_LIST:
+            if get_platform() != PLATFORM:
+                continue
+            # Build the container if it doesn't exist
+            logger.info("Building %s container in platform %s..." % (container, PLATFORM))
+            set_from_image_base_for_standalone(container)
+            build_path = get_build_path(container)
+            client.images.build(path='../%s' % build_path,
+                                tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                                rm=True,
+                                buildargs=FROM_IMAGE_ARGS,
+                                platform=PLATFORM,)
+            logger.info("Done building %s" % container)
 
     # Run the container
     logger.info("Running %s container..." % container)
