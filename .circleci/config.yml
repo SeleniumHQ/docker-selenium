@@ -213,6 +213,6 @@ jobs:
           command: |
             make test_video_integrity
       - run:
-          name: "Cleanup Kubernetes environment"
+          name: "Clean-up Kubernetes environment"
           command: |
             CLUSTER=${CLUSTER} make chart_cluster_cleanup
