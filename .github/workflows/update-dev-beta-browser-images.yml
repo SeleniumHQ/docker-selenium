@@ -30,6 +30,8 @@ jobs:
       with:
         platforms: linux/amd64,linux/arm64
         use: false
+    - name: Set up containerd image store feature
+      run: make set_containerd_image_store
     - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)

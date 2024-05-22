@@ -8,13 +8,18 @@ on:
         required: false
         type: boolean
         default: false
+      skip-test:
+        description: 'Skip the tests'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - trunk
 
 jobs:
   build-test:
-    if: contains(toJson(github.event.commits), '[deploy]') == true || github.event_name == 'workflow_dispatch'
+    if: contains(toJson(github.event.commits), '[deploy]') == true || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
     with:
       release: ${{ github.event.inputs.release == 'true' }}
@@ -22,7 +27,7 @@ jobs:
   deploy:
     needs:
       - build-test
-    if: contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true')
+    if: contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true' && !failure() && !cancelled())
     name: Deploy Docker images
     runs-on: ubuntu-latest
     permissions: write-all
@@ -32,19 +37,22 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@master
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@master
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
         with:
-          platforms: linux/amd64,linux/arm64
-          use: false
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make chart_setup_env
+            make set_containerd_image_store
       - name: Output Docker info
         run: docker info
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+          make set_build_multiarch
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
@@ -60,8 +68,6 @@ jobs:
         if: contains(toJson(github.event.commits), '[prerelease]') == true
       - name: Display Grid version
         run: echo ${GRID_VERSION}
-      - name: Remove local Docker tag
-        run: docker rmi ${NAME}/base:local-${BUILD_DATE}
       - name: Sets env var for the next tag
         run: echo "NEXT_TAG=${GRID_VERSION}-${BUILD_DATE}" >> $GITHUB_ENV
       - name: Get latest tag
@@ -75,10 +81,10 @@ jobs:
       - name: Build images
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 12
+          timeout_minutes: 45
           max_attempts: 3
           retry_wait_seconds: 60
-          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+          command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:

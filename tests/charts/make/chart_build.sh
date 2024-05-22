@@ -17,9 +17,12 @@ if [ "${CI:-false}" = "false" ]; then
   pip3 install virtualenv | grep -v 'Requirement already satisfied'
   virtualenv docker-selenium-tests
   source docker-selenium-tests/bin/activate
+else
+  export PATH=$PATH:/home/$USER/.local/bin
+  pip3 install -U yamale yamllint
 fi
 
-python -m pip install yamale==4.0.4 \
+python3 -m pip install yamale==4.0.4 \
                       yamllint==1.33.0 \
                       | grep -v 'Requirement already satisfied'
 

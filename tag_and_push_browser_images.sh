@@ -65,6 +65,52 @@ chrome)
     fi
   done
 
+;;
+chromium)
+  CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
+  echo "Chromium version -> "${CHROMIUM_VERSION}
+  CHROMIUM_SHORT_VERSION="$(short_version ${CHROMIUM_VERSION})"
+  echo "Short Chromium version -> "${CHROMIUM_SHORT_VERSION}
+
+  CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+  echo "ChromeDriver version -> "${CHROMEDRIVER_VERSION}
+  CHROMEDRIVER_SHORT_VERSION="$(short_version ${CHROMEDRIVER_VERSION})"
+  echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
+
+  CHROMIUM_TAGS=(
+      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
+      # Browser version and browser driver version plus build date
+      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
+      # Browser version and browser driver version
+      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}
+      # Browser version and build date
+      ${CHROMIUM_VERSION}-${BUILD_DATE}
+      # Browser version
+      ${CHROMIUM_VERSION}
+      ## Short versions
+      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+      # Browser version and browser driver version plus build date
+      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+      # Browser version and browser driver version
+      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}
+      # Browser version and build date
+      ${CHROMIUM_SHORT_VERSION}-${BUILD_DATE}
+      # Browser version
+      ${CHROMIUM_SHORT_VERSION}
+  )
+
+  for chromium_tag in "${CHROMIUM_TAGS[@]}"
+  do
+    docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chromium_tag}
+    docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chromium_tag}
+    echo "Tagged ${NAMESPACE}/node-chromium:${chromium_tag}"
+    echo "Tagged ${NAMESPACE}/standalone-chromium:${chromium_tag}"
+    if [ "${PUSH_IMAGE}" = true ]; then
+        docker push ${NAMESPACE}/node-chromium:${chromium_tag}
+        docker push ${NAMESPACE}/standalone-chromium:${chromium_tag}
+    fi
+  done
+
   ;;
 edge)
   EDGE_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')

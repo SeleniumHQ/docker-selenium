@@ -23,6 +23,7 @@ TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').low
 TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
 TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
 TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
+TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/adm64')
 
 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
     SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
@@ -137,6 +138,9 @@ class ChromeTests(SeleniumGenericTests):
                 options.set_capability('appium:deviceName', 'emulator-5554')
                 options.set_capability('appium:automationName', 'uiautomator2')
                 options.set_capability('appium:browserName', 'chrome')
+                options.set_capability('appium:adbExecTimeout', 120000)
+                options.set_capability('appium:uiautomator2ServerInstallTimeout', 120000)
+                options.set_capability('appium:appWaitDuration', 120000)
             else:
                 options.set_capability('platformName', 'Linux')
             start_time = time.time()
@@ -248,19 +252,27 @@ class Autoscaling():
 class DeploymentAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
+        platform = TestPlatform()
         if not TEST_PARALLEL_HARDENING:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests])
+            runner.run(platform.add_test_based_platform(1))
         else:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
-                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
-                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,])
+            runner.run(platform.add_test_based_platform(9))
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
+        platform = TestPlatform()
         if not TEST_PARALLEL_HARDENING:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests])
+            runner.run(platform.add_test_based_platform(1))
         else:
-            runner.run([FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
-                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,
-                        FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests, FirefoxTests, EdgeTests, ChromeTests,])
+            runner.run(platform.add_test_based_platform(9))
+
+class TestPlatform:
+    def add_test_based_platform(self, repeat):
+        tests = []
+        for i in range(repeat):
+            if TEST_PLATFORMS == 'linux/amd64':
+                tests.extend([FirefoxTests, ChromeTests, EdgeTests])
+            else:
+                tests.extend([FirefoxTests, ChromeTests])
+        return tests

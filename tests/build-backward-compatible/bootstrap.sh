@@ -7,7 +7,7 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 fi
 
-python -m pip install pyyaml==6.0.1 \
+python3 -m pip install pyyaml==6.0.1 \
                       | grep -v 'Requirement already satisfied'
 
 cd ..
@@ -20,7 +20,7 @@ PUSH_IMAGE=${4:-"false"}
 IFS=',' read -ra VERSION_LIST <<< "$CDP_VERSIONS"
 
 for CDP_VERSION in "${VERSION_LIST[@]}"; do
-  python tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION}
+  python3 tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION}
   export $(cat .env | xargs)
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ]; then
     if [ -n "${FIREFOX_VERSION}" ]; then

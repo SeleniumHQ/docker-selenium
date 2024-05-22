@@ -4,6 +4,7 @@ import random
 import sys
 import unittest
 import re
+import platform
 
 import docker
 from docker.errors import NotFound
@@ -20,6 +21,9 @@ http_proxy = os.environ.get('http_proxy', '')
 https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
 SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
+PLATFORMS = os.environ.get('PLATFORMS', 'linux/amd64')
+BASE_VERSION = os.environ.get('BASE_VERSION')
+BASE_RELEASE = os.environ.get('BASE_RELEASE')
 
 try:
     client = docker.from_env()
@@ -41,6 +45,10 @@ IMAGE_NAME_MAP = {
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
+
+    # Chromium Images
+    'NodeChromium': 'node-chromium',
+    'StandaloneChromium': 'standalone-chromium',
 }
 
 TEST_NAME_MAP = {
@@ -58,6 +66,10 @@ TEST_NAME_MAP = {
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
 
+    # Chromium Images
+    'NodeChromium': 'ChromeTests',
+    'StandaloneChromium': 'ChromeTests',
+
     # Chart Parallel Test
     'JobAutoscaling': 'JobAutoscalingTests',
     'DeploymentAutoscaling': 'DeploymentAutoscalingTests',
@@ -65,8 +77,19 @@ TEST_NAME_MAP = {
 
 FROM_IMAGE_ARGS = {
     'NAMESPACE': NAMESPACE,
-    'VERSION': VERSION
+    'VERSION': VERSION,
+    'BASE_VERSION': BASE_VERSION,
+    'BASE_RELEASE': BASE_RELEASE,
 }
+
+def get_platform():
+    os_arch = platform.machine()
+    if os_arch == 'x86_64':
+        os_arch = 'linux/amd64'
+    else:
+        os_arch = 'linux/arm64'
+    logger.info("Current OS platform: %s" % os_arch)
+    return os_arch
 
 def launch_hub(network_name):
     """
@@ -104,7 +127,7 @@ def launch_hub(network_name):
 
 
 def create_network(network_name):
-    client.networks.create(network_name, driver="bridge")
+    client.networks.create(network_name, driver="bridge", check_duplicate=True)
 
 
 def prune_networks():
@@ -121,15 +144,20 @@ def launch_container(container, **kwargs):
     if skip_building_images:
         logger.info("SKIP_BUILD is true...not rebuilding images...")
     else:
-        # Build the container if it doesn't exist
-        logger.info("Building %s container..." % container)
-        set_from_image_base_for_standalone(container)
-        build_path = get_build_path(container)
-        client.images.build(path='../%s' % build_path,
-                            tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
-                            rm=True,
-                            buildargs=FROM_IMAGE_ARGS)
-        logger.info("Done building %s" % container)
+        PLATFORM_LIST = PLATFORMS.split(',')
+        for PLATFORM in PLATFORM_LIST:
+            if get_platform() != PLATFORM:
+                continue
+            # Build the container if it doesn't exist
+            logger.info("Building %s container in platform %s..." % (container, PLATFORM))
+            set_from_image_base_for_standalone(container)
+            build_path = get_build_path(container)
+            client.images.build(path='../%s' % build_path,
+                                tag="%s/%s:%s" % (NAMESPACE, IMAGE_NAME_MAP[container], VERSION),
+                                rm=True,
+                                buildargs=FROM_IMAGE_ARGS,
+                                platform=PLATFORM,)
+            logger.info("Done building %s" % container)
 
     # Run the container
     logger.info("Running %s container..." % container)
@@ -168,7 +196,7 @@ def get_build_path(container):
 
 
 def standalone_browser_container_matches(container):
-    return re.match("(Standalone)(Chrome|Firefox|Edge)", container)
+    return re.match("(Standalone)(Chromium|Chrome|Firefox|Edge)", container)
 
 
 if __name__ == '__main__':
@@ -199,9 +227,9 @@ if __name__ == '__main__':
             """
             ports = {'4444': 4444}
             if use_random_user_id:
-                test_container_id = launch_container(image, ports=ports, user=random_user_id)
+               test_container_id = launch_container(image, ports=ports, user=random_user_id)
             else:
-                test_container_id = launch_container(image, ports=ports)
+               test_container_id = launch_container(image, ports=ports)
         else:
             """
             Hub / Node Configuration
@@ -211,9 +239,9 @@ if __name__ == '__main__':
             hub_id = launch_hub("grid")
             ports = {'5555': 5555, '7900': 7900}
             if use_random_user_id:
-                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
+               test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
             else:
-                test_container_id = launch_container(image, network='grid', ports=ports)
+               test_container_id = launch_container(image, network='grid', ports=ports)
             prune_networks()
 
         logger.info('========== / Containers ready to go ==========')
@@ -251,13 +279,13 @@ if __name__ == '__main__':
         test_container.remove()
 
         if standalone:
-            logger.info("Standalone Cleaned up")
+           logger.info("Standalone Cleaned up")
         else:
-            # Kill the launched hub
-            hub = client.containers.get(hub_id)
-            hub.kill()
-            hub.remove()
-            logger.info("Hub / Node Cleaned up")
+           # Kill the launched hub
+           hub = client.containers.get(hub_id)
+           hub.kill()
+           hub.remove()
+           logger.info("Hub / Node Cleaned up")
 
     if failed:
         exit(1)

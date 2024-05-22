@@ -1,0 +1,218 @@
+version: 2.1
+
+workflows:
+  build-and-test-multi-arch:
+    jobs:
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.25.16'
+          test-strategy: disabled
+          cluster: 'minikube'
+          helm-version: 'v3.10.3'
+          test-existing-keda: false
+          test-upgrade: true
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.26.15'
+          test-strategy: job
+          cluster: 'minikube'
+          helm-version: 'v3.11.3'
+          test-existing-keda: true
+          test-upgrade: true
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.27.14'
+          test-strategy: deployment
+          cluster: 'minikube'
+          helm-version: 'v3.12.3'
+          test-existing-keda: true
+          test-upgrade: true
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.28.10'
+          test-strategy: job_https
+          cluster: 'minikube'
+          helm-version: 'v3.13.3'
+          test-existing-keda: true
+          test-upgrade: true
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.29.5'
+          test-strategy: job_hostname
+          cluster: 'minikube'
+          helm-version: 'v3.14.4'
+          test-existing-keda: false
+          test-upgrade: true
+      - kubernetes-test:
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.30.1'
+          test-strategy: deployment_https
+          cluster: 'minikube'
+          helm-version: 'v3.15.0'
+          test-existing-keda: false
+          test-upgrade: true
+      - docker-test:
+          test-strategy: test
+          use-random-user: true
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test_video
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test_video_dynamic_name
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test_node_docker
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test_parallel
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
+          test-strategy: test_node_relay
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+
+executors:
+  ubuntu2204arm64:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: arm.medium
+  ubuntu2204arm64large:
+    machine:
+      image: ubuntu-2204:current
+    resource_class: arm.large
+
+jobs:
+  docker-test:
+    parameters:
+      platforms:
+        type: string
+      machine-type:
+        type: executor
+      test-strategy:
+        type: string
+      use-random-user:
+        type: boolean
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: selenium
+      BUILD_DATE: today
+      PLATFORMS: << parameters.platforms >>
+      TEST_STRATEGY: << parameters.test-strategy >>
+      USE_RANDOM_USER: << parameters.use-random-user >>
+    steps:
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo 'export BRANCH="${CIRCLE_BRANCH//\//-}"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: "Print system info"
+          command: |
+            uname -a
+            docker info
+      - checkout
+      - run:
+          name: "Build Docker images"
+          command: |
+            PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - run:
+          name: "Test Docker images"
+          command: |
+            USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY}
+
+  kubernetes-test:
+    parameters:
+      platforms:
+        type: string
+      machine-type:
+        type: executor
+      k8s-version:
+        type: string
+      test-strategy:
+        type: string
+      cluster:
+        type: string
+      helm-version:
+        type: string
+      test-existing-keda:
+        type: boolean
+      test-upgrade:
+        type: boolean
+    executor: << parameters.machine-type >>
+    environment:
+      NAMESPACE: selenium
+      BUILD_DATE: today
+      PLATFORMS: << parameters.platforms >>
+      TEST_STRATEGY: << parameters.test-strategy >>
+      CLUSTER: << parameters.cluster >>
+      KUBERNETES_VERSION: << parameters.k8s-version >>
+      HELM_VERSION: << parameters.helm-version >>
+      TEST_EXISTING_KEDA: << parameters.test-existing-keda >>
+      TEST_UPGRADE_CHART: << parameters.test-upgrade >>
+    steps:
+      - run:
+          name: "Prepare workflow environment variables"
+          command: |
+            echo 'export BRANCH="${CIRCLE_BRANCH//\//-}"' >> $BASH_ENV
+            cat $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: "Print system info"
+          command: |
+            uname -a
+            docker info
+      - checkout
+      - run:
+          name: "Set up Kubernetes environment"
+          command: |
+            make chart_setup_env
+            make set_containerd_image_store
+            CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${NAMESPACE} VERSION=${BRANCH} \
+            BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_cluster_setup
+      - run:
+          name: "Build Docker images"
+          command: |
+            PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - run:
+          name: "Build Helm charts"
+          command: |
+            BUILD_DATE=${BUILD_DATE} make chart_build
+            echo "export CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $BASH_ENV
+            echo "export CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: "Test Selenium Grid on Kubernetes"
+          command: |
+            PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
+            TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY}
+      - run:
+          name: "Check video integrity"
+          command: |
+            make test_video_integrity
+      - run:
+          name: "Cleanup Kubernetes environment"
+          command: |
+            CLUSTER=${CLUSTER} make chart_cluster_cleanup
