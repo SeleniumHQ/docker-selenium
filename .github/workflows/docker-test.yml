@@ -66,6 +66,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@main
       - name: Set up containerd image store feature
+        if: matrix.test-strategy != 'test_node_relay'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 10
