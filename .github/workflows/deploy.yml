@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-commit:
+        description: 'Skip the commit'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - trunk
@@ -121,18 +126,27 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_release: true
       - name: Commit files
+        if: env.LATEST_TAG != env.NEXT_TAG && github.event.inputs.skip-commit != 'true'
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
           git commit -m "Update tag in docs and files" -a
       - name: Push changes
+        if: env.LATEST_TAG != env.NEXT_TAG && github.event.inputs.skip-commit != 'true'
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           branch: trunk
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+      - name: Upload release notes
+        uses: actions/upload-artifact@main
+        with:
+          name: release_notes
+          path: ./release_notes.md
+          if-no-files-found: ignore
       - name: Create Release
+        if: env.LATEST_TAG != env.NEXT_TAG && github.event.inputs.skip-commit != 'true'
         id: create_release
         uses: softprops/action-gh-release@master
         with:
