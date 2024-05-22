@@ -1,37 +1,12 @@
-version: "3"
 services:
-  node-relay-emulator:
-    profiles:
-      - relay_appium
-    image: ${NAMESPACE}/node-base:${TAG}
-    container_name: node-relay-emulator
-    shm_size: 2gb
-    depends_on:
-      - selenium-hub
-      - appium-emulator
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_LOG_LEVEL=${LOG_LEVEL}
-      - SE_NODE_SESSION_TIMEOUT=${SESSION_TIMEOUT}
-      - SE_NODE_RELAY_URL=http://appium-emulator:4723
-      - SE_NODE_RELAY_PROTOCOL_VERSION=HTTP/1.1
-      - SE_NODE_RELAY_MAX_SESSIONS=1
-      - SE_NODE_RELAY_PLATFORM_NAME=Android
-      - SE_NODE_RELAY_PLATFORM_VERSION=${ANDROID_PLATFORM_API}
-      - SE_NODE_RELAY_BROWSER_NAME=chrome
-      - SE_NODE_RELAY_WEB_VNC=ws://appium-emulator:6080/websockify
-
   node-relay-standalone:
     image: ${NAMESPACE}/node-base:${TAG}
-    container_name: node-relay-standalone
     shm_size: 2gb
     depends_on:
       - selenium-hub
-      - standalone-receiver
+      - standalone
     volumes:
-      - ./relay_config.toml:/opt/selenium/config.toml
+      - ./videos/relay_config.toml:/opt/selenium/config.toml
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -39,9 +14,12 @@ services:
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - GENERATE_CONFIG=false
 
+  standalone:
+    image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
+    shm_size: 2gb
+
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
-    container_name: selenium-hub
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
@@ -51,7 +29,7 @@ services:
       - "4444:4444"
 
   tests:
-    image: docker-selenium-tests:latest
+    image: docker-selenium-tests:${TAG}
     build:
       context: ./
       dockerfile: ./Dockerfile
@@ -67,16 +45,32 @@ services:
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
     command: ["./bootstrap.sh", "${NODE}"]
 
-  standalone-receiver:
-    image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
-    shm_size: 2gb
-    container_name: standalone-receiver
-
-  appium-emulator:
+  node-relay-emulator:
     profiles:
-      - relay_appium
-    platform: linux/amd64
-    image: ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:latest
+      - Android
+    image: ${NAMESPACE}/node-base:${TAG}
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+      - emulator
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_NODE_SESSION_TIMEOUT=${SESSION_TIMEOUT}
+      - SE_NODE_RELAY_URL=http://emulator:4723
+      - SE_NODE_RELAY_PROTOCOL_VERSION=HTTP/1.1
+      - SE_NODE_RELAY_MAX_SESSIONS=1
+      - SE_NODE_RELAY_PLATFORM_NAME=Android
+      - SE_NODE_RELAY_PLATFORM_VERSION=${ANDROID_PLATFORM_API}
+      - SE_NODE_RELAY_BROWSER_NAME=chrome
+      - SE_NODE_RELAY_WEB_VNC=ws://emulator:6080/websockify
+
+  emulator:
+    profiles:
+      - Android
+    image: ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:${TAG}
     shm_size: 2gb
     build:
       args:
@@ -85,7 +79,6 @@ services:
         ANDROID_BASED_TAG: ${ANDROID_BASED_TAG}
         CHROME_DRIVER_URL: https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip
       dockerfile: ./Dockerfile.emulator
-    container_name: appium-emulator
     environment:
       - EMULATOR_DEVICE=Nexus 5
       - WEB_VNC=true
@@ -96,6 +89,3 @@ services:
       - EMULATOR_NAME=emulator-5554
     devices:
       - /dev/kvm
-    ports:
-      - "6080:6080"
-      - "4723:4723"

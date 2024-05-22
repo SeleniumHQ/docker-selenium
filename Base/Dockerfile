@@ -6,8 +6,8 @@ ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 ARG AUTHORS=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.36.0
-ARG GRPC_VERSION=1.62.2
+ARG OPENTELEMETRY_VERSION=1.38.0
+ARG GRPC_VERSION=1.64.0
 ARG CS_VERSION=2.1.10
 
 #Arguments to define the user running Selenium
