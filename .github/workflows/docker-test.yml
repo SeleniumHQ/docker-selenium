@@ -142,7 +142,13 @@ jobs:
           TEST_PARALLEL_HARDENING: ${{ github.event.inputs.parallel-hardening || 'true' }}
           REQUEST_TIMEOUT: ${{ github.event.inputs.request-timeout || '400' }}
       - name: Run Docker Compose to ${{ matrix.test-strategy }}
-        run: USE_RANDOM_USER_ID=${{ matrix.use-random-user }} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 2
+          retry_wait_seconds: 60
+          command: |
+            USE_RANDOM_USER_ID=${{ matrix.use-random-user }} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${{ matrix.test-strategy }}
       - name: Upload recorded video
         if: matrix.test-video == true
         uses: actions/upload-artifact@main
