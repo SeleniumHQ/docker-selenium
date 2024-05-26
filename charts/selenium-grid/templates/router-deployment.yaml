@@ -23,6 +23,7 @@ spec:
       annotations:
         checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
         checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+        checksum/router-configmap: {{ include (print $.Template.BasePath "/router-configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
     {{- with .Values.components.router.annotations }}
         {{- toYaml . | nindent 8 }}
@@ -77,6 +78,11 @@ spec:
               {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
+          {{- range $fileName, $value := $.Values.routerConfigMap.extraScripts }}
+            - name: {{ tpl (default (include "seleniumGrid.router.configmap.fullname" $) $.Values.routerConfigMap.scriptVolumeMountName) $ | quote }}
+              mountPath: {{ $.Values.routerConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+              subPath: {{ $fileName }}
+          {{- end }}
           {{- if .Values.tls.enabled }}
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
               mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
@@ -122,6 +128,9 @@ spec:
           {{- with .Values.components.router.livenessProbe }}
           {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
             {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
+          {{- else if eq $.Values.global.seleniumGrid.defaultComponentLivenessProbe "exec" }}
+            exec:
+              command: ["bash", "-c", "{{ $.Values.routerConfigMap.extraScriptsDirectory }}/routerProbe.sh Liveness {{ include "seleniumGrid.probe.stdout" $ }}"]
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -157,6 +166,10 @@ spec:
       priorityClassName: {{ . }}
     {{- end }}
       volumes:
+        - name: {{ tpl (default (include "seleniumGrid.router.configmap.fullname" $) $.Values.routerConfigMap.scriptVolumeMountName) $ | quote }}
+          configMap:
+            name: {{ template "seleniumGrid.router.configmap.fullname" $ }}
+            defaultMode: {{ $.Values.routerConfigMap.defaultMode }}
       {{- if .Values.tls.enabled }}
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:

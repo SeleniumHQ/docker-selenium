@@ -23,7 +23,10 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
       * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
-      * [Probes](#probes)
+    * [Configuration of Probes](#configuration-of-probes)
+      * [Node Probes](#node-probes)
+      * [Distributor Probes](#distributor-probes)
+      * [Router Probes](#router-probes)
     * [Configuration extra scripts mount to container](#configuration-extra-scripts-mount-to-container)
     * [Configuration of video recorder and video uploader](#configuration-of-video-recorder-and-video-uploader)
       * [Video recorder](#video-recorder)
@@ -299,20 +302,20 @@ ingress-nginx:
 ### Configuration global
 For now, global configuration supported is:
 
-| Parameter                                      | Default                 | Description                              |
-|------------------------------------------------|-------------------------|------------------------------------------|
-| `global.K8S_PUBLIC_IP`                         | `""`                    | Public IP of the host running K8s        |
-| `global.seleniumGrid.imageRegistry`            | `selenium`              | Distribution registry to pull images     |
-| `global.seleniumGrid.imageTag`                 | `4.21.0-20240522`       | Image tag for all selenium components    |
-| `global.seleniumGrid.nodesImageTag`            | `4.21.0-20240522`       | Image tag for browser's nodes            |
-| `global.seleniumGrid.videoImageTag`            | `ffmpeg-6.1.1-20240522` | Image tag for browser's video recorder   |
-| `global.seleniumGrid.imagePullSecret`          | `""`                    | Pull secret to be used for all images    |
-| `global.seleniumGrid.imagePullSecret`          | `""`                    | Pull secret to be used for all images    |
-| `global.seleniumGrid.affinity`                 | `{}`                    | Affinity assigned globally               |
-| `global.seleniumGrid.logLevel`                 | `INFO`                  | Set log level for all components         |
-| `global.seleniumGrid.defaultNodeStartupProbe`  | `exec`                  | Default startup probe method in Nodes    |
-| `global.seleniumGrid.defaultNodeLivenessProbe` | `exec`                  | Default liveness probe method in Nodes   |
-| `global.seleniumGrid.stdoutProbeLog`           | `true`                  | Enable probe logs output in kubectl logs |
+| Parameter                                           | Default                 | Description                                 |
+|-----------------------------------------------------|-------------------------|---------------------------------------------|
+| `global.K8S_PUBLIC_IP`                              | `""`                    | Public IP of the host running K8s           |
+| `global.seleniumGrid.imageRegistry`                 | `selenium`              | Distribution registry to pull images        |
+| `global.seleniumGrid.imageTag`                      | `4.21.0-20240522`       | Image tag for all selenium components       |
+| `global.seleniumGrid.nodesImageTag`                 | `4.21.0-20240522`       | Image tag for browser's nodes               |
+| `global.seleniumGrid.videoImageTag`                 | `ffmpeg-6.1.1-20240522` | Image tag for browser's video recorder      |
+| `global.seleniumGrid.imagePullSecret`               | `""`                    | Pull secret to be used for all images       |
+| `global.seleniumGrid.affinity`                      | `{}`                    | Affinity assigned globally                  |
+| `global.seleniumGrid.logLevel`                      | `INFO`                  | Set log level for all components            |
+| `global.seleniumGrid.defaultNodeStartupProbe`       | `exec`                  | Default startup probe method in Nodes       |
+| `global.seleniumGrid.defaultNodeLivenessProbe`      | `exec`                  | Default liveness probe method in Nodes      |
+| `global.seleniumGrid.defaultComponentLivenessProbe` | `exec`                  | Default liveness probe method in Components |
+| `global.seleniumGrid.stdoutProbeLog`                | `true`                  | Enable probe logs output in kubectl logs    |
 
 #### Configuration `global.K8S_PUBLIC_IP`
 
@@ -379,7 +382,9 @@ edgeNode:
       protocol: TCP
 ```
 
-#### Probes
+### Configuration of Probes
+
+#### Node Probes
 
 By default, `startupProbe` is enabled and `readinessProbe` and `livenessProbe` are disabled. You can enable/disable them via `.startupProbe.enabled` `.readinessProbe.enabled` `.livenessProbe.enabled` in respective node type.
 
@@ -410,6 +415,22 @@ edgeNode:
     failureThreshold: 10
     periodSeconds: 5
 ```
+
+#### Distributor Probes
+
+By default, `startupProbe`, `readinessProbe` and `livenessProbe` are enabled for this component in both full distributed and Hub-Nodes mode.
+
+There is a script in chart `configs/distributor/distributorProbe.sh` is loaded into ConfigMap and mounted to the container is used by `livenessProbe`. You can customize the script via `--set-file distributorConfigMap.extraScripts.distributorProbe\.sh=/path/to/your_script.sh` or set via YAML values.
+
+There are some reports on a scenario that would be difficult to reproduce or rare: `Grid UI is accessible but no nodes can be fetched or registered. Or something like there are few requests in session queue but could not be accepted. After restarting the Distributor, the issue is resolved`. Based on that, a proactive approach to do automatic restart whenever detecting it is not healthy via `livenessProbe` and the condition check is executed. The script queries GraphQL endpoint to get `sessionCount`, and `sessionQueueSize`. If the `sessionQueueSize` is greater than 0 and `sessionCount` is 0 until the `failureThreshold`, the Distributor will be restarted. You can adjust the threshold as well as interval via probe settings.
+
+#### Router Probes
+
+By default, `startupProbe`, `readinessProbe` and `livenessProbe` are enabled for this component in full distributed mode.
+
+There is a script in chart `configs/router/routerProbe.sh` loaded into ConfigMap and mounted to the container is used by `livenessProbe`. You can customize the script via `--set-file routerConfigMap.extraScripts.routerProbe\.sh=/path/to/your_script.sh` or set via YAML values.
+
+The script checks GraphQL endpoint is reachable. If the `http_code` is not `200` until the `failureThreshold`, the Router will be restarted. You can adjust the threshold as well as interval via probe settings.
 
 ### Configuration extra scripts mount to container
 

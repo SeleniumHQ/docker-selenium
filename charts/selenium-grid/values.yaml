@@ -23,6 +23,8 @@ global:
     defaultNodeStartupProbe: exec
     # liveness probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeLivenessProbe: exec
+    # liveness probe method `exec.command` is using a script is mounted from ConfigMap to component container
+    defaultComponentLivenessProbe: exec
     # probe logs output can be retrieved using `kubectl logs`
     stdoutProbeLog: false
 
@@ -135,6 +137,36 @@ busConfigMap:
   # Custom annotations for configmap
   annotations: {}
 
+distributorConfigMap:
+  # nameOverride:
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/distributor/**"
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    distributorProbe.sh: ""
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName:
+  # Custom annotations for configmap
+  annotations: {}
+
+routerConfigMap:
+  # nameOverride:
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/router/**"
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    routerProbe.sh: ""
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName:
+  # Custom annotations for configmap
+  annotations: {}
+
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
   # nameOverride:
@@ -212,6 +244,8 @@ serverConfigMap:
   trustStoreFile: selenium.jks
   # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
   disableHostnameVerification: true
+  env:
+    SE_JAVA_OPTS: "-XX:+UseZGC"
   # Custom annotations for configmap
   annotations: {}
 
@@ -310,6 +344,33 @@ components:
     # Distributor port
     port: 5553
     nodePort: 30553
+    # Wait for pod startup
+    startupProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 5
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Readiness probe settings
+    readinessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 12
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Liveness probe settings
+    livenessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 10
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
     # Resources for Distributor container
     resources: {}
     # SecurityContext for Distributor container

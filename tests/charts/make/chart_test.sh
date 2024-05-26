@@ -28,7 +28,7 @@ SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
 CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
 CHART_FULL_DISTRIBUTED_MODE=${CHART_FULL_DISTRIBUTED_MODE:-"false"}
-HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-"selenium-grid.prod"}
+HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-${SELENIUM_GRID_HOST}}
 CHART_ENABLE_INGRESS_HOSTNAME=${CHART_ENABLE_INGRESS_HOSTNAME:-"false"}
 CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
 BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
@@ -38,6 +38,7 @@ TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
 LIMIT_RESOURCES=${LIMIT_RESOURCES:-"true"}
+TEST_PLATFORMS=${PLATFORMS:-"linux/amd64"}
 
 cleanup() {
   # Get the list of pods
@@ -165,7 +166,7 @@ if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then
   export SELENIUM_GRID_PASSWORD=${BASIC_AUTH_PASSWORD}
 fi
 
-if [ "${PLATFORMS}" != "linux/amd64" ]; then
+if [ "${TEST_PLATFORMS}" != "linux/amd64" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set edgeNode.enabled=false \
   --set chromeNode.imageName=node-chromium \
@@ -241,10 +242,10 @@ export HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS}
 export WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT}
 export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
 export TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST:-"10"}
-export PLATFORMS=${PLATFORMS:-"linux/amd64"}
+export TEST_PLATFORMS=${TEST_PLATFORMS}
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
   ./tests/bootstrap.sh NodeFirefox
-  if [ "${PLATFORMS}" = "linux/amd64" ]; then
+  if [ "${TEST_PLATFORMS}" = "linux/amd64" ]; then
     ./tests/bootstrap.sh NodeChrome
     ./tests/bootstrap.sh NodeEdge
   else
@@ -256,6 +257,18 @@ fi
 
 echo "Get pods status"
 kubectl get pods -n ${SELENIUM_NAMESPACE}
+
+# Wait until no pods are in "Terminating" state
+while true; do
+  terminating_pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} --no-headers | grep Terminating | wc -l)
+  if [ $terminating_pods -eq 0 ]; then
+    echo "No pods in 'Terminating' state."
+    break
+  else
+    echo "Waiting for $terminating_pods pod(s) to terminate..."
+    sleep 2
+  fi
+done
 
 echo "Get all resources in all namespaces"
 kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt

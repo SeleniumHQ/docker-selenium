@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.router.configmap.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.routerConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+{{- $fileProceeded := list -}}
+{{- range $path, $_ :=  .Files.Glob $.Values.routerConfigMap.extraScriptsImportFrom }}
+  {{- $fileName := base $path -}}
+  {{- $value := index $.Values.routerConfigMap.extraScripts $fileName -}}
+  {{- if empty $value }}
+{{- $fileName | nindent 2 -}}: {{- toYaml ($.Files.Get $path) | indent 4 }}
+  {{- else }}
+{{- $fileName | nindent 2 -}}: {{- toYaml $value | indent 4 }}
+  {{- end }}
+  {{- $fileProceeded = append $fileProceeded $fileName -}}
+{{- end }}
+{{- range $fileName, $value := .Values.routerConfigMap.extraScripts }}
+  {{- if not (has $fileName $fileProceeded) }}
+{{- $fileName | nindent 2 -}}: {{- toYaml (default "" $value) | indent 4 }}
+  {{- end }}
+{{- end }}
