@@ -4,6 +4,7 @@ workflows:
   build-and-test-multi-arch:
     jobs:
       - kubernetes-test:
+          name: "K8s test - Autoscaling disabled"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.25.16'
@@ -13,6 +14,7 @@ workflows:
           test-existing-keda: false
           test-upgrade: true
       - kubernetes-test:
+          name: "K8s test - Autoscaling Jobs"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.26.15'
@@ -22,6 +24,7 @@ workflows:
           test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
+          name: "K8s test - Autoscaling Deployments"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.27.14'
@@ -31,6 +34,7 @@ workflows:
           test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
+          name: "K8s test - Autoscaling Jobs - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.28.10'
@@ -40,6 +44,7 @@ workflows:
           test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
+          name: "K8s test - Autoscaling Jobs - Ingress hostname"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.29.5'
@@ -49,6 +54,7 @@ workflows:
           test-existing-keda: false
           test-upgrade: true
       - kubernetes-test:
+          name: "K8s test - Autoscaling Deployments - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.30.1'
@@ -58,36 +64,43 @@ workflows:
           test-existing-keda: false
           test-upgrade: true
       - docker-test:
+          name: "Docker test - Use random user (true)"
           test-strategy: test
           use-random-user: true
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Use random user (false)"
           test-strategy: test
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Video recording"
           test-strategy: test_video
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Video recording dynamic file name"
           test-strategy: test_video_dynamic_name
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Dynamic Grid"
           test-strategy: test_node_docker
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Parallel execution"
           test-strategy: test_parallel
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Node relay commands"
           test-strategy: test_node_relay
           use-random-user: false
           platforms: linux/arm64
@@ -213,6 +226,6 @@ jobs:
           command: |
             make test_video_integrity
       - run:
-          name: "Cleanup Kubernetes environment"
+          name: "Clean-up Kubernetes environment"
           command: |
             CLUSTER=${CLUSTER} make chart_cluster_cleanup

@@ -155,6 +155,20 @@ Service Account fullname
 {{- end -}}
 
 {{/*
+Distributor ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.distributor.configmap.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-distributor-config" $)) .Values.distributorConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Router ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.router.configmap.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-router-config" $)) .Values.routerConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Recorder ConfigMap fullname
 */}}
 {{- define "seleniumGrid.recorder.configmap.fullname" -}}

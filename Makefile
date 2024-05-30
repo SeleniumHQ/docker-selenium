@@ -238,7 +238,7 @@ edge_upgrade_version:
 
 # https://github.com/SeleniumHQ/docker-selenium/issues/992
 # Additional tags for browser images
-tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_firefox_images tag_and_push_edge_images
+tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_chromium_images tag_and_push_firefox_images tag_and_push_edge_images
 
 tag_and_push_chrome_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
@@ -568,7 +568,7 @@ test_parallel: hub chrome firefox edge chromium
 					echo NODE_CHROME=chromium >> .env ; \
 			fi; \
 			echo TEST_PLATFORMS=$(PLATFORMS) >> .env ; \
-			docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests ; \
 	done
 
 test_video_dynamic_name:
@@ -578,7 +578,6 @@ test_video_dynamic_name:
 # This should run on its own CI job. There is no need to combine it with the other tests.
 # Its main purpose is to check that a video file was generated.
 test_video: video hub chrome firefox edge chromium
-	# Running a few tests with docker compose to generate the videos
 	sudo rm -rf ./tests/tests
 	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
@@ -614,12 +613,12 @@ test_video: video hub chrome firefox edge chromium
 					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"firefox_video.mp4"} >> .env ; \
 					echo VIDEO_FILE_NAME_SUFFIX=$${VIDEO_FILE_NAME_SUFFIX:-"true"} >> .env ; \
 			fi ; \
-			docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit ; \
 	done
 	make test_video_integrity
 
 test_node_relay: hub node_base standalone_firefox
-	sudo rm -rf ./tests/tests
+	sudo rm -rf ./tests/tests ./tests/videos; mkdir -p ./tests/videos ; \
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="Android NodeFirefox" ; \
 	else \
@@ -641,24 +640,29 @@ test_node_relay: hub node_base standalone_firefox
 			echo TEST_NODE_RELAY=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
-			PROFILE="relay_standalone" ; \
 			if [ $$node = "Android" ] ; then \
-					echo BROWSER=firefox >> .env && \
-					PROFILE="relay_appium" ; \
+					echo BROWSER=firefox >> .env \
+					&& echo BROWSER_NAME=firefox >> .env ; \
 			fi ; \
 			if [ $$node = "NodeChrome" ] ; then \
-					echo BROWSER=chrome >> .env ; \
+					echo BROWSER=chrome >> .env \
+					&& BROWSER_NAMEchrome >> .env ; \
 			fi ; \
 			if [ $$node = "NodeChromium" ] ; then \
-					echo BROWSER=chromium >> .env ; \
+					echo BROWSER=chromium >> .env \
+					&& echo BROWSER_NAME=chrome >> .env ; \
 			fi ; \
 			if [ $$node = "NodeEdge" ] ; then \
-					echo BROWSER=edge >> .env ; \
+					echo BROWSER=edge >> .env \
+					&& echo BROWSER_NAME=MicrosoftEdge >> .env ; \
 			fi ; \
 			if [ $$node = "NodeFirefox" ] ; then \
-					echo BROWSER=firefox >> .env ; \
+					echo BROWSER=firefox >> .env \
+					&& echo BROWSER_NAME=firefox >> .env ; \
 			fi ; \
-			docker compose --profile $${PROFILE} -f docker-compose-v3-test-node-relay.yml up --no-log-prefix --exit-code-from tests ; \
+			export $$(cat .env | xargs) ; \
+			envsubst < relay_config.toml > ./videos/relay_config.toml ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $$node -f docker-compose-v3-test-node-relay.yml up --no-log-prefix --exit-code-from tests ; \
 			if [ $$? -ne 0 ]; then exit 1; fi ; \
 	done
 
@@ -701,7 +705,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < config.toml > ./videos/config.toml ; \
-			docker compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose -f docker-compose-v3-test-node-docker.yaml up --no-log-prefix --exit-code-from tests ; \
 			if [ $$? -ne 0 ]; then exit 1; fi ; \
 			if [ -d "$$DOWNLOADS_DIR" ] && [ $$(ls -1q $$DOWNLOADS_DIR | wc -l) -eq 0 ]; then \
 					echo "Mounted downloads directory is empty. Downloaded files could not be retrieved!" ; \

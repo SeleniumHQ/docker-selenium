@@ -7,11 +7,11 @@ global:
     # Image registry for all selenium components
     imageRegistry: selenium
     # Image tag for all selenium components
-    imageTag: 4.21.0-20240521
+    imageTag: 4.21.0-20240522
     # Image tag for browser's nodes
-    nodesImageTag: 4.21.0-20240521
+    nodesImageTag: 4.21.0-20240522
     # Image tag for browser's video recorder
-    videoImageTag: ffmpeg-6.1.1-20240521
+    videoImageTag: ffmpeg-6.1.1-20240522
     # kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # Pull secret for all components, can be overridden individually
@@ -23,6 +23,8 @@ global:
     defaultNodeStartupProbe: exec
     # liveness probe method `exec.command` is using a script is mounted from `nodeConfigMap.extraScripts.nodeProbe.sh`
     defaultNodeLivenessProbe: exec
+    # liveness probe method `exec.command` is using a script is mounted from ConfigMap to component container
+    defaultComponentLivenessProbe: exec
     # probe logs output can be retrieved using `kubectl logs`
     stdoutProbeLog: false
 
@@ -135,6 +137,36 @@ busConfigMap:
   # Custom annotations for configmap
   annotations: {}
 
+distributorConfigMap:
+  # nameOverride:
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/distributor/**"
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    distributorProbe.sh: ""
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName:
+  # Custom annotations for configmap
+  annotations: {}
+
+routerConfigMap:
+  # nameOverride:
+  # Default mode for ConfigMap is mounted as file
+  defaultMode: 0755
+  # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
+  extraScriptsImportFrom: "configs/router/**"
+  # Directory where the extra scripts are mounted to
+  extraScriptsDirectory: "/opt/selenium"
+  extraScripts:
+    routerProbe.sh: ""
+  # Name of volume mount is used to mount scripts in the ConfigMap
+  scriptVolumeMountName:
+  # Custom annotations for configmap
+  annotations: {}
+
 # ConfigMap that contains common environment variables for browser nodes
 nodeConfigMap:
   # nameOverride:
@@ -212,6 +244,8 @@ serverConfigMap:
   trustStoreFile: selenium.jks
   # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
   disableHostnameVerification: true
+  env:
+    SE_JAVA_OPTS: "-XX:+UseZGC"
   # Custom annotations for configmap
   annotations: {}
 
@@ -232,7 +266,7 @@ components:
     # Router image name
     imageName: router
     # Router image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.21.0-20240521
+    # imageTag: 4.21.0-20240522
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -296,7 +330,7 @@ components:
     # Distributor image name
     imageName: distributor
     # Distributor image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.21.0-20240521
+    # imageTag: 4.21.0-20240522
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -310,6 +344,33 @@ components:
     # Distributor port
     port: 5553
     nodePort: 30553
+    # Wait for pod startup
+    startupProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 5
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Readiness probe settings
+    readinessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 12
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+    # Liveness probe settings
+    livenessProbe:
+      enabled: true
+      path: /readyz
+      initialDelaySeconds: 10
+      failureThreshold: 10
+      timeoutSeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
     # Resources for Distributor container
     resources: {}
     # SecurityContext for Distributor container
@@ -331,7 +392,7 @@ components:
     # Event Bus image name
     imageName: event-bus
     # Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.21.0-20240521
+    # imageTag: 4.21.0-20240522
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -370,7 +431,7 @@ components:
     # Session Map image name
     imageName: sessions
     # Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.21.0-20240521
+    # imageTag: 4.21.0-20240522
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -401,7 +462,7 @@ components:
     # Session Queue image name
     imageName: session-queue
     # Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter)
-    # imageTag: 4.21.0-20240521
+    # imageTag: 4.21.0-20240522
 
     # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
     imagePullPolicy: IfNotPresent
@@ -453,7 +514,7 @@ hub:
   # Selenium Hub image name
   imageName: hub
   # Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter)
-  # imageTag: 4.21.0-20240521
+  # imageTag: 4.21.0-20240522
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -639,7 +700,7 @@ chromeNode:
   # Image of chrome nodes
   imageName: node-chrome
   # Image of chrome nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.21.0-20240521
+  # imageTag: 4.21.0-20240522
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -800,7 +861,7 @@ firefoxNode:
   # Image of firefox nodes
   imageName: node-firefox
   # Image of firefox nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.21.0-20240521
+  # imageTag: 4.21.0-20240522
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -959,7 +1020,7 @@ edgeNode:
   # Image of edge nodes
   imageName: node-edge
   # Image of edge nodes (this overwrites global.seleniumGrid.nodesImageTag)
-  # imageTag: 4.21.0-20240521
+  # imageTag: 4.21.0-20240522
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
@@ -1107,7 +1168,7 @@ videoRecorder:
   # Image of video recorder
   imageName: video
   # Image of video recorder
-  # imageTag: ffmpeg-6.1.1-20240521
+  # imageTag: ffmpeg-6.1.1-20240522
   # Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
   imagePullPolicy: IfNotPresent
   # Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
