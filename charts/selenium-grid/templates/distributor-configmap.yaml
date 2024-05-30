@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.distributor.configmap.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.distributorConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  SE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" $ }}'
+{{- $fileProceeded := list -}}
+{{- range $path, $_ :=  .Files.Glob $.Values.distributorConfigMap.extraScriptsImportFrom }}
+  {{- $fileName := base $path -}}
+  {{- $value := index $.Values.distributorConfigMap.extraScripts $fileName -}}
+  {{- if empty $value }}
+{{- $fileName | nindent 2 -}}: {{- toYaml ($.Files.Get $path) | indent 4 }}
+  {{- else }}
+{{- $fileName | nindent 2 -}}: {{- toYaml $value | indent 4 }}
+  {{- end }}
+  {{- $fileProceeded = append $fileProceeded $fileName -}}
+{{- end }}
+{{- range $fileName, $value := .Values.distributorConfigMap.extraScripts }}
+  {{- if not (has $fileName $fileProceeded) }}
+{{- $fileName | nindent 2 -}}: {{- toYaml (default "" $value) | indent 4 }}
+  {{- end }}
+{{- end }}

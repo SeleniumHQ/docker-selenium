@@ -26,6 +26,7 @@ spec:
       annotations:
         checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
         checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+        checksum/distributor-configmap: {{ include (print $.Template.BasePath "/distributor-configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
     {{- with .Values.hub.annotations }}
         {{- toYaml . | nindent 8 }}
@@ -83,6 +84,9 @@ spec:
           livenessProbe:
           {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
             {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
+          {{- else if eq $.Values.global.seleniumGrid.defaultComponentLivenessProbe "exec" }}
+            exec:
+              command: ["bash", "-c", "{{ $.Values.distributorConfigMap.extraScriptsDirectory }}/distributorProbe.sh Liveness {{ include "seleniumGrid.probe.stdout" $ }}"]
           {{- else }}
             httpGet:
               scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}
@@ -121,6 +125,8 @@ spec:
           {{- end }}
           envFrom:
             - configMapRef:
+                name: {{ template "seleniumGrid.distributor.configmap.fullname" . }}
+            - configMapRef:
                 name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
             - configMapRef:
                 name: {{ template "seleniumGrid.server.configmap.fullname" . }}
@@ -130,6 +136,11 @@ spec:
               {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
+          {{- range $fileName, $value := $.Values.distributorConfigMap.extraScripts }}
+            - name: {{ tpl (default (include "seleniumGrid.distributor.configmap.fullname" $) $.Values.distributorConfigMap.scriptVolumeMountName) $ }}
+              mountPath: {{ $.Values.distributorConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+              subPath: {{ $fileName }}
+          {{- end }}
           {{- if .Values.tls.enabled }}
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
               mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
@@ -162,6 +173,10 @@ spec:
       priorityClassName: {{ . }}
     {{- end }}
       volumes:
+        - name: {{ tpl (default (include "seleniumGrid.distributor.configmap.fullname" $) $.Values.distributorConfigMap.scriptVolumeMountName) $ | quote }}
+          configMap:
+            name: {{ template "seleniumGrid.distributor.configmap.fullname" $ }}
+            defaultMode: {{ $.Values.distributorConfigMap.defaultMode }}
       {{- if .Values.tls.enabled }}
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:
