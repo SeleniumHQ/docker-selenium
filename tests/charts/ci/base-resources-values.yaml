@@ -1,7 +1,5 @@
 components:
   router:
-    livenessProbe:
-      failureThreshold: 6
     resources:
       requests:
         cpu: 100m
@@ -10,8 +8,6 @@ components:
         cpu: 500m
         memory: 2500Mi
   distributor:
-    livenessProbe:
-      failureThreshold: 6
     resources:
       requests:
         cpu: "1"
@@ -45,8 +41,6 @@ components:
         memory: 512Mi
 
 hub:
-  livenessProbe:
-    failureThreshold: 6
   resources:
     requests:
       cpu: "1"
