@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20240429
+FROM ubuntu:noble-20240530
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
