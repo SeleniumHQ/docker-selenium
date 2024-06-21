@@ -1,3 +1,23 @@
+## :heavy_check_mark: selenium-grid-0.32.0
+
+- Chart is using image tag 4.22.0-20240621
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.15, v1.28.11, v1.29.6, v1.30.2, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.2, 
+
+### Added
+- [`f2280e98`](http://github.com/seleniumhq/docker-selenium/commit/f2280e985e701d53a1282631b166198752090ebc) - feat(chart): probe checks for Distributor and Router (#2272) :: Viet Nguyen Duc
+
+### Fixed
+- [`d5398b75`](http://github.com/seleniumhq/docker-selenium/commit/d5398b75253f13f54da1f31e32cefeda66f5245f) - fix(chart): pod labels and annotations for patch-scaledobjects (#2274) :: Viet Nguyen Duc
+
+### Changed
+- [`e16a1677`](http://github.com/seleniumhq/docker-selenium/commit/e16a167723b7908cda64ca97be00750ff6f61c40) - chart: fix config ingress.tls :: Viet Nguyen Duc
+- [`904b8ea3`](http://github.com/seleniumhq/docker-selenium/commit/904b8ea36613e1100e09cbe2d5f4bb491181e07a) - chart: not patch KEDA objects if autoscaling disabled :: Viet Nguyen Duc
+- [`2f0f2494`](http://github.com/seleniumhq/docker-selenium/commit/2f0f2494d6036370b2336c0ebdf4ed962b2a6d11) - chart: update default chart values :: Viet Nguyen Duc
+- [`2c814158`](http://github.com/seleniumhq/docker-selenium/commit/2c8141583da2e7afe86537b3c4178c07dfe36b3f) - chore(deps): update helm release kube-prometheus-stack to v60 (#2280) :: renovate[bot]
+- [`148541c5`](http://github.com/seleniumhq/docker-selenium/commit/148541c553995ff42176ff12c07af75bdd4989be) - chore(deps): update helm release jaeger to v3.0.10 (#2253) :: renovate[bot]
+- [`714ef8ad`](http://github.com/seleniumhq/docker-selenium/commit/714ef8ad15b0e9e7b8ca1fc5cc696a9447060b3e) - chore(deps): update helm release kube-prometheus-stack to v59 (#2271) :: renovate[bot]
+
 ## :heavy_check_mark: selenium-grid-0.31.1
 
 - Chart is using image tag 4.21.0-20240522
