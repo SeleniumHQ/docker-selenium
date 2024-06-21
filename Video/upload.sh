@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SE_VIDEO_FOLDER=${SE_VIDEO_FOLDER:-"/videos"}
+VIDEO_FOLDER=${VIDEO_FOLDER}
 UPLOAD_CONFIG_DIRECTORY=${UPLOAD_CONFIG_DIRECTORY:-"/opt/bin"}
 UPLOAD_CONFIG_FILE_NAME=${UPLOAD_CONFIG_FILE_NAME:-"upload.conf"}
 UPLOAD_COMMAND=${UPLOAD_COMMAND:-"copy"}
@@ -17,8 +17,8 @@ then
     FORCE_EXIT_FILE="/tmp/force_exit"
 else
     # If using external container for uploading, write signal to the video folder
-    UPLOAD_PIPE_FILE="${SE_VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
-    FORCE_EXIT_FILE="${SE_VIDEO_FOLDER}/force_exit"
+    UPLOAD_PIPE_FILE="${VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
+    FORCE_EXIT_FILE="${VIDEO_FOLDER}/force_exit"
 fi
 
 if [ "${UPLOAD_RETAIN_LOCAL_FILE}" = "false" ];

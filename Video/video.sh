@@ -7,7 +7,7 @@ VIDEO_FILE_NAME=${FILE_NAME:-$SE_VIDEO_FILE_NAME}
 FRAME_RATE=${FRAME_RATE:-$SE_FRAME_RATE}
 CODEC=${CODEC:-$SE_CODEC}
 PRESET=${PRESET:-$SE_PRESET}
-VIDEO_FOLDER=${SE_VIDEO_FOLDER}
+VIDEO_FOLDER=${VIDEO_FOLDER}
 VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-$SE_VIDEO_UPLOAD_ENABLED}
 VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
 UPLOAD_DESTINATION_PREFIX=${UPLOAD_DESTINATION_PREFIX:-$SE_UPLOAD_DESTINATION_PREFIX}
@@ -18,6 +18,14 @@ SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
 max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
 process_name="video.recorder"
 
+if [ -d "${VIDEO_FOLDER}" ];
+then
+    echo "$(date +%FT%T%Z) [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
+else
+    echo "$(date +%FT%T%Z) [${process_name}] - Video folder does not exist: ${VIDEO_FOLDER}. Due to permission, folder name could not be changed via environment variable. Exiting..."
+    exit 1
+fi
+
 if [ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ];
 then
     # If using RCLONE in the same container, write signal to /tmp internally
@@ -25,8 +33,8 @@ then
     FORCE_EXIT_FILE="/tmp/force_exit"
 else
     # If using external container for uploading, write signal to the video folder
-    UPLOAD_PIPE_FILE="${SE_VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
-    FORCE_EXIT_FILE="${SE_VIDEO_FOLDER}/force_exit"
+    UPLOAD_PIPE_FILE="${VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
+    FORCE_EXIT_FILE="${VIDEO_FOLDER}/force_exit"
 fi
 
 function create_pipe() {

@@ -10,6 +10,7 @@ ARG SEL_GROUP=${SEL_USER}
 ARG SEL_PASSWD=secret
 ARG UID=1200
 ARG GID=1201
+ARG VIDEO_FOLDER=/videos
 
 USER root
 #================================================
@@ -85,13 +86,12 @@ ENV SE_UPLOAD_DESTINATION_PREFIX ""
 ENV SE_VIDEO_INTERNAL_UPLOAD false
 ENV UPLOAD_OPTS "-P"
 
-ENV SE_VIDEO_FOLDER /videos
-RUN  mkdir -p /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER \
-  && chown -R ${SEL_USER}:${SEL_GROUP} /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME \
-  && chmod -R 775 /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME \
-  && chgrp -R 0 /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME \
-  && chmod -R g=u /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME \
-  && setfacl -Rdm u:${SEL_USER}:rwx,g:${SEL_GROUP}:rwx /var/run/supervisor /var/log/supervisor $SE_VIDEO_FOLDER $HOME
+RUN  mkdir -p /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} \
+  && chown -R ${SEL_USER}:${SEL_GROUP} /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
+  && chmod -R 775 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
+  && chgrp -R 0 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
+  && chmod -R g=u /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
+  && setfacl -Rdm u:${SEL_USER}:rwx,g:${SEL_GROUP}:rwx /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME
 
 USER ${SEL_UID}
 
@@ -105,6 +105,7 @@ ENV SE_SCREEN_HEIGHT 1020
 ENV SE_FRAME_RATE 15
 ENV SE_CODEC libx264
 ENV SE_PRESET "-preset ultrafast"
+ENV VIDEO_FOLDER ${VIDEO_FOLDER}
 ENV SE_VIDEO_FILE_NAME video.mp4
 ENV SE_VIDEO_FILE_NAME_TRIM_REGEX "[:alnum:]-_"
 
