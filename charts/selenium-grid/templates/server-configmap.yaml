@@ -13,8 +13,8 @@ metadata:
     {{- end }}
 data:
   SE_SERVER_PROTOCOL: {{ include "seleniumGrid.server.protocol" . | quote }}
-{{- with $.Values.serverConfigMap.env }}
-  {{- toYaml . | nindent 2 }}
+{{- range $key, $value := .Values.serverConfigMap.env }}
+  {{ $key }}: {{ $value | quote }}
 {{- end }}
 {{- if .Values.tls.enabled }}
   SE_HTTPS_CERTIFICATE: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.certificateFile | quote }}

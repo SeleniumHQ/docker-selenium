@@ -57,6 +57,9 @@ ingress:
           name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
           port:
             number: 4444
+  tls:
+    - hosts:
+        - '*.my.domain.com'
 
 isolateComponents: true
 

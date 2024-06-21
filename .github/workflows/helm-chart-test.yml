@@ -13,11 +13,11 @@ on:
       request-timeout:
         description: 'Test parameter for different request timeout'
         required: false
-        default: '370'
+        default: '15'
       max-replicas-count:
         description: 'Test parameter for autoscaling to set maxReplicaCount'
         required: false
-        default: '30'
+        default: '10'
       log-level:
         description: 'Test parameter for different log level'
         required: false
@@ -148,8 +148,8 @@ jobs:
           echo "SET_MAX_REPLICAS=${SET_MAX_REPLICAS}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${LOG_LEVEL}" >> $GITHUB_ENV
         env:
-          AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '370' }}
-          SET_MAX_REPLICAS: ${{ github.event.inputs.max-replicas-count || '30' }}
+          AUTOSCALING_POLL_INTERVAL: ${{ github.event.inputs.request-timeout || '15' }}
+          SET_MAX_REPLICAS: ${{ github.event.inputs.max-replicas-count || '10' }}
           LOG_LEVEL: ${{ github.event.inputs.log-level || 'FINE' }}
       - name: Test Selenium Grid on Kubernetes ${{ matrix.k8s-version }} with Autoscaling ${{ matrix.test-strategy }}
         uses: nick-invision/retry@master
