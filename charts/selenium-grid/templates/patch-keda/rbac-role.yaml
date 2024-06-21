@@ -1,4 +1,4 @@
-{{- if $.Values.rbacRole.create }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

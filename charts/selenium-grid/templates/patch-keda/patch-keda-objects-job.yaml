@@ -1,4 +1,4 @@
-{{- if $.Values.autoscaling.patchObjectFinalizers.enabled }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:

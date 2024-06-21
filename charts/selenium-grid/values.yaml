@@ -74,7 +74,6 @@ serviceAccount:
 
 # RBAC settings
 rbacRole:
-  create: true
   # nameOverride:
   annotations: {}
   rules:
@@ -95,7 +94,6 @@ rbacRole:
       verbs: [get, list, patch, update, delete]
 
 rbacRoleBinding:
-  create: true
   # nameOverride:
   annotations: {}
   roleRef:
