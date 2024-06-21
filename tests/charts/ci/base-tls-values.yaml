@@ -9,19 +9,36 @@ monitoring:
   enabled: false
 
 prometheus-stack:
+  cleanPrometheusOperatorObjectNames: true
+  defaultRules:
+    create: true
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
   alertmanager:
+    enabled: true
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx
       hosts:
         - alertmanager.selenium-grid.prod
   grafana:
+    enabled: true
+    adminPassword: admin
+    forceDeployDatasources: true
+    forceDeployDashboards: true
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx
       hosts:
         - grafana.selenium-grid.prod
   prometheus:
+    enabled: true
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx

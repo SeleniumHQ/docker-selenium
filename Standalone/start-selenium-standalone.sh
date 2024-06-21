@@ -21,6 +21,21 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [ ! -z "$SE_DISABLE_UI" ]; then
+  echo "Appending Selenium options: --disable-ui ${SE_DISABLE_UI}"
+  SE_OPTS="$SE_OPTS --disable-ui ${SE_DISABLE_UI}"
+fi
+
+if [ ! -z "$ROUTER_USERNAME" ]; then
+  echo "Appending Selenium options: --username ${ROUTER_USERNAME}"
+  SE_OPTS="$SE_OPTS --username ${ROUTER_USERNAME}"
+fi
+
+if [ ! -z "$ROUTER_PASSWORD" ]; then
+  echo "Appending Selenium options: --password ${ROUTER_PASSWORD}"
+  SE_OPTS="$SE_OPTS --password ${ROUTER_PASSWORD}"
+fi
+
 if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
   echo "Appending Selenium options: --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
   SE_OPTS="$SE_OPTS --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"

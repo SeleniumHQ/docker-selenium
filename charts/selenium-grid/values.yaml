@@ -1215,8 +1215,6 @@ videoRecorder:
   # SecurityContext for recorder container
   securityContext:
   extraEnvironmentVariables:
-  # - name: SE_VIDEO_FOLDER
-  #   value: /videos
   # Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
   extraEnvFrom:
   # - configMapRef:
@@ -1316,25 +1314,3 @@ jaeger:
     enabled: false
   query:
     enabled: false
-
-prometheus-stack:
-  cleanPrometheusOperatorObjectNames: true
-  defaultRules:
-    create: true
-    annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
-  alertmanager:
-    enabled: true
-    annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
-  grafana:
-    enabled: true
-    adminPassword: admin
-    forceDeployDatasources: true
-    forceDeployDashboards: true
-    annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
-  prometheus:
-    enabled: true
-    annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
