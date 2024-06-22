@@ -17,6 +17,8 @@ SUPERVISOR_PID=$!
 function shutdown {
     echo "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
     kill -s SIGTERM ${SUPERVISOR_PID}
+    wait `pgrep -f ffmpeg | tr '\n' ' '`
+    wait `pgrep -f rclone | tr '\n' ' '`
     wait ${SUPERVISOR_PID}
     echo "Shutdown complete"
 }

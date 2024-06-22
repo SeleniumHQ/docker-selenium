@@ -43,7 +43,7 @@ services:
       - TEST_NODE_RELAY=${TEST_NODE_RELAY}
       - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
-    command: ["./bootstrap.sh", "${NODE}"]
+    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]
 
   node-relay-emulator:
     profiles:

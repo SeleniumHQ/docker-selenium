@@ -5,12 +5,16 @@ NEXT_TAG=$2
 LATEST_DATE=$(echo ${LATEST_TAG} | sed 's/.*-//')
 NEXT_DATE=$(echo ${NEXT_TAG} | sed 's/.*-//')
 latest_chart_app_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
+FFMPEG_TAG_PREV_VERSION=$(grep FFMPEG_TAG_PREV_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 RCLONE_TAG_VERSION=$(grep RCLONE_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 
 echo -e "\033[0;32m Updating tag displayed in docs and files...\033[0m"
 echo -e "\033[0;32m LATEST_TAG -> ${LATEST_TAG}\033[0m"
 echo -e "\033[0;32m NEXT_TAG -> ${NEXT_TAG}\033[0m"
+
+# If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
+find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${FFMPEG_TAG_PREV_VERSION}/${FFMPEG_TAG_VERSION}/g"
 
 # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
 find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${LATEST_TAG}/${NEXT_TAG}/g"
