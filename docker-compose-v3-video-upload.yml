@@ -5,7 +5,7 @@
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:4.21.0-20240522
+    image: selenium/node-chrome:4.22.0-20240621
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -15,7 +15,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
-    image: selenium/node-edge:4.21.0-20240522
+    image: selenium/node-edge:4.22.0-20240621
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -25,7 +25,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.21.0-20240522
+    image: selenium/node-firefox:4.22.0-20240621
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -35,7 +35,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   chrome_video:
-    image: selenium/video:ffmpeg-6.1.1-20240522
+    image: selenium/video:ffmpeg-6.1.1-20240621
     depends_on:
       - chrome
     environment:
@@ -57,7 +57,7 @@ services:
       - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   edge_video:
-    image: selenium/video:ffmpeg-6.1.1-20240522
+    image: selenium/video:ffmpeg-6.1.1-20240621
     depends_on:
       - edge
     environment:
@@ -79,7 +79,7 @@ services:
       - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   firefox_video:
-    image: selenium/video:ffmpeg-6.1.1-20240522
+    image: selenium/video:ffmpeg-6.1.1-20240621
     depends_on:
       - firefox
     environment:
@@ -101,7 +101,7 @@ services:
       - RCLONE_CONFIG_S3_NO_CHECK_BUCKET=true
 
   selenium-hub:
-    image: selenium/hub:4.21.0-20240522
+    image: selenium/hub:4.22.0-20240621
     container_name: selenium-hub
     ports:
       - "4442:4442"

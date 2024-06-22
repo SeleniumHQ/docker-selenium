@@ -1,13 +1,13 @@
-{{- if $.Values.rbacRole.create }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ template "seleniumGrid.rbac.role.fullname" $ }}
   namespace: {{ .Release.Namespace }}
+  {{- with $.Values.rbacRole.annotations }}
   annotations:
-    {{- with $.Values.rbacRole.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     deploymentName: {{ template "seleniumGrid.rbac.role.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}

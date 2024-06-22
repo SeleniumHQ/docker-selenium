@@ -1,11 +1,11 @@
-{{- if $.Values.autoscaling.patchObjectFinalizers.enabled }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
   namespace: {{ .Release.Namespace }}
-  annotations: &patch_objects_job_annotations
   {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
+  annotations: &patch_objects_job_annotations
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels: &patch_objects_job_labels
@@ -18,8 +18,10 @@ metadata:
 spec:
   template:
     metadata:
-      labels: *patch_objects_job_labels
+      {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
       annotations: *patch_objects_job_annotations
+      {{- end }}
+      labels: *patch_objects_job_labels
       name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
     spec:
       activeDeadlineSeconds: {{ $.Values.autoscaling.patchObjectFinalizers.activeDeadlineSeconds }}

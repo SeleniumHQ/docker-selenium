@@ -1,13 +1,13 @@
-{{- if $.Values.rbacRoleBinding.create }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
   namespace: {{ .Release.Namespace }}
+  {{- with $.Values.rbacRoleBinding.annotations }}
   annotations:
-    {{- with $.Values.rbacRoleBinding.annotations }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   labels:
     deploymentName: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
