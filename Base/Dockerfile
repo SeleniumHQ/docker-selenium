@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20240530
+FROM ubuntu:noble-20240530
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 
 # Arguments to define the version of dependencies to download
@@ -38,9 +38,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
 RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
-      echo "deb http://archive.ubuntu.com/ubuntu jammy main universe\n" > /etc/apt/sources.list \
-      && echo "deb http://archive.ubuntu.com/ubuntu jammy-updates main universe\n" >> /etc/apt/sources.list \
-      && echo "deb http://security.ubuntu.com/ubuntu jammy-security main universe\n" >> /etc/apt/sources.list ; \
+      echo "deb http://archive.ubuntu.com/ubuntu noble main universe\n" > /etc/apt/sources.list \
+      && echo "deb http://archive.ubuntu.com/ubuntu noble-updates main universe\n" >> /etc/apt/sources.list \
+      && echo "deb http://security.ubuntu.com/ubuntu noble-security main universe\n" >> /etc/apt/sources.list ; \
      fi \
   && apt-get -qqy update \
   && apt-get upgrade -yq \
