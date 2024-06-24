@@ -87,4 +87,4 @@ services:
       - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
       - BINDING_VERSION=${BINDING_VERSION}
       - TEST_PLATFORMS=${PLATFORMS}
-    command: ["./bootstrap.sh", "${NODE}"]
+    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]

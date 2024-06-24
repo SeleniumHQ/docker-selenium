@@ -32,7 +32,7 @@ jobs:
   deploy:
     needs:
       - build-test
-    if: contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true' && !failure() && !cancelled())
+    if: (contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true')) && !failure() && !cancelled()
     name: Deploy Docker images
     runs-on: ubuntu-latest
     permissions: write-all

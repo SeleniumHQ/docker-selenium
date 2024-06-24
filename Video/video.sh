@@ -87,9 +87,23 @@ function exit_on_max_session_reach() {
     fi
 }
 
+function stop_ffmpeg() {
+  while true; do
+    FFMPEG_PID=$(pgrep -f ffmpeg | tr '\n' ' ')
+    if [ -n "$FFMPEG_PID" ]; then
+      kill -SIGTERM $FFMPEG_PID
+      wait $FFMPEG_PID
+    fi
+    if ! pgrep -f ffmpeg > /dev/null; then
+        break
+    fi
+    sleep 0.5
+  done
+}
+
 function stop_recording() {
     echo "$(date +%FT%T%Z) [${process_name}] - Stopping to record video"
-    pkill -INT ffmpeg
+    stop_ffmpeg
     recorded_count=$((recorded_count+1))
     recording_started="false"
     if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
@@ -115,7 +129,7 @@ function graceful_exit() {
     send_exit_signal_to_uploader
     wait_util_uploader_shutdown
     rm -rf ${UPLOAD_PIPE_FILE} || true
-    kill -INT "$(cat /var/run/supervisor/supervisord.pid)"
+    kill -SIGTERM "$(cat /var/run/supervisor/supervisord.pid)"
 }
 
 if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto"  ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
@@ -133,7 +147,7 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   done
 
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
-  exec ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 1 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
+  exec ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
     -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$VIDEO_FOLDER/$VIDEO_FILE_NAME"
 
 else
@@ -167,7 +181,7 @@ else
   recorded_count=0
 
   echo "$(date +%FT%T%Z) [${process_name}] - Checking if node API responds"
-  until curl -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status || [[ $attempts = "$max_attempts" ]]
+  until curl --noproxy "*" -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status || [[ $attempts = "$max_attempts" ]]
   do
       if [ $(($attempts % 60)) -eq 0 ];
       then
@@ -181,7 +195,7 @@ else
       echo "$(date +%FT%T%Z) [${process_name}] - Can not reach node API, exiting."
       exit
   fi
-  while curl -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status > /tmp/status.json
+  while curl --noproxy "*" -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status > /tmp/status.json
   do
       session_id=$(jq -r '.[]?.node?.slots | .[0]?.session?.sessionId' /tmp/status.json)
       if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" ]]
@@ -199,7 +213,7 @@ else
       then
           video_file="${VIDEO_FOLDER}/$video_file_name"
           echo "$(date +%FT%T%Z) [${process_name}] - Starting to record video"
-          ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 1 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
+          exec ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
             -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
           recording_started="true"
           echo "$(date +%FT%T%Z) [${process_name}] - Video recording started"
