@@ -78,7 +78,7 @@ jobs:
       - name: Build images
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 45
+          timeout_minutes: 90
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
