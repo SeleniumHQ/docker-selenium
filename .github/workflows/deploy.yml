@@ -37,6 +37,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
         with:
@@ -86,7 +91,7 @@ jobs:
       - name: Build images
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 45
+          timeout_minutes: 90
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
