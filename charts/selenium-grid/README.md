@@ -606,9 +606,9 @@ Selenium Grid supports secure communication between components. Refer to the [in
 
 #### Secure Communication
 
-In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
+In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`. 
 
-There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them.
+There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them. 
 
 - Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
 
@@ -646,6 +646,25 @@ There are multiple ways to configure your certificate, private key, truststore t
     --set-string tls.trustStorePassword=your_truststore_password
     ```
 
+- Creating the secret yourself and passing the name as a reference into the chart. For example: 
+    
+    Run the certificate generator and create a secret, replacing `SECRET_NAME` and `NAMESPACE`: 
+
+    ```shell
+    ./cert.sh
+
+    base64 -d selenium.pkcs8.base64 > selenium.pkcs8
+
+    kubectl -n NAMESPACE create secret generic SECRET_NAME --from-file=selenium.pem --from-file=selenium.jks --from-file=selenium.pkcs8
+    ```
+
+    Update the external secret name: 
+    ```yaml
+    tls:
+      enabled: true
+      externalSecretName: "SECRET_NAME"
+    ```
+
 If you start NGINX ingress controller inline with Selenium Grid chart, you can configure the default certificate of NGINX ingress controller to use the same certificate as Selenium Grid. For example:
 
 ```yaml
@@ -658,6 +677,7 @@ ingress-nginx:
     extraArgs:
       default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
 ```
+
 
 #### Node Registration
 

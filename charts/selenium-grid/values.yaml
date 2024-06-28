@@ -52,6 +52,7 @@ tls:
   registrationSecret:
     enabled: false
     value: "HappyTesting"
+  externalSecretName:
 
 # Basic auth settings for Selenium Grid
 basicAuth:
