@@ -144,7 +144,11 @@ Common secrets cross components
 Secret TLS fullname
 */}}
 {{- define "seleniumGrid.tls.fullname" -}}
+{{- if .Values.tls.externalSecretName }}
+{{- tpl ( .Values.tls.externalSecretName ) $ | trunc 63 | trimSuffix "-" -}}
+{{- else }}
 {{- tpl (default (include "seleniumGrid.component.name" (list "selenium-tls-secret" $)) .Values.tls.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end }}
 {{- end -}}
 
 {{/*
