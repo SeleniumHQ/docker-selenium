@@ -113,19 +113,7 @@ ___
 
 ## Experimental Multi-Arch amd64/aarch64/armhf Images
 
-For experimental docker container images, which run on platforms such as the Apple M-series or Raspberry Pi, 
-see the community-driven repository hosted at 
-[seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm).
-These images are built for three separate architectures: linux/arm64 (aarch64), linux/arm/v7 (armhf), 
-and linux/amd64.
-
-Furthermore, these experimental container images are published on 
-[Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
-
-See issue [#1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
-
-Now, the fork [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm) was merged.
-From image tag based `4.21.0` onwards, the architectures supported by this project as below.
+From image tag based `4.21.0` onwards, the architectures supported by this project are as below:
 
 |       Architecture        | Available |
 |:-------------------------:|:---------:|
@@ -133,13 +121,54 @@ From image tag based `4.21.0` onwards, the architectures supported by this proje
 | aarch64 (aka arm64/armv8) |     ✅     |
 | armhf (aka arm32/armv7l)  |     ❌     |
 
+### Browser images in multi-arch
+
+The following browsers are available in multi-arch images:
+
+|       Architecture        | Chrome | Chromium | Firefox | Edge  |
+| :-----------------------: | :----: | :------: | :-----: | :---: |
+|    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |   ✅   |
+| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |   ❌   |
+| armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |   ❌   |
+
+Note:
+
+- Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
+Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
+
+- Running an AMD64 image under emulation on an ARM64 platform is not recommended due to performance and [stability issues](https://github.com/SeleniumHQ/docker-selenium/issues/2298).
+
+- For Linux/ARM use the open source Chromium browser. The Chromium (node and standalone) images are available in multi-arch.
+
+```bash
+$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selenium/standalone-chromium:latest
+```
+
+- Mozilla Firefox now is available for Linux/ARM64 via [Nightly channel](https://blog.nightly.mozilla.org/2024/04/19/firefox-nightly-now-available-for-linux-on-arm64/).
+The Firefox version in ARM64 will be different with the AMD64 until the stable release is available. The Firefox (node and standalone) images are available in multi-arch.
+
+Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.
+
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/SeleniumHQ/docker-selenium/tree/trunk.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/SeleniumHQ/docker-selenium/tree/trunk)
+
+### History of the multi-arch images
+
+For experimental docker container images, which run on platforms such as the Apple M-series or Raspberry Pi,
+the repository at
+[seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm) provided images which
+are published on the [Seleniarm Docker Hub](https://hub.docker.com/u/seleniarm) registry.
+
+See issue [#1076](https://github.com/SeleniumHQ/docker-selenium/issues/1076) for more information on these images.
+
+Now, the fork [seleniumhq-community/docker-seleniarm](https://github.com/seleniumhq-community/docker-seleniarm) was merged.
+
 ### Build the multi-arch images locally
 
-Recommend to enable the experimental feature [containerd image store](https://docs.docker.com/storage/containerd/) in Docker Engine.
+We recommend to enable the experimental feature [containerd image store](https://docs.docker.com/storage/containerd/) in Docker Engine.
 `containerd` understands multiplatform images, where a single image tag can refer to different variants covering a range of OS and hardware architectures.
 It simplifies the process of building, storing, and distributing images across different platforms.
 
-A single command in project to enable that feature
+A single command to enable that feature in Docker Engine:
 
 ```bash
 make set_containerd_image_store
@@ -158,24 +187,6 @@ PLATFORMS=linux/arm64 make build
 ```
 
 By default, without specifying the `PLATFORMS` variable, the images are built for the `linux/amd64` platform.
-
-### Browser images in multi-arch
-
-- Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
-Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
-
-- Instead, the open source Chromium browser is used, which is built for Linux/ARM. The Chromium (node and standalone) images are available in multi-arch.
-
-```bash
-$ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selenium/standalone-chromium:latest
-```
-
-- Mozilla Firefox now is available for Linux/ARM64 via [Nightly channel](https://blog.nightly.mozilla.org/2024/04/19/firefox-nightly-now-available-for-linux-on-arm64/).
-The Firefox version in ARM64 will be different with the AMD64 until the stable release is available. The Firefox (node and standalone) images are available in multi-arch.
-
-Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.
-
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/SeleniumHQ/docker-selenium/tree/trunk.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/SeleniumHQ/docker-selenium/tree/trunk)
 
 ___
 
