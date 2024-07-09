@@ -8,6 +8,7 @@ ARG AUTHORS=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
 ARG OPENTELEMETRY_VERSION=1.38.0
 ARG GRPC_VERSION=1.64.0
+ARG NETTY_VERSION=4.1.108.Final
 ARG CS_VERSION=2.1.10
 
 #Arguments to define the user running Selenium
@@ -120,7 +121,7 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
   && if [ -f "/tmp/cs" ]; then \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-        io.grpc:grpc-netty:${GRPC_VERSION} > /external_jars/.classpath.txt \
+        io.grpc:grpc-netty:${GRPC_VERSION} io.netty:netty-codec-http:${NETTY_VERSION} > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt ; \
      fi \
   && rm -fr /root/.cache/* \

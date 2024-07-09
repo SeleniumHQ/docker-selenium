@@ -1,9 +1,6 @@
-tls:
+registrationSecret:
   enabled: true
-  generateTLS: false
-  registrationSecret:
-    enabled: true
-    value: "HappyTestOps"
+  value: "HappyTestOps"
 
 monitoring:
   enabled: false

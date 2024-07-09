@@ -29,29 +29,37 @@ global:
     stdoutProbeLog: false
 
 tls:
+  # Name of external secret containing the TLS certificate and key
+  # nameOverride:
   enabled: false
   ingress:
+    enabled: false
     generateTLS: false
     defaultName: "SeleniumHQ"
     defaultDays: 3650
     defaultCN: "www.selenium.dev"
     # or *.domain.com
     defaultSANList: []
-    #  - domain.com
+    #  - staging.domain.com
     #  - production.domain.com
     defaultIPList: []
     #  - 10.10.10.10
-  defaultFile:
-    certificate: "certs/selenium.pem"
-    privateKey: "certs/selenium.pkcs8.base64"
-    trustStore: "certs/selenium.jks"
-  certificate:
-  privateKey:
-  trustStore:
-  trustStorePassword: "changeit"
-  registrationSecret:
-    enabled: false
-    value: "HappyTesting"
+  secretFiles:
+    tls.crt: ""
+    tls.key: ""
+    server.jks: ""
+  secretFilesImportFrom: "certs/**"
+  certVolumeMountPath: /etc/ssl/certs/selenium
+  certificateFile: tls.crt
+  privateKeyFile: tls.key
+  trustStoreFile: server.jks
+  trustStorePassword: "seleniumkeystore"
+  # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
+  disableHostnameVerification: true
+
+registrationSecret:
+  enabled: false
+  value: "HappyTesting"
 
 # Basic auth settings for Selenium Grid
 basicAuth:
@@ -108,6 +116,7 @@ ingress:
   className: ""
   # Refer to list nginx annotations: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#annotations
   nginx:
+    websocket: true
     proxyTimeout: 3600
     proxyBuffer:
       size: 512M
@@ -236,12 +245,6 @@ loggingConfigMap:
 # ConfigMap that contains common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server)
 serverConfigMap:
   # nameOverride:
-  certVolumeMountPath: /etc/ssl/certs/selenium
-  certificateFile: selenium.pem
-  privateKeyFile: selenium.pkcs8
-  trustStoreFile: selenium.jks
-  # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
-  disableHostnameVerification: true
   env:
     SE_JAVA_OPTS: "-XX:+UseZGC"
   # Custom annotations for configmap

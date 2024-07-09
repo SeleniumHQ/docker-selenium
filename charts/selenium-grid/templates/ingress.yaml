@@ -32,7 +32,7 @@ spec:
   {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
-  {{- if and (or .Values.tls.enabled .Values.tls.ingress.generateTLS) (tpl .Values.ingress.hostname $) (not .Values.ingress.tls) }}
+  {{- if and (eq (include "seleniumGrid.ingress.secureConnection" $) "true") (tpl .Values.ingress.hostname $) (not .Values.ingress.tls) }}
   tls:
     - hosts:
         - {{ tpl .Values.ingress.hostname $ | quote }}

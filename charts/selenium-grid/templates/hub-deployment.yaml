@@ -28,6 +28,7 @@ spec:
         checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
         checksum/distributor-configmap: {{ include (print $.Template.BasePath "/distributor-configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        checksum/tls-cert-secret: {{ include (print $.Template.BasePath "/tls-cert-secret.yaml") . | sha256sum }}
     {{- with .Values.hub.annotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
@@ -141,9 +142,9 @@ spec:
               mountPath: {{ $.Values.distributorConfigMap.extraScriptsDirectory }}/{{ $fileName }}
               subPath: {{ $fileName }}
           {{- end }}
-          {{- if .Values.tls.enabled }}
+          {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
-              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
           {{- end }}
         {{- with .Values.hub.extraVolumeMounts }}
@@ -177,7 +178,7 @@ spec:
           configMap:
             name: {{ template "seleniumGrid.distributor.configmap.fullname" $ }}
             defaultMode: {{ $.Values.distributorConfigMap.defaultMode }}
-      {{- if .Values.tls.enabled }}
+      {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:
             secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
