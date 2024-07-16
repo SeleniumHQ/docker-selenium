@@ -21,7 +21,16 @@ done
 # Set language environment variable
 export LANGUAGE="\$LANGUAGE"
 
+# Capture the filtered environment variables start with "SE_BROWSER_ARGS_" into an array
+mapfile -t BROWSER_ARGS_ARRAY < <(printenv | grep ^SE_BROWSER_ARGS_)
+# Iterate over the array
+for var in "\${BROWSER_ARGS_ARRAY[@]}"; do
+  # Split the variable into name and value
+  IFS='=' read -r name value <<< "\$var"
+  SE_BROWSER_ARGS="\$SE_BROWSER_ARGS \$value"
+done
+
 # Note: exec -a below is a bashism.
-exec -a "\$0" "$BASE_PATH" --no-sandbox "\$@"
+exec -a "\$0" "$BASE_PATH" --no-sandbox \$SE_BROWSER_ARGS "\$@"
 _EOF
 chmod +x "$WRAPPER_PATH"

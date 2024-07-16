@@ -23,6 +23,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
       * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
+      * [Configuration of shm size limit for browser nodes](#configuration-of-shm-size-limit-for-browser-nodes)
     * [Configuration of Probes](#configuration-of-probes)
       * [Node Probes](#node-probes)
       * [Distributor Probes](#distributor-probes)
@@ -383,6 +384,19 @@ edgeNode:
       name: novnc
       protocol: TCP
 ```
+
+#### Configuration of shm size limit for browser nodes
+
+By default, node browsers (Chrome/Chromium, Edge) leave the config key `dshmVolumeSizeLimit` as empty. It means the `/dev/shm` volume mount is disabled, and argument `--disable-dev-shm-usage` is passed to the browser via container environment variable (get motivation from [this post](https://www.ministryoftesting.com/articles/navigating-chromedriver-crashes-in-kubernetes-a-tale-of-test-automation-resilience)). You can set another valid value to enable it back. For example:
+
+```yaml
+chromeNode:
+    dshmVolumeSizeLimit: "2Gi"
+edgeNode:
+    dshmVolumeSizeLimit: "2Gi"
+```
+
+For Firefox node, the default value is kept as `2Gi`. You can override it via `firefoxNode.dshmVolumeSizeLimit`.
 
 ### Configuration of Probes
 
@@ -859,7 +873,7 @@ This table contains the configuration parameters of the chart and their default 
 | `chromeNode.service.loadBalancerIP`           | ``                                          | Set specific loadBalancerIP when serviceType is LoadBalancer                                                               |
 | `chromeNode.service.ports`                    | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `chromeNode.service.annotations`              | `{}`                                        | Custom annotations for service                                                                                             |
-| `chromeNode.dshmVolumeSizeLimit`              | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `chromeNode.dshmVolumeSizeLimit`              | ``                                          | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")                                |
 | `chromeNode.startupProbe.enabled`             | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
 | `chromeNode.readinessProbe.enabled`           | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
 | `chromeNode.livenessProbe.enabled`            | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |
@@ -902,7 +916,7 @@ This table contains the configuration parameters of the chart and their default 
 | `firefoxNode.service.loadBalancerIP`          | ``                                          | Set specific loadBalancerIP when serviceType is LoadBalancer                                                               |
 | `firefoxNode.service.ports`                   | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `firefoxNode.service.annotations`             | `{}`                                        | Custom annotations for service                                                                                             |
-| `firefoxNode.dshmVolumeSizeLimit`             | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `firefoxNode.dshmVolumeSizeLimit`             | `2Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")                                |
 | `firefoxNode.startupProbe.enabled`            | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
 | `firefoxNode.readinessProbe.enabled`          | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
 | `firefoxNode.livenessProbe.enabled`           | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |
@@ -945,7 +959,7 @@ This table contains the configuration parameters of the chart and their default 
 | `edgeNode.service.loadBalancerIP`             | ``                                          | Set specific loadBalancerIP when serviceType is LoadBalancer                                                               |
 | `edgeNode.service.ports`                      | `[]`                                        | Extra ports exposed in node service                                                                                        |
 | `edgeNode.service.annotations`                | `{}`                                        | Custom annotations for service                                                                                             |
-| `edgeNode.dshmVolumeSizeLimit`                | `1Gi`                                       | Size limit for DSH volume mounted in container (if not set, default is "1Gi")                                              |
+| `edgeNode.dshmVolumeSizeLimit`                | ``                                          | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")                                |
 | `edgeNode.startupProbe.enabled`               | `true`                                      | Enable Probe to check pod is started successfully (the following configs see `values.yaml`)                                |
 | `edgeNode.readinessProbe.enabled`             | `false`                                     | Enable Readiness probe settings (the following configs see `values.yaml`)                                                  |
 | `edgeNode.livenessProbe.enabled`              | `false`                                     | Enable Liveness probe settings (the following configs see `values.yaml`)                                                   |

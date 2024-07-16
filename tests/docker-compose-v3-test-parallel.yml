@@ -12,7 +12,6 @@ services:
       replicas: 10
     image: selenium/node-${NODE_CHROME}:${TAG}
     user: ${UID}
-    shm_size: 2gb
     depends_on:
       - selenium-hub
     environment:
@@ -21,6 +20,8 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage
+      - SE_BROWSER_ARGS_INCOGNITO=--incognito --incognito
       - SE_LOG_LEVEL=${LOG_LEVEL}
 
   firefox:
