@@ -39,8 +39,3 @@ videoRecorder:
       RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "${GS_SECRET_ACCESS_KEY}"
       RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
       RCLONE_CONFIG_GS_NO_CHECK_BUCKET: "true"
-
-ingress-nginx:
-  controller:
-    extraArgs:
-      default-ssl-certificate: '$(POD_NAMESPACE)/${SELENIUM_TLS_SECRET_NAME}'

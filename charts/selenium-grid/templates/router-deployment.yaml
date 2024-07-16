@@ -83,9 +83,9 @@ spec:
               mountPath: {{ $.Values.routerConfigMap.extraScriptsDirectory }}/{{ $fileName }}
               subPath: {{ $fileName }}
           {{- end }}
-          {{- if .Values.tls.enabled }}
+          {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
-              mountPath: {{ .Values.serverConfigMap.certVolumeMountPath | quote }}
+              mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
           {{- end }}
           ports:
@@ -170,7 +170,7 @@ spec:
           configMap:
             name: {{ template "seleniumGrid.router.configmap.fullname" $ }}
             defaultMode: {{ $.Values.routerConfigMap.defaultMode }}
-      {{- if .Values.tls.enabled }}
+      {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:
             secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}

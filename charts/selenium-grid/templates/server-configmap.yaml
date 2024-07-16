@@ -13,12 +13,12 @@ metadata:
     {{- end }}
 data:
   SE_SERVER_PROTOCOL: {{ include "seleniumGrid.server.protocol" . | quote }}
+{{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+  SE_HTTPS_CERTIFICATE: {{ printf "%s/%s" .Values.tls.certVolumeMountPath .Values.tls.certificateFile | quote }}
+  SE_HTTPS_PRIVATE_KEY: {{ printf "%s/%s" .Values.tls.certVolumeMountPath .Values.tls.privateKeyFile | quote }}
+  SE_JAVA_SSL_TRUST_STORE: {{ printf "%s/%s" .Values.tls.certVolumeMountPath .Values.tls.trustStoreFile | quote }}
+  SE_JAVA_DISABLE_HOSTNAME_VERIFICATION: {{ .Values.tls.disableHostnameVerification | quote }}
+{{- end }}
 {{- range $key, $value := .Values.serverConfigMap.env }}
   {{ $key }}: {{ $value | quote }}
-{{- end }}
-{{- if .Values.tls.enabled }}
-  SE_HTTPS_CERTIFICATE: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.certificateFile | quote }}
-  SE_HTTPS_PRIVATE_KEY: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.privateKeyFile | quote }}
-  SE_JAVA_SSL_TRUST_STORE: {{ printf "%s/%s" .Values.serverConfigMap.certVolumeMountPath .Values.serverConfigMap.trustStoreFile | quote }}
-  SE_JAVA_DISABLE_HOSTNAME_VERIFICATION: {{ .Values.serverConfigMap.disableHostnameVerification | quote }}
 {{- end }}

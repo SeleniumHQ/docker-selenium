@@ -38,17 +38,6 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-# Limit the number of resources to avoid host OOM
-CPUs=$(grep -c ^processor /proc/cpuinfo)
-if [ "${CPUs}" -gt 1 ]; then
-  CPUs=$((CPUs-1))
-fi
-
-MEMORY=$(free -m | awk '/^Mem:/{print $7}')
-if [ "${MEMORY}" = "" ]; then
-  MEMORY=$(free -m | awk '/^Mem:/{print $2}')
-fi
-
 if [ "${CLUSTER}" = "kind" ]; then
   echo "Start Kind cluster"
   kind create cluster --image kindest/node:${KUBERNETES_VERSION} --wait ${WAIT_TIMEOUT} --name ${CLUSTER_NAME} --config tests/charts/config/kind-cluster.yaml
@@ -56,7 +45,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   echo "Start Minikube cluster"
   sudo chmod 777 /tmp
   export CHANGE_MINIKUBE_NONE_USER=true
-  sudo -SE minikube start --vm-driver=none --cpus ${CPUs} --memory ${MEMORY} \
+  sudo -SE minikube start --vm-driver=none \
   --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME} --wait=all
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
 fi

@@ -24,8 +24,8 @@ data:
   SE_BASIC_AUTH: '{{ template "seleniumGrid.url.basicAuth" $ }}'
   SE_SUB_PATH: '{{ template "seleniumGrid.url.subPath" $ }}'
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
-  SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" .}}'
-  SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" . }}'
+  SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" $ }}'
+  SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" $ }}'
 {{- if $.Values.nodeConfigMap.leftoversCleanup.enabled }}
   SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP: 'true'
   {{- with $.Values.nodeConfigMap.leftoversCleanup.jobIntervalInSecs }}

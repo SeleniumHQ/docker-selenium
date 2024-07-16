@@ -13,7 +13,7 @@ trap 'on_failure' ERR
 
 NAMESPACE=${NAME:-"selenium"}
 VERSION=${VERSION:-$TAG_VERSION}
-CERT_FILE=${CERT_FILE:-"./charts/selenium-grid/certs/*.pem"}
+CERT_FILE=${CERT_FILE:-"./charts/selenium-grid/certs/*.crt"}
 CERT_SCRIPT=${CERT_SCRIPT:-"./tests/customCACert/cert-script.sh"}
 
 COMMON_BUILD_ARGS="--build-arg NAMESPACE=${NAMESPACE} --build-arg VERSION=${VERSION} --build-arg CERT_FILE=${CERT_FILE} --build-arg CERT_SCRIPT=${CERT_SCRIPT}"
@@ -22,7 +22,7 @@ docker build ${COMMON_BUILD_ARGS} --build-arg BASE=node-chrome -t ${NAMESPACE}/n
 docker build ${COMMON_BUILD_ARGS} --build-arg BASE=node-firefox -t ${NAMESPACE}/node-firefox:${VERSION} -f ./tests/customCACert/Dockerfile .
 docker build ${COMMON_BUILD_ARGS} --build-arg BASE=node-edge -t ${NAMESPACE}/node-edge:${VERSION} -f ./tests/customCACert/Dockerfile .
 
-list_cert_files=($(find ./charts/selenium-grid/certs/ -name "*.pem"))
+list_cert_files=($(find ./charts/selenium-grid/certs/ -name "*.crt"))
 for cert_file_path in "${list_cert_files[@]}"; do
   cert_file_name="$(basename ${cert_file_path})"
   cert_name="${cert_file_name%.*}"

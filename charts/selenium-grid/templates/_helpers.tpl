@@ -1,16 +1,29 @@
+{{/*
+Server secure connection
+*/}}
+{{- define "seleniumGrid.server.secureConnection" -}}
+{{- $.Values.tls.enabled | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
+Ingress proxy forward secure connection
+*/}}
+{{- define "seleniumGrid.ingress.secureConnection" -}}
+{{- or $.Values.tls.enabled $.Values.tls.ingress.enabled $.Values.tls.ingress.generateTLS | ternary "true" "" -}}
+{{- end -}}
 
 {{/*
 Protocol of server components
 */}}
 {{- define "seleniumGrid.server.protocol" -}}
-{{- .Values.tls.enabled | ternary "https" "http" -}}
+{{- (eq (include "seleniumGrid.server.secureConnection" $) "true") | ternary "https" "http" -}}
 {{- end -}}
 
 {{/*
 Probe httpGet schema
 */}}
 {{- define "seleniumGrid.probe.httpGet.schema" -}}
-{{- .Values.tls.enabled | ternary "HTTPS" "HTTP" -}}
+{{- (eq (include "seleniumGrid.server.secureConnection" $) "true") | ternary "HTTPS" "HTTP" -}}
 {{- end -}}
 
 {{/*
@@ -69,8 +82,8 @@ Get probe settings
 {{/*
 Is registration secret enabled
 */}}
-{{- define "seleniumGrid.tls.registrationSecret.enabled" -}}
-{{- .Values.tls.registrationSecret.enabled | ternary "true" "" -}}
+{{- define "seleniumGrid.registrationSecret.enabled" -}}
+{{- .Values.registrationSecret.enabled | ternary "true" "" -}}
 {{- end -}}
 
 {{/*
@@ -106,8 +119,11 @@ nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
 nginx.ingress.kubernetes.io/proxy-buffers-number: {{ . | quote }}
     {{- end }}
   {{- end }}
+  {{- if .websocket }}
+nginx.org/websocket-services: {{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ | quote }}
+  {{- end }}
 {{- end }}
-{{- if .Values.tls.enabled }}
+{{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
 nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 {{- end }}
@@ -285,9 +301,9 @@ template:
             mountPath: {{ $.Values.nodeConfigMap.extraScriptsDirectory }}/{{ $fileName }}
             subPath: {{ $fileName }}
         {{- end }}
-        {{- if $.Values.tls.enabled }}
+        {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
           - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
-            mountPath: {{ $.Values.serverConfigMap.certVolumeMountPath }}
+            mountPath: {{ $.Values.tls.certVolumeMountPath }}
             readOnly: true
         {{- end }}
         {{- if .node.extraVolumeMounts }}
@@ -479,7 +495,7 @@ template:
         emptyDir:
           medium: Memory
           sizeLimit: {{ default "1Gi" .node.dshmVolumeSizeLimit }}
-    {{- if $.Values.tls.enabled }}
+    {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
       - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
         secret:
           secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
@@ -500,14 +516,33 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- $url }}
 {{- end -}}
 
+{{/*
+Get the url of the grid server in the cluster
+*/}}
+{{- define "seleniumGrid.server.url" -}}
+{{- $url := printf "%s://%s%s%s%s" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- $url }}
+{{- end -}}
+
+{{/*
+Graphql Url of the hub or the router
+*/}}
+{{- define "seleniumGrid.graphqlURL" -}}
+{{- printf "%s/graphql" (include "seleniumGrid.server.url" $) -}}
+{{- end -}}
+
 {{- define "seleniumGrid.url.schema" -}}
 {{- $schema := "http" -}}
-{{- if .Values.tls.enabled -}}
+{{- if or (eq (include "seleniumGrid.server.secureConnection" $) "true") (eq (include "seleniumGrid.ingress.secureConnection" $) "true") -}}
   {{- $schema = "https" -}}
-{{- else if .Values.ingress.enabled -}}
-  {{- if .Values.ingress.tls -}}
-    {{- $schema = "https" -}}
-  {{- end -}}
+{{- end -}}
+{{- $schema }}
+{{- end -}}
+
+{{- define "seleniumGrid.server.url.schema" -}}
+{{- $schema := "http" -}}
+{{- if eq (include "seleniumGrid.server.secureConnection" $) "true" -}}
+  {{- $schema = "https" -}}
 {{- end -}}
 {{- $schema }}
 {{- end -}}
@@ -531,6 +566,11 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- else if .Values.global.K8S_PUBLIC_IP -}}
   {{- $host = .Values.global.K8S_PUBLIC_IP -}}
 {{- end -}}
+{{- $host }}
+{{- end -}}
+
+{{- define "seleniumGrid.server.url.host" -}}
+{{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
 {{- $host }}
 {{- end -}}
 
@@ -558,6 +598,16 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- $port }}
 {{- end -}}
 
+{{- define "seleniumGrid.server.url.port" -}}
+{{- $port := ":4444" -}}
+{{- if .Values.isolateComponents -}}
+  {{- $port = printf ":%s" (.Values.components.router.port | toString) -}}
+{{- else -}}
+  {{- $port = printf ":%s" (.Values.hub.port | toString) -}}
+{{- end -}}
+{{- $port }}
+{{- end -}}
+
 {{- define "seleniumGrid.url.subPath" -}}
 {{- $subPath := "" -}}
 {{- if $.Values.isolateComponents -}}
@@ -569,17 +619,10 @@ Get the url of the grid. If the external url can be figured out from the ingress
 {{- end -}}
 
 {{/*
-Graphql Url of the hub or the router
-*/}}
-{{- define "seleniumGrid.graphqlURL" -}}
-{{- printf "%s://%s%s%s/graphql" (include "seleniumGrid.server.protocol" .) (include "seleniumGrid.url.basicAuth" .) (printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $) (.Release.Namespace)) (printf ":%s" ($.Values.isolateComponents | ternary ($.Values.components.router.port | toString) ($.Values.hub.port | toString))) -}}
-{{- end -}}
-
-{{/*
 Graphql unsafeSsl of the hub or the router
 */}}
 {{- define "seleniumGrid.graphqlURL.unsafeSsl" -}}
-{{- $unsafeSsl := printf "%s" (ternary "true" "false" .Values.serverConfigMap.disableHostnameVerification) -}}
+{{- $unsafeSsl := printf "%s" (ternary "true" "false" .Values.tls.disableHostnameVerification) -}}
 {{- $unsafeSsl }}
 {{- end -}}
 

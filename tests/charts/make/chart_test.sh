@@ -23,7 +23,7 @@ HUB_CHECKS_MAX_ATTEMPTS=${HUB_CHECKS_MAX_ATTEMPTS:-6}
 WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL:-20}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"true"} # For debugging purposes, retain the cluster after the test run
-CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/selenium.pem"}
+CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/tls.crt"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
 CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
@@ -39,6 +39,12 @@ TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
 LIMIT_RESOURCES=${LIMIT_RESOURCES:-"true"}
 TEST_PLATFORMS=${PLATFORMS:-"linux/amd64"}
+if [ "${RELEASE_NAME}" = "selenium" ]; then
+  SELENIUM_TLS_SECRET_NAME="selenium-tls-secret"
+else
+  SELENIUM_TLS_SECRET_NAME="${RELEASE_NAME}-selenium-tls-secret"
+fi
+EXTERNAL_TLS_SECRET_NAME=${EXTERNAL_TLS_SECRET_NAME:-"external-tls-secret"}
 
 cleanup() {
   # Get the list of pods
@@ -83,11 +89,6 @@ export RELEASE_NAME=${RELEASE_NAME}
 export SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE}
 export TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME}
 export HOST_PATH=$(realpath ./tests/videos)
-if [ "${RELEASE_NAME}" = "selenium" ]; then
-  export SELENIUM_TLS_SECRET_NAME="selenium-tls-secret"
-else
-  export SELENIUM_TLS_SECRET_NAME="${RELEASE_NAME}-selenium-tls-secret"
-fi
 RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
 envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
 RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
@@ -173,6 +174,59 @@ if [ "${TEST_PLATFORMS}" != "linux/amd64" ]; then
   "
 fi
 
+if [ "${SERVICE_TYPE_NODEPORT}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress.enabled=false \
+  --set hub.serviceType=NodePort \
+  --set components.router.serviceType=NodePort \
+  "
+fi
+
+if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tls.ingress.generateTLS=true \
+  --set tls.ingress.defaultCN=${SELENIUM_GRID_HOST} \
+  --set tls.ingress.defaultSANList[0]=${SELENIUM_GRID_HOST} \
+  --set tls.ingress.defaultIPList[0]=$(hostname -I | awk '{print $1}') \
+  "
+  kubectl get secret ${SELENIUM_TLS_SECRET_NAME} -n ${SELENIUM_NAMESPACE} -o jsonpath="{.data.tls\.crt}" | base64 -d > ./tests/tests/tls.crt
+  CHART_CERT_PATH="./tests/tests/tls.crt"
+fi
+
+if [ "${SECURE_INGRESS_ONLY_DEFAULT}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tls.ingress.enabled=true \
+  "
+fi
+
+if [ "${SECURE_CONNECTION_SERVER}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tls.enabled=true \
+  "
+fi
+
+if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tls.nameOverride=${EXTERNAL_TLS_SECRET_NAME} \
+  "
+  cert_dir="./tests/tests"
+  ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/cert.sh -d ${cert_dir}
+  kubectl delete secret -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} --ignore-not-found=true
+  kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} --from-file=tls.crt=${cert_dir}/tls.crt \
+  --from-file=tls.key=${cert_dir}/tls.key --from-file=server.jks=${cert_dir}/server.jks
+  CHART_CERT_PATH="./tests/tests/tls.crt"
+fi
+
+if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME} \
+  "
+else
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${SELENIUM_TLS_SECRET_NAME} \
+  "
+fi
+
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_AUTOSCALING=" \
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
@@ -227,6 +281,11 @@ kubectl get pods -A
 if [ "${TEST_UPGRADE_CHART}" = "true" ]; then
   echo "Focus on verify chart upgrade, skip Selenium tests"
   exit 0
+fi
+
+if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ]; then
+  kubectl get secret ${SELENIUM_TLS_SECRET_NAME} -n ${SELENIUM_NAMESPACE} -o jsonpath="{.data.tls\.crt}" | base64 -d > ./tests/tests/tls.crt
+  CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 
 echo "Run Tests"

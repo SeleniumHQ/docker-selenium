@@ -31,9 +31,11 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of video recorder and video uploader](#configuration-of-video-recorder-and-video-uploader)
       * [Video recorder](#video-recorder)
       * [Video uploader](#video-uploader)
-    * [Configuration of Secure Communication (HTTPS)](#configuration-of-secure-communication-https)
-      * [Secure Communication](#secure-communication)
-      * [Node Registration](#node-registration)
+    * [Configuration of Secure Communication](#configuration-of-secure-communication)
+      * [Create TLS Secret](#create-tls-secret)
+      * [Secure Connection to Selenium Grid components](#secure-connection-to-selenium-grid-components)
+      * [Secure Connection to the Ingress proxy](#secure-connection-to-the-ingress-proxy)
+    * [Node Registration](#node-registration)
     * [Configuration of tracing observability](#configuration-of-tracing-observability)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
@@ -600,76 +602,172 @@ videoRecorder:
         imageTag: latest
 ```
 
-### Configuration of Secure Communication (HTTPS)
+### Configuration of Secure Communication
 
 Selenium Grid supports secure communication between components. Refer to the [instructions](https://github.com/SeleniumHQ/selenium/blob/trunk/java/src/org/openqa/selenium/grid/commands/security.txt) and [options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) are able to configure the secure communication. Below is the details on how to enable secure communication in Selenium Grid chart.
 
-#### Secure Communication
+In the chart, there is directory [certs](./certs) contains the default self-signed certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [certs/cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
 
-In the chart, there is directory [certs](./certs) contains the default certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
+Usage of [certs/cert.sh](./certs/cert.sh) script:
 
-There are multiple ways to configure your certificate, private key, truststore to the components. You can choose one of them or combine them.
+```bash
+# Generate self-signed to target directory
+./certs/cert.sh -d /path/to/your/
+# Add current host IP to the certificate
+ADD_IP_ADDRESS=hostname ./certs/cert.sh -d /path/to/your/
+# Add multiple IP addresses to the certificate (comma-separated)
+ADD_IP_ADDRESS=",IP:10.10.10.10,IP:10.10.11.11" ./certs/cert.sh -d /path/to/your/
+# Other environment variables that script consumes
+# CERTNAME, STOREPASS, KEYPASS, ALIAS, SERVER_KEYSTORE, BASE64_ONLY
+```
 
-- Use the default directory [certs](./certs). Rename your own files to be same as the default files and replace them. Give `--set tls.enabled=true` to enable secure communication.
+#### Create TLS Secret
 
-- Use the default directory [certs](./certs). Copy your own files to there and adjust the file name under config `tls.defaultFile`, those will be picked up when installing chart. For example:
+There are multiple ways to insert your certificate, private key, truststore to the components. You can choose one of following ways:
 
-    ```yaml
-    tls:
-      enabled: true
-      trustStorePassword: "your_truststore_password"
-      defaultFile:
-        certificate: "certs/your_cert.pem"
-        privateKey: "certs/your_private_key.pkcs8"
-        trustStore: "certs/your_truststore.jks"
-    ```
-    For some security reasons, you may not able to put private key in your source code or your customization chart package. You can provide files with contents are encoded in Base64 format, just append `.base64` to the file name for chart able to know and decode them. For example:
+1. Replace your certificate, private key, truststore to the default directory [certs](./certs) in chart with the same name before deploying the chart.
 
-    ```yaml
-    tls:
-      enabled: true
-      trustStorePassword: "your_truststore_password"
-      defaultFile:
-        certificate: "certs/your_cert.pem.base64"
-        privateKey: "certs/your_private_key.pkcs8.base64"
-        trustStore: "certs/your_truststore.jks.base64"
-    ```
-
-- Using Helm CLI `--set-file` to pass your own file to particular config key. For example:
+2. Use Helm CLI to pass your certificate, private key, truststore via `--set-file` when deploying the chart. For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
 
     ```bash
-    helm upgrade -i test selenium-grid \
-    --set tls.enabled=true \
-    --set-file tls.certificate=/path/to/your_cert\.pem \
-    --set-file tls.privateKey=/path/to/your_private_key\.pkcs8 \
-    --set-file tls.trustStore=/path/to/your_truststore\.jks \
-    --set-string tls.trustStorePassword=your_truststore_password
+    helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+        --set tls.enabled=true \
+        --set-file tls.secretFiles.tls\.crt=/path/to/your/tls.crt \
+        --set-file tls.secretFiles.tls\.key=/path/to/your/tls.key \
+        --set-file tls.secretFiles.server\.jks=/path/to/your/server.jks
     ```
 
-If you start NGINX ingress controller inline with Selenium Grid chart, you can configure the default certificate of NGINX ingress controller to use the same certificate as Selenium Grid. For example:
+3. Create your own TLS Secret with your certificate, private key, truststore and pass the Secret name via `tls.nameOverride` when deploying the chart. For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+   ```bash
+   # Steps to prepare your self-signed certificate
+   ./certs/cert.sh -d /path/to/your/
+   # Create TLS Secret with your certificate, private key, truststore
+   kubectl create secret generic -n $NAMESPACE my-external-tls-secret \
+       --from-file=tls.crt=/path/to/your/tls.crt \
+       --from-file=tls.key=/path/to/your/tls.key \
+       --from-file=server.jks=/path/to/your/server.jks
+   # Deploy chart with your external TLS Secret
+   helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+       --set tls.enabled=true --set tls.nameOverride=my-external-tls-secret
+   ```
+   
+   In case your external secret contains key file names are different with default, you can instruct server to use them via following values:
+
+    ```yaml
+    tls:
+      enabled: true
+      nameOverride: my-external-tls-secret
+      certificateFile: "my-tls.crt"
+      privateKeyFile: "my-tls.key"
+      trustStoreFile: "my-server.jks"
+      trustStorePassword: "mytruststorepassword"
+    ```
+
+#### Secure Connection to Selenium Grid components
+
+When enabling secure communication between Selenium Grid server components, you need to set the following values:
 
 ```yaml
 tls:
   enabled: true
+```
 
-ingress-nginx:
+In additional, if the ingress is enabled, and approach SSL Passthrough is used to ensure the request forwards to the backend components via an encrypted connection.
+With `ingress.hostname` is set, the default server TLS secret is also used for hosts TLS secretName when `ingress.tls` is empty. Once you specify `ingress.tls`, your specified secret will be used for hosts TLS secretName.
+
+![SeleniumGrid_TLS_SSL-Passthrough](./images/SeleniumGrid_TLS_SSL-Passthrough.png)
+
+Moreover, when sub-chart `ingress-nginx` is enabled (deploy Ingress NGINX Controller together), the default server TLS secret can also be assigned via `ingress-nginx.controller.extraArgs.default-ssl-certificate`.
+For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+    --set tls.enabled=true \
+    --set ingress-nginx.enabled=true \
+    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/$RELEASENAME-selenium-tls-secret
+```
+
+Below is an example of Grid UI accessible via NodePort with secure connection, and using external TLS Secret (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+  --set ingress.enabled=false \
+  --set isolateComponents=true \
+  --set components.router.serviceType=NodePort \
+  --set tls.enabled=true \
+  --set tls.nameOverride=my-external-tls-secret
+```
+
+Grid UI can be accessed via HTTPS address `https://your.host.public.ip:30444`.
+
+![SeleniumGrid_TLS_WithoutProxy](./images/SeleniumGrid_TLS_WithoutProxy.png)
+
+#### Secure Connection to the Ingress proxy
+
+When enabling secure communication via HTTPS/TLS between the client and the Ingress proxy only (SSL Offloading / aka SSL Termination). The proxy will terminate the TLS connection, decrypt incoming HTTPS traffic and send it to the backend components without encryption. The backend Selenium Grid components doesn't need to understand HTTPS. To enable this mode, you need to set the following values:
+
+```yaml
+tls:
+  ingress:
+    enabled: true
+```
+
+![SeleniumGrid_TLS_SSL-Termination](./images/SeleniumGrid_TLS_SSL-Termination.png)
+
+In additional, a self-signed certificate and private key can be generated runtime during the chart deployment for Ingress TLS by setting these values (replace `$RELEASENAME` with your value):
+
+```yaml
+tls:
+  ingress:
+    generateTLS: true
+    defaultName: "MySelfSignedCert"
+    defaultDays: 3650
+    defaultCN: "www.domain.com" # Common Name
+    defaultSANList:
+      - selenium-grid.prod.domain.com # Subject Alternative Name
+      - selenium-grid.staging.domain.com
+    defaultIPList:
+      - 10.87.99.100 # Public IP of the host running K8s or LoadBalancer IP
+      - 10.87.100.101
+
+ingress-ngnix:
   enabled: true
   controller:
     extraArgs:
-      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
+      default-ssl-certificate: $(POD_NAMESPACE)/$RELEASENAME-selenium-tls-secret
 ```
 
-#### Node Registration
+You can get the `tls.crt` and `tls.key` from the Secret after the chart is deployed. For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+```bash
+kubectl get secret $RELEASENAME-selenium-tls-secret -n $NAMESPACE -o jsonpath="{.data.tls\.crt}" | base64 -d > ./tls.crt
+kubectl get secret $RELEASENAME-selenium-tls-secret -n $NAMESPACE -o jsonpath="{.data.tls\.key}" | base64 -d > ./tls.key
+```
+
+Below is an example of Grid UI accessible via secure connection to the Ingress proxy with self-signed certificate in external TLS Secret (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+  --set ingress.enabled=true \
+  --set ingress.hostname="selenium-grid.prod.domain.com" \
+  --set tls.ingress.enabled=true \
+  --set tls.nameOverride=my-external-tls-secret \
+  --set ingress-nginx.enabled=true \
+  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
+```
+
+Grid UI can be accessed via HTTPS address `https://selenium-grid.prod.domain.com`.
+
+### Node Registration
 
 To enable secure in the node registration to make sure that the node is one you control and not a rouge node, you can enable and provide a registration secret string to Distributor, Router and
-Node servers in config `tls.registrationSecret`. For example:
+Node servers in config `registrationSecret`. For example:
 
 ```yaml
-tls:
+registrationSecret:
   enabled: true
-  registrationSecret:
-    enabled: true
-    value: "matchThisSecret"
+  value: "matchThisSecret"
 ```
 
 ### Configuration of tracing observability
