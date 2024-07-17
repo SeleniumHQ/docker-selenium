@@ -724,7 +724,7 @@ chromeNode:
       memory: "1Gi"
       cpu: "1"
     limits:
-      memory: "1Gi"
+      memory: "2Gi"
       cpu: "1"
   # SecurityContext for chrome-node container
   securityContext: {}
@@ -771,8 +771,8 @@ chromeNode:
     #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
-  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  # Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
+  dshmVolumeSizeLimit: ""
   # Priority class name for chrome-node pods
   priorityClassName: ""
 
@@ -889,7 +889,7 @@ firefoxNode:
       memory: "1Gi"
       cpu: "1"
     limits:
-      memory: "1Gi"
+      memory: "2Gi"
       cpu: "1"
   # SecurityContext for firefox-node container
   securityContext: {}
@@ -932,8 +932,8 @@ firefoxNode:
     #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
-  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  # Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
+  dshmVolumeSizeLimit: "2Gi"
   # Priority class name for firefox-node pods
   priorityClassName: ""
 
@@ -1048,7 +1048,7 @@ edgeNode:
       memory: "1Gi"
       cpu: "1"
     limits:
-      memory: "1Gi"
+      memory: "2Gi"
       cpu: "1"
   # SecurityContext for edge-node container
   securityContext: {}
@@ -1091,8 +1091,8 @@ edgeNode:
     #   targetPort: 5900
     # Custom annotations for service
     annotations: {}
-  # Size limit for DSH volume mounted in container (if not set, default is "1Gi")
-  dshmVolumeSizeLimit: 1Gi
+  # Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
+  dshmVolumeSizeLimit: ""
   # Priority class name for edge-node pods
   priorityClassName: ""
 

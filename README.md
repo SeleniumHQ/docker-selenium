@@ -52,6 +52,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Configuring the containers](#configuring-the-containers)
   * [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
   * [SE_JAVA_OPTS Java Environment Options](#se_java_opts-java-environment-options)
+  * [SE_BROWSER_ARGS_* Add arguments for launching browser](#se_browser_args_-add-arguments-for-launching-browser)
   * [Node configuration options](#node-configuration-options)
   * [Node configuration relay commands](#node-configuration-relay-commands)
   * [Setting Sub Path](#setting-sub-path)
@@ -977,6 +978,30 @@ You can pass `SE_JAVA_OPTS` environment variable to the Java process.
 ``` bash
 $ docker run -d -p 4444:4444 -e SE_JAVA_OPTS=-Xmx512m --name selenium-hub selenium/hub:4.22.0-20240621
 ```
+
+### SE_BROWSER_ARGS_* Add arguments for launching browser
+
+Instead of adding arguments via the browser options from language bindings, for example:
+
+```python
+options = ChromeOptions()
+options.add_argument('--incognito')
+options.add_argument('--disable-dev-shm-usage')
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444/wd/hub")
+```
+
+You also can proactive to force applying arguments directly from (node, standalone or node-docker) container environment variables. Define the environment variable with name starts with `SE_BROWSER_ARGS_` and following by config key is up to you (ensure those are unique when you define multiple arguments). For example:
+
+```bash
+docker run -d -p 4444:4444 \
+  -e SE_BROWSER_ARGS_INCOGNITO=--incognito \
+  -e SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage \
+  selenium/standalone-chrome:latest
+```
+
+[List chromium command-line arguments](https://peter.sh/experiments/chromium-command-line-switches/) for your reference.
+
+Note: Currently, this is applicable for node browsers Chrome/Chromium, Edge.
 
 ### Node configuration options
 

@@ -250,6 +250,10 @@ template:
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+        {{- if empty .node.dshmVolumeSizeLimit }}
+          - name: SE_BROWSER_ARGS_DISABLE_DSHM
+            value: "--disable-dev-shm-usage"
+        {{- end }}
           - name: SE_OTEL_SERVICE_NAME
             value: {{ .name | quote }}
           - name: SE_NODE_PORT
@@ -294,8 +298,10 @@ template:
         {{- end }}
       {{- end }}
         volumeMounts:
+        {{- if not (empty .node.dshmVolumeSizeLimit) }}
           - name: dshm
             mountPath: /dev/shm
+        {{- end }}
         {{- range $fileName, $value := $.Values.nodeConfigMap.extraScripts }}
           - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
             mountPath: {{ $.Values.nodeConfigMap.extraScriptsDirectory }}/{{ $fileName }}
@@ -413,8 +419,10 @@ template:
       {{- end }}
       {{- end }}
         volumeMounts:
+      {{- if not (empty .node.dshmVolumeSizeLimit) }}
         - name: dshm
           mountPath: /dev/shm
+      {{- end }}
       {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 8 }}
       {{- with $.Values.videoRecorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
@@ -491,10 +499,12 @@ template:
         configMap:
           name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
           defaultMode: {{ $.Values.nodeConfigMap.defaultMode }}
+      {{- if not (empty .node.dshmVolumeSizeLimit) }}
       - name: dshm
         emptyDir:
           medium: Memory
-          sizeLimit: {{ default "1Gi" .node.dshmVolumeSizeLimit }}
+          sizeLimit: {{ .node.dshmVolumeSizeLimit }}
+      {{- end }}
     {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
       - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
         secret:
