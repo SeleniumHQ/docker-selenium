@@ -1,0 +1,41 @@
+name: Rerun Workflows
+
+on:
+  workflow_dispatch:
+    inputs:
+      runId:
+        description: 'The ID of workflow to rerun'
+        required: true
+        type: string
+      rerunFailedOnly:
+        description: 'Rerun only failed jobs'
+        required: false
+        type: boolean
+        default: true
+
+env:
+  GH_CLI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  RUN_ID: ${{ github.event.inputs.runId }}
+  RERUN_FAILED_ONLY: ${{ github.event.inputs.rerunFailedOnly }}
+
+jobs:
+  rerun_workflow:
+    name: Rerun ${{ github.event.inputs.runId }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "${GH_CLI_TOKEN}" | gh auth login --with-token
+      - name: "Rerun workflow ${{ env.RUN_ID }}"
+        run: |
+          if [ "${RERUN_FAILED_ONLY}" = "true" ]; then
+            gh run rerun ${RUN_ID} --failed --repo ${GITHUB_REPOSITORY}
+          else
+            gh run rerun ${RUN_ID} --repo ${GITHUB_REPOSITORY}
+          fi

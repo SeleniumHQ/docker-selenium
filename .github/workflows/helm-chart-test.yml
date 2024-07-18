@@ -157,7 +157,8 @@ jobs:
           timeout_minutes: 30
           max_attempts: 3
           command: |
-            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }}
+            NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }} \
+            && make test_video_integrity
       - name: Test chart upgrade
         if: (matrix.test-upgrade == true)
         run: |
@@ -178,10 +179,6 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}-artifacts
           path: ./tests/tests/
           if-no-files-found: ignore
-      - name: Check video integrity
-        if: always()
-        run: |
-          make test_video_integrity
       - name: Upload test video artifacts
         if: always()
         uses: actions/upload-artifact@main
