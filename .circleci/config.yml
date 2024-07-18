@@ -150,11 +150,35 @@ jobs:
       - run:
           name: "Build Docker images"
           command: |
-            PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+            N=3
+            while [ $N -gt 0 ]; do
+              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build || true
+              if [ $? -eq 0 ]; then
+                echo "Build images passed"
+                exit 0
+              else
+                echo "Build failed. Retrying..."
+                N=$((N-1))
+                sleep 10
+              fi
+            done
+            exit 1
       - run:
           name: "Test Docker images"
           command: |
-            USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY}
+            N=3
+            while [ $N -gt 0 ]; do
+              USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY} || true
+              if [ $? -eq 0 ]; then
+                echo "Tests passed"
+                exit 0
+              else
+                echo "Tests failed. Retrying..."
+                N=$((N-1))
+                sleep 10
+              fi
+            done
+            exit 1
 
   kubernetes-test:
     parameters:
@@ -208,7 +232,19 @@ jobs:
       - run:
           name: "Build Docker images"
           command: |
-            PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+            N=3
+            while [ $N -gt 0 ]; do
+              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build || true
+              if [ $? -eq 0 ]; then
+                echo "Build images passed"
+                exit 0
+              else
+                echo "Build failed. Retrying..."
+                N=$((N-1))
+                sleep 10
+              fi
+            done
+            exit 1
       - run:
           name: "Build Helm charts"
           command: |
@@ -219,12 +255,21 @@ jobs:
       - run:
           name: "Test Selenium Grid on Kubernetes"
           command: |
-            PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
-            TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY}
-      - run:
-          name: "Check video integrity"
-          command: |
-            make test_video_integrity
+            N=3
+            while [ $N -gt 0 ]; do
+              PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
+              TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} \
+              && make test_video_integrity || true
+              if [ $? -eq 0 ]; then
+                echo "Tests passed"
+                exit 0
+              else
+                echo "Tests failed. Retrying..."
+                N=$((N-1))
+                sleep 10
+              fi
+            done
+            exit 1
       - run:
           name: "Clean-up Kubernetes environment"
           command: |

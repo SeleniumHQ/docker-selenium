@@ -9,6 +9,12 @@ on:
         type: boolean
         default: false
   workflow_dispatch:
+    inputs:
+      rerunFailedOnly:
+        description: 'Rerun only failed jobs'
+        required: false
+        type: boolean
+        default: true
   push:
     paths-ignore:
       - '**.md'
@@ -17,6 +23,12 @@ on:
       - '**.md'
 
 permissions: write-all
+
+env:
+  GH_CLI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  RUN_ID: ${{ github.run_id }}
+  RERUN_FAILED_ONLY: ${{ github.event.inputs.rerunFailedOnly || true }}
+  RUN_ATTEMPT: ${{ github.run_attempt }}
 
 jobs:
   docker-test:
@@ -28,3 +40,27 @@ jobs:
     uses: ./.github/workflows/helm-chart-test.yml
     with:
       release: ${{ inputs.release == 'true' }}
+
+  rerun-workflow-when-failure:
+    needs:
+      - docker-test
+      - helm-chart-test
+    if: failure() && ( github.run_attempt < 3 )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh
+      - name: Authenticate GitHub CLI
+        run: |
+          echo "$GH_CLI_TOKEN" | gh auth login --with-token
+      - name: Rerun workflow when failure
+        run: |
+          echo "Rerun workflow ID $RUN_ID in attempt #$(($RUN_ATTEMPT + 1))"
+          gh workflow run rerun-failed.yml \
+            --repo $GITHUB_REPOSITORY \
+            --raw-field runId=$RUN_ID \
+            --raw-field rerunFailedOnly=$RERUN_FAILED_ONLY
