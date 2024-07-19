@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 USER root
@@ -28,4 +28,4 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-docker.sh \
 
 COPY selenium-grid-docker.conf /etc/supervisor/conf.d/
 
-ENV SE_OTEL_SERVICE_NAME "selenium-node-docker"
+ENV SE_OTEL_SERVICE_NAME="selenium-node-docker"

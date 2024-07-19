@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 USER ${SEL_UID}
@@ -22,4 +22,4 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-eventbus.sh \
 
 COPY selenium-grid-eventbus.conf /etc/supervisor/conf.d/
 
-ENV SE_OTEL_SERVICE_NAME "selenium-event-bus"
+ENV SE_OTEL_SERVICE_NAME="selenium-event-bus"

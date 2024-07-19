@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 USER ${SEL_UID}
@@ -17,4 +17,4 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-sessions.sh \
 
 COPY selenium-grid-sessions.conf /etc/supervisor/conf.d/
 
-ENV SE_OTEL_SERVICE_NAME "selenium-session-map"
+ENV SE_OTEL_SERVICE_NAME="selenium-session-map"

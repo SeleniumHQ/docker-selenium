@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/node-base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 USER root
@@ -57,4 +57,4 @@ RUN echo "firefox" > /opt/selenium/browser_name
 RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
 RUN echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location
 
-ENV SE_OTEL_SERVICE_NAME "selenium-node-firefox"
+ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox"

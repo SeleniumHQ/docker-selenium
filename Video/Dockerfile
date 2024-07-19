@@ -8,6 +8,7 @@ ARG RCLONE_VERSION=current
 ARG SEL_USER=seluser
 ARG SEL_GROUP=${SEL_USER}
 ARG SEL_PASSWD=secret
+ARG HOME=/home/${SEL_USER}
 ARG UID=1200
 ARG GID=1201
 ARG VIDEO_FOLDER=/videos
@@ -40,7 +41,7 @@ RUN apt-get -qqy update \
 # Timezone settings
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
-ENV TZ "UTC"
+ENV TZ="UTC"
 RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \
     cat /etc/timezone
@@ -48,10 +49,10 @@ RUN ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
 #======================================
 # Configure environement
 #======================================
-ENV SEL_USER=${SEL_USER}
-ENV SEL_UID=${UID}
-ENV SEL_GID=${GID}
-ENV HOME=/home/${SEL_USER}
+ENV SEL_USER=${SEL_USER} \
+    SEL_UID=${UID} \
+    SEL_GID=${GID} \
+    HOME=${HOME}
 
 #========================================
 # Add normal user and group with passwordless sudo
@@ -81,32 +82,32 @@ RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSI
   && mv /tmp/rclone-*-linux-*/rclone /usr/local/bin/ \
   && rm -rf /tmp/rclone-*
 COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
-ENV SE_VIDEO_UPLOAD_ENABLED false
-ENV SE_UPLOAD_DESTINATION_PREFIX ""
-ENV SE_VIDEO_INTERNAL_UPLOAD false
-ENV UPLOAD_OPTS "-P"
+ENV SE_VIDEO_UPLOAD_ENABLED=false \
+    SE_UPLOAD_DESTINATION_PREFIX="" \
+    SE_VIDEO_INTERNAL_UPLOAD=false \
+    UPLOAD_OPTS="-P"
 
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} \
-  && chown -R ${SEL_USER}:${SEL_GROUP} /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
-  && chmod -R 775 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
-  && chgrp -R 0 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
-  && chmod -R g=u /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME \
-  && setfacl -Rdm u:${SEL_USER}:rwx,g:${SEL_GROUP}:rwx /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} $HOME
+  && chown -R ${SEL_USER}:${SEL_GROUP} /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME} \
+  && chmod -R 775 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME} \
+  && chgrp -R 0 /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME} \
+  && chmod -R g=u /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME} \
+  && setfacl -Rdm u:${SEL_USER}:rwx,g:${SEL_GROUP}:rwx /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME}
 
 USER ${SEL_UID}
 
 ENTRYPOINT ["/opt/bin/entry_point.sh"]
 CMD ["/opt/bin/entry_point.sh"]
 
-ENV DISPLAY_NUM 99
-ENV DISPLAY_CONTAINER_NAME selenium
-ENV SE_SCREEN_WIDTH 1360
-ENV SE_SCREEN_HEIGHT 1020
-ENV SE_FRAME_RATE 15
-ENV SE_CODEC libx264
-ENV SE_PRESET "-preset ultrafast"
-ENV VIDEO_FOLDER ${VIDEO_FOLDER}
-ENV SE_VIDEO_FILE_NAME video.mp4
-ENV SE_VIDEO_FILE_NAME_TRIM_REGEX "[:alnum:]-_"
+ENV DISPLAY_NUM=99 \
+    DISPLAY_CONTAINER_NAME=selenium \
+    SE_SCREEN_WIDTH=1360 \
+    SE_SCREEN_HEIGHT=1020 \
+    SE_FRAME_RATE=15 \
+    SE_CODEC=libx264 \
+    SE_PRESET="-preset ultrafast" \
+    VIDEO_FOLDER=${VIDEO_FOLDER} \
+    SE_VIDEO_FILE_NAME=video.mp4 \
+    SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_"
 
 EXPOSE 9000

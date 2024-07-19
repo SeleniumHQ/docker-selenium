@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/node-base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 USER root
@@ -41,4 +41,4 @@ RUN echo "chrome" > /opt/selenium/browser_name
 RUN chromium --version | awk '{print $2}' | cut -d'.' -f1,2 > /opt/selenium/browser_version
 RUN echo "\"goog:chromeOptions\": {\"binary\": \"/usr/bin/chromium\"}" > /opt/selenium/browser_binary_location
 
-ENV SE_OTEL_SERVICE_NAME "selenium-node-chromium"
+ENV SE_OTEL_SERVICE_NAME="selenium-node-chromium"

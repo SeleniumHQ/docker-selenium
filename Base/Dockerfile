@@ -5,16 +5,17 @@ LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 ARG AUTHORS=SeleniumHQ
-# Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/java/maven_deps.bzl)
-ARG OPENTELEMETRY_VERSION=1.38.0
-ARG GRPC_VERSION=1.64.0
-ARG NETTY_VERSION=4.1.108.Final
+# Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
+ARG OPENTELEMETRY_VERSION=1.40.0
+ARG GRPC_VERSION=1.65.1
+ARG NETTY_VERSION=4.1.111.Final
 ARG CS_VERSION=2.1.10
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
 ARG SEL_GROUP=${SEL_USER}
 ARG SEL_PASSWD=secret
+ARG HOME=/home/${SEL_USER}
 ARG UID=1200
 ARG GID=1201
 ARG TZ="UTC"
@@ -30,7 +31,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SEL_USER=${SEL_USER} \
     SEL_UID=${UID} \
     SEL_GID=${GID} \
-    HOME=/home/${SEL_USER} \
+    HOME=${HOME} \
     TZ=${TZ} \
     SEL_DOWNLOAD_DIR=${HOME}/Downloads
 
@@ -58,18 +59,13 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
     supervisor \
     gnupg2 \
     libnss3-tools \
-  && mkdir -p /etc/apt/keyrings \
-  && apt-key adv --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 843C48A565F8F04B || apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B \
-  && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | tee /etc/apt/keyrings/adoptium.asc >dev/null \
-  && echo "deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | tee /etc/apt/sources.list.d/adoptium.list >dev/null \
-  && apt-get -qqy update \
-  && apt-get -qqy --no-install-recommends install temurin-${JRE_VERSION}-jre -y \
+    openjdk-${JRE_VERSION}-jre-headless \
   && if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
        export ARCH=armhf ; \
     else \
        export ARCH=$(dpkg --print-architecture) ; \
     fi \
-  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' ./usr/lib/jvm/temurin-${JRE_VERSION}-jre-${ARCH}/conf/security/java.security \
+  && sed -i 's/securerandom\.source=file:\/dev\/random/securerandom\.source=file:\/dev\/urandom/' /usr/lib/jvm/java-${JRE_VERSION}-openjdk-${ARCH}/conf/security/java.security \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
 #===================
 # Timezone settings
@@ -95,9 +91,9 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
   && mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
-    ${HOME}/.mozilla ${HOME}/.vnc $HOME/.pki/nssdb \
+    ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb \
   # NSSDB initialization with an empty password
-  && certutil -d sql:$HOME/.pki/nssdb -N --empty-password \
+  && certutil -d sql:${HOME}/.pki/nssdb -N --empty-password \
   && touch /opt/selenium/config.toml \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
