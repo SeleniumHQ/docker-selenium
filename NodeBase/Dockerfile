@@ -1,7 +1,7 @@
 ARG NAMESPACE
 ARG VERSION
-ARG AUTHORS
 FROM ${NAMESPACE}/base:${VERSION}
+ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 # Inputs: heads, tags
@@ -15,6 +15,7 @@ ARG WEBSOCKIFY_VERSION="master"
 ARG LANG_WHICH=en
 ARG LANG_WHERE=US
 ARG ENCODING=UTF-8
+ARG LANGUAGE=${LANG_WHICH}_${LANG_WHERE}.${ENCODING}
 ARG TARGETARCH
 
 USER root
@@ -25,7 +26,7 @@ USER root
 ENV LANG_WHICH=${LANG_WHICH} \
     LANG_WHERE=${LANG_WHERE} \
     ENCODING=${ENCODING} \
-    LANGUAGE=${LANG_WHICH}_${LANG_WHERE}.${ENCODING} \
+    LANGUAGE=${LANGUAGE} \
     LANG=${LANGUAGE} \
 #============================================
 # Shared cleanup script environment variables
