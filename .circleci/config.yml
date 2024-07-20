@@ -231,6 +231,7 @@ jobs:
             BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_cluster_setup
       - run:
           name: "Build Docker images"
+          no_output_timeout: 30m
           command: |
             N=3
             while [ $N -gt 0 ]; do
@@ -254,6 +255,7 @@ jobs:
             source $BASH_ENV
       - run:
           name: "Test Selenium Grid on Kubernetes"
+          no_output_timeout: 30m
           command: |
             N=3
             while [ $N -gt 0 ]; do

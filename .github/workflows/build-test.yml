@@ -6,8 +6,8 @@ on:
       release:
         description: 'Test a new release process'
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
   workflow_dispatch:
     inputs:
       rerunFailedOnly:
@@ -32,16 +32,19 @@ env:
 
 jobs:
   docker-test:
+    name: Test Seleium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
     with:
       release: ${{ inputs.release == 'true' }}
 
   helm-chart-test:
+    name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
     with:
       release: ${{ inputs.release == 'true' }}
 
   rerun-workflow-when-failure:
+    name: Rerun workflow when failure
     needs:
       - docker-test
       - helm-chart-test

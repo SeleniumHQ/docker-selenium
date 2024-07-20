@@ -6,8 +6,8 @@ on:
       release:
         description: 'Deploy a new release'
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'true'
       skip-test:
         description: 'Skip the tests'
         required: false
@@ -24,16 +24,17 @@ on:
 
 jobs:
   build-test:
+    name: Build and Test
     if: contains(toJson(github.event.commits), '[deploy]') == true || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
     with:
-      release: ${{ github.event.inputs.release == 'true' }}
+      release: ${{ github.event.inputs.release || true }}
 
   deploy:
     needs:
       - build-test
     if: (contains(toJson(github.event.commits), '[deploy]') || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true')) && !failure() && !cancelled()
-    name: Deploy Docker images
+    name: Deploy and Release
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -57,6 +58,11 @@ jobs:
             make set_containerd_image_store
       - name: Output Docker info
         run: docker info
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ github.event.inputs.release || true }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV

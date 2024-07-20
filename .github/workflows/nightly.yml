@@ -12,6 +12,7 @@ on:
 
 jobs:
   build-test:
+    name: Build and Test Nightly
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
     with:
@@ -21,7 +22,7 @@ jobs:
     needs:
       - build-test
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && !failure() && !cancelled()
-    name: Nightly build
+    name: Deploy and Release Nightly
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -45,6 +46,11 @@ jobs:
             make set_containerd_image_store
       - name: Output Docker info
         run: docker info
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: false
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
@@ -59,7 +65,7 @@ jobs:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       - name: Build base image to get Grid version
-        run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base_nightly
+        run: VERSION="local" BUILD_DATE=${BUILD_DATE} make base
       - name: Get Grid version
         # sed used to remove last comma of Selenium version output
         run: |
