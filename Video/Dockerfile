@@ -108,6 +108,7 @@ ENV DISPLAY_NUM=99 \
     SE_PRESET="-preset ultrafast" \
     VIDEO_FOLDER=${VIDEO_FOLDER} \
     SE_VIDEO_FILE_NAME=video.mp4 \
-    SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_"
+    SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_" \
+    SE_SUPERVISORD_LOG_LEVEL="info"
 
 EXPOSE 9000

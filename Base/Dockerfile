@@ -147,6 +147,7 @@ ENV SE_BIND_HOST=false \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS=false \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \
-    SE_OTEL_TRACES_EXPORTER="otlp"
+    SE_OTEL_TRACES_EXPORTER="otlp" \
+    SE_SUPERVISORD_LOG_LEVEL="info"
 
 CMD ["/opt/bin/entry_point.sh"]

@@ -23,6 +23,7 @@ services:
       - SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage
       - SE_BROWSER_ARGS_INCOGNITO=--incognito --incognito
       - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SUPERVISORD_LOG_LEVEL=error
 
   firefox:
     profiles:
@@ -43,6 +44,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SUPERVISORD_LOG_LEVEL=error
 
   edge:
     profiles:
@@ -62,6 +64,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_SUPERVISORD_LOG_LEVEL=error
 
   selenium-hub:
     image: selenium/hub:${TAG}
@@ -74,6 +77,7 @@ services:
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
+      - SE_SUPERVISORD_LOG_LEVEL=error
 
   tests:
     image: docker-selenium-tests:latest
