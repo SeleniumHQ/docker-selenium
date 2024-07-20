@@ -13,8 +13,8 @@ on:
       release:
         description: 'Deploy a new release'
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
 
 jobs:
   helm-chart-test:

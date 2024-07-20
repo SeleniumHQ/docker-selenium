@@ -1,0 +1,40 @@
+name: Get Latest Upstream
+description: Get the latest upstream release of Selenium
+inputs:
+  release:
+    description: 'Test a new release process'
+    required: false
+    type: boolean
+    default: false
+  gh_cli_token:
+    description: 'GitHub CLI authentication token'
+    required: true
+    type: secret
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get latest upstream
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install gh
+        echo "${{ inputs.gh_cli_token }}" | gh auth login --with-token
+        if [ "${{ inputs.release }}" = "true" ]; then
+          echo "Getting the latest stable release."
+          RELEASE=$(gh release list -R SeleniumHQ/selenium | grep -v nightly | awk '{ print $4 }' | head -1)
+        else
+          echo "Getting the latest Nightly release."
+          RELEASE=$(gh release list -R SeleniumHQ/selenium | grep nightly | awk '{ print $3 }' | head -1)
+          if [ -z "${RELEASE}" ]; then
+            echo "Nightly release not found, getting the latest stable release."
+            RELEASE=$(gh release list -R SeleniumHQ/selenium | grep -v nightly | awk '{ print $4 }' | head -1)
+          fi
+        fi
+        jar_file=$(gh release view -R SeleniumHQ/selenium ${RELEASE} | grep jar | awk '{ print $2 }' | tail -n 1)
+        echo "Server package: ${jar_file}"
+        VERSION=$(echo $jar_file | sed 's/selenium-server-//;s/\.jar//')
+        echo "BASE_RELEASE=${RELEASE} | BASE_VERSION=${VERSION} | VERSION=${VERSION}"
+        echo "BASE_RELEASE=${RELEASE}" >> $GITHUB_ENV
+        echo "BASE_VERSION=${VERSION}" >> $GITHUB_ENV
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV

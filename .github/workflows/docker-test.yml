@@ -6,8 +6,8 @@ on:
       release:
         description: 'Test a new release process'
         required: false
-        type: boolean
-        default: false
+        type: string
+        default: 'false'
   workflow_dispatch:
     inputs:
       request-timeout:
@@ -100,10 +100,10 @@ jobs:
       - name: Output branch name
         run: echo ${BRANCH}
       - name: Set Selenium base version
-        if: inputs.release != 'true'
-        run: |
-          make set_build_nightly
-          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ inputs.release || false }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV

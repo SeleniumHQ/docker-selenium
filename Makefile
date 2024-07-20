@@ -70,9 +70,6 @@ ci: build test
 base:
 	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
 
-base_nightly:
-	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
-
 hub: base
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
