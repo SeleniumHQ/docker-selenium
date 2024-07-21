@@ -29,6 +29,7 @@ services:
       - DISPLAY_CONTAINER_NAME=browser
       - SE_VIDEO_FILE_NAME=${VIDEO_FILE_NAME}
       - SE_VIDEO_FILE_NAME_SUFFIX=${VIDEO_FILE_NAME_SUFFIX}
+      - SE_SUPERVISORD_LOG_LEVEL=error
 
   selenium-hub:
     image: selenium/hub:${TAG}

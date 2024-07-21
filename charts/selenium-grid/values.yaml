@@ -247,6 +247,8 @@ serverConfigMap:
   # nameOverride:
   env:
     SE_JAVA_OPTS: "-XX:+UseZGC"
+    # Log level of supervisord. Accept values: critical, error, warn, info, debug, trace, blather (http://supervisord.org/logging.html)
+    SE_SUPERVISORD_LOG_LEVEL: "info"
   # Custom annotations for configmap
   annotations: {}
 

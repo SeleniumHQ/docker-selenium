@@ -3,6 +3,10 @@ global:
     logLevel: INFO
     stdoutProbeLog: true
 
+serverConfigMap:
+  env:
+    SE_SUPERVISORD_LOG_LEVEL: "error"
+
 ingress:
   className: nginx
   hostname: ""
