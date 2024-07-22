@@ -101,8 +101,20 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Build Helm chart
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: |
+            SET_VERSION=false make chart_build
+            echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+            echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Login Docker Hub
-        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        run: |
+          docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+          helm registry login registry-1.docker.io -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
@@ -111,25 +123,31 @@ jobs:
         with:
           timeout_minutes: 20
           max_attempts: 3
+          retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
-        uses: nick-invision/retry@master
-        with:
-          timeout_minutes: 20
-          max_attempts: 3
-          command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
+        run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
       - name: Deploy latest tag
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
+          retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 3
+          retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+      - name: Push Helm chart to registry
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: make chart_release
       - name: Delete previous nightly tag & release if any
         uses: dev-drprasad/delete-tag-and-release@master
         with:

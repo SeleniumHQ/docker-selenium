@@ -731,6 +731,9 @@ chart_build_nightly:
 chart_build:
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
+chart_release:
+	NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_release.sh
+
 test_video_integrity:
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
