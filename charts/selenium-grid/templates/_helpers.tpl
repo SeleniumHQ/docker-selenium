@@ -250,6 +250,10 @@ template:
         image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+          - name: SE_NODE_CONTAINER_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
         {{- if empty .node.dshmVolumeSizeLimit }}
           - name: SE_BROWSER_ARGS_DISABLE_DSHM
             value: "--disable-dev-shm-usage"

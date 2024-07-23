@@ -64,7 +64,7 @@ fi
 
 # 'browserName' is mandatory for default stereotype
 if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]]; then
-SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}}"
+SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
 else
 SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
 fi
