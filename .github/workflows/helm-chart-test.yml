@@ -46,28 +46,28 @@ jobs:
             helm-version: 'v3.11.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.27.15'
+          - k8s-version: 'v1.27.16'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.28.11'
+          - k8s-version: 'v1.28.12'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-existing-keda: true
             test-upgrade: true
-          - k8s-version: 'v1.29.6'
+          - k8s-version: 'v1.29.7'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.14.4'
             test-existing-keda: false
             test-upgrade: true
-          - k8s-version: 'v1.30.2'
+          - k8s-version: 'v1.30.3'
             test-strategy: deployment_https
             cluster: 'minikube'
-            helm-version: 'v3.15.2'
+            helm-version: 'v3.15.3'
             test-existing-keda: false
             test-upgrade: true
     env:

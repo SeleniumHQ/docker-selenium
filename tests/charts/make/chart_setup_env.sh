@@ -119,7 +119,10 @@ kubectl version --client
 echo "==============================="
 
 echo "Installing Helm for AMD64 / ARM64"
-HELM_VERSION=${HELM_VERSION:-"v3.15.2"}
+HELM_VERSION=${HELM_VERSION:-"latest"}
+if [ "${HELM_VERSION}" = "latest" ]; then
+    HELM_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | grep tag_name | cut -d '"' -f 4)
+fi
 curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-$(dpkg --print-architecture).tar.gz
 mkdir -p helm
 tar -xf helm.tar.gz --strip-components 1 -C helm
