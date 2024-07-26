@@ -170,6 +170,11 @@ fi
 if [ "${TEST_PLATFORMS}" != "linux/amd64" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set edgeNode.enabled=false \
+  "
+fi
+
+if [ "${TEST_PLATFORMS}" != "linux/amd64" ] || [ "${TEST_CHROMIUM}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set chromeNode.imageName=node-chromium \
   "
 fi

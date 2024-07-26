@@ -3,6 +3,11 @@ name: Deploys
 on:
   workflow_dispatch:
     inputs:
+      stable:
+        description: 'Use upstream stable build'
+        required: true
+        type: string
+        default: 'true'
       release:
         description: 'Deploy a new release'
         required: false
@@ -28,7 +33,7 @@ jobs:
     if: contains(toJson(github.event.commits), '[deploy]') == true || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
     with:
-      release: ${{ github.event.inputs.release || true }}
+      release: ${{ github.event.inputs.stable || true }}
 
   deploy:
     needs:
@@ -61,7 +66,7 @@ jobs:
       - name: Set Selenium base version
         uses: ./.github/actions/get-latest-upstream
         with:
-          release: ${{ github.event.inputs.release || true }}
+          release: ${{ github.event.inputs.stable || true }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Sets build date
         run: |

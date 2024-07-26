@@ -70,6 +70,9 @@ ci: build test
 base:
 	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
 
+base_nightly:
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
+
 hub: base
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
@@ -762,7 +765,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_test_autoscaling_disabled:
-	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=15 CHART_ENABLE_TRACING=true \
+	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=15 CHART_ENABLE_TRACING=true \
 	SECURE_INGRESS_ONLY_GENERATE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	./tests/charts/make/chart_test.sh NoAutoscaling
@@ -794,10 +797,17 @@ chart_test_autoscaling_job_hostname:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true \
+	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true \
 	SECURE_INGRESS_ONLY_GENERATE=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
+
+chart_test_language_bindings:
+	PLATFORMS=$(PLATFORMS) \
+	SELENIUM_GRID_HOST=$$(hostname -i) \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 .PHONY: \
 	all \
