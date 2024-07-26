@@ -213,6 +213,7 @@ fi
 if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tls.nameOverride=${EXTERNAL_TLS_SECRET_NAME} \
+  --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
   "
   cert_dir="./tests/tests"
   ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/cert.sh -d ${cert_dir}
@@ -222,14 +223,29 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
   CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 
-if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
-  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME} \
-  "
-else
-  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${SELENIUM_TLS_SECRET_NAME} \
-  "
+if [ "${SECURE_INGRESS_ONLY_CONFIG_INLINE}" = "true" ]; then
+  if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set ingress.tls[0].hosts[0]=${SELENIUM_GRID_HOST} \
+    --set ingress.tls[0].secretName=${EXTERNAL_TLS_SECRET_NAME} \
+    "
+  else
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set ingress.tls[0].hosts[0]=${SELENIUM_TLS_SECRET_NAME} \
+    "
+  fi
+fi
+
+if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ] && [ "${CHART_ENABLE_INGRESS_HOSTNAME}" != "true" ]; then
+  if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME} \
+    "
+  else
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${SELENIUM_TLS_SECRET_NAME} \
+    "
+  fi
 fi
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
