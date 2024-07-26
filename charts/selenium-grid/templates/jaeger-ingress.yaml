@@ -25,16 +25,16 @@ spec:
   {{- if and (or .Values.tls.enabled .Values.tls.ingress.generateTLS) (tpl .Values.ingress.hostname $) (not .Values.ingress.tls) }}
   tls:
     - hosts:
-        - {{ tpl .Values.ingress.hostname $ | quote }}
-      secretName: {{ include "seleniumGrid.tls.fullname" . | quote }}
+        - {{ tpl .Values.ingress.hostname $ }}
+      secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
   {{- else if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
     - hosts:
         {{- range .hosts }}
-        - {{ tpl . $ | quote }}
+        - {{ tpl . $ }}
         {{- end }}
-      secretName: {{ tpl (.secretName) $ | quote }}
+      secretName: {{ tpl (default (include "seleniumGrid.tls.fullname" $) .secretName) $ | quote }}
     {{- end }}
   {{- end }}
   rules:

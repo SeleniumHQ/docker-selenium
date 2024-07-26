@@ -121,6 +121,8 @@ ingress:
     proxyBuffer:
       size: 512M
       number: 4
+    sslPassthrough: true
+    sslSecret: ""
   ports:
     http: 80
     https: 443

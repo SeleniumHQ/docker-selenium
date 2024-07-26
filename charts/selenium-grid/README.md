@@ -281,24 +281,22 @@ nginx.ingress.kubernetes.io/client-body-buffer-size
 
 # `ingress.nginx.proxyBuffer.number` pass value to annotation(s)
 nginx.ingress.kubernetes.io/proxy-buffers-number
+
+# `ingress.nginx.websocket` pass boolean value to add backend service has WebSocket request (Hub/Router - noVNC, CDP, etc.)
+nginx.org/websocket-services: "{{ template ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}"
+
+# `ingress.nginx.sslPassthrough` pass boolean value to enable SSL Passthrough (when secure connection is enabled in Grid server backend)
+nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+
+# `ingress.nginx.sslSecret` to specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName"
+# By default, it is empty, the chart will use internal TLS secret resource (or the first `secretName` under `ingress.tls` if set)
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ template "seleniumGrid.tls.fullname" $ }}
 ```
 
-You can generate a test double self-signed certificate specify for your `hostname`, assign it to spec `ingress.tls` and NGINX ingress controller default certificate (if it is enabled inline). For example:
+Refer to [NGINX Ingress Controller Annotations](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md) for more details.
 
-```yaml
-tls:
-  ingress:
-    generateTLS: true
-
-ingress:
-  hostname: "your.domain.com"
-
-ingress-nginx:
-  enabled: true
-  controller:
-    extraArgs:
-      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
-```
+Refer to below section [Configuration of Secure Communication] for more details on how to configure secure communication to Ingress proxy.
 
 ## Configuration
 
@@ -656,7 +654,7 @@ There are multiple ways to insert your certificate, private key, truststore to t
    ```bash
    # Steps to prepare your self-signed certificate
    ./certs/cert.sh -d /path/to/your/
-   # Create TLS Secret with your certificate, private key, truststore
+   # Create TLS Secret with your certificate, private key, truststore (or a Secret type kubernetes.io/tls)
    kubectl create secret generic -n $NAMESPACE my-external-tls-secret \
        --from-file=tls.crt=/path/to/your/tls.crt \
        --from-file=tls.key=/path/to/your/tls.key \
@@ -688,18 +686,16 @@ tls:
 ```
 
 In additional, if the ingress is enabled, and approach SSL Passthrough is used to ensure the request forwards to the backend components via an encrypted connection.
-With `ingress.hostname` is set, the default server TLS secret is also used for hosts TLS secretName when `ingress.tls` is empty. Once you specify `ingress.tls`, your specified secret will be used for hosts TLS secretName.
+With `ingress.hostname` is set, the default server TLS secret is also used for hosts TLS secretName when `ingress.tls` is empty. Once you specify `ingress.tls`, your specified secret will be used for hosts TLS secretName. For example
 
 ![SeleniumGrid_TLS_SSL-Passthrough](./images/SeleniumGrid_TLS_SSL-Passthrough.png)
 
-Moreover, when sub-chart `ingress-nginx` is enabled (deploy Ingress NGINX Controller together), the default server TLS secret can also be assigned via `ingress-nginx.controller.extraArgs.default-ssl-certificate`.
-For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+```yaml
+tls:
+  enabled: true
 
-```bash
-helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
-    --set tls.enabled=true \
-    --set ingress-nginx.enabled=true \
-    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/$RELEASENAME-selenium-tls-secret
+ingress-ngnix:
+  enabled: true
 ```
 
 Below is an example of Grid UI accessible via NodePort with secure connection, and using external TLS Secret (replace `$RELEASENAME` and `$NAMESPACE` with your values):
@@ -729,7 +725,7 @@ tls:
 
 ![SeleniumGrid_TLS_SSL-Termination](./images/SeleniumGrid_TLS_SSL-Termination.png)
 
-In additional, a self-signed certificate and private key can be generated runtime during the chart deployment for Ingress TLS by setting these values (replace `$RELEASENAME` with your value):
+In additional, a self-signed certificate and private key can be generated runtime during the chart deployment for Ingress TLS by setting these values:
 
 ```yaml
 tls:
@@ -747,9 +743,6 @@ tls:
 
 ingress-ngnix:
   enabled: true
-  controller:
-    extraArgs:
-      default-ssl-certificate: $(POD_NAMESPACE)/$RELEASENAME-selenium-tls-secret
 ```
 
 You can get the `tls.crt` and `tls.key` from the Secret after the chart is deployed. For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
@@ -767,11 +760,37 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set ingress.hostname="selenium-grid.prod.domain.com" \
   --set tls.ingress.enabled=true \
   --set tls.nameOverride=my-external-tls-secret \
-  --set ingress-nginx.enabled=true \
-  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
+  --set ingress-nginx.enabled=true
 ```
 
 Grid UI can be accessed via HTTPS address `https://selenium-grid.prod.domain.com`.
+
+Inline config TLS for the Ingress resource is also considered as enable secure connection to the Ingress proxy.
+For example, below is the config with using external TLS Secret for the Ingress resource and enable sub-chart NGINX Ingress Controller:
+
+```yaml
+ingress:
+  hostname: selenium-grid.prod.domain.com
+  tls:
+    - secretName: my-external-tls-secret
+      hosts:
+        - selenium-grid.prod.domain.com
+
+ingress-ngnix:
+    enabled: true
+```
+
+In case the Ingress resource is configured without `hostname` and `tls`, the incoming traffic access via `global.K8S_PUBLIC_IP`. When sub-chart `ingress-nginx` is enabled (deploy Ingress NGINX Controller together), the default TLS secret can also be assigned via `ingress-nginx.controller.extraArgs.default-ssl-certificate`.
+For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
+  --set global.K8S_PUBLIC_IP=$(hostname -i) \
+  --set tls.ingress.enabled=true \
+  --set tls.nameOverride=my-external-tls-secret \
+  --set ingress-nginx.enabled=true \
+  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
+```
 
 ### Node Registration
 

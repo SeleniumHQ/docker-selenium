@@ -87,9 +87,6 @@ videoRecorder:
 ingress-nginx:
   enabled: true
   controller:
-    # Set controller default certificate use the same with Selenium Grid
-    extraArgs:
-      default-ssl-certificate: '$(POD_NAMESPACE)/selenium-tls-secret'
     hostPort:
       enabled: true
     kind: DaemonSet

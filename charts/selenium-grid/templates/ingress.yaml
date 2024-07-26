@@ -36,7 +36,7 @@ spec:
   tls:
     - hosts:
         - {{ tpl .Values.ingress.hostname $ | quote }}
-      secretName: {{ include "seleniumGrid.tls.fullname" . | quote }}
+      secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
   {{- else if .Values.ingress.tls }}
   tls:
     {{- range .Values.ingress.tls }}
@@ -44,7 +44,7 @@ spec:
         {{- range .hosts }}
         - {{ tpl . $ | quote }}
         {{- end }}
-      secretName: {{ tpl (default "" .secretName) $ | quote }}
+      secretName: {{ tpl (default (include "seleniumGrid.tls.fullname" $) .secretName) $ | quote }}
     {{- end }}
   {{- end }}
   rules:

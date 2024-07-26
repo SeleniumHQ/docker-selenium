@@ -2,7 +2,7 @@ import os
 import unittest
 import time
 import json
-from ssl import _create_unverified_context
+import ssl
 import requests
 from requests.auth import HTTPBasicAuth
 
@@ -50,6 +50,13 @@ class SmokeTests(unittest.TestCase):
             self.assertFalse(status_json['value']['ready'], "Container is autoscaling with min replica set to 0")
 
 
+    def client_verify_cert(self, port):
+        grid_url_status = '%s://%s:%s/status' % (SELENIUM_GRID_PROTOCOL, SELENIUM_GRID_HOST, port)
+        cert_path = os.environ.get("REQUESTS_CA_BUNDLE")
+        response = requests.get(grid_url_status, verify=cert_path)
+
 class GridTest(SmokeTests):
     def test_grid_is_up(self):
         self.smoke_test_container('%s' % SELENIUM_GRID_PORT)
+        if SELENIUM_GRID_PROTOCOL == "https":
+            self.client_verify_cert('%s' % SELENIUM_GRID_PORT)

@@ -9,7 +9,7 @@ Server secure connection
 Ingress proxy forward secure connection
 */}}
 {{- define "seleniumGrid.ingress.secureConnection" -}}
-{{- or $.Values.tls.enabled $.Values.tls.ingress.enabled $.Values.tls.ingress.generateTLS | ternary "true" "" -}}
+{{- or $.Values.tls.enabled $.Values.tls.ingress.enabled $.Values.tls.ingress.generateTLS (not (empty $.Values.ingress.tls)) | ternary "true" "" -}}
 {{- end -}}
 
 {{/*
@@ -122,10 +122,21 @@ nginx.ingress.kubernetes.io/proxy-buffers-number: {{ . | quote }}
   {{- if .websocket }}
 nginx.org/websocket-services: {{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ | quote }}
   {{- end }}
-{{- end }}
-{{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+  {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+    {{- if .sslPassthrough }}
 nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    {{- end }}
+  {{- end }}
+  {{- if eq (include "seleniumGrid.ingress.secureConnection" $) "true" }}
+    {{- if not (empty .sslSecret) }}
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl .sslSecret $ | quote }}
+    {{- else if (empty $.Values.ingress.tls) }}
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (include "seleniumGrid.tls.fullname" $)) $ | quote }}
+    {{- else }}
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 {{- end -}}
 
