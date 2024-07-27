@@ -39,7 +39,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.23.0-20240727
+    image: selenium/node-firefox:128.0.3-20240727
     shm_size: 2gb
     depends_on:
       - selenium-hub

@@ -85,7 +85,7 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
-    image: selenium/node-firefox:4.23.0-20240727
+    image: selenium/node-firefox:128.0.3-20240727
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
