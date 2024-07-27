@@ -204,6 +204,12 @@ if [ "${SECURE_INGRESS_ONLY_DEFAULT}" = "true" ]; then
   "
 fi
 
+if [ "${INGRESS_DISABLE_USE_HTTP2}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set ingress.nginx.useHttp2=false \
+  "
+fi
+
 if [ "${SECURE_CONNECTION_SERVER}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tls.enabled=true \

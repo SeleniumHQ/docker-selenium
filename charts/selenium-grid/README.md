@@ -36,6 +36,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
       * [Create TLS Secret](#create-tls-secret)
       * [Secure Connection to Selenium Grid components](#secure-connection-to-selenium-grid-components)
       * [Secure Connection to the Ingress proxy](#secure-connection-to-the-ingress-proxy)
+      * [TLS termination in the ingress controller, HTTP/2, and related troubleshooting](#tls-termination-in-the-ingress-controller-http2-and-related-troubleshooting)
     * [Node Registration](#node-registration)
     * [Configuration of tracing observability](#configuration-of-tracing-observability)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
@@ -268,8 +269,9 @@ List mapping of chart values and default annotation(s)
 nginx.ingress.kubernetes.io/proxy-connect-timeout
 nginx.ingress.kubernetes.io/proxy-send-timeout
 nginx.ingress.kubernetes.io/proxy-read-timeout
-nginx.ingress.kubernetes.io/proxy-next-upstream-timeout
-nginx.ingress.kubernetes.io/auth-keepalive-timeout
+nginx.ingress.kubernetes.io/proxy-stream-timeout
+nginx.ingress.kubernetes.io/upstream-keepalive-timeout
+nginx.ingress.kubernetes.io/ssl-session-timeout
 
 # `ingress.nginx.proxyBuffer` pass value to to annotation(s)
 nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
@@ -292,6 +294,14 @@ nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
 # `ingress.nginx.sslSecret` to specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName"
 # By default, it is empty, the chart will use internal TLS secret resource (or the first `secretName` under `ingress.tls` if set)
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ template "seleniumGrid.tls.fullname" $ }}
+
+# `ingress.nginx.useHttp2` pass boolean value to enable/disable HTTP/2 in TLS termination in the ingress controller
+nginx.ingress.kubernetes.io/use-http2: "true"
+
+# `ingress.nginx.upstreamKeepalive` pass value to upstream keepalive
+nginx.ingress.kubernetes.io/upstream-keepalive-connections: "10000"
+nginx.ingress.kubernetes.io/upstream-keepalive-time: "1h"
+nginx.ingress.kubernetes.io/upstream-keepalive-request: "10000"
 ```
 
 Refer to [NGINX Ingress Controller Annotations](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md) for more details.
@@ -791,6 +801,41 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set ingress-nginx.enabled=true \
   --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
 ```
+
+#### TLS termination in the ingress controller, HTTP/2, and related troubleshooting
+
+In case the Selenium Grid is deployed with the Ingress controller in front, and the Ingress controller has configured the secure connection with approach SSL termination to terminate the TLS connection, the backend components (mostly Hub/Router to process the request and return to the client) will receive the incoming in plain HTTP. In a few confirmations (also referred to ChatGPT)
+
+> When TLS termination is performed by an ingress controller, HTTP/2 is typically enabled by default. This is because many ingress controllers are designed to support modern web protocols to ensure better performance and efficiency. For example, popular ingress controllers like NGINX and HAProxy enable HTTP/2 by default when handling HTTPS traffic.
+
+At that time, the Selenium Grid server returns the response in HTTP/1.1. However, this mismatch is not expected to cause any problems. Selenium Grid is using JDKHttpClient to communicate between components since the following OpenJDK [docs](https://openjdk.org/groups/net/httpclient/intro.html) mentioned that
+
+> The Java HTTP Client supports both HTTP/1.1 and HTTP/2. By default, the client will send requests using HTTP/2. Requests sent to servers that do not yet support HTTP/2 will automatically be downgraded to HTTP/1.1
+
+A few reports mention the error `java.io.IOException: HTTP/1.1 header parser received no bytes`, `java.io.IOException: /: GOAWAY received`, or a timed-out issue with a stack trace containing `jdk.internal.net.http.Http2Connection`, or `Http2ClientImpl` when creating a RemoteWebDriver session.
+
+What could be the issue around this? It could be due to different JDK versions used. Since JDK20, the default keepalive timeout has been adjusted; see [docs](https://docs.oracle.com/en/java/javase/20/core/java-networking.html) on `jdk.httpclient.keepalive.timeout` (default to 30). Or it could be `jdk.httpclient.maxstreams` (default to 100) if Grid serves many client requests at the same time, it could reach the maximum stream limit.
+
+In some scenarios, the issue might be resolved by setting ClientConfig with HTTP/1.1 when creating RemoteWebDriver. For example, in Java binding you can try this:
+
+```java
+ClientConfig config = ClientConfig.defaultConfig().baseUrl(seleniumGridUrl)
+                      .readTimeout(300)
+                      .version(HttpClient.Version.HTTP_1_1.name());
+
+driver = RemoteWebDriver.builder().oneOf(new ChromeOptions())
+         .config(config).build();
+```
+
+With the workaround set http version via ClientConfig also there was a point mentioned that we can understand something like `HTTP/1.1 header parser received no bytes`, or `GOAWAY` is an IOException thrown by client HTTP/2, and when switching client to HTTP/1.1, it could go to a situation that would continue to get "random" IOExceptions with a different message from the server.
+
+For example, in [this case](https://stackoverflow.com/questions/55087292/how-to-handle-http-2-goaway-with-java-net-httpclient) the issue could be due to HTTP/2 configs on Ingress controller. Refer to usage of [Annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/) [ConfigMap](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/) settings in NGINX Ingress Controller.
+
+- `use-http2` (default is true) - enable or disable HTTP/2 support in secure connection.
+- `upstream-keepalive-timeout` (default to 60) - timeout during which an idle keepalive connection to an upstream server will stay open.
+- `upstream-keepalive-connections` (default to 320) - maximum number of idle keepalive connections to upstream servers. When this number is exceeded, the least recently used connections are closed
+
+The above notes are motivated by [SeleniumHQ/selenium#14258](https://github.com/SeleniumHQ/selenium/issues/14258). Kindly let us know if you have further troubleshooting on this.
 
 ### Node Registration
 

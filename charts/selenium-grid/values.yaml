@@ -123,6 +123,13 @@ ingress:
       number: 4
     sslPassthrough: true
     sslSecret: ""
+    # Enables or disables HTTP/2 support in secure connections
+    useHttp2: true
+    # Apply upstream keepalive settings once HTTP/2 is enabled
+    upstreamKeepalive:
+      connections: 10000
+      time: 1h
+      requests: 10000
   ports:
     http: 80
     https: 443
@@ -248,7 +255,7 @@ loggingConfigMap:
 serverConfigMap:
   # nameOverride:
   env:
-    SE_JAVA_OPTS: "-XX:+UseZGC"
+    SE_JAVA_OPTS: "-Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000 -XX:+UseZGC"
     # Log level of supervisord. Accept values: critical, error, warn, info, debug, trace, blather (http://supervisord.org/logging.html)
     SE_SUPERVISORD_LOG_LEVEL: "info"
   # Custom annotations for configmap
