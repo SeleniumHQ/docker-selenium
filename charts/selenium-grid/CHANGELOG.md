@@ -1,3 +1,23 @@
+## :heavy_check_mark: selenium-grid-0.33.0
+
+- Chart is using image tag 4.23.0-20240727
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.12, v1.29.7, v1.30.3, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.3, 
+
+### Added
+- [`582fb2c7`](http://github.com/seleniumhq/docker-selenium/commit/582fb2c74ea343819ded8011a917ecfa6ce58d97) - add: Env var SE_SUPERVISORD_LOG_LEVEL to set supervisord log level (#2317) :: Viet Nguyen Duc
+
+### Changed
+- [`04d1e90e`](http://github.com/seleniumhq/docker-selenium/commit/04d1e90ede4ac05674bfe64f6754c663fab3c797) - chore(deps): update helm release kube-prometheus-stack to v61.4.0 (#2327) :: renovate[bot]
+- [`395a401a`](http://github.com/seleniumhq/docker-selenium/commit/395a401a80d3d6241ccbd2e9a940c37c3b14837c) - chart(add): Default ingress annotations for upstream keepalive, or disable HTTP/2 (#2328) :: Viet Nguyen Duc
+- [`e15df42f`](http://github.com/seleniumhq/docker-selenium/commit/e15df42f8f1f2f4447288afebf08362c4a16291a) - chart(breaking change): enable TLS and default annotations for ingress (#2326) :: Viet Nguyen Duc
+- [`b5d6af37`](http://github.com/seleniumhq/docker-selenium/commit/b5d6af373894bdb12d2e4caac6440cfef5cc7c68) - chart(add): Set pod/container name to node stereotypes (#2323) :: Viet Nguyen Duc
+- [`6b2a0153`](http://github.com/seleniumhq/docker-selenium/commit/6b2a0153a83e71ffe160c88d00599b68839f5cda) - chore(deps): update helm release kube-prometheus-stack to v61 (#2292) :: renovate[bot]
+- [`5f6db7e2`](http://github.com/seleniumhq/docker-selenium/commit/5f6db7e2615c1818a6e8b92c6787c4bde3f173cc) - chore(deps): update helm release jaeger to v3.1.1 (#2290) :: renovate[bot]
+- [`a184528d`](http://github.com/seleniumhq/docker-selenium/commit/a184528d6b55aab7cef604e7313893ae69cc89b2) - chore(deps): update helm release ingress-nginx to v4.11.1 (#2299) :: renovate[bot]
+- [`9bd30b0d`](http://github.com/seleniumhq/docker-selenium/commit/9bd30b0db3fa4df18f57226c433bc6b7a9870ce6) - chart(add): proactive to set browser args via container env var (#2308) :: Viet Nguyen Duc
+- [`4cc20386`](http://github.com/seleniumhq/docker-selenium/commit/4cc20386419aecffac924860bed56c2938b49537) - chart(breaking change): refactoring config keys to enable secure connection (#2306) :: Viet Nguyen Duc
+
 ## :heavy_check_mark: selenium-grid-0.32.0
 
 - Chart is using image tag 4.22.0-20240621
