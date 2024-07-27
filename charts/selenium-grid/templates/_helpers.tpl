@@ -105,8 +105,9 @@ Get default certificate file name in chart
 nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ . | quote }}
 nginx.ingress.kubernetes.io/proxy-send-timeout: {{ . | quote }}
 nginx.ingress.kubernetes.io/proxy-read-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/proxy-next-upstream-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/auth-keepalive-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-stream-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/upstream-keepalive-timeout: {{ . | quote }}
+nginx.ingress.kubernetes.io/ssl-session-timeout: {{ . | quote }}
   {{- end }}
   {{- with .proxyBuffer }}
 nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
@@ -129,12 +130,24 @@ nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
     {{- end }}
   {{- end }}
   {{- if eq (include "seleniumGrid.ingress.secureConnection" $) "true" }}
+nginx.ingress.kubernetes.io/use-http2: {{ .useHttp2 | quote }}
     {{- if not (empty .sslSecret) }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl .sslSecret $ | quote }}
     {{- else if (empty $.Values.ingress.tls) }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (include "seleniumGrid.tls.fullname" $)) $ | quote }}
     {{- else }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
+    {{- end }}
+  {{- end }}
+  {{- with .upstreamKeepalive }}
+    {{- with .connections }}
+nginx.ingress.kubernetes.io/upstream-keepalive-connections: {{ . | quote }}
+    {{- end }}
+    {{- with .requests }}
+nginx.ingress.kubernetes.io/upstream-keepalive-request: {{ . | quote }}
+    {{- end }}
+    {{- with .time }}
+nginx.ingress.kubernetes.io/upstream-keepalive-time: {{ . | quote }}
     {{- end }}
   {{- end }}
 {{- end }}
