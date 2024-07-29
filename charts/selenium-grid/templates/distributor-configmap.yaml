@@ -12,7 +12,6 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
-  SE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" $ }}'
 {{- $fileProceeded := list -}}
 {{- range $path, $_ :=  .Files.Glob $.Values.distributorConfigMap.extraScriptsImportFrom }}
   {{- $fileName := base $path -}}

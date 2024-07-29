@@ -1065,7 +1065,7 @@ $ docker run -d -p 4444:4444 -e SE_SUB_PATH=/selenium-grid/ --name selenium-hub 
 
 ### Setting Screen Resolution
 
-By default, nodes start with a screen resolution of 1360 x 1020 with a color depth of 24 bits and a dpi of 96. 
+By default, nodes start with a screen resolution of 1920 x 1080 with a color depth of 24 bits and a dpi of 96. 
 These settings can be adjusted by specifying `SE_SCREEN_WIDTH`, `SE_SCREEN_HEIGHT`, `SE_SCREEN_DEPTH`, and/or `SE_SCREEN_DPI` 
 environmental variables when starting the container.
 

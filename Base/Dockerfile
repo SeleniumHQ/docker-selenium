@@ -144,6 +144,7 @@ USER ${SEL_UID}:${SEL_GID}
 #======================================
     # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST=false \
+    SE_SERVER_PROTOCOL="http" \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS=false \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 probe_name="lifecycle.${1:-"preStop"}"
+NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/selenium"}
 
 max_time=3
 retry_time=5
@@ -26,53 +27,13 @@ else
   HEADERS="X-REGISTRATION-SECRET;"
 fi
 
-function is_full_distributed_mode() {
-  if [ -n "${SE_DISTRIBUTOR_HOST}" ] && [ -n "${SE_DISTRIBUTOR_PORT}" ]; then
-    DISTRIBUTED_MODE=true
-    echo "$(date +%FT%T%Z) [${probe_name}] - Detected full distributed mode: ${DISTRIBUTED_MODE}. Since SE_DISTRIBUTOR_HOST and SE_DISTRIBUTOR_PORT are set in Node ConfigMap"
-  else
-    DISTRIBUTED_MODE=false
-    echo "$(date +%FT%T%Z) [${probe_name}] - Detected full distributed mode: ${DISTRIBUTED_MODE}"
-  fi
-}
-is_full_distributed_mode
-
-function get_grid_url() {
-  if [ -z "${SE_HUB_HOST:-$SE_ROUTER_HOST}" ] || [ -z "${SE_HUB_PORT:-$SE_ROUTER_PORT}" ]; then
-    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB or ROUTER host. preStop ignores to send drain request to upstream."
-    grid_url=""
-  fi
-  if [ -n "${SE_BASIC_AUTH}" ] && [ "${SE_BASIC_AUTH}" != "*@" ]; then
-    SE_BASIC_AUTH="${SE_BASIC_AUTH}@"
-  fi
-  if [ "${SE_SUB_PATH}" = "/" ]; then
-    SE_SUB_PATH=""
-  fi
-  grid_url=${SE_SERVER_PROTOCOL}://${SE_BASIC_AUTH}${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
-  grid_url_checks=$(curl --noproxy "*" -m ${max_time} -s -o /dev/null -w "%{http_code}" ${grid_url})
-  if [ "${grid_url_checks}" = "401" ]; then
-    echo "$(date +%FT%T%Z) [${probe_name}] - Host requires Basic Auth. Please add the credentials to the SE_BASIC_AUTH variable (e.g: user:password). preStop ignores to send drain request to upstream."
-    grid_url=""
-  fi
-  if [ "${grid_url_checks}" = "404" ]; then
-    echo "$(date +%FT%T%Z) [${probe_name}] - The Grid is not available or it might have /subPath configured. Please wait a moment or check the SE_SUB_PATH variable if needed."
-  fi
-}
-
-function signal_distributor_to_drain_node() {
-  if [ "${DISTRIBUTED_MODE}" = true ]; then
-    echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Distributor to drain node"
-    curl --noproxy "*" -m ${max_time} -k -X POST ${SE_SERVER_PROTOCOL}://${SE_DISTRIBUTOR_HOST}:${SE_DISTRIBUTOR_PORT}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
-  fi
-}
-
 function signal_hub_to_drain_node() {
-  if [ "${DISTRIBUTED_MODE}" = false ]; then
-    get_grid_url
-    if [ -n "${grid_url}" ]; then
-      echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Hub to drain node"
-      curl --noproxy "*" -m ${max_time} -k -X POST ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
-    fi
+  grid_url=$(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh)
+  if [ -n "${grid_url}" ]; then
+    echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Hub/Router to drain node"
+    curl --noproxy "*" -m ${max_time} -k -X POST ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
+  else
+    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. preStop ignores to send drain request to upstream."
   fi
 }
 
@@ -85,7 +46,6 @@ if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE
     NODE_ID=$(jq -r '.value.node.nodeId' ${tmp_node_file} || "")
     if [ -n "${NODE_ID}" ]; then
       echo "$(date +%FT%T%Z) [${probe_name}] - Current Node ID is: ${NODE_ID}"
-      signal_distributor_to_drain_node
       signal_hub_to_drain_node
       echo
     fi

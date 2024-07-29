@@ -27,6 +27,7 @@ spec:
         checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
         checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
         checksum/distributor-configmap: {{ include (print $.Template.BasePath "/distributor-configmap.yaml") . | sha256sum }}
+        checksum/router-configmap: {{ include (print $.Template.BasePath "/router-configmap.yaml") . | sha256sum }}
         checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
         checksum/tls-cert-secret: {{ include (print $.Template.BasePath "/tls-cert-secret.yaml") . | sha256sum }}
     {{- with .Values.hub.annotations }}
@@ -128,6 +129,8 @@ spec:
             - configMapRef:
                 name: {{ template "seleniumGrid.distributor.configmap.fullname" . }}
             - configMapRef:
+                name: {{ template "seleniumGrid.router.configmap.fullname" . }}
+            - configMapRef:
                 name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
             - configMapRef:
                 name: {{ template "seleniumGrid.server.configmap.fullname" . }}
@@ -140,6 +143,11 @@ spec:
           {{- range $fileName, $value := $.Values.distributorConfigMap.extraScripts }}
             - name: {{ tpl (default (include "seleniumGrid.distributor.configmap.fullname" $) $.Values.distributorConfigMap.scriptVolumeMountName) $ }}
               mountPath: {{ $.Values.distributorConfigMap.extraScriptsDirectory }}/{{ $fileName }}
+              subPath: {{ $fileName }}
+          {{- end }}
+          {{- range $fileName, $value := $.Values.routerConfigMap.extraScripts }}
+            - name: {{ tpl (default (include "seleniumGrid.router.configmap.fullname" $) $.Values.routerConfigMap.scriptVolumeMountName) $ | quote }}
+              mountPath: {{ $.Values.routerConfigMap.extraScriptsDirectory }}/{{ $fileName }}
               subPath: {{ $fileName }}
           {{- end }}
           {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
@@ -178,6 +186,10 @@ spec:
           configMap:
             name: {{ template "seleniumGrid.distributor.configmap.fullname" $ }}
             defaultMode: {{ $.Values.distributorConfigMap.defaultMode }}
+        - name: {{ tpl (default (include "seleniumGrid.router.configmap.fullname" $) $.Values.routerConfigMap.scriptVolumeMountName) $ | quote }}
+          configMap:
+            name: {{ template "seleniumGrid.router.configmap.fullname" $ }}
+            defaultMode: {{ $.Values.routerConfigMap.defaultMode }}
       {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:

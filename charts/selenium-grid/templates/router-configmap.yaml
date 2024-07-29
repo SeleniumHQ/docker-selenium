@@ -12,6 +12,7 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
+  ROUTER_CONFIG_DIRECTORY: '{{ $.Values.routerConfigMap.extraScriptsDirectory }}'
 {{- $fileProceeded := list -}}
 {{- range $path, $_ :=  .Files.Glob $.Values.routerConfigMap.extraScriptsImportFrom }}
   {{- $fileName := base $path -}}

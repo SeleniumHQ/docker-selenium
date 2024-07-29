@@ -177,6 +177,7 @@ routerConfigMap:
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
+    routerGraphQLUrl.sh: ""
     routerProbe.sh: ""
   # Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
@@ -193,6 +194,7 @@ nodeConfigMap:
   # Directory where the extra scripts are mounted to
   extraScriptsDirectory: "/opt/selenium"
   extraScripts:
+    nodeGridUrl.sh: ""
     nodePreStop.sh: ""
     nodeProbe.sh: ""
   # Name of volume mount is used to mount scripts in the ConfigMap
