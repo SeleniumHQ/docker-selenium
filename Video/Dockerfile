@@ -101,8 +101,9 @@ CMD ["/opt/bin/entry_point.sh"]
 
 ENV DISPLAY_NUM=99 \
     DISPLAY_CONTAINER_NAME=selenium \
-    SE_SCREEN_WIDTH=1360 \
-    SE_SCREEN_HEIGHT=1020 \
+    SE_SERVER_PROTOCOL="http" \
+    SE_SCREEN_WIDTH=1920 \
+    SE_SCREEN_HEIGHT=1080 \
     SE_FRAME_RATE=15 \
     SE_CODEC=libx264 \
     SE_PRESET="-preset ultrafast" \

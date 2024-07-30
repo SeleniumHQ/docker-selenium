@@ -50,8 +50,8 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
 # Some configuration options
 #============================
-    SE_SCREEN_WIDTH=1360 \
-    SE_SCREEN_HEIGHT=1020 \
+    SE_SCREEN_WIDTH=1920 \
+    SE_SCREEN_HEIGHT=1080 \
     SE_SCREEN_DEPTH=24 \
     SE_SCREEN_DPI=96 \
     SE_START_XVFB=true \
