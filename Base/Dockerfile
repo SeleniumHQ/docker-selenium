@@ -127,7 +127,7 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
 #======================================
 # Add Grid check script
 #======================================
-COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh /opt/bin/
 
 #======================================
 # Add Supervisor configuration file
@@ -149,6 +149,7 @@ ENV SE_BIND_HOST=false \
     SE_REJECT_UNSUPPORTED_CAPS=false \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \
     SE_OTEL_TRACES_EXPORTER="otlp" \
-    SE_SUPERVISORD_LOG_LEVEL="info"
+    SE_SUPERVISORD_LOG_LEVEL="info" \
+    SE_OPT_BIN="/opt/bin"
 
 CMD ["/opt/bin/entry_point.sh"]

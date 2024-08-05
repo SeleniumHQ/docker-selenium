@@ -24,6 +24,9 @@ services:
       - SE_BROWSER_ARGS_INCOGNITO=--incognito --incognito
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_NODE_GRACEFUL_SHUTDOWN=true
+      - SE_DRAIN_AFTER_SESSION_COUNT=1
+    restart: always
 
   firefox:
     profiles:
@@ -45,6 +48,9 @@ services:
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_NODE_GRACEFUL_SHUTDOWN=true
+      - SE_DRAIN_AFTER_SESSION_COUNT=3
+    restart: always
 
   edge:
     profiles:
@@ -65,6 +71,9 @@ services:
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_NODE_GRACEFUL_SHUTDOWN=true
+      - SE_DRAIN_AFTER_SESSION_COUNT=2
+    restart: always
 
   selenium-hub:
     image: selenium/hub:${TAG}
@@ -79,17 +88,17 @@ services:
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
       - SE_SUPERVISORD_LOG_LEVEL=error
 
-  tests:
-    image: docker-selenium-tests:latest
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    depends_on:
-      - selenium-hub
-    environment:
-      - RUN_IN_DOCKER_COMPOSE=true
-      - SELENIUM_GRID_HOST=selenium-hub
-      - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
-      - BINDING_VERSION=${BINDING_VERSION}
-      - TEST_PLATFORMS=${PLATFORMS}
-    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]
+#  tests:
+#    image: docker-selenium-tests:latest
+#    build:
+#      context: ./
+#      dockerfile: ./Dockerfile
+#    depends_on:
+#      - selenium-hub
+#    environment:
+#      - RUN_IN_DOCKER_COMPOSE=true
+#      - SELENIUM_GRID_HOST=selenium-hub
+#      - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
+#      - BINDING_VERSION=${BINDING_VERSION}
+#      - TEST_PLATFORMS=${PLATFORMS}
+#    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]

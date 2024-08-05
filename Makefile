@@ -68,10 +68,11 @@ build: all
 ci: build test
 
 base:
+	rm -rf ./Base/configs/node && mkdir -p ./Base/configs/node && cp -r ./charts/selenium-grid/configs/node ./Base/configs
 	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
-	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION_NIGHTLY) --build-arg RELEASE=$(BASE_RELEASE_NIGHTLY) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
+	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make base
 
 hub: base
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
@@ -557,7 +558,8 @@ test_parallel: hub chrome firefox edge chromium
 			cd ./tests || true ; \
 			echo TAG=$(TAG_VERSION) > .env ; \
 			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
-			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
+			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "true") >> .env ; \
+			echo TEST_PARALLEL_COUNT=$(or $(TEST_PARALLEL_COUNT), 5) >> .env ; \
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 			echo NODE=$$node >> .env ; \
@@ -569,11 +571,14 @@ test_parallel: hub chrome firefox edge chromium
 					echo NODE_CHROME=chromium >> .env ; \
 			fi; \
 			echo TEST_PLATFORMS=$(PLATFORMS) >> .env ; \
-			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up --no-log-prefix --exit-code-from tests ; \
-	done
+			export $$(cat .env | xargs) ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up -d --no-log-prefix ; \
+			RUN_IN_DOCKER_COMPOSE=true bash ./bootstrap.sh $$node ; \
+	done ; \
+	docker compose -f docker-compose-v3-test-parallel.yml down
 
 test_video_dynamic_name:
-	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=10 \
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=0 \
 	make test_video
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
@@ -636,7 +641,7 @@ test_node_relay: hub node_base standalone_firefox
 			echo ANDROID_BASED_IMAGE=$(or $(ANDROID_BASED_IMAGE),docker-android) >> .env ; \
 			echo ANDROID_BASED_TAG=$(or $(ANDROID_BASED_TAG),emulator_14.0) >> .env ; \
 			echo ANDROID_PLATFORM_API=$(or $(ANDROID_PLATFORM_API),14) >> .env ; \
-			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 15) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo TEST_NODE_RELAY=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
@@ -688,7 +693,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
-			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 5) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
@@ -765,7 +770,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_test_autoscaling_disabled:
-	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=15 CHART_ENABLE_TRACING=true \
+	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=0 CHART_ENABLE_TRACING=true \
 	SECURE_INGRESS_ONLY_GENERATE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	./tests/charts/make/chart_test.sh NoAutoscaling

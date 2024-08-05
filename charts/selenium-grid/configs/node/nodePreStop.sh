@@ -1,7 +1,8 @@
 #!/bin/bash
 
 probe_name="lifecycle.${1:-"preStop"}"
-NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/selenium"}
+SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
+NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-$SE_OPT_BIN}
 
 max_time=3
 retry_time=5
