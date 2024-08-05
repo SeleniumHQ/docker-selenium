@@ -24,6 +24,7 @@ StandaloneC*/generate_config
 StandaloneF*/generate_config
 StandaloneE*/generate_config
 videos
+Base/configs
 
 # Created by https://www.gitignore.io/api/virtualenv
 

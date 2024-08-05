@@ -160,7 +160,7 @@ distributorConfigMap:
   # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
   extraScriptsImportFrom: "configs/distributor/**"
   # Directory where the extra scripts are mounted to
-  extraScriptsDirectory: "/opt/selenium"
+  extraScriptsDirectory: "/opt/bin"
   extraScripts:
     distributorProbe.sh: ""
   # Name of volume mount is used to mount scripts in the ConfigMap
@@ -175,7 +175,7 @@ routerConfigMap:
   # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
   extraScriptsImportFrom: "configs/router/**"
   # Directory where the extra scripts are mounted to
-  extraScriptsDirectory: "/opt/selenium"
+  extraScriptsDirectory: "/opt/bin"
   extraScripts:
     routerGraphQLUrl.sh: ""
     routerProbe.sh: ""
@@ -192,7 +192,7 @@ nodeConfigMap:
   # Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
   extraScriptsImportFrom: "configs/node/**"
   # Directory where the extra scripts are mounted to
-  extraScriptsDirectory: "/opt/selenium"
+  extraScriptsDirectory: "/opt/bin"
   extraScripts:
     nodeGridUrl.sh: ""
     nodePreStop.sh: ""
@@ -695,7 +695,7 @@ autoscaling:
   deregisterLifecycle:
   #  preStop:
   #    exec:
-  #      command: [ "bash", "-c", "/opt/selenium/nodePreStop.sh" ]
+  #      command: [ "bash", "-c", "/opt/bin/nodePreStop.sh" ]
 
 # Configuration for chrome nodes
 chromeNode:

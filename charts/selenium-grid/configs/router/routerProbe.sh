@@ -4,7 +4,7 @@ max_time=3
 retry_time=3
 probe_name="Probe.${1:-"Liveness"}"
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"+%T.%3N"}
-ROUTER_CONFIG_DIRECTORY=${ROUTER_CONFIG_DIRECTORY:-"/opt/selenium"}
+ROUTER_CONFIG_DIRECTORY=${ROUTER_CONFIG_DIRECTORY:-$SE_OPT_BIN}
 
 GRID_GRAPHQL_URL=$(bash ${ROUTER_CONFIG_DIRECTORY}/routerGraphQLUrl.sh)
 

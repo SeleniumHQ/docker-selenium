@@ -20,6 +20,7 @@ SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'fal
 SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWNLOADS', 'true').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
+TEST_PARALLEL_COUNT = int(os.environ.get('TEST_PARALLEL_COUNT', 5))
 TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
 TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
 TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
@@ -256,7 +257,7 @@ class DeploymentAutoscalingTests(unittest.TestCase):
         if not TEST_PARALLEL_HARDENING:
             runner.run(platform.add_test_based_platform(1))
         else:
-            runner.run(platform.add_test_based_platform(9))
+            runner.run(platform.add_test_based_platform(TEST_PARALLEL_COUNT))
 
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
@@ -265,7 +266,7 @@ class JobAutoscalingTests(unittest.TestCase):
         if not TEST_PARALLEL_HARDENING:
             runner.run(platform.add_test_based_platform(1))
         else:
-            runner.run(platform.add_test_based_platform(9))
+            runner.run(platform.add_test_based_platform(TEST_PARALLEL_COUNT))
 
 class TestPlatform:
     def add_test_based_platform(self, repeat):
