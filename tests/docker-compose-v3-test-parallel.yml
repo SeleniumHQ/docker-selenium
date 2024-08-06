@@ -14,6 +14,8 @@ services:
     user: ${UID}
     depends_on:
       - selenium-hub
+    volumes:
+      - ./videos/certs:/opt/selenium/secrets
     environment:
       - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -26,6 +28,7 @@ services:
       - SE_SUPERVISORD_LOG_LEVEL=error
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=1
+      - SE_ENABLE_TLS=true
     restart: always
 
   firefox:
@@ -40,6 +43,8 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+    volumes:
+      - ./videos/certs:/opt/selenium/secrets
     environment:
       - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -50,6 +55,7 @@ services:
       - SE_SUPERVISORD_LOG_LEVEL=error
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=3
+      - SE_ENABLE_TLS=true
     restart: always
 
   edge:
@@ -63,6 +69,8 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+    volumes:
+      - ./videos/certs:/opt/selenium/secrets
     environment:
       - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -73,6 +81,7 @@ services:
       - SE_SUPERVISORD_LOG_LEVEL=error
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=2
+      - SE_ENABLE_TLS=true
     restart: always
 
   selenium-hub:
@@ -83,10 +92,13 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+    volumes:
+      - ./videos/certs:/opt/selenium/secrets
     environment:
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
       - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_ENABLE_TLS=true
 
 #  tests:
 #    image: docker-selenium-tests:latest
@@ -101,4 +113,6 @@ services:
 #      - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
 #      - BINDING_VERSION=${BINDING_VERSION}
 #      - TEST_PLATFORMS=${PLATFORMS}
+#      - SELENIUM_GRID_PROTOCOL=${SELENIUM_GRID_PROTOCOL}
+#      - CHART_CERT_PATH=${CHART_CERT_PATH}
 #    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]

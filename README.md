@@ -63,6 +63,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Running in Headless mode](#running-in-headless-mode)
   * [Stopping the Node/Standalone after N sessions have been executed](#stopping-the-nodestandalone-after-n-sessions-have-been-executed)
   * [Automatic browser leftovers cleanup](#automatic-browser-leftovers-cleanup)
+  * [Secure Connection](#secure-connection)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
 * [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
@@ -1174,6 +1175,33 @@ $ docker run -e SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=true \
 With the previous command, the cleanup will be enabled, but will run every 2 hours (instead of 1), will kill browsers
 running longer than 1 hour (instead of 2 hours), and will remove temp files older than 2 days (instead of 1).
 
+---
+
+## Secure connection
+
+By default, there are default self-signed certificates available in the image in location `/opt/selenium/secrets` includes
+- `server.jks`: truststore file to configure for JVM via system property `javax.net.ssl.trustStore` when start the server.
+- `server.pass`: file contains the truststore password for JVM via system property `javax.net.ssl.trustStorePassword`.
+- `tls.crt`: Server certificate for https connection is set to Selenium option `--https-certificate`.
+- `tls.key`: Server private key (in PKCS8 format) for https connection is set to Selenium option `--https-private-key`.
+
+There are environment variables to configure the secure connection:
+
+| Environment variables                 | Default                             | Option of | Description                                   |
+|---------------------------------------|-------------------------------------|-----------|-----------------------------------------------|
+| SE_ENABLE_TLS                         | `false`                             |           | Enable secure connection with default configs |
+| SE_JAVA_SSL_TRUST_STORE               | `/opt/selenium/secrets/server.jks`  | JVM       |                                               |
+| SE_JAVA_SSL_TRUST_STORE_PASSWORD      | `/opt/selenium/secrets/server.pass` | JVM       |                                               |
+| SE_JAVA_DISABLE_HOSTNAME_VERIFICATION | `true`                              | JVM       | Disable host checks for components internally |
+| SE_HTTPS_CERTIFICATE                  | `/opt/selenium/secrets/tls.crt`     | Selenium  | Set to CLI option `--https-certificate`       |
+| SE_HTTPS_PRIVATE_KEY                  | `/opt/selenium/secrets/tls.key`     | Selenium  | Set to CLI option `--https-private-key`       |
+
+Via volume mount, you can replace the default certificates with your own certificates.
+
+The self-signed certificate also needs to be trusted by the client (add to system widely bundle trusted CA) to avoid error message relates to SSL handshake when creating RemoteWebDriver.
+
+Refer to sample: [`docker-compose-v3-full-grid-secure.yml`](docker-compose-v3-full-grid-secure.yml)
+
 ___
 
 ## Building the images
@@ -1413,9 +1441,12 @@ you can create your own docker image from selenium node image.
 The Chromium-based browser uses `nssdb` as a certificate store.
 You can then install all required internal certificates in your Dockerfile like this:
 
-- Create a script for installing the certificates. For example, [cert-script.sh](tests/customCACert/cert-script.sh)
+There is a utility script packaged in the image that can be used to add your certificates to the `nssdb` store and the bundle CA.
+The script is `/opt/bin/add-cert-helper.sh`.
+
 - Create a Dockerfile that uses the selenium node image as a base and copies the script to the container, and executes it.
 For example, [Dockerfile](tests/customCACert/Dockerfile)
+
 - If you have to create a set of different certificates and node images. You can create a bootstrap script to do that in one-shot.
 For example, [bootstrap.sh](tests/customCACert/bootstrap.sh)
 

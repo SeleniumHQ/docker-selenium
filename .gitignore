@@ -153,3 +153,4 @@ ENV/
 /charts/*/**.lock
 /charts/*.tgz
 /charts/*/RELEASE_NOTES.md
+Base/certs
