@@ -847,7 +847,7 @@ chromeNode:
     sessionBrowserName: "chrome"
     platformName: "linux"
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
-    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}' # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1006,7 +1006,7 @@ firefoxNode:
     browserName: "firefox"
     sessionBrowserName: "firefox"
     platformName: "linux"
-    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}' # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1165,7 +1165,7 @@ edgeNode:
     browserName: "MicrosoftEdge"
     sessionBrowserName: "msedge"
     platformName: "linux"
-    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}' # Optional
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
