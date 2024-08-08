@@ -18,6 +18,7 @@ spec:
   {{- if and (not .Values.autoscaling.enabled) (not .Values.autoscaling.enableWithExistingKEDA) }}
   replicas: {{ .Values.edgeNode.replicas }}
   {{end}}
+  revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
     matchLabels:
       app: {{ template "seleniumGrid.edgeNode.fullname" . }}

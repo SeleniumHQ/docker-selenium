@@ -27,6 +27,8 @@ global:
     defaultComponentLivenessProbe: exec
     # probe logs output can be retrieved using `kubectl logs`
     stdoutProbeLog: false
+    # specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background.
+    revisionHistoryLimit: 10
 
 tls:
   # Name of external secret containing the TLS certificate and key
@@ -273,7 +275,6 @@ secrets:
 
 # Configuration for isolated components (applied only if `isolateComponents: true`)
 components:
-
   # Configuration for router component
   router:
     # imageRegistry: selenium
@@ -626,7 +627,7 @@ tracing:
   enabled: false
   enabledWithExistingEndpoint: false
   exporter: otlp
-  exporterEndpoint: 'http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317'
+  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317"
   globalAutoConfigure: true
   ingress:
     enabled: true
@@ -634,7 +635,7 @@ tracing:
     paths:
       - backend:
           service:
-            name: '{{ .Release.Name }}-jaeger-query'
+            name: "{{ .Release.Name }}-jaeger-query"
             port:
               number: 16686
         path: &jaegerBasePath "/jaeger"
@@ -842,9 +843,9 @@ chromeNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: 'chrome'
-    sessionBrowserName: 'chrome'
-    platformName: 'linux'
+    browserName: "chrome"
+    sessionBrowserName: "chrome"
+    platformName: "linux"
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -856,7 +857,6 @@ chromeNode:
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
-
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -1003,9 +1003,9 @@ firefoxNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: 'firefox'
-    sessionBrowserName: 'firefox'
-    platformName: 'linux'
+    browserName: "firefox"
+    sessionBrowserName: "firefox"
+    platformName: "linux"
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -1162,9 +1162,9 @@ edgeNode:
   # scaledObjectOptions:
   hpa:
     url: '{{ template "seleniumGrid.graphqlURL" . }}'
-    browserName: 'MicrosoftEdge'
-    sessionBrowserName: 'msedge'
-    platformName: 'linux'
+    browserName: "MicrosoftEdge"
+    sessionBrowserName: "msedge"
+    platformName: "linux"
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
   # It is used to add initContainers in the same pod of the browser node.
@@ -1218,7 +1218,7 @@ videoRecorder:
     #  RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
     #  RCLONE_CONFIG_GS_NO_CHECK_BUCKET: "true"
   ports:
-  - 9000
+    - 9000
   resources:
     requests:
       memory: "1Gi"
