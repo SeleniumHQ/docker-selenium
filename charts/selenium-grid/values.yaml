@@ -29,6 +29,8 @@ global:
     stdoutProbeLog: false
     # specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background.
     revisionHistoryLimit: 10
+    # Whether to enable structured logging
+    structuredLogs: false
 
 tls:
   # Name of external secret containing the TLS certificate and key
