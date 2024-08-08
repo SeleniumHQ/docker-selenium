@@ -28,6 +28,8 @@ ENV SE_SESSION_REQUEST_TIMEOUT=300 \
     SE_HEALTHCHECK_INTERVAL=120 \
 # Boolean value, maps "--relax-checks"
     SE_RELAX_CHECKS=true \
+# Boolean value, maps "--reject-unsupported-caps", defaults to true because a Standalone Grid is not waiting for Nodes to register
+    SE_REJECT_UNSUPPORTED_CAPS=true \
     SE_OTEL_SERVICE_NAME="selenium-standalone"
 
 EXPOSE 4444
