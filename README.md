@@ -758,7 +758,7 @@ $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/h
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/node-docker:4.23.0-20240727
@@ -772,7 +772,7 @@ $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/h
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
-    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/node-docker:4.23.0-20240727
@@ -793,7 +793,7 @@ $ docker network rm grid
 
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/standalone-docker:4.23.0-20240727
@@ -803,7 +803,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
 
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 `
-    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/standalone-docker:4.23.0-20240727
@@ -826,7 +826,7 @@ $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/node-docker:4.23.0-20240727
@@ -839,7 +839,7 @@ $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
     -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
     -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
-    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/node-docker:4.23.0-20240727
@@ -897,7 +897,7 @@ be forwared and set in the container. You can set the desired environment variab
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 \
     -e SE_NODE_SESSION_TIMEOUT=700 \
-    -v ${PWD}/config.toml:/opt/bin/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/standalone-docker:4.23.0-20240727
@@ -908,7 +908,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 `
     -e SE_NODE_SESSION_TIMEOUT=700 `
-    -v ${PWD}/config.toml:/opt/bin/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/standalone-docker:4.23.0-20240727

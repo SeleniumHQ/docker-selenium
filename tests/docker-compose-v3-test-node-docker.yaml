@@ -4,7 +4,7 @@ services:
     image: ${NAMESPACE}/node-docker:${TAG}
     volumes:
       - ./videos:/opt/selenium/assets
-      - ./videos/config.toml:/opt/bin/config.toml
+      - ./videos/config.toml:/opt/selenium/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
       - ./videos/Downloads:/home/seluser/Downloads
     dns:

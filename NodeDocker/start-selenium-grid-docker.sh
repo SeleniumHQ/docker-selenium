@@ -98,5 +98,5 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   --bind-host ${SE_BIND_HOST} \
   --detect-drivers false \
-  --config /opt/bin/config.toml \
+  --config /opt/selenium/config.toml \
   ${SE_GRID_URL} ${SE_OPTS}
