@@ -39,6 +39,11 @@ if [ ! -z "$SE_LOG_LEVEL" ]; then
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
 fi
 
+if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
+  echo "Appending Selenium options: --structured-logs ${SE_STRUCTURED_LOGS}"
+  SE_OPTS="$SE_OPTS --structured-logs ${SE_STRUCTURED_LOGS}"
+fi
+
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
   echo "Appending Selenium options: --external-url ${SE_EXTERNAL_URL}"
   SE_OPTS="$SE_OPTS --external-url ${SE_EXTERNAL_URL}"
