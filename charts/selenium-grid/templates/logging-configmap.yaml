@@ -12,8 +12,9 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
-  SE_LOG_LEVEL: "{{ default "INFO" .Values.global.seleniumGrid.logLevel }}"
-  SE_STRUCTURED_LOGS: "{{ default false .Values.global.seleniumGrid.structuredLogs }}"
+  SE_LOG_LEVEL: {{ default "INFO" .Values.global.seleniumGrid.logLevel | quote }}
+  SE_STRUCTURED_LOGS: {{ default false .Values.global.seleniumGrid.structuredLogs | quote }}
+  SE_HTTP_LOGS: {{ default false .Values.global.seleniumGrid.httpLogs | quote }}
 {{- if (eq (include "seleniumGrid.enableTracing" .) "true") }}
   SE_ENABLE_TRACING: "true"
   SE_OTEL_TRACES_EXPORTER: {{ .Values.tracing.exporter | quote }}

@@ -59,6 +59,11 @@ if [ ! -z "$SE_LOG_LEVEL" ]; then
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
 fi
 
+if [ ! -z "$SE_HTTP_LOGS" ]; then
+  echo "Appending Selenium options: --http-logs ${SE_HTTP_LOGS}"
+  SE_OPTS="$SE_OPTS --http-logs ${SE_HTTP_LOGS}"
+fi
+
 if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
   echo "Appending Selenium options: --structured-logs ${SE_STRUCTURED_LOGS}"
   SE_OPTS="$SE_OPTS --structured-logs ${SE_STRUCTURED_LOGS}"
@@ -136,6 +141,8 @@ if [ "$SE_ENABLE_TRACING" = "true" ]; then
     SE_JAVA_OPTS="$SE_JAVA_OPTS ${SE_OTEL_JVM_ARGS}"
   fi
 else
+  SE_OPTS="$SE_OPTS --tracing false"
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
 fi
 
