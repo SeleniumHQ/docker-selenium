@@ -52,12 +52,15 @@ tls:
     tls.crt: ""
     tls.key: ""
     server.jks: ""
+    server.pass: ""
   secretFilesImportFrom: "certs/**"
-  certVolumeMountPath: /etc/ssl/certs/selenium
+  certVolumeMountPath: "/opt/selenium/secrets"
   certificateFile: tls.crt
   privateKeyFile: tls.key
   trustStoreFile: server.jks
-  trustStorePassword: "seleniumkeystore"
+  trustStorePasswordFile: server.pass
+  # Recommend to get from trustStorePasswordFile instead of plain text via env variable
+  trustStorePassword: ""
   # Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided
   disableHostnameVerification: true
 

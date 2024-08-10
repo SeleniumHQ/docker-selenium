@@ -222,10 +222,13 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
   --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
   "
   cert_dir="./tests/tests"
-  ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/cert.sh -d ${cert_dir}
+  ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/gen-cert-helper.sh -d ${cert_dir}
   kubectl delete secret -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} --ignore-not-found=true
-  kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} --from-file=tls.crt=${cert_dir}/tls.crt \
-  --from-file=tls.key=${cert_dir}/tls.key --from-file=server.jks=${cert_dir}/server.jks
+  kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} \
+  --from-file=tls.crt=${cert_dir}/tls.crt \
+  --from-file=tls.key=${cert_dir}/tls.key \
+  --from-file=server.jks=${cert_dir}/server.jks \
+  --from-file=server.pass=${cert_dir}/server.pass
   CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 

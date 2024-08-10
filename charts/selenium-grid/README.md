@@ -628,17 +628,19 @@ videoRecorder:
 
 Selenium Grid supports secure communication between components. Refer to the [instructions](https://github.com/SeleniumHQ/selenium/blob/trunk/java/src/org/openqa/selenium/grid/commands/security.txt) and [options](https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) are able to configure the secure communication. Below is the details on how to enable secure communication in Selenium Grid chart.
 
-In the chart, there is directory [certs](./certs) contains the default self-signed certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose. You can generate your own self-signed certificate put them in that default directory by using script [certs/cert.sh](./certs/cert.sh) with adjust needed information. The certificate, private key, truststore are mounted to the components via `Secret`.
+In the chart, there is directory [certs](./certs) contains utility scripts, the default self-signed certificate, private key (as PKCS8 format), and Java Keystore (JKS) to teach Java about secure connection (since we are using a non-standard CA) for your trial, local testing purpose.
 
-Usage of [certs/cert.sh](./certs/cert.sh) script:
+You can generate your own self-signed certificate put them in that default directory by using script [certs/gen-cert-helper.sh](./certs/gen-cert-helper.sh) with adjust needed information before deploying chart. The certificate, private key, truststore are mounted to the components via `Secret`.
+
+Usage of [certs/gen-cert-helper.sh](./certs/gen-cert-helper.sh) script:
 
 ```bash
-# Generate self-signed to target directory
-./certs/cert.sh -d /path/to/your/
+# Generate self-signed to target directory (by default output in same directory with script)
+./certs/gen-cert-helper.sh -d /path/to/your/
 # Add current host IP to the certificate
-ADD_IP_ADDRESS=hostname ./certs/cert.sh -d /path/to/your/
+ADD_IP_ADDRESS=hostname ./certs/gen-cert-helper -d /path/to/your/
 # Add multiple IP addresses to the certificate (comma-separated)
-ADD_IP_ADDRESS=",IP:10.10.10.10,IP:10.10.11.11" ./certs/cert.sh -d /path/to/your/
+ADD_IP_ADDRESS=",IP:10.10.10.10,IP:10.10.11.11" ./certs/gen-cert-helper.sh -d /path/to/your/
 # Other environment variables that script consumes
 # CERTNAME, STOREPASS, KEYPASS, ALIAS, SERVER_KEYSTORE, BASE64_ONLY
 ```
@@ -656,19 +658,21 @@ There are multiple ways to insert your certificate, private key, truststore to t
         --set tls.enabled=true \
         --set-file tls.secretFiles.tls\.crt=/path/to/your/tls.crt \
         --set-file tls.secretFiles.tls\.key=/path/to/your/tls.key \
-        --set-file tls.secretFiles.server\.jks=/path/to/your/server.jks
+        --set-file tls.secretFiles.server\.jks=/path/to/your/server.jks \
+        --set-file tls.secretFiles.server\.pass=/path/to/your/server.pass
     ```
 
 3. Create your own TLS Secret with your certificate, private key, truststore and pass the Secret name via `tls.nameOverride` when deploying the chart. For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
 
    ```bash
    # Steps to prepare your self-signed certificate
-   ./certs/cert.sh -d /path/to/your/
+   ./certs/gen-cert-helper.sh -d /path/to/your/
    # Create TLS Secret with your certificate, private key, truststore (or a Secret type kubernetes.io/tls)
    kubectl create secret generic -n $NAMESPACE my-external-tls-secret \
        --from-file=tls.crt=/path/to/your/tls.crt \
        --from-file=tls.key=/path/to/your/tls.key \
-       --from-file=server.jks=/path/to/your/server.jks
+       --from-file=server.jks=/path/to/your/server.jks \
+       --from-file=server.pass=/path/to/your/server.pass
    # Deploy chart with your external TLS Secret
    helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
        --set tls.enabled=true --set tls.nameOverride=my-external-tls-secret

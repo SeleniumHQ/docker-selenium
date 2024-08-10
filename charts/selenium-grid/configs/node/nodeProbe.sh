@@ -3,7 +3,7 @@
 max_time=3
 probe_name="Probe.${1:-"Startup"}"
 SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
-NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-$SE_OPT_BIN}
+NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/bin"}
 
 ID=$(echo $RANDOM)
 tmp_node_file="/tmp/nodeProbe${ID}"

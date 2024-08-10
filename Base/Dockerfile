@@ -90,7 +90,7 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-  && mkdir -p /opt/selenium /opt/selenium/assets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
+  && mkdir -p /opt/selenium /opt/selenium/assets /opt/selenium/secrets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
     ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb \
   # NSSDB initialization with an empty password
   && certutil -d sql:${HOME}/.pki/nssdb -N --empty-password \
@@ -135,10 +135,19 @@ COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/n
 COPY supervisord.conf /etc
 
 #===================================================
+# Add the default self-signed certificate to the bundle CA
+#===================================================
+ARG CERT_TRUST_ATTR=TCu,Cu,Tu
+COPY --chown="${SEL_UID}:${SEL_GID}" certs/add-cert-helper.sh certs/add-jks-helper.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jks certs/server.pass /opt/selenium/secrets/
+
+#===================================================
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
 
+RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
+    && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
 #======================================
 # Configure environement
 #======================================
@@ -150,6 +159,11 @@ ENV SE_BIND_HOST=false \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \
     SE_OTEL_TRACES_EXPORTER="otlp" \
     SE_SUPERVISORD_LOG_LEVEL="info" \
-    SE_OPT_BIN="/opt/bin"
+    SE_ENABLE_TLS=false \
+    SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \
+    SE_JAVA_SSL_TRUST_STORE_PASSWORD="/opt/selenium/secrets/server.pass" \
+    SE_JAVA_DISABLE_HOSTNAME_VERIFICATION=true \
+    SE_HTTPS_CERTIFICATE="/opt/selenium/secrets/tls.crt" \
+    SE_HTTPS_PRIVATE_KEY="/opt/selenium/secrets/tls.key"
 
 CMD ["/opt/bin/entry_point.sh"]

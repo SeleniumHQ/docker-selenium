@@ -69,6 +69,8 @@ ci: build test
 
 base:
 	rm -rf ./Base/configs/node && mkdir -p ./Base/configs/node && cp -r ./charts/selenium-grid/configs/node ./Base/configs
+	rm -rf ./Base/certs && cp -r ./charts/selenium-grid/certs ./Base
+	./Base/certs/gen-cert-helper.sh -d ./Base/certs
 	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
@@ -554,6 +556,8 @@ test_chromium_standalone:
 
 test_parallel: hub chrome firefox edge chromium
 	sudo rm -rf ./tests/tests
+	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos
+	sudo cp -r ./charts/selenium-grid/certs ./tests/videos
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd ./tests || true ; \
 			echo TAG=$(TAG_VERSION) > .env ; \
@@ -571,6 +575,8 @@ test_parallel: hub chrome firefox edge chromium
 					echo NODE_CHROME=chromium >> .env ; \
 			fi; \
 			echo TEST_PLATFORMS=$(PLATFORMS) >> .env ; \
+			echo SELENIUM_GRID_PROTOCOL=https >> .env ; \
+			echo CHART_CERT_PATH=$$(readlink -f ./videos/certs/tls.crt) >> .env ; \
 			export $$(cat .env | xargs) ; \
 			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up -d --no-log-prefix ; \
 			RUN_IN_DOCKER_COMPOSE=true bash ./bootstrap.sh $$node ; \

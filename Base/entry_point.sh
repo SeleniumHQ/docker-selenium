@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-$SE_OPT_BIN}
+NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/bin"}
 #==============================================
 # OpenShift or non-sudo environments support
 # https://docs.openshift.com/container-platform/3.11/creating_images/guidelines.html#openshift-specific-guidelines
