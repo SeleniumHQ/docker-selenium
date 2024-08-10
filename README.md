@@ -42,6 +42,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Video recording and uploading](#video-recording-and-uploading)
 * [Dynamic Grid](#dynamic-grid)
   * [Configuration example](#configuration-example)
+  * [Share volumes config of Dynamic Grid container to node browser containers](#share-volumes-config-of-dynamic-grid-container-to-node-browser-containers)
   * [Execution with Hub & Node roles](#execution-with-hub--node-roles)
   * [Execution with Standalone roles](#execution-with-standalone-roles)
   * [Using Dynamic Grid in different machines/VMs](#using-dynamic-grid-in-different-machinesvms)
@@ -744,6 +745,36 @@ video-image = "selenium/video:ffmpeg-7.0.1-20240727"
 With the optional config key `host-config-keys` under section [docker] in a config.toml file (or CLI option --docker-host-config-keys). Users can specify a list of docker host configuration keys that should be passed to browser containers.
 
 Valid key names for Docker host config can be found in the Docker API [documentation](https://docs.docker.com/engine/api/latest/#tag/Container/operation/ContainerCreate) or via the command `docker inspect` the node-docker container.
+
+### Share volumes config of Dynamic Grid container to node browser containers
+
+In case you want to access download directory in node browser containers (e.g `/home/seluser/Downloads`) via volumes config of Dynamic Grid container, you can add the following config to the `config.toml` file
+
+```toml
+[docker]
+host-config-keys = ["Binds"]
+```
+
+Volumes config in docker compose file
+
+```dockerfile
+services:
+  node-docker:
+    image: selenium/node-docker:latest
+    volumes:
+      - ./assets:/opt/selenium/assets
+      - ./config.toml:/opt/selenium/docker.toml
+      - ./downloads:/home/seluser/Downloads
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SE_NODE_DOCKER_CONFIG_FILENAME=docker.toml
+```
+
+`/opt/selenium/config.toml` is the default path for the config file in all images. Once volumes config is shared to node browser containers, its `config.toml` could be overwritten by node-docker container config file.
+
+In this case, mount your `config.toml` file to `/opt/selenium/docker.toml` in node-docker container. And set the environment variable `SE_NODE_DOCKER_CONFIG_FILENAME=docker.toml` to specify that config file name for the startup script.
+
+Refer to example [docker-compose-v3-test-node-docker.yaml](./tests/docker-compose-v3-test-node-docker.yaml)
 
 ### Execution with Hub & Node roles
 

@@ -142,6 +142,8 @@ class ChromeTests(SeleniumGenericTests):
                 options.set_capability('appium:adbExecTimeout', 120000)
                 options.set_capability('appium:uiautomator2ServerInstallTimeout', 120000)
                 options.set_capability('appium:appWaitDuration', 120000)
+                options.set_capability('appium:suppressKillServer', True)
+                options.set_capability('appium:allowDelayAdb', False)
             else:
                 options.set_capability('platformName', 'Linux')
             start_time = time.time()
