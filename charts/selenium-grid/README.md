@@ -313,20 +313,23 @@ Refer to below section [Configuration of Secure Communication] for more details 
 ### Configuration global
 For now, global configuration supported is:
 
-| Parameter                                           | Default                 | Description                                 |
-|-----------------------------------------------------|-------------------------|---------------------------------------------|
-| `global.K8S_PUBLIC_IP`                              | `""`                    | Public IP of the host running K8s           |
-| `global.seleniumGrid.imageRegistry`                 | `selenium`              | Distribution registry to pull images        |
-| `global.seleniumGrid.imageTag`                      | `4.23.0-20240727`       | Image tag for all selenium components       |
-| `global.seleniumGrid.nodesImageTag`                 | `4.23.0-20240727`       | Image tag for browser's nodes               |
-| `global.seleniumGrid.videoImageTag`                 | `ffmpeg-7.0.1-20240727` | Image tag for browser's video recorder      |
-| `global.seleniumGrid.imagePullSecret`               | `""`                    | Pull secret to be used for all images       |
-| `global.seleniumGrid.affinity`                      | `{}`                    | Affinity assigned globally                  |
-| `global.seleniumGrid.logLevel`                      | `INFO`                  | Set log level for all components            |
-| `global.seleniumGrid.defaultNodeStartupProbe`       | `exec`                  | Default startup probe method in Nodes       |
-| `global.seleniumGrid.defaultNodeLivenessProbe`      | `exec`                  | Default liveness probe method in Nodes      |
-| `global.seleniumGrid.defaultComponentLivenessProbe` | `exec`                  | Default liveness probe method in Components |
-| `global.seleniumGrid.stdoutProbeLog`                | `true`                  | Enable probe logs output in kubectl logs    |
+| Parameter                                           | Default                 | Description                                                         |
+|-----------------------------------------------------|-------------------------|---------------------------------------------------------------------|
+| `global.K8S_PUBLIC_IP`                              | `""`                    | Public IP of the host running K8s                                   |
+| `global.seleniumGrid.imageRegistry`                 | `selenium`              | Distribution registry to pull images                                |
+| `global.seleniumGrid.imageTag`                      | `4.23.0-20240727`       | Image tag for all selenium components                               |
+| `global.seleniumGrid.nodesImageTag`                 | `4.23.0-20240727`       | Image tag for browser's nodes                                       |
+| `global.seleniumGrid.videoImageTag`                 | `ffmpeg-7.0.1-20240727` | Image tag for browser's video recorder                              |
+| `global.seleniumGrid.imagePullSecret`               | `""`                    | Pull secret to be used for all images                               |
+| `global.seleniumGrid.affinity`                      | `{}`                    | Affinity assigned globally                                          |
+| `global.seleniumGrid.logLevel`                      | `INFO`                  | Set log level for all components                                    |
+| `global.seleniumGrid.structuredLogs`                | `false`                 | Use structured logs                                                 |
+| `global.seleniumGrid.httpLogs`                      | `false`                 | Enable http logging. Tracing should be enabled together             |
+| `global.seleniumGrid.defaultNodeStartupProbe`       | `exec`                  | Default startup probe method in Nodes                               |
+| `global.seleniumGrid.defaultNodeLivenessProbe`      | `exec`                  | Default liveness probe method in Nodes                              |
+| `global.seleniumGrid.defaultComponentLivenessProbe` | `exec`                  | Default liveness probe method in Components                         |
+| `global.seleniumGrid.stdoutProbeLog`                | `true`                  | Enable probe logs output in kubectl logs                            |
+| `global.seleniumGrid.revisionHistoryLimit`          | `10`                    | Specify how many old ReplicaSets for this Deployment to be retained |
 
 #### Configuration `global.K8S_PUBLIC_IP`
 

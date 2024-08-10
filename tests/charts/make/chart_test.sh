@@ -111,6 +111,7 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.videoImageTag=${VIDEO_TAG} \
 --set autoscaling.scaledOptions.pollingInterval=${AUTOSCALING_POLL_INTERVAL} \
 --set tracing.enabled=${CHART_ENABLE_TRACING} \
+--set global.seleniumGrid.httpLogs=${CHART_ENABLE_TRACING} \
 --set isolateComponents=${CHART_FULL_DISTRIBUTED_MODE} \
 --set global.seleniumGrid.logLevel=${LOG_LEVEL} \
 "

@@ -31,6 +31,8 @@ global:
     revisionHistoryLimit: 10
     # Whether to enable structured logging
     structuredLogs: false
+    # Enable http logging. Tracing should be enabled to log http logs.
+    httpLogs: false
 
 tls:
   # Name of external secret containing the TLS certificate and key
