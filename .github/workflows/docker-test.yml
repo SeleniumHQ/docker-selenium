@@ -63,6 +63,11 @@ jobs:
             test-video: false
             build-all: false
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
       - name: Set up containerd image store feature

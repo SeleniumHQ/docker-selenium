@@ -6,7 +6,7 @@ Selenium Grid Server deployed successfully.
 {{- $port := ternary .Values.components.router.port .Values.hub.port .Values.isolateComponents }}
 {{- $localUrl := ternary "http://localhost:PORT" "http://localhost:PORT/wd/hub" .Values.isolateComponents }}
 
-{{- if .Values.ingress.enabled }}
+{{- if eq (include "seleniumGrid.ingress.enabled" $) "true" }}
     {{- if .Values.ingress.hostname }}
 1. Ingress is enabled, and it exposes the Grid Hub or Grid Router with the hostname you supplied.
     To access Selenium from outside of Kubernetes, simply open {{ include "seleniumGrid.url" .}}.

@@ -45,7 +45,7 @@ echo "| rclone | ${RCLONE_VERSION} | ${RCLONE_VERSION} |" >> release_notes.md
 echo "| Java Runtime | ${JRE_VERSION} | ${JRE_VERSION} |" >> release_notes.md
 
 echo "" >> release_notes.md
-echo "### Published Docker images" >> release_notes.md
+echo "### Published Docker images on [Docker Hub](https://hub.docker.com/u/${NAMESPACE})" >> release_notes.md
 echo "<details>" >> release_notes.md
 echo "<summary>Click to see published Docker images</summary>" >> release_notes.md
 echo "" >> release_notes.md
@@ -55,3 +55,6 @@ echo '```' >> release_notes.md
 echo "" >> release_notes.md
 echo "</details>" >> release_notes.md
 
+echo "" >> release_notes.md
+chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+echo "### Published Helm chart version [selenium-grid-${chart_version}](https://github.com/${AUTHORS:-"SeleniumHQ"}/docker-selenium/releases/tag/selenium-grid-${chart_version})" >> release_notes.md

@@ -719,7 +719,7 @@ Below is an example of Grid UI accessible via NodePort with secure connection, a
 
 ```bash
 helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
-  --set ingress.enabled=false \
+  --set ingress.enableWithExistingController=false \
   --set isolateComponents=true \
   --set components.router.serviceType=NodePort \
   --set tls.enabled=true \
@@ -776,8 +776,7 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set ingress.enabled=true \
   --set ingress.hostname="selenium-grid.prod.domain.com" \
   --set tls.ingress.enabled=true \
-  --set tls.nameOverride=my-external-tls-secret \
-  --set ingress-nginx.enabled=true
+  --set tls.nameOverride=my-external-tls-secret
 ```
 
 Grid UI can be accessed via HTTPS address `https://selenium-grid.prod.domain.com`.
@@ -805,7 +804,6 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set global.K8S_PUBLIC_IP=$(hostname -i) \
   --set tls.ingress.enabled=true \
   --set tls.nameOverride=my-external-tls-secret \
-  --set ingress-nginx.enabled=true \
   --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
 ```
 
@@ -877,6 +875,9 @@ tracing:
     exporterEndpoint: 'http://jaeger.domain.com:4317'
 ```
 
+By default, the exporter is set to `otlp`. It is wide compatibility with many tracing backends.
+Read more: [vendors](https://opentelemetry.io/ecosystem/vendors/) native support OpenTelemetry and guidelines on [integration](https://opentelemetry.io/ecosystem/integrations/)
+
 ### Configuration of Selenium Grid chart
 This table contains the configuration parameters of the chart and their default values:
 
@@ -893,7 +894,8 @@ This table contains the configuration parameters of the chart and their default 
 | `busConfigMap.annotations`                    | `{}`                                        | Custom annotations for configmap                                                                                           |
 | `nodeConfigMap.nameOverride`                  | ``                                          | Name of the configmap that contains common environment variables for browser nodes                                         |
 | `nodeConfigMap.annotations`                   | `{}`                                        | Custom annotations for configmap                                                                                           |
-| `ingress.enabled`                             | `true`                                      | Enable or disable ingress resource                                                                                         |
+| `ingress.enabled`                             | `false`                                     | Enable ingress. Implies installing Ingress NGINX Controller                                                                |
+| `ingress.enableWithExistingController`        | `true`                                      | Enable ingress without automatically installing Ingress NGINX Controller                                                   |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                         | `{}`                                        | Custom annotations for ingress resource                                                                                    |
 | `ingress.nginx.proxyTimeout`                  | `3600`                                      | Value is used to set for NGINX ingress annotations related to proxy timeout                                                |

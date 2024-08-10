@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-build-push-image:
+        description: 'Skip the build & push images'
+        required: false
+        type: boolean
+        default: false
   push:
     branches:
       - trunk
@@ -99,13 +104,6 @@ jobs:
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
       - name: Update chart CHANGELOG
         run: ./generate_chart_changelog.sh
-      - name: Build images
-        uses: nick-invision/retry@master
-        with:
-          timeout_minutes: 90
-          max_attempts: 3
-          retry_wait_seconds: 60
-          command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Build Helm chart
         uses: nick-invision/retry@master
         with:
@@ -116,6 +114,18 @@ jobs:
             SET_VERSION=false make chart_build
             echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
             echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+      - name: Render chart templates
+        run: |
+          make chart_render_template
+          echo "PUBLISH_YAML_MANIFESTS=$(find ./tests/tests -name "k8s_*.yaml" | tr '\n' ',')" >> $GITHUB_ENV
+      - name: Build images
+        if: github.event.inputs.skip-build-push-image != 'true'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 90
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
         run: |
           docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
@@ -124,6 +134,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Deploy new images
+        if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
@@ -131,8 +142,10 @@ jobs:
           retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
+        if: github.event.inputs.skip-build-push-image != 'true'
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
       - name: Deploy latest tag
+        if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
@@ -140,6 +153,7 @@ jobs:
           retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Tag browser images
+        if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
@@ -180,7 +194,7 @@ jobs:
           path: ./release_notes.md
           if-no-files-found: ignore
       - name: Create Release
-        if: env.LATEST_TAG != env.NEXT_TAG && github.event.inputs.skip-commit != 'true'
+        if: env.LATEST_TAG != env.NEXT_TAG
         id: create_release
         uses: softprops/action-gh-release@master
         with:
@@ -192,3 +206,4 @@ jobs:
           prerelease: ${{ env.PRERELEASE }}
           draft: false
           append_body: false
+          files: ${{ env.PUBLISH_YAML_MANIFESTS }}

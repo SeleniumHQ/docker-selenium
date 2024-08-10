@@ -78,6 +78,11 @@ jobs:
       TEST_EXISTING_KEDA: ${{ matrix.test-existing-keda }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
     steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
       - name: Set up containerd image store feature

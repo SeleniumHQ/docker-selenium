@@ -119,8 +119,10 @@ rbacRoleBinding:
 
 # Configure the ingress resource to access the Grid installation.
 ingress:
-  # Enable or disable ingress resource
-  enabled: true
+  # Enable ingress. Implies installing Ingress NGINX Controller
+  enabled: false
+  # Enable ingress without automatically installing Ingress NGINX Controller
+  enableWithExistingController: true
   # Name of ingress class to select which controller will implement ingress resource
   className: ""
   # Refer to list nginx annotations: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#annotations
@@ -631,8 +633,11 @@ hub:
   priorityClassName: ""
 
 tracing:
+  # Enable tracing. Implies installing Jaeger
   enabled: false
+  # Enable tracing without automatically installing Jaeger
   enabledWithExistingEndpoint: false
+  # Exporter type for tracing. Recommended `otlp` for wide compatibility with observability backends (e.g. Jaeger, Elastic, etc.)
   exporter: otlp
   exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317"
   globalAutoConfigure: true
@@ -650,6 +655,7 @@ tracing:
 
 monitoring:
   enabled: false
+  enabledWithExistingAgent: false
 
 # Keda scaled object configuration
 autoscaling:
@@ -1305,6 +1311,7 @@ customLabels: {}
 
 # Configuration for dependency chart keda
 keda:
+  # enabled: false
   additionalAnnotations:
   http:
     timeout: 60000
@@ -1313,13 +1320,18 @@ keda:
 
 # Configuration for dependency chart ingress-nginx
 ingress-nginx:
-  enabled: false
+  # enabled: false
   controller:
     admissionWebhooks:
       enabled: false
 
+prometheus-stack:
+  # enabled: false
+  cleanPrometheusOperatorObjectNames: true
+
 # Configuration for dependency chart jaeger
 jaeger:
+  # enabled: false
   provisionDataStore:
     cassandra: false
   allInOne:
