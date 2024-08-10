@@ -161,6 +161,8 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
   --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
   --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
+  --relax-checks ${SE_RELAX_CHECKS} \
+  --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
   --config /opt/selenium/config.toml \
   ${SUB_PATH_CONFIG} \
