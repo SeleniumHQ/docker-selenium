@@ -22,9 +22,10 @@ USER ${SEL_UID}
 EXPOSE 4444
 
 COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-docker.sh \
-    config.toml \
     start-socat.sh \
     /opt/bin/
+
+COPY --chown="${SEL_UID}:${SEL_GID}" config.toml /opt/selenium/
 
 COPY selenium-grid-docker.conf /etc/supervisor/conf.d/
 
