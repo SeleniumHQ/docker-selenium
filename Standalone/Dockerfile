@@ -28,6 +28,7 @@ ENV SE_SESSION_REQUEST_TIMEOUT=300 \
     SE_HEALTHCHECK_INTERVAL=120 \
 # Boolean value, maps "--relax-checks"
     SE_RELAX_CHECKS=true \
+    SE_REJECT_UNSUPPORTED_CAPS=true \
     SE_OTEL_SERVICE_NAME="selenium-standalone"
 
 EXPOSE 4444

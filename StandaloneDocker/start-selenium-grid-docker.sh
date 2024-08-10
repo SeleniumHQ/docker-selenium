@@ -14,6 +14,31 @@ if [ ! -z "$SE_NODE_GRID_URL" ]; then
   SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
 fi
 
+if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
+  echo "Appending Selenium options: --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+  SE_OPTS="$SE_OPTS --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+fi
+
+if [ ! -z "$SE_NODE_ENABLE_CDP" ]; then
+  echo "Appending Selenium options: --enable-cdp ${SE_NODE_ENABLE_CDP}"
+  SE_OPTS="$SE_OPTS --enable-cdp ${SE_NODE_ENABLE_CDP}"
+fi
+
+if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
+  echo "Appending Selenium options: --register-period ${SE_NODE_REGISTER_PERIOD}"
+  SE_OPTS="$SE_OPTS --register-period ${SE_NODE_REGISTER_PERIOD}"
+fi
+
+if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
+  echo "Appending Selenium options: --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+  SE_OPTS="$SE_OPTS --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+fi
+
+if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
+  echo "Appending Selenium options: --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+  SE_OPTS="$SE_OPTS --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
 if [ ! -z "$SE_LOG_LEVEL" ]; then
   echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
   SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
