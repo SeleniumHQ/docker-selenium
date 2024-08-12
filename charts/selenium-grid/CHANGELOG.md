@@ -1,4 +1,4 @@
-## :heavy_check_mark: selenium-grid-0.33.1
+## :heavy_check_mark: selenium-grid-0.34.0
 
 - Chart is using image tag 4.23.1-20240812
 - Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.12, v1.29.7, v1.30.3, 
