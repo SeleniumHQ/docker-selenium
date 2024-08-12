@@ -1,3 +1,24 @@
+## :heavy_check_mark: selenium-grid-0.33.1
+
+- Chart is using image tag 4.23.1-20240812
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.12, v1.29.7, v1.30.3, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.3, 
+
+### Added
+- [`b91d3000`](http://github.com/seleniumhq/docker-selenium/commit/b91d30009731304534e14f453b32b2d733266d9a) - add: secure connection for docker compose (#2344) :: Viet Nguyen Duc
+- [`68ebfe1a`](http://github.com/seleniumhq/docker-selenium/commit/68ebfe1a39a533dfbc4b3fe37701bcfbff6da005) - feat: add support for structure logs (#2342) :: Ilia Lazebnik
+- [`547f97e9`](http://github.com/seleniumhq/docker-selenium/commit/547f97e9ac5e58d44bde8ca8c742e1e61170c4b2) - feat(chart): add support for revisionhistorylimit (#2339) :: Ilia Lazebnik
+
+### Changed
+- [`91233c48`](http://github.com/seleniumhq/docker-selenium/commit/91233c48418bf01c6aa2c89b899970762db9580f) - chart(breaking change): update config key to enable ingress (#2349) :: Viet Nguyen Duc
+- [`22b2f55d`](http://github.com/seleniumhq/docker-selenium/commit/22b2f55d7f6b5f2dce061eb79bbd5890ea9b0ecf) - chore(deps): update helm release kube-prometheus-stack to v61.8.0 (#2348) :: renovate[bot]
+- [`b49b13b4`](http://github.com/seleniumhq/docker-selenium/commit/b49b13b4a6563b9ada7af51d2553b44867872bc4) - update: Tracing is enabled by default (#2347) :: Viet Nguyen Duc
+- [`ac606291`](http://github.com/seleniumhq/docker-selenium/commit/ac606291e801860daa8e2bf651e94351acac478f) - chore(deps): update helm release jaeger to v3.1.2 (#2331) :: renovate[bot]
+- [`e10ee577`](http://github.com/seleniumhq/docker-selenium/commit/e10ee577f6a4417f5540092284ce5f9b7e3e8c89) - chore(deps): update helm release kube-prometheus-stack to v61.7.2 (#2330) :: renovate[bot]
+- [`8bada805`](http://github.com/seleniumhq/docker-selenium/commit/8bada80526a658db7d4568c60da0f7cf91fe1b19) - update: handle graceful shutdown in Node container (#2337) :: Viet Nguyen Duc
+- [`7cbc96a0`](http://github.com/seleniumhq/docker-selenium/commit/7cbc96a03d301f812326bef534e6a78754a13d52) - chore(deps): update helm release keda to v2.15.0 (#2335) :: renovate[bot]
+- [`1f519c67`](http://github.com/seleniumhq/docker-selenium/commit/1f519c67080f483b11d220a55ef232bafc28c475) - chart(update): update env vars and health check scripts (#2334) :: Viet Nguyen Duc
+
 ## :heavy_check_mark: selenium-grid-0.33.0
 
 - Chart is using image tag 4.23.0-20240727
