@@ -1,0 +1,39 @@
+version: "3"
+services:
+  standalone-docker:
+    image: ${NAMESPACE}/standalone-docker:${TAG}
+    volumes:
+      - ./videos:/opt/selenium/assets
+      - ./videos/config.toml:/opt/selenium/config.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - SE_VNC_NO_PASSWORD=true
+      - SE_START_VNC=true
+      - SE_LOG_LEVEL=${LOG_LEVEL}
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+      - SE_NODE_GRID_URL=http://0.0.0.0:4444
+      - SE_OPTS=--log-level ${LOG_LEVEL} --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    healthcheck:
+      test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
+      interval: 15s
+      timeout: 30s
+      retries: 5
+
+  tests:
+    image: docker-selenium-tests:latest
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - standalone-docker
+    environment:
+      - RUN_IN_DOCKER_COMPOSE=true
+      - SELENIUM_GRID_HOST=selenium-hub
+      - BINDING_VERSION=${BINDING_VERSION}
+      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+      - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
+      - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
+    command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]

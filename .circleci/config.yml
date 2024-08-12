@@ -88,6 +88,12 @@ workflows:
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Dynamic Grid Standalone"
+          test-strategy: test_standalone_docker
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
           name: "Docker test - Parallel execution"
           test-strategy: test_parallel
           use-random-user: false

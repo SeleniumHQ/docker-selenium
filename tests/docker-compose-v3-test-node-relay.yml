@@ -17,6 +17,9 @@ services:
   standalone:
     image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
     shm_size: 2gb
+    environment:
+      - SE_OPTS=--enable-cdp true
+      - SE_NODE_ENABLE_CDP=true
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}

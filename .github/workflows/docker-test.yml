@@ -54,6 +54,10 @@ jobs:
             use-random-user: false
             test-video: true
             build-all: false
+          - test-strategy: test_standalone_docker
+            use-random-user: false
+            test-video: true
+            build-all: false
           - test-strategy: test_parallel
             use-random-user: false
             test-video: false

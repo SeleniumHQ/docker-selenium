@@ -1,0 +1,24 @@
+[docker]
+configs = [
+    "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux"}',
+    "${NAMESPACE}/standalone-${NODE_CHROME}:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
+    "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    ]
+
+url = "http://127.0.0.1:2375"
+
+video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
+
+[node]
+enable-managed-downloads = "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
+override-max-sessions = true
+max-sessions = 10
+session-timeout = 1000
+enable-cdp = true
+selenium-manager = true
+
+[sessionqueue]
+session-request-timeout = "${REQUEST_TIMEOUT}"
+
+[router]
+disable-ui = false

@@ -728,6 +728,52 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 	done
 	make test_video_integrity
 
+test_standalone_docker: standalone_docker standalone_chrome standalone_firefox standalone_edge standalone_chromium video
+	sudo rm -rf ./tests/tests
+	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos/Downloads
+	sudo chmod -R 777 ./tests/videos
+	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
+			list_nodes="DeploymentAutoscaling" ; \
+	else \
+			list_nodes="NodeChromium NodeFirefox" ; \
+	fi; \
+	for node in $${list_nodes} ; do \
+			cd tests || true ; \
+			DOWNLOADS_DIR="./videos/Downloads" ; \
+			sudo rm -rf $$DOWNLOADS_DIR/* ; \
+			echo NAMESPACE=$(NAME) > .env ; \
+			echo TAG=$(TAG_VERSION) >> .env ; \
+			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) >> .env ; \
+			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
+			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "true") >> .env ; \
+			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
+			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
+			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
+			echo NODE=$$node >> .env ; \
+			echo UID=$$(id -u) >> .env ; \
+			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
+			echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
+			if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
+					echo NODE_EDGE=edge >> .env ; \
+			else \
+					echo NODE_EDGE=chromium >> .env ; \
+			fi; \
+			if [ $$node = "NodeChrome" ] ; then \
+					echo NODE_CHROME=chrome >> .env ; \
+			fi ; \
+			if [ $$node = "NodeChromium" ] ; then \
+					echo NODE_CHROME=chromium >> .env ; \
+			else \
+					echo NODE_CHROME=chromium >> .env ; \
+			fi ; \
+			export $$(cat .env | xargs) ; \
+			envsubst < standalone_docker_config.toml > ./videos/config.toml ; \
+			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose -f docker-compose-v3-test-standalone-docker.yaml up --no-log-prefix --build --exit-code-from tests ; \
+			if [ $$? -ne 0 ]; then exit 1; fi ; \
+	done
+	make test_video_integrity
+
 test_custom_ca_cert:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/customCACert/bootstrap.sh
 
