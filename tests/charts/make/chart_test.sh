@@ -315,6 +315,17 @@ if [ "${RENDER_HELM_TEMPLATE_ONLY}" = "true" ]; then
   exit 0
 fi
 
+if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+  helm repo add kedacore https://kedacore.github.io/charts
+  echo "Install KEDA core on kind kubernetes cluster"
+  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
+fi
+
+if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+  echo "Wait for KEDA core to be ready"
+  kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
+fi
+
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}
 

@@ -11,7 +11,6 @@ workflows:
           test-strategy: disabled
           cluster: 'minikube'
           helm-version: 'v3.10.3'
-          test-existing-keda: false
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs"
@@ -21,7 +20,6 @@ workflows:
           test-strategy: job
           cluster: 'minikube'
           helm-version: 'v3.11.3'
-          test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Deployments"
@@ -31,7 +29,6 @@ workflows:
           test-strategy: deployment
           cluster: 'minikube'
           helm-version: 'v3.12.3'
-          test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs - HTTPS"
@@ -41,7 +38,6 @@ workflows:
           test-strategy: job_https
           cluster: 'minikube'
           helm-version: 'v3.13.3'
-          test-existing-keda: true
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs - Ingress hostname"
@@ -51,7 +47,6 @@ workflows:
           test-strategy: job_hostname
           cluster: 'minikube'
           helm-version: 'v3.14.4'
-          test-existing-keda: false
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Deployments - HTTPS"
@@ -61,7 +56,6 @@ workflows:
           test-strategy: deployment_https
           cluster: 'minikube'
           helm-version: 'v3.15.3'
-          test-existing-keda: false
           test-upgrade: true
       - docker-test:
           name: "Docker test - Use random user (true)"
@@ -194,8 +188,6 @@ jobs:
         type: string
       helm-version:
         type: string
-      test-existing-keda:
-        type: boolean
       test-upgrade:
         type: boolean
     executor: << parameters.machine-type >>
@@ -207,7 +199,6 @@ jobs:
       CLUSTER: << parameters.cluster >>
       KUBERNETES_VERSION: << parameters.k8s-version >>
       HELM_VERSION: << parameters.helm-version >>
-      TEST_EXISTING_KEDA: << parameters.test-existing-keda >>
       TEST_UPGRADE_CHART: << parameters.test-upgrade >>
     steps:
       - run:
@@ -228,7 +219,7 @@ jobs:
             make chart_setup_env
             make set_containerd_image_store
             CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${NAMESPACE} VERSION=${BRANCH} \
-            BUILD_DATE=${BUILD_DATE} TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} make chart_cluster_setup
+            BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - run:
           name: "Build Docker images"
           no_output_timeout: 30m
@@ -260,7 +251,7 @@ jobs:
             N=3
             while [ $N -gt 0 ]; do
               PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
-              TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} \
+              TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} \
               && make test_video_integrity || true
               if [ $? -eq 0 ]; then
                 echo "Tests passed"
