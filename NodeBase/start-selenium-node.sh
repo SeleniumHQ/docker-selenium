@@ -12,6 +12,23 @@ pacmd set-default-source v1.monitor
 
 rm -f /tmp/.X*lock
 
+function append_se_opts() {
+  local option="${1}"
+  local value="${2:-""}"
+  local log_message="${3:-true}"
+  if [[ "${SE_OPTS}" != *"${option}"* ]]; then
+    if [ "${log_message}" = "true" ]; then
+      echo "Appending Selenium option: ${option} ${value}"
+    fi
+    SE_OPTS="${SE_OPTS} ${option}"
+    if [ ! -z "${value}" ]; then
+      SE_OPTS="${SE_OPTS} ${value}"
+    fi
+  else
+    echo "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
+  fi
+}
+
 if [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
   echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
   exit 1
@@ -32,53 +49,43 @@ if [ ! -z "$SE_OPTS" ]; then
 fi
 
 if [ ! -z "$SE_NODE_SESSION_TIMEOUT" ]; then
-  echo "Appending Selenium options: --session-timeout ${SE_NODE_SESSION_TIMEOUT}"
-  SE_OPTS="$SE_OPTS --session-timeout ${SE_NODE_SESSION_TIMEOUT}"
+  append_se_opts "--session-timeout" "${SE_NODE_SESSION_TIMEOUT}"
 fi
 
 if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
-  echo "Appending Selenium options: --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
-  SE_OPTS="$SE_OPTS --enable-managed-downloads ${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
 fi
 
 if [ ! -z "$SE_NODE_ENABLE_CDP" ]; then
-  echo "Appending Selenium options: --enable-cdp ${SE_NODE_ENABLE_CDP}"
-  SE_OPTS="$SE_OPTS --enable-cdp ${SE_NODE_ENABLE_CDP}"
+  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
 fi
 
 if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
-  echo "Appending Selenium options: --register-period ${SE_NODE_REGISTER_PERIOD}"
-  SE_OPTS="$SE_OPTS --register-period ${SE_NODE_REGISTER_PERIOD}"
+  append_se_opts "--register-period" "${SE_NODE_REGISTER_PERIOD}"
 fi
 
 if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
-  echo "Appending Selenium options: --register-cycle ${SE_NODE_REGISTER_CYCLE}"
-  SE_OPTS="$SE_OPTS --register-cycle ${SE_NODE_REGISTER_CYCLE}"
+  append_se_opts "--register-cycle" "${SE_NODE_REGISTER_CYCLE}"
 fi
 
 if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
-  echo "Appending Selenium options: --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
-  SE_OPTS="$SE_OPTS --heartbeat-period ${SE_NODE_HEARTBEAT_PERIOD}"
+  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
-  echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
-  SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
+  append_se_opts "--log-level" "${SE_LOG_LEVEL}"
 fi
 
 if [ ! -z "$SE_HTTP_LOGS" ]; then
-  echo "Appending Selenium options: --http-logs ${SE_HTTP_LOGS}"
-  SE_OPTS="$SE_OPTS --http-logs ${SE_HTTP_LOGS}"
+  append_se_opts "--http-logs" "${SE_HTTP_LOGS}"
 fi
 
 if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
-  echo "Appending Selenium options: --structured-logs ${SE_STRUCTURED_LOGS}"
-  SE_OPTS="$SE_OPTS --structured-logs ${SE_STRUCTURED_LOGS}"
+  append_se_opts "--structured-logs" "${SE_STRUCTURED_LOGS}"
 fi
 
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
-  echo "Appending Selenium options: --external-url ${SE_EXTERNAL_URL}"
-  SE_OPTS="$SE_OPTS --external-url ${SE_EXTERNAL_URL}"
+  append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
@@ -99,18 +106,15 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   # Configure certificate and private key for component communication
   if [ ! -z "$SE_HTTPS_CERTIFICATE" ]; then
-    echo "Appending Selenium options: --https-certificate ${SE_HTTPS_CERTIFICATE}"
-    SE_OPTS="$SE_OPTS --https-certificate ${SE_HTTPS_CERTIFICATE}"
+    append_se_opts "--https-certificate" "${SE_HTTPS_CERTIFICATE}"
   fi
   if [ ! -z "$SE_HTTPS_PRIVATE_KEY" ]; then
-    echo "Appending Selenium options: --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
-    SE_OPTS="$SE_OPTS --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
+    append_se_opts "--https-private-key" "${SE_HTTPS_PRIVATE_KEY}"
   fi
 fi
 
 if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
-  echo "Appending Selenium options: --registration-secret ${SE_REGISTRATION_SECRET}"
-  SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
+  append_se_opts "--registration-secret" "${SE_REGISTRATION_SECRET}"
 fi
 
 if [ "$GENERATE_CONFIG" = true ]; then
@@ -144,7 +148,7 @@ if [ "$SE_ENABLE_TRACING" = "true" ]; then
     SE_JAVA_OPTS="$SE_JAVA_OPTS ${SE_OTEL_JVM_ARGS}"
   fi
 else
-  SE_OPTS="$SE_OPTS --tracing false"
+  append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
 fi
