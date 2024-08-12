@@ -22,4 +22,4 @@
 *.tmproj
 .vscode/
 ci/
-certs/*-helper.sh
+certs/add-*-helper.sh

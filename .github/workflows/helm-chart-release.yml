@@ -15,9 +15,22 @@ on:
         required: false
         type: string
         default: 'false'
+      skip-test:
+        description: 'Skip the tests'
+        required: false
+        type: boolean
+        default: false
+      skip-commit:
+        description: 'Skip the commit'
+        required: false
+        type: boolean
+        default: false
+
+permissions: write-all
 
 jobs:
   helm-chart-test:
+    if: github.event.inputs.skip-test != 'true'
     uses: ./.github/workflows/helm-chart-test.yml
     with:
       release: ${{ github.event.inputs.release == 'true' }}
@@ -25,14 +38,33 @@ jobs:
   release:
     needs:
       - helm-chart-test
+    if: (!failure() && !cancelled())
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      NAME: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
     steps:
       - name: Checkout
         uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0
+      - name: Set up environment for building chart
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: make chart_setup_env
+      - name: Build Helm chart
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: |
+            SET_VERSION=false make chart_build
+            echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+            echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
 
       - name: Configure Git
         run: |
@@ -41,6 +73,20 @@ jobs:
 
       - name: Get chart release notes (chart_release_notes.md)
         run: ./generate_chart_changelog.sh
+
+      - name: Login Docker Hub
+        run: helm registry login registry-1.docker.io -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Push Helm chart to registry
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: make chart_release
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@main
@@ -52,13 +98,15 @@ jobs:
           CR_RELEASE_NOTES_FILE: RELEASE_NOTES.md
 
       - name: Commit files
+        if: github.event.inputs.skip-commit != 'true'
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
           git commit -m "Update tag in docs and files" -a || true
 
       - name: Push changes
+        if: github.event.inputs.skip-commit != 'true'
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
           branch: trunk
