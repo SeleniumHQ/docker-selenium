@@ -53,10 +53,46 @@ function graceful_exit() {
 }
 trap graceful_exit SIGTERM SIGINT EXIT
 
-while [ ! -p ${UPLOAD_PIPE_FILE} ];
-do
-      echo "Waiting for ${UPLOAD_PIPE_FILE} to be created"
-      sleep 1
+# Function to create the named pipe if it doesn't exist
+function create_named_pipe() {
+    if [ ! -p "${UPLOAD_PIPE_FILE}" ];
+    then
+        if [ -e "${UPLOAD_PIPE_FILE}" ];
+        then
+            rm -f "${UPLOAD_PIPE_FILE}"
+        fi
+        mkfifo "${UPLOAD_PIPE_FILE}"
+        echo "Created named pipe ${UPLOAD_PIPE_FILE}"
+    fi
+}
+
+TIMEOUT=300 # Timeout in seconds (5 minutes)
+START_TIME=$(date +%s)
+
+while true; do
+    if [ -e "${UPLOAD_PIPE_FILE}" ];
+    then
+        if [ -p "${UPLOAD_PIPE_FILE}" ];
+        then
+            break
+        else
+            echo "${UPLOAD_PIPE_FILE} exists but is not a named pipe"
+            create_named_pipe
+        fi
+    else
+        create_named_pipe
+    fi
+
+    CURRENT_TIME=$(date +%s)
+    ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
+    if [ ${ELAPSED_TIME} -ge ${TIMEOUT} ];
+    then
+        echo "Timeout waiting for ${UPLOAD_PIPE_FILE} to be created"
+        exit 1
+    fi
+
+    echo "Waiting for ${UPLOAD_PIPE_FILE} to be created"
+    sleep 1
 done
 
 echo "Waiting for video files put into pipe for proceeding to upload"
@@ -64,7 +100,7 @@ echo "Waiting for video files put into pipe for proceeding to upload"
 rename_rclone_env
 
 list_rclone_pid=()
-while read FILE DESTINATION < ${UPLOAD_PIPE_FILE}
+while read FILE DESTINATION < ${UPLOAD_PIPE_FILE};
 do
     if [ "${FILE}" = "exit" ];
     then
@@ -76,7 +112,7 @@ do
         list_rclone_pid+=($!)
     else
         # Wait for a batch rclone processes to finish
-        if [ ${#list_rclone_pid[@]} -eq ${SE_VIDEO_UPLOAD_BATCH_CHECK} ]
+        if [ ${#list_rclone_pid[@]} -eq ${SE_VIDEO_UPLOAD_BATCH_CHECK} ];
         then
             for pid in "${list_rclone_pid[@]}";
             do
