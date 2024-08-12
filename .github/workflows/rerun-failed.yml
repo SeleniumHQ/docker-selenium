@@ -13,6 +13,8 @@ on:
         type: boolean
         default: true
 
+permissions: write-all
+
 env:
   GH_CLI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   RUN_ID: ${{ github.event.inputs.runId }}

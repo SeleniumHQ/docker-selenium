@@ -777,10 +777,14 @@ test_video_integrity:
 chart_test_template:
 	./tests/charts/bootstrap.sh
 
+chart_render_template:
+	RENDER_HELM_TEMPLATE_ONLY=true make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job
+
 chart_test_autoscaling_disabled:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false TEST_DELAY_AFTER_TEST=0 CHART_ENABLE_TRACING=true \
 	SECURE_INGRESS_ONLY_GENERATE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_nodeChromium_enableTracing_secureIngress_generateCerts_ingressPublicIP_subPath.yaml" \
 	./tests/charts/make/chart_test.sh NoAutoscaling
 
 chart_test_autoscaling_deployment_https:
@@ -788,6 +792,7 @@ chart_test_autoscaling_deployment_https:
 	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PORT=443 \
 	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_basicAuth_secureIngress_defaultCerts_ingressHostName_disableHttp2_autoScaling_scaledObject_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
@@ -795,24 +800,28 @@ chart_test_autoscaling_deployment:
 	SECURE_CONNECTION_SERVER=true SECURE_USE_EXTERNAL_CERT=true SERVICE_TYPE_NODEPORT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=31444 \
 	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_enableTracing_secureServer_externalCerts_nodePort_autoScaling_scaledObject_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_job_https:
 	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium CHART_ENABLE_BASIC_AUTH=true \
 	SECURE_CONNECTION_SERVER=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_PORT=443 SUB_PATH=/ \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_basicAuth_secureServer_autoScaling_scaledJob.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job_hostname:
 	PLATFORMS=$(PLATFORMS) CHART_ENABLE_TRACING=true CHART_ENABLE_BASIC_AUTH=true \
 	SECURE_INGRESS_ONLY_DEFAULT=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_enableTracing_basicAuth_secureIngress_externalCerts_ingressPublicIP_autoScaling_scaledJob_subPath.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_nodeChromium_enableTracing_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_language_bindings:

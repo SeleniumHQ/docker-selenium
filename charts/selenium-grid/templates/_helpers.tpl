@@ -161,6 +161,20 @@ Is autoscaling using KEDA enabled
 {{- end -}}
 
 {{/*
+Is ingress enabled
+*/}}
+{{- define "seleniumGrid.ingress.enabled" -}}
+{{- or .Values.ingress.enabled .Values.ingress.enableWithExistingController | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
+Is ingress enabled
+*/}}
+{{- define "seleniumGrid.monitoring.enabled" -}}
+{{- or .Values.monitoring.enabled .Values.monitoring.enabledWithExistingAgent | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
 Is tracing enabled
 */}}
 {{- define "seleniumGrid.enableTracing" -}}
@@ -595,7 +609,7 @@ Graphql Url of the hub or the router
 
 {{- define "seleniumGrid.url.host" -}}
 {{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
-{{- if .Values.ingress.enabled -}}
+{{- if eq (include "seleniumGrid.ingress.enabled" $) "true" -}}
   {{- if and (not .Values.ingress.hostname) .Values.global.K8S_PUBLIC_IP -}}
     {{- $host = .Values.global.K8S_PUBLIC_IP -}}
   {{- else if and .Values.ingress.hostname (ne (tpl .Values.ingress.hostname $) "selenium-grid.local") -}}
@@ -614,7 +628,7 @@ Graphql Url of the hub or the router
 
 {{- define "seleniumGrid.url.port" -}}
 {{- $port := ":4444" -}}
-{{- if .Values.ingress.enabled -}}
+{{- if eq (include "seleniumGrid.ingress.enabled" $) "true" -}}
   {{- if or (ne (.Values.ingress.ports.http | toString) "80") (ne (.Values.ingress.ports.https | toString) "443") -}}
     {{- $port = printf ":%s" (ternary (.Values.ingress.ports.http | toString) (.Values.ingress.ports.https | toString) (eq (include "seleniumGrid.url.schema" .) "http")) -}}
   {{- else if and .Values.ingress.hostname (eq (tpl .Values.ingress.hostname $) "selenium-grid.local") }}

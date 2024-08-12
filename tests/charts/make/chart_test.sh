@@ -36,6 +36,7 @@ BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
+RENDER_HELM_TEMPLATE_ONLY=${RENDER_HELM_TEMPLATE_ONLY:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
 LIMIT_RESOURCES=${LIMIT_RESOURCES:-"true"}
 TEST_PLATFORMS=${PLATFORMS:-"linux/amd64"}
@@ -65,6 +66,9 @@ cleanup() {
 # Function to be executed on command failure
 on_failure() {
     local exit_status=$?
+    if [ ${RENDER_HELM_TEMPLATE_ONLY} = "true" ]; then
+      exit $exit_status
+    fi
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
     kubectl describe all -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
@@ -76,8 +80,10 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR EXIT
 
-rm -rf tests/tests/*
-touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
+  rm -rf tests/tests/*
+  touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+fi
 
 if [ -f .env ]
 then
@@ -93,7 +99,7 @@ RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
 envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
 RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
 
-if [ "${TEST_UPGRADE_CHART}" = "false" ]; then
+if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   LOCAL_PVC_YAML="${TEST_VALUES_PATH}/local-pvc.yaml"
   envsubst < ${LOCAL_PVC_YAML} > ./tests/tests/local-pvc.yaml
   LOCAL_PVC_YAML=./tests/tests/local-pvc.yaml
@@ -183,12 +189,13 @@ fi
 if [ "${SERVICE_TYPE_NODEPORT}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set ingress.enabled=false \
+  --set ingress.enableWithExistingController=false \
   --set hub.serviceType=NodePort \
   --set components.router.serviceType=NodePort \
   "
 fi
 
-if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ]; then
+if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tls.ingress.generateTLS=true \
   --set tls.ingress.defaultCN=${SELENIUM_GRID_HOST} \
@@ -217,7 +224,7 @@ if [ "${SECURE_CONNECTION_SERVER}" = "true" ]; then
   "
 fi
 
-if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
+if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tls.nameOverride=${EXTERNAL_TLS_SECRET_NAME} \
   --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
@@ -302,7 +309,11 @@ ${HELM_COMMAND_SET_IMAGES} \
 ${CHART_PATH} --namespace ${SELENIUM_NAMESPACE} --create-namespace"
 
 echo "Render manifests YAML for this deployment"
-helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/cluster_deployment_manifests_${MATRIX_BROWSER}.yaml
+helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/${TEMPLATE_OUTPUT_FILENAME:-"cluster_deployment_manifests_${MATRIX_BROWSER}.yaml"}
+
+if [ "${RENDER_HELM_TEMPLATE_ONLY}" = "true" ]; then
+  exit 0
+fi
 
 echo "Deploy Selenium Grid Chart"
 helm upgrade --install ${HELM_COMMAND_ARGS}

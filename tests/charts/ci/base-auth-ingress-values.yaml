@@ -8,6 +8,7 @@ serverConfigMap:
     SE_SUPERVISORD_LOG_LEVEL: "error"
 
 ingress:
+  enabled: true
   className: nginx
   hostname: ""
 
@@ -31,7 +32,6 @@ components:
   extraEnvironmentVariables: *extraEnvironmentVariables
 
 ingress-nginx:
-  enabled: true
   controller:
     hostPort:
       enabled: true

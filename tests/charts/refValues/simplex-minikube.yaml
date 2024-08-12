@@ -85,7 +85,6 @@ videoRecorder:
   enabled: false
 
 ingress-nginx:
-  enabled: true
   controller:
     hostPort:
       enabled: true
