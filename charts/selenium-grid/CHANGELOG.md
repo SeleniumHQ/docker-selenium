@@ -1,3 +1,14 @@
+## :heavy_check_mark: selenium-grid-0.34.1
+
+- Chart is using image tag 4.23.1-20240813
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.12, v1.29.7, v1.30.3, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.3, 
+
+### Changed
+- [`b1fa21cc`](http://github.com/seleniumhq/docker-selenium/commit/b1fa21ccc1be3880491610e8c42c3d3b1e17482b) - chart(update): metadata.namespace to resources :: Viet Nguyen Duc
+- [`442ee4ad`](http://github.com/seleniumhq/docker-selenium/commit/442ee4addea500d34e4579db0f0fadc57525efbb) - chore(deps): update helm release keda to v2.15.1 (#2351) :: renovate[bot]
+- [`77bc19b9`](http://github.com/seleniumhq/docker-selenium/commit/77bc19b9363152a894c13a395e2c99c889644c02) - chart(release): Update workflow for OCI-based registry publish :: Viet Nguyen Duc
+
 ## :heavy_check_mark: selenium-grid-0.34.0
 
 - Chart is using image tag 4.23.1-20240812
