@@ -15,8 +15,8 @@ data:
   SE_LOG_LEVEL: {{ default "INFO" .Values.global.seleniumGrid.logLevel | quote }}
   SE_STRUCTURED_LOGS: {{ default false .Values.global.seleniumGrid.structuredLogs | quote }}
   SE_HTTP_LOGS: {{ default false .Values.global.seleniumGrid.httpLogs | quote }}
+  SE_ENABLE_TRACING: {{ eq (include "seleniumGrid.enableTracing" $) "true" | ternary "true" "false" | quote }}
 {{- if (eq (include "seleniumGrid.enableTracing" .) "true") }}
-  SE_ENABLE_TRACING: "true"
   SE_OTEL_TRACES_EXPORTER: {{ .Values.tracing.exporter | quote }}
   SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED: {{ .Values.tracing.globalAutoConfigure | quote }}
   SE_OTEL_EXPORTER_ENDPOINT: {{ tpl .Values.tracing.exporterEndpoint $ | quote }}

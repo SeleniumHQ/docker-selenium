@@ -241,6 +241,16 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No node config resources found")
 
+    def test_enable_tracing(self):
+        resources_name = ['{0}selenium-logging-config'.format(RELEASE_NAME)]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
+                logger.info(f"Assert ENV vars for Tracing disabled is set to Node ConfigMap")
+                self.assertEqual(doc['data']['SE_ENABLE_TRACING'], 'false')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No node config resources found")
+
 if __name__ == '__main__':
     failed = False
     try:
