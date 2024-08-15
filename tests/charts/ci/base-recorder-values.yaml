@@ -13,29 +13,16 @@
 videoRecorder:
   enabled: true
   extraVolumes:
-   - name: videos
-     persistentVolumeClaim:
-       claimName: ${TEST_PV_CLAIM_NAME}
+#   - name: videos
+#     persistentVolumeClaim:
+#       claimName: ${TEST_PV_CLAIM_NAME}
   uploader:
-    enabled: "${UPLOAD_ENABLED}"
-    destinationPrefix: "gs://${BUCKET_NAME}"
+    enabled: true
+    destinationPrefix: "myftp://ftp/seluser"
     secrets:
-      RCLONE_CONFIG_S3_TYPE: "s3"
-      RCLONE_CONFIG_S3_PROVIDER: "AWS"
-      RCLONE_CONFIG_S3_ENV_AUTH: "true"
-      RCLONE_CONFIG_S3_REGION: "ap-southeast-1"
-      RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-southeast-1"
-      RCLONE_CONFIG_S3_ACL: "private"
-      RCLONE_CONFIG_S3_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
-      RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
-      RCLONE_CONFIG_S3_NO_CHECK_BUCKET: "true"
-      RCLONE_CONFIG_GS_TYPE: "s3"
-      RCLONE_CONFIG_GS_PROVIDER: "GCS"
-      RCLONE_CONFIG_GS_ENV_AUTH: "true"
-      RCLONE_CONFIG_GS_REGION: "asia-southeast1"
-      RCLONE_CONFIG_GS_LOCATION_CONSTRAINT: "asia-southeast1"
-      RCLONE_CONFIG_GS_ACL: "private"
-      RCLONE_CONFIG_GS_ACCESS_KEY_ID: "${GS_ACCESS_KEY_ID}"
-      RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "${GS_SECRET_ACCESS_KEY}"
-      RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
-      RCLONE_CONFIG_GS_NO_CHECK_BUCKET: "true"
+      RCLONE_CONFIG_MYFTP_TYPE: "ftp"
+      RCLONE_CONFIG_MYFTP_HOST: "ftp-server"
+      RCLONE_CONFIG_MYFTP_PORT: "21"
+      RCLONE_CONFIG_MYFTP_USER: "seluser"
+      RCLONE_CONFIG_MYFTP_PASS: "KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig"
+      RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY: "5"

@@ -1,57 +1,59 @@
-# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-upload.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-upload-standalone.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload-standalone.yml down`
 # ${variable_pattern} get value from .env in the same directory
 version: "3"
 services:
   # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
   ftp_server:
     image: delfer/alpine-ftp-server:latest
-    container_name: ftp_server
     environment:
       - USERS=seluser|selenium.dev
     volumes:
-      # Mount the local directory `/tmp/upload` to the FTP server's `/ftp/seluser` directory to check out the uploaded videos
+      # Mount the local directory `/home/${USER}/Videos/upload` to the FTP server's `/ftp/seluser` directory to check out the uploaded videos
       - /tmp/upload:/ftp/seluser
     stop_grace_period: 30s
 
-  chrome:
-    image: selenium/node-chrome:4.23.1-20240813
+  standalone_chrome:
+    image: selenium/standalone-chrome:latest
     shm_size: 2gb
-    depends_on:
-      - selenium-hub
+    ports:
+      - "4444:4444"
     environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
 
-  edge:
-    image: selenium/node-edge:4.23.1-20240813
+  standalone_edge:
+    image: selenium/standalone-edge:latest
     shm_size: 2gb
-    depends_on:
-      - selenium-hub
+    ports:
+      - "5444:4444"
     environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
 
-  firefox:
-    image: selenium/node-firefox:4.23.1-20240813
+  standalone_firefox:
+    image: selenium/standalone-firefox:latest
     shm_size: 2gb
-    depends_on:
-      - selenium-hub
+    ports:
+      - "6444:4444"
     environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.0.1-20240813
+    image: selenium/video:latest
     depends_on:
-      - chrome
+      - standalone_chrome
     environment:
-      - DISPLAY_CONTAINER_NAME=chrome
-      - SE_NODE_GRID_URL=http://selenium-hub:4444
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
+      - SE_VIDEO_RECORD_STANDALONE=true
+      - DISPLAY_CONTAINER_NAME=standalone_chrome
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_VIDEO_INTERNAL_UPLOAD=true
@@ -65,14 +67,18 @@ services:
       # Password encrypted using command: rclone obscure <your_password>
       - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
+    stop_grace_period: 30s
 
   edge_video:
-    image: selenium/video:ffmpeg-7.0.1-20240813
+    image: selenium/video:latest
     depends_on:
-      - edge
+      - standalone_edge
     environment:
-      - DISPLAY_CONTAINER_NAME=edge
-      - SE_NODE_GRID_URL=http://selenium-hub:4444
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
+      - SE_VIDEO_RECORD_STANDALONE=true
+      - DISPLAY_CONTAINER_NAME=standalone_edge
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_VIDEO_INTERNAL_UPLOAD=true
@@ -86,14 +92,18 @@ services:
       # Password encrypted using command: rclone obscure <your_password>
       - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
+    stop_grace_period: 30s
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.0.1-20240813
+    image: selenium/video:latest
     depends_on:
-      - firefox
+      - standalone_firefox
     environment:
-      - DISPLAY_CONTAINER_NAME=firefox
-      - SE_NODE_GRID_URL=http://selenium-hub:4444
+      - SE_ROUTER_USERNAME=admin
+      - SE_ROUTER_PASSWORD=admin
+      - SE_SUB_PATH=/selenium
+      - SE_VIDEO_RECORD_STANDALONE=true
+      - DISPLAY_CONTAINER_NAME=standalone_firefox
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_VIDEO_INTERNAL_UPLOAD=true
@@ -107,11 +117,4 @@ services:
       # Password encrypted using command: rclone obscure <your_password>
       - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
-
-  selenium-hub:
-    image: selenium/hub:4.23.1-20240813
-    container_name: selenium-hub
-    ports:
-      - "4442:4442"
-      - "4443:4443"
-      - "4444:4444"
+    stop_grace_period: 30s

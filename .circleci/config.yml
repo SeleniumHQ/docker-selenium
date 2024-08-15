@@ -82,6 +82,12 @@ workflows:
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
       - docker-test:
+          name: "Docker test - Video recording standalone"
+          test-strategy: test_video_standalone
+          use-random-user: false
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64
+      - docker-test:
           name: "Docker test - Dynamic Grid"
           test-strategy: test_node_docker
           use-random-user: false

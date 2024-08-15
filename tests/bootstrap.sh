@@ -24,4 +24,6 @@ if [ "${CI:-false}" = "false" ]; then
   deactivate
 fi
 
+sleep 5
+
 exit $ret_code

@@ -72,7 +72,7 @@ RUN groupadd ${SEL_GROUP} \
 # Add Supervisor configuration files
 #======================================
 COPY supervisord.conf /etc
-COPY --chown="${SEL_UID}:${SEL_GID}" entry_point.sh video.sh video_ready.py video_graphQLQuery.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" entry_point.sh video.sh video_ready.py video_graphQLQuery.sh video_gridUrl.sh /opt/bin/
 
 #======================================
 # Add RCLONE for uploading videos

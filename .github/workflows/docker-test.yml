@@ -50,6 +50,10 @@ jobs:
             use-random-user: false
             test-video: true
             build-all: false
+          - test-strategy: test_video_standalone
+            use-random-user: false
+            test-video: true
+            build-all: false
           - test-strategy: test_node_docker
             use-random-user: false
             test-video: true

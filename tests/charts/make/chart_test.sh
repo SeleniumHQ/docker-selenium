@@ -88,8 +88,6 @@ fi
 if [ -f .env ]
 then
     export "$(cat .env | xargs)"
-else
-    export UPLOAD_ENABLED=false
 fi
 export RELEASE_NAME=${RELEASE_NAME}
 export SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE}
@@ -107,7 +105,7 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   sudo chmod -R 777 ${HOST_PATH}
   kubectl create ns ${SELENIUM_NAMESPACE} || true
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
-  kubectl describe pv,pvc -n ${SELENIUM_NAMESPACE}
+  kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=ftp-server
 fi
 
 HELM_COMMAND_SET_IMAGES=" \
@@ -269,6 +267,13 @@ if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_AUTOSCALING=" \
   --set autoscaling.scaledOptions.minReplicaCount=${SELENIUM_GRID_AUTOSCALING_MIN_REPLICA} \
   "
+fi
+
+if [ "${EXTERNAL_UPLOADER_CONFIG}" = "true" ]; then
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set videoRecorder.uploader.secrets=null \
+    --set-file uploaderConfigMap.secretFiles.upload\.conf=${TEST_VALUES_PATH}/uploader.conf \
+    "
 fi
 
 HELM_COMMAND_SET_BASE_VALUES=" \
