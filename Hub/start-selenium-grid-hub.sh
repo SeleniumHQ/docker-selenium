@@ -70,7 +70,7 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
 fi
 
 if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
-  echo "Appending Selenium options: --registration-secret ${SE_REGISTRATION_SECRET}"
+  echo "Appending Selenium options: --registration-secret ***"
   SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
 fi
 
@@ -85,7 +85,7 @@ if [ ! -z "$SE_ROUTER_USERNAME" ]; then
 fi
 
 if [ ! -z "$SE_ROUTER_PASSWORD" ]; then
-  echo "Appending Selenium options: --password ${SE_ROUTER_PASSWORD}"
+  echo "Appending Selenium options: --password ***"
   SE_OPTS="$SE_OPTS --password ${SE_ROUTER_PASSWORD}"
 fi
 
