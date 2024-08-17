@@ -85,7 +85,7 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="$(cat ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
   fi
   if [ ! -z "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword"
+    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
   fi
   echo "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
@@ -102,7 +102,7 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
 fi
 
 if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
-  echo "Appending Selenium options: --registration-secret ${SE_REGISTRATION_SECRET}"
+  echo "Appending Selenium options: --registration-secret $(mask ${SE_REGISTRATION_SECRET})"
   SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
 fi
 

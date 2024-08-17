@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+SE_MASK_SECRETS_MIN_LENGTH=${SE_MASK_SECRETS_MIN_LENGTH:-3}
+SE_MASK_SECRETS_KEEP_LAST=${SE_MASK_SECRETS_KEEP_LAST:-0}
+if [ "${SE_MASK_SECRETS:-true}" = "true" ]; then
+    n=${SE_MASK_SECRETS_KEEP_LAST}
+    [[ ${#1} -le ${SE_MASK_SECRETS_MIN_LENGTH} ]] && n=$(( ${#1} - ${SE_MASK_SECRETS_MIN_LENGTH} ))
+    a="${1:0:${#1}-n}"
+    a="${a:0:${SE_MASK_SECRETS_MIN_LENGTH}}"
+    b="${1:${#1}-n}"
+    printf "%s%s" "${a//?/*}" "$b"
+else
+    printf "%s" "$1"
+fi

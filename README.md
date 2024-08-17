@@ -64,6 +64,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Running in Headless mode](#running-in-headless-mode)
   * [Stopping the Node/Standalone after N sessions have been executed](#stopping-the-nodestandalone-after-n-sessions-have-been-executed)
   * [Automatic browser leftovers cleanup](#automatic-browser-leftovers-cleanup)
+  * [Mask sensitive information in console logs](#mask-sensitive-information-in-console-logs)
   * [Secure Connection](#secure-connection)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
@@ -1092,7 +1093,7 @@ By default, Selenium is reachable at `http://127.0.0.1:4444/`. Selenium can be c
 environmental variable. In the example below Selenium is reachable at `http://127.0.0.1:4444/selenium-grid/`
 
 ```bash
-$ docker run -d -p 4444:4444 -e SE_SUB_PATH=/selenium-grid/ --name selenium-hub selenium/hub:4.9.0-20230421
+$ docker run -d -p 4444:4444 -e SE_SUB_PATH=/selenium-grid/ --name selenium-hub selenium/hub:4.23.1-20240813
 ```
 
 ### Setting Screen Resolution
@@ -1207,6 +1208,14 @@ With the previous command, the cleanup will be enabled, but will run every 2 hou
 running longer than 1 hour (instead of 2 hours), and will remove temp files older than 2 days (instead of 1).
 
 ---
+
+## Mask sensitive information in console logs
+
+Few variables output like password, secret, etc. are masked in console logs. For debugging purposes, you can disable it by setting `SE_MASK_SECRETS` to `false`
+
+While creating bash script, your can mask the output by using syntax `echo "Current value is $(mask ${YOUR_VARIABLE})`
+
+`SE_MASK_SECRETS_MIN_LENGTH` default is `3`. It means a long string will be masked to `***` to avoid exposing length for brute force attack.
 
 ## Secure connection
 
