@@ -128,6 +128,7 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
 # Add Grid check script
 #======================================
 COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" mask /usr/local/bin/
 
 #======================================
 # Add Supervisor configuration file
