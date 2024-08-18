@@ -19,6 +19,8 @@ function append_se_opts() {
   if [[ "${SE_OPTS}" != *"${option}"* ]]; then
     if [ "${log_message}" = "true" ]; then
       echo "Appending Selenium option: ${option} ${value}"
+    else
+      echo "Appending Selenium option: ${option} $(mask ${value})"
     fi
     SE_OPTS="${SE_OPTS} ${option}"
     if [ ! -z "${value}" ]; then
@@ -47,7 +49,7 @@ if [ ! -z "$SE_ROUTER_USERNAME" ]; then
 fi
 
 if [ ! -z "$SE_ROUTER_PASSWORD" ]; then
-  append_se_opts "--password" "${SE_ROUTER_PASSWORD}"
+  append_se_opts "--password" "${SE_ROUTER_PASSWORD}" "false"
 fi
 
 if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
@@ -97,7 +99,7 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="$(cat ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
   fi
   if [ ! -z "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword"
+    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
   fi
   echo "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
