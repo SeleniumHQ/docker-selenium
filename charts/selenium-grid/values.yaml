@@ -1325,7 +1325,7 @@ ingress-nginx:
     admissionWebhooks:
       enabled: false
 
-prometheus-stack:
+kube-prometheus-stack:
   # enabled: false
   cleanPrometheusOperatorObjectNames: true
 

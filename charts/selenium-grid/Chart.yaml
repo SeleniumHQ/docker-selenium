@@ -21,7 +21,6 @@ dependencies:
 - repository: https://prometheus-community.github.io/helm-charts
   version: 61.8.0
   name: kube-prometheus-stack
-  alias: prometheus-stack
   condition: monitoring.enabled, prometheus-stack.enabled
 maintainers:
   - name: SeleniumHQ

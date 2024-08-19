@@ -34,7 +34,7 @@ workflows:
           name: "K8s test - Autoscaling Jobs - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.28.12'
+          k8s-version: 'v1.28.13'
           test-strategy: job_https
           cluster: 'minikube'
           helm-version: 'v3.13.3'
@@ -43,7 +43,7 @@ workflows:
           name: "K8s test - Autoscaling Jobs - Ingress hostname"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.29.7'
+          k8s-version: 'v1.29.8'
           test-strategy: job_hostname
           cluster: 'minikube'
           helm-version: 'v3.14.4'
@@ -52,10 +52,10 @@ workflows:
           name: "K8s test - Autoscaling Deployments - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.30.3'
+          k8s-version: 'v1.30.4'
           test-strategy: deployment_https
           cluster: 'minikube'
-          helm-version: 'v3.15.3'
+          helm-version: 'v3.15.4'
           test-upgrade: true
       - docker-test:
           name: "Docker test - Use random user (true)"

@@ -5,7 +5,7 @@ registrationSecret:
 monitoring:
   enabled: false
 
-prometheus-stack:
+kube-prometheus-stack:
   cleanPrometheusOperatorObjectNames: true
   defaultRules:
     create: true

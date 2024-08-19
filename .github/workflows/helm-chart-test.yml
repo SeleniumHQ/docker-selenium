@@ -49,20 +49,20 @@ jobs:
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             test-upgrade: true
-          - k8s-version: 'v1.28.12'
+          - k8s-version: 'v1.28.13'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             test-upgrade: true
-          - k8s-version: 'v1.29.7'
+          - k8s-version: 'v1.29.8'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.14.4'
             test-upgrade: true
-          - k8s-version: 'v1.30.3'
+          - k8s-version: 'v1.30.4'
             test-strategy: deployment_https
             cluster: 'minikube'
-            helm-version: 'v3.15.3'
+            helm-version: 'v3.15.4'
             test-upgrade: true
     env:
       CLUSTER: ${{ matrix.cluster }}
