@@ -11,8 +11,20 @@ services:
       - SE_START_VNC=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
-      - SE_NODE_GRID_URL=http://0.0.0.0:4444
+      - SE_NODE_GRID_URL=${GRID_URL}
       - SE_OPTS=--log-level ${LOG_LEVEL} --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+      - SE_VIDEO_RECORD_STANDALONE=${RECORD_STANDALONE}
+      - SE_VIDEO_FILE_NAME=${VIDEO_FILE_NAME}
+      - SE_VIDEO_FILE_NAME_SUFFIX=${VIDEO_FILE_NAME_SUFFIX}
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
+      - SE_RCLONE_CONFIG_MYFTP_TYPE=ftp
+      - SE_RCLONE_CONFIG_MYFTP_HOST=ftp_server
+      - SE_RCLONE_CONFIG_MYFTP_PORT=21
+      - SE_RCLONE_CONFIG_MYFTP_USER=seluser
+      - SE_RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
+      - SE_RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
     container_name: selenium-hub
     ports:
       - "4444:4444"
@@ -21,6 +33,16 @@ services:
       interval: 15s
       timeout: 30s
       retries: 5
+
+  ftp_server:
+    image: delfer/alpine-ftp-server:latest
+    container_name: ftp_server
+    environment:
+      - USERS=seluser|selenium.dev
+      - MAX_PORT=21010
+    volumes:
+      - ./videos/upload:/ftp/seluser
+    stop_grace_period: 30s
 
   tests:
     image: docker-selenium-tests:latest

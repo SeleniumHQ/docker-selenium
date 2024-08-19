@@ -12,10 +12,10 @@ video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
 [node]
 enable-managed-downloads = "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
 override-max-sessions = true
-max-sessions = 10
+max-sessions = 16
 session-timeout = 1000
 enable-cdp = true
-selenium-manager = true
+selenium-manager = false
 
 [sessionqueue]
 session-request-timeout = "${REQUEST_TIMEOUT}"

@@ -2,16 +2,16 @@
 
 # Define parameters
 SESSION_ID=$1
-GRAPHQL_ENDPOINT=${2:-$SE_NODE_GRID_GRAPHQL_URL}
+if [ -n "${SE_NODE_GRID_GRAPHQL_URL}" ]; then
+  GRAPHQL_ENDPOINT=${SE_NODE_GRID_GRAPHQL_URL}
+else
+  GRAPHQL_ENDPOINT="$(/opt/bin/video_gridUrl.sh)/graphql"
+fi
 VIDEO_CAP_NAME=${VIDEO_CAP_NAME:-"se:recordVideo"}
 TEST_NAME_CAP=${TEST_NAME_CAP:-"se:name"}
 VIDEO_NAME_CAP=${VIDEO_NAME_CAP:-"se:videoName"}
 VIDEO_FILE_NAME_TRIM=${SE_VIDEO_FILE_NAME_TRIM_REGEX:-"[:alnum:]-_"}
 VIDEO_FILE_NAME_SUFFIX=${SE_VIDEO_FILE_NAME_SUFFIX:-"true"}
-
-if [ -z "${GRAPHQL_ENDPOINT}" ] && [ -n "${SE_NODE_GRID_URL}" ]; then
-  GRAPHQL_ENDPOINT="${SE_NODE_GRID_URL}/graphql"
-fi
 
 if [ -n "${GRAPHQL_ENDPOINT}" ]; then
   while true; do

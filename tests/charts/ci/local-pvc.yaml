@@ -1,7 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftp-server
+  namespace: ${SELENIUM_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ftp-server
+  template:
+    metadata:
+      labels:
+        app: ftp-server
+    spec:
+      containers:
+        - name: ftp-server
+          image: delfer/alpine-ftp-server:latest
+          env:
+            - name: USERS
+              value: "seluser|selenium.dev"
+            - name: MAX_PORT
+              value: "21005"
+          volumeMounts:
+            - mountPath: /ftp/seluser
+              name: ftp-upload
+              subPath: seluser
+      volumes:
+        - name: ftp-upload
+          persistentVolumeClaim:
+            claimName: ${TEST_PV_CLAIM_NAME}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftp-server
+  namespace: ${SELENIUM_NAMESPACE}
+  labels:
+    app: ftp-server
+spec:
+  selector:
+    app: ftp-server
+  ports:
+    - protocol: TCP
+      name: ftp
+      port: 21
+      targetPort: 21
+    - protocol: TCP
+      name: ftp-data0
+      port: 21000
+      targetPort: 21000
+    - protocol: TCP
+      name: ftp-data1
+      port: 21001
+      targetPort: 21001
+    - protocol: TCP
+      name: ftp-data2
+      port: 21002
+      targetPort: 21002
+    - protocol: TCP
+      name: ftp-data3
+      port: 21003
+      targetPort: 21003
+    - protocol: TCP
+      name: ftp-data4
+      port: 21004
+      targetPort: 21004
+    - protocol: TCP
+      name: ftp-data5
+      port: 21005
+      targetPort: 21005
+---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: pv-local
+  labels:
+    app: ftp-server
 spec:
   accessModes:
     - "ReadWriteOnce"
@@ -21,6 +95,8 @@ kind: PersistentVolumeClaim
 metadata:
   name: ${TEST_PV_CLAIM_NAME}
   namespace: ${SELENIUM_NAMESPACE}
+  labels:
+    app: ftp-server
 spec:
   accessModes:
     - "ReadWriteOnce"

@@ -1,0 +1,50 @@
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-upload-dynamic-grid.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload-dynamic-grid.yml down`
+version: "3"
+services:
+  # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
+  ftp_server:
+    image: delfer/alpine-ftp-server:latest
+    container_name: ftp_server
+    environment:
+      - USERS=seluser|selenium.dev
+    volumes:
+      # Mount the local directory `/tmp/upload` to the FTP server's `/ftp/seluser` directory to check out the uploaded videos
+      - /tmp/upload:/ftp/seluser
+    stop_grace_period: 30s
+
+  node-docker:
+    image: selenium/node-docker:latest
+    volumes:
+      - ./assets:/opt/selenium/assets
+      - ./NodeDocker/config.toml:/opt/selenium/config.toml
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_VIDEO_RECORD_STANDALONE=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_VIDEO_FILE_NAME_SUFFIX=true
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_VIDEO_INTERNAL_UPLOAD=true
+      - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
+      # All configs required for RCLONE to upload to remote name myftp with prefix SE_
+      - SE_RCLONE_CONFIG_MYFTP_TYPE=ftp
+      - SE_RCLONE_CONFIG_MYFTP_HOST=ftp_server
+      - SE_RCLONE_CONFIG_MYFTP_PORT=21
+      - SE_RCLONE_CONFIG_MYFTP_USER=seluser
+      # Password encrypted using command: rclone obscure <your_password>
+      - SE_RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
+      - SE_RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"

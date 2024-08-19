@@ -14,9 +14,18 @@ UPLOAD_DESTINATION_PREFIX=${UPLOAD_DESTINATION_PREFIX:-$SE_UPLOAD_DESTINATION_PR
 UPLOAD_PIPE_FILE_NAME=${UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
-SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
 max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
 process_name="video.recorder"
+
+if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
+  JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
+  SE_NODE_PORT=${SE_NODE_PORT:-"4444"}
+  NODE_STATUS_ENDPOINT="$(/opt/bin/video_gridUrl.sh)/status"
+else
+  JQ_SESSION_ID_QUERY=".[]?.node?.slots | .[0]?.session?.sessionId"
+  SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
+  NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
+fi
 
 if [ -d "${VIDEO_FOLDER}" ];
 then
@@ -74,6 +83,7 @@ function wait_util_uploader_shutdown() {
 function send_exit_signal_to_uploader() {
     if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
+        echo "$(date +%FT%T%Z) [${process_name}] - Sending a signal to force exit the uploader"
         echo "exit" >> ${UPLOAD_PIPE_FILE} &
         echo "exit" > ${FORCE_EXIT_FILE}
     fi
@@ -102,10 +112,9 @@ function stop_ffmpeg() {
 }
 
 function stop_recording() {
-    echo "$(date +%FT%T%Z) [${process_name}] - Stopping to record video"
+    echo "$(date +%FT%T%Z) [${process_name}] - Recorder is shutting down"
     stop_ffmpeg
     recorded_count=$((recorded_count+1))
-    recording_started="false"
     if [[ "${VIDEO_UPLOAD_ENABLED}" != "false" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
     then
       upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
@@ -115,6 +124,7 @@ function stop_recording() {
     then
         echo "$(date +%FT%T%Z) [${process_name}] - Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading."
     fi
+    recording_started="false"
 }
 
 function check_if_recording_inprogress() {
@@ -128,7 +138,6 @@ function graceful_exit() {
     check_if_recording_inprogress
     send_exit_signal_to_uploader
     wait_util_uploader_shutdown
-    rm -rf ${UPLOAD_PIPE_FILE} || true
     kill -SIGTERM "$(cat /var/run/supervisor/supervisord.pid)"
 }
 
@@ -164,7 +173,7 @@ else
       sleep 0.5
       attempts=$((attempts+1))
   done
-  if [[ $attempts = "$max_attempts" ]]
+  if [[ $attempts = "$max_attempts" ]];
   then
       echo "$(date +%FT%T%Z) [${process_name}] - Can not open display, exiting."
       exit
@@ -181,7 +190,7 @@ else
   recorded_count=0
 
   echo "$(date +%FT%T%Z) [${process_name}] - Checking if node API responds"
-  until curl --noproxy "*" -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status || [[ $attempts = "$max_attempts" ]]
+  until curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} || [[ $attempts = "$max_attempts" ]]
   do
       if [ $(($attempts % 60)) -eq 0 ];
       then
@@ -190,15 +199,15 @@ else
       sleep 0.5
       attempts=$((attempts+1))
   done
-  if [[ $attempts = "$max_attempts" ]]
+  if [[ $attempts = "$max_attempts" ]];
   then
       echo "$(date +%FT%T%Z) [${process_name}] - Can not reach node API, exiting."
       exit
   fi
-  while curl --noproxy "*" -sk --request GET ${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status > /tmp/status.json
+  while curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} > /tmp/status.json
   do
-      session_id=$(jq -r '.[]?.node?.slots | .[0]?.session?.sessionId' /tmp/status.json)
-      if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" ]]
+      session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
+      if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]];
       then
         echo "$(date +%FT%T%Z) [${process_name}] - Session: $session_id is created"
         return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
@@ -209,7 +218,7 @@ else
           jq '.' "/tmp/graphQL_$session_id.json";
         fi
       fi
-      if [[ "$session_id" != "null" && "$session_id" != "" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]]
+      if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]];
       then
           video_file="${VIDEO_FOLDER}/$video_file_name"
           echo "$(date +%FT%T%Z) [${process_name}] - Starting to record video"
@@ -217,8 +226,8 @@ else
             -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
           recording_started="true"
           echo "$(date +%FT%T%Z) [${process_name}] - Video recording started"
-          sleep 2
-      elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]
+          sleep 1
+      elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]];
       then
           stop_recording
           if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]];
@@ -226,7 +235,7 @@ else
             echo "$(date +%FT%T%Z) [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
             exit
           fi
-      elif [[ $recording_started = "true" ]]
+      elif [[ $recording_started = "true" ]];
       then
           echo "$(date +%FT%T%Z) [${process_name}] - Video recording in progress "
           sleep 1
