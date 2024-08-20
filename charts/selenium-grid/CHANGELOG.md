@@ -1,15 +1,3 @@
-## :heavy_check_mark: selenium-grid-0.34.2
-
-- Chart is using image tag 4.23.1-20240820
-- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, 
-- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
-
-### Changed
-- [`5624122d`](http://github.com/seleniumhq/docker-selenium/commit/5624122d1ea16a1703d77ec3ece8c28c6c5e9c83) - chore(deps): update helm release kube-prometheus-stack to v62 (#2363) :: renovate[bot]
-- [`ccb39d52`](http://github.com/seleniumhq/docker-selenium/commit/ccb39d52c124f4c0851dfeea6115247e12401654) - chore(deps): update helm release ingress-nginx to v4.11.2 (#2357) :: renovate[bot]
-- [`9106ba14`](http://github.com/seleniumhq/docker-selenium/commit/9106ba146d243e4cf8f26751dbe167fa823ef19c) - chart(fix): Remove alias from sub-chart to prevent render issue in other CD tools :: Viet Nguyen Duc
-- [`3bdcb0d4`](http://github.com/seleniumhq/docker-selenium/commit/3bdcb0d4ffc7754e91b6af49739d85db8d14b5d1) - chart(fix): [regression] Able to disable tracing via config key tracing.enabled :: Viet Nguyen Duc
-
 ## :heavy_check_mark: selenium-grid-0.34.1
 
 - Chart is using image tag 4.23.1-20240813

@@ -72,7 +72,9 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Get chart release notes (chart_release_notes.md)
-        run: ./generate_chart_changelog.sh
+        run: |
+          ./generate_chart_changelog.sh
+          echo "IS_RELEASE=$(cat /tmp/selenium_chart_release)" >> $GITHUB_ENV
 
       - name: Login Docker Hub
         run: helm registry login registry-1.docker.io -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
@@ -89,10 +91,11 @@ jobs:
           command: make chart_release
 
       - name: Run chart-releaser
+        if: env.IS_RELEASE == 'true'
         uses: helm/chart-releaser-action@main
         with:
           mark_as_latest: false
-          skip_existing: true
+          skip_existing: false
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           CR_RELEASE_NOTES_FILE: RELEASE_NOTES.md
@@ -102,7 +105,7 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files" -a || true
+          git commit -m "Update chart changelog [skip ci]" -a || true
 
       - name: Push changes
         if: github.event.inputs.skip-commit != 'true'

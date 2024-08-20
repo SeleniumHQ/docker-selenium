@@ -106,3 +106,5 @@ generate_changelog() {
 generate_changelog
 
 echo "Changelog generated successfully at $CHANGELOG_FILE"
+
+echo -e "true" > /tmp/selenium_chart_release
