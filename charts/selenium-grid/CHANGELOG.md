@@ -1,3 +1,13 @@
+## :heavy_check_mark: selenium-grid-0.34.3
+
+- Chart is using image tag 4.23.1-20240820
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Changed
+- [`2adc4a24`](http://github.com/seleniumhq/docker-selenium/commit/2adc4a240686138f156c4865172f17c03cf5a217) - chart(fix): trim trailing slash in sub path :: Viet Nguyen Duc
+- [`114d008e`](http://github.com/seleniumhq/docker-selenium/commit/114d008eb0f403f77c2f1ed8a413c28b0e44f421) - Update chart changelog [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.34.2
 
 - Chart is using image tag 4.23.1-20240820
