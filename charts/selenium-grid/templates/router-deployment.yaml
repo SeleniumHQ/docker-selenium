@@ -59,7 +59,7 @@ spec:
               value: {{ .Values.components.sessionQueue.port | quote }}
             {{- with .Values.components.subPath }}
             - name: SE_SUB_PATH
-              value: {{ . | quote }}
+              value: {{ include "utils.trimTrailingSlash" . | quote }}
             {{- end }}
             {{- if .Values.components.router.disableUI }}
             - name: SE_DISABLE_UI

@@ -12,7 +12,7 @@ CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
-FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS)
+FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS) --sbom=true --attest type=provenance,mode=max
 BUILD_ARGS := $(BUILD_ARGS)
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
@@ -75,7 +75,7 @@ gen_certs:
 	./Base/certs/gen-cert-helper.sh -d ./Base/certs
 
 base: prepare_resources gen_certs
-	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) -t $(NAME)/base:$(TAG_VERSION) .
+	cd ./Base && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make base

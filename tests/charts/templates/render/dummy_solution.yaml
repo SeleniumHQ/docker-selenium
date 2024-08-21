@@ -36,7 +36,7 @@ selenium-grid:
     annotations: # Add you own annotations
       nginx.ingress.kubernetes.io/use-regex: "true" # Add new key
       nginx.ingress.kubernetes.io/rewrite-target: /$2
-      nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
+      nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium/"
       nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600" # Override default key
       nginx.ingress.kubernetes.io/proxy-send-timeout: "3600" # Override default key
     hostname: ""

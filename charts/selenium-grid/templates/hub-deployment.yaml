@@ -110,7 +110,7 @@ spec:
               value: {{ .Values.hub.port | quote }}
             {{- with .Values.hub.subPath }}
             - name: SE_SUB_PATH
-              value: {{ . | quote }}
+              value: {{ include "utils.trimTrailingSlash" . | quote }}
             {{- end }}
             {{- if .Values.hub.disableUI }}
             - name: SE_DISABLE_UI

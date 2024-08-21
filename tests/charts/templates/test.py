@@ -73,6 +73,16 @@ class ChartTemplateTests(unittest.TestCase):
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
+    def test_graphql_url_for_autoscaling_constructed_correctly(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
+                logger.info(f"Assert trigger url is set GraphQL endpoint in resource {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['triggers'][0]['metadata']['url'] == 'https://sysadmin:strongPassword@{0}selenium-router.default:4444/selenium/graphql'.format(RELEASE_NAME))
+                count += 1
+        self.assertEqual(count, len(resources_name), "GraphQL endpoint is not set correctly")
+
     def test_distributor_new_session_thread_pool_size(self):
         resources_name = ['{0}selenium-distributor'.format(RELEASE_NAME)]
         is_present = False

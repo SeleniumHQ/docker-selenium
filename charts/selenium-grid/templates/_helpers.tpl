@@ -667,6 +667,7 @@ Graphql Url of the hub or the router
 {{- else -}}
   {{- $subPath = default $subPath $.Values.hub.subPath -}}
 {{- end -}}
+{{- $subPath = include "utils.trimTrailingSlash" $subPath -}}
 {{- $subPath }}
 {{- end -}}
 
@@ -821,6 +822,14 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- $defaultVolumes := (include "seleniumGrid.video.volumes.default" . | toString | fromYamlArray ) -}}
 {{- $videoVolumes = include "utils.appendDefaultIfNotExist" (dict "currentArray" $videoVolumes "defaultArray" $defaultVolumes "uniqueKey" "name") -}}
 {{- not (empty $videoVolumes) | ternary $videoVolumes "" -}}
+{{- end -}}
+
+{{- define "utils.trimTrailingSlash" -}}
+{{- $path := . -}}
+{{- if hasSuffix "/" $path -}}
+  {{- $path = trimSuffix "/" $path -}}
+{{- end -}}
+{{- $path -}}
 {{- end -}}
 
 {{/*
