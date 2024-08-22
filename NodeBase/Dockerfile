@@ -67,7 +67,8 @@ ENV LANG_WHICH=${LANG_WHICH} \
     # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
     DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-RUN apt-get update -qqy \
+RUN --mount=type=secret,id=SEL_PASSWD \
+  apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
 #==============
 # Xvfb
@@ -130,7 +131,7 @@ RUN apt-get update -qqy \
 # Generating the VNC password using initial password in Base image
 # Changing ownership to ${SEL_USER}, so the service can be started
 #==============================
-  && x11vnc -storepasswd $(cat /opt/selenium/initialPasswd) ${HOME}/.vnc/passwd \
+  && x11vnc -storepasswd $(cat /run/secrets/SEL_PASSWD) ${HOME}/.vnc/passwd \
   && chown -R "${SEL_USER}:${SEL_GROUP}" ${HOME}/.vnc \
   && chmod -R 775 ${HOME} /tmp/.X11-unix \
   && chgrp -R 0 ${HOME} /tmp/.X11-unix \

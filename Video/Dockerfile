@@ -7,7 +7,6 @@ ARG RCLONE_VERSION=current
 #Arguments to define the user running the container
 ARG SEL_USER=seluser
 ARG SEL_GROUP=${SEL_USER}
-ARG SEL_PASSWD=secret
 ARG HOME=/home/${SEL_USER}
 ARG UID=1200
 ARG GID=1201
@@ -34,7 +33,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip python3-psutil \
+    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip python3-psutil python3-setuptools \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
@@ -57,7 +56,8 @@ ENV SEL_USER=${SEL_USER} \
 #========================================
 # Add normal user and group with passwordless sudo
 #========================================
-RUN groupadd ${SEL_GROUP} \
+RUN --mount=type=secret,id=SEL_PASSWD \
+  groupadd ${SEL_GROUP} \
          --gid ${SEL_GID} \
   && useradd ${SEL_USER} \
          --create-home \
@@ -66,7 +66,7 @@ RUN groupadd ${SEL_GROUP} \
          --uid ${SEL_UID} \
   && usermod -a -G sudo ${SEL_USER} \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && echo "${SEL_USER}:${SEL_PASSWD}" | chpasswd
+  && echo "${SEL_USER}:$(cat /run/secrets/SEL_PASSWD)" | chpasswd
 
 #======================================
 # Add Supervisor configuration files
@@ -83,9 +83,8 @@ RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSI
   && rm -rf /tmp/rclone-*
 COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
 ENV SE_VIDEO_UPLOAD_ENABLED=false \
-    SE_UPLOAD_DESTINATION_PREFIX="" \
     SE_VIDEO_INTERNAL_UPLOAD=false \
-    UPLOAD_OPTS="-P"
+    SE_UPLOAD_DESTINATION_PREFIX=""
 
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} \
   && chown -R ${SEL_USER}:${SEL_GROUP} /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} ${HOME} \

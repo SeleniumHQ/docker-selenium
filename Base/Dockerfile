@@ -14,7 +14,6 @@ ARG CS_VERSION=2.1.10
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
 ARG SEL_GROUP=${SEL_USER}
-ARG SEL_PASSWD=secret
 ARG HOME=/home/${SEL_USER}
 ARG UID=1200
 ARG GID=1201
@@ -39,7 +38,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+RUN --mount=type=secret,id=SEL_PASSWD \
+  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
       echo "deb http://archive.ubuntu.com/ubuntu noble main universe\n" > /etc/apt/sources.list \
       && echo "deb http://archive.ubuntu.com/ubuntu noble-updates main universe\n" >> /etc/apt/sources.list \
       && echo "deb http://security.ubuntu.com/ubuntu noble-security main universe\n" >> /etc/apt/sources.list ; \
@@ -86,7 +86,7 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
          --uid ${SEL_UID} \
   && usermod -a -G sudo ${SEL_USER} \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && echo "${SEL_USER}:${SEL_PASSWD}" | chpasswd \
+  && echo "${SEL_USER}:$(cat /run/secrets/SEL_PASSWD)" | chpasswd \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
@@ -99,7 +99,6 @@ RUN  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} \
   && wget --no-verbose https://github.com/${AUTHORS}/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
-  && echo "${SEL_PASSWD}" > /opt/selenium/initialPasswd \
   && chgrp -R 0 /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && setfacl -Rm u:${SEL_USER}:rwx /opt /opt/selenium ${HOME} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
