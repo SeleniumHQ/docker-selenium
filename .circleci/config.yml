@@ -147,19 +147,25 @@ jobs:
             echo 'export BRANCH="${CIRCLE_BRANCH//\//-}"' >> $BASH_ENV
             cat $BASH_ENV
             source $BASH_ENV
+      - checkout
+      - run:
+          name: "Setup environment"
+          command: |
+            make chart_setup_env
+            make set_containerd_image_store
       - run:
           name: "Print system info"
           command: |
             uname -a
             docker info
-      - checkout
       - run:
           name: "Build Docker images"
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build || true
-              if [ $? -eq 0 ]; then
+              output=$(eval "PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build")
+              status=$?
+              if [ $status -eq 0 ]; then
                 echo "Build images passed"
                 exit 0
               else
@@ -174,8 +180,9 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY} || true
-              if [ $? -eq 0 ]; then
+              output=$(eval "USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY}")
+              status=$?
+              if [ $status -eq 0 ]; then
                 echo "Tests passed"
                 exit 0
               else

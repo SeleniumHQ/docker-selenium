@@ -1,5 +1,5 @@
-ARG NAMESPACE
-ARG BASED_TAG
+ARG NAMESPACE=linuxserver
+ARG BASED_TAG=latest
 FROM $NAMESPACE/ffmpeg:$BASED_TAG
 LABEL authors="Selenium <selenium-developers@googlegroups.com>"
 

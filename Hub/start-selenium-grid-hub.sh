@@ -3,6 +3,27 @@
 # set -e: exit asap if a command exits with a non-zero status
 set -e
 
+echo "Starting Selenium Grid Hub..."
+
+function append_se_opts() {
+  local option="${1}"
+  local value="${2:-""}"
+  local log_message="${3:-true}"
+  if [[ "${SE_OPTS}" != *"${option}"* ]]; then
+    if [ "${log_message}" = "true" ]; then
+    echo "Appending Selenium option: ${option} ${value}"
+    else
+    echo "Appending Selenium option: ${option} $(mask ${value})"
+    fi
+    SE_OPTS="${SE_OPTS} ${option}"
+    if [ ! -z "${value}" ]; then
+    SE_OPTS="${SE_OPTS} ${value}"
+    fi
+  else
+    echo "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
+  fi
+}
+
 if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
@@ -23,23 +44,19 @@ if [ ! -z "$SE_SUB_PATH" ]; then
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
-  echo "Appending Selenium options: --log-level ${SE_LOG_LEVEL}"
-  SE_OPTS="$SE_OPTS --log-level ${SE_LOG_LEVEL}"
+  append_se_opts "--log-level" "${SE_LOG_LEVEL}"
 fi
 
 if [ ! -z "$SE_HTTP_LOGS" ]; then
-  echo "Appending Selenium options: --http-logs ${SE_HTTP_LOGS}"
-  SE_OPTS="$SE_OPTS --http-logs ${SE_HTTP_LOGS}"
+  append_se_opts "--http-logs" "${SE_HTTP_LOGS}"
 fi
 
 if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
-  echo "Appending Selenium options: --structured-logs ${SE_STRUCTURED_LOGS}"
-  SE_OPTS="$SE_OPTS --structured-logs ${SE_STRUCTURED_LOGS}"
+  append_se_opts "--structured-logs" "${SE_STRUCTURED_LOGS}"
 fi
 
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
-  echo "Appending Selenium options: --external-url ${SE_EXTERNAL_URL}"
-  SE_OPTS="$SE_OPTS --external-url ${SE_EXTERNAL_URL}"
+  append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
@@ -60,43 +77,35 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   # Configure certificate and private key for component communication
   if [ ! -z "$SE_HTTPS_CERTIFICATE" ]; then
-    echo "Appending Selenium options: --https-certificate ${SE_HTTPS_CERTIFICATE}"
-    SE_OPTS="$SE_OPTS --https-certificate ${SE_HTTPS_CERTIFICATE}"
+    append_se_opts "--https-certificate" "${SE_HTTPS_CERTIFICATE}"
   fi
   if [ ! -z "$SE_HTTPS_PRIVATE_KEY" ]; then
-    echo "Appending Selenium options: --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
-    SE_OPTS="$SE_OPTS --https-private-key ${SE_HTTPS_PRIVATE_KEY}"
+    append_se_opts "--https-private-key" "${SE_HTTPS_PRIVATE_KEY}"
   fi
 fi
 
 if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
-  echo "Appending Selenium options: --registration-secret $(mask ${SE_REGISTRATION_SECRET})"
-  SE_OPTS="$SE_OPTS --registration-secret ${SE_REGISTRATION_SECRET}"
+  append_se_opts "--registration-secret" "${SE_REGISTRATION_SECRET}" "false"
 fi
 
 if [ ! -z "$SE_DISABLE_UI" ]; then
-  echo "Appending Selenium options: --disable-ui ${SE_DISABLE_UI}"
-  SE_OPTS="$SE_OPTS --disable-ui ${SE_DISABLE_UI}"
+  append_se_opts "--disable-ui" "${SE_DISABLE_UI}"
 fi
 
 if [ ! -z "$SE_ROUTER_USERNAME" ]; then
-  echo "Appending Selenium options: --username ${SE_ROUTER_USERNAME}"
-  SE_OPTS="$SE_OPTS --username ${SE_ROUTER_USERNAME}"
+  append_se_opts "--username" "${SE_ROUTER_USERNAME}" "false"
 fi
 
 if [ ! -z "$SE_ROUTER_PASSWORD" ]; then
-  echo "Appending Selenium options: --password $(mask ${SE_ROUTER_PASSWORD})"
-  SE_OPTS="$SE_OPTS --password ${SE_ROUTER_PASSWORD}"
+  append_se_opts "--password" "${SE_ROUTER_PASSWORD}" "false"
 fi
 
 if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
-  echo "Appending Selenium options: --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
-  SE_OPTS="$SE_OPTS --reject-unsupported-caps ${SE_REJECT_UNSUPPORTED_CAPS}"
+  append_se_opts "--reject-unsupported-caps" "${SE_REJECT_UNSUPPORTED_CAPS}"
 fi
 
 if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
-  echo "Appending Selenium options: --newsession-threadpool-size ${SE_NEW_SESSION_THREAD_POOL_SIZE}"
-  SE_OPTS="$SE_OPTS --newsession-threadpool-size ${SE_NEW_SESSION_THREAD_POOL_SIZE}"
+  append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi
 
 EXTRA_LIBS=""
@@ -124,7 +133,7 @@ if [ "$SE_ENABLE_TRACING" = "true" ]; then
     SE_JAVA_OPTS="$SE_JAVA_OPTS ${SE_OTEL_JVM_ARGS}"
   fi
 else
-  SE_OPTS="$SE_OPTS --tracing false"
+  append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
 fi

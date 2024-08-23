@@ -608,7 +608,7 @@ test_video: video hub chrome firefox edge chromium
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="$${list_of_tests_amd64}" ; \
 	else \
-			list_nodes="${list_of_tests_arm64}" ; \
+			list_nodes="$${list_of_tests_arm64}" ; \
 	fi; \
 	for node in $${list_nodes}; do \
 			cd ./tests || true ; \

@@ -18,13 +18,13 @@ function append_se_opts() {
   local log_message="${3:-true}"
   if [[ "${SE_OPTS}" != *"${option}"* ]]; then
     if [ "${log_message}" = "true" ]; then
-      echo "Appending Selenium option: ${option} ${value}"
+    echo "Appending Selenium option: ${option} ${value}"
     else
-      echo "Appending Selenium option: ${option} $(mask ${value})"
+    echo "Appending Selenium option: ${option} $(mask ${value})"
     fi
     SE_OPTS="${SE_OPTS} ${option}"
     if [ ! -z "${value}" ]; then
-      SE_OPTS="${SE_OPTS} ${value}"
+    SE_OPTS="${SE_OPTS} ${value}"
     fi
   else
     echo "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
