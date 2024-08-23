@@ -687,16 +687,16 @@ services:
 `SE_VIDEO_FILE_NAME=auto` will use the session id as the video file name. This ensures that the video file name is unique to upload.
 Video file name construction automatically works based on Node endpoint `/status` (and optional GraphQL endpoint) to get session ID, capabilities.
 
-|                                          | Hub/Nodes         | Standalone roles | Dynamic Grid   |
+`SE_VIDEO_UPLOAD_ENABLED=true` will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
+
+`SE_VIDEO_INTERNAL_UPLOAD=true` will use RCLONE installed in the container for upload. If you want to use another sidecar container for upload, set it to `false`.
+
+| ENV variables per mode                   | Hub/Nodes         | Standalone roles | Dynamic Grid   |
 |------------------------------------------|-------------------|------------------|----------------|
-| `SE_VIDEO_RECORD_STANDALONE` (mandatory) | `false` (default) | `true`           | user input     |
+| `SE_VIDEO_RECORD_STANDALONE` (mandatory) | `false` (default) | `true`           | `true`         |
 | `DISPLAY_CONTAINER_NAME` (mandatory)     | user input        | user input       | (not required) |
 | `SE_NODE_PORT` (optional)                | `5555`            | `4444`           | (not required) |
 | `SE_NODE_GRID_URL` (optional)            | user input        | (not required)   | (not required) |
-
-`SE_VIDEO_UPLOAD_ENABLED=true` will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
-
-`SE_VIDEO_INTERNAL_UPLOAD=true` will use RCLONE installed in the container for upload. If you want to use another container for upload, set it to `false`.
 
 For environment variables with prefix `RCLONE_` is used to pass remote configuration to RCLONE. You can find more information about RCLONE configuration [here](https://rclone.org/docs/).
 When using in Dynamic Grid, those variables should be combined with the prefix `SE_`, for example `SE_RCLONE_`. See below reference for more details.
@@ -709,6 +709,16 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 - Configure video recording and uploading for Dynamic Grid (node-docker): [docker-compose-v3-video-upload-dynamic-grid.yml](docker-compose-v3-video-upload-dynamic-grid.yml)
 
 - Configure video recording and uploading for Dynamic Grid standalone (standalone-docker): [tests/docker-compose-v3-test-standalone-docker.yaml](tests/docker-compose-v3-test-standalone-docker.yaml)
+
+### Environment variables and default values for upload feature
+
+| Environment variable          | Default value                      | Description                                                                               |
+|-------------------------------|------------------------------------|-------------------------------------------------------------------------------------------|
+| `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false`                            | Keep local file after uploading successfully                                              |
+| `SE_UPLOAD_COMMAND`           | `copy`                             | RCLONE command is used to transfer file. Enforce `move` when retain local file is `false` |
+| `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata` | Other options belong to RCLONE command can be set.                                        |
+| `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                      | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
+| `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                         | Directory of config file (change it when conf file in another directory is mounted)       |
 
 ___
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
 VIDEO_FOLDER=${VIDEO_FOLDER}
-UPLOAD_CONFIG_DIRECTORY=${UPLOAD_CONFIG_DIRECTORY:-"/opt/bin"}
-UPLOAD_CONFIG_FILE_NAME=${UPLOAD_CONFIG_FILE_NAME:-"upload.conf"}
-UPLOAD_COMMAND=${UPLOAD_COMMAND:-"copy"}
+UPLOAD_CONFIG_DIRECTORY=${SE_UPLOAD_CONFIG_DIRECTORY:-"/opt/bin"}
+UPLOAD_CONFIG_FILE_NAME=${SE_UPLOAD_CONFIG_FILE_NAME:-"upload.conf"}
+UPLOAD_COMMAND=${SE_UPLOAD_COMMAND:-"copy"}
+UPLOAD_OPTS=${SE_UPLOAD_OPTS:-"-P --cutoff-mode SOFT --metadata"}
 UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
-UPLOAD_PIPE_FILE_NAME=${UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
+UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
-VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-SE_VIDEO_UPLOAD_ENABLED}
-SE_VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
+VIDEO_UPLOAD_ENABLED=${SE_VIDEO_UPLOAD_ENABLED:-"false"}
+VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
 process_name="video.uploader"
 
 if [ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ];
@@ -64,7 +65,7 @@ function consume_pipe_file() {
 list_rclone_pid=()
 function check_and_clear_background() {
     # Wait for a batch rclone processes to finish
-    if [ ${#list_rclone_pid[@]} -eq ${SE_VIDEO_UPLOAD_BATCH_CHECK} ]; then
+    if [ ${#list_rclone_pid[@]} -eq ${VIDEO_UPLOAD_BATCH_CHECK} ]; then
         for pid in "${list_rclone_pid[@]}";
         do
             wait ${pid}
@@ -78,7 +79,7 @@ function rclone_upload() {
     local source=$1
     local target=$2
     echo "$(date +%FT%T%Z) [${process_name}] - Uploading ${source} to ${target}"
-    exec rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} --cutoff-mode SOFT --metadata ${UPLOAD_OPTS} "${source}" "${target}" &
+    exec rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
 }
 
 function graceful_exit() {
