@@ -9,7 +9,7 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
     do
       sleep 0.5
       echo "Centering wallpaper"
-      /usr/bin/fbsetbg -c /usr/share/images/fluxbox/ubuntu-light.png
+      /usr/bin/fbsetbg -u Esetroot -c /usr/share/images/fluxbox/ubuntu-light.png
       if [ $? -eq 0 ]; then
         break
       fi    
