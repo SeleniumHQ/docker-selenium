@@ -2,6 +2,8 @@ version: "3"
 services:
   standalone-docker:
     image: ${NAMESPACE}/standalone-docker:${TAG}
+    depends_on:
+      - ftp_server
     volumes:
       - ./videos:/opt/selenium/assets
       - ./videos/config.toml:/opt/selenium/config.toml
@@ -40,8 +42,31 @@ services:
     environment:
       - USERS=seluser|selenium.dev
       - MAX_PORT=21010
+      - TINI_SUBREAPER=true
     volumes:
       - ./videos/upload:/ftp/seluser
+    entrypoint: >
+      /bin/sh -c '
+      max_attempts=5;
+      attempt_num=1;
+      while [ $attempt_num -le $max_attempts ];
+      do
+        output=$(eval "/sbin/tini -- /bin/start_vsftpd.sh");
+        status=$?;
+        if [ $status -eq 0 ]; then
+          break;
+        else
+          echo "Attempt $attempt_num failed! Trying again in 3 seconds...";
+          attempt_num=$((attempt_num+1));
+          sleep 3;
+        fi
+      done;
+      if [ $attempt_num -gt $max_attempts ]; then
+        echo "All attempts to start vsftpd failed.";
+        exit 1;
+      fi
+      '
+    restart: unless-stopped
     stop_grace_period: 30s
 
   tests:

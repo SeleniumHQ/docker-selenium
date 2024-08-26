@@ -101,6 +101,7 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   LOCAL_PVC_YAML="${TEST_VALUES_PATH}/local-pvc.yaml"
   envsubst < ${LOCAL_PVC_YAML} > ./tests/tests/local-pvc.yaml
   LOCAL_PVC_YAML=./tests/tests/local-pvc.yaml
+  kubectl delete -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML} --ignore-not-found=true
   sudo rm -rf ${HOST_PATH}; sudo mkdir -p ${HOST_PATH}
   sudo chmod -R 777 ${HOST_PATH}
   kubectl create ns ${SELENIUM_NAMESPACE} || true

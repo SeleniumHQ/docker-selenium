@@ -99,6 +99,12 @@ services:
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
       - SE_SUPERVISORD_LOG_LEVEL=error
       - SE_ENABLE_TLS=true
+      - SE_SERVER_PROTOCOL=https
+    healthcheck:
+      test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
+      interval: 15s
+      timeout: 30s
+      retries: 5
 
 #  tests:
 #    image: docker-selenium-tests:latest

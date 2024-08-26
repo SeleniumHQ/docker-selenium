@@ -9,6 +9,7 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+      - browser_video
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -21,7 +22,7 @@ services:
     image: selenium/video:${VIDEO_TAG}
     user: ${UID}
     depends_on:
-      - browser
+      - ftp_server
     environment:
       - SE_NODE_GRID_URL=http://selenium-hub:4444
       - DISPLAY_CONTAINER_NAME=browser
@@ -45,8 +46,31 @@ services:
     environment:
       - USERS=seluser|selenium.dev
       - MAX_PORT=21010
+      - TINI_SUBREAPER=true
     volumes:
       - ./videos/upload:/ftp/seluser
+    entrypoint: >
+      /bin/sh -c '
+      max_attempts=5;
+      attempt_num=1;
+      while [ $attempt_num -le $max_attempts ];
+      do
+        output=$(eval "/sbin/tini -- /bin/start_vsftpd.sh");
+        status=$?;
+        if [ $status -eq 0 ]; then
+          break;
+        else
+          echo "Attempt $attempt_num failed! Trying again in 3 seconds...";
+          attempt_num=$((attempt_num+1));
+          sleep 3;
+        fi
+      done;
+      if [ $attempt_num -gt $max_attempts ]; then
+        echo "All attempts to start vsftpd failed.";
+        exit 1;
+      fi
+      '
+    restart: unless-stopped
     stop_grace_period: 30s
 
   selenium-hub:
@@ -57,6 +81,11 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+    healthcheck:
+      test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
+      interval: 15s
+      timeout: 30s
+      retries: 5
 
   tests:
     image: docker-selenium-tests:latest
@@ -65,6 +94,7 @@ services:
       dockerfile: ./Dockerfile
     depends_on:
       - selenium-hub
+      - browser
     environment:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub

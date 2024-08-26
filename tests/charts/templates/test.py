@@ -206,7 +206,7 @@ class ChartTemplateTests(unittest.TestCase):
                 for container in doc['spec']['template']['spec']['containers']:
                     if container['name'] == 'video':
                         video_container = container
-                    if container['name'] == 'uploader':
+                    if container['name'] == 's3':
                         uploader_container = container
                 list_volume_mounts = None
                 if uploader_container is not None:

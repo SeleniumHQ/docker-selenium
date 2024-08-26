@@ -11,7 +11,7 @@ VIDEO_FOLDER=${VIDEO_FOLDER}
 VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-$SE_VIDEO_UPLOAD_ENABLED}
 VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
 UPLOAD_DESTINATION_PREFIX=${UPLOAD_DESTINATION_PREFIX:-$SE_UPLOAD_DESTINATION_PREFIX}
-UPLOAD_PIPE_FILE_NAME=${UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
+UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
 max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
@@ -57,6 +57,26 @@ function create_pipe() {
     fi
 }
 
+function wait_for_display() {
+  export DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
+  attempts=0
+
+  echo "$(date +%FT%T%Z) [${process_name}] - Checking if the display is open"
+  until xset b off || [[ $attempts = "$max_attempts" ]]
+  do
+      echo "$(date +%FT%T%Z) [${process_name}] - Waiting before next display check"
+      sleep 0.5
+      attempts=$((attempts+1))
+  done
+  if [[ $attempts = "$max_attempts" ]];
+  then
+      echo "$(date +%FT%T%Z) [${process_name}] - Can not open display, exiting."
+      exit
+  fi
+
+  VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
+}
+
 function wait_util_uploader_shutdown() {
     max_wait=5
     wait=0
@@ -64,6 +84,7 @@ function wait_util_uploader_shutdown() {
     then
         while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]];
         do
+            echo "exit" >> ${UPLOAD_PIPE_FILE} &
             echo "$(date +%FT%T%Z) [${process_name}] - Waiting for force exit file to be consumed by external upload container"
             sleep 1
             wait=$((wait+1))
@@ -73,6 +94,7 @@ function wait_util_uploader_shutdown() {
     then
         while [[ $(pgrep rclone | wc -l) -gt 0 ]]
         do
+            echo "exit" >> ${UPLOAD_PIPE_FILE} &
             echo "$(date +%FT%T%Z) [${process_name}] - Recorder is waiting for RCLONE to finish"
             sleep 1
         done
@@ -134,6 +156,12 @@ function check_if_recording_inprogress() {
     fi
 }
 
+function log_node_response() {
+  if [[ -f "/tmp/graphQL_$session_id.json" ]]; then
+    jq '.' "/tmp/graphQL_$session_id.json";
+  fi
+}
+
 function graceful_exit() {
     check_if_recording_inprogress
     send_exit_signal_to_uploader
@@ -160,27 +188,9 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
     -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0 -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$VIDEO_FOLDER/$VIDEO_FILE_NAME"
 
 else
-  create_pipe
   trap graceful_exit SIGTERM SIGINT EXIT
-  export DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
-
-  attempts=0
-
-  echo "$(date +%FT%T%Z) [${process_name}] - Checking if the display is open"
-  until xset b off || [[ $attempts = "$max_attempts" ]]
-  do
-      echo "$(date +%FT%T%Z) [${process_name}] - Waiting before next display check"
-      sleep 0.5
-      attempts=$((attempts+1))
-  done
-  if [[ $attempts = "$max_attempts" ]];
-  then
-      echo "$(date +%FT%T%Z) [${process_name}] - Can not open display, exiting."
-      exit
-  fi
-
-  VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
-
+  create_pipe
+  wait_for_display
   recording_started="false"
   video_file_name=""
   video_file=""
@@ -201,7 +211,7 @@ else
   done
   if [[ $attempts = "$max_attempts" ]];
   then
-      echo "$(date +%FT%T%Z) [${process_name}] - Can not reach node API, exiting."
+      echo "$(date +%FT%T%Z) [${process_name}] - Can not reach node API, reach the max attempts $max_attempts, exiting."
       exit
   fi
   while curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} > /tmp/status.json
@@ -214,15 +224,13 @@ else
         caps_se_video_record=${return_list[0]}
         video_file_name="${return_list[1]}.mp4"
         echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
-        if [[ -f "/tmp/graphQL_$session_id.json" ]]; then
-          jq '.' "/tmp/graphQL_$session_id.json";
-        fi
+        log_node_response
       fi
       if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]];
       then
           video_file="${VIDEO_FOLDER}/$video_file_name"
           echo "$(date +%FT%T%Z) [${process_name}] - Starting to record video"
-          exec ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
+          ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
             -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
           recording_started="true"
           echo "$(date +%FT%T%Z) [${process_name}] - Video recording started"
@@ -244,6 +252,8 @@ else
       fi
       prev_session_id=$session_id
   done
-  echo "$(date +%FT%T%Z) [${process_name}] - Node API is not responding, exiting."
+  echo "$(date +%FT%T%Z) [${process_name}] - Last response from node API..."
+  log_node_response
+  echo "$(date +%FT%T%Z) [${process_name}] - Node API is not responding now, exiting..."
   exit
 fi

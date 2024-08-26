@@ -1,11 +1,11 @@
 global:
   seleniumGrid:
     logLevel: INFO
-    stdoutProbeLog: true
+    stdoutProbeLog: false
 
 serverConfigMap:
   env:
-    SE_SUPERVISORD_LOG_LEVEL: "error"
+    SE_SUPERVISORD_LOG_LEVEL: "info"
 
 ingress:
   enabled: true

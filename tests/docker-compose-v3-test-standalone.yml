@@ -9,6 +9,8 @@ services:
     user: ${UID}
     shm_size: 2gb
     container_name: standalone
+    depends_on:
+      - browser_video
     environment:
       - SE_NODE_MAX_SESSIONS=1
       - SE_NODE_OVERRIDE_MAX_SESSIONS=true
@@ -19,12 +21,16 @@ services:
       - SE_SUB_PATH=${SUB_PATH}
     ports:
       - "4444:4444"
+    healthcheck:
+      test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
+      interval: 15s
+      timeout: 30s
+      retries: 5
 
   browser_video:
     image: selenium/video:${VIDEO_TAG}
     user: ${UID}
     depends_on:
-      - standalone
       - ftp_server
     environment:
       - SE_VIDEO_RECORD_STANDALONE=true
@@ -52,8 +58,31 @@ services:
     environment:
       - USERS=seluser|selenium.dev
       - MAX_PORT=21010
+      - TINI_SUBREAPER=true
     volumes:
       - ./videos/upload:/ftp/seluser
+    entrypoint: >
+      /bin/sh -c '
+      max_attempts=5;
+      attempt_num=1;
+      while [ $attempt_num -le $max_attempts ];
+      do
+        output=$(eval "/sbin/tini -- /bin/start_vsftpd.sh");
+        status=$?;
+        if [ $status -eq 0 ]; then
+          break;
+        else
+          echo "Attempt $attempt_num failed! Trying again in 3 seconds...";
+          attempt_num=$((attempt_num+1));
+          sleep 3;
+        fi
+      done;
+      if [ $attempt_num -gt $max_attempts ]; then
+        echo "All attempts to start vsftpd failed.";
+        exit 1;
+      fi
+      '
+    restart: unless-stopped
     stop_grace_period: 30s
 
   tests:

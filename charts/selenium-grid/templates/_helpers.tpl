@@ -271,6 +271,7 @@ template:
         {{- toYaml . | nindent 6 }}
       {{- end }}
   spec:
+    shareProcessNamespace: {{ $.Values.global.seleniumGrid.stdoutProbeLog | ternary "false" .node.shareProcessNamespace }}
     serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
     serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
     restartPolicy: {{ template "seleniumGrid.node.restartPolicy" . }}
@@ -422,7 +423,7 @@ template:
       {{- toYaml .node.sidecars | nindent 6 }}
     {{- end }}
     {{- if $.Values.videoRecorder.enabled }}
-      - name: video
+      - name: {{ $.Values.videoRecorder.name }}
         {{- $imageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag }}
         {{- $imageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry $.Values.videoRecorder.imageName $imageTag }}
@@ -482,7 +483,7 @@ template:
         lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- if and $.Values.videoRecorder.uploader.enabled (not (empty $.Values.videoRecorder.uploader.name)) }}
-      - name: uploader
+      - name: {{ default "uploader" $.Values.videoRecorder.uploader.name }}
         {{- $imageTag := .uploader.imageTag }}
         {{- $imageRegistry := .uploader.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .uploader.imageName $imageTag }}
@@ -725,6 +726,8 @@ Define terminationGracePeriodSeconds of the node pod.
 {{- $period := $nodePeriod -}}
 {{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" $) "true") -}}
   {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
+{{- else if and (eq .Values.autoscaling.scalingType "job") (eq (include "seleniumGrid.useKEDA" $) "true") }}
+  {{- $period = 30 -}}
 {{- end -}}
 {{- $period -}}
 {{- end -}}

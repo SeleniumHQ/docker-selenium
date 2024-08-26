@@ -1,8 +1,8 @@
 autoscaling:
   scalingType: job
   scaledJobOptions:
-    successfulJobsHistoryLimit: 0
-    failedJobsHistoryLimit: 0
+    successfulJobsHistoryLimit: 100
+    failedJobsHistoryLimit: 100
     scalingStrategy:
       strategy: default
   scaledOptions:

@@ -745,6 +745,7 @@ chromeNode:
   annotations: {}
   # Labels for chrome-node pods
   labels: {}
+  shareProcessNamespace: true
   # Resources for chrome-node container
   resources:
     requests:
@@ -909,6 +910,7 @@ firefoxNode:
   tolerations: []
   # Node selector for firefox-node pods
   nodeSelector: {}
+  shareProcessNamespace: true
   # Resources for firefox-node container
   resources:
     requests:
@@ -1068,6 +1070,7 @@ edgeNode:
   tolerations: []
   # Node selector for edge-node pods
   nodeSelector: {}
+  shareProcessNamespace: true
   # Resources for edge-node container
   resources:
     requests:
@@ -1191,6 +1194,8 @@ edgeNode:
 
 videoRecorder:
   enabled: false
+  # Container name is set to resource specs
+  name: video
   # imageRegistry: selenium
   # Image of video recorder
   imageName: video
@@ -1204,7 +1209,7 @@ videoRecorder:
     enabled: false
     # Where to upload the video file e.g. remoteName://bucketName/path. Refer to destination syntax of rclone https://rclone.org/docs/
     destinationPrefix:
-    # What uploader to use. See .videRecorder.rclone for how to create a new one.
+    # What uploader to use. See .videRecorder.s3 for how to create a new one.
     name:
     configFileName: upload.conf
     entryPointFileName: upload.sh

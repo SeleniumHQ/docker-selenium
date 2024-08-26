@@ -8,7 +8,6 @@ UPLOAD_OPTS=${SE_UPLOAD_OPTS:-"-P --cutoff-mode SOFT --metadata"}
 UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
 UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
-VIDEO_UPLOAD_ENABLED=${SE_VIDEO_UPLOAD_ENABLED:-"false"}
 VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
 process_name="video.uploader"
 
@@ -44,24 +43,6 @@ function rename_rclone_env() {
   done
 }
 
-function consume_pipe_file() {
-    while read FILE DESTINATION < ${UPLOAD_PIPE_FILE};
-    do
-        if [ "${FILE}" = "exit" ];
-        then
-            FORCE_EXIT=true
-            exit
-        elif [ "$FILE" != "" ] && [ "$DESTINATION" != "" ];
-        then
-            rclone_upload "${FILE}" "${DESTINATION}"
-        elif [ -f ${FORCE_EXIT_FILE} ];
-        then
-            echo "$(date +%FT%T%Z) [${process_name}] - Force exit signal detected"
-            exit
-        fi
-    done
-}
-
 list_rclone_pid=()
 function check_and_clear_background() {
     # Wait for a batch rclone processes to finish
@@ -79,7 +60,27 @@ function rclone_upload() {
     local source=$1
     local target=$2
     echo "$(date +%FT%T%Z) [${process_name}] - Uploading ${source} to ${target}"
-    exec rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
+    rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
+    list_rclone_pid+=($!)
+    check_and_clear_background
+}
+
+function consume_pipe_file() {
+    while read FILE DESTINATION < ${UPLOAD_PIPE_FILE};
+    do
+        if [ "${FILE}" = "exit" ];
+        then
+            FORCE_EXIT=true
+            exit
+        elif [ "$FILE" != "" ] && [ "$DESTINATION" != "" ];
+        then
+            rclone_upload "${FILE}" "${DESTINATION}"
+        elif [ -f ${FORCE_EXIT_FILE} ];
+        then
+            echo "$(date +%FT%T%Z) [${process_name}] - Force exit signal detected"
+            exit
+        fi
+    done
 }
 
 function graceful_exit() {

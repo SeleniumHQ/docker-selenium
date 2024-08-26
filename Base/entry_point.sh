@@ -22,6 +22,11 @@ function shutdown {
         echo "Waiting for Selenium Node to shutdown gracefully..."
         bash ${NODE_CONFIG_DIRECTORY}/nodePreStop.sh
     fi
+    if [ -n "${SE_VIDEO_CONTAINER_NAME}" ]; then
+        # For K8s, when video sidecar container and shareProcessNamespace are enabled in pod spec
+        echo "Shutting down ${SE_VIDEO_CONTAINER_NAME} container..."
+        pkill -f "${SE_VIDEO_CONTAINER_NAME}"
+    fi
     kill -s SIGTERM ${SUPERVISOR_PID}
     wait ${SUPERVISOR_PID}
     echo "Shutdown complete"

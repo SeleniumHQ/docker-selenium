@@ -135,7 +135,7 @@ jobs:
         uses: nick-invision/retry@master
         if: matrix.build-all != true
         with:
-          timeout_minutes: 20
+          timeout_minutes: 30
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
@@ -156,7 +156,7 @@ jobs:
       - name: Run Docker Compose to ${{ matrix.test-strategy }}
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 20
+          timeout_minutes: 40
           max_attempts: 2
           retry_wait_seconds: 60
           command: |

@@ -26,6 +26,9 @@ data:
   SE_DRAIN_AFTER_SESSION_COUNT: '{{- and (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") | ternary "1" "0" -}}'
   SE_NODE_GRID_URL: '{{ include "seleniumGrid.url" $ }}'
   SE_NODE_GRID_GRAPHQL_URL: '{{ include "seleniumGrid.graphqlURL" $ }}'
+{{- if $.Values.videoRecorder.enabled }}
+  SE_VIDEO_CONTAINER_NAME: {{ $.Values.videoRecorder.name | quote }}
+{{- end }}
 {{- if $.Values.nodeConfigMap.leftoversCleanup.enabled }}
   SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP: 'true'
   {{- with $.Values.nodeConfigMap.leftoversCleanup.jobIntervalInSecs }}
