@@ -15,7 +15,7 @@ dependencies:
   name: ingress-nginx
   condition: ingress.enabled, ingress-nginx.enabled
 - repository: https://jaegertracing.github.io/helm-charts
-  version: 3.1.2
+  version: 3.2.0
   name: jaeger
   condition: tracing.enabled, jaeger.enabled
 - repository: https://prometheus-community.github.io/helm-charts
