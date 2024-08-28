@@ -13,6 +13,7 @@ tmp_node_file="/tmp/nodeProbe${ID}"
 function on_exit() {
   rm -rf ${tmp_node_file}
   echo "$(date +%FT%T%Z) [${probe_name}] - Exiting Node preStop..."
+  exit 0
 }
 trap on_exit EXIT
 

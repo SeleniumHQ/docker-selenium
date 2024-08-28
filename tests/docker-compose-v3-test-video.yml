@@ -28,7 +28,7 @@ services:
       - DISPLAY_CONTAINER_NAME=browser
       - SE_VIDEO_FILE_NAME=${VIDEO_FILE_NAME}
       - SE_VIDEO_FILE_NAME_SUFFIX=${VIDEO_FILE_NAME_SUFFIX}
-      - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_SUPERVISORD_LOG_LEVEL=info
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_VIDEO_INTERNAL_UPLOAD=true
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
@@ -43,34 +43,13 @@ services:
   ftp_server:
     image: delfer/alpine-ftp-server:latest
     container_name: ftp_server
+    command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
     environment:
       - USERS=seluser|selenium.dev
       - MAX_PORT=21010
       - TINI_SUBREAPER=true
     volumes:
       - ./videos/upload:/ftp/seluser
-    entrypoint: >
-      /bin/sh -c '
-      max_attempts=5;
-      attempt_num=1;
-      while [ $attempt_num -le $max_attempts ];
-      do
-        output=$(eval "/sbin/tini -- /bin/start_vsftpd.sh");
-        status=$?;
-        if [ $status -eq 0 ]; then
-          break;
-        else
-          echo "Attempt $attempt_num failed! Trying again in 3 seconds...";
-          attempt_num=$((attempt_num+1));
-          sleep 3;
-        fi
-      done;
-      if [ $attempt_num -gt $max_attempts ]; then
-        echo "All attempts to start vsftpd failed.";
-        exit 1;
-      fi
-      '
-    restart: unless-stopped
     stop_grace_period: 30s
 
   selenium-hub:

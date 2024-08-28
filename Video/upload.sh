@@ -4,14 +4,14 @@ VIDEO_FOLDER=${VIDEO_FOLDER}
 UPLOAD_CONFIG_DIRECTORY=${SE_UPLOAD_CONFIG_DIRECTORY:-"/opt/bin"}
 UPLOAD_CONFIG_FILE_NAME=${SE_UPLOAD_CONFIG_FILE_NAME:-"upload.conf"}
 UPLOAD_COMMAND=${SE_UPLOAD_COMMAND:-"copy"}
-UPLOAD_OPTS=${SE_UPLOAD_OPTS:-"-P --cutoff-mode SOFT --metadata"}
+UPLOAD_OPTS=${SE_UPLOAD_OPTS:-"-P --cutoff-mode SOFT --metadata --inplace"}
 UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
 UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
-SE_VIDEO_INTERNAL_UPLOAD=${SE_VIDEO_INTERNAL_UPLOAD:-"false"}
+VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
 process_name="video.uploader"
 
-if [ "${SE_VIDEO_INTERNAL_UPLOAD}" = "true" ];
+if [ "${VIDEO_INTERNAL_UPLOAD}" = "true" ];
 then
     # If using RCLONE in the same container, write signal to /tmp internally
     UPLOAD_PIPE_FILE="/tmp/${UPLOAD_PIPE_FILE_NAME}"
@@ -65,78 +65,71 @@ function rclone_upload() {
     check_and_clear_background
 }
 
-function consume_pipe_file() {
+function check_if_pid_alive() {
+  local pid=$1
+  if kill -0 "${pid}" > /dev/null 2>&1; then
+    return 0
+  fi
+  return 1
+}
+
+function consume_pipe_file_in_background() {
+    echo "$(date +%FT%T%Z) [${process_name}] - Start consuming pipe file to upload"
     while read FILE DESTINATION < ${UPLOAD_PIPE_FILE};
     do
         if [ "${FILE}" = "exit" ];
         then
-            FORCE_EXIT=true
-            exit
+            echo "$(date +%FT%T%Z) [${process_name}] - Received exit signal. Aborting upload process"
+            return 0
         elif [ "$FILE" != "" ] && [ "$DESTINATION" != "" ];
         then
             rclone_upload "${FILE}" "${DESTINATION}"
-        elif [ -f ${FORCE_EXIT_FILE} ];
-        then
-            echo "$(date +%FT%T%Z) [${process_name}] - Force exit signal detected"
-            exit
         fi
     done
+    echo "$(date +%FT%T%Z) [${process_name}] - Stopped consuming pipe file. Upload process is done"
+    return 0
+}
+
+# Function to check if the named pipe exists
+check_if_pipefile_exists() {
+    if [ -p "${UPLOAD_PIPE_FILE}" ]; then
+        echo "$(date +%FT%T%Z) [${process_name}] - Named pipe ${UPLOAD_PIPE_FILE} exists"
+        return 0
+    fi
+    return 1
+}
+
+function wait_until_pipefile_exists() {
+  echo "$(date +%FT%T%Z) [${process_name}] - Waiting for ${UPLOAD_PIPE_FILE} to be present"
+  until check_if_pipefile_exists; do
+    sleep 1
+  done
 }
 
 function graceful_exit() {
-    echo "$(date +%FT%T%Z) [${process_name}] - Uploader is shutting down"
-    if [ "${FORCE_EXIT}" != "true" ]; then
-        consume_pipe_file
+    echo "$(date +%FT%T%Z) [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down uploader"
+    if ! check_if_pid_alive "${UPLOAD_PID}"; then
+        consume_pipe_file_in_background &
+        UPLOAD_PID=$!
     fi
+    echo "exit" >> "${UPLOAD_PIPE_FILE}" &
+    wait "${UPLOAD_PID}"
     echo "$(date +%FT%T%Z) [${process_name}] - Uploader consumed all files in the pipe"
-    rm -rf ${FORCE_EXIT_FILE}
+    rm -rf "${FORCE_EXIT_FILE}"
     echo "$(date +%FT%T%Z) [${process_name}] - Uploader is ready to shutdown"
+    exit 0
 }
-trap graceful_exit SIGTERM SIGINT EXIT
-
-# Function to create the named pipe if it doesn't exist
-function create_named_pipe() {
-    if [ ! -p "${UPLOAD_PIPE_FILE}" ];
-    then
-        if [ -e "${UPLOAD_PIPE_FILE}" ];
-        then
-            rm -f "${UPLOAD_PIPE_FILE}"
-        fi
-        mkfifo "${UPLOAD_PIPE_FILE}"
-        echo "$(date +%FT%T%Z) [${process_name}] - Created named pipe ${UPLOAD_PIPE_FILE}"
-    fi
-}
-
-TIMEOUT=300 # Timeout in seconds (5 minutes)
-START_TIME=$(date +%s)
-
-while true; do
-    if [ -e "${UPLOAD_PIPE_FILE}" ];
-    then
-        if [ -p "${UPLOAD_PIPE_FILE}" ];
-        then
-            break
-        else
-            echo "$(date +%FT%T%Z) [${process_name}] - ${UPLOAD_PIPE_FILE} exists but is not a named pipe"
-            create_named_pipe
-        fi
-    else
-        create_named_pipe
-    fi
-
-    CURRENT_TIME=$(date +%s)
-    ELAPSED_TIME=$((CURRENT_TIME - START_TIME))
-    if [ ${ELAPSED_TIME} -ge ${TIMEOUT} ];
-    then
-        echo "$(date +%FT%T%Z) [${process_name}] - Timeout waiting for ${UPLOAD_PIPE_FILE} to be created"
-        exit 1
-    fi
-
-    echo "$(date +%FT%T%Z) [${process_name}] - Waiting for ${UPLOAD_PIPE_FILE} to be created"
-    sleep 1
-done
-
-echo "$(date +%FT%T%Z) [${process_name}] - Waiting for video files put into pipe for proceeding to upload"
 
 rename_rclone_env
-consume_pipe_file
+trap graceful_exit SIGTERM SIGINT EXIT
+
+while true; do
+    wait_until_pipefile_exists
+    if ! check_if_pid_alive "${UPLOAD_PID}"; then
+        consume_pipe_file_in_background &
+        UPLOAD_PID=$!
+    fi
+    while check_if_pid_alive "${UPLOAD_PID}"; do
+        sleep 1
+    done
+done

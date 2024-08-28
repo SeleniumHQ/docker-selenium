@@ -2,6 +2,8 @@ from http.server import BaseHTTPRequestHandler,HTTPServer
 from os import environ
 import json
 import psutil
+import signal
+import sys
 
 video_ready_port = int(environ.get('VIDEO_READY_PORT', 9000))
 
@@ -17,6 +19,14 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(response_code)
         self.end_headers()
         self.wfile.write(json.dumps({'status': response_text}).encode('utf-8'))
+
+def graceful_shutdown(signum, frame):
+    print("Trapped SIGTERM/SIGINT/x so shutting down video-ready...")
+    httpd.shutdown()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, graceful_shutdown)
+signal.signal(signal.SIGTERM, graceful_shutdown)
 
 httpd = HTTPServer( ('0.0.0.0', video_ready_port), Handler )
 httpd.serve_forever()

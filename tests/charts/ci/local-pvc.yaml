@@ -23,32 +23,11 @@ spec:
               value: "21005"
             - name: TINI_SUBREAPER
               value: "true"
-          command:
-            - /bin/sh
-            - -c
-            - |
-              max_attempts=5;
-              attempt_num=1;
-              while [ $attempt_num -le $max_attempts ];
-              do
-                output=$(eval "/sbin/tini -- /bin/start_vsftpd.sh");
-                status=$?;
-                if [ $status -eq 0 ]; then
-                  break;
-                else
-                  echo "Attempt $attempt_num failed! Trying again in 3 seconds...";
-                  attempt_num=$((attempt_num+1));
-                  sleep 3;
-                fi
-              done;
-              if [ $attempt_num -gt $max_attempts ]; then
-                echo "All attempts to start vsftpd failed.";
-                exit 1;
-              fi
           volumeMounts:
             - mountPath: /ftp/seluser
               name: ftp-upload
               subPath: seluser
+          command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
       volumes:
         - name: ftp-upload
           persistentVolumeClaim:

@@ -12,6 +12,7 @@ services:
     volumes:
       # Mount the local directory `/tmp/upload` to the FTP server's `/ftp/seluser` directory to check out the uploaded videos
       - /tmp/upload:/ftp/seluser
+    command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
     stop_grace_period: 30s
 
   node-docker:

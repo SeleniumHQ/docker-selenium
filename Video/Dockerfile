@@ -83,7 +83,7 @@ RUN curl -fLo /tmp/rclone.zip https://downloads.rclone.org/rclone-${RCLONE_VERSI
   && rm -rf /tmp/rclone-*
 COPY --chown="${SEL_UID}:${SEL_GID}" upload.sh upload.conf /opt/bin/
 ENV SE_VIDEO_UPLOAD_ENABLED=false \
-    SE_VIDEO_INTERNAL_UPLOAD=false \
+    SE_VIDEO_INTERNAL_UPLOAD=true \
     SE_UPLOAD_DESTINATION_PREFIX=""
 
 RUN  mkdir -p /var/run/supervisor /var/log/supervisor ${VIDEO_FOLDER} \
@@ -101,6 +101,7 @@ CMD ["/opt/bin/entry_point.sh"]
 ENV DISPLAY_NUM=99 \
     DISPLAY_CONTAINER_NAME=selenium \
     SE_SERVER_PROTOCOL="http" \
+    SE_VIDEO_POLL_INTERVAL=1 \
     SE_SCREEN_WIDTH=1920 \
     SE_SCREEN_HEIGHT=1080 \
     SE_FRAME_RATE=15 \
