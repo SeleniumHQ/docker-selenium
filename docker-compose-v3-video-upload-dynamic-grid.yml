@@ -31,7 +31,6 @@ services:
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_FILE_NAME_SUFFIX=true
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp with prefix SE_
       - SE_RCLONE_CONFIG_MYFTP_TYPE=ftp

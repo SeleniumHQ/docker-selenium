@@ -5,6 +5,7 @@ NAMESPACE=${NAMESPACE:-"selenium"}
 # Function to be executed on command failure
 
 latest_chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
+echo "${latest_chart_version}" > /tmp/latest_chart_version
 helm template oci://registry-1.docker.io/${NAMESPACE}/selenium-grid --version ${latest_chart_version}
 if [[ $? -eq 0 ]]; then
     echo "Chart version $latest_chart_version is already available in the registry"

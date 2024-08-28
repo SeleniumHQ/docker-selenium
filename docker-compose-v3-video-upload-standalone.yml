@@ -58,7 +58,6 @@ services:
       - DISPLAY_CONTAINER_NAME=standalone_chrome
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -83,7 +82,6 @@ services:
       - DISPLAY_CONTAINER_NAME=standalone_edge
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -108,7 +106,6 @@ services:
       - DISPLAY_CONTAINER_NAME=standalone_firefox
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp

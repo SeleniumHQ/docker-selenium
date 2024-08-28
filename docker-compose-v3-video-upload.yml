@@ -55,7 +55,6 @@ services:
       - SE_NODE_GRID_URL=http://selenium-hub:4444
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -76,7 +75,6 @@ services:
       - SE_NODE_GRID_URL=http://selenium-hub:4444
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -97,7 +95,6 @@ services:
       - SE_NODE_GRID_URL=http://selenium-hub:4444
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp

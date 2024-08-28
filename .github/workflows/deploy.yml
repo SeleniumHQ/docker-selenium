@@ -167,7 +167,9 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update tag in docs and files" -a
+          git commit -m "Update tag ${RELEASE_TAG} in docs and files" -a
+        env:
+          RELEASE_TAG: "${{ env.GRID_VERSION }}-${{ env.BUILD_DATE }}"
       - name: Push changes
         if: env.LATEST_TAG != env.NEXT_TAG && github.event.inputs.skip-commit != 'true'
         uses: ad-m/github-push-action@master

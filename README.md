@@ -671,7 +671,6 @@ services:
       - DISPLAY_CONTAINER_NAME=chrome
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_VIDEO_INTERNAL_UPLOAD=true
       - SE_UPLOAD_DESTINATION_PREFIX=s3://mybucket/path
       - RCLONE_CONFIG_S3_TYPE=s3
       - RCLONE_CONFIG_S3_PROVIDER=GCS

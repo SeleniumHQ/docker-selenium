@@ -88,7 +88,9 @@ jobs:
           timeout_minutes: 20
           max_attempts: 3
           retry_wait_seconds: 120
-          command: make chart_release
+          command: |
+            make chart_release
+            echo "LATEST_CHART_VERSION=$(cat /tmp/latest_chart_version)" >> $GITHUB_ENV
 
       - name: Run chart-releaser
         if: env.IS_RELEASE == 'true'
@@ -105,7 +107,7 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update chart changelog [skip ci]" -a || true
+          git commit -m "Update chart ${LATEST_CHART_VERSION} changelog [skip ci]" -a || true
 
       - name: Push changes
         if: github.event.inputs.skip-commit != 'true'
