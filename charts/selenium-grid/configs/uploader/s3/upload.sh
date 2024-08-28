@@ -22,6 +22,7 @@ function consume_force_exit() {
     done
     rm -rf ${SE_VIDEO_FOLDER}/force_exit
     echo "Force exit signal consumed"
+    exit 0
 }
 trap consume_force_exit EXIT
 

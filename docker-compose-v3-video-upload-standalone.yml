@@ -7,11 +7,13 @@ services:
   # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
   ftp_server:
     image: delfer/alpine-ftp-server:latest
+    container_name: ftp_server
     environment:
       - USERS=seluser|selenium.dev
     volumes:
       # Mount the local directory `/home/${USER}/Videos/upload` to the FTP server's `/ftp/seluser` directory to check out the uploaded videos
       - /tmp/upload:/ftp/seluser
+    command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
     stop_grace_period: 30s
 
   standalone_chrome:

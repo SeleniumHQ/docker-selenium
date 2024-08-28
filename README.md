@@ -49,6 +49,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Execution with Docker Compose](#execution-with-docker-compose)
   * [Configuring the child containers](#configuring-the-child-containers)
   * [Video recording, screen resolution, and time zones in a Dynamic Grid](#video-recording-screen-resolution-and-time-zones-in-a-dynamic-grid)
+  * [Time zone configuration via env variable](#time-zone-configuration-via-env-variable)
 * [Deploying to Kubernetes](#deploying-to-kubernetes)
 * [Configuring the containers](#configuring-the-containers)
   * [SE_OPTS Selenium Configuration Options](#se_opts-selenium-configuration-options)
@@ -712,13 +713,13 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 
 ### Environment variables and default values for upload feature
 
-| Environment variable          | Default value                      | Description                                                                               |
-|-------------------------------|------------------------------------|-------------------------------------------------------------------------------------------|
-| `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false`                            | Keep local file after uploading successfully                                              |
-| `SE_UPLOAD_COMMAND`           | `copy`                             | RCLONE command is used to transfer file. Enforce `move` when retain local file is `false` |
-| `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata` | Other options belong to RCLONE command can be set.                                        |
-| `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                      | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
-| `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                         | Directory of config file (change it when conf file in another directory is mounted)       |
+| Environment variable          | Default value                               | Description                                                                               |
+|-------------------------------|---------------------------------------------|-------------------------------------------------------------------------------------------|
+| `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false`                                     | Keep local file after uploading successfully                                              |
+| `SE_UPLOAD_COMMAND`           | `copy`                                      | RCLONE command is used to transfer file. Enforce `move` when retain local file is `false` |
+| `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata--inplace` | Other options belong to RCLONE command can be set.                                        |
+| `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                               | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
+| `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                                  | Directory of config file (change it when conf file in another directory is mounted)       |
 
 ___
 
@@ -971,8 +972,6 @@ docker run --rm --name selenium-docker -p 4444:4444 `
     selenium/standalone-docker:4.23.1-20240820
 ```
 
-
-
 ### Video recording, screen resolution, and time zones in a Dynamic Grid
 To record your WebDriver session, you need to add a `se:recordVideo` 
 field set to `true`. You can also set a time zone and a screen resolution,
@@ -1009,6 +1008,18 @@ driver.quit()
 After test executed, under (`${PWD}/assets`) you can see the video file name in path `/<sessionId>/test_visit_basic_auth_secured_page_ChromeTests.mp4`
 
 The file name will be trimmed to 255 characters to avoid long file names. Moreover, the `space` character will be replaced by `_`, and only the characters alphabets, numbers, `-` (hyphen), and `_` (underscore) are retained in the file name. (This feat is available once this [PR](https://github.com/SeleniumHQ/selenium/pull/13907) merged)
+
+### Time zone configuration via env variable
+
+`tzdata` is installed in based images, and you can set the time zone in container by using the env variable `TZ`.
+By default, the time zone is set to `UTC`.
+List of supported time zones can be found [here](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). For example:
+
+```bash
+$ docker run --rm --entrypoint="" -e TZ=Asia/Ho_Chi_Minh selenium/node-chromium:latest date +%FT%T%Z
+2024-08-28T18:19:26+07
+```
+
 ___
 
 ## Deploying to Kubernetes

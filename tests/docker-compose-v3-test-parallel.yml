@@ -9,7 +9,7 @@ services:
       - linux/arm64
     deploy:
       mode: replicated
-      replicas: 10
+      replicas: 5
     image: selenium/node-${NODE_CHROME}:${TAG}
     user: ${UID}
     depends_on:
@@ -17,7 +17,6 @@ services:
     volumes:
       - ./videos/certs:/opt/selenium/secrets
     environment:
-      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -29,7 +28,19 @@ services:
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=1
       - SE_ENABLE_TLS=true
+      - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
     restart: always
+
+  chrome_video:
+    image: selenium/video:${VIDEO_TAG}
+    user: ${UID}
+    volumes:
+      - ./videos:/videos
+    environment:
+      - DISPLAY_CONTAINER_NAME=chrome
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_SERVER_PROTOCOL=https
+    stop_grace_period: 30s
 
   firefox:
     profiles:
@@ -37,7 +48,7 @@ services:
       - linux/arm64
     deploy:
       mode: replicated
-      replicas: 10
+      replicas: 5
     image: selenium/node-firefox:${TAG}
     user: ${UID}
     shm_size: 2gb
@@ -46,7 +57,6 @@ services:
     volumes:
       - ./videos/certs:/opt/selenium/secrets
     environment:
-      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -56,14 +66,26 @@ services:
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=3
       - SE_ENABLE_TLS=true
+      - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
     restart: always
+
+  firefox_video:
+    image: selenium/video:${VIDEO_TAG}
+    user: ${UID}
+    volumes:
+      - ./videos:/videos
+    environment:
+      - DISPLAY_CONTAINER_NAME=firefox
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_SERVER_PROTOCOL=https
+    stop_grace_period: 30s
 
   edge:
     profiles:
       - linux/amd64
     deploy:
       mode: replicated
-      replicas: 10
+      replicas: 5
     image: selenium/node-edge:${TAG}
     user: ${UID}
     shm_size: 2gb
@@ -72,7 +94,6 @@ services:
     volumes:
       - ./videos/certs:/opt/selenium/secrets
     environment:
-      - SE_DRAIN_AFTER_SESSION_COUNT=${TEST_DRAIN_AFTER_SESSION_COUNT}
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -82,7 +103,19 @@ services:
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=2
       - SE_ENABLE_TLS=true
+      - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
     restart: always
+
+  edge_video:
+    image: selenium/video:${VIDEO_TAG}
+    user: ${UID}
+    volumes:
+      - ./videos:/videos
+    environment:
+      - DISPLAY_CONTAINER_NAME=edge
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_SERVER_PROTOCOL=https
+    stop_grace_period: 30s
 
   selenium-hub:
     image: selenium/hub:${TAG}
@@ -100,9 +133,10 @@ services:
       - SE_SUPERVISORD_LOG_LEVEL=error
       - SE_ENABLE_TLS=true
       - SE_SERVER_PROTOCOL=https
+      - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
     healthcheck:
       test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
-      interval: 15s
+      interval: 20s
       timeout: 30s
       retries: 5
 

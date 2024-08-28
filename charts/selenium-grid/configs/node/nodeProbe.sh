@@ -12,6 +12,7 @@ tmp_grid_file="/tmp/gridProbe${ID}"
 function on_exit() {
   rm -rf ${tmp_node_file}
   rm -rf ${tmp_grid_file}
+  exit 0
 }
 trap on_exit EXIT
 

@@ -18,9 +18,9 @@ MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VERSION),ffmpeg-7.0.1)
-FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0.1)
+FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0.2)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),linuxserver)
-FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0.1)
+FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0.2)
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),linux/amd64)
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 
@@ -560,18 +560,21 @@ test_chromium:
 test_chromium_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChromium
 
-test_parallel: hub chrome firefox edge chromium
+test_parallel: hub chrome firefox edge chromium video
 	sudo rm -rf ./tests/tests
 	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos
 	sudo cp -r ./charts/selenium-grid/certs ./tests/videos
 	for node in DeploymentAutoscaling JobAutoscaling ; do \
 			cd ./tests || true ; \
 			echo TAG=$(TAG_VERSION) > .env ; \
-			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 0) >> .env ; \
+			echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
+			echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 2) >> .env ; \
 			echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "true") >> .env ; \
 			echo TEST_PARALLEL_COUNT=$(or $(TEST_PARALLEL_COUNT), 5) >> .env ; \
+			echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 45) >> .env ; \
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
-			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
+			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 600) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
@@ -586,14 +589,15 @@ test_parallel: hub chrome firefox edge chromium
 			export $$(cat .env | xargs) ; \
 			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up -d --remove-orphans --no-log-prefix ; \
 			RUN_IN_DOCKER_COMPOSE=true bash ./bootstrap.sh $$node ; \
-	done ; \
-	docker compose -f docker-compose-v3-test-parallel.yml down
+			docker compose -f docker-compose-v3-test-parallel.yml down ; \
+	done
+	make test_video_integrity
 
 test_video_standalone: standalone_chrome standalone_chromium standalone_firefox standalone_edge
-	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml make test_video
+	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=2 make test_video
 
 test_video_dynamic_name:
-	VIDEO_FILE_NAME=auto \
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 \
 	make test_video
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
@@ -617,7 +621,7 @@ test_video: video hub chrome firefox edge chromium
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
-			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 			echo BASIC_AUTH_USERNAME=$(or $(BASIC_AUTH_USERNAME), "admin") >> .env ; \
 			echo BASIC_AUTH_PASSWORD=$(or $(BASIC_AUTH_PASSWORD), "admin") >> .env ; \
@@ -697,7 +701,7 @@ test_node_relay: hub node_base standalone_firefox
 
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml \
-	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true \
+	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=2 \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge standalone_chromium video
@@ -725,7 +729,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 			echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
-			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
+			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
 			echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 			echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
 			echo NODE=$$node >> .env ; \
@@ -790,7 +794,7 @@ test_video_integrity:
 	fi; \
 	for file in $$list_files; do \
 		echo "Checking video file: $$file"; \
-	  docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(FFMPEG_BASED_NAME)/ffmpeg:$(FFMPEG_BASED_TAG) ffmpeg -v error -i "$$file" -f null - ; \
+	  docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) ffmpeg -v error -i "$$file" -f null - ; \
 	  if [ $$? -ne 0 ]; then \
 	    echo "Video file $$file is corrupted"; \
 	    number_corrupted_files=$$((number_corrupted_files+1)); \

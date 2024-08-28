@@ -156,7 +156,7 @@ jobs:
           max_attempts: 3
           command: |
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }} \
-            && make test_video_integrity
+            && NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_video_integrity
       - name: Test chart upgrade
         if: (matrix.test-upgrade == true)
         run: |
