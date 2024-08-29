@@ -2,9 +2,9 @@
 #
 # IMPORTANT: Change this file only in directory NodeBase!
 
-if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
-  if [ "${START_VNC:-$SE_START_VNC}" = true ] ; then
-    if [ "${START_NO_VNC:-$SE_START_NO_VNC}" = true ] ; then
+if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
+  if [ "${START_VNC:-$SE_START_VNC}" = true ]; then
+    if [ "${START_NO_VNC:-$SE_START_NO_VNC}" = true ]; then
 
       # Guard against unreasonably high nofile limits. See https://github.com/SeleniumHQ/docker-selenium/issues/2045
       # Try to set a new limit if the current limit is too high, or the user explicitly specified a custom limit

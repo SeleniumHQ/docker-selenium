@@ -4,9 +4,9 @@
 # https://docs.openshift.com/container-platform/3.11/creating_images/guidelines.html#openshift-specific-guidelines
 #==============================================
 
-if ! whoami &> /dev/null; then
+if ! whoami &>/dev/null; then
   if [ -w /etc/passwd ]; then
-    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
+    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >>/etc/passwd
   fi
 fi
 
@@ -15,10 +15,10 @@ fi
 SUPERVISOR_PID=$!
 
 function shutdown {
-    echo "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
-    kill -s SIGTERM ${SUPERVISOR_PID}
-    wait ${SUPERVISOR_PID}
-    echo "Shutdown complete"
+  echo "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
+  kill -s SIGTERM ${SUPERVISOR_PID}
+  wait ${SUPERVISOR_PID}
+  echo "Shutdown complete"
 }
 
 trap shutdown SIGTERM SIGINT

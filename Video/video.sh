@@ -28,35 +28,33 @@ else
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
 
-if [ -d "${VIDEO_FOLDER}" ];
-then
-    echo "$(date +%FT%T%Z) [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
+if [ -d "${VIDEO_FOLDER}" ]; then
+  echo "$(date +%FT%T%Z) [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
 else
-    echo "$(date +%FT%T%Z) [${process_name}] - Video folder does not exist: ${VIDEO_FOLDER}. Due to permission, folder name could not be changed via environment variable. Exiting..."
-    exit 1
+  echo "$(date +%FT%T%Z) [${process_name}] - Video folder does not exist: ${VIDEO_FOLDER}. Due to permission, folder name could not be changed via environment variable. Exiting..."
+  exit 1
 fi
 
-if [ "${VIDEO_INTERNAL_UPLOAD}" = "true" ];
-then
-    # If using RCLONE in the same container, write signal to /tmp internally
-    UPLOAD_PIPE_FILE="/tmp/${UPLOAD_PIPE_FILE_NAME}"
-    FORCE_EXIT_FILE="/tmp/force_exit"
+if [ "${VIDEO_INTERNAL_UPLOAD}" = "true" ]; then
+  # If using RCLONE in the same container, write signal to /tmp internally
+  UPLOAD_PIPE_FILE="/tmp/${UPLOAD_PIPE_FILE_NAME}"
+  FORCE_EXIT_FILE="/tmp/force_exit"
 else
-    # If using external container for uploading, write signal to the video folder
-    UPLOAD_PIPE_FILE="${VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
-    FORCE_EXIT_FILE="${VIDEO_FOLDER}/force_exit"
+  # If using external container for uploading, write signal to the video folder
+  UPLOAD_PIPE_FILE="${VIDEO_FOLDER}/${UPLOAD_PIPE_FILE_NAME}"
+  FORCE_EXIT_FILE="${VIDEO_FOLDER}/force_exit"
 fi
 
 # Function to create the named pipe if it doesn't exist
 function create_named_pipe() {
   if [ "${VIDEO_UPLOAD_ENABLED}" = "true" ]; then
-      if [ ! -p "${UPLOAD_PIPE_FILE}" ]; then
-          if [ -e "${UPLOAD_PIPE_FILE}" ]; then
-              rm -f "${UPLOAD_PIPE_FILE}"
-          fi
-          mkfifo "${UPLOAD_PIPE_FILE}"
-          echo "$(date +%FT%T%Z) [${process_name}] - Created named pipe ${UPLOAD_PIPE_FILE}"
+    if [ ! -p "${UPLOAD_PIPE_FILE}" ]; then
+      if [ -e "${UPLOAD_PIPE_FILE}" ]; then
+        rm -f "${UPLOAD_PIPE_FILE}"
       fi
+      mkfifo "${UPLOAD_PIPE_FILE}"
+      echo "$(date +%FT%T%Z) [${process_name}] - Created named pipe ${UPLOAD_PIPE_FILE}"
+    fi
   fi
 }
 
@@ -64,9 +62,8 @@ function wait_for_display() {
   DISPLAY=${DISPLAY_CONTAINER_NAME}:${DISPLAY_NUM}.0
   export DISPLAY=${DISPLAY}
   echo "$(date +%FT%T%Z) [${process_name}] - Waiting for the display ${DISPLAY} is open"
-  until xset b off > /dev/null 2>&1
-  do
-      sleep ${poll_interval}
+  until xset b off >/dev/null 2>&1; do
+    sleep ${poll_interval}
   done
   VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
   echo "$(date +%FT%T%Z) [${process_name}] - Display ${DISPLAY} is open with dimensions ${VIDEO_SIZE}"
@@ -88,46 +85,39 @@ function wait_for_api_respond() {
   return 0
 }
 
-
 function wait_util_uploader_shutdown() {
-    max_wait=5
-    wait=0
-    if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" != "true" ]];
-    then
-        while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]];
-        do
-            echo "exit" >> ${UPLOAD_PIPE_FILE} &
-            echo "$(date +%FT%T%Z) [${process_name}] - Waiting for force exit file to be consumed by external upload container"
-            sleep 1
-            wait=$((wait+1))
-        done
-    fi
-    if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" = "true" ]];
-    then
-        while [[ $(pgrep rclone | wc -l) -gt 0 ]]
-        do
-            echo "exit" >> ${UPLOAD_PIPE_FILE} &
-            echo "$(date +%FT%T%Z) [${process_name}] - Recorder is waiting for RCLONE to finish"
-            sleep 1
-        done
-    fi
+  max_wait=5
+  wait=0
+  if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" != "true" ]]; then
+    while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]]; do
+      echo "exit" >>${UPLOAD_PIPE_FILE} &
+      echo "$(date +%FT%T%Z) [${process_name}] - Waiting for force exit file to be consumed by external upload container"
+      sleep 1
+      wait=$((wait + 1))
+    done
+  fi
+  if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" = "true" ]]; then
+    while [[ $(pgrep rclone | wc -l) -gt 0 ]]; do
+      echo "exit" >>${UPLOAD_PIPE_FILE} &
+      echo "$(date +%FT%T%Z) [${process_name}] - Recorder is waiting for RCLONE to finish"
+      sleep 1
+    done
+  fi
 }
 
 function send_exit_signal_to_uploader() {
-    if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
-    then
-        echo "$(date +%FT%T%Z) [${process_name}] - Sending a signal to force exit the uploader"
-        echo "exit" >> ${UPLOAD_PIPE_FILE} &
-        echo "exit" > ${FORCE_EXIT_FILE}
-    fi
+  if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]]; then
+    echo "$(date +%FT%T%Z) [${process_name}] - Sending a signal to force exit the uploader"
+    echo "exit" >>${UPLOAD_PIPE_FILE} &
+    echo "exit" >${FORCE_EXIT_FILE}
+  fi
 }
 
 function exit_on_max_session_reach() {
-    if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]];
-    then
-      echo "$(date +%FT%T%Z) [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
-      exit
-    fi
+  if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
+    echo "$(date +%FT%T%Z) [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
+    exit
+  fi
 }
 
 function stop_ffmpeg() {
@@ -137,61 +127,57 @@ function stop_ffmpeg() {
       kill -SIGTERM $FFMPEG_PID
       wait $FFMPEG_PID
     fi
-    if ! pgrep -f ffmpeg > /dev/null; then
-        break
+    if ! pgrep -f ffmpeg >/dev/null; then
+      break
     fi
     sleep ${poll_interval}
   done
 }
 
 function stop_recording() {
-    stop_ffmpeg
-    echo "$(date +%FT%T%Z) [${process_name}] - Video recording stopped"
-    recorded_count=$((recorded_count+1))
-    if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]];
-    then
-      upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
-      echo "$(date +%FT%T%Z) [${process_name}] - Add to pipe a signal Uploading video to $upload_destination"
-      echo "$video_file ${UPLOAD_DESTINATION_PREFIX}" >> ${UPLOAD_PIPE_FILE} &
-    elif [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]];
-    then
-        echo "$(date +%FT%T%Z) [${process_name}] - Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading."
-    fi
-    recording_started="false"
+  stop_ffmpeg
+  echo "$(date +%FT%T%Z) [${process_name}] - Video recording stopped"
+  recorded_count=$((recorded_count + 1))
+  if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]]; then
+    upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
+    echo "$(date +%FT%T%Z) [${process_name}] - Add to pipe a signal Uploading video to $upload_destination"
+    echo "$video_file ${UPLOAD_DESTINATION_PREFIX}" >>${UPLOAD_PIPE_FILE} &
+  elif [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]]; then
+    echo "$(date +%FT%T%Z) [${process_name}] - Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading."
+  fi
+  recording_started="false"
 }
 
 function check_if_ffmpeg_running() {
-    if pgrep -f ffmpeg > /dev/null;
-    then
-        return 0
-    fi
-    return 1
+  if pgrep -f ffmpeg >/dev/null; then
+    return 0
+  fi
+  return 1
 }
 
 function stop_if_recording_inprogress() {
-    if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running;
-    then
-        stop_recording
-    fi
+  if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running; then
+    stop_recording
+  fi
 }
 
 function log_node_response() {
   if [[ -f "/tmp/graphQL_$session_id.json" ]]; then
-    jq '.' "/tmp/graphQL_$session_id.json";
+    jq '.' "/tmp/graphQL_$session_id.json"
   fi
 }
 
 function graceful_exit() {
-    echo "$(date +%FT%T%Z) [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down recorder"
-    stop_if_recording_inprogress
-    send_exit_signal_to_uploader
-    wait_util_uploader_shutdown
-    kill -SIGTERM "$(cat /var/run/supervisor/supervisord.pid)" 2>/dev/null
-    echo "$(date +%FT%T%Z) [${process_name}] - Ready to shutdown the recorder"
-    exit 0
+  echo "$(date +%FT%T%Z) [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down recorder"
+  stop_if_recording_inprogress
+  send_exit_signal_to_uploader
+  wait_util_uploader_shutdown
+  kill -SIGTERM "$(cat /var/run/supervisor/supervisord.pid)" 2>/dev/null
+  echo "$(date +%FT%T%Z) [${process_name}] - Ready to shutdown the recorder"
+  exit 0
 }
 
-if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto"  ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
+if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto" ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
   trap graceful_exit SIGTERM SIGINT EXIT
   wait_for_display
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
@@ -212,43 +198,37 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} > /tmp/status.json
-  do
-      session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
-      if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]];
-      then
-        echo "$(date +%FT%T%Z) [${process_name}] - Session: $session_id is created"
-        return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
-        caps_se_video_record=${return_list[0]}
-        video_file_name="${return_list[1]}.mp4"
-        echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
-        log_node_response
+  while curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
+    session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
+    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
+      echo "$(date +%FT%T%Z) [${process_name}] - Session: $session_id is created"
+      return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
+      caps_se_video_record=${return_list[0]}
+      video_file_name="${return_list[1]}.mp4"
+      echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
+      log_node_response
+    fi
+    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]]; then
+      video_file="${VIDEO_FOLDER}/$video_file_name"
+      echo "$(date +%FT%T%Z) [${process_name}] - Starting to record video"
+      ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
+        -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
+      recording_started="true"
+      echo "$(date +%FT%T%Z) [${process_name}] - Video recording started"
+      sleep ${poll_interval}
+    elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
+      stop_recording
+      if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
+        echo "$(date +%FT%T%Z) [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
+        exit
       fi
-      if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]];
-      then
-          video_file="${VIDEO_FOLDER}/$video_file_name"
-          echo "$(date +%FT%T%Z) [${process_name}] - Starting to record video"
-          ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-            -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-          recording_started="true"
-          echo "$(date +%FT%T%Z) [${process_name}] - Video recording started"
-          sleep ${poll_interval}
-      elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]];
-      then
-          stop_recording
-          if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]];
-          then
-            echo "$(date +%FT%T%Z) [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
-            exit
-          fi
-      elif [[ $recording_started = "true" ]];
-      then
-          echo "$(date +%FT%T%Z) [${process_name}] - Video recording in progress"
-          sleep ${poll_interval}
-      else
-          sleep ${poll_interval}
-      fi
-      prev_session_id=$session_id
+    elif [[ $recording_started = "true" ]]; then
+      echo "$(date +%FT%T%Z) [${process_name}] - Video recording in progress"
+      sleep ${poll_interval}
+    else
+      sleep ${poll_interval}
+    fi
+    prev_session_id=$session_id
   done
   echo "$(date +%FT%T%Z) [${process_name}] - Node API is not responding now, exiting..."
 fi

@@ -51,6 +51,18 @@ set_containerd_image_store:
 	docker version -f '{{.Server.Experimental}}'
 	docker info -f '{{ .DriverStatus }}'
 
+format_shell_scripts:
+	sudo apt-get update -qq ; \
+  sudo apt-get install -yq shfmt ; \
+  shfmt -l -w -d $${PWD}/*.sh $${PWD}/**/*.sh $$PWD/**.sh $$PWD/**/generate_** $$PWD/**/wrap_* ; \
+  git diff --stat --exit-code ; \
+  EXIT_CODE=$$? ; \
+  if [ $$EXIT_CODE -ne 0 ]; then \
+		echo "Some shell scripts are not formatted. Please run 'make format_shell_scripts' to format and update them." ; \
+		exit 1 ; \
+	fi ; \
+  exit $$EXIT_CODE
+
 set_build_nightly:
 	echo BASE_VERSION=$(BASE_VERSION_NIGHTLY) > .env ; \
 	echo BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) >> .env ;

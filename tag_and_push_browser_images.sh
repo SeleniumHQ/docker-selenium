@@ -10,11 +10,10 @@ TAG_VERSION=${VERSION}-${BUILD_DATE}
 NAMESPACE=${NAME:-selenium}
 
 function short_version() {
-    local __long_version=$1
-    local __version_split=( ${__long_version//./ } )
-    echo "${__version_split[0]}.${__version_split[1]}"
+  local __long_version=$1
+  local __version_split=(${__long_version//./ })
+  echo "${__version_split[0]}.${__version_split[1]}"
 }
-
 
 echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BUILD_DATE}, namespace ${NAMESPACE}"
 
@@ -32,40 +31,39 @@ chrome)
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
 
   CHROME_TAGS=(
-      ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}      
-      # Browser version and build date
-      ${CHROME_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${CHROME_VERSION}      
-      ## Short versions
-      ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}      
-      # Browser version and build date
-      ${CHROME_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${CHROME_SHORT_VERSION}      
+    ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}
+    # Browser version and build date
+    ${CHROME_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${CHROME_VERSION}
+    ## Short versions
+    ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}
+    # Browser version and build date
+    ${CHROME_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${CHROME_SHORT_VERSION}
   )
 
-  for chrome_tag in "${CHROME_TAGS[@]}"
-  do
+  for chrome_tag in "${CHROME_TAGS[@]}"; do
     docker tag ${NAMESPACE}/node-chrome:${TAG_VERSION} ${NAMESPACE}/node-chrome:${chrome_tag}
     docker tag ${NAMESPACE}/standalone-chrome:${TAG_VERSION} ${NAMESPACE}/standalone-chrome:${chrome_tag}
     echo "Tagged ${NAMESPACE}/node-chrome:${chrome_tag}"
     echo "Tagged ${NAMESPACE}/standalone-chrome:${chrome_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-chrome:${chrome_tag}
-        docker push ${NAMESPACE}/standalone-chrome:${chrome_tag}
+      docker push ${NAMESPACE}/node-chrome:${chrome_tag}
+      docker push ${NAMESPACE}/standalone-chrome:${chrome_tag}
     fi
   done
 
-;;
+  ;;
 chromium)
   CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
   echo "Chromium version -> "${CHROMIUM_VERSION}
@@ -78,36 +76,35 @@ chromium)
   echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
 
   CHROMIUM_TAGS=(
-      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}
-      # Browser version and build date
-      ${CHROMIUM_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${CHROMIUM_VERSION}
-      ## Short versions
-      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}
-      # Browser version and build date
-      ${CHROMIUM_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${CHROMIUM_SHORT_VERSION}
+    ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${CHROMIUM_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}
+    # Browser version and build date
+    ${CHROMIUM_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${CHROMIUM_VERSION}
+    ## Short versions
+    ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${CHROMIUM_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}
+    # Browser version and build date
+    ${CHROMIUM_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${CHROMIUM_SHORT_VERSION}
   )
 
-  for chromium_tag in "${CHROMIUM_TAGS[@]}"
-  do
+  for chromium_tag in "${CHROMIUM_TAGS[@]}"; do
     docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chromium_tag}
     docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chromium_tag}
     echo "Tagged ${NAMESPACE}/node-chromium:${chromium_tag}"
     echo "Tagged ${NAMESPACE}/standalone-chromium:${chromium_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-chromium:${chromium_tag}
-        docker push ${NAMESPACE}/standalone-chromium:${chromium_tag}
+      docker push ${NAMESPACE}/node-chromium:${chromium_tag}
+      docker push ${NAMESPACE}/standalone-chromium:${chromium_tag}
     fi
   done
 
@@ -124,36 +121,35 @@ edge)
   echo "Short EdgeDriver version -> "${EDGEDRIVER_SHORT_VERSION}
 
   EDGE_TAGS=(
-      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}
-      # Browser version and build date
-      ${EDGE_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${EDGE_VERSION}      
-      ## Short versions
-      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}      
-      # Browser version and build date
-      ${EDGE_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${EDGE_SHORT_VERSION}      
+    ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${EDGE_VERSION}-edgedriver-${EDGEDRIVER_VERSION}
+    # Browser version and build date
+    ${EDGE_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${EDGE_VERSION}
+    ## Short versions
+    ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${EDGE_SHORT_VERSION}-edgedriver-${EDGEDRIVER_SHORT_VERSION}
+    # Browser version and build date
+    ${EDGE_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${EDGE_SHORT_VERSION}
   )
 
-  for edge_tag in "${EDGE_TAGS[@]}"
-  do
+  for edge_tag in "${EDGE_TAGS[@]}"; do
     docker tag ${NAMESPACE}/node-edge:${TAG_VERSION} ${NAMESPACE}/node-edge:${edge_tag}
     docker tag ${NAMESPACE}/standalone-edge:${TAG_VERSION} ${NAMESPACE}/standalone-edge:${edge_tag}
     echo "Tagged ${NAMESPACE}/node-edge:${edge_tag}"
     echo "Tagged ${NAMESPACE}/standalone-edge:${edge_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-edge:${edge_tag}
-        docker push ${NAMESPACE}/standalone-edge:${edge_tag}
+      docker push ${NAMESPACE}/node-edge:${edge_tag}
+      docker push ${NAMESPACE}/standalone-edge:${edge_tag}
     fi
   done
 
@@ -169,36 +165,35 @@ firefox)
   echo "Short GeckoDriver version -> "${GECKODRIVER_SHORT_VERSION}
 
   FIREFOX_TAGS=(
-      ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}      
-      # Browser version and build date
-      ${FIREFOX_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${FIREFOX_VERSION}      
-      ## Short versions
-      ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
-      # Browser version and browser driver version plus build date
-      ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version and browser driver version
-      ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}      
-      # Browser version and build date
-      ${FIREFOX_SHORT_VERSION}-${BUILD_DATE}
-      # Browser version
-      ${FIREFOX_SHORT_VERSION}      
+    ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${FIREFOX_VERSION}-geckodriver-${GECKODRIVER_VERSION}
+    # Browser version and build date
+    ${FIREFOX_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${FIREFOX_VERSION}
+    ## Short versions
+    ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version and browser driver version
+    ${FIREFOX_SHORT_VERSION}-geckodriver-${GECKODRIVER_SHORT_VERSION}
+    # Browser version and build date
+    ${FIREFOX_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version
+    ${FIREFOX_SHORT_VERSION}
   )
 
-  for firefox_tag in "${FIREFOX_TAGS[@]}"
-  do
+  for firefox_tag in "${FIREFOX_TAGS[@]}"; do
     docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
     docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
     echo "Tagged ${NAMESPACE}/node-firefox:${firefox_tag}"
     echo "Tagged ${NAMESPACE}/standalone-firefox:${firefox_tag}"
     if [ "${PUSH_IMAGE}" = true ]; then
-        docker push ${NAMESPACE}/node-firefox:${firefox_tag}
-        docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}
+      docker push ${NAMESPACE}/node-firefox:${firefox_tag}
+      docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}
     fi
   done
 

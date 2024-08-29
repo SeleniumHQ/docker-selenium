@@ -2,30 +2,29 @@
 #
 # IMPORTANT: Change this file only in directory NodeBase!
 
-if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
-  if [ "${START_VNC:-$SE_START_VNC}" = true ] ; then
+if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
+  if [ "${START_VNC:-$SE_START_VNC}" = true ]; then
     # Centering wallpaper
-    for i in $(seq 1 10)
-    do
+    for i in $(seq 1 10); do
       sleep 0.5
       echo "Centering wallpaper"
       /usr/bin/fbsetbg -u Esetroot -c /usr/share/images/fluxbox/ubuntu-light.png
       if [ $? -eq 0 ]; then
         break
-      fi    
-    done  
+      fi
+    done
     VNC_NO_PASSWORD=${VNC_NO_PASSWORD:-$SE_VNC_NO_PASSWORD}
     if [ ! -z $VNC_NO_PASSWORD ]; then
-        echo "Starting VNC server without password authentication"
-        X11VNC_OPTS=
+      echo "Starting VNC server without password authentication"
+      X11VNC_OPTS=
     else
-        X11VNC_OPTS=-usepw
+      X11VNC_OPTS=-usepw
     fi
 
     VNC_VIEW_ONLY=${VNC_VIEW_ONLY:-$SE_VNC_VIEW_ONLY}
     if [ ! -z $VNC_VIEW_ONLY ]; then
-        echo "Starting VNC server with viewonly option"
-        X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
+      echo "Starting VNC server with viewonly option"
+      X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
     fi
 
     VNC_PASSWORD=${VNC_PASSWORD:-$SE_VNC_PASSWORD}
@@ -34,8 +33,7 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ] ; then
       x11vnc -storepasswd ${VNC_PASSWORD} ${HOME}/.vnc/passwd
     fi
 
-    for i in $(seq 1 10)
-    do
+    for i in $(seq 1 10); do
       sleep 1
       xdpyinfo -display ${DISPLAY} >/dev/null 2>&1
       if [ $? -eq 0 ]; then

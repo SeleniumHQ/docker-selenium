@@ -36,10 +36,10 @@ find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0
 
 # Bump chart version and appVersion if next tag is different
 if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_version" != "$NEXT_TAG" ]; then
-  IFS='.' read -ra latest_version_parts <<< "$LATEST_TAG"
-  IFS='.' read -ra next_version_parts <<< "$NEXT_TAG"
+  IFS='.' read -ra latest_version_parts <<<"$LATEST_TAG"
+  IFS='.' read -ra next_version_parts <<<"$NEXT_TAG"
   latest_chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
-  IFS='.' read -ra latest_chart_version_parts <<< "$latest_chart_version"
+  IFS='.' read -ra latest_chart_version_parts <<<"$latest_chart_version"
   if [ "${latest_version_parts[0]}" != "${next_version_parts[0]}" ]; then
     ((latest_chart_version_parts[0]++))
     latest_chart_version_parts[1]=0

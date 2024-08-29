@@ -32,7 +32,7 @@ if [ -n "${GRAPHQL_ENDPOINT}" ]; then
     # Check if the response contains "capabilities"
     if [[ "$endpoint_checks" = "404" ]] || [[ $current_check -eq $retry_time ]]; then
       break
-    elif [[ "$endpoint_checks" = "200" ]] && [[ $(jq -e '.data.session.capabilities' /tmp/graphQL_${SESSION_ID}.json > /dev/null) -eq 0 ]]; then
+    elif [[ "$endpoint_checks" = "200" ]] && [[ $(jq -e '.data.session.capabilities' /tmp/graphQL_${SESSION_ID}.json >/dev/null) -eq 0 ]]; then
       break
     fi
   done

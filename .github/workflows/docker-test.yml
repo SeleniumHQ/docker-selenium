@@ -78,6 +78,9 @@ jobs:
           large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
+      - name: Format and lint scripts
+        run: |
+          make format_shell_scripts
       - name: Set up containerd image store feature
         uses: nick-invision/retry@master
         with:

@@ -11,9 +11,9 @@ AUTHORS=${AUTHORS:-"SeleniumHQ"}
 
 TAG_VERSION=${GRID_VERSION}-${BUILD_DATE}
 
-echo "" >> release_notes.md
-echo "### Changelog" > release_notes.md
-git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" --reverse >> release_notes.md
+echo "" >>release_notes.md
+echo "### Changelog" >release_notes.md
+git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" --reverse >>release_notes.md
 
 GRID_REVISION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} java -jar /opt/selenium/selenium-server.jar info --version | awk '{print $5}')
 CHROME_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
@@ -30,40 +30,40 @@ FIREFOX_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node
 CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
 CHROMIUMDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 if [[ "${GRID_VERSION}" == *"SNAPSHOT"* ]]; then
-    GRID_RELEASE_TAG="nightly"
+  GRID_RELEASE_TAG="nightly"
 else
-    GRID_RELEASE_TAG="selenium-${GRID_VERSION}"
+  GRID_RELEASE_TAG="selenium-${GRID_VERSION}"
 fi
 LINK_GRID_DETAILS="[${GRID_VERSION}](https://github.com/${AUTHORS}/selenium/releases/tag/${GRID_RELEASE_TAG}) (rev [${GRID_REVISION}](https://github.com/${AUTHORS}/selenium/commit/${GRID_REVISION}))"
 
-echo "" >> release_notes.md
-echo "### Released versions" >> release_notes.md
-echo "| Components | x86_64 (amd64) | aarch64 (arm64/armv8) |" >> release_notes.md
-echo "|:----------:|:--------------:|:---------------------:|" >> release_notes.md
-echo "| Selenium Grid | ${LINK_GRID_DETAILS} | ${LINK_GRID_DETAILS} |" >> release_notes.md
-echo "| Chromium | ${CHROMIUM_VERSION} | ${CHROMIUM_VERSION} |" >> release_notes.md
-echo "| Chrome | ${CHROME_VERSION} | x |" >> release_notes.md
-echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | ${CHROMIUMDRIVER_VERSION} |" >> release_notes.md
-echo "| Edge | ${EDGE_VERSION} | x |" >> release_notes.md
-echo "| EdgeDriver | ${EDGEDRIVER_VERSION} | x |" >> release_notes.md
-echo "| Firefox | ${FIREFOX_VERSION} | ${FIREFOX_ARM64_VERSION} |" >> release_notes.md
-echo "| GeckoDriver | ${GECKODRIVER_VERSION} | ${GECKODRIVER_VERSION} |" >> release_notes.md
-echo "| ffmpeg | ${FFMPEG_VERSION} | ${FFMPEG_VERSION} |" >> release_notes.md
-echo "| rclone | ${RCLONE_VERSION} | ${RCLONE_VERSION} |" >> release_notes.md
-echo "| Java Runtime | ${JRE_VERSION} | ${JRE_VERSION} |" >> release_notes.md
-echo "| OS | ${OS_VERSION} | ${OS_VERSION} |" >> release_notes.md
+echo "" >>release_notes.md
+echo "### Released versions" >>release_notes.md
+echo "| Components | x86_64 (amd64) | aarch64 (arm64/armv8) |" >>release_notes.md
+echo "|:----------:|:--------------:|:---------------------:|" >>release_notes.md
+echo "| Selenium Grid | ${LINK_GRID_DETAILS} | ${LINK_GRID_DETAILS} |" >>release_notes.md
+echo "| Chromium | ${CHROMIUM_VERSION} | ${CHROMIUM_VERSION} |" >>release_notes.md
+echo "| Chrome | ${CHROME_VERSION} | x |" >>release_notes.md
+echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | ${CHROMIUMDRIVER_VERSION} |" >>release_notes.md
+echo "| Edge | ${EDGE_VERSION} | x |" >>release_notes.md
+echo "| EdgeDriver | ${EDGEDRIVER_VERSION} | x |" >>release_notes.md
+echo "| Firefox | ${FIREFOX_VERSION} | ${FIREFOX_ARM64_VERSION} |" >>release_notes.md
+echo "| GeckoDriver | ${GECKODRIVER_VERSION} | ${GECKODRIVER_VERSION} |" >>release_notes.md
+echo "| ffmpeg | ${FFMPEG_VERSION} | ${FFMPEG_VERSION} |" >>release_notes.md
+echo "| rclone | ${RCLONE_VERSION} | ${RCLONE_VERSION} |" >>release_notes.md
+echo "| Java Runtime | ${JRE_VERSION} | ${JRE_VERSION} |" >>release_notes.md
+echo "| OS | ${OS_VERSION} | ${OS_VERSION} |" >>release_notes.md
 
-echo "" >> release_notes.md
-echo "### Published Docker images on [Docker Hub](https://hub.docker.com/u/${NAMESPACE})" >> release_notes.md
-echo "<details>" >> release_notes.md
-echo "<summary>Click to see published Docker images</summary>" >> release_notes.md
-echo "" >> release_notes.md
-echo '```' >> release_notes.md
-docker images --filter=reference=${NAMESPACE}'/*:'${FILTER_IMAGE_TAG:-"*"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >> release_notes.md
-echo '```' >> release_notes.md
-echo "" >> release_notes.md
-echo "</details>" >> release_notes.md
+echo "" >>release_notes.md
+echo "### Published Docker images on [Docker Hub](https://hub.docker.com/u/${NAMESPACE})" >>release_notes.md
+echo "<details>" >>release_notes.md
+echo "<summary>Click to see published Docker images</summary>" >>release_notes.md
+echo "" >>release_notes.md
+echo '```' >>release_notes.md
+docker images --filter=reference=${NAMESPACE}'/*:'${FILTER_IMAGE_TAG:-"*"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >>release_notes.md
+echo '```' >>release_notes.md
+echo "" >>release_notes.md
+echo "</details>" >>release_notes.md
 
-echo "" >> release_notes.md
+echo "" >>release_notes.md
 chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
-echo "### Published Helm chart version [selenium-grid-${chart_version}](https://github.com/${AUTHORS}/docker-selenium/releases/tag/selenium-grid-${chart_version})" >> release_notes.md
+echo "### Published Helm chart version [selenium-grid-${chart_version}](https://github.com/${AUTHORS}/docker-selenium/releases/tag/selenium-grid-${chart_version})" >>release_notes.md

@@ -12,8 +12,7 @@ cleanup_stuck_firefox_processes() {
 echo "Firefox cleanup script init with parameters: SE_BROWSER_LEFTOVERS_PROCESSES_SECS=${SE_BROWSER_LEFTOVERS_PROCESSES_SECS}, SE_BROWSER_LEFTOVERS_INTERVAL_SECS=${SE_BROWSER_LEFTOVERS_INTERVAL_SECS}."
 
 # Start the main loop
-while :
-do
+while :; do
   echo "Starting cleanup daemon script."
 
   # Clean up stuck processes
