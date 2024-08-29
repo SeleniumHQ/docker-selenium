@@ -12,6 +12,8 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
+  strategy:
+    {{- template "seleniumGrid.updateStrategy" (list $.Values.components.sessionMap $.Values.global.seleniumGrid) }}
   replicas: 1
   revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:

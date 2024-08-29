@@ -247,6 +247,26 @@ triggers:
 {{- end -}}
 
 {{/*
+Component update strategy template
+*/}}
+{{- define "seleniumGrid.updateStrategy" -}}
+{{- $value := index . 0 -}}
+{{- $global := index . 1 -}}
+{{- $spec := toYaml (dict) -}}
+{{- if not (empty $global.updateStrategy) -}}
+{{- $spec = merge $global.updateStrategy ($spec | fromYaml) | toYaml -}}
+{{- end -}}
+{{- if not (empty $value.updateStrategy) -}}
+{{- $spec = merge $value.updateStrategy ($spec | fromYaml) | toYaml -}}
+{{- end -}}
+{{/* If final result is Recreate, update a clean object */}}
+{{- if eq ($spec | fromYaml).type "Recreate" }}
+{{- $spec = toYaml (dict "type" "Recreate") -}}
+{{- end -}}
+{{ $spec | nindent 4 }}
+{{- end -}}
+
+{{/*
 Common pod template
 */}}
 {{- define "seleniumGrid.podTemplate" -}}

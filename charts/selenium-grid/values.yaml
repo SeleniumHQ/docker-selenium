@@ -33,6 +33,13 @@ global:
     structuredLogs: false
     # Enable http logging. Tracing should be enabled to log http logs.
     httpLogs: false
+    # Define update strategy for all components
+    updateStrategy:
+      type: Recreate
+      # type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
 
 tls:
   # Name of external secret containing the TLS certificate and key
@@ -721,7 +728,9 @@ chromeNode:
   # true (default) - if you want long-living pods
   # false - for provisioning your own custom type such as Jobs
   deploymentEnabled: true
-
+  # Global update strategy will be overwritten by individual component
+  updateStrategy:
+    type: RollingUpdate
   # Number of chrome nodes
   replicas: 1
   # imageRegistry: selenium
@@ -882,7 +891,9 @@ firefoxNode:
   # true (default) - if you want long living pods
   # false - for provisioning your own custom type such as Jobs
   deploymentEnabled: true
-
+  # Global update strategy will be overwritten by individual component
+  updateStrategy:
+    type: RollingUpdate
   # Number of firefox nodes
   replicas: 1
   # imageRegistry: selenium
@@ -1042,7 +1053,9 @@ edgeNode:
   # true (default) - if you want long living pods
   # false - for provisioning your own custom type such as Jobs
   deploymentEnabled: true
-
+  # Global update strategy will be overwritten by individual component
+  updateStrategy:
+    type: RollingUpdate
   # Number of edge nodes
   replicas: 1
   # imageRegistry: selenium
