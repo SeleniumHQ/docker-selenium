@@ -13,7 +13,7 @@ dependencies:
 - repository: https://kubernetes.github.io/ingress-nginx
   version: 4.11.2
   name: ingress-nginx
-  condition: ingress.enabled, ingress-nginx.enabled
+  condition: ingress.enableWithController, ingress-nginx.enabled
 - repository: https://jaegertracing.github.io/helm-charts
   version: 3.2.0
   name: jaeger

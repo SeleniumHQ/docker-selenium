@@ -34,6 +34,10 @@ chromeNode:
         # NodePort will be assigned randomly if not set
   nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
+    - name: SE_BROWSER_ARGS_DISABLE_FEATURES
+      value: "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
+    - name: SE_BROWSER_ARGS_DISABLE_SEARCH_ENGINE
+      value: "--disable-search-engine-choice-screen"
     - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
       value: "true"
     - name: SE_VNC_NO_PASSWORD

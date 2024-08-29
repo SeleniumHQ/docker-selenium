@@ -126,10 +126,10 @@ rbacRoleBinding:
 
 # Configure the ingress resource to access the Grid installation.
 ingress:
-  # Enable ingress. Implies installing Ingress NGINX Controller
-  enabled: false
-  # Enable ingress without automatically installing Ingress NGINX Controller
-  enableWithExistingController: true
+  # Enable to create ingress resource
+  enabled: true
+  # Enable ingress resource with automatically installing Ingress NGINX Controller
+  enableWithController: false
   # Name of ingress class to select which controller will implement ingress resource
   className: ""
   # Refer to list nginx annotations: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#annotations

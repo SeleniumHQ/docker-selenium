@@ -8,7 +8,7 @@ serverConfigMap:
     SE_SUPERVISORD_LOG_LEVEL: "info"
 
 ingress:
-  enabled: true
+  enableWithController: true
   className: nginx
   hostname: ""
 

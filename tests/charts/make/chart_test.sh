@@ -188,7 +188,7 @@ fi
 if [ "${SERVICE_TYPE_NODEPORT}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set ingress.enabled=false \
-  --set ingress.enableWithExistingController=false \
+  --set ingress.enableWithController=false \
   --set hub.serviceType=NodePort \
   --set components.router.serviceType=NodePort \
   "

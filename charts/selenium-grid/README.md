@@ -719,7 +719,7 @@ Below is an example of Grid UI accessible via NodePort with secure connection, a
 
 ```bash
 helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
-  --set ingress.enableWithExistingController=false \
+  --set ingress.enabled=false \
   --set isolateComponents=true \
   --set components.router.serviceType=NodePort \
   --set tls.enabled=true \
@@ -786,14 +786,12 @@ For example, below is the config with using external TLS Secret for the Ingress 
 
 ```yaml
 ingress:
+  enableWithController: true
   hostname: selenium-grid.prod.domain.com
   tls:
     - secretName: my-external-tls-secret
       hosts:
         - selenium-grid.prod.domain.com
-
-ingress-ngnix:
-    enabled: true
 ```
 
 In case the Ingress resource is configured without `hostname` and `tls`, the incoming traffic access via `global.K8S_PUBLIC_IP`. When sub-chart `ingress-nginx` is enabled (deploy Ingress NGINX Controller together), the default TLS secret can also be assigned via `ingress-nginx.controller.extraArgs.default-ssl-certificate`.
@@ -802,7 +800,7 @@ For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
 ```bash
 helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set global.K8S_PUBLIC_IP=$(hostname -i) \
-  --set tls.ingress.enabled=true \
+  --set tls.ingress.enableWithController=true \
   --set tls.nameOverride=my-external-tls-secret \
   --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
 ```
@@ -894,8 +892,8 @@ This table contains the configuration parameters of the chart and their default 
 | `busConfigMap.annotations`                    | `{}`                                        | Custom annotations for configmap                                                                                           |
 | `nodeConfigMap.nameOverride`                  | ``                                          | Name of the configmap that contains common environment variables for browser nodes                                         |
 | `nodeConfigMap.annotations`                   | `{}`                                        | Custom annotations for configmap                                                                                           |
-| `ingress.enabled`                             | `false`                                     | Enable ingress. Implies installing Ingress NGINX Controller                                                                |
-| `ingress.enableWithExistingController`        | `true`                                      | Enable ingress without automatically installing Ingress NGINX Controller                                                   |
+| `ingress.enabled`                             | `true`                                      | Enable to create ingres resource                                                                                           |
+| `ingress.enableWithController`                | `false`                                     | Enable ingress resource with automatically installing Ingress NGINX Controller                                             |
 | `ingress.className`                           | `""`                                        | Name of ingress class to select which controller will implement ingress resource                                           |
 | `ingress.annotations`                         | `{}`                                        | Custom annotations for ingress resource                                                                                    |
 | `ingress.nginx.proxyTimeout`                  | `3600`                                      | Value is used to set for NGINX ingress annotations related to proxy timeout                                                |

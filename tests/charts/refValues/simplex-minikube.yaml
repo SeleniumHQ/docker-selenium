@@ -20,7 +20,7 @@ tls:
     generateTLS: true
 
 ingress:
-  enabled: true
+  enableWithController: true
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
     nginx.ingress.kubernetes.io/rewrite-target: /$2

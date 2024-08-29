@@ -164,7 +164,7 @@ Is autoscaling using KEDA enabled
 Is ingress enabled
 */}}
 {{- define "seleniumGrid.ingress.enabled" -}}
-{{- or .Values.ingress.enabled .Values.ingress.enableWithExistingController | ternary "true" "" -}}
+{{- or .Values.ingress.enabled .Values.ingress.enableWithController | ternary "true" "" -}}
 {{- end -}}
 
 {{/*
