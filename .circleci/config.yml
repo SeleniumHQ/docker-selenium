@@ -151,8 +151,7 @@ jobs:
       - run:
           name: "Setup environment"
           command: |
-            make chart_setup_env
-            make set_containerd_image_store
+            make setup_dev_env
       - run:
           name: "Print system info"
           command: |
@@ -235,8 +234,7 @@ jobs:
       - run:
           name: "Set up Kubernetes environment"
           command: |
-            make chart_setup_env
-            make set_containerd_image_store
+            make setup_dev_env
             CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${NAMESPACE} VERSION=${BRANCH} \
             BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - run:

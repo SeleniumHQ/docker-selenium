@@ -87,8 +87,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            make chart_setup_env
-            make set_containerd_image_store
+            make setup_dev_env
       - name: Output Docker info
         run: docker info
       - name: Set up Python

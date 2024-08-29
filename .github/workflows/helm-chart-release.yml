@@ -54,7 +54,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: make chart_setup_env
+          command: make setup_dev_env
       - name: Build Helm chart
         uses: nick-invision/retry@master
         with:

@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.23.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.23.1)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.23.1)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.24.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.24.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.24.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.24.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.23.1)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.25.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.24.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -42,6 +42,13 @@ all: hub \
 	standalone_docker \
 	video
 
+check_dev_env:
+	./tests/charts/make/chart_check_env.sh
+
+setup_dev_env:
+	./tests/charts/make/chart_setup_env.sh ; \
+  make set_containerd_image_store
+
 set_containerd_image_store:
 	sudo mkdir -p /etc/docker
 	sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bak || true
@@ -75,7 +82,7 @@ set_build_multiarch:
 build_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
-build: all
+build: check_dev_env all
 	docker images | grep $(NAME)
 
 ci: build test
@@ -774,9 +781,6 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 
 test_custom_ca_cert:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) ./tests/customCACert/bootstrap.sh
-
-chart_setup_env:
-	./tests/charts/make/chart_setup_env.sh
 
 chart_cluster_setup:
 	VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BUILD_DATE=$(BUILD_DATE) ./tests/charts/make/chart_cluster_setup.sh

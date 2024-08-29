@@ -50,6 +50,7 @@ We have a CI pipeline to test the Helm chart with the following test cases.
 | HTTPS `tls.enabled`       |          |            | x         |              | x                |
 | Enable tracing            | x        | x          |           | x            |                  |
 | Enable video recorder     | x        | x          | x         | x            | x                |
+| Enable video uploader     | x        | x          | x         | x            | x                |
 | Test headless             |          | x          | x         |              |                  |
 
 ## Test Chart Template
@@ -78,7 +79,7 @@ Run entire commands to build and test Docker images with Helm charts in local en
 cd ../..
 
 # Setup Kubernetes environment
-make chart_setup_env
+make setup_dev_env
 
 # Build Docker images
 make build

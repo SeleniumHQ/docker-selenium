@@ -203,6 +203,8 @@ Nightly images are built on top of the [Nightly](https://github.com/SeleniumHQ/s
 $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:nightly
 ```
 
+Check out the docker compose to get started with Nightly images [docker-compose-v3-full-grid-nightly.yml](docker-compose-v3-full-grid-nightly.yml)
+
 ## Dev and Beta Channel Browser Images
 
 To run tests or otherwise work with pre-release browsers, Google, Mozilla, and Microsoft maintain a Dev and Beta release channel for those who need to see what's soon to be released to the general population.  
