@@ -45,7 +45,7 @@ all: hub \
 set_containerd_image_store:
 	sudo mkdir -p /etc/docker
 	sudo mv /etc/docker/daemon.json /etc/docker/daemon.json.bak || true
-	echo "{\"features\":{\"containerd-snapshotter\": true}, \"experimental\": true}" | sudo tee /etc/docker/daemon.json
+	echo "{\"features\":{\"containerd-snapshotter\": true, \"containerd\": true}, \"experimental\": true}" | sudo tee /etc/docker/daemon.json
 	sudo systemctl restart docker
 	sudo chmod 666 /var/run/docker.sock
 	docker version -f '{{.Server.Experimental}}'

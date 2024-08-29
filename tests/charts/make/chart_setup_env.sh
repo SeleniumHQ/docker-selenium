@@ -2,6 +2,9 @@
 
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
+DOCKER_VERSION=${DOCKER_VERSION:-""}
+HELM_VERSION=${HELM_VERSION:-"latest"}
+KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 
 # Function to be executed on command failure
 on_failure() {
@@ -24,7 +27,17 @@ echo \
    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -qq || true
-sudo apt-get install -yq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
+if [ -n "${DOCKER_VERSION}" ]; then
+  if [[ "${DOCKER_VERSION}" == "20.10"* ]]; then
+    DOCKER_VERSION="=5:${DOCKER_VERSION}~3-0~$(. /etc/os-release; echo "$ID")-$(. /etc/os-release; echo "$VERSION_CODENAME")"
+  else
+    DOCKER_VERSION="=5:${DOCKER_VERSION}-1~$(. /etc/os-release; echo "$ID").$(. /etc/os-release; echo "$VERSION_ID")~$(. /etc/os-release; echo "$VERSION_CODENAME")"
+  fi
+  echo "Installing package docker-ce${DOCKER_VERSION}"
+  ALLOW_DOWNGRADE="--allow-downgrades"
+fi
+sudo apt-get install -yq ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
+sudo apt-get install -yq ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
 sudo chmod 666 /var/run/docker.sock
 docker version
 docker buildx version
@@ -110,7 +123,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
 fi
 
 echo "Installing kubectl for AMD64 / ARM64"
-curl -fsSL -o ./kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/$(dpkg --print-architecture)/kubectl"
+curl -fsSL -o ./kubectl "https://dl.k8s.io/release/${KUBERNETES_VERSION}/bin/linux/$(dpkg --print-architecture)/kubectl"
 chmod +x ./kubectl
 sudo cp -frp ./kubectl /usr/local/bin/kubectl
 sudo ln -sf /usr/local/bin/kubectl /usr/bin/kubectl
@@ -119,7 +132,6 @@ kubectl version --client
 echo "==============================="
 
 echo "Installing Helm for AMD64 / ARM64"
-HELM_VERSION=${HELM_VERSION:-"latest"}
 if [ "${HELM_VERSION}" = "latest" ]; then
     HELM_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | grep tag_name | cut -d '"' -f 4)
 fi
