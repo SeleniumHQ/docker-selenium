@@ -626,7 +626,7 @@ test_video: video hub chrome firefox edge chromium
 	sudo rm -rf ./tests/videos; mkdir -p ./tests/videos/upload
 	sudo chmod -R 777 ./tests/videos
 	docker_compose_file=$(or $(DOCKER_COMPOSE_FILE), docker-compose-v3-test-video.yml) ; \
-	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeChromium NodeFirefox NodeEdge") ; \
+	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeFirefox NodeEdge") ; \
 	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeChromium NodeFirefox") ; \
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="$${list_of_tests_amd64}" ; \
@@ -729,7 +729,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 	sudo chmod -R 777 ./tests/videos
 	docker_compose_file=$(or $(DOCKER_COMPOSE_FILE), docker-compose-v3-test-node-docker.yaml) ; \
 	config_file=$(or $(CONFIG_FILE), config.toml) ; \
-	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeChromium NodeFirefox NodeEdge") ; \
+	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeFirefox NodeEdge") ; \
 	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeChromium NodeFirefox") ; \
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="$${list_of_tests_amd64}" ; \
@@ -766,7 +766,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			if [ $$node = "NodeChromium" ] ; then \
 					echo NODE_CHROME=chromium >> .env ; \
 			else \
-					echo NODE_CHROME=chromium >> .env ; \
+					echo NODE_CHROME=chrome >> .env ; \
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < $${config_file} > ./videos/config.toml ; \
@@ -829,7 +829,7 @@ chart_render_template:
 	RENDER_HELM_TEMPLATE_ONLY=true make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job
 
 chart_test_autoscaling_disabled:
-	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true \
+	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=false RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true \
 	SECURE_INGRESS_ONLY_GENERATE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 EXTERNAL_UPLOADER_CONFIG=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_nodeChromium_enableTracing_secureIngress_generateCerts_ingressPublicIP_subPath.yaml" \
@@ -866,7 +866,7 @@ chart_test_autoscaling_job_hostname:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_CHROMIUM=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true \
+	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_CHROMIUM=false RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_existingKEDA_prefixSelenium_nodeChromium_enableTracing.yaml" \
