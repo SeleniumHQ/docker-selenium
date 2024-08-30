@@ -39,7 +39,7 @@ generate_changelog() {
   # Get the changes for each section (Added, Removed, Fixed, Changed)
   image_tag_changes=$(echo "Chart is using image tag $CHART_APP_VERSION" | sed -e 's/^/- /')
   k8s_versions_tested=$(echo "Chart is tested on Kubernetes versions: $(cat .github/workflows/helm-chart-test.yml | grep -oP "k8s-version: '\Kv.*(?=')" | tr '\n' ',' | sed s/,/,\ /g)" | sed -e 's/^/- /')
-  docker_versions_tested=$(echo "Chart is tested on container runtime Docker versions: $(cat .github/workflows/helm-chart-test.yml | grep -oP "docker-version: '\Kv.*(?=')" | tr '\n' ',' | sed s/,/,\ /g)" | sed -e 's/^/- /')
+  docker_versions_tested=$(echo "Chart is tested on container runtime Docker versions: $(cat .github/workflows/helm-chart-test.yml | grep -oP "docker-version: '\K.*(?=')" | tr '\n' ',' | sed s/,/,\ /g)" | sed -e 's/^/- /')
   helm_versions_tested=$(echo "Chart is tested on Helm versions: $(cat .github/workflows/helm-chart-test.yml | grep -oP "helm-version: '\Kv.*(?=')" | tr '\n' ',' | sed s/,/,\ /g)" | sed -e 's/^/- /')
   added_changes=$(git log --pretty=format:"[\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" "$commit_range" -- "$CHART_DIR" | grep -iE "\- feat|\- add" | sed -e 's/^/- /')
   removed_changes=$(git log --pretty=format:"[\`%h\`](http://github.com/seleniumhq/docker-selenium/commit/%H) - %s :: %an" "$commit_range" -- "$CHART_DIR" | grep -iE "\- remove|\- deprecate|\- delete" | sed -e 's/^/- /')

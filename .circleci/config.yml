@@ -243,8 +243,9 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build || true
-              if [ $? -eq 0 ]; then
+              output=$(eval "PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build")
+              status=$?
+              if [ $status -eq 0 ]; then
                 echo "Build images passed"
                 exit 0
               else
@@ -267,10 +268,9 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
-              TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} \
-              && make test_video_integrity || true
-              if [ $? -eq 0 ]; then
+              output=$(eval "PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity")
+              status=$?
+              if [ $status -eq 0 ]; then
                 echo "Tests passed"
                 exit 0
               else
