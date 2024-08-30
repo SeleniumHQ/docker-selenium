@@ -10,7 +10,7 @@ USER root
 RUN echo "deb http://deb.debian.org/debian/ sid main" >> /etc/apt/sources.list \
   && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0E98404D386FA1D9 6ED0E7B82643E131 \
   && apt-get update -qqy \
-  && apt-get -qqy install chromium chromium-l10n \
+  && apt-get -qqy --no-install-recommends install chromium chromium-l10n \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================
@@ -23,7 +23,7 @@ RUN /opt/bin/wrap_chromium_binary
 # Chromium webdriver
 #============================================
 RUN apt-get update -qqy \
-  && apt-get -qqy install chromium-driver \
+  && apt-get -qqy --no-install-recommends install chromium-driver \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #============================================
