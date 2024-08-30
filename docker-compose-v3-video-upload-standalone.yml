@@ -17,7 +17,7 @@ services:
     stop_grace_period: 30s
 
   standalone_chrome:
-    image: selenium/standalone-chrome:4.23.1-20240820
+    image: selenium/standalone-chrome:4.24.0-20240830
     shm_size: 2gb
     ports:
       - "4444:4444"
@@ -27,7 +27,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_edge:
-    image: selenium/standalone-edge:4.23.1-20240820
+    image: selenium/standalone-edge:4.24.0-20240830
     shm_size: 2gb
     ports:
       - "5444:4444"
@@ -37,7 +37,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_firefox:
-    image: selenium/standalone-firefox:4.23.1-20240820
+    image: selenium/standalone-firefox:4.24.0-20240830
     shm_size: 2gb
     ports:
       - "6444:4444"
@@ -47,7 +47,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.0.1-20240820
+    image: selenium/video:ffmpeg-7.0.2-20240830
     depends_on:
       - standalone_chrome
     environment:
@@ -71,7 +71,7 @@ services:
     stop_grace_period: 30s
 
   edge_video:
-    image: selenium/video:ffmpeg-7.0.1-20240820
+    image: selenium/video:ffmpeg-7.0.2-20240830
     depends_on:
       - standalone_edge
     environment:
@@ -95,7 +95,7 @@ services:
     stop_grace_period: 30s
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.0.1-20240820
+    image: selenium/video:ffmpeg-7.0.2-20240830
     depends_on:
       - standalone_firefox
     environment:
