@@ -14,7 +14,7 @@ chromeNode:
   nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
     - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "true"
+      value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH

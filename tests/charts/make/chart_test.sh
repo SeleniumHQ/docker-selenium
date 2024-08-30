@@ -46,6 +46,7 @@ else
   SELENIUM_TLS_SECRET_NAME="${RELEASE_NAME}-selenium-tls-secret"
 fi
 EXTERNAL_TLS_SECRET_NAME=${EXTERNAL_TLS_SECRET_NAME:-"external-tls-secret"}
+SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"true"}
 
 cleanup() {
   # Get the list of pods
@@ -93,9 +94,13 @@ export RELEASE_NAME=${RELEASE_NAME}
 export SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE}
 export TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME}
 export HOST_PATH=$(realpath ./tests/videos)
+export SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
 RECORDER_VALUES_FILE=${TEST_VALUES_PATH}/base-recorder-values.yaml
+MATRIX_BROWSER_VALUES_FILE=${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml
 envsubst < ${RECORDER_VALUES_FILE} > ./tests/tests/base-recorder-values.yaml
+envsubst < ${MATRIX_BROWSER_VALUES_FILE} > ./tests/tests/${MATRIX_BROWSER}-values.yaml
 RECORDER_VALUES_FILE=./tests/tests/base-recorder-values.yaml
+MATRIX_BROWSER_VALUES_FILE=./tests/tests/${MATRIX_BROWSER}-values.yaml
 
 if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   LOCAL_PVC_YAML="${TEST_VALUES_PATH}/local-pvc.yaml"
@@ -305,7 +310,7 @@ if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
 fi
 
 HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
---values ${TEST_VALUES_PATH}/${MATRIX_BROWSER}-values.yaml \
+--values ${MATRIX_BROWSER_VALUES_FILE} \
 "
 
 HELM_COMMAND_ARGS="${RELEASE_NAME} \
