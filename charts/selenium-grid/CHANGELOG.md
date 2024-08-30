@@ -1,3 +1,22 @@
+## :heavy_check_mark: selenium-grid-0.35.0
+
+- Chart is using image tag 4.24.0-20240830
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, 
+- Chart is tested on container runtime Docker versions: 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Changed
+- [`c3107507`](http://github.com/seleniumhq/docker-selenium/commit/c31075079cad81cf82e4cc3ffb49a37dab5c3a3a) - Update tag 4.24.0-20240830 in docs and files :: Selenium CI Bot
+- [`4c0d9d9a`](http://github.com/seleniumhq/docker-selenium/commit/4c0d9d9a3c3707d456e481f64fbc0a899b9b7552) - chart(rollback): config `ingress.enabled` to create ingress resource only :: Viet Nguyen Duc
+- [`4e00e3e3`](http://github.com/seleniumhq/docker-selenium/commit/4e00e3e3d2e529f9f40c2b9988eb5d5c852912a9) - chore(deps): update helm release kube-prometheus-stack to v62.3.1 (#2376) :: renovate[bot]
+- [`a7e5c405`](http://github.com/seleniumhq/docker-selenium/commit/a7e5c4052f1fc2531b5f27fc47ecb758c44a0054) - update: Selenium Grid 4.24.0 :: Viet Nguyen Duc
+- [`6216a4d9`](http://github.com/seleniumhq/docker-selenium/commit/6216a4d941b5134248bd5353ebcbe87e53f53377) - chart(feat): updateStrategy default RollingUpdate for browsers and Recreate for components :: Viet Nguyen Duc
+- [`deb9d308`](http://github.com/seleniumhq/docker-selenium/commit/deb9d3086130a82d6b2a4dea936c79ef82f8780f) - chore(deps): update helm release kube-prometheus-stack to v62.3.0 (#2367) :: renovate[bot]
+- [`b4dc1124`](http://github.com/seleniumhq/docker-selenium/commit/b4dc11241f9cb5af781325c92632ec2df3fd0bd5) - chore(deps): update helm release jaeger to v3.2.0 (#2371) :: renovate[bot]
+- [`ed2af419`](http://github.com/seleniumhq/docker-selenium/commit/ed2af4193a26cae34d61376dc1d9a76633c36ec0) - update: FFmpeg 7.0.2 and fix video container termination (#2374) :: Viet Nguyen Duc
+- [`918765fa`](http://github.com/seleniumhq/docker-selenium/commit/918765fa8d2176da9e82bf57a1ccafab11dc1ccb) - update: graceful shutdown for recording sidecar container in K8s :: Viet Nguyen Duc
+- [`d26a433b`](http://github.com/seleniumhq/docker-selenium/commit/d26a433b914f914b0b22b62084772fa138ae93d7) - Update chart changelog [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.34.3
 
 - Chart is using image tag 4.23.1-20240820
