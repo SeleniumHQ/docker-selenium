@@ -22,16 +22,15 @@ jobs:
       CHANNEL: ${{ matrix.channel }}
 
     steps:
-    - uses: actions/checkout@main
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@master
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@master
-      with:
-        platforms: linux/amd64,linux/arm64
-        use: false
+    - name: Checkout code
+      uses: actions/checkout@main
     - name: Set up containerd image store feature
-      run: make set_containerd_image_store
+      uses: nick-invision/retry@master
+      with:
+        timeout_minutes: 10
+        max_attempts: 3
+        command: |
+          make setup_dev_env
     - name: Setup environment variables
       run: |
         export SELENIUM_VERSION=$(grep BASE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
