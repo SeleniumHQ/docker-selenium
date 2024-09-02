@@ -25,5 +25,6 @@ dependencies:
 maintainers:
   - name: SeleniumHQ
     email: selenium-developers@googlegroups.com
+    url: https://github.com/SeleniumHQ
 sources:
   - https://github.com/SeleniumHQ/docker-selenium

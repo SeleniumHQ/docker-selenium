@@ -156,6 +156,10 @@ sudo cp -frp /opt/ct/etc /etc/ct
 rm -rf ct.tar.gz
 ct version
 echo "==============================="
+echo "Installing helm-docs for AMD64 / ARM64"
+go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
+$HOME/go/bin/helm-docs -h
+echo "==============================="
 echo "Installing envsubst for AMD64 / ARM64"
 ENVSUBST_VERSION="v1.4.2"
 ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)

@@ -67,7 +67,23 @@ format_shell_scripts:
   EXIT_CODE=$$? ; \
   if [ $$EXIT_CODE -ne 0 ]; then \
 		echo "Some shell scripts are not formatted. Please run 'make format_shell_scripts' to format and update them." ; \
-		exit 1 ; \
+		exit $$EXIT_CODE ; \
+	fi ; \
+  exit $$EXIT_CODE
+
+generate_readme_charts:
+	if [ ! -f $$HOME/go/bin/helm-docs ] ; then \
+		echo "helm-docs is not installed. Please install it or run 'make setup_dev_env' once." ; \
+	else \
+		$$HOME/go/bin/helm-docs --chart-search-root charts/selenium-grid --output-file CONFIGURATION.md --sort-values-order file ; \
+	fi
+
+lint_readme_charts: generate_readme_charts
+	git diff --stat --exit-code ; \
+	EXIT_CODE=$$? ; \
+	if [ $$EXIT_CODE -ne 0 ]; then \
+			echo "New changes in chart. Please run 'make generate_readme_charts' to update them." ; \
+			exit $$EXIT_CODE ; \
 	fi ; \
   exit $$EXIT_CODE
 

@@ -99,6 +99,8 @@ jobs:
         with:
           python-version: '3.11'
           check-latest: true
+      - name: Verify chart configuration up-to-date
+        run: make lint_readme_charts
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
         run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV

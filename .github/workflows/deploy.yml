@@ -101,6 +101,8 @@ jobs:
         run: echo ${LATEST_TAG}
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}
+      - name: Update chart configuration docs
+        run: make generate_readme_charts
       - name: Build Helm chart
         uses: nick-invision/retry@master
         with:
