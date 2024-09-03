@@ -83,7 +83,19 @@ spec:
     {{- if or .Values.global.seleniumGrid.affinity .Values.components.sessionMap.affinity }}
       {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.sessionMap.affinity }}
       affinity: {{- toYaml $affinityYaml | nindent 8 }}
-    {{- end }}      
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.distributor.topologySpreadConstraints }}
+      {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.distributor.topologySpreadConstraints }}
+      topologySpreadConstraints:
+      {{- range $constraint := $topologySpreadConstraints }}
+        - {{ toYaml $constraint | nindent 10 | trim }}
+        {{- if not $constraint.labelSelector }}
+          labelSelector:
+            matchLabels:
+              app: {{ template "seleniumGrid.sessionMap.fullname" $ }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
     {{- with .Values.components.sessionMap.tolerations }}
       tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}

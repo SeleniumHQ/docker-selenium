@@ -44,6 +44,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.httpLogs | bool | `false` | Enable http logging. Tracing should be enabled to log http logs. |
 | global.seleniumGrid.updateStrategy.type | string | `"Recreate"` | Specify update strategy for all components, can be overridden individually |
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
+| global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
+| global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | tls.nameOverride | string | `nil` | Name of external secret containing the TLS certificate and key |
 | tls.enabled | bool | `false` | Enable or disable TLS for the server components (and ingress proxy) |
 | tls.ingress.enabled | bool | `false` | Enable or disable TLS for the ingress proxy only |
@@ -158,6 +160,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.router.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.router.disableUI | bool | `false` | Disable the Grid UI |
+| components.router.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
+| components.router.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.router.annotations | object | `{}` | Custom annotations for router pods |
 | components.router.port | int | `4444` | Router container port |
 | components.router.nodePort | int | `30444` | Router expose NodePort |
@@ -178,6 +182,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
+| components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
+| components.distributor.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.distributor.annotations | object | `{}` | Custom annotations for Distributor pods |
 | components.distributor.port | int | `5553` | Distributor container port |
 | components.distributor.nodePort | int | `30553` | Distributor expose NodePort |
@@ -196,6 +202,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.imageTag | string | `nil` | Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.eventBus.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.eventBus.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.eventBus.affinity | object | `{}` | Specify affinity for Event Bus pods, this overwrites global.seleniumGrid.affinity parameter |
+| components.eventBus.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.eventBus.annotations | object | `{}` | Custom annotations for Event Bus pods |
 | components.eventBus.port | int | `5557` | Event Bus container port |
 | components.eventBus.nodePort | int | `30557` | Event Bus expose NodePort |
@@ -215,6 +223,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.imageTag | string | `nil` | Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionMap.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionMap.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.sessionMap.affinity | object | `{}` | Specify affinity for Session Map pods, this overwrites global.seleniumGrid.affinity parameter |
+| components.sessionMap.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.sessionMap.annotations | object | `{}` | Custom annotations for Session Map pods |
 | components.sessionMap.port | int | `5556` | Session Map container port |
 | components.sessionMap.resources | object | `{}` | Resources for Session Map container |
@@ -229,6 +239,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
+| components.sessionQueue.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.sessionQueue.annotations | object | `{}` | Custom annotations for Session Queue pods |
 | components.sessionQueue.port | int | `5559` | Session Queue container port |
 | components.sessionQueue.nodePort | int | `30559` | Session Queue expose NodePort |
@@ -247,6 +259,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.imageTag | string | `nil` | Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | hub.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | hub.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| hub.affinity | object | `{}` | Specify affinity for Selenium Hub pods, this overwrites global.seleniumGrid.affinity parameter |
+| hub.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Hub pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | hub.annotations | object | `{}` | Custom annotations for Selenium Hub pods |
 | hub.labels | object | `{}` | Custom labels for Selenium Hub pods |
 | hub.disableUI | bool | `false` | Disable the Grid UI |
@@ -313,6 +327,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.ports | list | `[]` | Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.) |
 | chromeNode.port | int | `5555` | Node component port |
 | chromeNode.nodePort | string | `nil` | Node component expose NodePort |
+| chromeNode.affinity | object | `{}` | Specify affinity for chrome-node pods, this overwrites global.seleniumGrid.affinity parameter |
+| chromeNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for chrome-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | chromeNode.annotations | object | `{}` | Annotations for chrome-node pods |
 | chromeNode.labels | object | `{}` | Labels for chrome-node pods |
 | chromeNode.shareProcessNamespace | bool | `true` | Shared process namespace for chrome-node pods |
@@ -361,6 +377,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.ports | list | `[]` | Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.) |
 | firefoxNode.port | int | `5555` | Node component port |
 | firefoxNode.nodePort | string | `nil` | Node component expose NodePort |
+| firefoxNode.affinity | object | `{}` | Specify affinity for firefox-node pods, this overwrites global.seleniumGrid.affinity parameter |
+| firefoxNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for firefox-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | firefoxNode.annotations | object | `{}` | Annotations for firefox-node pods |
 | firefoxNode.labels | object | `{}` | Labels for firefox-node pods |
 | firefoxNode.tolerations | list | `[]` | Tolerations for firefox-node pods |
@@ -409,6 +427,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.ports | list | `[]` | Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.) |
 | edgeNode.port | int | `5555` | Node component port |
 | edgeNode.nodePort | string | `nil` | Node component expose NodePort |
+| edgeNode.affinity | object | `{}` | Specify affinity for edge-node pods, this overwrites global.seleniumGrid.affinity parameter |
+| edgeNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for edge-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | edgeNode.annotations | object | `{}` | Annotations for edge-node pods |
 | edgeNode.labels | object | `{}` | Labels for edge-node pods |
 | edgeNode.tolerations | list | `[]` | Tolerations for edge-node pods |

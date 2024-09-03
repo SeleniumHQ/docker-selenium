@@ -284,6 +284,23 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count_rolling, len(rolling), "No deployment resources found with strategy RollingUpdate")
         self.assertEqual(count_recreate, len(recreate), "No deployment resources found with strategy Recreate")
 
+    def test_topologySpreadConstraints_in_all_components(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),
+                          '{0}selenium-edge-node'.format(RELEASE_NAME),
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME),
+                          '{0}selenium-distributor'.format(RELEASE_NAME),
+                          '{0}selenium-event-bus'.format(RELEASE_NAME),
+                          '{0}selenium-router'.format(RELEASE_NAME),
+                          '{0}selenium-session-map'.format(RELEASE_NAME),
+                          '{0}selenium-session-queue'.format(RELEASE_NAME),]
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert topologySpreadConstraints is set in resource {doc['metadata']['name']}")
+                self.assertTrue(doc['spec']['template']['spec']['topologySpreadConstraints'][0]['labelSelector']['matchLabels']['app'] == doc['metadata']['name'])
+                count += 1
+        self.assertEqual(count, len(resources_name), "No deployment resources found with topologySpreadConstraints")
+
 if __name__ == '__main__':
     failed = False
     try:

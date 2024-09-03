@@ -3,7 +3,7 @@ global:
   K8S_PUBLIC_IP: "10.10.10.10"
   seleniumGrid:
     logLevel: FINE
-    affinity: &affinity
+    affinity:
       podAffinity:
         requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -13,6 +13,10 @@ global:
                   values:
                     - selenium
             topologyKey: "kubernetes.io/hostname"
+    topologySpreadConstraints:
+      - maxSkew: 4
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
 
 autoscaling:
   enableWithExistingKEDA: true
@@ -91,19 +95,16 @@ components:
 chromeNode:
   annotations:
     "restartOnUpdate": "true"
-  affinity: *affinity
   terminationGracePeriodSeconds: 7200
 
 firefoxNode:
   annotations:
     "restartOnUpdate": "true"
-  affinity: *affinity
   terminationGracePeriodSeconds: 720
 
 edgeNode:
   annotations:
     "restartOnUpdate": "true"
-  affinity: *affinity
 
 videoRecorder:
   enabled: true

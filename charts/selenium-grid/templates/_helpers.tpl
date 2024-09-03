@@ -546,8 +546,22 @@ template:
   {{- with .node.nodeSelector }}
     nodeSelector: {{- toYaml . | nindent 6 }}
   {{- end }}
-  {{- with .node.affinity }}
-    affinity: {{- toYaml . | nindent 6 }}
+  {{- if or $.Values.global.seleniumGrid.affinity .node.affinity }}
+    {{- $affinityYaml := default $.Values.global.seleniumGrid.affinity .node.affinity }}
+    affinity: {{- toYaml $affinityYaml | nindent 6 }}
+  {{- end }}
+  {{- if or $.Values.global.seleniumGrid.topologySpreadConstraints .node.topologySpreadConstraints }}
+    {{- $topologySpreadConstraints := default $.Values.global.seleniumGrid.topologySpreadConstraints .node.topologySpreadConstraints }}
+    {{- $appName := .name }}
+    topologySpreadConstraints:
+    {{- range $constraint := $topologySpreadConstraints }}
+      - {{ toYaml $constraint | nindent 8 | trim }}
+      {{- if not $constraint.labelSelector }}
+        labelSelector:
+          matchLabels:
+            app: {{ $appName }}
+      {{- end }}
+    {{- end }}
   {{- end }}
   {{- with .node.tolerations }}
     tolerations:

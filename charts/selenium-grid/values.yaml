@@ -40,6 +40,14 @@ global:
       rollingUpdate:
         maxSurge: 1
         maxUnavailable: 0
+    # -- Specify affinity for all components, can be overridden individually
+    affinity: {}
+    # -- Specify topologySpreadConstraints for all components, can be overridden individually
+    topologySpreadConstraints: []
+    #  - maxSkew: 4
+    #    topologyKey: kubernetes.io/hostname
+    #    whenUnsatisfiable: DoNotSchedule
+    #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
 
 tls:
   # -- Name of external secret containing the TLS certificate and key
@@ -359,6 +367,10 @@ components:
 
     # -- Disable the Grid UI
     disableUI: false
+    # -- Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter
+    affinity: {}
+    # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+    topologySpreadConstraints: []
     # -- Custom annotations for router pods
     annotations: {}
     # -- Router container port
@@ -425,6 +437,10 @@ components:
 
     # -- Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
     newSessionThreadPoolSize:
+    # -- Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter
+    affinity: {}
+    # -- Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+    topologySpreadConstraints: []
     # -- Custom annotations for Distributor pods
     annotations: {}
     # -- Distributor container port
@@ -487,6 +503,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify affinity for Event Bus pods, this overwrites global.seleniumGrid.affinity parameter
+    affinity: {}
+    # -- Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+    topologySpreadConstraints: []
     # -- Custom annotations for Event Bus pods
     annotations: {}
     # -- Event Bus container port
@@ -530,6 +550,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify affinity for Session Map pods, this overwrites global.seleniumGrid.affinity parameter
+    affinity: {}
+    # -- Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+    topologySpreadConstraints: []
     # -- Custom annotations for Session Map pods
     annotations: {}
     # -- Session Map container port
@@ -563,6 +587,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter
+    affinity: {}
+    # -- Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+    topologySpreadConstraints: []
     # -- Custom annotations for Session Queue pods
     annotations: {}
     # -- Session Queue container port
@@ -617,6 +645,10 @@ hub:
   # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
 
+  # -- Specify affinity for Selenium Hub pods, this overwrites global.seleniumGrid.affinity parameter
+  affinity: {}
+  # -- Specify topologySpreadConstraints for Hub pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+  topologySpreadConstraints: []
   # -- Custom annotations for Selenium Hub pods
   annotations: {}
   # -- Custom labels for Selenium Hub pods
@@ -834,6 +866,10 @@ chromeNode:
   port: 5555
   # -- Node component expose NodePort
   nodePort:
+  # -- Specify affinity for chrome-node pods, this overwrites global.seleniumGrid.affinity parameter
+  affinity: {}
+  # -- Specify topologySpreadConstraints for chrome-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+  topologySpreadConstraints: []
   # -- Annotations for chrome-node pods
   annotations: {}
   # -- Labels for chrome-node pods
@@ -1011,6 +1047,10 @@ firefoxNode:
   port: 5555
   # -- Node component expose NodePort
   nodePort:
+  # -- Specify affinity for firefox-node pods, this overwrites global.seleniumGrid.affinity parameter
+  affinity: {}
+  # -- Specify topologySpreadConstraints for firefox-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+  topologySpreadConstraints: []
   # -- Annotations for firefox-node pods
   annotations: {}
   # -- Labels for firefox-node pods
@@ -1187,6 +1227,10 @@ edgeNode:
   port: 5555
   # -- Node component expose NodePort
   nodePort:
+  # -- Specify affinity for edge-node pods, this overwrites global.seleniumGrid.affinity parameter
+  affinity: {}
+  # -- Specify topologySpreadConstraints for edge-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+  topologySpreadConstraints: []
   # -- Annotations for edge-node pods
   annotations: {}
   # -- Labels for edge-node pods
