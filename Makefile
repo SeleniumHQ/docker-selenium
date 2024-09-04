@@ -671,6 +671,7 @@ test_video: video hub chrome firefox edge chromium
 					echo BROWSER=chromium >> .env ; \
 					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"chromium_video.mp4"} >> .env ; \
 					echo VIDEO_FILE_NAME_SUFFIX=$${VIDEO_FILE_NAME_SUFFIX:-"true"} >> .env ; \
+					echo SELENIUM_GRID_TEST_HEADLESS=true >> .env ; \
 			fi ; \
 			if [ $$node = "NodeEdge" ] ; then \
 					echo BROWSER=edge >> .env ; \
@@ -720,6 +721,7 @@ test_node_relay: hub node_base standalone_firefox
 			if [ $$node = "NodeChromium" ] ; then \
 					echo BROWSER=chromium >> .env \
 					&& echo BROWSER_NAME=chrome >> .env ; \
+					echo SELENIUM_GRID_TEST_HEADLESS=true >> .env ; \
 			fi ; \
 			if [ $$node = "NodeEdge" ] ; then \
 					echo BROWSER=edge >> .env \
@@ -782,6 +784,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			fi ; \
 			if [ $$node = "NodeChromium" ] ; then \
 					echo NODE_CHROME=chromium >> .env ; \
+					echo SELENIUM_GRID_TEST_HEADLESS=true >> .env ; \
 			else \
 					echo NODE_CHROME=chrome >> .env ; \
 			fi ; \
@@ -846,7 +849,7 @@ chart_render_template:
 	RENDER_HELM_TEMPLATE_ONLY=true make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job
 
 chart_test_autoscaling_disabled:
-	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true SELENIUM_GRID_TEST_HEADLESS=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true \
+	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true \
 	SECURE_INGRESS_ONLY_GENERATE=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 EXTERNAL_UPLOADER_CONFIG=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_nodeChromium_enableTracing_secureIngress_generateCerts_ingressPublicIP_subPath.yaml" \
