@@ -17,15 +17,15 @@ RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
         FIREFOX_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64-aarch64&lang=en-US" ; \
     fi \
   && apt-get update -qqy \
-  && apt-get -qqy --no-install-recommends install libavcodec-extra \
-     libgtk-3-dev libdbus-glib-1-dev \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && apt-get -qqy --no-install-recommends install libavcodec-extra libgtk-3-dev libdbus-glib-1-dev \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ${HOME}/firefox \
   && wget --no-verbose -O /tmp/firefox.tar.bz2 $FIREFOX_DOWNLOAD_URL \
-  && rm -rf /opt/firefox \
-  && tar -C /opt -xjf /tmp/firefox.tar.bz2 \
+  && tar -C ${HOME} -xjf /tmp/firefox.tar.bz2 \
   && rm /tmp/firefox.tar.bz2 \
-  && mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
-  && ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox
+  && mkdir -p ${HOME}/firefox/distribution/extensions \
+  && setfacl -Rm u:${SEL_USER}:rwx ${HOME}/firefox \
+  && setfacl -Rm g:${SEL_GROUP}:rwx ${HOME}/firefox \
+  && ln -fs ${HOME}/firefox/firefox /usr/bin/firefox
 
 #============
 # GeckoDriver
@@ -46,16 +46,19 @@ RUN LATEST_VERSION=$(curl -sk https://api.github.com/repos/mozilla/geckodriver/r
 #============================================
 # Firefox cleanup script and supervisord file
 #============================================
-COPY firefox-cleanup.sh /opt/bin/firefox-cleanup.sh
-COPY firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
+COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
+RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh
 
 USER ${SEL_UID}
 
 #============================================
 # Dumping Browser information for config
 #============================================
-RUN echo "firefox" > /opt/selenium/browser_name
-RUN firefox --version | awk '{print $3}' > /opt/selenium/browser_version
-RUN echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location
+RUN echo "firefox" > /opt/selenium/browser_name \
+    && firefox --version | awk '{print $3}' > /opt/selenium/browser_version \
+    && echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location \
+    # Download the language pack for Firefox
+    && /opt/bin/get_lang_package.sh
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox"

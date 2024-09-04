@@ -584,8 +584,13 @@ test_edge_standalone:
       ;; \
   esac
 
-test_firefox:
-	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeFirefox
+test_firefox_download_lang_packs:
+	FIREFOX_VERSION=$$(docker run --rm $(NAME)/node-firefox:$(TAG_VERSION) firefox --version | awk '{print $$3}') ; \
+	./NodeFirefox/get_lang_package.sh $$FIREFOX_VERSION ./tests/target/firefox_lang_packs
+
+test_firefox: test_firefox_download_lang_packs
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true \
+	TEST_FIREFOX_INSTALL_LANG_PACKAGE=true ./tests/bootstrap.sh NodeFirefox
 
 test_firefox_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneFirefox
@@ -645,6 +650,10 @@ test_video: video hub chrome firefox edge chromium
 	docker_compose_file=$(or $(DOCKER_COMPOSE_FILE), docker-compose-v3-test-video.yml) ; \
 	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeChromium NodeFirefox NodeEdge") ; \
 	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeChromium NodeFirefox") ; \
+	TEST_FIREFOX_INSTALL_LANG_PACKAGE=$(or $(TEST_FIREFOX_INSTALL_LANG_PACKAGE), "true") ; \
+	if [ "$${TEST_FIREFOX_INSTALL_LANG_PACKAGE}" = "true" ]; then \
+		make test_firefox_download_lang_packs ; \
+	fi ; \
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="$${list_of_tests_amd64}" ; \
 	else \
@@ -659,6 +668,7 @@ test_video: video hub chrome firefox edge chromium
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
+			echo TEST_FIREFOX_INSTALL_LANG_PACKAGE=$${TEST_FIREFOX_INSTALL_LANG_PACKAGE} >> .env ; \
 			echo BASIC_AUTH_USERNAME=$(or $(BASIC_AUTH_USERNAME), "admin") >> .env ; \
 			echo BASIC_AUTH_PASSWORD=$(or $(BASIC_AUTH_PASSWORD), "admin") >> .env ; \
 			echo SUB_PATH=$(or $(SUB_PATH), "/selenium") >> .env ; \

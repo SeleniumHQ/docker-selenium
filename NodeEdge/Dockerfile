@@ -13,7 +13,6 @@ USER root
 #  e.g. microsoft-edge-beta=88.0.692.0-1
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
-ARG TARGETARCH
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
   && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
