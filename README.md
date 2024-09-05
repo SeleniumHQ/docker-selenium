@@ -67,6 +67,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Automatic browser leftovers cleanup](#automatic-browser-leftovers-cleanup)
   * [Mask sensitive information in console logs](#mask-sensitive-information-in-console-logs)
   * [Secure Connection](#secure-connection)
+  * [Browser language and locale](#browser-language-and-locale)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
 * [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
@@ -1277,6 +1278,36 @@ Via volume mount, you can replace the default certificates with your own certifi
 The self-signed certificate also needs to be trusted by the client (add to system widely bundle trusted CA) to avoid error message relates to SSL handshake when creating RemoteWebDriver.
 
 Refer to sample: [`docker-compose-v3-full-grid-secure.yml`](docker-compose-v3-full-grid-secure.yml)
+
+## Browser language and locale
+
+Different browsers have different ways to set the language and locale from binding.
+
+### Firefox
+
+Firefox can be configured to use a specific language and locale by setting the profile preference when create WebDriver from binding. In addition, language pack need to be installed as add-on for browser UI language to take effect. For example, to set the browser language and locale to `vi-VN`, you can use the following steps:
+
+Get the latest Firefox language pack for the desired language e.g. https://download.mozilla.org/?product=firefox-langpack-latest-SSL&lang=vi. Then, you can install the language pack as an add-on when creating the RemoteWebDriver instance.
+
+```python
+profile = webdriver.FirefoxProfile()
+profile.set_preference('intl.accept_languages', 'vi-VN,vi')
+profile.set_preference('intl.locale.requested', 'vi-VN,vi')
+options = FirefoxOptions()
+options.profile = profile
+driver = webdriver.Remote(options=options, command_executor="http://selenium-hub:4444/wd/hub")
+webdriver.Firefox.install_addon(driver, "/local/path/to/vi.xpi")
+driver.get('https://google.com')
+```
+
+There is a [script](NodeFirefox/get_lang_package.sh) to get all available language packs for a given Firefox version. You can run the script to get the language packs to your source. For example:
+
+```bash
+FIREFOX_VERSION=$(docker run --rm --entrypoint="" selenium/node-firefox:latest firefox --version | awk '{print $3}') \
+&& ./NodeFirefox/get_lang_package.sh ${FIREFOX_VERSION} /local/path/to/download
+```
+
+Or, you can mount the container directory `/home/seluser/firefox/distribution/extensions` to host directory to access packs were pre-built in the container for using in your test script.
 
 ___
 

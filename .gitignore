@@ -44,6 +44,7 @@ pip-selfcheck.json
 
 # End of https://www.gitignore.io/api/virtualenv
 tests/tests/*
+tests/target/*
 
 # Created by https://www.gitignore.io/api/python
 

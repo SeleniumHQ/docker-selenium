@@ -5,9 +5,33 @@ import sys
 import unittest
 import re
 import platform
+import signal
 
 import docker
 from docker.errors import NotFound
+
+def clean_up():
+  logger.info("Cleaning up...")
+
+  test_container = client.containers.get(test_container_id)
+  test_container.kill()
+  test_container.remove()
+
+  if standalone:
+     logger.info("Standalone Cleaned up")
+  else:
+     # Kill the launched hub
+     hub = client.containers.get(hub_id)
+     hub.kill()
+     hub.remove()
+     logger.info("Hub / Node Cleaned up")
+
+def signal_handler(signum, frame):
+    clean_up()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGQUIT, signal_handler)
 
 # LOGGING #
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -272,20 +296,7 @@ if __name__ == '__main__':
 
     # Avoiding a container cleanup if tests run inside docker compose
     if not run_in_docker_compose:
-        logger.info("Cleaning up...")
-
-        test_container = client.containers.get(test_container_id)
-        test_container.kill()
-        test_container.remove()
-
-        if standalone:
-           logger.info("Standalone Cleaned up")
-        else:
-           # Kill the launched hub
-           hub = client.containers.get(hub_id)
-           hub.kill()
-           hub.remove()
-           logger.info("Hub / Node Cleaned up")
+        clean_up()
 
     if failed:
         exit(1)
