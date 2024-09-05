@@ -18,7 +18,7 @@ trap 'on_failure' ERR
 
 echo "Installing Docker for AMD64 / ARM64"
 sudo apt-get update -qq || true
-sudo apt-get install -yq ca-certificates curl
+sudo apt-get install -yq ca-certificates curl wget jq
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc

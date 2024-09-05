@@ -21,7 +21,8 @@ FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VER
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.0.2)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),linuxserver)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),7.0.2)
-PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),linux/amd64)
+CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ]; then echo "linux/arm64"; else echo "linux/amd64"; fi)
+PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 
@@ -585,7 +586,7 @@ test_edge_standalone:
   esac
 
 test_firefox_download_lang_packs:
-	FIREFOX_VERSION=$$(docker run --rm $(NAME)/node-firefox:$(TAG_VERSION) firefox --version | awk '{print $$3}') ; \
+	FIREFOX_VERSION=$$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION') ; \
 	./NodeFirefox/get_lang_package.sh $$FIREFOX_VERSION ./tests/target/firefox_lang_packs
 
 test_firefox: test_firefox_download_lang_packs
@@ -635,10 +636,10 @@ test_parallel: hub chrome firefox edge chromium video
 	make test_video_integrity
 
 test_video_standalone: standalone_chrome standalone_chromium standalone_firefox standalone_edge
-	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=2 make test_video
+	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 make test_video
 
 test_video_dynamic_name:
-	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 \
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 \
 	make test_video
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
@@ -649,7 +650,7 @@ test_video: video hub chrome firefox edge chromium
 	sudo chmod -R 777 ./tests/videos
 	docker_compose_file=$(or $(DOCKER_COMPOSE_FILE), docker-compose-v3-test-video.yml) ; \
 	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeChromium NodeFirefox NodeEdge") ; \
-	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeChromium NodeFirefox") ; \
+	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeFirefox NodeChromium") ; \
 	TEST_FIREFOX_INSTALL_LANG_PACKAGE=$(or $(TEST_FIREFOX_INSTALL_LANG_PACKAGE), "true") ; \
 	if [ "$${TEST_FIREFOX_INSTALL_LANG_PACKAGE}" = "true" ]; then \
 		make test_firefox_download_lang_packs ; \
@@ -667,6 +668,7 @@ test_video: video hub chrome firefox edge chromium
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
+			echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 45) >> .env ; \
 			echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 			echo TEST_FIREFOX_INSTALL_LANG_PACKAGE=$${TEST_FIREFOX_INSTALL_LANG_PACKAGE} >> .env ; \
 			echo BASIC_AUTH_USERNAME=$(or $(BASIC_AUTH_USERNAME), "admin") >> .env ; \
@@ -748,7 +750,7 @@ test_node_relay: hub node_base standalone_firefox
 	done
 
 test_standalone_docker: standalone_docker
-	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml \
+	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 \
 	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=2 \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
@@ -759,7 +761,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 	docker_compose_file=$(or $(DOCKER_COMPOSE_FILE), docker-compose-v3-test-node-docker.yaml) ; \
 	config_file=$(or $(CONFIG_FILE), config.toml) ; \
 	list_of_tests_amd64=$(or $(LIST_OF_TESTS_AMD64), "NodeChrome NodeChromium NodeFirefox NodeEdge") ; \
-	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeChromium NodeFirefox") ; \
+	list_of_tests_arm64=$(or $(LIST_OF_TESTS_ARM64), "NodeFirefox NodeChromium") ; \
 	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			list_nodes="$${list_of_tests_amd64}" ; \
 	else \
@@ -780,23 +782,27 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
 			echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 			echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
+			echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 20) >> .env ; \
 			echo NODE=$$node >> .env ; \
 			echo UID=$$(id -u) >> .env ; \
 			echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 			echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
 			if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
-					echo NODE_EDGE=edge >> .env ; \
+					NODE_EDGE=edge ; \
+					NODE_CHROME=chrome ; \
 			else \
-					echo NODE_EDGE=chromium >> .env ; \
+					NODE_EDGE=chromium ; \
+					NODE_CHROME=chromium ; \
 			fi; \
+			echo NODE_EDGE=$${NODE_EDGE} >> .env ; \
 			if [ $$node = "NodeChrome" ] ; then \
-					echo NODE_CHROME=chrome >> .env ; \
+					echo NODE_CHROME=$${NODE_CHROME} >> .env ; \
 			fi ; \
 			if [ $$node = "NodeChromium" ] ; then \
 					echo NODE_CHROME=chromium >> .env ; \
 					echo SELENIUM_GRID_TEST_HEADLESS=true >> .env ; \
 			else \
-					echo NODE_CHROME=chrome >> .env ; \
+					echo NODE_CHROME=$${NODE_CHROME} >> .env ; \
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < $${config_file} > ./videos/config.toml ; \

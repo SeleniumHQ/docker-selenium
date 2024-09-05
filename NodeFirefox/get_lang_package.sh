@@ -10,7 +10,7 @@ trap on_exit EXIT ERR
 # Script is used to download language packs for a specific version of Firefox.
 # It requires the version number as the first argument and the target directory as the second argument.
 
-VERSION=${1:-$(firefox --version | awk '{print $3}')}
+VERSION=${1:-$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')}
 TARGET_DIR="${2:-$(dirname $(readlink -f $(which firefox)))/distribution/extensions}"
 BASE_URL="https://ftp.mozilla.org/pub/firefox/releases/$VERSION/linux-x86_64/xpi/"
 
