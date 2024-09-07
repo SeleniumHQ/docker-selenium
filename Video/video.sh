@@ -172,7 +172,7 @@ function graceful_exit() {
   stop_if_recording_inprogress
   send_exit_signal_to_uploader
   wait_util_uploader_shutdown
-  kill -SIGTERM "$(cat /var/run/supervisor/supervisord.pid)" 2>/dev/null
+  kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
   echo "$(date +%FT%T%Z) [${process_name}] - Ready to shutdown the recorder"
   exit 0
 }

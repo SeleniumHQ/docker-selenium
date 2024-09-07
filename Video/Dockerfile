@@ -110,6 +110,9 @@ ENV DISPLAY_NUM=99 \
     VIDEO_FOLDER=${VIDEO_FOLDER} \
     SE_VIDEO_FILE_NAME=video.mp4 \
     SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_" \
-    SE_SUPERVISORD_LOG_LEVEL="info"
+    SE_SUPERVISORD_LOG_LEVEL="info" \
+    SE_SUPERVISORD_CHILD_LOG_DIR="/tmp" \
+    SE_SUPERVISORD_LOG_FILE="/tmp/supervisord.log" \
+    SE_SUPERVISORD_PID_FILE="/tmp/supervisord.pid"
 
 EXPOSE 9000

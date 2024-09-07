@@ -68,6 +68,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Mask sensitive information in console logs](#mask-sensitive-information-in-console-logs)
   * [Secure Connection](#secure-connection)
   * [Browser language and locale](#browser-language-and-locale)
+  * [Managing processes in container](#managing-processes-in-container)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
 * [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
@@ -785,7 +786,7 @@ host-config-keys = ["Binds"]
 
 Volumes config in docker compose file
 
-```dockerfile
+```yaml
 services:
   node-docker:
     image: selenium/node-docker:latest
@@ -1308,6 +1309,17 @@ FIREFOX_VERSION=$(docker run --rm --entrypoint="" selenium/node-firefox:latest f
 ```
 
 Or, you can mount the container directory `/home/seluser/firefox/distribution/extensions` to host directory to access packs were pre-built in the container for using in your test script.
+
+## Managing processes in container
+
+[Supervisor](http://supervisord.org/configuration.html) is used to manage processes and logs in the container. Few configuration for `supervisord` can be set via environment variables as below:
+
+| Environment variables        | Default                | `supervisord` config    |
+|------------------------------|------------------------|-------------------------|
+| SE_SUPERVISORD_LOG_LEVEL     | `info`                 | supervisord.loglevel    |
+| SE_SUPERVISORD_CHILD_LOG_DIR | `/tmp`                 | supervisord.childlogdir |
+| SE_SUPERVISORD_LOG_FILE      | `/tmp/supervisord.log` | supervisord.logfile     |
+| SE_SUPERVISORD_PID_FILE      | `/tmp/supervisord.pid` | supervisord.pidfile     |
 
 ___
 

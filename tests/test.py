@@ -46,6 +46,7 @@ https_proxy = os.environ.get('https_proxy', '')
 no_proxy = os.environ.get('no_proxy', '')
 SKIP_BUILD = os.environ.get('SKIP_BUILD', False)
 PLATFORMS = os.environ.get('PLATFORMS', 'linux/amd64')
+FILESYSTEM_READ_ONLY = os.environ.get('FILESYSTEM_READ_ONLY', 'false').lower() == 'true'
 BASE_VERSION = os.environ.get('BASE_VERSION')
 BASE_RELEASE = os.environ.get('BASE_RELEASE')
 
@@ -200,6 +201,8 @@ def launch_container(container, **kwargs):
                                          detach=True,
                                          environment=environment,
                                          shm_size="2G",
+                                         read_only=FILESYSTEM_READ_ONLY,
+                                         tmpfs={'/tmp': 'rw'},
                                          **kwargs).short_id
     logger.info("%s up and running" % container)
     return container_id
