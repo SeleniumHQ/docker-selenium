@@ -104,7 +104,7 @@ registrationSecret:
 # Basic auth settings for Selenium Grid
 basicAuth:
   # -- Enable or disable basic auth for the Hub/Router
-  enabled: true
+  enabled: false
   # -- Username for basic auth
   username: admin
   # -- Password for basic auth

@@ -66,7 +66,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | tls.disableHostnameVerification | bool | `true` | Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided |
 | registrationSecret.enabled | bool | `false` | Enable feature node registration secret to make sure that the node is one you control and not a rouge node |
 | registrationSecret.value | string | `"HappyTesting"` | The secret value to be used for node registration |
-| basicAuth.enabled | bool | `true` | Enable or disable basic auth for the Hub/Router |
+| basicAuth.enabled | bool | `false` | Enable or disable basic auth for the Hub/Router |
 | basicAuth.username | string | `"admin"` | Username for basic auth |
 | basicAuth.password | string | `"admin"` | Password for basic auth |
 | isolateComponents | bool | `false` | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately |

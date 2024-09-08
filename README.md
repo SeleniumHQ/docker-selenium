@@ -716,13 +716,13 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 
 ### Environment variables and default values for upload feature
 
-| Environment variable          | Default value                               | Description                                                                               |
-|-------------------------------|---------------------------------------------|-------------------------------------------------------------------------------------------|
-| `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false`                                     | Keep local file after uploading successfully                                              |
-| `SE_UPLOAD_COMMAND`           | `copy`                                      | RCLONE command is used to transfer file. Enforce `move` when retain local file is `false` |
-| `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata--inplace` | Other options belong to RCLONE command can be set.                                        |
-| `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                               | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
-| `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                                  | Directory of config file (change it when conf file in another directory is mounted)       |
+| Environment variable          | Default value                                | Description                                                                               |
+|-------------------------------|----------------------------------------------|-------------------------------------------------------------------------------------------|
+| `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false`                                      | Keep local file after uploading successfully                                              |
+| `SE_UPLOAD_COMMAND`           | `copy`                                       | RCLONE command is used to transfer file. Enforce `move` when retain local file is `false` |
+| `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata --inplace` | Other options belong to RCLONE command can be set.                                        |
+| `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                                | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
+| `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                                   | Directory of config file (change it when conf file in another directory is mounted)       |
 
 ___
 
