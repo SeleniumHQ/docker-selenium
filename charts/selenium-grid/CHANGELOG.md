@@ -1,3 +1,19 @@
+## :heavy_check_mark: selenium-grid-0.35.1
+
+- Chart is using image tag 4.24.0-20240907
+- Chart is tested on Kubernetes versions: v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, v1.31.0, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Changed
+- [`bcc20e28`](http://github.com/seleniumhq/docker-selenium/commit/bcc20e28ce1301fbe01b06b8e8ace72b0972026a) - Update tag 4.24.0-20240907 in docs and files :: Selenium CI Bot
+- [`b53dc3fb`](http://github.com/seleniumhq/docker-selenium/commit/b53dc3fb37815b4310eb7c047ff17dc364a2f839) - update: config supervisord via ENV variables :: Viet Nguyen Duc
+- [`44d8bb53`](http://github.com/seleniumhq/docker-selenium/commit/44d8bb532b4501dc0115bd2537cc2fbc1ab40422) - chore(deps): update helm release kube-prometheus-stack to v62.5.0 (#2384) :: renovate[bot]
+- [`e4858833`](http://github.com/seleniumhq/docker-selenium/commit/e4858833a5229f8f5b9cc3a41fdd290e7b3a6e13) - chore(deps): update helm release kube-prometheus-stack to v62.4.0 (#2383) :: renovate[bot]
+- [`4f2a6e41`](http://github.com/seleniumhq/docker-selenium/commit/4f2a6e41e793e5c17c41ae000f6499bdd311782d) - chart(add): set topologySpreadConstraints for components :: Viet Nguyen Duc
+- [`80ebff0f`](http://github.com/seleniumhq/docker-selenium/commit/80ebff0f95b48b3a395719222d32108ec246661b) - build: auto generate table of chart configuration parameter :: Viet Nguyen Duc
+- [`53e48937`](http://github.com/seleniumhq/docker-selenium/commit/53e48937779cde056debc60c801a1a747152740e) - Update chart 0.35.0 changelog [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.35.0
 
 - Chart is using image tag 4.24.0-20240830
