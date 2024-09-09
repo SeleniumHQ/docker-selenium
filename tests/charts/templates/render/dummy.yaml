@@ -23,6 +23,7 @@ autoscaling:
   scalingType: deployment
 
 basicAuth:
+  enabled: true
   username: sysadmin
   password: strongPassword
 

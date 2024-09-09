@@ -270,6 +270,10 @@ Component update strategy template
 Common pod template
 */}}
 {{- define "seleniumGrid.podTemplate" -}}
+{{- $nodeImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .node.imageRegistry -}}
+{{- $nodeImageTag := default $.Values.global.seleniumGrid.nodesImageTag .node.imageTag -}}
+{{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry -}}
+{{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag -}}
 template:
   metadata:
     labels:
@@ -298,15 +302,21 @@ template:
   {{- with .node.hostAliases }}
     hostAliases: {{ toYaml . | nindent 6 }}
   {{- end }}
-  {{- with .node.initContainers }}
     initContainers:
+      - name: "pre-puller-{{ .name }}"
+        image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
+        command: ["bash", "-c", "'true'"]
+    {{- if $.Values.videoRecorder.enabled }}
+      - name: "pre-puller-{{ $.Values.videoRecorder.name }}"
+        image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
+        command: ["bash", "-c", "'true'"]
+    {{- end }}
+    {{- with .node.initContainers }}
       {{- toYaml . | nindent 6 }}
-  {{- end }}
+    {{- end }}
     containers:
       - name: {{ .name }}
-        {{- $imageTag := default $.Values.global.seleniumGrid.nodesImageTag .node.imageTag }}
-        {{- $imageRegistry := default $.Values.global.seleniumGrid.imageRegistry .node.imageRegistry }}
-        image: {{ printf "%s/%s:%s" $imageRegistry .node.imageName $imageTag }}
+        image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
           - name: SE_NODE_CONTAINER_NAME
@@ -444,9 +454,7 @@ template:
     {{- end }}
     {{- if $.Values.videoRecorder.enabled }}
       - name: {{ $.Values.videoRecorder.name }}
-        {{- $imageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag }}
-        {{- $imageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry }}
-        image: {{ printf "%s/%s:%s" $imageRegistry $.Values.videoRecorder.imageName $imageTag }}
+        image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
         imagePullPolicy: {{ $.Values.videoRecorder.imagePullPolicy }}
         env:
         - name: SE_NODE_PORT
