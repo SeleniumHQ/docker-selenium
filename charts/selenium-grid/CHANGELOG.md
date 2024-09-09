@@ -1,3 +1,16 @@
+## :heavy_check_mark: selenium-grid-0.35.2
+
+- Chart is using image tag 4.24.0-20240907
+- Chart is tested on Kubernetes versions: v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, v1.31.0, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Changed
+- [`9a2afbc0`](http://github.com/seleniumhq/docker-selenium/commit/9a2afbc0290ef031e7458306219f2e8491cefb4d) - chore(deps): update helm release kube-prometheus-stack to v62.6.0 (#2385) :: renovate[bot]
+- [`44d92249`](http://github.com/seleniumhq/docker-selenium/commit/44d922495cc686d3fc48605e2b3d9d0836f399a5) - chart(fix): ensure images are pre-pulled and started together in Node (#2387) :: Viet Nguyen Duc
+- [`5f42b308`](http://github.com/seleniumhq/docker-selenium/commit/5f42b30815bf32eb170822c09161c03858f46fc7) - update: config basicAuth.enabled is false by default :: Viet Nguyen Duc
+- [`c8cd02b8`](http://github.com/seleniumhq/docker-selenium/commit/c8cd02b8c17b530539b38a711bd9f7938f268d4d) - Update chart 0.35.1 changelog [skip ci] :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.35.1
 
 - Chart is using image tag 4.24.0-20240907
