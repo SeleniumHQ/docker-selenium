@@ -639,7 +639,7 @@ test_video_standalone: standalone_chrome standalone_chromium standalone_firefox 
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 make test_video
 
 test_video_dynamic_name:
-	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 \
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 TEST_ADD_CAPS_RECORD_VIDEO=false \
 	make test_video
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
@@ -674,6 +674,7 @@ test_video: video hub chrome firefox edge chromium
 			echo BASIC_AUTH_USERNAME=$(or $(BASIC_AUTH_USERNAME), "admin") >> .env ; \
 			echo BASIC_AUTH_PASSWORD=$(or $(BASIC_AUTH_PASSWORD), "admin") >> .env ; \
 			echo SUB_PATH=$(or $(SUB_PATH), "/selenium") >> .env ; \
+			echo TEST_ADD_CAPS_RECORD_VIDEO=$(or $(TEST_ADD_CAPS_RECORD_VIDEO), "true") >> .env ; \
 			if [ $$node = "NodeChrome" ] ; then \
 					echo BROWSER=chrome >> .env ; \
 					echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"chrome_video.mp4"} >> .env ; \
