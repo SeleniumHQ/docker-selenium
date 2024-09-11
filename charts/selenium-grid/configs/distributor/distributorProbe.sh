@@ -26,6 +26,10 @@ SESSION_COUNT=$(curl --noproxy "*" --retry ${retry_time} -m ${max_time} -k -X PO
 
 MAX_SESSION=$(curl --noproxy "*" --retry ${retry_time} -m ${max_time} -k -X POST -H "Content-Type: application/json" --data '{"query":"{ grid { maxSession } }"}' -s ${GRID_GRAPHQL_URL} | jq -r '.data.grid.maxSession')
 
+if [ "${SE_LOG_LISTEN_GRAPHQL:-"false"}" = "true" ]; then
+  echo "$(curl --noproxy "*" --retry ${retry_time} -m ${max_time} -k -X POST -H "Content-Type: application/json" --data '{"query":"{ grid { sessionCount, maxSession, totalSlots }, nodesInfo { nodes { id, status, sessionCount, maxSession, slotCount, stereotypes, sessions { id, capabilities, slot { id, stereotype } } } }, sessionsInfo { sessionQueueRequests } }"}' -s ${GRID_GRAPHQL_URL} )"
+fi
+
 if [ ${SESSION_QUEUE_SIZE} -gt 0 ] && [ ${SESSION_COUNT} -eq 0 ]; then
   echo "$(date ${ts_format}) DEBUG [${probe_name}] - Session Queue Size: ${SESSION_QUEUE_SIZE}, Session Count: ${SESSION_COUNT}, Max Session: ${MAX_SESSION}"
   echo "$(date ${ts_format}) DEBUG [${probe_name}] - It seems the Distributor is delayed in processing a new session in the queue. Probe checks failed."

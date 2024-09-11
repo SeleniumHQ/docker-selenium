@@ -33,7 +33,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
-    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip python3-psutil python3-setuptools \
+    supervisor x11-xserver-utils x11-utils libxcb1-dev curl jq python3-pip tzdata acl unzip python3-psutil \
+  && pip install --no-cache-dir --upgrade --break-system-packages setuptools \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
