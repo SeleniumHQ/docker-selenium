@@ -57,6 +57,10 @@ chmod +x ./docker-compose
 sudo mv ./docker-compose /usr/libexec/docker/cli-plugins
 docker compose version
 echo "==============================="
+echo "Install Docker SBOMs plugin"
+curl -sSfL https://raw.githubusercontent.com/docker/sbom-cli-plugin/main/install.sh | sh -s --
+docker sbom --version
+echo "==============================="
 if [ "${CLUSTER}" = "kind" ]; then
     echo "Installing kind for AMD64 / ARM64"
     curl -fsSL -o ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-$(dpkg --print-architecture)

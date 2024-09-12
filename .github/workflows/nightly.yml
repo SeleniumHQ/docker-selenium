@@ -113,6 +113,8 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 120
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_nightly
+      - name: Update package versions
+        run: make generate_nightly_sbom
       - name: Push Helm chart to registry
         uses: nick-invision/retry@master
         with:
@@ -151,6 +153,7 @@ jobs:
           name: "Nightly"
           body_path: "release_notes.md"
           files: |
+            package_versions.txt
             ${{ env.CHART_PACKAGE_PATH }}
           generate_release_notes: true
           draft: false

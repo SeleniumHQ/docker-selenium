@@ -25,6 +25,7 @@ CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ]; then echo "linux/arm64"; 
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
+SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
 
 all: hub \
 	distributor \
@@ -341,6 +342,9 @@ release_latest:
 	docker push $(NAME)/standalone-docker:latest
 	docker push $(NAME)/video:latest
 
+generate_latest_sbom:
+	NAME=$(NAME) FILTER_IMAGE_TAG=latest OUTPUT_FILE=$(SBOM_OUTPUT) ./generate_sbom.sh
+
 tag_nightly:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:nightly
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:nightly
@@ -382,6 +386,9 @@ release_nightly:
 	docker push $(NAME)/standalone-firefox:nightly
 	docker push $(NAME)/standalone-docker:nightly
 	docker push $(NAME)/video:nightly
+
+generate_nightly_sbom:
+	NAME=$(NAME) FILTER_IMAGE_TAG=nightly OUTPUT_FILE=$(SBOM_OUTPUT) ./generate_sbom.sh
 
 tag_major_minor:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR)

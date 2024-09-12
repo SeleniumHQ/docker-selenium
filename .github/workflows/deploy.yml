@@ -151,6 +151,8 @@ jobs:
           retry_wait_seconds: 300
           continue_on_error: true
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
+      - name: Update package versions
+        run: make generate_latest_sbom
       - name: Tag browser images
         if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
@@ -201,4 +203,6 @@ jobs:
           prerelease: ${{ env.PRERELEASE }}
           draft: false
           append_body: false
-          files: ${{ env.PUBLISH_YAML_MANIFESTS }}
+          files: |
+            package_versions.txt
+            ${{ env.PUBLISH_YAML_MANIFESTS }}
