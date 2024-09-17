@@ -306,6 +306,9 @@ template:
       - name: "pre-puller-{{ .name }}"
         image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
         command: ["bash", "-c", "'true'"]
+      {{- with .node.resources }}
+        resources: {{- toYaml . | nindent 10 }}
+      {{- end }}
     {{- if $.Values.videoRecorder.enabled }}
       - name: "pre-puller-{{ $.Values.videoRecorder.name }}"
         image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
