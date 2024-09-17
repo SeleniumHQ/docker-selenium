@@ -785,6 +785,8 @@ autoscaling:
     "helm.sh/hook": post-install,post-upgrade,post-rollback
     "helm.sh/hook-weight": "1"
   patchObjectFinalizers:
+    # -- Override the name of the patch job
+    nameOverride:
     # -- Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists
     enabled: true
     # -- Deadline (in seconds) for patch job to complete

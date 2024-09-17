@@ -52,7 +52,7 @@ component.autoscaling: "{{ .Release.Name }}"
 {{- if eq $root.Release.Name "selenium" }}
 {{- $component | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" $root.Release.Name $component | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" $root.Release.Name $component | replace "." "" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -74,7 +74,7 @@ Event bus fullname
 Event bus ConfigMap fullname
 */}}
 {{- define "seleniumGrid.eventBus.configmap.fullname" -}}
-{{- tpl (default (include "seleniumGrid.eventBus.fullname" $) .Values.busConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-event-bus-config" $)) .Values.busConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -207,7 +207,7 @@ Server ConfigMap fullname
 Patch scaledObjects finalizers job fullname
 */}}
 {{- define "seleniumGrid.keda.patchObjectsJob.fullname" -}}
-{{- tpl (include "seleniumGrid.component.name" (list "selenium-patch-scaledobjects-finalizers" $)) $ | trunc 63 | trimSuffix "-" -}}
+{{- tpl ( default (include "seleniumGrid.component.name" (list "selenium-patch-scaledobjects-finalizers" $)) .Values.autoscaling.patchObjectFinalizers.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
