@@ -32,7 +32,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.imageTag | string | `"4.24.0-20240907"` | Image tag for all selenium components |
 | global.seleniumGrid.nodesImageTag | string | `"4.24.0-20240907"` | Image tag for browser's nodes |
 | global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.0.2-20240907"` | Image tag for browser's video recorder |
-| global.seleniumGrid.kubectlImage | string | `"bitnami/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
+| global.seleniumGrid.kubectlImage | string | `"jitesoft/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
 | global.seleniumGrid.defaultNodeStartupProbe | string | `"exec"` | Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
@@ -305,6 +305,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |
 | autoscaling.patchObjectFinalizers.activeDeadlineSeconds | int | `120` | Deadline (in seconds) for patch job to complete |
 | autoscaling.patchObjectFinalizers.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback,pre-delete","helm.sh/hook-delete-policy":"hook-succeeded,before-hook-creation","helm.sh/hook-weight":"-1"}` | Annotations for patch job |
+| autoscaling.patchObjectFinalizers.imagePullSecret | string | `""` | Custom pull secret for container in patch job |
+| autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"50m","memory":"50Mi"},"requests":{"cpu":"10m","memory":"10Mi"}}` | Define resources for container in patch job |
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":8,"minReplicaCount":0,"pollingInterval":10}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
 | autoscaling.scaledOptions.minReplicaCount | int | `0` | Minimum number of replicas |
 | autoscaling.scaledOptions.maxReplicaCount | int | `8` | Maximum number of replicas |

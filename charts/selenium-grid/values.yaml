@@ -13,7 +13,7 @@ global:
     # -- Image tag for browser's video recorder
     videoImageTag: ffmpeg-7.0.2-20240907
     # -- kubectl image is used to execute kubectl commands in utility jobs
-    kubectlImage: bitnami/kubectl:latest
+    kubectlImage: jitesoft/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # -- Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -796,6 +796,16 @@ autoscaling:
       "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
       "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
       "helm.sh/hook-weight": "-1"
+    # -- Custom pull secret for container in patch job
+    imagePullSecret: ""
+    # -- Define resources for container in patch job
+    resources:
+      requests:
+        cpu: 10m
+        memory: 10Mi
+      limits:
+        cpu: 50m
+        memory: 50Mi
   # -- Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     # -- Minimum number of replicas
