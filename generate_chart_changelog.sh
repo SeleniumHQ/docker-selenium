@@ -82,6 +82,10 @@ generate_changelog() {
     echo "" >>"$temp_file"
   fi
 
+  echo "### Experimental" >>"$temp_file"
+  echo "- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)" >>"$temp_file"
+  echo "" >>"$temp_file"
+
   # Create chart_release_notes.md
   release_notes_file="$CHART_DIR/RELEASE_NOTES.md"
   chart_description=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^description | cut -d ':' -f 2)

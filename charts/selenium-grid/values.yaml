@@ -819,9 +819,9 @@ autoscaling:
   # Options for KEDA ScaledJobs (only used when scalingType is set to "job"). See https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
     scalingStrategy:
-      # Change this to "accurate" when the calculation problem is fixed
+      # Offer the strategy default with scaler calculation updated in https://github.com/SeleniumHQ/docker-selenium/tree/trunk/.keda/README.md
       # -- Scaling strategy for KEDA ScaledJob
-      strategy: accurate
+      strategy: default
     # -- Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # -- Number of Failed jobs should be kept (for troubleshooting purposes)
@@ -1517,12 +1517,28 @@ videoRecorder:
 # -- Custom labels for k8s resources
 customLabels: {}
 
-# -- Configuration for dependency chart keda
+# Configuration for dependency chart keda
 keda:
   # enabled: false
+  # -- Specify image for KEDA components
+  image:
+    keda:
+      registry: selenium
+      repository: keda
+      tag: "2.15.1-selenium-grid-20240907"
+    metricsApiServer:
+      registry: selenium
+      repository: keda-metrics-apiserver
+      tag: "2.15.1-selenium-grid-20240907"
+    webhooks:
+      registry: selenium
+      repository: keda-admission-webhooks
+      tag: "2.15.1-selenium-grid-20240907"
+  # -- Annotations for KEDA resources
   additionalAnnotations:
   http:
     timeout: 60000
+  # -- Enable KEDA admission webhooks component
   webhooks:
     enabled: false
 

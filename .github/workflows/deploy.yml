@@ -152,7 +152,9 @@ jobs:
           continue_on_error: true
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Update package versions
-        run: make generate_latest_sbom
+        run: |
+          make generate_latest_sbom
+          make fetch_grid_scaler_resources
       - name: Tag browser images
         if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
