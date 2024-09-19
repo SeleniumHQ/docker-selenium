@@ -14,6 +14,8 @@ if [[ -n ${GRAPHQL_ENDPOINT} ]] && [[ ! ${GRAPHQL_ENDPOINT} == */graphql ]]; the
   GRAPHQL_ENDPOINT="${GRAPHQL_ENDPOINT}/graphql"
 fi
 
+BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+
 VIDEO_CAP_NAME=${VIDEO_CAP_NAME:-"se:recordVideo"}
 TEST_NAME_CAP=${TEST_NAME_CAP:-"se:name"}
 VIDEO_NAME_CAP=${VIDEO_NAME_CAP:-"se:videoName"}
@@ -27,11 +29,14 @@ if [ -n "${GRAPHQL_ENDPOINT}" ]; then
     # Send GraphQL query
     endpoint_checks=$(curl --noproxy "*" -m ${max_time} -k -X POST \
       -H "Content-Type: application/json" \
+      -H "Authorization: Basic ${BASIC_AUTH}" \
       --data '{"query":"{ session (id: \"'${SESSION_ID}'\") { id, capabilities, startTime, uri, nodeId, nodeUri, sessionDurationMillis, slot { id, stereotype, lastStarted } } } "}' \
       -s "${GRAPHQL_ENDPOINT}" -o "/tmp/graphQL_${SESSION_ID}.json" -w "%{http_code}")
     current_check=$((current_check + 1))
     # Check if the response contains "capabilities"
     if [[ "$endpoint_checks" = "404" ]] || [[ $current_check -eq $retry_time ]]; then
+      break
+    elif [[ "$endpoint_checks" = "401" ]] || [[ $current_check -eq $retry_time ]]; then
       break
     elif [[ "$endpoint_checks" = "200" ]] && [[ $(jq -e '.data.session.capabilities | fromjson | ."'se:vncEnabled'"' /tmp/graphQL_${SESSION_ID}.json >/dev/null) -eq 0 ]]; then
       break
@@ -73,7 +78,7 @@ fi
 # Normalize the video file name
 TEST_NAME="$(echo "${TEST_NAME}" | tr ' ' '_' | tr -dc "${VIDEO_FILE_NAME_TRIM}" | cut -c 1-251)"
 
-return_array=("${RECORD_VIDEO}" "${TEST_NAME}")
+return_array=("${RECORD_VIDEO}" "${TEST_NAME}" "${endpoint_checks}" "${GRAPHQL_ENDPOINT}")
 
 # stdout the values for other scripts consuming
 echo "${return_array[@]}"

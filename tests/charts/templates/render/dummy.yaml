@@ -23,6 +23,7 @@ autoscaling:
   scalingType: deployment
 
 basicAuth:
+  nameOverride: "my-external-basic-auth-secret"
   enabled: true
   username: sysadmin
   password: strongPassword

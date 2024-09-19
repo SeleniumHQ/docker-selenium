@@ -2,6 +2,7 @@ import yaml
 import unittest
 import sys
 import logging
+import base64
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -52,14 +53,13 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "No ingress resources found")
 
     def test_sub_path_append_to_node_grid_url(self):
-        resources_name = ['{0}selenium-node-config'.format(RELEASE_NAME)]
-        count = 0
+        resources_name = ['{0}selenium-secrets'.format(RELEASE_NAME),]
         for doc in LIST_OF_DOCUMENTS:
-            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ConfigMap':
-                logger.info(f"Assert subPath is appended to Node env SE_NODE_GRID_URL")
-                self.assertTrue(doc['data']['SE_NODE_GRID_URL'] == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium')
-                count += 1
-        self.assertEqual(count, len(resources_name), "No node config resources found")
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
+                logger.info(f"Assert graphql url is constructed without basic auth in url")
+                base64_url = doc['data']['SE_NODE_GRID_URL']
+                decoded_url = base64.b64decode(base64_url).decode('utf-8')
+                self.assertTrue(decoded_url == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium', decoded_url)
 
     def test_sub_path_set_to_grid_env_var(self):
         resources_name = ['{0}selenium-router'.format(RELEASE_NAME)]
@@ -73,15 +73,14 @@ class ChartTemplateTests(unittest.TestCase):
                         is_present = True
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
-    def test_graphql_url_for_autoscaling_constructed_correctly(self):
-        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),]
-        count = 0
+    def test_graphql_url_for_autoscaling_constructed_without_basic_auth_in_url(self):
+        resources_name = ['{0}selenium-secrets'.format(RELEASE_NAME),]
         for doc in LIST_OF_DOCUMENTS:
-            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
-                logger.info(f"Assert trigger url is set GraphQL endpoint in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['triggers'][0]['metadata']['url'] == 'https://sysadmin:strongPassword@{0}selenium-router.default:4444/selenium/graphql'.format(RELEASE_NAME))
-                count += 1
-        self.assertEqual(count, len(resources_name), "GraphQL endpoint is not set correctly")
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
+                logger.info(f"Assert graphql url is constructed without basic auth in url")
+                base64_url = doc['data']['SE_NODE_GRID_GRAPHQL_URL']
+                decoded_url = base64.b64decode(base64_url).decode('utf-8')
+                self.assertTrue(decoded_url == 'https://{0}selenium-router.default:4444/selenium/graphql'.format(RELEASE_NAME), decoded_url)
 
     def test_distributor_new_session_thread_pool_size(self):
         resources_name = ['{0}selenium-distributor'.format(RELEASE_NAME)]
@@ -300,6 +299,35 @@ class ChartTemplateTests(unittest.TestCase):
                 self.assertTrue(doc['spec']['template']['spec']['topologySpreadConstraints'][0]['labelSelector']['matchLabels']['app'] == doc['metadata']['name'])
                 count += 1
         self.assertEqual(count, len(resources_name), "No deployment resources found with topologySpreadConstraints")
+
+    def test_not_create_basic_auth_secret_when_nameOverride_is_set(self):
+        resources_name = ['{0}selenium-basic-auth-secrets'.format(RELEASE_NAME)]
+        count = 0
+        logger.info(f"Assert basic auth secret is not created when nameOverride is set")
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
+                count += 1
+        self.assertEqual(count, 0, "Basic auth secret resource is created when nameOverride is set")
+
+    def test_router_envFrom_secretRef_name_use_external_secret_when_basicAuth_nameOverride_is_set(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),
+                          '{0}selenium-edge-node'.format(RELEASE_NAME),
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME),
+                          '{0}selenium-distributor'.format(RELEASE_NAME),
+                          '{0}selenium-event-bus'.format(RELEASE_NAME),
+                          '{0}selenium-router'.format(RELEASE_NAME),
+                          '{0}selenium-session-map'.format(RELEASE_NAME),
+                          '{0}selenium-session-queue'.format(RELEASE_NAME),]
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert envFrom secretRef name is set to external secret when basicAuth nameOverride is set")
+                list_env_from = doc['spec']['template']['spec']['containers'][0]['envFrom']
+                for env in list_env_from:
+                    if env.get('secretRef') is not None:
+                        if env['secretRef']['name'] == 'my-external-basic-auth-secret':
+                            is_present = True
+        self.assertTrue(is_present, "ENV variable from secretRef name is not set to external secret")
 
 if __name__ == '__main__':
     failed = False

@@ -103,12 +103,16 @@ registrationSecret:
 
 # Basic auth settings for Selenium Grid
 basicAuth:
+  # -- External secret containing the basic auth username and password for reference
+  nameOverride: ""
   # -- Enable or disable basic auth for the Hub/Router
   enabled: false
   # -- Username for basic auth
   username: admin
   # -- Password for basic auth
   password: admin
+  # -- Annotations for basic auth secret resource
+  annotations: {}
 
 # -- Deploy Router, Distributor, EventBus, SessionMap and Nodes separately
 isolateComponents: false
@@ -780,6 +784,9 @@ autoscaling:
   enableWithExistingKEDA: false
   # -- Which type of KEDA scaling to use: job or deployment
   scalingType: job
+  # -- Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes
+  authenticationRef:
+    name: ""
   # -- Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
     "helm.sh/hook": post-install,post-upgrade,post-rollback
@@ -1004,8 +1011,6 @@ chromeNode:
   # -- Override the scaledObjectOptions for chrome nodes
   scaledObjectOptions:
   hpa:
-    # -- Graphql endpoint for the HPA to fetch metrics
-    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     # -- browserName from the capability
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
@@ -1185,8 +1190,6 @@ firefoxNode:
   # -- Override the scaledObjectOptions for firefox nodes
   scaledObjectOptions:
   hpa:
-    # -- Graphql endpoint for the HPA to fetch metrics
-    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     # -- browserName from the capability
     browserName: "firefox"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
@@ -1365,8 +1368,6 @@ edgeNode:
   # -- Override the scaledObjectOptions for edge nodes
   scaledObjectOptions:
   hpa:
-    # -- Graphql endpoint for the HPA to fetch metrics
-    url: '{{ template "seleniumGrid.graphqlURL" . }}'
     # -- browserName from the capability
     browserName: "MicrosoftEdge"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName

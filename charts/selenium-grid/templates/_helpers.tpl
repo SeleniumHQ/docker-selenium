@@ -243,6 +243,10 @@ triggers:
   {{- with .node.hpa }}
     {{- tpl (toYaml .) $ | nindent 6 }}
   {{- end }}
+  {{- if not .node.hpa.authenticationRef }}
+    authenticationRef:
+      name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
+  {{- end }}
 {{- end }}
 {{- end -}}
 
@@ -313,7 +317,7 @@ template:
       - name: "pre-puller-{{ $.Values.videoRecorder.name }}"
         image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
         command: ["bash", "-c", "'true'"]
-      {{- with .node.resources }}
+      {{- with $.Values.videoRecorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
@@ -358,7 +362,9 @@ template:
           - configMapRef:
               name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
           - secretRef:
-              name: {{ include "seleniumGrid.common.secrets.fullname" $ }}
+              name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+          - secretRef:
+              name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
@@ -481,6 +487,8 @@ template:
             name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
         - configMapRef:
             name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+        - secretRef:
+            name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
         {{- if and $.Values.videoRecorder.uploader.enabled (empty $.Values.videoRecorder.uploader.name) }}
         - secretRef:
             name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
@@ -538,6 +546,8 @@ template:
         envFrom:
           - configMapRef:
               name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
+          - secretRef:
+              name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           - secretRef:
               name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- with .uploader.extraEnvFrom }}
@@ -621,7 +631,7 @@ Get the url of the grid. If the external url can be figured out from the ingress
 Get the url of the grid server in the cluster
 */}}
 {{- define "seleniumGrid.server.url" -}}
-{{- $url := printf "%s://%s%s%s%s" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- $url := printf "%s://%s%s%s" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
 {{- $url }}
 {{- end -}}
 
