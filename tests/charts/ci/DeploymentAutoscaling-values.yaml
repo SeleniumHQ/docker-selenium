@@ -2,7 +2,7 @@ autoscaling:
   scalingType: deployment
   scaledOptions:
     minReplicaCount: 0
-    maxReplicaCount: 3
+    maxReplicaCount: 4
     pollingInterval: 10
   scaledObjectOptions:
     cooldownPeriod: 30

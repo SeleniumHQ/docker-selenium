@@ -311,7 +311,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.minReplicaCount | int | `0` | Minimum number of replicas |
 | autoscaling.scaledOptions.maxReplicaCount | int | `8` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `10` | Polling interval in seconds |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
@@ -495,7 +495,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"bitnami/aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"public.ecr.aws","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
-| keda | object | `{"additionalAnnotations":null,"http":{"timeout":60000},"webhooks":{"enabled":false}}` | Configuration for dependency chart keda |
+| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.15.1-selenium-grid-20240907"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.15.1-selenium-grid-20240907"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.15.1-selenium-grid-20240907"}}` | Specify image for KEDA components |
+| keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
+| keda.http.timeout | int | `60000` |  |
+| keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
 | ingress-nginx | object | `{"controller":{"admissionWebhooks":{"enabled":false}}}` | Configuration for dependency chart ingress-nginx |
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"agent":{"enabled":false},"allInOne":{"enabled":true,"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"collector":{"enabled":false},"provisionDataStore":{"cassandra":false},"query":{"enabled":false},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |

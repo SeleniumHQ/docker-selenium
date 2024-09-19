@@ -127,6 +127,8 @@ or [jobs](https://keda.sh/docs/latest/concepts/scaling-jobs/) and the charts sup
 chart support both modes.  It is controlled with `autoscaling.scalingType` that can be set to either
 job (default) or deployment.
 
+Preview new changes in Selenium Grid scaler implementation. Refer to [README](../../.keda/README.md)
+
 ### Settings common for both `job` and `deployment` scalingType
 
 There are few settings that are common for both scaling types. These are grouped under `autoscaling.scaledOptions`.

@@ -33,6 +33,10 @@ hub:
 components:
   extraEnvironmentVariables: *extraEnvironmentVariables
 
+keda:
+  webhooks:
+    enabled: true
+
 ingress-nginx:
   controller:
     hostPort:

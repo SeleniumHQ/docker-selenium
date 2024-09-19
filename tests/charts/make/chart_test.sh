@@ -26,6 +26,8 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"true"} # For debugging purposes, retain the cluste
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/tls.crt"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
 VIDEO_TAG=${VIDEO_TAG:-"latest"}
+KEDA_BASED_NAME=${KEDA_BASED_NAME:-"selenium"}
+KEDA_BASED_TAG=${KEDA_BASED_TAG:-"latest"}
 CHART_ENABLE_TRACING=${CHART_ENABLE_TRACING:-"false"}
 CHART_FULL_DISTRIBUTED_MODE=${CHART_FULL_DISTRIBUTED_MODE:-"false"}
 HOSTNAME_ADDRESS=${HOSTNAME_ADDRESS:-${SELENIUM_GRID_HOST}}
@@ -34,7 +36,7 @@ CHART_ENABLE_BASIC_AUTH=${CHART_ENABLE_BASIC_AUTH:-"false"}
 BASIC_AUTH_USERNAME=${BASIC_AUTH_USERNAME:-"sysAdminUser"}
 BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
-TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
+TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"false"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 RENDER_HELM_TEMPLATE_ONLY=${RENDER_HELM_TEMPLATE_ONLY:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
@@ -328,8 +330,18 @@ fi
 
 if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
   helm repo add kedacore https://kedacore.github.io/charts
-  echo "Install KEDA core on kind kubernetes cluster"
-  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=false kedacore/keda
+  echo "Install KEDA core on Kubernetes cluster"
+  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=true \
+  --set image.keda.registry=${KEDA_BASED_NAME} --set image.keda.repository=keda --set image.keda.tag=${KEDA_BASED_TAG} \
+  --set image.metricsApiServer.registry=${KEDA_BASED_NAME} --set image.metricsApiServer.repository=keda-metrics-apiserver --set image.metricsApiServer.tag=${KEDA_BASED_TAG} \
+  --set image.webhooks.registry=${KEDA_BASED_NAME} --set image.webhooks.repository=keda-admission-webhooks --set image.webhooks.tag=${KEDA_BASED_TAG} \
+  kedacore/keda
+elif [ "${TEST_EXISTING_KEDA}" != "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set keda.image.keda.registry=${KEDA_BASED_NAME} --set keda.image.keda.repository=keda --set keda.image.keda.tag=${KEDA_BASED_TAG} \
+  --set keda.image.metricsApiServer.registry=${KEDA_BASED_NAME} --set keda.image.metricsApiServer.repository=keda-metrics-apiserver --set keda.image.metricsApiServer.tag=${KEDA_BASED_TAG} \
+  --set keda.image.webhooks.registry=${KEDA_BASED_NAME} --set keda.image.webhooks.repository=keda-admission-webhooks --set keda.image.webhooks.tag=${KEDA_BASED_TAG} \
+  "
 fi
 
 if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then

@@ -18,7 +18,6 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 CNI=${CNI:-"calico"} # auto, calico, cilium
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"} # docker, containerd, cri-o
-TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"true"}
 
 # Function to clean up for retry step on workflow
 cleanup() {
