@@ -36,9 +36,22 @@ if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE
     exit 1
   fi
 
-  grid_url=$(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh)
+  return_list=($(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh))
+  grid_url=${return_list[0]}
+  grid_check=${return_list[1]}
+  BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
 
-  curl --noproxy "*" -m ${max_time} -sfk "${grid_url}/status" -o ${tmp_grid_file}
+  if [ -n "${grid_url}" ]; then
+    if [ "${grid_check}" = "401" ]; then
+      echo "$(date +%FT%T%Z) [${probe_name}] - Hub/Router requires authentication. Please check SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD."
+    elif [ "${grid_check}" = "404" ]; then
+      echo "$(date +%FT%T%Z) [${probe_name}] - Hub/Router endpoint could not be found. Please check the endpoint ${grid_url}"
+    fi
+  else
+    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. ${probe_name} will not work as expected."
+  fi
+
+  curl --noproxy "*" -m ${max_time} -H "Authorization: Basic ${BASIC_AUTH}" -sfk "${grid_url}/status" -o ${tmp_grid_file}
   GRID_NODE_ID=$(jq -e ".value.nodes[].id|select(. == \"${NODE_ID}\")" ${tmp_grid_file} | tr -d '"' || "")
   if [ -n "${GRID_NODE_ID}" ]; then
     echo "$(date +%FT%T%Z) [${probe_name}] - Grid responds a matched Node ID: ${GRID_NODE_ID}"

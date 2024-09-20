@@ -141,6 +141,20 @@ Common secrets cross components
 {{- end -}}
 
 {{/*
+Basic authentication secrets for components fullname
+*/}}
+{{- define "seleniumGrid.basicAuth.secrets.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-basic-auth-secrets" $)) .Values.basicAuth.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+KEDA TriggerAuthentication resource fullname
+*/}}
+{{- define "seleniumGrid.autoscaling.authenticationRef.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-scaler-trigger-auth" $)) .Values.autoscaling.authenticationRef.name) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Secret TLS fullname
 */}}
 {{- define "seleniumGrid.tls.fullname" -}}

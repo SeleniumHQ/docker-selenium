@@ -11,6 +11,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Installing the Nightly chart](#installing-the-nightly-chart)
     * [Chart Release Name convention](#chart-release-name-convention)
   * [Enable Selenium Grid Autoscaling](#enable-selenium-grid-autoscaling)
+    * [Preview new changes in Selenium Grid Scaler implementation](#preview-new-changes-in-selenium-grid-scaler-implementation)
     * [Settings common for both `job` and `deployment` scalingType](#settings-common-for-both-job-and-deployment-scalingtype)
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
     * [Settings when scalingType with `job`](#settings-when-scalingtype-with-job)
@@ -127,7 +128,9 @@ or [jobs](https://keda.sh/docs/latest/concepts/scaling-jobs/) and the charts sup
 chart support both modes.  It is controlled with `autoscaling.scalingType` that can be set to either
 job (default) or deployment.
 
-Preview new changes in Selenium Grid scaler implementation. Refer to [README](../../.keda/README.md)
+### Preview new changes in Selenium Grid Scaler implementation
+
+Refer to [README](../../.keda/README.md)
 
 ### Settings common for both `job` and `deployment` scalingType
 
@@ -338,8 +341,13 @@ hub:
 ```
 # Source: selenium-grid/templates/node-configmap.yaml
 
-SE_NODE_GRID_URL: 'http://admin:admin@10.10.10.10/selenium'
+SE_NODE_GRID_URL: 'http://10.10.10.10/selenium'
 ```
+
+For security reasons, it is not recommend to put the credentials in the URL in env variable `SE_NODE_GRID_URL`. For any utilities that need to access the Grid, basic auth should get from env variables `SE_ROUTER_USERNAME` and `SE_ROUTER_PASSWORD`.
+
+If you want to keep basic auth credential is embedded in few URLs (in case Websocket URLs construct in session capabilities), you can set `basicAuth.embeddedUrl` to `true`. By default, it is `false`.
+
 Besides that, from the outside of the cluster, you can access via NodePort `http://10.10.10.10:30444/selenium`
 
 ### Configuration of Nodes

@@ -51,11 +51,13 @@ spec:
         {{- end }}
           envFrom:
             - configMapRef:
-                name: {{ template "seleniumGrid.logging.configmap.fullname" . }}
+                name: {{ template "seleniumGrid.logging.configmap.fullname" $ }}
             - configMapRef:
-                name: {{ template "seleniumGrid.server.configmap.fullname" . }}
+                name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
             - secretRef:
-                name: {{ template "seleniumGrid.common.secrets.fullname" . }}
+                name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+            - secretRef:
+                name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- with .Values.components.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
           {{- end }}

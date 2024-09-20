@@ -1,0 +1,25 @@
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") (not $.Values.autoscaling.authenticationRef.name) }}
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with $.Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" $ | nindent 4 }}
+spec:
+  secretTargetRef:
+  - parameter: url
+    name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+    key: SE_NODE_GRID_GRAPHQL_URL
+  - parameter: username
+    name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+    key: SE_ROUTER_USERNAME
+  - parameter: password
+    name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+    key: SE_ROUTER_PASSWORD
+{{- end }}

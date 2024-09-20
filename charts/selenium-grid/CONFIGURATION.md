@@ -66,9 +66,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | tls.disableHostnameVerification | bool | `true` | Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided |
 | registrationSecret.enabled | bool | `false` | Enable feature node registration secret to make sure that the node is one you control and not a rouge node |
 | registrationSecret.value | string | `"HappyTesting"` | The secret value to be used for node registration |
+| basicAuth.nameOverride | string | `""` | External secret containing the basic auth username and password for reference |
 | basicAuth.enabled | bool | `false` | Enable or disable basic auth for the Hub/Router |
 | basicAuth.username | string | `"admin"` | Username for basic auth |
 | basicAuth.password | string | `"admin"` | Password for basic auth |
+| basicAuth.embeddedUrl | bool | `false` | Embed the basic auth "username:password@" in few URLs e.g. SE_NODE_GRID_URL |
+| basicAuth.annotations | object | `{}` | Annotations for basic auth secret resource |
 | isolateComponents | bool | `false` | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately |
 | serviceAccount.create | bool | `true` | Create a service account for all components |
 | serviceAccount.nameOverride | string | `nil` | Override to use an external service account |
@@ -300,6 +303,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
+| autoscaling.authenticationRef | object | `{"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |
@@ -361,7 +365,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
-| chromeNode.hpa.url | string | `"{{ template \"seleniumGrid.graphqlURL\" . }}"` | Graphql endpoint for the HPA to fetch metrics |
 | chromeNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | chromeNode.hpa.platformName | string | `"linux"` | platformName from the capability |
@@ -411,7 +414,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
-| firefoxNode.hpa.url | string | `"{{ template \"seleniumGrid.graphqlURL\" . }}"` | Graphql endpoint for the HPA to fetch metrics |
 | firefoxNode.hpa.browserName | string | `"firefox"` | browserName from the capability |
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | firefoxNode.hpa.platformName | string | `"linux"` | platformName from the capability |
@@ -461,7 +463,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
-| edgeNode.hpa.url | string | `"{{ template \"seleniumGrid.graphqlURL\" . }}"` | Graphql endpoint for the HPA to fetch metrics |
 | edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName from the capability |
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | edgeNode.hpa.platformName | string | `"linux"` | platformName from the capability |

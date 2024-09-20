@@ -203,8 +203,15 @@ else
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date +%FT%T%Z) [${process_name}] - Session: $session_id is created"
       return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
-      caps_se_video_record=${return_list[0]}
+      caps_se_video_record="${return_list[0]}"
       video_file_name="${return_list[1]}.mp4"
+      endpoint_status="${return_list[2]}"
+      endpoint_url="${return_list[3]}"
+      if [[ "${endpoint_status}" = "401" ]]; then
+        echo "$(date +%FT%T%Z) [${process_name}] - GraphQL endpoint requires authentication, please set env variables SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD"
+      elif [[ "${endpoint_status}" = "404" ]]; then
+        echo "$(date +%FT%T%Z) [${process_name}] -GraphQL endpoint could not be found, please check the endpoint ${endpoint_url}"
+      fi
       echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
       log_node_response
     fi

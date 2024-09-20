@@ -12,7 +12,7 @@ tmp_node_file="/tmp/nodeProbe${ID}"
 
 function on_exit() {
   rm -rf ${tmp_node_file}
-  echo "$(date +%FT%T%Z) [${probe_name}] - Exiting Node preStop..."
+  echo "$(date +%FT%T%Z) [${probe_name}] - Exiting Node ${probe_name}..."
   exit 0
 }
 trap on_exit EXIT
@@ -30,12 +30,20 @@ else
 fi
 
 function signal_hub_to_drain_node() {
-  grid_url=$(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh)
+  return_list=($(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh))
+  grid_url=${return_list[0]}
+  grid_check=${return_list[1]}
+  BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
   if [ -n "${grid_url}" ]; then
+    if [ "${grid_check}" = "401" ]; then
+      echo "$(date +%FT%T%Z) [${probe_name}] - Hub/Router requires authentication. Please check SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD."
+    elif [ "${grid_check}" = "404" ]; then
+      echo "$(date +%FT%T%Z) [${probe_name}] - Hub/Router endpoint could not be found. Please check the endpoint ${grid_url}"
+    fi
     echo "$(date +%FT%T%Z) [${probe_name}] - Signaling Hub/Router to drain node"
-    curl --noproxy "*" -m ${max_time} -k -X POST ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
+    curl --noproxy "*" -m ${max_time} -k -X POST -H "Authorization: Basic ${BASIC_AUTH}" ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
   else
-    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. preStop ignores to send drain request to upstream."
+    echo "$(date +%FT%T%Z) [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. ${probe_name} ignores to send drain request to upstream."
   fi
 }
 
@@ -66,7 +74,7 @@ if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE
         echo
         exit 0
       else
-        echo "$(date +%FT%T%Z) [${probe_name}] - Node preStop is waiting for current session on slot ${SLOT_HAS_SESSION} to be finished. Node details: message: $(jq -r '.value.message' ${tmp_node_file} || "unknown"), availability: $(jq -r '.value.node.availability' ${tmp_node_file} || "unknown")"
+        echo "$(date +%FT%T%Z) [${probe_name}] - Node ${probe_name} is waiting for current session on slot ${SLOT_HAS_SESSION} to be finished. Node details: message: $(jq -r '.value.message' ${tmp_node_file} || "unknown"), availability: $(jq -r '.value.node.availability' ${tmp_node_file} || "unknown")"
         sleep 2;
       fi
 
