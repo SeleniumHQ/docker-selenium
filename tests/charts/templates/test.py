@@ -52,14 +52,14 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No ingress resources found")
 
-    def test_sub_path_append_to_node_grid_url(self):
+    def test_sub_path_append_to_node_grid_url_and_basic_auth_should_not_include(self):
         resources_name = ['{0}selenium-secrets'.format(RELEASE_NAME),]
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
                 logger.info(f"Assert graphql url is constructed without basic auth in url")
                 base64_url = doc['data']['SE_NODE_GRID_URL']
                 decoded_url = base64.b64decode(base64_url).decode('utf-8')
-                self.assertTrue(decoded_url == 'https://sysadmin:strongPassword@10.10.10.10:8443/selenium', decoded_url)
+                self.assertTrue(decoded_url == 'https://10.10.10.10:8443/selenium', decoded_url)
 
     def test_sub_path_set_to_grid_env_var(self):
         resources_name = ['{0}selenium-router'.format(RELEASE_NAME)]

@@ -623,7 +623,10 @@ template:
 Get the url of the grid. If the external url can be figured out from the ingress use that, otherwise the cluster internal url
 */}}
 {{- define "seleniumGrid.url" -}}
+{{- $url := printf "%s://%s%s%s" (include "seleniumGrid.url.schema" .) (include "seleniumGrid.url.host" .) (include "seleniumGrid.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- if $.Values.basicAuth.embeddedUrl -}}
 {{- $url := printf "%s://%s%s%s%s" (include "seleniumGrid.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.url.host" .) (include "seleniumGrid.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- end -}}
 {{- $url }}
 {{- end -}}
 

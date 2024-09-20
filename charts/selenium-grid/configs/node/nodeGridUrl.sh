@@ -2,9 +2,8 @@
 
 max_time=3
 
-if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
-  BASIC_AUTH="${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}@"
-fi
+BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+
 if [ "${SE_SUB_PATH}" = "/" ]; then
   SE_SUB_PATH=""
 fi
@@ -12,7 +11,7 @@ fi
 if [ -z "${SE_HUB_HOST:-$SE_ROUTER_HOST}" ] || [ -z "${SE_HUB_PORT:-$SE_ROUTER_PORT}" ]; then
   grid_url=""
 else
-  grid_url=${SE_SERVER_PROTOCOL}://${BASIC_AUTH}${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
+  grid_url=${SE_SERVER_PROTOCOL}://${SE_HUB_HOST:-$SE_ROUTER_HOST}:${SE_HUB_PORT:-$SE_ROUTER_PORT}${SE_SUB_PATH}
 fi
 
 if [ -z "${grid_url}" ]; then
@@ -20,15 +19,12 @@ if [ -z "${grid_url}" ]; then
 fi
 
 if [ -z "${grid_url}" ]; then
-  grid_url="${SE_SERVER_PROTOCOL}://${BASIC_AUTH}127.0.0.1:4444${SE_SUB_PATH}" # For standalone mode
+  grid_url="${SE_SERVER_PROTOCOL}://127.0.0.1:4444${SE_SUB_PATH}" # For standalone mode
 fi
 
-grid_url_checks=$(curl --noproxy "*" -m ${max_time} -s -k -o /dev/null -w "%{http_code}" ${grid_url})
-if [ "${grid_url_checks}" = "401" ]; then
-  return ${grid_url_checks}
-fi
-if [ "${grid_url_checks}" = "404" ]; then
-  return ${grid_url_checks}
-fi
+grid_url_checks=$(curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -m ${max_time} -s -k -o /dev/null -w "%{http_code}" ${grid_url})
 
-echo "${grid_url}"
+return_array=("${grid_url}" "${grid_url_checks}")
+
+# stdout the values for other scripts consuming
+echo "${return_array[@]}"

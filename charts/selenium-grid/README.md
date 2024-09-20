@@ -341,8 +341,13 @@ hub:
 ```
 # Source: selenium-grid/templates/node-configmap.yaml
 
-SE_NODE_GRID_URL: 'http://admin:admin@10.10.10.10/selenium'
+SE_NODE_GRID_URL: 'http://10.10.10.10/selenium'
 ```
+
+For security reasons, it is not recommend to put the credentials in the URL in env variable `SE_NODE_GRID_URL`. For any utilities that need to access the Grid, basic auth should get from env variables `SE_ROUTER_USERNAME` and `SE_ROUTER_PASSWORD`.
+
+If you want to keep basic auth credential is embedded in few URLs (in case Websocket URLs construct in session capabilities), you can set `basicAuth.embeddedUrl` to `true`. By default, it is `false`.
+
 Besides that, from the outside of the cluster, you can access via NodePort `http://10.10.10.10:30444/selenium`
 
 ### Configuration of Nodes

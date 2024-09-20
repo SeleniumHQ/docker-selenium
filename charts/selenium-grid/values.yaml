@@ -111,6 +111,8 @@ basicAuth:
   username: admin
   # -- Password for basic auth
   password: admin
+  # -- Embed the basic auth "username:password@" in few URLs e.g. SE_NODE_GRID_URL
+  embeddedUrl: false
   # -- Annotations for basic auth secret resource
   annotations: {}
 

@@ -70,6 +70,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | basicAuth.enabled | bool | `false` | Enable or disable basic auth for the Hub/Router |
 | basicAuth.username | string | `"admin"` | Username for basic auth |
 | basicAuth.password | string | `"admin"` | Password for basic auth |
+| basicAuth.embeddedUrl | bool | `false` | Embed the basic auth "username:password@" in few URLs e.g. SE_NODE_GRID_URL |
 | basicAuth.annotations | object | `{}` | Annotations for basic auth secret resource |
 | isolateComponents | bool | `false` | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately |
 | serviceAccount.create | bool | `true` | Create a service account for all components |
