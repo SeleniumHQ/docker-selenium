@@ -13,7 +13,7 @@ global:
     # -- Image tag for browser's video recorder
     videoImageTag: ffmpeg-7.0.2-20240907
     # -- kubectl image is used to execute kubectl commands in utility jobs
-    kubectlImage: jitesoft/kubectl:latest
+    kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # -- Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -48,6 +48,8 @@ global:
     #    topologyKey: kubernetes.io/hostname
     #    whenUnsatisfiable: DoNotSchedule
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
+    # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
+    nodeMaxSessions: 1
 
 tls:
   # -- Name of external secret containing the TLS certificate and key
@@ -1006,6 +1008,8 @@ chromeNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
 
+  # -- Override the number of max sessions per node
+  nodeMaxSessions:
   # -- Override the scaled options for chrome nodes
   scaledOptions:
   # -- Override the scaledJobOptions for chrome nodes
@@ -1185,6 +1189,8 @@ firefoxNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
 
+  # -- Override the number of max sessions per node
+  nodeMaxSessions:
   # -- Override the scaled options for firefox nodes
   scaledOptions:
   # -- Override the scaledJobOptions for firefox nodes
@@ -1363,6 +1369,8 @@ edgeNode:
   #   persistentVolumeClaim:
   #     claimName: my-pv-claim
 
+  # -- Override the number of max sessions per node
+  nodeMaxSessions:
   # -- Override the scaled options for edge nodes
   scaledOptions:
   # -- Override the scaledJobOptions for edge nodes

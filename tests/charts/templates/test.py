@@ -329,6 +329,34 @@ class ChartTemplateTests(unittest.TestCase):
                             is_present = True
         self.assertTrue(is_present, "ENV variable from secretRef name is not set to external secret")
 
+    def test_scaler_triggers_authenticationRef_name_is_added(self):
+        resources_name = ['{0}selenium-chrome-node'.format(RELEASE_NAME),
+                          '{0}selenium-edge-node'.format(RELEASE_NAME),
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME),]
+        is_present = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
+                logger.info(f"Assert authenticationRef name is added to scaler triggers")
+                name = doc['spec']['triggers'][0]['authenticationRef']['name']
+                self.assertTrue(name, '{0}selenium-scaler-trigger-auth'.format(RELEASE_NAME))
+
+    def test_scaler_triggers_parameter_nodeMaxSessions_global_and_individual_value(self):
+        resources_name = {'{0}selenium-chrome-node'.format(RELEASE_NAME): 2,
+                          '{0}selenium-edge-node'.format(RELEASE_NAME): 3,
+                          '{0}selenium-firefox-node'.format(RELEASE_NAME): 1,}
+        count = 0
+        for resource_name in resources_name.keys():
+            for doc in LIST_OF_DOCUMENTS:
+                if doc['metadata']['name'] == resource_name and doc['kind'] == 'ScaledObject':
+                    logger.info(f"Assert nodeMaxSessions parameter is set in scaler triggers")
+                    self.assertTrue(doc['spec']['triggers'][0]['metadata']['nodeMaxSessions'] == str(resources_name[doc['metadata']['name']]))
+                if doc['metadata']['name'] == resource_name and doc['kind'] == 'Deployment':
+                    for env in doc['spec']['template']['spec']['containers'][0]['env']:
+                        if env['name'] == 'SE_NODE_MAX_SESSIONS':
+                            self.assertTrue(env['value'] == str(resources_name[doc['metadata']['name']]), "Value is not matched")
+                            count += 1
+        self.assertEqual(count, len(resources_name.keys()), "Expected {0} resources but found {1}".format(len(resources_name.keys()), count))
+
 if __name__ == '__main__':
     failed = False
     try:
