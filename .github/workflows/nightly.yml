@@ -87,16 +87,6 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
-      - name: Build Helm chart
-        uses: nick-invision/retry@master
-        with:
-          timeout_minutes: 5
-          max_attempts: 3
-          retry_wait_seconds: 10
-          command: |
-            make chart_build_nightly
-            echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
-            echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
       - name: Login Docker Hub
         run: |
           docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
@@ -115,13 +105,6 @@ jobs:
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_nightly
       - name: Update package versions
         run: make generate_nightly_sbom
-      - name: Push Helm chart to registry
-        uses: nick-invision/retry@master
-        with:
-          timeout_minutes: 20
-          max_attempts: 3
-          retry_wait_seconds: 120
-          command: make chart_release
       - name: Get current latest tag
         run: echo "LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude=selenium-grid*)" >> $GITHUB_ENV
       - name: Display latest tag
@@ -144,6 +127,23 @@ jobs:
         with:
           tag: ${{ env.BASE_RELEASE }}
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Helm chart
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 5
+          max_attempts: 3
+          retry_wait_seconds: 10
+          command: |
+            make chart_build_nightly
+            echo "CHART_PACKAGE_PATH=$(cat /tmp/selenium_chart_version)" >> $GITHUB_ENV
+            echo "CHART_FILE_NAME=$(basename $(cat /tmp/selenium_chart_version))" >> $GITHUB_ENV
+      - name: Push Helm chart to registry
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: make chart_release
       - name: Create Nightly Release
         id: create_release
         uses: softprops/action-gh-release@master
