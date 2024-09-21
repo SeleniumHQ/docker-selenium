@@ -52,6 +52,8 @@ global:
     nodeMaxSessions: 1
 
 tls:
+  # -- Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below
+  create: true
   # -- Name of external secret containing the TLS certificate and key
   nameOverride:
   # -- Enable or disable TLS for the server components (and ingress proxy)
@@ -105,8 +107,10 @@ registrationSecret:
 
 # Basic auth settings for Selenium Grid
 basicAuth:
+  # -- Create a secret resource for basic auth. If using an external secret, set to false and provide its name in `nameOverride` below
+  create: true
   # -- External secret containing the basic auth username and password for reference
-  nameOverride: ""
+  nameOverride:
   # -- Enable or disable basic auth for the Hub/Router
   enabled: false
   # -- Username for basic auth
@@ -123,7 +127,7 @@ isolateComponents: false
 
 # Service Account for all components
 serviceAccount:
-  # -- Create a service account for all components
+  # -- Create a service account for all components. If using an external service account, set to false and provide its name in `nameOverride` below
   create: true
   # -- Override to use an external service account
   nameOverride:
@@ -133,6 +137,9 @@ serviceAccount:
 
 # -- RBAC settings for patching finalizers KEDA scaled resources
 rbacRole:
+  # -- Enable to create RBAC role to access few KEDA resources. If using an external role, set to false and provide its name in `nameOverride` below
+  create: true
+  # -- Override resource name or provide an external role name
   nameOverride:
   annotations: {}
   rules:
@@ -154,8 +161,13 @@ rbacRole:
 
 # -- RBAC role binding settings for patching finalizers KEDA scaled resources
 rbacRoleBinding:
+  # -- Enable to create RBAC role binding to a service account. If using an external role binding, set to false and provide its name in `nameOverride` below
+  create: true
+  # -- Override resource name or provide an external role binding name
   nameOverride:
   annotations: {}
+  subjects:
+    - kind: ServiceAccount
   roleRef:
     kind: Role
     apiGroup: rbac.authorization.k8s.io
@@ -347,7 +359,7 @@ serverConfigMap:
 
 # Secrets for all components. Component environment variables contain sensitive data should be stored in secrets.
 secrets:
-  # -- Create the default secret for all components
+  # -- Create the default secret for all components. If using an external secret, set to false and provide its name in `nameOverride` below
   create: true
   # -- Override to use an external secret
   nameOverride:
@@ -791,6 +803,9 @@ autoscaling:
   # -- Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes
   authenticationRef:
     name: ""
+    annotations:
+      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook-weight": "-2"
   # -- Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
     "helm.sh/hook": post-install,post-upgrade,post-rollback
@@ -807,6 +822,8 @@ autoscaling:
       "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
       "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
       "helm.sh/hook-weight": "-1"
+    # -- Define an external service account name contains permissions to patch KEDA scaled resources
+    serviceAccount: ""
     # -- Custom pull secret for container in patch job
     imagePullSecret: ""
     # -- Define resources for container in patch job
@@ -1504,8 +1521,8 @@ videoRecorder:
 
   # -- Container spec for the uploader if above it is defined as "uploader.name: s3"
   s3:
-    imageRegistry: public.ecr.aws
-    imageName: bitnami/aws-cli
+    imageRegistry: bitnami
+    imageName: aws-cli
     imageTag: latest
     imagePullPolicy: IfNotPresent
     securityContext:

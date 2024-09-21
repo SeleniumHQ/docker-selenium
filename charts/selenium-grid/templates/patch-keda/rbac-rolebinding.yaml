@@ -1,4 +1,4 @@
-{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled (not $.Values.autoscaling.patchObjectFinalizers.serviceAccount) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -9,17 +9,18 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
-    deploymentName: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
+    app: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
     {{- with $.Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
+    name: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
 {{ with $.Values.rbacRoleBinding.roleRef }}
 {{- $roleRef := merge (dict "name" (include "seleniumGrid.rbac.role.fullname" $)) . -}}
 roleRef:
-  {{ $roleRef | toYaml | nindent 2 }}
+  {{- $roleRef | toYaml | nindent 2 }}
 {{- end }}
 {{- end }}

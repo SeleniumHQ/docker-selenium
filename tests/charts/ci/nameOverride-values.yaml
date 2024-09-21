@@ -1,0 +1,31 @@
+tls:
+  nameOverride: "selenium-grid-tls"
+basicAuth:
+  nameOverride: "selenium-grid-basic-auth"
+serviceAccount:
+  nameOverride: "selenium-grid-service-account"
+rbacRole:
+  nameOverride: "selenium-grid-role"
+rbacRoleBinding:
+  nameOverride: "selenium-grid-role-binding"
+busConfigMap:
+  nameOverride: "selenium-grid-event-bus-config"
+distributorConfigMap:
+  nameOverride: "selenium-grid-distributor-config"
+routerConfigMap:
+  nameOverride: "selenium-grid-router-config"
+nodeConfigMap:
+  nameOverride: "selenium-grid-node-config"
+recorderConfigMap:
+  nameOverride: "selenium-grid-recorder-config"
+uploaderConfigMap:
+  nameOverride: "selenium-grid-uploader-config"
+loggingConfigMap:
+  nameOverride: "selenium-grid-logger-config"
+serverConfigMap:
+  nameOverride: "selenium-grid-server-config"
+secrets:
+  nameOverride: "selenium-grid-common-secrets"
+autoscaling:
+  patchObjectFinalizers:
+    nameOverride: "selenium-grid-job-patch-objects"

@@ -52,6 +52,7 @@ SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"true"}
 MAX_SESSIONS_CHROME=${MAX_SESSIONS_CHROME:-"1"}
 MAX_SESSIONS_FIREFOX=${MAX_SESSIONS_FIREFOX:-"1"}
 MAX_SESSIONS_EDGE=${MAX_SESSIONS_EDGE:-"1"}
+TEST_NAME_OVERRIDE=${TEST_NAME_OVERRIDE:-"false"}
 
 cleanup() {
   # Get the list of pods
@@ -117,6 +118,13 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   kubectl create ns ${SELENIUM_NAMESPACE} || true
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
   kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=ftp-server
+fi
+
+if [ "${TEST_NAME_OVERRIDE}" = "true" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${TEST_VALUES_PATH}/nameOverride-values.yaml \
+  "
+  SELENIUM_TLS_SECRET_NAME="selenium-grid-tls"
 fi
 
 HELM_COMMAND_SET_IMAGES=" \
@@ -238,6 +246,7 @@ fi
 
 if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tls.create=false
   --set tls.nameOverride=${EXTERNAL_TLS_SECRET_NAME} \
   --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
   "
@@ -290,7 +299,7 @@ if [ "${EXTERNAL_UPLOADER_CONFIG}" = "true" ]; then
     "
 fi
 
-HELM_COMMAND_SET_BASE_VALUES=" \
+HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
 --values ${TEST_VALUES_PATH}/base-auth-ingress-values.yaml \
 --values ${RECORDER_VALUES_FILE} \
 "

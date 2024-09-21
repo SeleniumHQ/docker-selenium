@@ -5,7 +5,7 @@ metadata:
   name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
   namespace: {{ .Release.Namespace }}
   annotations:
-    {{- with $.Values.autoscaling.annotations }}
+    {{- with $.Values.autoscaling.authenticationRef.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:

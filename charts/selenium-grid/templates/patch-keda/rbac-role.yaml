@@ -1,4 +1,4 @@
-{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled (not $.Values.autoscaling.patchObjectFinalizers.serviceAccount) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

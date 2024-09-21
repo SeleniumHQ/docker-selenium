@@ -47,6 +47,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
+| tls.create | bool | `true` | Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below |
 | tls.nameOverride | string | `nil` | Name of external secret containing the TLS certificate and key |
 | tls.enabled | bool | `false` | Enable or disable TLS for the server components (and ingress proxy) |
 | tls.ingress.enabled | bool | `false` | Enable or disable TLS for the ingress proxy only |
@@ -67,18 +68,23 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | tls.disableHostnameVerification | bool | `true` | Disable verification the hostname included in the server's TLS/SSL certificates matches the hostnames provided |
 | registrationSecret.enabled | bool | `false` | Enable feature node registration secret to make sure that the node is one you control and not a rouge node |
 | registrationSecret.value | string | `"HappyTesting"` | The secret value to be used for node registration |
-| basicAuth.nameOverride | string | `""` | External secret containing the basic auth username and password for reference |
+| basicAuth.create | bool | `true` | Create a secret resource for basic auth. If using an external secret, set to false and provide its name in `nameOverride` below |
+| basicAuth.nameOverride | string | `nil` | External secret containing the basic auth username and password for reference |
 | basicAuth.enabled | bool | `false` | Enable or disable basic auth for the Hub/Router |
 | basicAuth.username | string | `"admin"` | Username for basic auth |
 | basicAuth.password | string | `"admin"` | Password for basic auth |
 | basicAuth.embeddedUrl | bool | `false` | Embed the basic auth "username:password@" in few URLs e.g. SE_NODE_GRID_URL |
 | basicAuth.annotations | object | `{}` | Annotations for basic auth secret resource |
 | isolateComponents | bool | `false` | Deploy Router, Distributor, EventBus, SessionMap and Nodes separately |
-| serviceAccount.create | bool | `true` | Create a service account for all components |
+| serviceAccount.create | bool | `true` | Create a service account for all components. If using an external service account, set to false and provide its name in `nameOverride` below |
 | serviceAccount.nameOverride | string | `nil` | Override to use an external service account |
 | serviceAccount.annotations | object | `{}` | Annotations for the service account |
-| rbacRole | object | `{"annotations":{},"nameOverride":null,"rules":[{"apiGroups":["keda.sh"],"resources":["scaledjobs"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["scaledobjects"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["autoscaling"],"resources":["horizontalpodautoscalers"],"verbs":["get","list","patch","update","delete"]}]}` | RBAC settings for patching finalizers KEDA scaled resources |
-| rbacRoleBinding | object | `{"annotations":{},"nameOverride":null,"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role"}}` | RBAC role binding settings for patching finalizers KEDA scaled resources |
+| rbacRole | object | `{"annotations":{},"create":true,"nameOverride":null,"rules":[{"apiGroups":["keda.sh"],"resources":["scaledjobs"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["scaledobjects"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["autoscaling"],"resources":["horizontalpodautoscalers"],"verbs":["get","list","patch","update","delete"]}]}` | RBAC settings for patching finalizers KEDA scaled resources |
+| rbacRole.create | bool | `true` | Enable to create RBAC role to access few KEDA resources. If using an external role, set to false and provide its name in `nameOverride` below |
+| rbacRole.nameOverride | string | `nil` | Override resource name or provide an external role name |
+| rbacRoleBinding | object | `{"annotations":{},"create":true,"nameOverride":null,"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role"},"subjects":[{"kind":"ServiceAccount"}]}` | RBAC role binding settings for patching finalizers KEDA scaled resources |
+| rbacRoleBinding.create | bool | `true` | Enable to create RBAC role binding to a service account. If using an external role binding, set to false and provide its name in `nameOverride` below |
+| rbacRoleBinding.nameOverride | string | `nil` | Override resource name or provide an external role binding name |
 | ingress.enabled | bool | `true` | Enable to create ingress resource |
 | ingress.enableWithController | bool | `false` | Enable ingress resource with automatically installing Ingress NGINX Controller |
 | ingress.className | string | `""` | Name of ingress class to select which controller will implement ingress resource |
@@ -154,7 +160,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | serverConfigMap.nameOverride | string | `nil` | Override the name of the server configMap |
 | serverConfigMap.env | object | `{"SE_JAVA_OPTS":"-Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000 -XX:+UseZGC","SE_SUPERVISORD_LOG_LEVEL":"info"}` | Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap |
 | serverConfigMap.annotations | object | `{}` | Custom annotations for configmap |
-| secrets.create | bool | `true` | Create the default secret for all components |
+| secrets.create | bool | `true` | Create the default secret for all components. If using an external secret, set to false and provide its name in `nameOverride` below |
 | secrets.nameOverride | string | `nil` | Override to use an external secret |
 | secrets.env | object | `{"SE_VNC_PASSWORD":"secret"}` | Extra environment variables set to the secret |
 | secrets.annotations | object | `{}` | Custom annotations for secret |
@@ -304,12 +310,13 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
-| autoscaling.authenticationRef | object | `{"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
+| autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"-2"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |
 | autoscaling.patchObjectFinalizers.activeDeadlineSeconds | int | `120` | Deadline (in seconds) for patch job to complete |
 | autoscaling.patchObjectFinalizers.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback,pre-delete","helm.sh/hook-delete-policy":"hook-succeeded,before-hook-creation","helm.sh/hook-weight":"-1"}` | Annotations for patch job |
+| autoscaling.patchObjectFinalizers.serviceAccount | string | `""` | Define an external service account name contains permissions to patch KEDA scaled resources |
 | autoscaling.patchObjectFinalizers.imagePullSecret | string | `""` | Custom pull secret for container in patch job |
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"50m","memory":"50Mi"},"requests":{"cpu":"10m","memory":"10Mi"}}` | Define resources for container in patch job |
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":8,"minReplicaCount":0,"pollingInterval":10}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
@@ -498,7 +505,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.lifecycle | object | `{}` | Define lifecycle events for video recorder |
 | videoRecorder.extraVolumeMounts | list | `[]` | Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap. NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended. |
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
-| videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"bitnami/aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"public.ecr.aws","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
+| videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
 | keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.15.1-selenium-grid-20240907"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.15.1-selenium-grid-20240907"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.15.1-selenium-grid-20240907"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |

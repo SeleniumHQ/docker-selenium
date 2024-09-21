@@ -25,10 +25,10 @@ spec:
       name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
     spec:
       activeDeadlineSeconds: {{ $.Values.autoscaling.patchObjectFinalizers.activeDeadlineSeconds }}
-      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
-      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" $ }}
+      serviceAccountName: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
+      serviceAccount: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
       containers:
-        - name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+        - name: kubectl
           image: {{ $.Values.global.seleniumGrid.kubectlImage }}
           command: ["/bin/sh", "-c"]
           args:

@@ -11,7 +11,6 @@ autoscaling:
     pollingInterval: 10
 # Configuration for chrome nodes
 chromeNode:
-  nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
     - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
       value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
@@ -29,7 +28,6 @@ chromeNode:
     enabled: &livenessProbe true
 # Configuration for edge nodes
 edgeNode:
-  nameOverride: my-edge-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:
     enabled: *readinessProbe
@@ -37,7 +35,6 @@ edgeNode:
     enabled: *livenessProbe
 # Configuration for firefox nodes
 firefoxNode:
-  nameOverride: my-firefox-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:
     enabled: *readinessProbe

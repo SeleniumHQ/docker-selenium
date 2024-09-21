@@ -672,7 +672,7 @@ There are multiple ways to insert your certificate, private key, truststore to t
        --from-file=server.pass=/path/to/your/server.pass
    # Deploy chart with your external TLS Secret
    helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
-       --set tls.enabled=true --set tls.nameOverride=my-external-tls-secret
+       --set tls.enabled=true --set tls.create=false --set tls.nameOverride=my-external-tls-secret
    ```
    
    In case your external secret contains key file names are different with default, you can instruct server to use them via following values:
@@ -717,6 +717,7 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set isolateComponents=true \
   --set components.router.serviceType=NodePort \
   --set tls.enabled=true \
+  --set tls.create=false \
   --set tls.nameOverride=my-external-tls-secret
 ```
 
@@ -770,6 +771,7 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set ingress.enabled=true \
   --set ingress.hostname="selenium-grid.prod.domain.com" \
   --set tls.ingress.enabled=true \
+  --set tls.create=false \
   --set tls.nameOverride=my-external-tls-secret
 ```
 
@@ -795,6 +797,7 @@ For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
 helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set global.K8S_PUBLIC_IP=$(hostname -i) \
   --set tls.ingress.enableWithController=true \
+  --set tls.create=false \
   --set tls.nameOverride=my-external-tls-secret \
   --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
 ```

@@ -32,7 +32,6 @@ chromeNode:
         port: 7900
         targetPort: 7900
         # NodePort will be assigned randomly if not set
-  nameOverride: my-chrome-name
   extraEnvironmentVariables: &extraEnvironmentVariables
     - name: SE_BROWSER_ARGS_DISABLE_FEATURES
       value: "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
@@ -64,7 +63,6 @@ edgeNode:
     - containerPort: 7900
       name: novnc
       protocol: TCP
-  nameOverride: my-edge-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   # (test): user is able to override probe method
   startupProbe:
@@ -79,7 +77,6 @@ edgeNode:
 # Configuration for firefox nodes
 firefoxNode:
   port: 7777
-  nameOverride: my-firefox-name
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:
     enabled: *readinessProbe
