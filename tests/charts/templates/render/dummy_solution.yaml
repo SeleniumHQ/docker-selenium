@@ -17,6 +17,7 @@ global:
       - maxSkew: 4
         topologyKey: kubernetes.io/hostname
         whenUnsatisfiable: DoNotSchedule
+    nodeMaxSessions: 3
 
 selenium-grid:
   autoscaling:
@@ -86,10 +87,12 @@ selenium-grid:
       serviceType: NodePort
 
   chromeNode:
+    nodeMaxSessions: 2
     affinity: *affinity
     terminationGracePeriodSeconds: 7200
 
   firefoxNode:
+    nodeMaxSessions: 1
     affinity: *affinity
     terminationGracePeriodSeconds: 720
 

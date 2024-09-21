@@ -210,7 +210,7 @@ else
       if [[ "${endpoint_status}" = "401" ]]; then
         echo "$(date +%FT%T%Z) [${process_name}] - GraphQL endpoint requires authentication, please set env variables SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD"
       elif [[ "${endpoint_status}" = "404" ]]; then
-        echo "$(date +%FT%T%Z) [${process_name}] -GraphQL endpoint could not be found, please check the endpoint ${endpoint_url}"
+        echo "$(date +%FT%T%Z) [${process_name}] - GraphQL endpoint could not be found, please check the endpoint ${endpoint_url}"
       fi
       echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
       log_node_response

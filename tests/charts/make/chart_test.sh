@@ -49,6 +49,9 @@ else
 fi
 EXTERNAL_TLS_SECRET_NAME=${EXTERNAL_TLS_SECRET_NAME:-"external-tls-secret"}
 SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"true"}
+MAX_SESSIONS_CHROME=${MAX_SESSIONS_CHROME:-"1"}
+MAX_SESSIONS_FIREFOX=${MAX_SESSIONS_FIREFOX:-"1"}
+MAX_SESSIONS_EDGE=${MAX_SESSIONS_EDGE:-"1"}
 
 cleanup() {
   # Get the list of pods
@@ -126,6 +129,9 @@ HELM_COMMAND_SET_IMAGES=" \
 --set global.seleniumGrid.httpLogs=${CHART_ENABLE_TRACING} \
 --set isolateComponents=${CHART_FULL_DISTRIBUTED_MODE} \
 --set global.seleniumGrid.logLevel=${LOG_LEVEL} \
+--set chromeNode.nodeMaxSessions=${MAX_SESSIONS_CHROME} \
+--set firefoxNode.nodeMaxSessions=${MAX_SESSIONS_FIREFOX} \
+--set edgeNode.nodeMaxSessions=${MAX_SESSIONS_EDGE} \
 "
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then

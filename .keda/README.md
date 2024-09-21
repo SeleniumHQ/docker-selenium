@@ -20,7 +20,7 @@ docker pull selenium/keda-admission-webhooks:2.15.1-selenium-grid-20240907
 
 Besides that, you also can use image tag `latest` or `nightly`.
 
-If you are deploying KEDA core using their official Helm chart, you can overwrite the image registry and tag by providing the following values in the `values.yaml` file. For example:
+If you are deploying KEDA core using their official Helm [chart](https://github.com/kedacore/charts), you can overwrite the image registry and tag by providing the following values in the `values.yaml` file. For example:
 
 ```yaml
   image:

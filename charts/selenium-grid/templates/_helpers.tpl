@@ -207,6 +207,7 @@ Common autoscaling spec template
 */}}
 {{- define "seleniumGrid.autoscalingTemplate" -}}
 {{- $spec := toYaml (dict) -}}
+{{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -239,7 +240,7 @@ Common autoscaling spec template
 triggers:
   - type: selenium-grid
     metadata:
-      triggerIndex: '{{ default $.Values.autoscaling.scaledOptions.minReplicaCount (.node.scaledOptions).minReplicaCount }}'
+      nodeMaxSessions: {{ $nodeMaxSessions | quote }}
   {{- with .node.hpa }}
     {{- tpl (toYaml .) $ | nindent 6 }}
   {{- end }}
@@ -278,6 +279,7 @@ Common pod template
 {{- $nodeImageTag := default $.Values.global.seleniumGrid.nodesImageTag .node.imageTag -}}
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag -}}
+{{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 template:
   metadata:
     labels:
@@ -329,6 +331,14 @@ template:
         image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+          - name: SE_NODE_MAX_SESSIONS
+            value: {{ $nodeMaxSessions | quote }}
+        {{- if gt $nodeMaxSessions 1 }}
+          - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+            value: "true"
+        {{- end }}
+          - name: SE_DRAIN_AFTER_SESSION_COUNT
+            value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
           - name: SE_NODE_CONTAINER_NAME
             valueFrom:
               fieldRef:
@@ -469,6 +479,10 @@ template:
         image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
         imagePullPolicy: {{ $.Values.videoRecorder.imagePullPolicy }}
         env:
+        - name: SE_NODE_MAX_SESSIONS
+          value: {{ $nodeMaxSessions | quote }}
+        - name: SE_DRAIN_AFTER_SESSION_COUNT
+          value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
         - name: SE_NODE_PORT
           value: {{ .node.port | quote }}
         - name: DISPLAY_CONTAINER_NAME

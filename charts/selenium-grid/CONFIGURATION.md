@@ -32,7 +32,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.imageTag | string | `"4.24.0-20240907"` | Image tag for all selenium components |
 | global.seleniumGrid.nodesImageTag | string | `"4.24.0-20240907"` | Image tag for browser's nodes |
 | global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.0.2-20240907"` | Image tag for browser's video recorder |
-| global.seleniumGrid.kubectlImage | string | `"jitesoft/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
+| global.seleniumGrid.kubectlImage | string | `"bitnami/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
 | global.seleniumGrid.defaultNodeStartupProbe | string | `"exec"` | Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
@@ -46,6 +46,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
+| global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
 | tls.nameOverride | string | `nil` | Name of external secret containing the TLS certificate and key |
 | tls.enabled | bool | `false` | Enable or disable TLS for the server components (and ingress proxy) |
 | tls.ingress.enabled | bool | `false` | Enable or disable TLS for the ingress proxy only |
@@ -362,6 +363,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.lifecycle | object | `{}` | Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any |
 | chromeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for chrome-node container |
 | chromeNode.extraVolumes | list | `[]` | Extra volumes for chrome-node pod |
+| chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
@@ -411,6 +413,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.lifecycle | object | `{}` | Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any |
 | firefoxNode.extraVolumeMounts | list | `[]` | Extra volume mounts for firefox-node container |
 | firefoxNode.extraVolumes | list | `[]` | Extra volumes for firefox-node pod |
+| firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
@@ -460,6 +463,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.lifecycle | object | `{}` | Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any |
 | edgeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for edge-node container |
 | edgeNode.extraVolumes | list | `[]` | Extra volumes for edge-node pod |
+| edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
