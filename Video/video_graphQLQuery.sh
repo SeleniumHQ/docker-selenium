@@ -34,9 +34,7 @@ if [ -n "${GRAPHQL_ENDPOINT}" ]; then
       -s "${GRAPHQL_ENDPOINT}" -o "/tmp/graphQL_${SESSION_ID}.json" -w "%{http_code}")
     current_check=$((current_check + 1))
     # Check if the response contains "capabilities"
-    if [[ "$endpoint_checks" = "404" ]] || [[ $current_check -eq $retry_time ]]; then
-      break
-    elif [[ "$endpoint_checks" = "401" ]] || [[ $current_check -eq $retry_time ]]; then
+    if [[ $current_check -eq $retry_time ]]; then
       break
     elif [[ "$endpoint_checks" = "200" ]] && [[ $(jq -e '.data.session.capabilities | fromjson | ."'se:vncEnabled'"' /tmp/graphQL_${SESSION_ID}.json >/dev/null) -eq 0 ]]; then
       break
@@ -78,7 +76,7 @@ fi
 # Normalize the video file name
 TEST_NAME="$(echo "${TEST_NAME}" | tr ' ' '_' | tr -dc "${VIDEO_FILE_NAME_TRIM}" | cut -c 1-251)"
 
-return_array=("${RECORD_VIDEO}" "${TEST_NAME}" "${endpoint_checks}" "${GRAPHQL_ENDPOINT}")
+return_array=("${RECORD_VIDEO}" "${TEST_NAME}" "${GRAPHQL_ENDPOINT}")
 
 # stdout the values for other scripts consuming
 echo "${return_array[@]}"

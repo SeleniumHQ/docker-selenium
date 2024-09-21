@@ -28,6 +28,9 @@ else
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
 
+/opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
+BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+
 if [ -d "${VIDEO_FOLDER}" ]; then
   echo "$(date +%FT%T%Z) [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
 else
@@ -70,7 +73,7 @@ function wait_for_display() {
 }
 
 function check_if_api_respond() {
-  endpoint_checks=$(curl --noproxy "*" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
+  endpoint_checks=$(curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
     return 1
   fi
@@ -198,20 +201,15 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
+  while curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
     session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date +%FT%T%Z) [${process_name}] - Session: $session_id is created"
       return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
       caps_se_video_record="${return_list[0]}"
       video_file_name="${return_list[1]}.mp4"
-      endpoint_status="${return_list[2]}"
-      endpoint_url="${return_list[3]}"
-      if [[ "${endpoint_status}" = "401" ]]; then
-        echo "$(date +%FT%T%Z) [${process_name}] - GraphQL endpoint requires authentication, please set env variables SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD"
-      elif [[ "${endpoint_status}" = "404" ]]; then
-        echo "$(date +%FT%T%Z) [${process_name}] - GraphQL endpoint could not be found, please check the endpoint ${endpoint_url}"
-      fi
+      endpoint_url="${return_list[2]}"
+      /opt/bin/validate_endpoint.sh "${endpoint_url}" "true"
       echo "$(date +%FT%T%Z) [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
       log_node_response
     fi
