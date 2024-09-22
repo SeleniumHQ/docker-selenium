@@ -4,7 +4,7 @@
 version: "3"
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.24.0-20240907
+    image: selenium/event-bus:4.25.0-20240922
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -16,7 +16,7 @@ services:
       - SE_ENABLE_TLS=true
 
   selenium-sessions:
-    image: selenium/sessions:4.24.0-20240907
+    image: selenium/sessions:4.25.0-20240922
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -31,7 +31,7 @@ services:
       - SE_ENABLE_TLS=true
 
   selenium-session-queue:
-    image: selenium/session-queue:4.24.0-20240907
+    image: selenium/session-queue:4.25.0-20240922
     container_name: selenium-session-queue
     volumes:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
@@ -41,7 +41,7 @@ services:
       - SE_ENABLE_TLS=true
 
   selenium-distributor:
-    image: selenium/distributor:4.24.0-20240907
+    image: selenium/distributor:4.25.0-20240922
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -62,7 +62,7 @@ services:
       - SE_ENABLE_TLS=true
 
   selenium-router:
-    image: selenium/router:4.24.0-20240907
+    image: selenium/router:4.25.0-20240922
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -82,7 +82,7 @@ services:
       - SE_ENABLE_TLS=true
 
   chrome:
-    image: selenium/node-chrome:4.24.0-20240907
+    image: selenium/node-chrome:4.25.0-20240922
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -97,7 +97,7 @@ services:
       - SE_SERVER_PROTOCOL=https
 
   edge:
-    image: selenium/node-edge:4.24.0-20240907
+    image: selenium/node-edge:4.25.0-20240922
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
@@ -112,7 +112,7 @@ services:
       - SE_SERVER_PROTOCOL=https
 
   firefox:
-    image: selenium/node-firefox:4.24.0-20240907
+    image: selenium/node-firefox:4.25.0-20240922
     shm_size: 2gb
     depends_on:
       - selenium-event-bus
