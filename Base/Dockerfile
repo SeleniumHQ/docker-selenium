@@ -6,10 +6,10 @@ ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 ARG AUTHORS=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.40.0
-ARG GRPC_VERSION=1.65.1
-ARG NETTY_VERSION=4.1.111.Final
-ARG CS_VERSION=2.1.10
+ARG OPENTELEMETRY_VERSION=1.42.1
+ARG GRPC_VERSION=1.66.0
+ARG NETTY_VERSION=4.1.113.Final
+ARG CS_VERSION=2.1.13
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
