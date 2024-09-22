@@ -37,7 +37,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_firefox:
-    image: selenium/standalone-firefox:4.25.0-20240922
+    image: selenium/standalone-firefox:130.0.1-20240922
     shm_size: 2gb
     ports:
       - "6444:4444"
