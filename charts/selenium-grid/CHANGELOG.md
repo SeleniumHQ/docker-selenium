@@ -1,3 +1,27 @@
+## :heavy_check_mark: selenium-grid-0.36.0
+
+- Chart is using image tag 4.25.0-20240922
+- Chart is tested on Kubernetes versions: v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, v1.31.0, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Fixed
+- [`65933cdc`](http://github.com/seleniumhq/docker-selenium/commit/65933cdcfff19dd887767c7925740e95adf2d835) - fix: video container wait capabilities fully before extracting details :: Viet Nguyen Duc
+
+### Changed
+- [`ba687ae2`](http://github.com/seleniumhq/docker-selenium/commit/ba687ae2ae02afc4be9770dac3def1ad09d939bb) - Update tag 4.25.0-20240922 in docs and files :: Selenium CI Bot
+- [`12868dd0`](http://github.com/seleniumhq/docker-selenium/commit/12868dd0e07ebf348bd5e46c6aed2810f5d89fd7) - chart: add config key to disable resource creation :: Viet Nguyen Duc
+- [`0ac93a9c`](http://github.com/seleniumhq/docker-selenium/commit/0ac93a9cf3f40c040b6f271ce6f599609c1419f2) - Experimental: Selenium Grid scaler with different nodeMaxSessions per node (#2402) :: Viet Nguyen Duc
+- [`6c4f76e7`](http://github.com/seleniumhq/docker-selenium/commit/6c4f76e7547d93272bfbadee55b233e7b49e37d4) - chart(add): Grid scaler use trigger auth to secure GraphQL endpoint (#2401) :: Viet Nguyen Duc
+- [`2af6166d`](http://github.com/seleniumhq/docker-selenium/commit/2af6166d263ab5d74be4178aa882a00f4aa9acf1) - Experimental: Selenium Grid scaler in K8s implementation preview (#2400) :: Viet Nguyen Duc
+- [`e27f6edb`](http://github.com/seleniumhq/docker-selenium/commit/e27f6edbfa0b31464bdeae3a772dc01c4725b8b5) - chart(update): replace another mininal kubectl container for patch job :: Viet Nguyen Duc
+- [`35fafaf2`](http://github.com/seleniumhq/docker-selenium/commit/35fafaf2e22601b9553ba4c9ad90196fc54b2d76) - Update _helpers.tpl to adress missing resource limits in pre-puller init containers for firefox,edge,... (#2399) :: Markus Kopp
+- [`7dc9f187`](http://github.com/seleniumhq/docker-selenium/commit/7dc9f187e41ce8e892696fee148b5d3eb7aef86e) - chart: protect resources naming against .Release.Nam contains dots. from ArgoCD :: Viet Nguyen Duc
+- [`a545d08e`](http://github.com/seleniumhq/docker-selenium/commit/a545d08ee8aea90bb3595744c6dc7e4a872cac4b) - Update chart 0.35.2 changelog [skip ci] :: Selenium CI Bot
+
+### Experimental
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
 ## :heavy_check_mark: selenium-grid-0.35.2
 
 - Chart is using image tag 4.24.0-20240907
