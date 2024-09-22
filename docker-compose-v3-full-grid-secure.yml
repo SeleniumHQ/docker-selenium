@@ -112,7 +112,7 @@ services:
       - SE_SERVER_PROTOCOL=https
 
   firefox:
-    image: selenium/node-firefox:4.25.0-20240922
+    image: selenium/node-firefox:130.0.1-20240922
     shm_size: 2gb
     depends_on:
       - selenium-event-bus

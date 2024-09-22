@@ -35,7 +35,7 @@ services:
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
 
   firefox:
-    image: selenium/node-firefox:4.25.0-20240922
+    image: selenium/node-firefox:130.0.1-20240922
     shm_size: 2gb
     depends_on:
       - selenium-hub
