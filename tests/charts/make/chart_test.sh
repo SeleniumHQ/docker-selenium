@@ -53,6 +53,8 @@ MAX_SESSIONS_CHROME=${MAX_SESSIONS_CHROME:-"1"}
 MAX_SESSIONS_FIREFOX=${MAX_SESSIONS_FIREFOX:-"1"}
 MAX_SESSIONS_EDGE=${MAX_SESSIONS_EDGE:-"1"}
 TEST_NAME_OVERRIDE=${TEST_NAME_OVERRIDE:-"false"}
+TEST_PATCHED_KEDA=${TEST_PATCHED_KEDA:-"true"}
+BASIC_AUTH_EMBEDDED_URL=${BASIC_AUTH_EMBEDDED_URL:-"false"}
 
 cleanup() {
   # Get the list of pods
@@ -189,6 +191,7 @@ if [ "${CHART_ENABLE_BASIC_AUTH}" = "true" ]; then
   --set basicAuth.enabled=${CHART_ENABLE_BASIC_AUTH} \
   --set basicAuth.username=${BASIC_AUTH_USERNAME} \
   --set basicAuth.password=${BASIC_AUTH_PASSWORD} \
+  --set basicAuth.embeddedUrl=${BASIC_AUTH_EMBEDDED_URL} \
   "
   export SELENIUM_GRID_USERNAME=${BASIC_AUTH_USERNAME}
   export SELENIUM_GRID_PASSWORD=${BASIC_AUTH_PASSWORD}
@@ -330,6 +333,34 @@ HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
 --values ${MATRIX_BROWSER_VALUES_FILE} \
 "
 
+if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+  if [ "${TEST_PATCHED_KEDA}" = "true" ]; then
+    KEDA_SET_IMAGES="--set image.keda.registry=${KEDA_BASED_NAME} --set image.keda.repository=keda --set image.keda.tag=${KEDA_BASED_TAG} \
+    --set image.metricsApiServer.registry=${KEDA_BASED_NAME} --set image.metricsApiServer.repository=keda-metrics-apiserver --set image.metricsApiServer.tag=${KEDA_BASED_TAG} \
+    --set image.webhooks.registry=${KEDA_BASED_NAME} --set image.webhooks.repository=keda-admission-webhooks --set image.webhooks.tag=${KEDA_BASED_TAG} \
+    "
+  fi
+  helm repo add kedacore https://kedacore.github.io/charts
+  echo "Install KEDA core on Kubernetes cluster"
+  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=true ${KEDA_SET_IMAGES} kedacore/keda
+  echo "Wait for KEDA core to be ready"
+  kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
+elif [ "${TEST_EXISTING_KEDA}" != "true" ]; then
+  if [ "${TEST_PATCHED_KEDA}" = "true" ]; then
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set keda.image.keda.registry=${KEDA_BASED_NAME} --set keda.image.keda.repository=keda --set keda.image.keda.tag=${KEDA_BASED_TAG} \
+    --set keda.image.metricsApiServer.registry=${KEDA_BASED_NAME} --set keda.image.metricsApiServer.repository=keda-metrics-apiserver --set keda.image.metricsApiServer.tag=${KEDA_BASED_TAG} \
+    --set keda.image.webhooks.registry=${KEDA_BASED_NAME} --set keda.image.webhooks.repository=keda-admission-webhooks --set keda.image.webhooks.tag=${KEDA_BASED_TAG} \
+    "
+  else
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set keda.image.keda.registry=null --set keda.image.keda.repository=null --set keda.image.keda.tag=null \
+    --set keda.image.metricsApiServer.registry=null --set keda.image.metricsApiServer.repository=null --set keda.image.metricsApiServer.tag=null \
+    --set keda.image.webhooks.registry=null --set keda.image.webhooks.repository=null --set keda.image.webhooks.tag=null \
+    "
+  fi
+fi
+
 HELM_COMMAND_ARGS="${RELEASE_NAME} \
 ${HELM_COMMAND_SET_BASE_VALUES} \
 ${HELM_COMMAND_SET_AUTOSCALING} \
@@ -341,27 +372,6 @@ helm template --debug ${HELM_COMMAND_ARGS} > tests/tests/${TEMPLATE_OUTPUT_FILEN
 
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" = "true" ]; then
   exit 0
-fi
-
-if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
-  helm repo add kedacore https://kedacore.github.io/charts
-  echo "Install KEDA core on Kubernetes cluster"
-  helm upgrade -i ${KEDA_NAMESPACE} -n ${KEDA_NAMESPACE} --create-namespace --set webhooks.enabled=true \
-  --set image.keda.registry=${KEDA_BASED_NAME} --set image.keda.repository=keda --set image.keda.tag=${KEDA_BASED_TAG} \
-  --set image.metricsApiServer.registry=${KEDA_BASED_NAME} --set image.metricsApiServer.repository=keda-metrics-apiserver --set image.metricsApiServer.tag=${KEDA_BASED_TAG} \
-  --set image.webhooks.registry=${KEDA_BASED_NAME} --set image.webhooks.repository=keda-admission-webhooks --set image.webhooks.tag=${KEDA_BASED_TAG} \
-  kedacore/keda
-elif [ "${TEST_EXISTING_KEDA}" != "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
-  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set keda.image.keda.registry=${KEDA_BASED_NAME} --set keda.image.keda.repository=keda --set keda.image.keda.tag=${KEDA_BASED_TAG} \
-  --set keda.image.metricsApiServer.registry=${KEDA_BASED_NAME} --set keda.image.metricsApiServer.repository=keda-metrics-apiserver --set keda.image.metricsApiServer.tag=${KEDA_BASED_TAG} \
-  --set keda.image.webhooks.registry=${KEDA_BASED_NAME} --set keda.image.webhooks.repository=keda-admission-webhooks --set keda.image.webhooks.tag=${KEDA_BASED_TAG} \
-  "
-fi
-
-if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
-  echo "Wait for KEDA core to be ready"
-  kubectl -n ${KEDA_NAMESPACE} wait --for=condition=ready pod -l app.kubernetes.io/instance=${KEDA_NAMESPACE} --timeout 180s
 fi
 
 echo "Deploy Selenium Grid Chart"
@@ -405,9 +415,6 @@ else
   ./tests/bootstrap.sh ${MATRIX_BROWSER}
 fi
 
-echo "Get pods status"
-kubectl get pods -n ${SELENIUM_NAMESPACE}
-
 # Wait until no pods are in "Terminating" state
 while true; do
   terminating_pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} --no-headers | grep Terminating | wc -l)
@@ -419,6 +426,9 @@ while true; do
     sleep 2
   fi
 done
+
+echo "Get pods status"
+kubectl get pods -n ${SELENIUM_NAMESPACE}
 
 echo "Get all resources in all namespaces"
 kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
