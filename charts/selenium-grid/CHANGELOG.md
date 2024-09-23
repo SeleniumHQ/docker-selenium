@@ -1,3 +1,20 @@
+## :heavy_check_mark: selenium-grid-0.36.1
+
+- Chart is using image tag 4.25.0-20240922
+- Chart is tested on Kubernetes versions: v1.26.15, v1.27.16, v1.28.13, v1.29.8, v1.30.4, v1.31.0, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.4, v3.15.4, 
+
+### Changed
+- [`8466588e`](http://github.com/seleniumhq/docker-selenium/commit/8466588e4023ec844bafa18252f7f932d7767621) - chart(fix): `basicAuth.embeddedUrl` in GraphQL endpoint for old scaler compatible (#2408) :: Viet Nguyen Duc
+- [`5a3f1e9e`](http://github.com/seleniumhq/docker-selenium/commit/5a3f1e9e821f8823a4ccfea48628a6ba02cce776) - Update base image ubuntu:noble-20240827.1 :: Viet Nguyen Duc
+- [`ff5b2489`](http://github.com/seleniumhq/docker-selenium/commit/ff5b2489e8c97a688d2d1ef18b27a67a0f74370f) - chore(deps): update helm release kube-prometheus-stack to v62.7.0 (#2397) :: renovate[bot]
+- [`75b59cfb`](http://github.com/seleniumhq/docker-selenium/commit/75b59cfb56190c0f12e27ec48fcc9e9f06184523) - chore(deps): update helm release jaeger to v3.3.1 (#2393) :: renovate[bot]
+- [`87111047`](http://github.com/seleniumhq/docker-selenium/commit/871110478dd18a260e58f6e56e8192e12e32b1af) - Update chart 0.36.0 changelog [skip ci] :: Selenium CI Bot
+
+### Experimental
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
 ## :heavy_check_mark: selenium-grid-0.36.0
 
 - Chart is using image tag 4.25.0-20240922
