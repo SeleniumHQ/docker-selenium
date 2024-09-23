@@ -165,13 +165,6 @@ jobs:
           command: |
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }} \
             && NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_video_integrity
-      - name: Test chart upgrade
-        if: (matrix.test-upgrade == true)
-        run: |
-          NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SET_MAX_REPLICAS=10 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART} make chart_test_autoscaling_${{ matrix.test-strategy }}
-      - name: Cleanup Kubernetes cluster
-        if: always()
-        run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
       - name: Upload Helm chart package
         if: always()
         uses: actions/upload-artifact@main
@@ -191,6 +184,13 @@ jobs:
         with:
           name: ${{ env.ARTIFACT_NAME }}-videos
           path: ./tests/videos/
+      - name: Test chart upgrade
+        if: (matrix.test-upgrade == true)
+        run: |
+          NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} SET_MAX_REPLICAS=10 TEST_NAME_OVERRIDE=true TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART} make chart_test_autoscaling_${{ matrix.test-strategy }}
+      - name: Cleanup Kubernetes cluster
+        if: always()
+        run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
       - name: Clean up Docker
         if: always()
         run: docker system prune -af

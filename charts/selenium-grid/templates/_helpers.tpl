@@ -638,9 +638,6 @@ Get the url of the grid. If the external url can be figured out from the ingress
 */}}
 {{- define "seleniumGrid.url" -}}
 {{- $url := printf "%s://%s%s%s" (include "seleniumGrid.url.schema" .) (include "seleniumGrid.url.host" .) (include "seleniumGrid.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
-{{- if $.Values.basicAuth.embeddedUrl -}}
-{{- $url := printf "%s://%s%s%s%s" (include "seleniumGrid.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.url.host" .) (include "seleniumGrid.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
-{{- end -}}
 {{- $url }}
 {{- end -}}
 
@@ -649,6 +646,9 @@ Get the url of the grid server in the cluster
 */}}
 {{- define "seleniumGrid.server.url" -}}
 {{- $url := printf "%s://%s%s%s" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- if $.Values.basicAuth.embeddedUrl -}}
+  {{- $url = printf "%s://%s%s%s%s" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- end -}}
 {{- $url }}
 {{- end -}}
 
