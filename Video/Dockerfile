@@ -1,7 +1,9 @@
 ARG NAMESPACE=linuxserver
 ARG BASED_TAG=latest
 FROM $NAMESPACE/ffmpeg:$BASED_TAG
-LABEL authors="Selenium <selenium-developers@googlegroups.com>"
+ARG AUTHORS=SeleniumHQ
+LABEL authors="${AUTHORS} <selenium-developers@googlegroups.com>"
+LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
 
 ARG RCLONE_VERSION=current
 #Arguments to define the user running the container

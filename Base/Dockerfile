@@ -1,10 +1,11 @@
 FROM ubuntu:noble-20240827.1
-LABEL authors="Selenium <selenium-developers@googlegroups.com>"
+ARG AUTHORS=SeleniumHQ
+LABEL authors="${AUTHORS} <selenium-developers@googlegroups.com>"
+LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
 
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
-ARG AUTHORS=SeleniumHQ
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.42.1
 ARG GRPC_VERSION=1.66.0
