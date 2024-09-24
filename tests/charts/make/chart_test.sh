@@ -354,9 +354,7 @@ elif [ "${TEST_EXISTING_KEDA}" != "true" ]; then
     "
   else
     HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-    --set keda.image.keda.registry=null --set keda.image.keda.repository=null --set keda.image.keda.tag=null \
-    --set keda.image.metricsApiServer.registry=null --set keda.image.metricsApiServer.repository=null --set keda.image.metricsApiServer.tag=null \
-    --set keda.image.webhooks.registry=null --set keda.image.webhooks.repository=null --set keda.image.webhooks.tag=null \
+    --set keda.image=null \
     "
   fi
 fi
@@ -410,6 +408,11 @@ if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
     ./tests/bootstrap.sh NodeEdge
   else
     ./tests/bootstrap.sh NodeChromium
+  fi
+elif [ "${MATRIX_TESTS}" = "CDPTests" ]; then
+  ./tests/CDPTests/bootstrap.sh "chrome"
+  if [ "${TEST_PLATFORMS}" = "linux/amd64" ]; then
+    ./tests/CDPTests/bootstrap.sh "MicrosoftEdge"
   fi
 else
   ./tests/bootstrap.sh ${MATRIX_BROWSER}

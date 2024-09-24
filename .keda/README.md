@@ -40,6 +40,8 @@ If you are deploying KEDA core using their official Helm [chart](https://github.
 
 If you are deployment Selenium Grid chart with `autoscaling.enabled` is `true` (implies installing KEDA sub-chart), KEDA images registry and tag already set in the `values.yaml`. Refer to list [configuration](../charts/selenium-grid/CONFIGURATION.md).
 
+If you want to disable default patched KEDA image tags in Selenium Grid chart, you can set via Helm CLI `--set keda.image=null` or the same in values file.
+
 # Pull requests under testing
 
 Here is list of pull requests that are under testing and will be merged to the upstream KEDA repository.

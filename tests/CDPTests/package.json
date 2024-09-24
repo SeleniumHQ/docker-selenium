@@ -1,0 +1,21 @@
+{
+  "name": "CDPTests",
+  "version": "1.47.2",
+  "main": "index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.47.2"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "playwright-core": "^1.47.2"
+  },
+  "description": ""
+}

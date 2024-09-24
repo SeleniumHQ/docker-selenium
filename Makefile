@@ -948,12 +948,12 @@ chart_test_autoscaling_job:
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_existingKEDA_prefixSelenium_nodeChromium_enableTracing.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
-chart_test_language_bindings:
-	PLATFORMS=$(PLATFORMS) \
-	SELENIUM_GRID_HOST=$$(hostname -i) \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
+chart_test_autoscaling_playwright_connect_grid:
+	PLATFORMS=$(PLATFORMS) CHART_ENABLE_TRACING=true CHART_ENABLE_BASIC_AUTH=true MATRIX_TESTS=CDPTests \
+	SECURE_INGRESS_ONLY_DEFAULT=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	./tests/charts/make/chart_test.sh DeploymentAutoscaling
+	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling.yaml" \
+	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_delete:
 	helm del test -n selenium || true
