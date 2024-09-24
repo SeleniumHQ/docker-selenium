@@ -10,7 +10,7 @@ jobs:
 
   deploy:
 
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     strategy: 
       fail-fast: false
       matrix:

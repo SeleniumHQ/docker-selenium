@@ -50,7 +50,7 @@ jobs:
       - docker-test
       - helm-chart-test
     if: failure() && ( github.run_attempt < 3 )
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - name: Checkout code
         uses: actions/checkout@main
