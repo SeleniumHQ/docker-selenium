@@ -4,13 +4,24 @@ workflows:
   build-and-test-multi-arch:
     jobs:
       - kubernetes-test:
+          name: "K8s test - Playwright Connect Autoscaling Grid"
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.25.16'
+          test-strategy: playwright_connect_grid
+          cluster: 'minikube'
+          helm-version: 'v3.10.3'
+          docker-version: '24.0.9'
+          test-upgrade: true
+      - kubernetes-test:
           name: "K8s test - Autoscaling disabled"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
           k8s-version: 'v1.26.15'
           test-strategy: disabled
           cluster: 'minikube'
-          helm-version: 'v3.10.3'
+          helm-version: 'v3.11.3'
+          docker-version: '24.0.9'
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs"
@@ -19,43 +30,48 @@ workflows:
           k8s-version: 'v1.27.16'
           test-strategy: job
           cluster: 'minikube'
-          helm-version: 'v3.11.3'
+          helm-version: 'v3.12.3'
+          docker-version: '24.0.9'
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Deployments"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.28.13'
+          k8s-version: 'v1.28.14'
           test-strategy: deployment
           cluster: 'minikube'
-          helm-version: 'v3.12.3'
+          helm-version: 'v3.13.3'
+          docker-version: '24.0.9'
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.29.8'
+          k8s-version: 'v1.29.9'
           test-strategy: job_https
           cluster: 'minikube'
-          helm-version: 'v3.13.3'
+          helm-version: 'v3.14.3'
+          docker-version: '25.0.5'
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Jobs - Ingress hostname"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.30.4'
+          k8s-version: 'v1.30.5'
           test-strategy: job_hostname
           cluster: 'minikube'
-          helm-version: 'v3.14.4'
+          helm-version: 'v3.15.4'
+          docker-version: '26.1.4'
           test-upgrade: true
       - kubernetes-test:
           name: "K8s test - Autoscaling Deployments - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.31.0'
+          k8s-version: 'v1.31.1'
           test-strategy: deployment_https
           cluster: 'minikube'
-          helm-version: 'v3.15.4'
+          helm-version: 'v3.16.1'
+          docker-version: '27.2.0'
           test-upgrade: true
       - docker-test:
           name: "Docker test - Use random user (true)"
@@ -206,6 +222,8 @@ jobs:
         type: string
       helm-version:
         type: string
+      docker-version:
+        type: string
       test-upgrade:
         type: boolean
     executor: << parameters.machine-type >>
@@ -217,6 +235,7 @@ jobs:
       CLUSTER: << parameters.cluster >>
       KUBERNETES_VERSION: << parameters.k8s-version >>
       HELM_VERSION: << parameters.helm-version >>
+      DOCKER_VERSION: << parameters.docker-version >>
       TEST_UPGRADE_CHART: << parameters.test-upgrade >>
     steps:
       - run:
@@ -266,14 +285,20 @@ jobs:
           name: "Test Selenium Grid on Kubernetes"
           no_output_timeout: 30m
           command: |
+            if [ "${TEST_STRATEGY}" == "playwright_connect_grid" ]; then
+              PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity
+              exit $?
+            fi
             N=3
             while [ $N -gt 0 ]; do
               output=$(eval "PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity")
               status=$?
               if [ $status -eq 0 ]; then
+                echo "${output}"
                 echo "Tests passed"
                 exit 0
               else
+                echo "${output}"
                 echo "Tests failed. Retrying..."
                 N=$((N-1))
                 sleep 10
