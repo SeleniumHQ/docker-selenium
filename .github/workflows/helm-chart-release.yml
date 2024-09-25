@@ -39,7 +39,7 @@ jobs:
     needs:
       - helm-chart-test
     if: (!failure() && !cancelled())
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions: write-all
     env:
       NAME: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
