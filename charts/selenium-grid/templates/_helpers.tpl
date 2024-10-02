@@ -782,7 +782,7 @@ Get the lifecycle of the pod is used for a Node to deregister from the Hub/Route
     {{- $lifecycle = (tpl (toYaml (default ($defaultDeregisterLifecycle | fromYaml) .node.deregisterLifecycle) ) $ | fromYaml) | toYaml -}}
   {{- end -}}
 {{- end -}}
-{{- if not .node.lifecycle -}}
+{{- if .node.lifecycle -}}
   {{- $lifecycle = mergeOverwrite ($lifecycle | fromYaml) (tpl (toYaml .node.lifecycle) $ | fromYaml) | toYaml -}}
 {{- end -}}
 {{ if and $lifecycle (ne $lifecycle "{}") -}}
