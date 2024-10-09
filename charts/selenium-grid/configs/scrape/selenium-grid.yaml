@@ -1,0 +1,15 @@
+- job_name: "selenium-grid-analytics"
+  metrics_path: "/query"
+  bearer_token: ""
+  params:
+    endpoint:
+      - '{{ template "seleniumGrid.monitoring.graphqlURL" $ }}'
+    query:
+      - |
+        { grid { sessionCount, maxSession, totalSlots, nodeCount, sessionQueueSize }, nodesInfo { nodes { id, status, sessionCount, maxSession, slotCount, stereotypes, sessions { id, capabilities, sessionDurationMillis, slot { id, stereotype } } } }, sessionsInfo { sessionQueueRequests } }
+    zoneTag: []
+  tls_config:
+    insecure_skip_verify: true
+  static_configs:
+    - targets:
+        - '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}.{{ .Release.Namespace }}:{{ $.Values.monitoring.exporter.port }}'

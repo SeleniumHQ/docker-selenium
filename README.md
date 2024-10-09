@@ -3,6 +3,7 @@
 [![Release Charts](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/helm-chart-release.yml)
 [![Nightly](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/nightly.yml)
 [![Update Dev/Beta Browser Images](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml/badge.svg)](https://github.com/SeleniumHQ/docker-selenium/actions/workflows/update-dev-beta-browser-images.yml)
+[![Releases downloads](https://img.shields.io/github/downloads/seleniumhq/docker-selenium/total.svg)](https://github.com/SeleniumHQ/docker-selenium/releases)
 
 # Docker images for the Selenium Grid Server
 

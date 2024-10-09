@@ -659,6 +659,13 @@ Graphql Url of the hub or the router
 {{- printf "%s/graphql" (include "seleniumGrid.server.url" $) -}}
 {{- end -}}
 
+{{/*
+Graphql Url for internal monitoring exporter
+*/}}
+{{- define "seleniumGrid.monitoring.graphqlURL" -}}
+{{- printf "%s://%s%s%s%s/graphql" (include "seleniumGrid.server.url.schema" .) (include "seleniumGrid.url.basicAuth" .) (include "seleniumGrid.server.url.host" .) (include "seleniumGrid.server.url.port" .) (include "seleniumGrid.url.subPath" .) -}}
+{{- end -}}
+
 {{- define "seleniumGrid.url.schema" -}}
 {{- $schema := "http" -}}
 {{- if or (eq (include "seleniumGrid.server.secureConnection" $) "true") (eq (include "seleniumGrid.ingress.secureConnection" $) "true") -}}

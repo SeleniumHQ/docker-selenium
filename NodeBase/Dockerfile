@@ -118,6 +118,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && unzip -x websockify.zip \
   && rm websockify.zip \
   && mv websockify-${WEBSOCKIFY_VERSION} /opt/bin/noVNC/utils/websockify \
+  && chmod +x /opt/bin/noVNC/utils/websockify/run \
   && rm -rf /opt/bin/noVNC/utils/websockify/docker /opt/bin/noVNC/utils/websockify/tests \
 #========================================================================
 # Run this command for executable file permissions for /dev/shm when    #

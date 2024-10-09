@@ -9,6 +9,8 @@ metadata:
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
+    app: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
     {{- include "seleniumGrid.autoscalingLabels" $ | nindent 4 }}
 spec:
