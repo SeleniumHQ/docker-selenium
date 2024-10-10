@@ -16,7 +16,7 @@ services:
     stop_grace_period: 30s
 
   node-docker:
-    image: selenium/node-docker:4.25.0-20240922
+    image: selenium/node-docker:4.25.0-20241010
     volumes:
       - ./assets:/opt/selenium/assets
       - ./NodeDocker/config.toml:/opt/selenium/config.toml
@@ -42,7 +42,7 @@ services:
       - SE_RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
 
   selenium-hub:
-    image: selenium/hub:4.25.0-20240922
+    image: selenium/hub:4.25.0-20241010
     container_name: selenium-hub
     ports:
       - "4442:4442"

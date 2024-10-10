@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.25.0-20240922
+    imageTag: 4.25.0-20241010
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.25.0-20240922
+    nodesImageTag: 4.25.0-20241010
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.0.2-20240922
+    videoImageTag: ffmpeg-7.0.2-20241010
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -1583,15 +1583,15 @@ keda:
     keda:
       registry: selenium
       repository: keda
-      tag: "2.15.1-selenium-grid-20240922"
+      tag: "2.15.1-selenium-grid-20241010"
     metricsApiServer:
       registry: selenium
       repository: keda-metrics-apiserver
-      tag: "2.15.1-selenium-grid-20240922"
+      tag: "2.15.1-selenium-grid-20241010"
     webhooks:
       registry: selenium
       repository: keda-admission-webhooks
-      tag: "2.15.1-selenium-grid-20240922"
+      tag: "2.15.1-selenium-grid-20241010"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

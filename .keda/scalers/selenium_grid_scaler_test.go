@@ -1643,6 +1643,34 @@ func Test_parseSeleniumGridScalerMetadata(t *testing.T) {
 			},
 		},
 		{
+			name: "valid username and password in AuthParams, url, browsername, and sessionbrowsername should return metadata",
+			args: args{
+				config: &scalersconfig.ScalerConfig{
+					AuthParams: map[string]string{
+						"username": "username",
+						"password": "password",
+					},
+					TriggerMetadata: map[string]string{
+						"url":                "http://selenium-hub:4444/graphql",
+						"browserName":        "MicrosoftEdge",
+						"sessionBrowserName": "msedge",
+					},
+				},
+			},
+			wantErr: false,
+			want: &seleniumGridScalerMetadata{
+				URL:                "http://selenium-hub:4444/graphql",
+				BrowserName:        "MicrosoftEdge",
+				SessionBrowserName: "msedge",
+				TargetValue:        1,
+				BrowserVersion:     "latest",
+				PlatformName:       "linux",
+				Username:           "username",
+				Password:           "password",
+				NodeMaxSessions:    1,
+			},
+		},
+		{
 			name: "valid url and browsername should return metadata",
 			args: args{
 				config: &scalersconfig.ScalerConfig{
@@ -1761,19 +1789,21 @@ func Test_parseSeleniumGridScalerMetadata(t *testing.T) {
 			},
 		},
 		{
-			name: "valid url, browsername, unsafeSsl, activationThreshold, nodeMaxSessions and platformName should return metadata",
+			name: "valid url, browsername, unsafeSsl, activationThreshold, nodeMaxSessions and platformName with trigger auth params should return metadata",
 			args: args{
 				config: &scalersconfig.ScalerConfig{
 					TriggerMetadata: map[string]string{
 						"url":                 "http://selenium-hub:4444/graphql",
-						"username":            "user",
-						"password":            "password",
 						"browserName":         "chrome",
 						"browserVersion":      "91.0",
 						"unsafeSsl":           "true",
 						"activationThreshold": "10",
 						"platformName":        "Windows 11",
 						"nodeMaxSessions":     "3",
+					},
+					AuthParams: map[string]string{
+						"username": "user",
+						"password": "password",
 					},
 				},
 			},
@@ -1782,6 +1812,110 @@ func Test_parseSeleniumGridScalerMetadata(t *testing.T) {
 				URL:                 "http://selenium-hub:4444/graphql",
 				Username:            "user",
 				Password:            "password",
+				BrowserName:         "chrome",
+				SessionBrowserName:  "chrome",
+				TargetValue:         1,
+				ActivationThreshold: 10,
+				BrowserVersion:      "91.0",
+				UnsafeSsl:           true,
+				PlatformName:        "Windows 11",
+				NodeMaxSessions:     3,
+			},
+		},
+		{
+			name: "url in trigger auth param takes precedence over url in trigger metadata",
+			args: args{
+				config: &scalersconfig.ScalerConfig{
+					TriggerMetadata: map[string]string{
+						"url":                 "http://invalid.dns:4444/graphql",
+						"browserName":         "chrome",
+						"browserVersion":      "91.0",
+						"unsafeSsl":           "true",
+						"activationThreshold": "10",
+						"platformName":        "Windows 11",
+						"nodeMaxSessions":     "3",
+					},
+					AuthParams: map[string]string{
+						"url":      "http://selenium-hub:4444/graphql",
+						"username": "user",
+						"password": "password",
+					},
+				},
+			},
+			wantErr: false,
+			want: &seleniumGridScalerMetadata{
+				URL:                 "http://selenium-hub:4444/graphql",
+				Username:            "user",
+				Password:            "password",
+				BrowserName:         "chrome",
+				SessionBrowserName:  "chrome",
+				TargetValue:         1,
+				ActivationThreshold: 10,
+				BrowserVersion:      "91.0",
+				UnsafeSsl:           true,
+				PlatformName:        "Windows 11",
+				NodeMaxSessions:     3,
+			},
+		},
+		{
+			name: "auth type is not Basic and access token is provided",
+			args: args{
+				config: &scalersconfig.ScalerConfig{
+					TriggerMetadata: map[string]string{
+						"url":                 "http://selenium-hub:4444/graphql",
+						"browserName":         "chrome",
+						"browserVersion":      "91.0",
+						"unsafeSsl":           "true",
+						"activationThreshold": "10",
+						"platformName":        "Windows 11",
+						"nodeMaxSessions":     "3",
+					},
+					AuthParams: map[string]string{
+						"url":         "http://selenium-hub:4444/graphql",
+						"authType":    "OAuth2",
+						"accessToken": "my-access-token",
+					},
+				},
+			},
+			wantErr: false,
+			want: &seleniumGridScalerMetadata{
+				URL:                 "http://selenium-hub:4444/graphql",
+				AuthType:            "OAuth2",
+				AccessToken:         "my-access-token",
+				BrowserName:         "chrome",
+				SessionBrowserName:  "chrome",
+				TargetValue:         1,
+				ActivationThreshold: 10,
+				BrowserVersion:      "91.0",
+				UnsafeSsl:           true,
+				PlatformName:        "Windows 11",
+				NodeMaxSessions:     3,
+			},
+		},
+		{
+			name: "authenticating with bearer access token",
+			args: args{
+				config: &scalersconfig.ScalerConfig{
+					TriggerMetadata: map[string]string{
+						"browserName":         "chrome",
+						"browserVersion":      "91.0",
+						"unsafeSsl":           "true",
+						"activationThreshold": "10",
+						"platformName":        "Windows 11",
+						"nodeMaxSessions":     "3",
+					},
+					AuthParams: map[string]string{
+						"url":         "http://selenium-hub:4444/graphql",
+						"authType":    "Bearer",
+						"accessToken": "my-access-token",
+					},
+				},
+			},
+			wantErr: false,
+			want: &seleniumGridScalerMetadata{
+				URL:                 "http://selenium-hub:4444/graphql",
+				AuthType:            "Bearer",
+				AccessToken:         "my-access-token",
 				BrowserName:         "chrome",
 				SessionBrowserName:  "chrome",
 				TargetValue:         1,

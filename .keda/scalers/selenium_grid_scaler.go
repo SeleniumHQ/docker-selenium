@@ -28,9 +28,11 @@ type seleniumGridScaler struct {
 type seleniumGridScalerMetadata struct {
 	triggerIndex int
 
-	URL                 string `keda:"name=url,                      order=triggerMetadata;authParams"`
-	Username            string `keda:"name=username,                 order=triggerMetadata;authParams, optional"`
-	Password            string `keda:"name=password,                 order=triggerMetadata;authParams, optional"`
+	URL                 string `keda:"name=url,                      order=authParams;triggerMetadata"`
+	AuthType            string `keda:"name=authType,                 order=authParams;resolvedEnv, optional"`
+	Username            string `keda:"name=username,                 order=authParams;resolvedEnv, optional"`
+	Password            string `keda:"name=password,                 order=authParams;resolvedEnv, optional"`
+	AccessToken         string `keda:"name=accessToken,              order=authParams;resolvedEnv, optional"`
 	BrowserName         string `keda:"name=browserName,              order=triggerMetadata"`
 	SessionBrowserName  string `keda:"name=sessionBrowserName,       order=triggerMetadata, optional"`
 	ActivationThreshold int64  `keda:"name=activationThreshold,      order=triggerMetadata, optional"`
@@ -196,8 +198,10 @@ func (s *seleniumGridScaler) getSessionsCount(ctx context.Context, logger logr.L
 		return -1, err
 	}
 
-	if s.metadata.Username != "" && s.metadata.Password != "" {
+	if (s.metadata.AuthType == "" || strings.EqualFold(s.metadata.AuthType, "Basic")) && s.metadata.Username != "" && s.metadata.Password != "" {
 		req.SetBasicAuth(s.metadata.Username, s.metadata.Password)
+	} else if !strings.EqualFold(s.metadata.AuthType, "Basic") && s.metadata.AccessToken != "" {
+		req.Header.Set("Authorization", fmt.Sprintf("%s %s", s.metadata.AuthType, s.metadata.AccessToken))
 	}
 
 	res, err := s.httpClient.Do(req)
