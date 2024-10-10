@@ -27,6 +27,7 @@ TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/amd64')
 TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PACKAGE', 'false').lower() == 'true'
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
+TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
 
 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
     SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
@@ -114,6 +115,9 @@ class SeleniumGenericTests(unittest.TestCase):
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
+        if TEST_CUSTOM_SPECIFIC_NAME:
+            self.assertTrue(str(self.driver.capabilities['myApp:version']) == 'beta')
+            self.assertTrue(str(self.driver.capabilities['myApp:publish']) == 'internal')
         try:
             if TEST_DELAY_AFTER_TEST:
                 time.sleep(TEST_DELAY_AFTER_TEST)
@@ -133,6 +137,9 @@ class ChromeTests(SeleniumGenericTests):
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_CUSTOM_SPECIFIC_NAME:
+                options.set_capability('myApp:version', 'beta')
+                options.set_capability('myApp:publish', 'internal')
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
@@ -171,6 +178,9 @@ class EdgeTests(SeleniumGenericTests):
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_CUSTOM_SPECIFIC_NAME:
+                options.set_capability('myApp:version', 'beta')
+                options.set_capability('myApp:publish', 'internal')
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
@@ -201,6 +211,9 @@ class FirefoxTests(SeleniumGenericTests):
             options.profile = profile
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_CUSTOM_SPECIFIC_NAME:
+                options.set_capability('myApp:version', 'beta')
+                options.set_capability('myApp:publish', 'internal')
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:

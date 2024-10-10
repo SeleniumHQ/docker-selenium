@@ -9,6 +9,7 @@ services:
       - ./videos/config.toml:/opt/selenium/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - SE_ENABLE_TRACING=false
       - SE_VNC_NO_PASSWORD=true
       - SE_START_VNC=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
@@ -62,4 +63,5 @@ services:
       - TEST_PARALLEL_HARDENING=${TEST_PARALLEL_HARDENING}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
       - HUB_CHECKS_INTERVAL=${HUB_CHECKS_INTERVAL}
+      - TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME}
     command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]

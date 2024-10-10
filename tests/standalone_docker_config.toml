@@ -1,8 +1,11 @@
 [docker]
 configs = [
-    "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux"}',
-    "${NAMESPACE}/standalone-${NODE_CHROME}:${TAG}", '{"browserName": "chrome", "platformName": "linux"}',
-    "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux", "myApp:version": "stable", "myApp:publish": "external"}',
+    "${NAMESPACE}/standalone-firefox:${TAG}", '{"browserName": "firefox", "platformName": "linux", "myApp:version": "beta", "myApp:publish": "internal"}',
+    "${NAMESPACE}/standalone-${NODE_CHROME}:${TAG}", '{"browserName": "chrome", "platformName": "linux", "myApp:version": "stable", "myApp:publish": "external"}',
+    "${NAMESPACE}/standalone-${NODE_CHROME}:${TAG}", '{"browserName": "chrome", "platformName": "linux", "myApp:version": "beta", "myApp:publish": "internal"}',
+    "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux", "myApp:version": "stable", "myApp:publish": "external"}',
+    "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux", "myApp:version": "beta", "myApp:publish": "internal"}'
     ]
 
 url = "http://127.0.0.1:2375"
@@ -10,6 +13,7 @@ url = "http://127.0.0.1:2375"
 video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
 
 [node]
+detect-drivers = false
 enable-managed-downloads = "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
 override-max-sessions = true
 max-sessions = 16
