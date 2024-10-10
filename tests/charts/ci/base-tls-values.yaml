@@ -2,9 +2,6 @@ registrationSecret:
   enabled: true
   value: "HappyTestOps"
 
-monitoring:
-  enabled: true
-
 kube-prometheus-stack:
   cleanPrometheusOperatorObjectNames: true
   defaultRules:

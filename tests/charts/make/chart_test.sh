@@ -55,6 +55,8 @@ MAX_SESSIONS_EDGE=${MAX_SESSIONS_EDGE:-"1"}
 TEST_NAME_OVERRIDE=${TEST_NAME_OVERRIDE:-"false"}
 TEST_PATCHED_KEDA=${TEST_PATCHED_KEDA:-"true"}
 BASIC_AUTH_EMBEDDED_URL=${BASIC_AUTH_EMBEDDED_URL:-"false"}
+SELENIUM_GRID_MONITORING=${SELENIUM_GRID_MONITORING:-"true"}
+TEST_EXISTING_PTS=${TEST_EXISTING_PTS:-"false"}
 
 cleanup() {
   # Get the list of pods
@@ -92,6 +94,12 @@ trap 'on_failure' ERR EXIT
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   rm -rf tests/tests/*
   touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
+fi
+
+if [ "${RENDER_HELM_TEMPLATE_ONLY}" = "true" ]; then
+  KEDA_BASED_NAME="${NAMESPACE}"
+  KEDA_BASED_TAG="${KEDA_TAG_VERSION}-${BUILD_DATE}"
+  TEST_EXISTING_PTS="true"
 fi
 
 if [ -f .env ]
@@ -153,6 +161,18 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=true \
   --set autoscaling.enableWithExistingKEDA=false \
+  "
+fi
+
+if [ "${SELENIUM_GRID_MONITORING}" = "true" ] && [ "${TEST_EXISTING_PTS}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set monitoring.enabled=false \
+  --set monitoring.enabledWithExistingAgent=true \
+  "
+elif [ "${SELENIUM_GRID_MONITORING}" = "true" ] && [ "${TEST_EXISTING_PTS}" = "false" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set monitoring.enabled=true \
+  --set monitoring.enabledWithExistingAgent=false \
   "
 fi
 
@@ -333,7 +353,7 @@ HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
 --values ${MATRIX_BROWSER_VALUES_FILE} \
 "
 
-if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+if [ "${TEST_EXISTING_KEDA}" = "true" ] && [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   if [ "${TEST_PATCHED_KEDA}" = "true" ]; then
     KEDA_SET_IMAGES="--set image.keda.registry=${KEDA_BASED_NAME} --set image.keda.repository=keda --set image.keda.tag=${KEDA_BASED_TAG} \
     --set image.metricsApiServer.registry=${KEDA_BASED_NAME} --set image.metricsApiServer.repository=keda-metrics-apiserver --set image.metricsApiServer.tag=${KEDA_BASED_TAG} \

@@ -901,7 +901,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_render_template:
-	RENDER_HELM_TEMPLATE_ONLY=true make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job
+	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_playwright_connect_grid
 
 chart_test_autoscaling_disabled:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true \
@@ -915,7 +915,7 @@ chart_test_autoscaling_deployment_https:
 	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PORT=443 \
 	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 MAX_SESSIONS_FIREFOX=3 MAX_SESSIONS_EDGE=2 MAX_SESSIONS_CHROME=1 TEST_NAME_OVERRIDE=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_basicAuth_secureIngress_defaultCerts_ingressHostName_disableHttp2_autoScaling_scaledObject_subPath.yaml" \
+	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_basicAuth_secureIngress_defaultCerts_ingressHostName_disableHttp2_autoScaling_patchKEDA_scaledObject_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_autoscaling_deployment:
@@ -938,7 +938,7 @@ chart_test_autoscaling_job_hostname:
 	PLATFORMS=$(PLATFORMS) CHART_ENABLE_TRACING=true CHART_ENABLE_BASIC_AUTH=true BASIC_AUTH_EMBEDDED_URL=true TEST_PATCHED_KEDA=false \
 	SECURE_INGRESS_ONLY_DEFAULT=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	TEMPLATE_OUTPUT_FILENAME="k8s_enableTracing_basicAuth_secureIngress_externalCerts_ingressPublicIP_autoScaling_scaledJob_subPath.yaml" \
+	TEMPLATE_OUTPUT_FILENAME="k8s_enableTracing_basicAuth_secureIngress_externalCerts_ingressPublicIP_autoScaling_originKEDA_scaledJob_subPath.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
@@ -952,7 +952,7 @@ chart_test_autoscaling_playwright_connect_grid:
 	PLATFORMS=$(PLATFORMS) CHART_ENABLE_TRACING=true CHART_ENABLE_BASIC_AUTH=true MATRIX_TESTS=CDPTests \
 	SECURE_INGRESS_ONLY_DEFAULT=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
-	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling.yaml" \
+	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling_patchKEDA.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_delete:
