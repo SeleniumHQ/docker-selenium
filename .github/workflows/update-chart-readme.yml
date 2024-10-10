@@ -1,0 +1,46 @@
+name: Update chart configuration table
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-chart-readme:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up environment
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make setup_dev_env
+      - name: Update chart configuration table
+        run: make generate_readme_charts
+      - name: Check for differences
+        id: check_diff
+        run: |
+          if git diff --exit-code; then
+            echo "diff=false" >> $GITHUB_ENV
+          else
+            echo "diff=true" >> $GITHUB_ENV
+          fi
+      - name: Commit files
+        if: env.diff == 'true'
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git commit -m "Update chart configuration table" -a
+      - name: Push changes
+        if: env.diff == 'true'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          branch: ${{ env.BRANCH_NAME }}
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
