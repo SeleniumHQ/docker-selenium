@@ -57,6 +57,20 @@ component.autoscaling: "{{ .Release.Name }}"
 {{- end -}}
 
 {{/*
+Selenium metrics exporter fullname
+*/}}
+{{- define "seleniumGrid.monitoring.exporter.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-metrics-exporter" $)) ($.Values.monitoring).exporter.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Selenium metrics scrape key in secret resource
+*/}}
+{{- define "seleniumGrid.monitoring.scrape.key" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-grid-scrape" $)) ($.Values.monitoring).additionalScrapeConfigs.key) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Selenium Hub fullname
 */}}
 {{- define "seleniumGrid.hub.fullname" -}}

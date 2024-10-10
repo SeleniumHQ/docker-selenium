@@ -34,8 +34,8 @@ spec:
           args:
             - |
               echo "Cleaning up ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
-              kubectl patch ScaledObjects,ScaledJobs -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} -p '{"metadata":{"finalizers":null}}' || true ;
-              kubectl delete ScaledObjects,ScaledJobs -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait || true ;
+              kubectl get ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} -o=json | jq '.metadata.finalizers = null' | kubectl apply -f - || true ;
+              kubectl delete ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait || true ;
               kubectl delete hpa -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait || true ;
         {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
           resources: {{ toYaml . | nindent 12 }}

@@ -129,7 +129,8 @@ class ChromeTests(SeleniumGenericTests):
         try:
             options = ChromeOptions()
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
-            options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+            if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
+                options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
@@ -166,7 +167,8 @@ class EdgeTests(SeleniumGenericTests):
         try:
             options = EdgeOptions()
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
-            options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
+            if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
+                options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")
@@ -189,13 +191,14 @@ class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
         try:
             profile = webdriver.FirefoxProfile()
-            profile.set_preference("browser.download.manager.showWhenStarting", False)
-            profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
+            options = FirefoxOptions()
+            options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
+            if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
+                profile.set_preference("browser.download.manager.showWhenStarting", False)
+                profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "*/*")
             profile.set_preference('intl.accept_languages', 'vi-VN,vi')
             profile.set_preference('intl.locale.requested', 'vi-VN,vi')
-            options = FirefoxOptions()
             options.profile = profile
-            options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
             options.set_capability('se:name', f"{self._testMethodName} ({self.__class__.__name__})")

@@ -83,7 +83,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     rm -rf minikube-linux-$(dpkg --print-architecture)
     echo "==============================="
     echo "Installing Go"
-    GO_VERSION="1.22.3"
+    GO_VERSION="1.23.2"
     curl -sLO https://go.dev/dl/go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz
     sudo tar -xf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz -C /usr/local
     rm -rf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz*

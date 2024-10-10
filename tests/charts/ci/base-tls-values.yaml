@@ -3,18 +3,17 @@ registrationSecret:
   value: "HappyTestOps"
 
 monitoring:
-  enabled: false
+  enabled: true
 
 kube-prometheus-stack:
   cleanPrometheusOperatorObjectNames: true
   defaultRules:
     create: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
+      "helm.sh/hook": pre-install,pre-upgrade,pre-rollback,post-delete
   alertmanager:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx
@@ -26,7 +25,6 @@ kube-prometheus-stack:
     forceDeployDatasources: true
     forceDeployDashboards: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx
@@ -35,7 +33,6 @@ kube-prometheus-stack:
   prometheus:
     enabled: true
     annotations:
-      "helm.sh/hook": post-install,post-upgrade,post-rollback
     ingress:
       enabled: true
       ingressClassName: nginx

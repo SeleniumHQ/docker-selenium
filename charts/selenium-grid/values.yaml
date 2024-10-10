@@ -154,6 +154,11 @@ rbacRole:
         - scaledobjects
       verbs: [get, list, patch, update, delete]
     - apiGroups:
+        - keda.sh
+      resources:
+        - triggerauthentication
+      verbs: [get, list, patch, update, delete]
+    - apiGroups:
         - autoscaling
       resources:
         - horizontalpodautoscalers
@@ -791,6 +796,31 @@ tracing:
 monitoring:
   enabled: false
   enabledWithExistingAgent: false
+  exporter:
+    nameOverride: ""
+    imageRegistry: "ricardbejarano"
+    imageName: "graphql_exporter"
+    imageTag: "latest"
+    # -- Custom pull secret for container in patch job
+    imagePullSecret: ""
+    annotations: {}
+    port: 9199
+    service:
+      # -- Create a service for exporter
+      enabled: true
+      # -- Service type
+      type: ClusterIP
+      # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+      loadBalancerIP: ""
+      # -- Node port for service
+      nodePort: 30199
+      # -- Annotations for exporter service
+      annotations: {}
+    replicas: 1
+  additionalScrapeConfigs:
+    key: ""
+    value: ""
+  annotations: {}
 
 # Keda scaled object configuration
 autoscaling:
@@ -829,11 +859,11 @@ autoscaling:
     # -- Define resources for container in patch job
     resources:
       requests:
-        cpu: 10m
-        memory: 10Mi
+        cpu: 100m
+        memory: 200Mi
       limits:
-        cpu: 50m
-        memory: 50Mi
+        cpu: 200m
+        memory: 500Mi
   # -- Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     # -- Minimum number of replicas
@@ -1581,6 +1611,12 @@ ingress-nginx:
 kube-prometheus-stack:
   # enabled: false
   cleanPrometheusOperatorObjectNames: true
+  prometheus:
+    prometheusSpec:
+      additionalConfig:
+        additionalScrapeConfigs:
+          name: '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}'
+          key: '{{ template "seleniumGrid.monitoring.scrape.key" $ }}'
 
 # -- Configuration for dependency chart jaeger
 jaeger:

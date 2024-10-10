@@ -1,0 +1,27 @@
+{{- if eq (include "seleniumGrid.monitoring.enabled" $) "true" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+  type: {{ .Values.monitoring.exporter.service.type }}
+  {{- if and (eq .Values.monitoring.exporter.service.type "LoadBalancer") ( .Values.monitoring.exporter.service.loadBalancerIP ) }}
+  loadBalancerIP: {{ .Values.monitoring.exporter.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: http-port
+      protocol: TCP
+      port: {{ .Values.monitoring.exporter.port }}
+      targetPort: {{ .Values.monitoring.exporter.port }}
+    {{- if and (eq .Values.monitoring.exporter.service.type "NodePort") .Values.monitoring.exporter.service.nodePort }}
+      nodePort: {{ .Values.monitoring.exporter.service.nodePort }}
+    {{- end }}
+  {{- end }}

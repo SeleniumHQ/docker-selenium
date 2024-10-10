@@ -1,0 +1,35 @@
+{{- if eq (include "seleniumGrid.monitoring.enabled" $) "true" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  labels: &exporter_labels
+    app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.monitoring.exporter.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+      app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+  template:
+    metadata:
+      labels: *exporter_labels
+      annotations:
+        {{- with .Values.monitoring.exporter.annotations }}
+            {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.monitoring.exporter.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.monitoring.exporter.imagePullSecret }}
+    {{- end }}
+      containers:
+        - name: graphql-exporter
+          {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.monitoring.exporter.imageRegistry }}
+          image: {{ printf "%s/%s:%s" $imageRegistry .Values.monitoring.exporter.imageName .Values.monitoring.exporter.imageTag | quote }}
+          ports:
+            - containerPort: {{ .Values.monitoring.exporter.port }}
+  {{- end }}
