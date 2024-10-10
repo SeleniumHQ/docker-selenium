@@ -1736,6 +1736,21 @@ You can also refer to the below docker compose yaml files to be able to start a 
 * Dynamic Grid [v3 yaml file](docker-compose-v3-full-grid-tracing.yml)
 
 You can view the [Jaeger UI](http://localhost:16686/) and trace your request.
+
+By default, the tracing is enabled in Grid components. Without trace exporter endpoint, it will look up a local instance e.g. `localhost/[0:0:0:0:0:0:0:1]:4117`.
+In container logs you can see few lines like below:
+
+```bash
+ERROR (ThrottlingLogger.dolog) Failed to export spans.
+  The request could not be executed. Error message: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:4117
+  java.net.ConnectException: Failed to connect to localhost/[0:0:0:0:0:0:0:1]:4317 
+at okhttp3.internal.connection.RealConnection.connectSocket(RealConnection.kt:297)
+at okhttp3.internal.connection. ExchangeFinder.findConnection (Exchangefinder.kt: 226)
+at okhttp3.internal.connection.okhttps.internal.connection.RealConnection.connect(RealConnection.kt:207)
+```
+
+In this case, just simply set `SE_ENABLE_TRACING=false` to all components container to disable tracing (each component exports its own traces).
+
 ___
 
 ## Troubleshooting
@@ -1769,7 +1784,11 @@ or
 
 `Message: unknown error: Chrome failed to start: exited abnormally`
 
-The reason _might_ be that you've set the `START_XVFB` environment variable to "false", but forgot to 
+or
+
+` [DriverServiceSessionFactory.apply] - Error while creating session with the driver service. Stopping driver service: java.util.concurrent.TimeoutException`
+
+The reason _might_ be that you've set the `SE_START_XVFB` environment variable to `false`, but forgot to 
 actually run Firefox, Chrome or Edge in headless mode.
 
 ### Mounting volumes to retrieve downloaded files
