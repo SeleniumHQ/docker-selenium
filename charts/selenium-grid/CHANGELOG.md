@@ -1,3 +1,22 @@
+## :heavy_check_mark: selenium-grid-0.36.2
+
+- Chart is using image tag 4.25.0-20241010
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.14, v1.29.9, v1.30.5, v1.31.1, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.1, 
+
+### Changed
+- [`72387472`](http://github.com/seleniumhq/docker-selenium/commit/723874729ab63018fc0405490a6f3313ca575ddd) - Update tag 4.25.0-20241010 in docs and files :: Selenium CI Bot
+- [`c3ad0995`](http://github.com/seleniumhq/docker-selenium/commit/c3ad0995c9288c39e62e91978ab96c0b253753bc) - Update chart configuration table :: Selenium CI Bot
+- [`be2a920f`](http://github.com/seleniumhq/docker-selenium/commit/be2a920f723d75ca4725e7b22b94324682b04b78) - chore(deps): update helm release kube-prometheus-stack to v65 (#2422) :: renovate[bot]
+- [`ef2c6c49`](http://github.com/seleniumhq/docker-selenium/commit/ef2c6c493ca41b3f2760b93a5678725bdcccd808) - chore(deps): update helm release ingress-nginx to v4.11.3 (#2424) :: renovate[bot]
+- [`ea7b913c`](http://github.com/seleniumhq/docker-selenium/commit/ea7b913c8d58ffcff0923c2ff128b4ccf135b82e) - chart(feat): add graphql metrics exporter for monitoring (#2425) :: Viet Nguyen Duc
+- [`1a9aa386`](http://github.com/seleniumhq/docker-selenium/commit/1a9aa386352050a357abdc5cfbbcf5ea01cc1e71) - chart(fix): node.lifecycle not being rendered from values file (#2420) :: Bruno Brito
+- [`dedd69b1`](http://github.com/seleniumhq/docker-selenium/commit/dedd69b113dfae966fd58b79338a136f40fea8fc) - Update chart 0.36.1 changelog [skip ci] :: Selenium CI Bot
+
+### Experimental
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
 ## :heavy_check_mark: selenium-grid-0.36.1
 
 - Chart is using image tag 4.25.0-20240922
