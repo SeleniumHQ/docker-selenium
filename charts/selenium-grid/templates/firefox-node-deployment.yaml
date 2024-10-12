@@ -17,9 +17,11 @@ metadata:
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.firefoxNode $.Values.global.seleniumGrid) }}
-  {{- if and (not .Values.autoscaling.enabled) (not .Values.autoscaling.enableWithExistingKEDA) }}
+  {{- if not (eq (include "seleniumGrid.useKEDA" $) "true") }}
   replicas: {{ .Values.firefoxNode.replicas }}
-  {{end}}
+  {{- else }}
+  replicas: {{ default $.Values.autoscaling.scaledOptions.minReplicaCount ($.Values.firefoxNode.scaledOptions).minReplicaCount }}
+  {{ end }}
   revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
     matchLabels:

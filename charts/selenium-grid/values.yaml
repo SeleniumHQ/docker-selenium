@@ -34,7 +34,7 @@ global:
     httpLogs: false
     updateStrategy:
       # -- Specify update strategy for all components, can be overridden individually
-      type: Recreate
+      type: RollingUpdate
       # type: RollingUpdate
       # -- Specify for strategy RollingUpdate
       rollingUpdate:
