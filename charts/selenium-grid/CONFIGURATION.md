@@ -371,7 +371,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hostAliases | string | `nil` | Custom host aliases for chrome nodes |
 | chromeNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for chrome nodes |
 | chromeNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes |
-| chromeNode.service.enabled | bool | `true` | Create a service for node |
+| chromeNode.service.enabled | bool | `false` | Create a service for node |
 | chromeNode.service.type | string | `"ClusterIP"` | Service type |
 | chromeNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | chromeNode.service.ports | string | `nil` | Extra ports exposed in node service |
@@ -421,7 +421,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hostAliases | string | `nil` | Custom host aliases for firefox nodes |
 | firefoxNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for firefox nodes |
 | firefoxNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes |
-| firefoxNode.service.enabled | bool | `true` | Create a service for node |
+| firefoxNode.service.enabled | bool | `false` | Create a service for node |
 | firefoxNode.service.type | string | `"ClusterIP"` | Service type |
 | firefoxNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | firefoxNode.service.ports | string | `nil` | Extra ports exposed in node service |
@@ -471,7 +471,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hostAliases | string | `nil` | Custom host aliases for edge nodes |
 | edgeNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for edge nodes |
 | edgeNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes |
-| edgeNode.service.enabled | bool | `true` | Create a service for node |
+| edgeNode.service.enabled | bool | `false` | Create a service for node |
 | edgeNode.service.type | string | `"ClusterIP"` | Service type |
 | edgeNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | edgeNode.service.ports | string | `nil` | Extra ports exposed in node service |
