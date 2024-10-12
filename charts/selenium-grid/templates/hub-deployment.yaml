@@ -107,7 +107,9 @@ spec:
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.hub.fullname" . }}'
             - name: SE_HUB_HOST
-              value: '{{ template "seleniumGrid.hub.fullname" . }}.{{ .Release.Namespace }}'
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: SE_HUB_PORT
               value: {{ .Values.hub.port | quote }}
             {{- with .Values.hub.subPath }}

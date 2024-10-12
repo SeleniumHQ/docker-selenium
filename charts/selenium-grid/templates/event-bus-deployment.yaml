@@ -50,7 +50,9 @@ spec:
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.eventBus.fullname" . }}'
             - name: SE_EVENT_BUS_HOST
-              value: '{{ template "seleniumGrid.eventBus.fullname" . }}.{{ .Release.Namespace }}'
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: SE_EVENT_BUS_PORT
               value: {{ .Values.components.eventBus.port | quote }}
         {{- with .Values.components.extraEnvironmentVariables }}

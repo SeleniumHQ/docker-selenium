@@ -46,7 +46,9 @@ spec:
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.distributor.fullname" . }}'
             - name: SE_DISTRIBUTOR_HOST
-              value: '{{ template "seleniumGrid.distributor.fullname" . }}.{{ .Release.Namespace }}'
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: SE_DISTRIBUTOR_PORT
               value: {{ .Values.components.distributor.port | quote }}
             - name: SE_ROUTER_HOST
