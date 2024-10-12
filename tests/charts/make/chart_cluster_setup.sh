@@ -18,6 +18,7 @@ SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the clust
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 CNI=${CNI:-"calico"} # auto, calico, cilium
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"} # docker, containerd, cri-o
+SERVICE_MESH=${SERVICE_MESH:-"false"}
 
 # Function to clean up for retry step on workflow
 cleanup() {
@@ -47,6 +48,10 @@ elif [ "${CLUSTER}" = "minikube" ]; then
   sudo -SE minikube start --vm-driver=none \
   --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME} --wait=all
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
+  if [ "${SERVICE_MESH}" = "true" ]; then
+    minikube addons enable istio-provisioner
+    minikube addons enable istio
+  fi
 fi
 
 if [ "${CLUSTER}" = "kind" ]; then

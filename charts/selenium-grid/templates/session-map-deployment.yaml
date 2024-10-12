@@ -44,7 +44,9 @@ spec:
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionMap.fullname" . }}'
             - name: SE_SESSIONS_HOST
-              value: '{{ template "seleniumGrid.sessionMap.fullname" . }}.{{ .Release.Namespace }}'
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: SE_SESSIONS_PORT
               value: {{ .Values.components.sessionMap.port | quote }}
         {{- with .Values.components.extraEnvironmentVariables }}

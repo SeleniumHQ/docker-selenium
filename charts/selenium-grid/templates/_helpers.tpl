@@ -349,6 +349,10 @@ template:
         {{- end }}
           - name: SE_OTEL_SERVICE_NAME
             value: {{ .name | quote }}
+          - name: SE_NODE_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.podIP
           - name: SE_NODE_PORT
             value: {{ .node.port | quote }}
         {{- with .node.startupProbe.timeoutSeconds }}

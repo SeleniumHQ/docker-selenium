@@ -40,42 +40,49 @@ jobs:
             helm-version: 'v3.10.3'
             docker-version: '24.0.9'
             test-upgrade: true
+            service-mesh: true
           - k8s-version: 'v1.26.15'
             test-strategy: disabled
             cluster: 'minikube'
             helm-version: 'v3.11.3'
             docker-version: '24.0.9'
             test-upgrade: true
+            service-mesh: false
           - k8s-version: 'v1.27.16'
             test-strategy: job
             cluster: 'minikube'
             helm-version: 'v3.12.3'
             docker-version: '24.0.9'
             test-upgrade: true
+            service-mesh: true
           - k8s-version: 'v1.28.14'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             docker-version: '24.0.9'
             test-upgrade: true
+            service-mesh: true
           - k8s-version: 'v1.29.9'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
             docker-version: '25.0.5'
             test-upgrade: true
+            service-mesh: false
           - k8s-version: 'v1.30.5'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
             docker-version: '26.1.4'
             test-upgrade: true
+            service-mesh: false
           - k8s-version: 'v1.31.1'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.16.1'
             docker-version: '27.2.0'
             test-upgrade: true
+            service-mesh: false
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
@@ -83,6 +90,7 @@ jobs:
       HELM_VERSION: ${{ matrix.helm-version }}
       DOCKER_VERSION: ${{ matrix.docker-version }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}
+      SERVICE_MESH: ${{ matrix.service-mesh }}
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -148,7 +156,7 @@ jobs:
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+          command: CLUSTER=${CLUSTER} SERVICE_MESH=${SERVICE_MESH} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
       - name: Test chart template
         run: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_template
       - name: Test set custom CA certificate

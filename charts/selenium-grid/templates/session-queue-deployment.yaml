@@ -43,7 +43,9 @@ spec:
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}'
             - name: SE_SESSION_QUEUE_HOST
-              value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}.{{ .Release.Namespace }}'
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
         {{- with .Values.components.extraEnvironmentVariables }}

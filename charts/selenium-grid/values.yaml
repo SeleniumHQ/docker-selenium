@@ -989,7 +989,7 @@ chromeNode:
   # Service configuration
   service:
     # -- Create a service for node
-    enabled: true
+    enabled: false
     # -- Service type
     type: ClusterIP
     # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -1170,7 +1170,7 @@ firefoxNode:
   # Service configuration
   service:
     # -- Create a service for node
-    enabled: true
+    enabled: false
     # -- Service type
     type: ClusterIP
     # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
@@ -1350,7 +1350,7 @@ edgeNode:
   # Service configuration
   service:
     # -- Create a service for node
-    enabled: true
+    enabled: false
     # -- Service type
     type: ClusterIP
     # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
