@@ -21,7 +21,7 @@ spec:
   replicas: {{ .Values.firefoxNode.replicas }}
   {{- else }}
   replicas: {{ default $.Values.autoscaling.scaledOptions.minReplicaCount ($.Values.firefoxNode.scaledOptions).minReplicaCount }}
-  {{ end }}
+  {{- end }}
   revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
     matchLabels:

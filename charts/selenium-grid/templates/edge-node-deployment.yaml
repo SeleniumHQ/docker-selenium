@@ -21,7 +21,7 @@ spec:
   replicas: {{ .Values.edgeNode.replicas }}
   {{- else }}
   replicas: {{ default $.Values.autoscaling.scaledOptions.minReplicaCount ($.Values.edgeNode.scaledOptions).minReplicaCount }}
-  {{ end }}
+  {{- end }}
   revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
     matchLabels:
