@@ -79,54 +79,72 @@ workflows:
           use-random-user: true
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: false
+          enable-managed-downloads: false
       - docker-test:
           name: "Docker test - Use random user (false)"
           test-strategy: test
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: false
+          enable-managed-downloads: false
       - docker-test:
           name: "Docker test - Video recording"
           test-strategy: test_video
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Video recording dynamic file name"
           test-strategy: test_video_dynamic_name
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Video recording standalone"
           test-strategy: test_video_standalone
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Dynamic Grid"
           test-strategy: test_node_docker
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: false
       - docker-test:
           name: "Docker test - Dynamic Grid Standalone"
           test-strategy: test_standalone_docker
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Parallel execution"
           test-strategy: test_parallel
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Node relay commands"
           test-strategy: test_node_relay
           use-random-user: false
           platforms: linux/arm64
           machine-type: ubuntu2204arm64
+          firefox-install-lang-package: true
+          enable-managed-downloads: true
 
 executors:
   ubuntu2204arm64:
@@ -149,6 +167,10 @@ jobs:
         type: string
       use-random-user:
         type: boolean
+      firefox-install-lang-package:
+        type: boolean
+      enable-managed-downloads:
+        type: boolean
     executor: << parameters.machine-type >>
     environment:
       NAMESPACE: selenium
@@ -156,6 +178,8 @@ jobs:
       PLATFORMS: << parameters.platforms >>
       TEST_STRATEGY: << parameters.test-strategy >>
       USE_RANDOM_USER: << parameters.use-random-user >>
+      TEST_FIREFOX_INSTALL_LANG_PACKAGE: << parameters.firefox-install-lang-package >>
+      SELENIUM_ENABLE_MANAGED_DOWNLOADS: << parameters.enable-managed-downloads >>
     steps:
       - run:
           name: "Prepare workflow environment variables"
@@ -195,7 +219,9 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              output=$(eval "USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make ${TEST_STRATEGY}")
+              output=$(eval "USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
+              TEST_FIREFOX_INSTALL_LANG_PACKAGE=${TEST_FIREFOX_INSTALL_LANG_PACKAGE} SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS} \
+              make ${TEST_STRATEGY}")
               status=$?
               if [ $status -eq 0 ]; then
                 echo "Tests passed"

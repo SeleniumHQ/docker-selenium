@@ -80,6 +80,9 @@ on_failure() {
     if [ ${RENDER_HELM_TEMPLATE_ONLY} = "true" ]; then
       exit $exit_status
     fi
+    kubectl get pods -A
+    echo "Get all resources in all namespaces"
+    kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"
     kubectl describe all -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
@@ -449,11 +452,5 @@ while true; do
     sleep 2
   fi
 done
-
-echo "Get pods status"
-kubectl get pods -n ${SELENIUM_NAMESPACE}
-
-echo "Get all resources in all namespaces"
-kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 
 cleanup

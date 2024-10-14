@@ -629,7 +629,7 @@ test_firefox_download_lang_packs:
 
 test_firefox: test_firefox_download_lang_packs
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true \
-	TEST_FIREFOX_INSTALL_LANG_PACKAGE=true ./tests/bootstrap.sh NodeFirefox
+	TEST_FIREFOX_INSTALL_LANG_PACKAGE=$(or $(TEST_FIREFOX_INSTALL_LANG_PACKAGE), "true") ./tests/bootstrap.sh NodeFirefox
 
 test_firefox_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneFirefox
@@ -848,7 +848,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 			envsubst < $${config_file} > ./videos/config.toml ; \
 			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose -f $${docker_compose_file} up --remove-orphans --no-log-prefix --build --exit-code-from tests ; \
 			if [ $$? -ne 0 ]; then exit 1; fi ; \
-			if [ "$$SKIP_CHECK_DOWNLOADS_VOLUME" != "true" ] && [ -d "$$DOWNLOADS_DIR" ] && [ $$(ls -1q $$DOWNLOADS_DIR | wc -l) -eq 0 ]; then \
+			if [ "$$SKIP_CHECK_DOWNLOADS_VOLUME" != "true" ] && [ "$$SELENIUM_ENABLE_MANAGED_DOWNLOADS" != "true" ] && [ -d "$$DOWNLOADS_DIR" ] && [ $$(ls -1q $$DOWNLOADS_DIR | wc -l) -eq 0 ]; then \
 					echo "Mounted downloads directory is empty. Downloaded files could not be retrieved!" ; \
 					exit 1 ; \
 			fi ; \
@@ -922,7 +922,7 @@ chart_test_autoscaling_deployment_https:
 chart_test_autoscaling_deployment:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=false \
 	SECURE_CONNECTION_SERVER=true SECURE_USE_EXTERNAL_CERT=true SERVICE_TYPE_NODEPORT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=31444 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=0 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 SELENIUM_GRID_MONITORING=false  \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_enableTracing_secureServer_externalCerts_nodePort_autoScaling_scaledObject_existingKEDA_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling

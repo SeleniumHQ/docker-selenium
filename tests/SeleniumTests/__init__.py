@@ -99,7 +99,6 @@ class SeleniumGenericTests(unittest.TestCase):
         driver = self.driver
         driver.get('https://the-internet.herokuapp.com/download')
         file_name = 'some-file.txt'
-        is_continue = True
         wait = WebDriverWait(driver, 30)
         file_link = wait.until(
             EC.element_to_be_clickable((By.LINK_TEXT, file_name))

@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.36.2](https://img.shields.io/badge/Version-0.36.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.25.0-20241010](https://img.shields.io/badge/AppVersion-4.25.0--20241010-informational?style=flat-square)
+![Version: 0.36.3](https://img.shields.io/badge/Version-0.36.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.25.0-20241010](https://img.shields.io/badge/AppVersion-4.25.0--20241010-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -21,7 +21,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://jaegertracing.github.io/helm-charts | jaeger | 3.3.1 |
 | https://kedacore.github.io/charts | keda | 2.15.1 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.11.3 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 65.1.1 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 65.2.0 |
 
 ## Values
 
@@ -42,7 +42,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.revisionHistoryLimit | int | `10` | Specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background. |
 | global.seleniumGrid.structuredLogs | bool | `false` | Whether to enable structured logging |
 | global.seleniumGrid.httpLogs | bool | `false` | Enable http logging. Tracing should be enabled to log http logs. |
-| global.seleniumGrid.updateStrategy.type | string | `"Recreate"` | Specify update strategy for all components, can be overridden individually |
+| global.seleniumGrid.updateStrategy.type | string | `"RollingUpdate"` | Specify update strategy for all components, can be overridden individually |
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
