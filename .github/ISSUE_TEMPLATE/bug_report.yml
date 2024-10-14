@@ -64,6 +64,6 @@ body:
     attributes:
       label: Selenium Grid chart version (chart version)
       description: What version of Selenium Grid chart are you using?
-      placeholder: 0.35.1?
+      placeholder: 0.36.3?
     validations:
       required: false

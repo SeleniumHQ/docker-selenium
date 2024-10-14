@@ -7,7 +7,6 @@ NEXT_DATE=$(echo ${NEXT_TAG} | sed 's/.*-//')
 latest_chart_app_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^appVersion | cut -d ':' -f 2 | tr -d '[:space:]')
 FFMPEG_TAG_PREV_VERSION=$(grep FFMPEG_TAG_PREV_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
-RCLONE_TAG_VERSION=$(grep RCLONE_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 KEDA_TAG_PREV_VERSION=$(grep KEDA_TAG_PREV_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 KEDA_TAG_VERSION=$(grep KEDA_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 
@@ -27,9 +26,9 @@ find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0
 if [[ "$NEXT_TAG" == "latest" ]] || [[ "$NEXT_TAG" == "nightly" ]]; then
   # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
   FFMPEG_LATEST_TAG=${FFMPEG_TAG_VERSION}-${LATEST_DATE}
-  RCLONE_LATEST_TAG=${RCLONE_TAG_VERSION}-${LATEST_DATE}
+  KEDA_LATEST_TAG=${KEDA_TAG_VERSION}-${LATEST_DATE}
+  find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${KEDA_LATEST_TAG}/${NEXT_TAG}/g"
   find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${FFMPEG_LATEST_TAG}/${NEXT_TAG}/g"
-  find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${RCLONE_LATEST_TAG}/${NEXT_TAG}/g"
 fi
 
 echo -e "\033[0;32m Updating date used in some docs and files...\033[0m"
