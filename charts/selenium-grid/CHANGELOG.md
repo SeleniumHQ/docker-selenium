@@ -1,3 +1,19 @@
+## :heavy_check_mark: selenium-grid-0.36.3
+
+- Chart is using image tag 4.25.0-20241010
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.14, v1.29.9, v1.30.5, v1.31.1, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.1, 
+
+### Changed
+- [`b86c952c`](http://github.com/seleniumhq/docker-selenium/commit/b86c952c5c450ad96eb9eae336aa6ab5eebf3b99) - chart(update): template remove redundant newlines :: Viet Nguyen Duc
+- [`e7ca1dcd`](http://github.com/seleniumhq/docker-selenium/commit/e7ca1dcd85545ea5ae920634be671d1f48e885a0) - chart(update): Node deployment replicas use minReplicaCount in autoscaling (#2430) :: Viet Nguyen Duc
+- [`94da26e6`](http://github.com/seleniumhq/docker-selenium/commit/94da26e6cc421d781cb0456497fa852b5cbb79fe) - chart(update): use podIP in all components server host (#2429) :: Viet Nguyen Duc
+- [`5802c323`](http://github.com/seleniumhq/docker-selenium/commit/5802c323459957f7032065a1fee84703d7ec0150) - Update chart 0.36.2 changelog [skip ci] :: Selenium CI Bot
+
+### Experimental
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
 ## :heavy_check_mark: selenium-grid-0.36.2
 
 - Chart is using image tag 4.25.0-20241010
