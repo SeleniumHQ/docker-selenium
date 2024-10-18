@@ -27,4 +27,4 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-curl -skSL -H "Authorization: Basic ${BASIC_AUTH}" ${SE_SERVER_PROTOCOL:-"http"}://${HOST}:${PORT}/wd/hub/status | jq -r '.value.ready' | grep -q "true" || exit 1
+curl -skSL --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" ${SE_SERVER_PROTOCOL:-"http"}://${HOST}:${PORT}/wd/hub/status | jq -r '.value.ready' | grep -q "true" || exit 1
