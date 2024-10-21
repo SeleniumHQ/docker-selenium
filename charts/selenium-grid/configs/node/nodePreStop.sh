@@ -33,7 +33,7 @@ function signal_hub_to_drain_node() {
   return_list=($(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh))
   grid_url=${return_list[0]}
   grid_check=${return_list[1]}
-  BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
   if [ -n "${grid_url}" ]; then
     if [ "${grid_check}" = "401" ]; then
       echo "$(date +%FT%T%Z) [${probe_name}] - Hub/Router requires authentication. Please check SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD."

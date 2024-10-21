@@ -7,7 +7,7 @@ ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"+%T.%3N"}
 ROUTER_CONFIG_DIRECTORY=${ROUTER_CONFIG_DIRECTORY:-"/opt/bin"}
 
 GRID_GRAPHQL_URL=$(bash ${ROUTER_CONFIG_DIRECTORY}/routerGraphQLUrl.sh)
-BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
 
 if [ -z "${GRID_GRAPHQL_URL}" ]; then
   echo "$(date ${ts_format}) DEBUG [${probe_name}] - Could not construct GraphQL endpoint, please provide SE_HUB_HOST (or SE_ROUTER_HOST) and SE_HUB_PORT (or SE_ROUTER_PORT). Bypass the probe checks for now."

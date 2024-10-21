@@ -14,7 +14,7 @@ if [[ -n ${GRAPHQL_ENDPOINT} ]] && [[ ! ${GRAPHQL_ENDPOINT} == */graphql ]]; the
   GRAPHQL_ENDPOINT="${GRAPHQL_ENDPOINT}/graphql"
 fi
 
-BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
 
 VIDEO_CAP_NAME=${VIDEO_CAP_NAME:-"se:recordVideo"}
 TEST_NAME_CAP=${TEST_NAME_CAP:-"se:name"}
