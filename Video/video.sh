@@ -29,7 +29,7 @@ else
 fi
 
 /opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
-BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
 
 if [ -d "${VIDEO_FOLDER}" ]; then
   echo "$(date +%FT%T%Z) [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"

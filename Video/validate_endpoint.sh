@@ -5,7 +5,7 @@ graphql_endpoint=${2:-false}
 max_time=1
 process_name="endpoint.checks"
 
-BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
 
 if [ "${graphql_endpoint}" = "true" ]; then
   endpoint_checks=$(curl --noproxy "*" -m ${max_time} -k -X POST \

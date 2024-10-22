@@ -2,7 +2,7 @@
 
 max_time=3
 
-BASIC_AUTH="$(echo -n "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64)"
+BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
 
 if [ "${SE_SUB_PATH}" = "/" ]; then
   SE_SUB_PATH=""
