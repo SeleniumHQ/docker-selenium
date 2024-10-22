@@ -1,3 +1,20 @@
+## :heavy_check_mark: selenium-grid-0.36.4
+
+- Chart is using image tag 4.25.0-20241010
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.14, v1.29.9, v1.30.5, v1.31.1, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.2.0, 
+- Chart is tested on Helm versions: v3.10.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.1, 
+
+### Fixed
+- [`ec01d2f5`](http://github.com/seleniumhq/docker-selenium/commit/ec01d2f5fe22a3ba0932b4e095a083585abbc134) - fix: bash avoiding newline when Base64 encoding a long string (#2437) :: Viet Nguyen Duc
+
+### Changed
+- [`022c35f6`](http://github.com/seleniumhq/docker-selenium/commit/022c35f68f825540f6cde72f5c0d379b54156e29) - chore(deps): update helm release keda to v2.15.2 (#2433) :: renovate[bot]
+- [`36ba1870`](http://github.com/seleniumhq/docker-selenium/commit/36ba1870f113aba414a08dd1211d5fc5409ff370) - Update chart 0.36.3 changelog [skip ci] :: Selenium CI Bot
+
+### Experimental
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
 ## :heavy_check_mark: selenium-grid-0.36.3
 
 - Chart is using image tag 4.25.0-20241010

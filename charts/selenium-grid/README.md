@@ -51,7 +51,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
 ## Introduction
 
 We offer a Helm chart to simplify the deployment of Selenium Grid Docker images to Kubernetes.
-- Table of chart configuration is available in [CONFIGURATION](CONFIGURATION.md).
+- Table of chart configuration is available in [CONFIGURATION](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md).
 - Chart changes are tracked in [CHANGELOG](CHANGELOG.md).
 - Sanity/Regression tests for the chart features are tracked in [TESTING](TESTING.md).
 - There are some reference values file that used to test and deploy Selenium Grid chart. You can find them in [tests/charts/refValues](../../tests/charts/refValues) and [tests/charts/ci](../../tests/charts/ci).
@@ -318,7 +318,7 @@ Refer to below section [Configuration of Secure Communication] for more details 
 
 ### Configuration global
 
-Check out list [configuration](CONFIGURATION.md) with config key start with `global.` for more details.
+Check out list [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md) with config key start with `global.` for more details.
 
 #### Configuration `global.K8S_PUBLIC_IP`
 
@@ -875,7 +875,7 @@ Read more: [vendors](https://opentelemetry.io/ecosystem/vendors/) native support
 
 ### Configuration of Selenium Grid chart
 
-Check out list [configuration](CONFIGURATION.md) parameter of chart and their default values for more details.
+Check out list [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md) parameter of chart and their default values for more details.
 
 ### Configuration of KEDA
 
@@ -898,13 +898,13 @@ values with the prefix `jaeger`. See https://github.com/jaegertracing/helm-chart
 
 You can configure the Selenium Hub with config key starts with `hub.`.
 
-Check out list [configuration](CONFIGURATION.md) parameter of chart and their default values for more details.
+Check out list [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md) parameter of chart and their default values for more details.
 
 ### Configuration for isolated components
 
 If you implement selenium-grid with separate components (`isolateComponents: true`), you can configure all components via config key starts with `components.`
 
-Check out list [configuration](CONFIGURATION.md) parameter of chart and their default values for more details.
+Check out list [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md) parameter of chart and their default values for more details.
 
 ---
 See how to customize a helm chart installation in the [Helm Docs](https://helm.sh/docs/intro/using_helm/#customizing-the-chart-before-installing) for more information.
