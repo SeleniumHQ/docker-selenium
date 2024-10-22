@@ -28,6 +28,9 @@ on:
 
 permissions: write-all
 
+env:
+  FORCE_RELEASE: ${{ github.event.inputs.release == 'true' }}
+
 jobs:
   helm-chart-test:
     if: github.event.inputs.skip-test != 'true'
@@ -74,7 +77,11 @@ jobs:
       - name: Get chart release notes (chart_release_notes.md)
         run: |
           ./generate_chart_changelog.sh
-          echo "IS_RELEASE=$(cat /tmp/selenium_chart_release)" >> $GITHUB_ENV
+          if [ "${FORCE_RELEASE}" == "true" ]; then
+            echo "IS_RELEASE=true" >> $GITHUB_ENV
+          else
+            echo "IS_RELEASE=$(cat /tmp/selenium_chart_release)" >> $GITHUB_ENV
+          fi
 
       - name: Login Docker Hub
         run: helm registry login registry-1.docker.io -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
