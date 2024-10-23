@@ -163,6 +163,7 @@ ENV SE_BIND_HOST=false \
     SE_SUPERVISORD_CHILD_LOG_DIR="/tmp" \
     SE_SUPERVISORD_LOG_FILE="/tmp/supervisord.log" \
     SE_SUPERVISORD_PID_FILE="/tmp/supervisord.pid" \
+    SE_LOG_TIMESTAMP_FORMAT="%Y-%m-%d %H:%M:%S,%3N" \
     SE_LOG_LEVEL="INFO" \
     SE_HTTP_LOGS=false \
     SE_STRUCTURED_LOGS=false \

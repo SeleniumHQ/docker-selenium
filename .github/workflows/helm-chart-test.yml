@@ -55,21 +55,21 @@ jobs:
             docker-version: '24.0.9'
             test-upgrade: true
             service-mesh: true
-          - k8s-version: 'v1.28.14'
+          - k8s-version: 'v1.28.15'
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.13.3'
             docker-version: '24.0.9'
             test-upgrade: true
             service-mesh: true
-          - k8s-version: 'v1.29.9'
+          - k8s-version: 'v1.29.10'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
             docker-version: '25.0.5'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.30.5'
+          - k8s-version: 'v1.30.6'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
