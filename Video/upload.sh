@@ -9,6 +9,7 @@ UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
 UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
+ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.uploader"
 
 if [ "${VIDEO_INTERNAL_UPLOAD}" = "true" ]; then
@@ -22,7 +23,7 @@ else
 fi
 
 if [ "${UPLOAD_RETAIN_LOCAL_FILE}" = "false" ]; then
-  echo "$(date +%FT%T%Z) [${process_name}] - UPLOAD_RETAIN_LOCAL_FILE is set to false, force to use RCLONE command: move"
+  echo "$(date -u +"${ts_format}") [${process_name}] - UPLOAD_RETAIN_LOCAL_FILE is set to false, force to use RCLONE command: move"
   UPLOAD_COMMAND="move"
 fi
 
@@ -55,7 +56,7 @@ function check_and_clear_background() {
 function rclone_upload() {
   local source=$1
   local target=$2
-  echo "$(date +%FT%T%Z) [${process_name}] - Uploading ${source} to ${target}"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Uploading ${source} to ${target}"
   rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
   list_rclone_pid+=($!)
   check_and_clear_background
@@ -70,46 +71,46 @@ function check_if_pid_alive() {
 }
 
 function consume_pipe_file_in_background() {
-  echo "$(date +%FT%T%Z) [${process_name}] - Start consuming pipe file to upload"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Start consuming pipe file to upload"
   while read FILE DESTINATION <${UPLOAD_PIPE_FILE}; do
     if [ "${FILE}" = "exit" ]; then
-      echo "$(date +%FT%T%Z) [${process_name}] - Received exit signal. Aborting upload process"
+      echo "$(date -u +"${ts_format}") [${process_name}] - Received exit signal. Aborting upload process"
       return 0
     elif [ "$FILE" != "" ] && [ "$DESTINATION" != "" ]; then
       rclone_upload "${FILE}" "${DESTINATION}"
     fi
   done
-  echo "$(date +%FT%T%Z) [${process_name}] - Stopped consuming pipe file. Upload process is done"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Stopped consuming pipe file. Upload process is done"
   return 0
 }
 
 # Function to check if the named pipe exists
 check_if_pipefile_exists() {
   if [ -p "${UPLOAD_PIPE_FILE}" ]; then
-    echo "$(date +%FT%T%Z) [${process_name}] - Named pipe ${UPLOAD_PIPE_FILE} exists"
+    echo "$(date -u +"${ts_format}") [${process_name}] - Named pipe ${UPLOAD_PIPE_FILE} exists"
     return 0
   fi
   return 1
 }
 
 function wait_until_pipefile_exists() {
-  echo "$(date +%FT%T%Z) [${process_name}] - Waiting for ${UPLOAD_PIPE_FILE} to be present"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for ${UPLOAD_PIPE_FILE} to be present"
   until check_if_pipefile_exists; do
     sleep 1
   done
 }
 
 function graceful_exit() {
-  echo "$(date +%FT%T%Z) [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down uploader"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down uploader"
   if ! check_if_pid_alive "${UPLOAD_PID}"; then
     consume_pipe_file_in_background &
     UPLOAD_PID=$!
   fi
   echo "exit" >>"${UPLOAD_PIPE_FILE}" &
   wait "${UPLOAD_PID}"
-  echo "$(date +%FT%T%Z) [${process_name}] - Uploader consumed all files in the pipe"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Uploader consumed all files in the pipe"
   rm -rf "${FORCE_EXIT_FILE}"
-  echo "$(date +%FT%T%Z) [${process_name}] - Uploader is ready to shutdown"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Uploader is ready to shutdown"
   exit 0
 }
 
