@@ -29,16 +29,20 @@ triggers:
 
 **Parameter list:**
 
-- `url` - Graphql url of your Selenium Grid. Refer to the Selenium Grid's documentation [here](https://www.selenium.dev/documentation/en/grid/grid_4/graphql_support/) to for more info.
-- `username` - Username for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
-- `password` - Password for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
-- `browserName` - Name of browser that usually gets passed in the browser capability. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info.
+- `url` - Graphql url of your Selenium Grid (Required). Refer to the Selenium Grid's documentation [here](https://www.selenium.dev/documentation/en/grid/grid_4/graphql_support/) to for more info. If endpoint requires authentication, you can use `TriggerAuthentication` to provide the credentials instead of embedding in the URL.
+- `browserName` - Name of browser that usually gets passed in the browser capability (Required). Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info.
 - `sessionBrowserName` -  Name of the browser when it is an active session, only set if `BrowserName` changes between the queue and the active session. See the Edge example below for further detail. (Optional)
 - `browserVersion` - Version of browser that usually gets passed in the browser capability. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `unsafeSsl` - Skip certificate validation when connecting over HTTPS. (Values: `true`, `false`, Default: `false`, Optional)
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
 - `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Default: `Linux`, Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. (Default: `1`, Optional). Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior.
+
+**Trigger Authentication**
+- `username` - Username for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
+- `password` - Password for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
+- `authType` - Type of authentication to be used. (Optional). This can be set to `Bearer` or `OAuth2` in case Selenium Grid behind an Ingress proxy with other authentication types.
+- `accessToken` - Access token (Optional). This is required when `authType` is set a value.
 
 ### Example
 
@@ -106,6 +110,28 @@ spec:
         url: 'http://selenium-hub:4444/graphql'
         browserName: 'MicrosoftEdge'
         sessionBrowserName: 'msedge'
+```
+
+In case you want to scale from 0 (`minReplicaCount: 0`), and browser nodes are configured different `--max-sessions` greater than 1, you can set `nodeMaxSessions` for scaler align with number of slots available per node to have the correct scaling behavior.
+
+```yaml
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-chrome-scaledobject
+  namespace: keda
+  labels:
+    deploymentName: selenium-chrome-node
+spec:
+  maxReplicaCount: 8
+  scaleTargetRef:
+    name: selenium-chrome-node
+  triggers:
+    - type: selenium-grid
+      metadata:
+        url: 'http://selenium-hub:4444/graphql'
+        browserName: 'chrome'
+        nodeMaxSessions: 4
 ```
 
 If you are supporting multiple versions of browser capability in your Selenium Grid, You should create one scaler for every browser version and pass the `browserVersion` in the metadata.

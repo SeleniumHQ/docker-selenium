@@ -9,7 +9,7 @@ services:
       - "16686:16686"
       - "4317:4317"
   chrome:
-    image: selenium/node-chrome:4.25.0-20241010
+    image: selenium/node-chrome:4.25.0-20241024
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -24,7 +24,7 @@ services:
       - "6900:5900"
 
   edge:
-    image: selenium/node-edge:4.25.0-20241010
+    image: selenium/node-edge:4.25.0-20241024
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -39,7 +39,7 @@ services:
       - "6901:5900"
 
   firefox:
-    image: selenium/node-firefox:4.25.0-20241010
+    image: selenium/node-firefox:4.25.0-20241024
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -54,7 +54,7 @@ services:
       - "6902:5900"
 
   selenium-hub:
-    image: selenium/hub:4.25.0-20241010
+    image: selenium/hub:4.25.0-20241024
     ports:
       - "4442:4442"
       - "4443:4443"
