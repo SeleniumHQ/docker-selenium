@@ -76,7 +76,7 @@ jobs:
             docker-version: '26.1.4'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.31.1'
+          - k8s-version: 'v1.31.2'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.16.1'

@@ -67,7 +67,7 @@ workflows:
           name: "K8s test - Autoscaling Deployments - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.31.1'
+          k8s-version: 'v1.31.2'
           test-strategy: deployment_https
           cluster: 'minikube'
           helm-version: 'v3.16.1'

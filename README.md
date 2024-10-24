@@ -1183,8 +1183,8 @@ captured in the same video.
 
 ### Running in Headless mode
 
-[Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode), 
-[Chrome](https://developers.google.com/web/updates/2017/04/headless-chrome), 
+[Firefox](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode),
+[Chrome](https://developer.chrome.com/docs/chromium/headless),
 When using headless mode, there's no need for the [Xvfb](https://en.wikipedia.org/wiki/Xvfb) server to be started.
 
 To avoid starting the server you can set the `SE_START_XVFB` environment variable to `false` 
@@ -1196,6 +1196,9 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUB
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
+
+Noted:
+- In new Chrome/Chromium versions (v127+), `SE_START_XVFB` is required to be set to `true` to run in `--headless=new` mode.
 
 ### Stopping the Node/Standalone after N sessions have been executed
 
