@@ -29,7 +29,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   firefox:
-    image: selenium/node-firefox:4.25.0-20241024
+    image: selenium/node-firefox:131.0.3-20241024
     shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
