@@ -60,6 +60,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
     supervisor \
     gnupg2 \
     libnss3-tools \
+    python3-pip \
     openjdk-${JRE_VERSION}-jre-headless \
   && if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
        export ARCH=armhf ; \
