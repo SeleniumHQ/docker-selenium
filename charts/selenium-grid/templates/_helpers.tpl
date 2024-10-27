@@ -277,8 +277,8 @@ Common pod template
 {{- define "seleniumGrid.podTemplate" -}}
 {{- $nodeImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .node.imageRegistry -}}
 {{- $nodeImageTag := default $.Values.global.seleniumGrid.nodesImageTag .node.imageTag -}}
-{{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry $.Values.videoRecorder.imageRegistry -}}
-{{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag $.Values.videoRecorder.imageTag -}}
+{{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
+{{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 template:
   metadata:
@@ -315,11 +315,11 @@ template:
       {{- with .node.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if $.Values.videoRecorder.enabled }}
-      - name: "pre-puller-{{ $.Values.videoRecorder.name }}"
-        image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
+    {{- if .recorder.enabled }}
+      - name: "pre-puller-{{ .recorder.name }}"
+        image: {{ printf "%s/%s:%s" $videoImageRegistry .recorder.imageName $videoImageTag }}
         command: ["bash", "-c", "'true'"]
-      {{- with $.Values.videoRecorder.resources }}
+      {{- with .recorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
@@ -478,10 +478,10 @@ template:
     {{- if .node.sidecars }}
       {{- toYaml .node.sidecars | nindent 6 }}
     {{- end }}
-    {{- if $.Values.videoRecorder.enabled }}
-      - name: {{ $.Values.videoRecorder.name }}
-        image: {{ printf "%s/%s:%s" $videoImageRegistry $.Values.videoRecorder.imageName $videoImageTag }}
-        imagePullPolicy: {{ $.Values.videoRecorder.imagePullPolicy }}
+    {{- if .recorder.enabled }}
+      - name: {{ .recorder.name }}
+        image: {{ printf "%s/%s:%s" $videoImageRegistry .recorder.imageName $videoImageTag }}
+        imagePullPolicy: {{ .recorder.imagePullPolicy }}
         env:
         - name: SE_NODE_MAX_SESSIONS
           value: {{ $nodeMaxSessions | quote }}
@@ -493,7 +493,7 @@ template:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-      {{- with $.Values.videoRecorder.extraEnvironmentVariables }}
+      {{- with .recorder.extraEnvironmentVariables }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
         envFrom:
@@ -507,16 +507,16 @@ template:
             name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
         - secretRef:
             name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
-        {{- if and $.Values.videoRecorder.uploader.enabled (empty $.Values.videoRecorder.uploader.name) }}
+        {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
         - secretRef:
             name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- end }}
-      {{- with $.Values.videoRecorder.extraEnvFrom }}
+      {{- with .recorder.extraEnvFrom }}
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
-      {{- if gt (len $.Values.videoRecorder.ports) 0 }}
+      {{- if gt (len .recorder.ports) 0 }}
         ports:
-      {{- range $.Values.videoRecorder.ports }}
+      {{- range .recorder.ports }}
         - containerPort: {{ . }}
           protocol: TCP
       {{- end }}
@@ -527,23 +527,23 @@ template:
           mountPath: /dev/shm
       {{- end }}
       {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 8 }}
-      {{- with $.Values.videoRecorder.resources }}
+      {{- with .recorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with $.Values.videoRecorder.securityContext }}
+      {{- with .recorder.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with $.Values.videoRecorder.startupProbe }}
+      {{- with .recorder.startupProbe }}
         startupProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with $.Values.videoRecorder.livenessProbe }}
+      {{- with .recorder.livenessProbe }}
         livenessProbe: {{- toYaml . | nindent 10 }}
       {{- end }}
-      {{- with $.Values.videoRecorder.lifecycle }}
+      {{- with .recorder.lifecycle }}
         lifecycle: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if and $.Values.videoRecorder.uploader.enabled (not (empty $.Values.videoRecorder.uploader.name)) }}
-      - name: {{ default "uploader" $.Values.videoRecorder.uploader.name }}
+    {{- if and .recorder.uploader.enabled (not (empty .recorder.uploader.name)) }}
+      - name: {{ default "uploader" .recorder.uploader.name }}
         {{- $imageTag := .uploader.imageTag }}
         {{- $imageRegistry := .uploader.imageRegistry }}
         image: {{ printf "%s/%s:%s" $imageRegistry .uploader.imageName $imageTag }}
@@ -556,7 +556,7 @@ template:
       {{- if .uploader.args }}
         args: {{- tpl (toYaml .uploader.args) $ | nindent 8 }}
       {{- else }}
-        args: ["-c", "{{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ $.Values.videoRecorder.uploader.entryPointFileName }}"]
+        args: ["-c", "{{ $.Values.recorderConfigMap.extraScriptsDirectory }}/{{ .recorder.uploader.entryPointFileName }}"]
       {{- end }}
       {{- with .uploader.extraEnvironmentVariables }}
         env: {{- tpl (toYaml .) $ | nindent 8 }}
@@ -632,7 +632,7 @@ template:
     {{- if .node.extraVolumes }}
       {{ tpl (toYaml .node.extraVolumes) $ | nindent 6 }}
     {{- end }}
-    {{- if $.Values.videoRecorder.enabled }}
+    {{- if .recorder.enabled }}
       {{- tpl (include "seleniumGrid.video.volumes" .) $ | nindent 6 }}
     {{- end }}
 {{- end -}}

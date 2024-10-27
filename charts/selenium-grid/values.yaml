@@ -1082,6 +1082,8 @@ chromeNode:
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
+  # -- Override specific video recording settings for chrome node
+  videoRecorder: {}
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -1262,6 +1264,8 @@ firefoxNode:
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
+  # -- Override specific video recording settings for firefox node
+  videoRecorder: {}
 
 # Configuration for edge nodes
 edgeNode:
@@ -1442,7 +1446,10 @@ edgeNode:
   # It means it will add a new container to the deployment itself.
   # It should be set using the --set-json option
   sidecars: []
+  # -- Override specific video recording settings for edge node
+  videoRecorder: {}
 
+# Video recording configuration for all browser nodes. Can be overridden by each browser node
 videoRecorder:
   # -- Enable video recording in all browser nodes
   enabled: false

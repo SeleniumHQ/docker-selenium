@@ -207,6 +207,10 @@ class ChartTemplateTests(unittest.TestCase):
                         video_container = container
                     if container['name'] == 's3':
                         uploader_container = container
+                # Test for case override upload config in Edge node
+                if doc['metadata']['name'] == '{0}selenium-edge-node'.format(RELEASE_NAME):
+                    self.assertTrue(uploader_container is None, "Video uploader should be disabled in Edge node config")
+                    continue
                 list_volume_mounts = None
                 if uploader_container is not None:
                     list_volume_mounts = uploader_container['volumeMounts']

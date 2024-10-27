@@ -119,6 +119,9 @@ selenium-grid:
 
   edgeNode:
     affinity: *affinity
+    videoRecorder:
+      uploader:
+        enabled: false
 
   videoRecorder:
     enabled: true

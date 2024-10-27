@@ -396,6 +396,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
+| chromeNode.videoRecorder | object | `{}` | Override specific video recording settings for chrome node |
 | firefoxNode.enabled | bool | `true` | Enable firefox nodes |
 | firefoxNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long living pods false - for provisioning your own custom type such as Jobs |
 | firefoxNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
@@ -446,6 +447,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
+| firefoxNode.videoRecorder | object | `{}` | Override specific video recording settings for firefox node |
 | edgeNode.enabled | bool | `true` | Enable edge nodes |
 | edgeNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long living pods false - for provisioning your own custom type such as Jobs |
 | edgeNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
@@ -496,6 +498,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
+| edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
 | videoRecorder.enabled | bool | `false` | Enable video recording in all browser nodes |
 | videoRecorder.name | string | `"video"` | Container name is set to resource specs |
 | videoRecorder.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |

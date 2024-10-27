@@ -23,7 +23,8 @@ spec:
   {{- $podScope := deepCopy . -}}
   {{- $_ := set $podScope "name" (include "seleniumGrid.edgeNode.fullname" .) -}}
   {{- $_ =  set $podScope "node" .Values.edgeNode -}}
-  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader.name | toString)) -}}
+  {{- $_ =  set $podScope "recorder" (mergeOverwrite .Values.videoRecorder .Values.edgeNode.videoRecorder) -}}
+  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder ($podScope.recorder.uploader.name | toString)) -}}
   {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
   {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 {{- end }}
