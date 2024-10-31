@@ -10,12 +10,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.remote.client_config import ClientConfig
 
 SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
-SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', '')
-SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', '')
+SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', None)
+SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', None)
 SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'false').lower() == 'true'
 SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWNLOADS', 'true').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
@@ -29,8 +30,14 @@ TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PA
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
 TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
 
-if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
-    SELENIUM_GRID_HOST = f"{SELENIUM_GRID_USERNAME}:{SELENIUM_GRID_PASSWORD}@{SELENIUM_GRID_HOST}"
+SELENIUM_GRID_URL = "%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+CLIENT_CONFIG = ClientConfig(
+    remote_server_addr=SELENIUM_GRID_URL,
+    keep_alive=True,
+    timeout=3600,
+    username=SELENIUM_GRID_USERNAME,
+    password=SELENIUM_GRID_PASSWORD
+)
 
 if TEST_NODE_RELAY == 'Android':
     time.sleep(90)
@@ -159,7 +166,8 @@ class ChromeTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                client_config=CLIENT_CONFIG
             )
             end_time = time.time()
             print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
@@ -187,7 +195,8 @@ class EdgeTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                client_config=CLIENT_CONFIG
             )
             end_time = time.time()
             print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
@@ -220,7 +229,8 @@ class FirefoxTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT)
+                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                client_config=CLIENT_CONFIG
             )
             end_time = time.time()
             print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
