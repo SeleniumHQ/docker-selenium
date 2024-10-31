@@ -156,6 +156,7 @@ RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
     # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST=false \
     SE_SERVER_PROTOCOL="http" \
+    CONFIG_FILE="/opt/selenium/config.toml" \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS=false \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \

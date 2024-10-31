@@ -24,53 +24,76 @@ function append_se_opts() {
   fi
 }
 
-if [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
-  echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
-  echo "SE_EVENT_BUS_PUBLISH_PORT not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
-  echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_SESSIONS_MAP_HOST}" ]]; then
-  echo "SE_SESSIONS_MAP_HOST not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_SESSIONS_MAP_PORT}" ]]; then
-  echo "SE_SESSIONS_MAP_PORT not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_SESSION_QUEUE_HOST}" ]]; then
-  echo "SE_SESSION_QUEUE_HOST not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_SESSION_QUEUE_PORT}" ]]; then
-  echo "SE_SESSION_QUEUE_PORT not set, exiting!" 1>&2
-  exit 1
-fi
-
 if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
+if [[ ! -z "${SE_EVENT_BUS_HOST}" ]]; then
+  if [[ ! -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
+    append_se_opts "--publish-events" "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}"
+  else
+    echo "SE_EVENT_BUS_PUBLISH_PORT not set, exiting!" 1>&2
+    exit 1
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
+    append_se_opts "--subscribe-events" "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
+  else
+    echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
+    exit 1
+  fi
+else
+  echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
+  exit 1
+fi
+
+if [[ ! -z "${SE_SESSIONS_MAP_HOST}" ]]; then
+  append_se_opts "--sessions-host" "${SE_SESSIONS_MAP_HOST}"
+  if [[ ! -z "${SE_SESSIONS_MAP_PORT}" ]]; then
+    append_se_opts "--sessions-port" "${SE_SESSIONS_MAP_PORT}"
+  else
+    echo "SE_SESSIONS_MAP_PORT not set, exiting!" 1>&2
+    exit 1
+  fi
+else
+  echo "SE_SESSIONS_MAP_HOST not set, exiting!" 1>&2
+  exit 1
+fi
+
+if [[ ! -z "${SE_SESSION_QUEUE_HOST}" ]]; then
+  append_se_opts "--sessionqueue-host" "${SE_SESSION_QUEUE_HOST}"
+  if [[ ! -z "${SE_SESSION_QUEUE_PORT}" ]]; then
+    append_se_opts "--sessionqueue-port" "${SE_SESSION_QUEUE_PORT}"
+  else
+    echo "SE_SESSION_QUEUE_PORT not set, exiting!" 1>&2
+    exit 1
+  fi
+else
+  echo "SE_SESSION_QUEUE_HOST not set, exiting!" 1>&2
+  exit 1
+fi
+
 if [ ! -z "$SE_DISTRIBUTOR_HOST" ]; then
-  echo "Using SE_DISTRIBUTOR_HOST: ${SE_DISTRIBUTOR_HOST}"
-  HOST_CONFIG="--host ${SE_DISTRIBUTOR_HOST}"
+  append_se_opts "--host" "${SE_DISTRIBUTOR_HOST}"
 fi
 
 if [ ! -z "$SE_DISTRIBUTOR_PORT" ]; then
-  echo "Using SE_DISTRIBUTOR_PORT: ${SE_DISTRIBUTOR_PORT}"
-  PORT_CONFIG="--port ${SE_DISTRIBUTOR_PORT}"
+  append_se_opts "--port" "${SE_DISTRIBUTOR_PORT}"
+fi
+
+if [ ! -z "${SE_BIND_HOST}" ]; then
+  append_se_opts "--bind-host" "${SE_BIND_HOST}"
+fi
+
+if [ ! -z "${SE_HEALTHCHECK_INTERVAL}" ]; then
+  append_se_opts "--healthcheck-interval" "${SE_HEALTHCHECK_INTERVAL}"
+fi
+
+if [ ! -z "${SE_SESSION_RETRY_INTERVAL}" ]; then
+  append_se_opts "--session-retry-interval" "${SE_SESSION_RETRY_INTERVAL}"
+fi
+
+if [ ! -z "${SE_SESSION_REQUEST_TIMEOUT}" ]; then
+  append_se_opts "--session-request-timeout" "${SE_SESSION_REQUEST_TIMEOUT}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
@@ -158,16 +181,7 @@ fi
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
-  ${EXTRA_LIBS} distributor \
-  --sessions-host "${SE_SESSIONS_MAP_HOST}" --sessions-port "${SE_SESSIONS_MAP_PORT}" \
-  --sessionqueue-host "${SE_SESSION_QUEUE_HOST}" --sessionqueue-port "${SE_SESSION_QUEUE_PORT}" \
-  --publish-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_PUBLISH_PORT}" \
-  --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":"${SE_EVENT_BUS_SUBSCRIBE_PORT}" \
-  --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
-  --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
-  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
-  --bind-host ${SE_BIND_HOST} \
+  ${EXTRA_LIBS} \
+  distributor \
   --bind-bus false \
-  ${HOST_CONFIG} \
-  ${PORT_CONFIG} \
   ${SE_OPTS}

@@ -29,18 +29,15 @@ if [ ! -z "$SE_OPTS" ]; then
 fi
 
 if [ ! -z "$SE_HUB_HOST" ]; then
-  echo "Using SE_HUB_HOST: ${SE_HUB_HOST}"
-  HOST_CONFIG="--host ${SE_HUB_HOST}"
+  append_se_opts "--host" "${SE_HUB_HOST}"
 fi
 
 if [ ! -z "$SE_HUB_PORT" ]; then
-  echo "Using SE_HUB_PORT: ${SE_HUB_PORT}"
-  PORT_CONFIG="--port ${SE_HUB_PORT}"
+  append_se_opts "--port" "${SE_HUB_PORT}"
 fi
 
 if [ ! -z "$SE_SUB_PATH" ]; then
-  echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
-  SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
+  append_se_opts "--sub-path" "${SE_SUB_PATH}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
@@ -108,6 +105,30 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
   append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi
 
+if [ ! -z "${SE_SESSION_REQUEST_TIMEOUT}" ]; then
+  append_se_opts "--session-request-timeout" "${SE_SESSION_REQUEST_TIMEOUT}"
+fi
+
+if [ ! -z "${SE_SESSION_RETRY_INTERVAL}" ]; then
+  append_se_opts "--session-retry-interval" "${SE_SESSION_RETRY_INTERVAL}"
+fi
+
+if [ ! -z "${SE_HEALTHCHECK_INTERVAL}" ]; then
+  append_se_opts "--healthcheck-interval" "${SE_HEALTHCHECK_INTERVAL}"
+fi
+
+if [ ! -z "${SE_RELAX_CHECKS}" ]; then
+  append_se_opts "--relax-checks" "${SE_RELAX_CHECKS}"
+fi
+
+if [ ! -z "${SE_BIND_HOST}" ]; then
+  append_se_opts "--bind-host" "${SE_BIND_HOST}"
+fi
+
+if [ ! -z "${CONFIG_FILE}" ]; then
+  append_se_opts "--config" "${CONFIG_FILE}"
+fi
+
 EXTRA_LIBS=""
 
 if [ "$SE_ENABLE_TRACING" = "true" ]; then
@@ -140,14 +161,6 @@ fi
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
-  ${EXTRA_LIBS} hub \
-  --session-request-timeout ${SE_SESSION_REQUEST_TIMEOUT} \
-  --session-retry-interval ${SE_SESSION_RETRY_INTERVAL} \
-  --healthcheck-interval ${SE_HEALTHCHECK_INTERVAL} \
-  --relax-checks ${SE_RELAX_CHECKS} \
-  --bind-host ${SE_BIND_HOST} \
-  --config /opt/selenium/config.toml \
-  ${HOST_CONFIG} \
-  ${PORT_CONFIG} \
-  ${SUB_PATH_CONFIG} \
+  ${EXTRA_LIBS} \
+  hub \
   ${SE_OPTS}

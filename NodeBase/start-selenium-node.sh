@@ -31,6 +31,10 @@ function append_se_opts() {
   fi
 }
 
+if [ ! -z "$SE_OPTS" ]; then
+  echo "Appending Selenium options: ${SE_OPTS}"
+fi
+
 if [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
   echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
   exit 1
@@ -44,10 +48,6 @@ fi
 if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
   exit 1
-fi
-
-if [ ! -z "$SE_OPTS" ]; then
-  echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
 if [ ! -z "$SE_NODE_SESSION_TIMEOUT" ]; then
@@ -155,6 +155,14 @@ else
   echo "Tracing is disabled"
 fi
 
+if [ ! -z "${SE_BIND_HOST}" ]; then
+  append_se_opts "--bind-host" "${SE_BIND_HOST}"
+fi
+
+if [ ! -z "${CONFIG_FILE}" ]; then
+  append_se_opts "--config" "${CONFIG_FILE}"
+fi
+
 echo "Selenium Grid Node configuration: "
 cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
@@ -168,7 +176,6 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   ${EDGE_DRIVER_PATH_PROPERTY} \
   ${GECKO_DRIVER_PATH_PROPERTY} \
   -jar /opt/selenium/selenium-server.jar \
-  ${EXTRA_LIBS} node \
-  --bind-host ${SE_BIND_HOST} \
-  --config "$CONFIG_FILE" \
+  ${EXTRA_LIBS} \
+  node \
   ${SE_OPTS}
