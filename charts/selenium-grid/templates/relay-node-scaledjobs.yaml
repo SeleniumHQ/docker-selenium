@@ -1,0 +1,30 @@
+{{- if and .Values.relayNode.enabled (include "seleniumGrid.useKEDA" .) (eq .Values.autoscaling.scalingType "job") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: {{ template "seleniumGrid.relayNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    app: {{ template "seleniumGrid.relayNode.fullname" . }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.relayNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
+    {{- with .Values.relayNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.relayNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.relayNode -}}
+  {{- $_ =  set $podScope "recorder" (mergeOverwrite .Values.videoRecorder .Values.relayNode.videoRecorder) -}}
+  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder (.Values.videoRecorder.uploader.name | toString)) -}}
+  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+{{- end }}

@@ -8,6 +8,7 @@ services:
     volumes:
       - ./videos/relay_config.toml:/opt/selenium/config.toml
     environment:
+      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -18,12 +19,14 @@ services:
     image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
     shm_size: 2gb
     environment:
+      - SE_ENABLE_TRACING=false
       - SE_OPTS=--enable-cdp true
       - SE_NODE_ENABLE_CDP=true
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
     environment:
+      - SE_ENABLE_TRACING=false
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
     ports:
@@ -57,6 +60,7 @@ services:
       - selenium-hub
       - emulator
     environment:
+      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443

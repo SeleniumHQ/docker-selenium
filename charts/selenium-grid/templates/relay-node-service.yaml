@@ -1,0 +1,43 @@
+{{- if and .Values.relayNode.enabled .Values.relayNode.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.relayNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    name: {{ template "seleniumGrid.relayNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+  {{- with .Values.relayNode.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.relayNode.service.type }}
+  selector:
+    app: {{ template "seleniumGrid.relayNode.fullname" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- if and (eq .Values.relayNode.service.type "LoadBalancer") (.Values.relayNode.service.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.relayNode.service.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: tcp-chrome
+      protocol: TCP
+      port: {{ .Values.relayNode.port }}
+      targetPort: {{ .Values.relayNode.port }}
+      {{- if and (eq $.Values.relayNode.service.type "NodePort") .Values.relayNode.nodePort }}
+      nodePort: {{ .Values.relayNode.nodePort }}
+      {{- end }}
+  {{- with .Values.relayNode.service.ports }}
+    {{- range . }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      {{- if .protocol }}
+      protocol: {{ .protocol }}
+      {{- end }}
+      {{- if and (eq $.Values.relayNode.service.type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

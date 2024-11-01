@@ -141,6 +141,13 @@ Edge node fullname
 {{- end -}}
 
 {{/*
+Relay node fullname
+*/}}
+{{- define "seleniumGrid.relayNode.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-relay-node" $)) .Values.relayNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Ingress fullname
 */}}
 {{- define "seleniumGrid.ingress.fullname" -}}

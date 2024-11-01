@@ -1,0 +1,26 @@
+{{- if and .Values.relayNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "deployment") }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ template "seleniumGrid.relayNode.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    {{- with .Values.autoscaling.annotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  labels:
+    deploymentName: {{ template "seleniumGrid.relayNode.fullname" . }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
+    {{- with .Values.relayNode.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- $podScope := deepCopy . -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.relayNode.fullname" .) -}}
+  {{- $_ =  set $podScope "node" .Values.relayNode -}}
+  {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+{{- end }}

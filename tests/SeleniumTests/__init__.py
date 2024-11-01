@@ -3,6 +3,7 @@ import concurrent.futures
 import os
 import traceback
 import time
+import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -264,12 +265,15 @@ class Autoscaling():
             futures = []
             tests = []
             start_times = {}
+            mixed_tests = []
             for test_class in test_classes:
                 suite = unittest.TestLoader().loadTestsFromTestCase(test_class)
-                for test in suite:
-                    start_times[test] = time.time()
-                    futures.append(executor.submit(test))
-                    tests.append(test)
+                mixed_tests.extend(suite)
+                random.shuffle(mixed_tests)
+            for test in mixed_tests:
+                start_times[test] = time.time()
+                futures.append(executor.submit(test))
+                tests.append(test)
             print(f"Number of tests were added to worker: {len(tests)}")
             failed_tests = []
             for future, test in zip(concurrent.futures.as_completed(futures), tests):

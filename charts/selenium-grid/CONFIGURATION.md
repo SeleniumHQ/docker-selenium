@@ -499,6 +499,57 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
+| relayNode.enabled | bool | `false` | Enable relay nodes |
+| relayNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long-living pods false - for provisioning your own custom type such as Jobs |
+| relayNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
+| relayNode.replicas | int | `1` | Number of relay nodes |
+| relayNode.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
+| relayNode.imageName | string | `"node-base"` | Image of relay nodes |
+| relayNode.imageTag | string | `nil` | Image of relay nodes (this overwrites global.seleniumGrid.nodesImageTag) |
+| relayNode.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
+| relayNode.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| relayNode.ports | list | `[]` | Extra ports list to enable on the node container (e.g. SSH, VNC, NoVNC, etc.) |
+| relayNode.port | int | `5555` | Node component port |
+| relayNode.nodePort | string | `nil` | Node component expose NodePort |
+| relayNode.affinity | object | `{}` | Specify affinity for relay-node pods, this overwrites global.seleniumGrid.affinity parameter |
+| relayNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for relay-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| relayNode.annotations | object | `{}` | Annotations for relay-node pods |
+| relayNode.labels | object | `{}` | Labels for relay-node pods |
+| relayNode.shareProcessNamespace | bool | `true` | Shared process namespace for relay-node pods |
+| relayNode.resources.requests | object | `{"cpu":"1","memory":"1Gi"}` | Request resources for relay-node pods |
+| relayNode.resources.limits | object | `{"cpu":"1","memory":"2Gi"}` | Limit resources for relay-node pods |
+| relayNode.securityContext | object | `{}` | SecurityContext for relay-node container |
+| relayNode.tolerations | list | `[]` | Tolerations for relay-node pods |
+| relayNode.nodeSelector | object | `{}` | Node selector for relay-node pods |
+| relayNode.hostAliases | string | `nil` | Custom host aliases for relay nodes |
+| relayNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for relay nodes |
+| relayNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for relay nodes |
+| relayNode.service.enabled | bool | `false` | Create a service for node |
+| relayNode.service.type | string | `"ClusterIP"` | Service type |
+| relayNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
+| relayNode.service.ports | string | `nil` | Extra ports exposed in node service |
+| relayNode.service.annotations | object | `{}` | Custom annotations for service |
+| relayNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
+| relayNode.priorityClassName | string | `""` | Priority class name for relay-node pods |
+| relayNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
+| relayNode.readinessProbe | object | `{"enabled":false,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
+| relayNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
+| relayNode.terminationGracePeriodSeconds | int | `30` | Time to wait for pod termination |
+| relayNode.deregisterLifecycle | string | `nil` | Define preStop command to shut down the relay node gracefully. This overwrites autoscaling.deregisterLifecycle |
+| relayNode.lifecycle | object | `{}` | Define postStart and preStop events. This overwrites the defined preStop in deregisterLifecycle if any |
+| relayNode.extraVolumeMounts | list | `[]` | Extra volume mounts for relay-node container |
+| relayNode.extraVolumes | list | `[]` | Extra volumes for relay-node pod |
+| relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
+| relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
+| relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |
+| relayNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
+| relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
+| relayNode.hpa.platformName | string | `"Android"` | platformName from the capability |
+| relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
+| relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
+| relayNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
 | videoRecorder.enabled | bool | `false` | Enable video recording in all browser nodes |
 | videoRecorder.name | string | `"video"` | Container name is set to resource specs |
 | videoRecorder.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
