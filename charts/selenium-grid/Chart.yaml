@@ -7,7 +7,7 @@ appVersion: 4.26.0-20241101
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.15.2
+  version: 2.16.0
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://kubernetes.github.io/ingress-nginx
@@ -15,7 +15,7 @@ dependencies:
   name: ingress-nginx
   condition: ingress.enableWithController, ingress-nginx.enabled
 - repository: https://jaegertracing.github.io/helm-charts
-  version: 3.3.1
+  version: 3.3.2
   name: jaeger
   condition: tracing.enabled, jaeger.enabled
 - repository: https://prometheus-community.github.io/helm-charts
