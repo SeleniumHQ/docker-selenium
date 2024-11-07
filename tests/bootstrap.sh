@@ -16,10 +16,6 @@ fi
 
 python3 -m pip install docker requests chardet | grep -v 'Requirement already satisfied'
 
-if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
-  export REQUESTS_CA_BUNDLE="${CHART_CERT_PATH}"
-fi
-
 python3 test.py $1
 ret_code=$?
 

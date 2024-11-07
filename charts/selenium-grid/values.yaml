@@ -424,10 +424,10 @@ components:
     livenessProbe:
       enabled: true
       path: /readyz
-      initialDelaySeconds: 10
-      failureThreshold: 10
-      timeoutSeconds: 10
-      periodSeconds: 10
+      initialDelaySeconds: 60
+      failureThreshold: 30
+      timeoutSeconds: 60
+      periodSeconds: 60
       successThreshold: 1
     # -- Resources for router container
     resources: {}
@@ -494,10 +494,10 @@ components:
     livenessProbe:
       enabled: true
       path: /readyz
-      initialDelaySeconds: 10
-      failureThreshold: 10
-      timeoutSeconds: 10
-      periodSeconds: 10
+      initialDelaySeconds: 60
+      failureThreshold: 30
+      timeoutSeconds: 60
+      periodSeconds: 60
       successThreshold: 1
     # -- Resources for Distributor container
     resources: {}
@@ -716,10 +716,10 @@ hub:
   livenessProbe:
     enabled: true
     path: /readyz
-    initialDelaySeconds: 10
-    failureThreshold: 10
-    timeoutSeconds: 10
-    periodSeconds: 10
+    initialDelaySeconds: 60
+    failureThreshold: 30
+    timeoutSeconds: 60
+    periodSeconds: 60
     successThreshold: 1
   # -- Custom sub path for the hub deployment
   subPath: ""
@@ -1768,20 +1768,6 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   # enabled: false
-  # -- Specify image for KEDA components
-  image:
-    keda:
-      registry: selenium
-      repository: keda
-      tag: "2.15.1-selenium-grid-20241101"
-    metricsApiServer:
-      registry: selenium
-      repository: keda-metrics-apiserver
-      tag: "2.15.1-selenium-grid-20241101"
-    webhooks:
-      registry: selenium
-      repository: keda-admission-webhooks
-      tag: "2.15.1-selenium-grid-20241101"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

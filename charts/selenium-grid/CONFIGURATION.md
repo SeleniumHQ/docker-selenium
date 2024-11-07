@@ -19,7 +19,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | Repository | Name | Version |
 |------------|------|---------|
 | https://jaegertracing.github.io/helm-charts | jaeger | 3.3.1 |
-| https://kedacore.github.io/charts | keda | 2.15.2 |
+| https://kedacore.github.io/charts | keda | 2.16.0 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.11.3 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 65.2.0 |
 
@@ -177,7 +177,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.nodePort | int | `30444` | Router expose NodePort |
 | components.router.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
 | components.router.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
-| components.router.livenessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Liveness probe settings |
+| components.router.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | components.router.resources | object | `{}` | Resources for router container |
 | components.router.securityContext | object | `{}` | SecurityContext for router container |
 | components.router.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
@@ -199,7 +199,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.nodePort | int | `30553` | Distributor expose NodePort |
 | components.distributor.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
 | components.distributor.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
-| components.distributor.livenessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Liveness probe settings |
+| components.distributor.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | components.distributor.resources | object | `{}` | Resources for Distributor container |
 | components.distributor.securityContext | object | `{}` | SecurityContext for Distributor container |
 | components.distributor.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
@@ -283,7 +283,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.nodePort | int | `31444` | Selenium Hub expose NodePort |
 | hub.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
 | hub.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
-| hub.livenessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Liveness probe settings |
+| hub.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | hub.subPath | string | `""` | Custom sub path for the hub deployment |
 | hub.extraEnvironmentVariables | string | `nil` | Custom environment variables for selenium-hub |
 | hub.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
@@ -577,7 +577,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
-| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.15.1-selenium-grid-20241101"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.15.1-selenium-grid-20241101"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.15.1-selenium-grid-20241101"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |

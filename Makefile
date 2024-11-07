@@ -26,10 +26,10 @@ PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
-KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.15.1-selenium-grid)
-KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.15.1-selenium-grid)
+KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.16.0-selenium-grid)
+KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.16.0-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.15.1-selenium-grid-20241017)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.16.0-selenium-grid)
 
 all: hub \
 	distributor \
@@ -352,7 +352,7 @@ tag_latest:
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 
-release_latest: release_grid_scaler_latest
+release_latest:
 	docker push $(NAME)/base:latest
 	docker push $(NAME)/hub:latest
 	docker push $(NAME)/distributor:latest
@@ -397,7 +397,7 @@ tag_nightly:
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
 
-release_nightly: release_grid_scaler_nightly
+release_nightly:
 	docker push $(NAME)/base:nightly
 	docker push $(NAME)/hub:nightly
 	docker push $(NAME)/distributor:nightly
@@ -477,7 +477,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
 
-release: tag_major_minor release_grid_scaler
+release: tag_major_minor
 	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/hub version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -918,7 +918,7 @@ chart_test_autoscaling_disabled:
 chart_test_autoscaling_deployment_https:
 	PLATFORMS=$(PLATFORMS) CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_BASIC_AUTH=true \
 	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PORT=443 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 MAX_SESSIONS_FIREFOX=3 MAX_SESSIONS_EDGE=2 MAX_SESSIONS_CHROME=1 TEST_NAME_OVERRIDE=true \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=0 MAX_SESSIONS_FIREFOX=3 MAX_SESSIONS_EDGE=2 MAX_SESSIONS_CHROME=1 TEST_NAME_OVERRIDE=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_basicAuth_secureIngress_defaultCerts_ingressHostName_disableHttp2_autoScaling_patchKEDA_scaledObject_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
@@ -926,7 +926,7 @@ chart_test_autoscaling_deployment_https:
 chart_test_autoscaling_deployment:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=false \
 	SECURE_CONNECTION_SERVER=true SECURE_USE_EXTERNAL_CERT=true SERVICE_TYPE_NODEPORT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -i) SELENIUM_GRID_PORT=31444 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=0 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 SELENIUM_GRID_MONITORING=false  \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 SELENIUM_GRID_MONITORING=false  \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_enableTracing_secureServer_externalCerts_nodePort_autoScaling_scaledObject_existingKEDA_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
@@ -947,7 +947,7 @@ chart_test_autoscaling_job_hostname:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job:
-	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_CHROMIUM=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true SELENIUM_GRID_MONITORING=false SCALING_STRATEGY=accurate \
+	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_CHROMIUM=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true SELENIUM_GRID_MONITORING=false \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_existingKEDA_prefixSelenium_nodeChromium_enableTracing.yaml" \

@@ -18,6 +18,7 @@ SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', None)
 SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', None)
+CHART_CERT_PATH = os.environ.get('CHART_CERT_PATH', None)
 SELENIUM_GRID_TEST_HEADLESS = os.environ.get('SELENIUM_GRID_TEST_HEADLESS', 'false').lower() == 'true'
 SELENIUM_ENABLE_MANAGED_DOWNLOADS = os.environ.get('SELENIUM_ENABLE_MANAGED_DOWNLOADS', 'true').lower() == 'true'
 WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
@@ -37,7 +38,8 @@ CLIENT_CONFIG = ClientConfig(
     keep_alive=True,
     timeout=3600,
     username=SELENIUM_GRID_USERNAME,
-    password=SELENIUM_GRID_PASSWORD
+    password=SELENIUM_GRID_PASSWORD,
+    ca_certs=CHART_CERT_PATH,
 )
 
 if TEST_NODE_RELAY == 'Android':
@@ -167,7 +169,7 @@ class ChromeTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                command_executor=SELENIUM_GRID_URL,
                 client_config=CLIENT_CONFIG
             )
             end_time = time.time()
@@ -196,7 +198,7 @@ class EdgeTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                command_executor=SELENIUM_GRID_URL,
                 client_config=CLIENT_CONFIG
             )
             end_time = time.time()
@@ -230,7 +232,7 @@ class FirefoxTests(SeleniumGenericTests):
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
-                command_executor="%s://%s:%s" % (SELENIUM_GRID_PROTOCOL,SELENIUM_GRID_HOST,SELENIUM_GRID_PORT),
+                command_executor=SELENIUM_GRID_URL,
                 client_config=CLIENT_CONFIG
             )
             end_time = time.time()

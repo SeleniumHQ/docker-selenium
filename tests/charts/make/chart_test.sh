@@ -3,6 +3,7 @@ mkdir -p tests/tests
 set -o xtrace
 
 echo "Set ENV variables"
+RESOURCE_ID=$(openssl rand -hex 4)
 CLUSTER_NAME=${CLUSTER_NAME:-"chart-testing"}
 RELEASE_NAME=${RELEASE_NAME:-"test"}
 SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE:-"selenium"}
@@ -48,13 +49,13 @@ if [ "${RELEASE_NAME}" = "selenium" ]; then
 else
   SELENIUM_TLS_SECRET_NAME="${RELEASE_NAME}-selenium-tls-secret"
 fi
-EXTERNAL_TLS_SECRET_NAME=${EXTERNAL_TLS_SECRET_NAME:-"external-tls-secret"}
+EXTERNAL_TLS_SECRET_NAME=${EXTERNAL_TLS_SECRET_NAME:-"external-tls-secret-${RESOURCE_ID}"}
 SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"true"}
 MAX_SESSIONS_CHROME=${MAX_SESSIONS_CHROME:-"1"}
 MAX_SESSIONS_FIREFOX=${MAX_SESSIONS_FIREFOX:-"1"}
 MAX_SESSIONS_EDGE=${MAX_SESSIONS_EDGE:-"1"}
 TEST_NAME_OVERRIDE=${TEST_NAME_OVERRIDE:-"false"}
-TEST_PATCHED_KEDA=${TEST_PATCHED_KEDA:-"true"}
+TEST_PATCHED_KEDA=${TEST_PATCHED_KEDA:-"false"}
 BASIC_AUTH_EMBEDDED_URL=${BASIC_AUTH_EMBEDDED_URL:-"false"}
 SELENIUM_GRID_MONITORING=${SELENIUM_GRID_MONITORING:-"true"}
 TEST_EXISTING_PTS=${TEST_EXISTING_PTS:-"false"}
@@ -251,8 +252,6 @@ if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_O
   --set tls.ingress.defaultSANList[0]=${SELENIUM_GRID_HOST} \
   --set tls.ingress.defaultIPList[0]=$(hostname -I | awk '{print $1}') \
   "
-  kubectl get secret ${SELENIUM_TLS_SECRET_NAME} -n ${SELENIUM_NAMESPACE} -o jsonpath="{.data.tls\.crt}" | base64 -d > ./tests/tests/tls.crt
-  CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 
 if [ "${SECURE_INGRESS_ONLY_DEFAULT}" = "true" ]; then
@@ -280,13 +279,14 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}
   --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
   "
   cert_dir="./tests/tests"
-  ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/gen-cert-helper.sh -d ${cert_dir}
-  kubectl delete secret -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} --ignore-not-found=true
-  kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} \
-  --from-file=tls.crt=${cert_dir}/tls.crt \
-  --from-file=tls.key=${cert_dir}/tls.key \
-  --from-file=server.jks=${cert_dir}/server.jks \
-  --from-file=server.pass=${cert_dir}/server.pass
+  if [ ! -f "./tests/tests/tls.crt" ]; then
+    ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/gen-cert-helper.sh -d ${cert_dir}
+    kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} \
+    --from-file=tls.crt=${cert_dir}/tls.crt \
+    --from-file=tls.key=${cert_dir}/tls.key \
+    --from-file=server.jks=${cert_dir}/server.jks \
+    --from-file=server.pass=${cert_dir}/server.pass
+  fi
   CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 
@@ -408,7 +408,7 @@ if [ "${TEST_UPGRADE_CHART}" = "true" ]; then
   exit 0
 fi
 
-if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ]; then
+if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   kubectl get secret ${SELENIUM_TLS_SECRET_NAME} -n ${SELENIUM_NAMESPACE} -o jsonpath="{.data.tls\.crt}" | base64 -d > ./tests/tests/tls.crt
   CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
