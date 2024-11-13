@@ -240,14 +240,16 @@ Common autoscaling spec template
 triggers:
   - type: selenium-grid
     metadata:
+    {{- with .node.hpa }}
+      {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
-  {{- with .node.hpa }}
-    {{- tpl (toYaml .) $ | nindent 6 }}
-  {{- end }}
-  {{- if not .node.hpa.authenticationRef }}
+      {{- end }}
+    {{- end }}
     authenticationRef:
       name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
-  {{- end }}
+    useCachedMetrics: {{ $.Values.autoscaling.useCachedMetrics }}
+    metricType: {{ $.Values.autoscaling.metricType }}
 {{- end }}
 {{- end -}}
 

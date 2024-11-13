@@ -327,6 +327,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
 | autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"-2"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
+| autoscaling.useCachedMetrics | bool | `true` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval). |
+| autoscaling.metricType | string | `"Value"` | The type of metric that should be used (Override the default: AverageValue in KEDA) |
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |

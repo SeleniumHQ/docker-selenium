@@ -836,6 +836,11 @@ autoscaling:
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback
       "helm.sh/hook-weight": "-2"
+  # Configuration for ScaledObject triggers https://keda.sh/docs/latest/reference/scaledobject-spec/#triggers
+  # -- Enables caching of metric values during polling interval (as specified in .spec.pollingInterval).
+  useCachedMetrics: true
+  # -- The type of metric that should be used (Override the default: AverageValue in KEDA)
+  metricType: Value
   # -- Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
     "helm.sh/hook": post-install,post-upgrade,post-rollback

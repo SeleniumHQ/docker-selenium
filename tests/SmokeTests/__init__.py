@@ -11,10 +11,14 @@ SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')
 SELENIUM_GRID_PORT = os.environ.get('SELENIUM_GRID_PORT', '4444')
 SELENIUM_GRID_USERNAME = os.environ.get('SELENIUM_GRID_USERNAME', '')
 SELENIUM_GRID_PASSWORD = os.environ.get('SELENIUM_GRID_PASSWORD', '')
+CHART_CERT_PATH = os.environ.get('CHART_CERT_PATH', None)
 SELENIUM_GRID_AUTOSCALING = os.environ.get('SELENIUM_GRID_AUTOSCALING', 'false')
 SELENIUM_GRID_AUTOSCALING_MIN_REPLICA = os.environ.get('SELENIUM_GRID_AUTOSCALING_MIN_REPLICA', 0)
 HUB_CHECKS_MAX_ATTEMPTS = os.environ.get('HUB_CHECKS_MAX_ATTEMPTS', 3)
 HUB_CHECKS_INTERVAL = os.environ.get('HUB_CHECKS_INTERVAL', 10)
+
+if CHART_CERT_PATH:
+  os.environ['REQUESTS_CA_BUNDLE'] = CHART_CERT_PATH
 
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
@@ -53,7 +57,7 @@ class SmokeTests(unittest.TestCase):
     def client_verify_cert(self, port):
         grid_url_status = '%s://%s:%s/status' % (SELENIUM_GRID_PROTOCOL, SELENIUM_GRID_HOST, port)
         cert_path = os.environ.get("REQUESTS_CA_BUNDLE")
-        response = requests.get(grid_url_status, verify=cert_path)
+        response = requests.get(grid_url_status, verify=cert_path, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD))
 
 class GridTest(SmokeTests):
     def test_grid_is_up(self):
