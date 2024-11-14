@@ -249,7 +249,9 @@ triggers:
     authenticationRef:
       name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
     useCachedMetrics: {{ $.Values.autoscaling.useCachedMetrics }}
+  {{- if eq $.Values.autoscaling.scalingType "deployment" }}
     metricType: {{ $.Values.autoscaling.metricType }}
+  {{- end }}
 {{- end }}
 {{- end -}}
 

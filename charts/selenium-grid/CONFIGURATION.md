@@ -79,7 +79,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | serviceAccount.create | bool | `true` | Create a service account for all components. If using an external service account, set to false and provide its name in `nameOverride` below |
 | serviceAccount.nameOverride | string | `nil` | Override to use an external service account |
 | serviceAccount.annotations | object | `{}` | Annotations for the service account |
-| rbacRole | object | `{"annotations":{},"create":true,"nameOverride":null,"rules":[{"apiGroups":["keda.sh"],"resources":["scaledjobs"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["scaledobjects"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["triggerauthentication"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["autoscaling"],"resources":["horizontalpodautoscalers"],"verbs":["get","list","patch","update","delete"]}]}` | RBAC settings for patching finalizers KEDA scaled resources |
+| rbacRole | object | `{"annotations":{},"create":true,"nameOverride":null,"rules":[{"apiGroups":["keda.sh"],"resources":["scaledjobs"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["scaledobjects"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["keda.sh"],"resources":["triggerauthentications"],"verbs":["get","list","patch","update","delete"]},{"apiGroups":["autoscaling"],"resources":["horizontalpodautoscalers"],"verbs":["get","list","patch","update","delete"]}]}` | RBAC settings for patching finalizers KEDA scaled resources |
 | rbacRole.create | bool | `true` | Enable to create RBAC role to access few KEDA resources. If using an external role, set to false and provide its name in `nameOverride` below |
 | rbacRole.nameOverride | string | `nil` | Override resource name or provide an external role name |
 | rbacRoleBinding | object | `{"annotations":{},"create":true,"nameOverride":null,"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"Role"},"subjects":[{"kind":"ServiceAccount"}]}` | RBAC role binding settings for patching finalizers KEDA scaled resources |
@@ -326,8 +326,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
-| autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"-2"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
-| autoscaling.useCachedMetrics | bool | `true` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval). |
+| autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"0"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
+| autoscaling.useCachedMetrics | bool | `false` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval). |
 | autoscaling.metricType | string | `"Value"` | The type of metric that should be used (Override the default: AverageValue in KEDA) |
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
@@ -341,7 +341,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.minReplicaCount | int | `0` | Minimum number of replicas |
 | autoscaling.scaledOptions.maxReplicaCount | int | `8` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `10` | Polling interval in seconds |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"eager"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
