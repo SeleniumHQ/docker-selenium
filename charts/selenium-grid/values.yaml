@@ -910,6 +910,21 @@ autoscaling:
   #    exec:
   #      command: [ "bash", "-c", "/opt/bin/nodePreStop.sh" ]
 
+# -- Configuration additional nodes with different versions, capabilities, etc.
+crossBrowsers:
+  # -- Additional chrome nodes, array of objects with the same structure as `chromeNode`
+  chromeNode:
+    - nameOverride:
+  # - Refer to file `cross-browsers-values.yaml` to configure additional nodes
+  # -- Additional firefox nodes, array of objects with the same structure as `firefoxNode`
+  firefoxNode:
+    - nameOverride:
+  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+  # -- Additional edge nodes, array of objects with the same structure as `edgeNode`
+  edgeNode:
+    - nameOverride:
+  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+
 # Configuration for chrome nodes
 chromeNode:
   # -- Enable chrome nodes

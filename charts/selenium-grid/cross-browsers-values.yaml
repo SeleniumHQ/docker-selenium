@@ -1,0 +1,21 @@
+crossBrowsers:
+  chromeNode:
+    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-130'
+      imageTag: '130.0'
+      hpa:
+        browserVersion: '130.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-129'
+      imageTag: '129.0'
+      hpa:
+        browserVersion: '129.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-128'
+      imageTag: '128.0'
+      hpa:
+        browserVersion: '128.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-127'
+      imageTag: '127.0'
+      hpa:
+        browserVersion: '127.0'
+  firefoxNode:
+  edgeNode:

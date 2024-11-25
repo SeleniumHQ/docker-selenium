@@ -18,6 +18,7 @@ helm package charts/selenium-grid --version 1.0.0-SNAPSHOT -d tests/tests
 RELEASE_NAME="selenium"
 
 helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml \
+  --values charts/selenium-grid/cross-browsers-values.yaml \
   --set-file 'nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
@@ -37,6 +38,7 @@ helm package tests/charts/umbrella-charts --version 1.0.0-SNAPSHOT -d tests/test
 RELEASE_NAME="test"
 
 helm template ${RELEASE_NAME} --values tests/charts/templates/render/dummy_solution.yaml \
+  --values charts/selenium-grid/cross-browsers-values.yaml \
   --set-file 'selenium-grid.nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'selenium-grid.recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'selenium-grid.uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
