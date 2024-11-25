@@ -19,3 +19,20 @@ crossBrowsers:
         browserVersion: '127.0'
   firefoxNode:
   edgeNode:
+    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-130'
+      imageTag: '130.0'
+      hpa:
+        browserVersion: '130.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-129'
+      imageTag: '129.0'
+      hpa:
+        browserVersion: '129.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-128'
+      imageTag: '128.0'
+      hpa:
+        browserVersion: '128.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-127'
+      imageTag: '127.0'
+      hpa:
+        browserVersion: '127.0'

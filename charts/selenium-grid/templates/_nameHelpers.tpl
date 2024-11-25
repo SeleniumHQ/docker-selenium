@@ -139,7 +139,9 @@ Firefox node fullname
 Edge node fullname
 */}}
 {{- define "seleniumGrid.edgeNode.fullname" -}}
-{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-edge" $)) .Values.edgeNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- $component := index . 0 }}
+{{- $root := index . 1 }}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-edge" $root)) $component.nameOverride) $root | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
