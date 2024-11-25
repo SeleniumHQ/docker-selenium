@@ -132,7 +132,9 @@ Chrome node fullname
 Firefox node fullname
 */}}
 {{- define "seleniumGrid.firefoxNode.fullname" -}}
-{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-firefox" $)) .Values.firefoxNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- $component := index . 0 }}
+{{- $root := index . 1 }}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-firefox" $root)) $component.nameOverride) $root | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
