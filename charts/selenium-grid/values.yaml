@@ -838,10 +838,10 @@ autoscaling:
       # TriggerAuthentication is used by ScaledObject/ScaledJob, hence weight should be less than those hooks
       "helm.sh/hook-weight": "0"
   # Configuration for ScaledObject triggers https://keda.sh/docs/latest/reference/scaledobject-spec/#triggers
-  # -- Enables caching of metric values during polling interval (as specified in .spec.pollingInterval).
+  # -- Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA).
   useCachedMetrics: false
-  # -- The type of metric that should be used (Override the default: AverageValue in KEDA)
-  metricType: Value
+  # -- The type of metric that should be used (The default: AverageValue in KEDA)
+  metricType: ""
   # -- Annotations for KEDA resources: ScaledObject and ScaledJob
   annotations:
     "helm.sh/hook": post-install,post-upgrade,post-rollback
@@ -1794,6 +1794,20 @@ customLabels: {}
 # Configuration for dependency chart keda
 keda:
   # enabled: false
+  # -- Specify image for KEDA components
+  image:
+    keda:
+      registry: selenium
+      repository: keda
+      tag: "2.15.1-selenium-grid-20241101"
+    metricsApiServer:
+      registry: selenium
+      repository: keda-metrics-apiserver
+      tag: "2.15.1-selenium-grid-20241101"
+    webhooks:
+      registry: selenium
+      repository: keda-admission-webhooks
+      tag: "2.15.1-selenium-grid-20241101"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

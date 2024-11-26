@@ -49,11 +49,15 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda](https://github.com/kedacore/keda)
 
-- https://github.com/kedacore/keda/pull/6169
+- https://github.com/kedacore/keda/pull/6368
+
+~~- https://github.com/kedacore/keda/pull/6169 (merged, v2.16.0)~~
 
 [kedacore/keda-docs](https://github.com/kedacore/keda-docs)
 
-- https://github.com/kedacore/keda-docs/pull/1468
+- https://github.com/kedacore/keda-docs/pull/1504
+
+~~- https://github.com/kedacore/keda-docs/pull/1468 (merged, v2.16.0)~~
 
 # Resources
 
