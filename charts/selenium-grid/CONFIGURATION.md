@@ -348,10 +348,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledObjectOptions.scaleTargetRef.kind | string | `"Deployment"` | Target reference for KEDA ScaledObject |
 | autoscaling.terminationGracePeriodSeconds | int | `3600` | Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it |
 | autoscaling.deregisterLifecycle | string | `nil` | Define preStop command to shut down the node gracefully when scalingType is set to "deployment" |
-| crossBrowsers | object | `{"chromeNode":[{"nameOverride":null}],"edgeNode":[{"nameOverride":null}],"firefoxNode":[{"nameOverride":null}]}` | Configuration additional nodes with different versions, capabilities, etc. |
 | crossBrowsers.chromeNode | list | `[{"nameOverride":null}]` | Additional chrome nodes, array of objects with the same structure as `chromeNode` |
 | crossBrowsers.firefoxNode | list | `[{"nameOverride":null}]` | Additional firefox nodes, array of objects with the same structure as `firefoxNode` |
 | crossBrowsers.edgeNode | list | `[{"nameOverride":null}]` | Additional edge nodes, array of objects with the same structure as `edgeNode` |
+| crossBrowsers.relayNode | list | `[{"nameOverride":null}]` | Additional release nodes, array of objects with the same structure as `relayNode` |
 | chromeNode.enabled | bool | `true` | Enable chrome nodes |
 | chromeNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long-living pods false - for provisioning your own custom type such as Jobs |
 | chromeNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |

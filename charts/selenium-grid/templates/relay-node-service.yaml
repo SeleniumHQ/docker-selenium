@@ -1,33 +1,35 @@
-{{- if and .Values.relayNode.enabled .Values.relayNode.service.enabled }}
+{{- range $i, $newNode := .Values.crossBrowsers.relayNode }}
+{{- $nodeConfig := merge $newNode $.Values.relayNode -}}
+{{- if and $nodeConfig.enabled $nodeConfig.service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "seleniumGrid.relayNode.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    name: {{ template "seleniumGrid.relayNode.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-  {{- with .Values.relayNode.service.annotations }}
+    name: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with $nodeConfig.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.relayNode.service.type }}
+  type: {{ $nodeConfig.service.type }}
   selector:
-    app: {{ template "seleniumGrid.relayNode.fullname" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-  {{- if and (eq .Values.relayNode.service.type "LoadBalancer") (.Values.relayNode.service.loadBalancerIP) }}
-  loadBalancerIP: {{ .Values.relayNode.service.loadBalancerIP }}
+    app: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  {{- if and (eq $nodeConfig.service.type "LoadBalancer") ($nodeConfig.service.loadBalancerIP) }}
+  loadBalancerIP: {{ $nodeConfig.service.loadBalancerIP }}
   {{- end }}
   ports:
     - name: tcp-chrome
       protocol: TCP
-      port: {{ .Values.relayNode.port }}
-      targetPort: {{ .Values.relayNode.port }}
-      {{- if and (eq $.Values.relayNode.service.type "NodePort") .Values.relayNode.nodePort }}
-      nodePort: {{ .Values.relayNode.nodePort }}
+      port: {{ $nodeConfig.port }}
+      targetPort: {{ $nodeConfig.port }}
+      {{- if and (eq $nodeConfig.service.type "NodePort") $nodeConfig.nodePort }}
+      nodePort: {{ $nodeConfig.nodePort }}
       {{- end }}
-  {{- with .Values.relayNode.service.ports }}
+  {{- with $nodeConfig.service.ports }}
     {{- range . }}
     - name: {{ .name }}
       port: {{ .port }}
@@ -35,9 +37,11 @@ spec:
       {{- if .protocol }}
       protocol: {{ .protocol }}
       {{- end }}
-      {{- if and (eq $.Values.relayNode.service.type "NodePort") .nodePort }}
+      {{- if and (eq $nodeConfig.service.type "NodePort") .nodePort }}
       nodePort: {{ .nodePort }}
       {{- end }}
     {{- end }}
   {{- end }}
+---
+{{- end }}
 {{- end }}

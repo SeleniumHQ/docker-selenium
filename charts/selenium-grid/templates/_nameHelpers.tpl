@@ -150,7 +150,9 @@ Edge node fullname
 Relay node fullname
 */}}
 {{- define "seleniumGrid.relayNode.fullname" -}}
-{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-relay" $)) .Values.relayNode.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- $component := index . 0 }}
+{{- $root := index . 1 }}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-node-relay" $root)) $component.nameOverride) $root | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

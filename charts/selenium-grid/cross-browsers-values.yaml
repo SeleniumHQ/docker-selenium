@@ -1,5 +1,6 @@
 crossBrowsers:
   chromeNode:
+    # Keep the first iteration with latest version of Chrome
     - nameOverride:
     - nameOverride: '{{ $.Release.Name }}-node-chrome-130'
       imageTag: '130.0'
@@ -13,11 +14,8 @@ crossBrowsers:
       imageTag: '128.0'
       hpa:
         browserVersion: '128.0'
-    - nameOverride: '{{ $.Release.Name }}-node-chrome-127'
-      imageTag: '127.0'
-      hpa:
-        browserVersion: '127.0'
   firefoxNode:
+    # Keep the first iteration with latest version of Firefox
     - nameOverride:
     - nameOverride: '{{ $.Release.Name }}-node-firefox-130'
       imageTag: '130.0'
@@ -31,11 +29,8 @@ crossBrowsers:
       imageTag: '128.0'
       hpa:
         browserVersion: '128.0'
-    - nameOverride: '{{ $.Release.Name }}-node-firefox-127'
-      imageTag: '127.0'
-      hpa:
-        browserVersion: '127.0'
   edgeNode:
+    # Keep the first iteration with latest version of Edge
     - nameOverride:
     - nameOverride: '{{ $.Release.Name }}-node-edge-130'
       imageTag: '130.0'
@@ -49,7 +44,3 @@ crossBrowsers:
       imageTag: '128.0'
       hpa:
         browserVersion: '128.0'
-    - nameOverride: '{{ $.Release.Name }}-node-edge-127'
-      imageTag: '127.0'
-      hpa:
-        browserVersion: '127.0'
