@@ -18,10 +18,10 @@ def load_template(yaml_file):
 
 class ChartTemplateTests(unittest.TestCase):
     def test_set_affinity(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
                           f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',
                           f'{RELEASE_NAME}selenium-event-bus',
                           f'{RELEASE_NAME}selenium-router',
                           f'{RELEASE_NAME}selenium-session-map',
@@ -107,10 +107,10 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "ENV variable SE_DISABLE_UI is not populated")
 
     def test_log_level_set_to_logging_config_map(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
                           f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',
                           f'{RELEASE_NAME}selenium-event-bus',
                           f'{RELEASE_NAME}selenium-router',
                           f'{RELEASE_NAME}selenium-session-map',
@@ -193,9 +193,9 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "No recorder config resources found")
 
     def test_upload_conf_mount_to_video_container(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',]
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',]
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
@@ -208,7 +208,7 @@ class ChartTemplateTests(unittest.TestCase):
                     if container['name'] == 's3':
                         uploader_container = container
                 # Test for case override upload config in Edge node
-                if doc['metadata']['name'] == f'{RELEASE_NAME}selenium-edge-node':
+                if doc['metadata']['name'] == f'{RELEASE_NAME}selenium-node-edge':
                     self.assertTrue(uploader_container is None, "Video uploader should be disabled in Edge node config")
                     continue
                 list_volume_mounts = None
@@ -222,7 +222,7 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "Volume mount for upload config is not present in the container")
 
     def test_terminationGracePeriodSeconds_in_deployment_autoscaling(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',]
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',]
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
@@ -231,8 +231,8 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't override a higher value than autoscaling.terminationGracePeriodSeconds")
 
-        resources_name = [f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',]
+        resources_name = [f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',]
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
@@ -270,9 +270,9 @@ class ChartTemplateTests(unittest.TestCase):
                     f'{RELEASE_NAME}selenium-router',
                     f'{RELEASE_NAME}selenium-session-map',
                     f'{RELEASE_NAME}selenium-session-queue',]
-        rolling  = [f'{RELEASE_NAME}selenium-chrome-node',
-                    f'{RELEASE_NAME}selenium-edge-node',
-                    f'{RELEASE_NAME}selenium-firefox-node',]
+        rolling  = [f'{RELEASE_NAME}selenium-node-chrome',
+                    f'{RELEASE_NAME}selenium-node-edge',
+                    f'{RELEASE_NAME}selenium-node-firefox',]
         count_recreate = 0
         count_rolling = 0
         for doc in LIST_OF_DOCUMENTS:
@@ -288,9 +288,9 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count_recreate, len(recreate), "No deployment resources found with strategy Recreate")
 
     def test_topologySpreadConstraints_in_all_components(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',
                           f'{RELEASE_NAME}selenium-distributor',
                           f'{RELEASE_NAME}selenium-event-bus',
                           f'{RELEASE_NAME}selenium-router',
@@ -314,9 +314,9 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, 0, "Basic auth secret resource is created when nameOverride is set")
 
     def test_router_envFrom_secretRef_name_use_external_secret_when_basicAuth_nameOverride_is_set(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',
                           f'{RELEASE_NAME}selenium-distributor',
                           f'{RELEASE_NAME}selenium-event-bus',
                           f'{RELEASE_NAME}selenium-router',
@@ -334,9 +334,9 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "ENV variable from secretRef name is not set to external secret")
 
     def test_scaler_triggers_authenticationRef_name_is_added(self):
-        resources_name = [f'{RELEASE_NAME}selenium-chrome-node',
-                          f'{RELEASE_NAME}selenium-edge-node',
-                          f'{RELEASE_NAME}selenium-firefox-node',]
+        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
+                          f'{RELEASE_NAME}selenium-node-edge',
+                          f'{RELEASE_NAME}selenium-node-firefox',]
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
@@ -345,9 +345,9 @@ class ChartTemplateTests(unittest.TestCase):
                 self.assertTrue(name, f'{RELEASE_NAME}selenium-scaler-trigger-auth')
 
     def test_scaler_triggers_parameter_nodeMaxSessions_global_and_individual_value(self):
-        resources_name = {f'{RELEASE_NAME}selenium-chrome-node': 2,
-                          f'{RELEASE_NAME}selenium-edge-node': 3,
-                          f'{RELEASE_NAME}selenium-firefox-node': 1,}
+        resources_name = {f'{RELEASE_NAME}selenium-node-chrome': 2,
+                          f'{RELEASE_NAME}selenium-node-edge': 3,
+                          f'{RELEASE_NAME}selenium-node-firefox': 1,}
         count = 0
         for resource_name in resources_name.keys():
             for doc in LIST_OF_DOCUMENTS:

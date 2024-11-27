@@ -1,26 +1,30 @@
-{{- if and .Values.relayNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "deployment") }}
+{{- range $i, $newNode := .Values.crossBrowsers.relayNode }}
+{{- $nodeConfig := merge $newNode $.Values.relayNode -}}
+{{- if and $nodeConfig.enabled (eq (include "seleniumGrid.useKEDA" $) "true") (eq $.Values.autoscaling.scalingType "deployment") }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: {{ template "seleniumGrid.relayNode.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
+  namespace: {{ $.Release.Namespace }}
   annotations:
-    {{- with .Values.autoscaling.annotations }}
+    {{- with $.Values.autoscaling.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    deploymentName: {{ template "seleniumGrid.relayNode.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
-    {{- with .Values.relayNode.labels }}
+    deploymentName: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" $ | nindent 4 }}
+    {{- with $nodeConfig.labels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-    {{- with .Values.customLabels }}
+    {{- with $.Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- $podScope := deepCopy . -}}
-  {{- $_ := set $podScope "name" (include "seleniumGrid.relayNode.fullname" .) -}}
-  {{- $_ =  set $podScope "node" .Values.relayNode -}}
+  {{- $podScope := deepCopy $ -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.relayNode.fullname" (list $nodeConfig $)) -}}
+  {{- $_ =  set $podScope "node" $nodeConfig -}}
   {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+---
+{{- end }}
 {{- end }}

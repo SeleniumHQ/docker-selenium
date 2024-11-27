@@ -205,6 +205,7 @@ jobs:
           prerelease: ${{ env.PRERELEASE }}
           draft: false
           append_body: false
+          discussion_category_name: "Announcements"
           files: |
             package_versions.txt
             ${{ env.PUBLISH_YAML_MANIFESTS }}

@@ -5,13 +5,13 @@ ARG AUTHORS
 LABEL authors=${AUTHORS}
 
 # Inputs: heads, tags
-ARG NOVNC_SOURCE="heads"
+ARG NOVNC_SOURCE="tags"
 # Inputs: master, "v1.4.0"
-ARG NOVNC_VERSION="master"
+ARG NOVNC_VERSION="v1.5.0"
 # Inputs: heads, tags
-ARG WEBSOCKIFY_SOURCE="heads"
+ARG WEBSOCKIFY_SOURCE="tags"
 # Inputs: master, "v0.11.0"
-ARG WEBSOCKIFY_VERSION="master"
+ARG WEBSOCKIFY_VERSION="v0.12.0"
 ARG LANG_WHICH=en
 ARG LANG_WHERE=US
 ARG ENCODING=UTF-8
@@ -111,7 +111,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && wget -nv -O noVNC.zip \
        "https://github.com/novnc/noVNC/archive/refs/${NOVNC_SOURCE}/${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
-  && mv noVNC-${NOVNC_VERSION} /opt/bin/noVNC \
+  && mv noVNC-${NOVNC_VERSION#v} /opt/bin/noVNC \
   && cp /opt/bin/noVNC/vnc.html /opt/bin/noVNC/index.html \
   && rm noVNC.zip \
   && wget -nv -O websockify.zip \
@@ -119,7 +119,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && unzip -x websockify.zip \
   && rm websockify.zip \
   # Setup dependencies
-  && cd websockify-${WEBSOCKIFY_VERSION} \
+  && cd websockify-${WEBSOCKIFY_VERSION#v} \
   && python3 setup.py install \
   # Move websockify and run to the noVNC directory
   && mv websockify /opt/bin/noVNC/utils/websockify \
@@ -127,7 +127,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && chmod +x /opt/bin/noVNC/utils/websockify/run \
   # Cleanup unnecessary files
   && cd .. \
-  && rm -rf websockify-${WEBSOCKIFY_VERSION} \
+  && rm -rf websockify-${WEBSOCKIFY_VERSION#v} \
 #========================================================================
 # Run this command for executable file permissions for /dev/shm when    #
 # this is a "child" container running in Docker Desktop and WSL2 distro #

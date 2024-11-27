@@ -55,11 +55,11 @@ metadata:
   name: selenium-grid-chrome-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-chrome-node
+    deploymentName: selenium-node-chrome
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-chrome-node
+    name: selenium-node-chrome
   triggers:
     - type: selenium-grid
       metadata:
@@ -78,11 +78,11 @@ metadata:
   name: selenium-grid-firefox-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-firefox-node
+    deploymentName: selenium-node-firefox
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-firefox-node
+    name: selenium-node-firefox
   triggers:
     - type: selenium-grid
       metadata:
@@ -99,11 +99,11 @@ metadata:
   name: selenium-grid-edge-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-edge-node
+    deploymentName: selenium-node-edge
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-edge-node
+    name: selenium-node-edge
   triggers:
     - type: selenium-grid
       metadata:
@@ -121,11 +121,11 @@ metadata:
   name: selenium-grid-chrome-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-chrome-node
+    deploymentName: selenium-node-chrome
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-chrome-node
+    name: selenium-node-chrome
   triggers:
     - type: selenium-grid
       metadata:
@@ -143,11 +143,11 @@ metadata:
   name: selenium-grid-chrome-91-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-chrome-node-91
+    deploymentName: selenium-node-chrome-91
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-chrome-node-91
+    name: selenium-node-chrome-91
   triggers:
     - type: selenium-grid
       metadata:
@@ -163,11 +163,11 @@ metadata:
   name: selenium-grid-chrome-90-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-chrome-node-90
+    deploymentName: selenium-node-chrome-90
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-chrome-node-90
+    name: selenium-node-chrome-90
   triggers:
     - type: selenium-grid
       metadata:
@@ -219,11 +219,11 @@ metadata:
   name: selenium-grid-chrome-scaledobject
   namespace: keda
   labels:
-    deploymentName: selenium-chrome-node
+    deploymentName: selenium-node-chrome
 spec:
   maxReplicaCount: 8
   scaleTargetRef:
-    name: selenium-chrome-node
+    name: selenium-node-chrome
   triggers:
     - type: selenium-grid
       metadata:

@@ -1,0 +1,46 @@
+crossBrowsers:
+  chromeNode:
+    # Keep the first iteration with latest version of Chrome
+    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-130'
+      imageTag: '130.0'
+      hpa:
+        browserVersion: '130.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-129'
+      imageTag: '129.0'
+      hpa:
+        browserVersion: '129.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-128'
+      imageTag: '128.0'
+      hpa:
+        browserVersion: '128.0'
+  firefoxNode:
+    # Keep the first iteration with latest version of Firefox
+    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-130'
+      imageTag: '130.0'
+      hpa:
+        browserVersion: '130.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-129'
+      imageTag: '129.0'
+      hpa:
+        browserVersion: '129.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-128'
+      imageTag: '128.0'
+      hpa:
+        browserVersion: '128.0'
+  edgeNode:
+    # Keep the first iteration with latest version of Edge
+    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-130'
+      imageTag: '130.0'
+      hpa:
+        browserVersion: '130.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-129'
+      imageTag: '129.0'
+      hpa:
+        browserVersion: '129.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-128'
+      imageTag: '128.0'
+      hpa:
+        browserVersion: '128.0'

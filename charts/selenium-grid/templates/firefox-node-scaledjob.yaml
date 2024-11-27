@@ -1,30 +1,34 @@
-{{- if and .Values.firefoxNode.enabled (eq (include "seleniumGrid.useKEDA" .) "true") (eq .Values.autoscaling.scalingType "job") }}
+{{- range $i, $newNode := .Values.crossBrowsers.firefoxNode }}
+{{- $nodeConfig := merge $newNode $.Values.firefoxNode -}}
+{{- if and $nodeConfig.enabled (eq (include "seleniumGrid.useKEDA" $) "true") (eq $.Values.autoscaling.scalingType "job") }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
-  name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ template "seleniumGrid.firefoxNode.fullname" (list $nodeConfig $) }}
+  namespace: {{ $.Release.Namespace }}
   annotations:
-    {{- with .Values.autoscaling.annotations }}
+    {{- with $.Values.autoscaling.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
   labels:
-    app: {{ template "seleniumGrid.firefoxNode.fullname" . }}
-    app.kubernetes.io/name: {{ template "seleniumGrid.firefoxNode.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- include "seleniumGrid.autoscalingLabels" . | nindent 4 }}
-    {{- with .Values.firefoxNode.labels }}
+    app: {{ template "seleniumGrid.firefoxNode.fullname" (list $nodeConfig $) }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.firefoxNode.fullname" (list $nodeConfig $) }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- include "seleniumGrid.autoscalingLabels" $ | nindent 4 }}
+    {{- with $nodeConfig.labels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
-    {{- with .Values.customLabels }}
+    {{- with $.Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- $podScope := deepCopy . -}}
-  {{- $_ := set $podScope "name" (include "seleniumGrid.firefoxNode.fullname" .) -}}
-  {{- $_ =  set $podScope "node" .Values.firefoxNode -}}
-  {{- $_ =  set $podScope "recorder" (mergeOverwrite .Values.videoRecorder .Values.firefoxNode.videoRecorder) -}}
-  {{- $_ =  set $podScope "uploader" (get .Values.videoRecorder ($podScope.recorder.uploader.name | toString)) -}}
+  {{- $podScope := deepCopy $ -}}
+  {{- $_ := set $podScope "name" (include "seleniumGrid.firefoxNode.fullname" (list $nodeConfig $)) -}}
+  {{- $_ =  set $podScope "node" $nodeConfig -}}
+  {{- $_ =  set $podScope "recorder" (mergeOverwrite $.Values.videoRecorder $nodeConfig.videoRecorder) -}}
+  {{- $_ =  set $podScope "uploader" (get $.Values.videoRecorder ($podScope.recorder.uploader.name | toString)) -}}
   {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
   {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
+---
+{{- end }}
 {{- end }}
