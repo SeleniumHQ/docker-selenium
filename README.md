@@ -1312,7 +1312,7 @@ FIREFOX_VERSION=$(docker run --rm --entrypoint="" selenium/node-firefox:latest f
 && ./NodeFirefox/get_lang_package.sh ${FIREFOX_VERSION} /local/path/to/download
 ```
 
-Or, you can mount the container directory `/home/seluser/firefox/distribution/extensions` to host directory to access packs were pre-built in the container for using in your test script.
+Or, you can mount the container directory `$(readlink -f $(which firefox)))/distribution/extensions` to host directory to access packs were pre-built in the container for using in your test script.
 
 ## Managing processes in container
 

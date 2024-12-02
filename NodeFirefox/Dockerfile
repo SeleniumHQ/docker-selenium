@@ -6,25 +6,35 @@ LABEL authors=${AUTHORS}
 
 USER root
 
+#============================================
+# Firefox cleanup script and supervisord file
+#============================================
+COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
+RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh
+
 #=========
 # Firefox
 #=========
 ARG FIREFOX_VERSION=latest
+ARG FIREFOX_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64-aarch64&lang=en-US"
 RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
         FIREFOX_DOWNLOAD_URL=$(if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then echo "https://download.mozilla.org/?product=firefox-$FIREFOX_VERSION-ssl&os=linux64&lang=en-US"; else echo "https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2"; fi) ; \
     else \
-        FIREFOX_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64-aarch64&lang=en-US" ; \
+        FIREFOX_DOWNLOAD_URL="${FIREFOX_DOWNLOAD_URL}" ; \
     fi \
   && apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install libavcodec-extra libgtk-3-dev libdbus-glib-1-dev \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* ${HOME}/firefox \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && wget --no-verbose -O /tmp/firefox.tar.bz2 $FIREFOX_DOWNLOAD_URL \
-  && tar -C ${HOME} -xjf /tmp/firefox.tar.bz2 \
+  && rm -rf /opt/firefox \
+  && tar -C /opt -xjf /tmp/firefox.tar.bz2 || tar -C /opt -xJf /tmp/firefox.tar.bz2 \
   && rm /tmp/firefox.tar.bz2 \
-  && mkdir -p ${HOME}/firefox/distribution/extensions \
-  && setfacl -Rm u:${SEL_USER}:rwx ${HOME}/firefox \
-  && setfacl -Rm g:${SEL_GROUP}:rwx ${HOME}/firefox \
-  && ln -fs ${HOME}/firefox/firefox /usr/bin/firefox
+  && mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
+  && mkdir -p /opt/firefox-$FIREFOX_VERSION/distribution/extensions \
+  && ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox \
+  # Download the language pack for Firefox
+  && /opt/bin/get_lang_package.sh
 
 #============
 # GeckoDriver
@@ -42,13 +52,6 @@ RUN LATEST_VERSION=$(curl -sk https://api.github.com/repos/mozilla/geckodriver/r
   && chmod 755 /opt/geckodriver-$GK_VERSION \
   && ln -fs /opt/geckodriver-$GK_VERSION /usr/bin/geckodriver
 
-#============================================
-# Firefox cleanup script and supervisord file
-#============================================
-COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh /opt/bin/
-COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
-RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh
-
 USER ${SEL_UID}
 
 #============================================
@@ -56,8 +59,6 @@ USER ${SEL_UID}
 #============================================
 RUN echo "firefox" > /opt/selenium/browser_name \
     && firefox --version | awk '{print $3}' > /opt/selenium/browser_version \
-    && echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location \
-    # Download the language pack for Firefox
-    && /opt/bin/get_lang_package.sh
+    && echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox"
