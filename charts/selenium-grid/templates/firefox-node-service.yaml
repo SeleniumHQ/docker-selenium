@@ -8,7 +8,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     name: {{ template "seleniumGrid.firefoxNode.fullname" (list $nodeConfig $) }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
   {{- with $nodeConfig.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

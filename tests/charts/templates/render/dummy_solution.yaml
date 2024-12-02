@@ -111,14 +111,20 @@ selenium-grid:
     nodeMaxSessions: 2
     affinity: *affinity
     terminationGracePeriodSeconds: 7200
+    service:
+      enabled: true
 
   firefoxNode:
     nodeMaxSessions: 1
     affinity: *affinity
     terminationGracePeriodSeconds: 720
+    service:
+      enabled: true
 
   edgeNode:
     affinity: *affinity
+    service:
+      enabled: true
     videoRecorder:
       uploader:
         enabled: false

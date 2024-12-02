@@ -121,16 +121,22 @@ chromeNode:
   annotations:
     "restartOnUpdate": "true"
   terminationGracePeriodSeconds: 7200
+  service:
+    enabled: true
 
 firefoxNode:
   nodeMaxSessions: 1
   annotations:
     "restartOnUpdate": "true"
   terminationGracePeriodSeconds: 720
+  service:
+    enabled: true
 
 edgeNode:
   annotations:
     "restartOnUpdate": "true"
+  service:
+    enabled: true
   videoRecorder:
     uploader:
       enabled: false
