@@ -1,26 +1,18 @@
-# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid-tracing.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-tracing.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid.yml down`
 version: "3"
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "4317:4317"
   selenium-event-bus:
     image: selenium/event-bus:4.27.0-20241127
     container_name: selenium-event-bus
+    environment:
+      - SE_ENABLE_TRACING=false
     ports:
       - "4442:4442"
       - "4443:4443"
       - "5557:5557"
-    depends_on:
-      - jaeger
-    environment:
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+
   selenium-sessions:
     image: selenium/sessions:4.27.0-20241127
     container_name: selenium-sessions
@@ -32,18 +24,44 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
+      - SE_SESSIONS_MAP_EXTERNAL_DATASTORE=true
+      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_URL=jdbc:postgresql://postgresql:5432/selenium_sessions
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_USER=seluser
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD=seluser
+# Uncomment the following lines to use Redis as the external datastore
+#      - SE_SESSIONS_MAP_EXTERNAL_SCHEME=redis
+#      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
+#      - SE_SESSIONS_MAP_EXTERNAL_HOSTNAME=redis
+#      - SE_SESSIONS_MAP_EXTERNAL_PORT=6379
+
+  postgresql:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=seluser
+      - POSTGRES_PASSWORD=seluser
+      - POSTGRES_DB=selenium_sessions
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./Sessions/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+
   selenium-session-queue:
     image: selenium/session-queue:4.27.0-20241127
     container_name: selenium-session-queue
+    environment:
+      - SE_ENABLE_TRACING=false
     ports:
       - "5559:5559"
-    environment:
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+
   selenium-distributor:
     image: selenium/distributor:4.27.0-20241127
     container_name: selenium-distributor
@@ -61,9 +79,8 @@ services:
       - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
+
   selenium-router:
     image: selenium/router:4.27.0-20241127
     container_name: selenium-router
@@ -80,9 +97,8 @@ services:
       - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
+
   chrome:
     image: selenium/node-chrome:4.27.0-20241127
     shm_size: 2gb
@@ -92,9 +108,8 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
+
   edge:
     image: selenium/node-edge:4.27.0-20241127
     shm_size: 2gb
@@ -104,9 +119,8 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
+
   firefox:
     image: selenium/node-firefox:4.27.0-20241127
     shm_size: 2gb
@@ -116,6 +130,4 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_ENABLE_TRACING=false
