@@ -3,8 +3,6 @@
 # set -e: exit asap if a command exits with a non-zero status
 set -e
 
-echo "Starting Selenium Grid Sessions..."
-
 function append_se_opts() {
   local option="${1}"
   local value="${2:-""}"
@@ -98,12 +96,21 @@ if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
   append_se_opts "--registration-secret" "${SE_REGISTRATION_SECRET}" "false"
 fi
 
+if [ "$GENERATE_CONFIG" = true ]; then
+  echo "Generating Selenium Config for Sessions"
+  /opt/bin/generate_config
+fi
+
+if [ ! -z "${CONFIG_FILE}" ]; then
+  append_se_opts "--config" "${CONFIG_FILE}"
+fi
+
 EXTRA_LIBS=""
 
 if [ "$SE_ENABLE_TRACING" = "true" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
   [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
-  EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}
+  EXTRA_LIBS="${EXTRA_LIBS}${EXTERNAL_JARS}"
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
@@ -127,6 +134,19 @@ else
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
 fi
+
+if [ "${SE_SESSIONS_MAP_EXTERNAL_DATASTORE}" = "true" ]; then
+  EXTERNAL_JARS=$(</external_jars/.classpath_session_map.txt)
+  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
+  EXTRA_LIBS="${EXTRA_LIBS}${EXTERNAL_JARS}"
+fi
+
+if [ -n "${EXTRA_LIBS}" ]; then
+  EXTRA_LIBS="--ext ${EXTRA_LIBS}"
+fi
+
+cat "$CONFIG_FILE"
+echo "Starting Selenium Grid Sessions..."
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \

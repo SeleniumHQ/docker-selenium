@@ -1,0 +1,45 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.sessionMap.configmap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.sessionMapConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+{{- if .Values.components.sessionMap.externalDatastore.enabled }}
+  SE_SESSIONS_MAP_EXTERNAL_DATASTORE: "true"
+{{- $backend := .Values.components.sessionMap.externalDatastore.backend -}}
+{{- with (get .Values.components.sessionMap.externalDatastore $backend) }}
+{{- with .scheme }}
+  SE_SESSIONS_MAP_EXTERNAL_SCHEME: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .implementation }}
+  SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .hostname }}
+  SE_SESSIONS_MAP_EXTERNAL_HOSTNAME: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .port }}
+  SE_SESSIONS_MAP_EXTERNAL_PORT: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .jdbcUrl }}
+  SE_SESSIONS_MAP_EXTERNAL_JDBC_URL: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .jdbcUser }}
+  SE_SESSIONS_MAP_EXTERNAL_JDBC_USER: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .jdbcPassword }}
+  SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD: {{ tpl . $ | quote }}
+{{- end }}
+{{- end }}
+{{- else }}
+  SE_SESSIONS_MAP_EXTERNAL_DATASTORE: "false"
+{{- end }}
+{{- end }}

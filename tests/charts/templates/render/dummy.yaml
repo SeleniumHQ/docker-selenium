@@ -115,6 +115,9 @@ components:
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    externalDatastore:
+      enabled: true
+      backend: postgresql
 
 chromeNode:
   nodeMaxSessions: 2

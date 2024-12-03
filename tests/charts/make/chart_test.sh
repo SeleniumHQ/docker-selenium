@@ -176,6 +176,20 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   "
 fi
 
+if [ "${TEST_EXTERNAL_DATASTORE}" = "postgresql" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set components.sessionMap.externalDatastore.enabled=true \
+  --set components.sessionMap.externalDatastore.backend=postgresql \
+  --set postgresql.enabled=true \
+  "
+elif [ "${TEST_EXTERNAL_DATASTORE}" = "redis" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set components.sessionMap.externalDatastore.enabled=true \
+  --set components.sessionMap.externalDatastore.backend=redis \
+  --set redis.enabled=true \
+  "
+fi
+
 if [ "${SELENIUM_GRID_MONITORING}" = "true" ] && [ "${TEST_EXISTING_PTS}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set monitoring.enabled=false \

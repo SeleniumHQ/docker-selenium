@@ -11,6 +11,8 @@ ARG OPENTELEMETRY_VERSION=1.44.1
 ARG GRPC_VERSION=1.68.1
 ARG NETTY_VERSION=4.1.115.Final
 ARG CS_VERSION=2.1.18
+ARG POSTGRESQL_VERSION=42.7.4
+ARG MVN_SELENIUM_VERSION=4.27.0
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -118,8 +120,16 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && if [ -f "/tmp/cs" ]; then \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
-        io.grpc:grpc-netty:${GRPC_VERSION} io.netty:netty-codec-http:${NETTY_VERSION} > /external_jars/.classpath.txt \
-        && chmod 664 /external_jars/.classpath.txt ; \
+        io.grpc:grpc-netty:${GRPC_VERSION} \
+        io.netty:netty-codec-http:${NETTY_VERSION} \
+        > /external_jars/.classpath.txt \
+        && chmod 664 /external_jars/.classpath.txt \
+        && java -jar /tmp/cs fetch --classpath --cache /external_jars \
+        org.seleniumhq.selenium:selenium-session-map-jdbc:${MVN_SELENIUM_VERSION} \
+        org.postgresql:postgresql:${POSTGRESQL_VERSION} \
+        org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
+        > /external_jars/.classpath_session_map.txt \
+        && chmod 664 /external_jars/.classpath_session_map.txt ; \
      fi \
   && rm -fr /root/.cache/* \
   # (Note that .bashrc is only executed in interactive bash shells.)

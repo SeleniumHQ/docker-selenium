@@ -92,6 +92,13 @@ Event bus ConfigMap fullname
 {{- end -}}
 
 {{/*
+Session Map ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.sessionMap.configmap.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-session-map-config" $)) .Values.sessionMapConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Router fullname
 */}}
 {{- define "seleniumGrid.router.fullname" -}}

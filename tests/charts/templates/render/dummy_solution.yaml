@@ -106,6 +106,9 @@ selenium-grid:
       serviceType: NodePort
     sessionMap:
       serviceType: NodePort
+      externalDatastore:
+        enabled: true
+        backend: redis
 
   chromeNode:
     nodeMaxSessions: 2

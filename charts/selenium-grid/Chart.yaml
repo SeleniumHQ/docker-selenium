@@ -22,6 +22,14 @@ dependencies:
   version: 66.3.0
   name: kube-prometheus-stack
   condition: monitoring.enabled, prometheus-stack.enabled
+- repository: https://charts.bitnami.com/bitnami
+  version: 16.2.3
+  name: postgresql
+  condition: postgresql.enabled
+- repository: https://charts.bitnami.com/bitnami
+  version: 20.4.0
+  name: redis
+  condition: redis.enabled
 maintainers:
   - name: SeleniumHQ
     email: selenium-developers@googlegroups.com

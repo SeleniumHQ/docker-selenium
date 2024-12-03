@@ -54,6 +54,8 @@ spec:
         {{- end }}
           envFrom:
             - configMapRef:
+                name: {{ template "seleniumGrid.sessionMap.configmap.fullname" $ }}
+            - configMapRef:
                 name: {{ template "seleniumGrid.logging.configmap.fullname" $ }}
             - configMapRef:
                 name: {{ template "seleniumGrid.server.configmap.fullname" $ }}

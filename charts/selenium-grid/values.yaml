@@ -235,6 +235,13 @@ busConfigMap:
   # -- Custom annotations for configmap
   annotations: {}
 
+# ConfigMap that contains environment variables for session map
+sessionMapConfigMap:
+  # -- Override the name of the session map configMap
+  nameOverride:
+  # -- Custom annotations for configmap
+  annotations: {}
+
 distributorConfigMap:
   # -- Override the name of the distributor configMap
   nameOverride:
@@ -597,6 +604,23 @@ components:
     nodeSelector: {}
     # -- Priority class name for Session Map pods
     priorityClassName: ""
+    externalDatastore:
+      # -- Enable external datastore for Session Map
+      enabled: false
+      # -- Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key
+      backend: postgresql
+      # -- Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map)
+      postgresql:
+        implementation: "org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap"
+        jdbcUser: "seluser"
+        jdbcPassword: "seluser"
+        jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions"
+      # -- Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map)
+      redis:
+        scheme: "redis"
+        implementation: "org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap"
+        hostname: "{{ $.Release.Name }}-redis-master"
+        port: "6379"
 
   # Configuration for Session Queue component
   sessionQueue:
@@ -1850,4 +1874,36 @@ jaeger:
   collector:
     enabled: false
   query:
+    enabled: false
+
+# Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/bitnami/postgresql)
+postgresql:
+  # -- Enable to install PostgreSQL along with Grid
+  enabled: false
+  # -- Authentication should be aligned with config in session map
+  auth:
+    username: "seluser"
+    password: "seluser"
+    database: "selenium_sessions"
+  primary:
+    initdb:
+      # -- Initdb scripts for PostgreSQL to create sessions_map table
+      scripts:
+        init.sql: |
+          CREATE TABLE IF NOT EXISTS sessions_map(
+            session_ids varchar(256),
+            session_caps text,
+            session_uri varchar(256),
+            session_stereotype text,
+            session_start varchar(256)
+          );
+
+# Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/bitnami/redis)
+redis:
+  # -- Enable to install Redis along with Grid
+  enabled: false
+  # -- Setup architecture
+  architecture: standalone
+  auth:
+    # -- Disable authentication due to implementation still not supporting it
     enabled: false
