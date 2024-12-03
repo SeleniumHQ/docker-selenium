@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+set -o xtrace
+
+MATRIX_TESTS=${MATRIX_TESTS:-"default"}
+
 cd tests || true
 
 if [ "${CI:-false}" = "false" ]; then
@@ -14,10 +18,18 @@ else
   python3 -m pip install selenium==${BINDING_VERSION} | grep -v 'Requirement already satisfied'
 fi
 
-python3 -m pip install docker requests chardet | grep -v 'Requirement already satisfied'
+python3 -m pip install -r requirements.txt | grep -v 'Requirement already satisfied'
 
-python3 test.py $1
-ret_code=$?
+if [ "$1" = "AutoscalingTestsScaleUp" ]; then
+  python3 -m unittest AutoscalingTests.test_scale_up
+  ret_code=$?
+elif [ "$1" = "AutoScalingTestsScaleChaos" ]; then
+  python3 -m unittest AutoscalingTests.test_scale_chaos
+  ret_code=$?
+else
+  python3 test.py $1
+  ret_code=$?
+fi
 
 if [ "${CI:-false}" = "false" ]; then
   deactivate

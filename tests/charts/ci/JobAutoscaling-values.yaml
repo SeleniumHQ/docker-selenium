@@ -22,6 +22,8 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
+    - name: SE_NODE_SESSION_TIMEOUT
+      value: "3600"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:

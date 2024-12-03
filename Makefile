@@ -29,7 +29,7 @@ SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
 KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.16.0-selenium-grid)
 KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.16.0-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.16.0-selenium-grid-20241127)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.16.0-selenium-grid-20241201)
 
 all: hub \
 	distributor \
@@ -960,6 +960,36 @@ chart_test_autoscaling_playwright_connect_grid:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling_patchKEDA.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
+
+test_k8s_autoscaling_job_count_strategy_default_in_chaos:
+	MATRIX_TESTS=AutoScalingTestsScaleChaos \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions:
+	TEST_NODE_MAX_SESSIONS=3 \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_default:
+	MATRIX_TESTS=$(or $(MATRIX_TESTS), "AutoscalingTestsScaleUp") SCALING_STRATEGY=$(or $(SCALING_STRATEGY), "default") \
+	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium TEST_PATCHED_KEDA=true SELENIUM_GRID_PROTOCOL=http SELENIUM_GRID_HOST=localhost SELENIUM_GRID_PORT=80 \
+	SELENIUM_GRID_MONITORING=false CLEAR_POD_HISTORY=true SET_MAX_REPLICAS=100 ENABLE_VIDEO_RECORDER=false \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/charts/make/chart_test.sh JobAutoscaling
+
+test_k8s_autoscaling_deployment_count_in_chaos:
+	MATRIX_TESTS=AutoScalingTestsScaleChaos \
+	make test_k8s_autoscaling_deployment_count
+
+test_k8s_autoscaling_deployment_count_with_node_max_sessions:
+	TEST_NODE_MAX_SESSIONS=3 \
+	make test_k8s_autoscaling_deployment_count
+
+test_k8s_autoscaling_deployment_count:
+	MATRIX_TESTS=$(or $(MATRIX_TESTS), "AutoscalingTestsScaleUp") \
+	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium TEST_PATCHED_KEDA=true SELENIUM_GRID_PROTOCOL=http SELENIUM_GRID_HOST=localhost SELENIUM_GRID_PORT=80 \
+	SELENIUM_GRID_MONITORING=false CLEAR_POD_HISTORY=true SET_MAX_REPLICAS=100 ENABLE_VIDEO_RECORDER=false \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/charts/make/chart_test.sh DeploymentAutoscaling
 
 chart_test_delete:
 	helm del test -n selenium || true

@@ -11,7 +11,7 @@
 #      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
 
 videoRecorder:
-  enabled: true
+  enabled: ${ENABLE_VIDEO_RECORDER}
   extraVolumes:
 #   - name: videos
 #     persistentVolumeClaim:

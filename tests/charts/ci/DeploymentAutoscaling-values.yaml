@@ -5,7 +5,7 @@ autoscaling:
     maxReplicaCount: 4
     pollingInterval: 10
   scaledObjectOptions:
-    cooldownPeriod: 30
+    cooldownPeriod: ${AUTOSCALING_COOLDOWN_PERIOD}
   terminationGracePeriodSeconds: 360
 
 # Configuration for chrome nodes
@@ -47,6 +47,8 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
+    - name: SE_NODE_SESSION_TIMEOUT
+      value: "3600"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:

@@ -1,0 +1,5 @@
+docker
+requests
+chardet
+csv2md
+selenium

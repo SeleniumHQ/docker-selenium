@@ -51,13 +51,24 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 - https://github.com/kedacore/keda/pull/6368
 
-~~- https://github.com/kedacore/keda/pull/6169 (merged, v2.16.0)~~
+- ~~https://github.com/kedacore/keda/pull/6169 (merged, v2.16.0)~~
 
 [kedacore/keda-docs](https://github.com/kedacore/keda-docs)
 
-- https://github.com/kedacore/keda-docs/pull/1504
+- ~~https://github.com/kedacore/keda-docs/pull/1468 (merged, v2.16.0)~~
 
-~~- https://github.com/kedacore/keda-docs/pull/1468 (merged, v2.16.0)~~
+# Test results of the patch scaler
+
+There are tests for the patched scaler implementation. You can run the tests by following the steps in [../tests/README.md](../tests/README.md).
+
+Test results could be referred to
+
+- [results_test_k8s_autoscaling_job_count_strategy_default.md](./results_test_k8s_autoscaling_job_count_strategy_default.md)
+- [results_test_k8s_autoscaling_job_count_strategy_default_in_chaos.md](./results_test_k8s_autoscaling_job_count_strategy_default_in_chaos.md)
+- [results_test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions.md](./results_test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions.md)
+- [results_test_k8s_autoscaling_deployment_count.md](./results_test_k8s_autoscaling_deployment_count.md)
+- [results_test_k8s_autoscaling_deployment_count_in_chaos.md](./results_test_k8s_autoscaling_deployment_count_in_chaos.md)
+- [results_test_k8s_autoscaling_deployment_count_with_node_max_sessions.md](./results_test_k8s_autoscaling_deployment_count_with_node_max_sessions.md)
 
 # Resources
 

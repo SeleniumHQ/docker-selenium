@@ -877,17 +877,16 @@ autoscaling:
     # -- Minimum number of replicas
     minReplicaCount: 0
     # -- Maximum number of replicas
-    maxReplicaCount: 8
+    maxReplicaCount: 24
     # -- Polling interval in seconds
-    pollingInterval: 10
+    pollingInterval: 20
     # List of triggers. Be careful, the default trigger of selenium-grid will be overwritten if you specify this
     # triggers:
   # Options for KEDA ScaledJobs (only used when scalingType is set to "job"). See https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
     scalingStrategy:
-      # Use `eager` strategy for utilizing all available slots up to the maxReplicaCount, ensuring that waiting request are processed as quickly as possible.
       # -- Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy
-      strategy: eager
+      strategy: default
     # -- Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # -- Number of Failed jobs should be kept (for troubleshooting purposes)
