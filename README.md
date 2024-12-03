@@ -1661,9 +1661,9 @@ Then, you would use in your VNC client:
 If you get a prompt asking for a password, it is: `secret`. If you wish to change this, 
 you can set the environment variable `SE_VNC_PASSWORD`.
 
-If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=1`.
+If you want to run VNC without password authentication you can set the environment variable `SE_VNC_NO_PASSWORD=true`.
 
-If you want to run VNC in view-only mode you can set the environment variable `SE_VNC_VIEW_ONLY=1`.
+If you want to run VNC in view-only mode you can set the environment variable `SE_VNC_VIEW_ONLY=true`.
 
 If you want to modify the open file descriptor limit for the VNC server process you can set the environment variable `SE_VNC_ULIMIT=4096`.
 

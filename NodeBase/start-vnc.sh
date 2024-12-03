@@ -14,7 +14,7 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
       fi
     done
     VNC_NO_PASSWORD=${VNC_NO_PASSWORD:-$SE_VNC_NO_PASSWORD}
-    if [ ! -z $VNC_NO_PASSWORD ]; then
+    if [ "${VNC_NO_PASSWORD}" = "true" ] || [ "${VNC_NO_PASSWORD}" = "1" ]; then
       echo "Starting VNC server without password authentication"
       X11VNC_OPTS=
     else
@@ -22,7 +22,7 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
     fi
 
     VNC_VIEW_ONLY=${VNC_VIEW_ONLY:-$SE_VNC_VIEW_ONLY}
-    if [ ! -z $VNC_VIEW_ONLY ]; then
+    if [ "${VNC_VIEW_ONLY}" = "true" ] || [ "${VNC_VIEW_ONLY}" = "1" ]; then
       echo "Starting VNC server with viewonly option"
       X11VNC_OPTS="${X11VNC_OPTS} -viewonly"
     fi
