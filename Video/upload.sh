@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 VIDEO_FOLDER=${VIDEO_FOLDER}
-UPLOAD_CONFIG_DIRECTORY=${SE_UPLOAD_CONFIG_DIRECTORY:-"/opt/bin"}
-UPLOAD_CONFIG_FILE_NAME=${SE_UPLOAD_CONFIG_FILE_NAME:-"upload.conf"}
+RCLONE_CONFIG=${RCLONE_CONFIG:-${SE_RCLONE_CONFIG}}
 UPLOAD_COMMAND=${SE_UPLOAD_COMMAND:-"copy"}
 UPLOAD_OPTS=${SE_UPLOAD_OPTS:-"-P --cutoff-mode SOFT --metadata --inplace"}
 UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
@@ -57,7 +56,7 @@ function rclone_upload() {
   local source=$1
   local target=$2
   echo "$(date -u +"${ts_format}") [${process_name}] - Uploading ${source} to ${target}"
-  rclone --config ${UPLOAD_CONFIG_DIRECTORY}/${UPLOAD_CONFIG_FILE_NAME} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
+  rclone --config ${RCLONE_CONFIG} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
   list_rclone_pid+=($!)
   check_and_clear_background
 }

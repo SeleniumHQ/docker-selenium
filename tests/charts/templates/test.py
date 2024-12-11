@@ -217,7 +217,7 @@ class ChartTemplateTests(unittest.TestCase):
                 else:
                     list_volume_mounts = video_container['volumeMounts']
                 for volume in list_volume_mounts:
-                    if volume['mountPath'] == '/opt/bin/upload.conf':
+                    if volume['mountPath'] == '/opt/selenium/upload.conf':
                         is_present = True
         self.assertTrue(is_present, "Volume mount for upload config is not present in the container")
 

@@ -152,7 +152,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | uploaderConfigMap.nameOverride | string | `nil` | Override the name of the uploader configMap |
 | uploaderConfigMap.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | uploaderConfigMap.extraScriptsImportFrom | string | `"configs/uploader/**"` | Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory) |
-| uploaderConfigMap.extraScriptsDirectory | string | `"/opt/bin"` | Directory where the extra scripts are mounted to |
+| uploaderConfigMap.extraScriptsDirectory | string | `"/opt/selenium"` | Directory where the extra scripts are mounted to |
 | uploaderConfigMap.extraScripts | object | `{"upload.sh":""}` | List of extra scripts to be mounted to the container. Format as `filename: content` |
 | uploaderConfigMap.secretFiles | object | `{"upload.conf":"[sample]"}` | Extra files stored in Secret to be mounted to the container. |
 | uploaderConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap |
