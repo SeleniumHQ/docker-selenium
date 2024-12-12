@@ -17,10 +17,10 @@ COPY --from=source /usr/local/bin/rclone /usr/local/bin/rclone
 
 RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
-    libx11-6 libxcb1 libxcb-shm0 \
+    libx11-dev libxcb-shm0 libxcb1-dev \
     x11-xserver-utils x11-utils \
     python3-pip \
-    && pip install --break-system-packages --no-cache-dir setuptools psutil \
+    && pip install --upgrade --break-system-packages --no-cache-dir setuptools psutil \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 COPY *.conf /etc/supervisor/conf.d/

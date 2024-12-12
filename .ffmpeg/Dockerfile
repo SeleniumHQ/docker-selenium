@@ -2,6 +2,7 @@ FROM ubuntu:noble AS builder
 ARG VERSION_FFMPEG="7.1"
 ARG VERSION_RCLONE="v1.68.2"
 ARG VERSION_GO="latest"
+ARG GO_CRYPTO_VERSION="v0.31.0"
 
 USER root
 
@@ -9,7 +10,7 @@ USER root
 # Install build tools
 #======================================
 ARG TOOLS_DEPS="autoconf automake cmake libfreetype6 gcc build-essential libtool make nasm pkg-config zlib1g-dev numactl \
-libnuma-dev libx11-6 libxcb1 libxcb1-dev yasm git curl jq wget ca-certificates"
+libnuma-dev libx11-dev libxcb-shm0 libxcb1-dev yasm git curl jq wget ca-certificates"
 
 RUN apt-get update -qqy \
     && apt-get upgrade -yq \
@@ -30,6 +31,10 @@ RUN cd /usr/local/src \
     && git clone https://github.com/rclone/rclone.git \
     && cd rclone \
     && git checkout $VERSION_RCLONE \
+    # Patch deps version in go.mod to fix CVEs
+    && sed -i "s|golang.org/x/crypto v.*|golang.org/x/crypto ${GO_CRYPTO_VERSION}|g" go.mod \
+    && go mod tidy \
+    # Build rclone
     && make \
     && mv ~/go/bin/rclone /usr/local/bin/ \
     && rclone version
@@ -74,8 +79,9 @@ COPY --from=builder /usr/local/bin/rclone /usr/local/bin/rclone
 
 RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
-    libx11-dev libxcb1 libxcb-shm0 \
+    libx11-dev libxcb-shm0 libxcb1-dev \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-RUN ffmpeg -version \
+RUN ldd /usr/local/bin/ffmpeg \
+    && ffmpeg -version \
     && rclone --version
