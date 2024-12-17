@@ -337,7 +337,7 @@ uploaderConfigMap:
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
   extraScriptsImportFrom: "configs/uploader/**"
   # -- Directory where the extra scripts are mounted to
-  extraScriptsDirectory: "/opt/bin"
+  extraScriptsDirectory: "/opt/selenium"
   # -- List of extra scripts to be mounted to the container. Format as `filename: content`
   extraScripts:
     upload.sh: ""

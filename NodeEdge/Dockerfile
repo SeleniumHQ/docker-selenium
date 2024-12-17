@@ -1,6 +1,7 @@
 ARG NAMESPACE=selenium
 ARG VERSION=latest
-FROM ${NAMESPACE}/node-base:${VERSION}
+ARG BASE=node-base
+FROM ${NAMESPACE}/${BASE}:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
 

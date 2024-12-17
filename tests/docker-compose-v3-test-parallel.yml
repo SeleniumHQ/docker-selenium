@@ -16,6 +16,7 @@ services:
       - selenium-hub
     volumes:
       - ./videos/certs:/opt/selenium/secrets
+      - ./videos:/videos
     environment:
       - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -25,23 +26,16 @@ services:
       - SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage
       - SE_BROWSER_ARGS_INCOGNITO=--incognito --incognito
       - SE_LOG_LEVEL=${LOG_LEVEL}
-      - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_SUPERVISORD_LOG_LEVEL=info
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=1
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-    restart: always
-
-  chrome_video:
-    image: selenium/video:${VIDEO_TAG}
-    user: ${UID}
-    volumes:
-      - ./videos:/videos
-    environment:
-      - DISPLAY_CONTAINER_NAME=chrome
+      - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
-    stop_grace_period: 30s
+      - SE_NODE_GRID_URL=https://selenium-hub:4444
+    restart: always
 
   firefox:
     profiles:
@@ -57,6 +51,7 @@ services:
       - selenium-hub
     volumes:
       - ./videos/certs:/opt/selenium/secrets
+      - ./videos:/videos
     environment:
       - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -64,23 +59,16 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
-      - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_SUPERVISORD_LOG_LEVEL=info
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=3
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-    restart: always
-
-  firefox_video:
-    image: selenium/video:${VIDEO_TAG}
-    user: ${UID}
-    volumes:
-      - ./videos:/videos
-    environment:
-      - DISPLAY_CONTAINER_NAME=firefox
+      - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
-    stop_grace_period: 30s
+      - SE_NODE_GRID_URL=https://selenium-hub:4444
+    restart: always
 
   edge:
     profiles:
@@ -102,23 +90,16 @@ services:
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
       - SE_LOG_LEVEL=${LOG_LEVEL}
-      - SE_SUPERVISORD_LOG_LEVEL=error
+      - SE_SUPERVISORD_LOG_LEVEL=info
       - SE_NODE_GRACEFUL_SHUTDOWN=true
       - SE_DRAIN_AFTER_SESSION_COUNT=2
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-    restart: always
-
-  edge_video:
-    image: selenium/video:${VIDEO_TAG}
-    user: ${UID}
-    volumes:
-      - ./videos:/videos
-    environment:
-      - DISPLAY_CONTAINER_NAME=edge
+      - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
-    stop_grace_period: 30s
+      - SE_NODE_GRID_URL=https://selenium-hub:4444
+    restart: always
 
   selenium-hub:
     image: selenium/hub:${TAG}

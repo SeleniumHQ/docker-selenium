@@ -17,10 +17,11 @@ BUILD_ARGS := $(BUILD_ARGS) --progress plain
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
+FFMPEG_VERSION := $(or $(FFMPEG_VERSION),$(FFMPEG_VERSION),7.1)
 FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VERSION),ffmpeg-7.1)
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.1)
-FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),linuxserver)
-FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),version-7.1-cli)
+FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),selenium)
+FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),latest)
 CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ] || [ `arch` = "arm64" ]; then echo "linux/arm64"; else echo "linux/amd64"; fi)
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
@@ -143,8 +144,8 @@ sessionqueue: base
 event_bus: base
 	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
 
-node_base: base
-	cd ./NodeBase && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --secret id=SEL_PASSWD -t $(NAME)/node-base:$(TAG_VERSION) .
+node_base: base video
+	cd ./NodeBase && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=video --build-arg VERSION=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) --secret id=SEL_PASSWD -t $(NAME)/node-base:$(TAG_VERSION) .
 
 chrome: node_base
 	case "$(PLATFORMS)" in \
@@ -187,7 +188,7 @@ firefox: node_base
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
 firefox_dev:
-	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=nightly-latest -t $(NAME)/node-firefox:dev .
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=devedition-latest -t $(NAME)/node-firefox:dev .
 
 firefox_beta:
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=beta-latest -t $(NAME)/node-firefox:beta .
@@ -244,8 +245,11 @@ standalone_edge_dev: edge_dev
 standalone_edge_beta: edge_beta
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
 
-video:
-	cd ./Video && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(FFMPEG_BASED_NAME) --build-arg BASED_TAG=$(FFMPEG_BASED_TAG) --secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+video: base
+	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg FFMPEG_BASED_NAME=$(FFMPEG_BASED_NAME) --build-arg FFMPEG_BASED_TAG=$(FFMPEG_BASED_TAG) $(FROM_IMAGE_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
+
+ffmpeg:
+	cd ./.ffmpeg && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION_FFMPEG=$(FFMPEG_VERSION) $(FROM_IMAGE_ARGS) -t $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) .
 
 fetch_grid_scaler_resources:
 	mkdir -p ./.keda/scalers \
@@ -332,6 +336,10 @@ tag_and_push_edge_images:
 tag_and_push_firefox_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
 
+tag_ffmpeg_latest:
+	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:latest
+	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:$(FFMPEG_VERSION)
+
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:latest
@@ -352,6 +360,11 @@ tag_latest:
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+
+release_ffmpeg_latest:
+	docker push $(NAME)/ffmpeg:latest
+	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)
+	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)
 
 release_latest: release_grid_scaler_latest
 	docker push $(NAME)/base:latest

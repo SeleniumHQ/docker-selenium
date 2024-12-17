@@ -1,0 +1,68 @@
+name: Build and Deploy FFmpeg
+
+on:
+  push:
+    paths:
+      - '.ffmpeg/Dockerfile'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Deploy a new release'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    name: Build and Deploy FFmpeg
+    runs-on: blacksmith-8vcpu-ubuntu-2204
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make setup_dev_env
+      - name: Output Docker info
+        run: docker info
+      - name: Sets build date
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+          make set_build_multiarch
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+        env:
+          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+      - name: Build images
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 300
+          max_attempts: 2
+          retry_wait_seconds: 60
+          command: |
+            PLATFORMS="${PLATFORMS}" make ffmpeg
+            make tag_ffmpeg_latest
+      - name: Login Docker Hub
+        if: ${{ github.event.inputs.release == 'true' }}
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Deploy new images
+        if: ${{ github.event.inputs.release == 'true' }}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 5
+          retry_wait_seconds: 300
+          continue_on_error: true
+          command: |
+            make release_ffmpeg_latest

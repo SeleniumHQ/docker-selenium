@@ -1,6 +1,7 @@
 ARG NAMESPACE=selenium
 ARG VERSION=latest
-FROM ${NAMESPACE}/base:${VERSION}
+ARG BASE=base
+FROM ${NAMESPACE}/${BASE}:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
 
@@ -49,6 +50,8 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
 # Some configuration options
 #============================
+    SE_RECORD_VIDEO=false \
+    DISPLAY_CONTAINER_NAME="localhost" \
     SE_SCREEN_WIDTH=1920 \
     SE_SCREEN_HEIGHT=1080 \
     SE_SCREEN_DEPTH=24 \
@@ -66,8 +69,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
     # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
     DBUS_SESSION_BUS_ADDRESS=/dev/null
 
-RUN --mount=type=secret,id=SEL_PASSWD \
-  apt-get update -qqy \
+RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
 #==============
 # Xvfb
@@ -102,13 +104,13 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
   && apt-get -qyy autoremove \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get -qyy clean \
-  && pip install --no-cache-dir --upgrade --break-system-packages setuptools \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+  && apt-get -qyy clean
 ########################################
 # noVNC exposes VNC through a web page #
 ########################################
-  && wget -nv -O noVNC.zip \
+RUN --mount=type=secret,id=SEL_PASSWD \
+  wget -nv -O noVNC.zip \
        "https://github.com/novnc/noVNC/archive/refs/${NOVNC_SOURCE}/${NOVNC_VERSION}.zip" \
   && unzip -x noVNC.zip \
   && mv noVNC-${NOVNC_VERSION#v} /opt/bin/noVNC \
@@ -120,7 +122,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && rm websockify.zip \
   # Setup dependencies
   && cd websockify-${WEBSOCKIFY_VERSION#v} \
-  && python3 setup.py install \
+  && python3 -m pip install --break-system-packages . \
   # Move websockify and run to the noVNC directory
   && mv websockify /opt/bin/noVNC/utils/websockify \
   && mv run /opt/bin/noVNC/utils/websockify \
