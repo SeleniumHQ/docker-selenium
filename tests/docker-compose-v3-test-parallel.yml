@@ -18,6 +18,7 @@ services:
       - ./videos/certs:/opt/selenium/secrets
       - ./videos:/videos
     environment:
+      - SE_NODE_BROWSER_VERSION=
       - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -53,6 +54,7 @@ services:
       - ./videos/certs:/opt/selenium/secrets
       - ./videos:/videos
     environment:
+      - SE_NODE_BROWSER_VERSION=
       - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -84,6 +86,7 @@ services:
     volumes:
       - ./videos/certs:/opt/selenium/secrets
     environment:
+      - SE_NODE_BROWSER_VERSION=
       - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442

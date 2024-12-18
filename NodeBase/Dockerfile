@@ -47,6 +47,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_OTEL_SERVICE_NAME="selenium-node" \
     # Setting Selenium Manager to work offline
     SE_OFFLINE=true \
+    SE_NODE_BROWSER_VERSION="stable" \
 #============================
 # Some configuration options
 #============================

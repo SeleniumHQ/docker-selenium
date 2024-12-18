@@ -32,12 +32,18 @@ echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_S
 echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >>"$FILENAME"
 
-SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
-SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
-SE__BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
+if [ -f /opt/selenium/browser_name ]; then
+	SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
+fi
+if [ -f /opt/selenium/browser_version ] && [ "${SE_NODE_BROWSER_VERSION}" = "stable" ]; then
+	SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
+fi
+if [ -f /opt/selenium/browser_binary_location ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
+	SE_BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
+fi
 
 if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE__BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
+	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
 else
 	SE_NODE_STEREOTYPE="$SE_NODE_STEREOTYPE"
 fi
