@@ -124,6 +124,10 @@ else
   echo "Tracing is disabled"
 fi
 
+if [ -n "${SE_JAVA_HTTPCLIENT_VERSION}" ]; then
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.httpclient.version=${SE_JAVA_HTTPCLIENT_VERSION}"
+fi
+
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} standalone \

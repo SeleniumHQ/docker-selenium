@@ -58,6 +58,9 @@ RUN apt-get update -qqy && \
   fi \
   # Download the language pack for Firefox
   && /opt/bin/get_lang_package.sh \
+  # Do one more upgrade to fix possible CVEs from Firefox dependencies
+  && apt-get update -qqy \
+  && apt-get upgrade -yq \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #============

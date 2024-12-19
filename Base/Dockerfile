@@ -130,6 +130,8 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         org.seleniumhq.selenium:selenium-session-map-jdbc:${MVN_SELENIUM_VERSION} \
         org.postgresql:postgresql:${POSTGRESQL_VERSION} \
         org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
+        # Patch specific version for CVEs in the dependencies
+        io.lettuce:lettuce-core:6.5.1.RELEASE \
         > /external_jars/.classpath_session_map.txt \
         && chmod 664 /external_jars/.classpath_session_map.txt ; \
      fi \
@@ -185,6 +187,7 @@ ENV SE_BIND_HOST=false \
     SE_STRUCTURED_LOGS=false \
     SE_ENABLE_TRACING=true \
     SE_ENABLE_TLS=false \
+    SE_JAVA_HTTPCLIENT_VERSION="HTTP_1_1" \
     SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="/opt/selenium/secrets/server.pass" \
     SE_JAVA_DISABLE_HOSTNAME_VERIFICATION=true \

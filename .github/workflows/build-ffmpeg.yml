@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - '.ffmpeg/Dockerfile'
+  pull_request:
+    paths:
+      - '.ffmpeg/Dockerfile'
   workflow_dispatch:
     inputs:
       release:
