@@ -48,6 +48,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
     # Setting Selenium Manager to work offline
     SE_OFFLINE=true \
     SE_NODE_BROWSER_VERSION="stable" \
+    SE_NODE_PLATFORM_NAME="Linux" \
 #============================
 # Some configuration options
 #============================

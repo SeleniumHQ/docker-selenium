@@ -55,7 +55,7 @@ echo "max-sessions = ${SE_NODE_MAX_CONCURRENCY:-${SE_NODE_MAX_SESSIONS}}
 if [ -f /opt/selenium/browser_name ]; then
 	SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
 fi
-if [ -f /opt/selenium/browser_version ] && [ "${SE_NODE_BROWSER_VERSION}" = "stable" ]; then
+if [ -f /opt/selenium/browser_version ] && [ "${SE_NODE_BROWSER_VERSION,,}" = "stable" ]; then
 	SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
 fi
 if [ -f /opt/selenium/browser_binary_location ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
@@ -64,7 +64,7 @@ fi
 
 # 'browserName' is mandatory for default stereotype
 if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]]; then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
+	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
 else
 	SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
 fi
