@@ -16,6 +16,8 @@ UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
 poll_interval=${SE_VIDEO_POLL_INTERVAL:-1}
 max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
+file_ready_max_attempts=${SE_VIDEO_FILE_READY_WAIT_ATTEMPTS:-5}
+wait_uploader_shutdown_max_attempts=${SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS:-5}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
@@ -90,13 +92,12 @@ function wait_for_api_respond() {
 }
 
 function wait_util_uploader_shutdown() {
-  max_wait=5
   wait=0
   if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" != "true" ]]; then
-    while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]]; do
+    while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${wait_uploader_shutdown_max_attempts} ]]; do
       echo "exit" >>${UPLOAD_PIPE_FILE} &
       echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for force exit file to be consumed by external upload container"
-      sleep 1
+      sleep ${poll_interval}
       wait=$((wait + 1))
     done
   fi
@@ -104,7 +105,7 @@ function wait_util_uploader_shutdown() {
     while [[ $(pgrep rclone | wc -l) -gt 0 ]]; do
       echo "exit" >>${UPLOAD_PIPE_FILE} &
       echo "$(date -u +"${ts_format}") [${process_name}] - Recorder is waiting for RCLONE to finish"
-      sleep 1
+      sleep ${poll_interval}
     done
   fi
 }
@@ -159,9 +160,27 @@ function check_if_ffmpeg_running() {
   return 1
 }
 
+function wait_for_file_integrity() {
+  retry=0
+  if [[ ! -f "${video_file}" ]]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - Video file is not found, might be the recording is not started."
+    return 0
+  fi
+  until ffmpeg -v error -i "${video_file}" -f null -; do
+    echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for video file ${video_file} to be ready."
+    sleep ${poll_interval}
+    retry=$((retry + 1))
+    if [[ $retry -ge ${file_ready_max_attempts} ]]; then
+      echo "$(date -u +"${ts_format}") [${process_name}] - Video file is not ready after ${file_ready_max_attempts} attempts, skipping..."
+      break
+    fi
+  done
+}
+
 function stop_if_recording_inprogress() {
   if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running; then
     stop_recording
+    wait_for_file_integrity
   fi
 }
 
@@ -176,6 +195,10 @@ function graceful_exit() {
   stop_if_recording_inprogress
   send_exit_signal_to_uploader
   wait_util_uploader_shutdown
+}
+
+function graceful_exit_force() {
+  graceful_exit
   kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
   echo "$(date -u +"${ts_format}") [${process_name}] - Ready to shutdown the recorder"
   exit 0
@@ -184,13 +207,15 @@ function graceful_exit() {
 if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto" ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
   trap graceful_exit SIGTERM SIGINT EXIT
   wait_for_display
+  video_file="$VIDEO_FOLDER/$VIDEO_FILE_NAME"
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
   ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-    -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$VIDEO_FOLDER/$VIDEO_FILE_NAME" &
+    -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
   wait $!
+  wait_for_file_integrity
 
 else
-  trap graceful_exit SIGTERM SIGINT EXIT
+  trap graceful_exit_force SIGTERM SIGINT EXIT
   create_named_pipe
   wait_for_display
   recording_started="false"
@@ -224,6 +249,7 @@ else
       sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
+      wait_for_file_integrity
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
         exit
