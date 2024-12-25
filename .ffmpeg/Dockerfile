@@ -3,6 +3,7 @@ ARG VERSION_FFMPEG="7.1"
 ARG VERSION_RCLONE="v1.68.2"
 ARG VERSION_GO="latest"
 ARG GO_CRYPTO_VERSION="v0.31.0"
+ARG GO_NET_VERSION="v0.33.0"
 
 USER root
 
@@ -33,6 +34,7 @@ RUN cd /usr/local/src \
     && git checkout $VERSION_RCLONE \
     # Patch deps version in go.mod to fix CVEs
     && sed -i "s|golang.org/x/crypto v.*|golang.org/x/crypto ${GO_CRYPTO_VERSION}|g" go.mod \
+    && sed -i "s|golang.org/x/net v.*|golang.org/x/net ${GO_NET_VERSION}|g" go.mod \
     && go mod tidy \
     # Build rclone
     && make \

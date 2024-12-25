@@ -2,6 +2,8 @@ name: Build and Deploy FFmpeg
 
 on:
   push:
+    branches:
+      - trunk
     paths:
       - '.ffmpeg/Dockerfile'
   pull_request:

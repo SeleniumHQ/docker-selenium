@@ -31,6 +31,14 @@ TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/amd64')
 TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PACKAGE', 'false').lower() == 'true'
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
 TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
+TEST_MULTIPLE_VERSIONS = os.environ.get('TEST_MULTIPLE_VERSIONS', 'false').lower() == 'true'
+TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICIT', 'true').lower() == 'true'
+LIST_CHROMIUM_VERSIONS = ['130.0', '129.0', '128.0']
+LIST_FIREFOX_VERSIONS = ['132.0', '131.0', '130.0', '129.0', '128.0']
+
+if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
+  LIST_CHROMIUM_VERSIONS.append(None)
+  LIST_FIREFOX_VERSIONS.append(None)
 
 SELENIUM_GRID_URL = f"{SELENIUM_GRID_PROTOCOL}://{SELENIUM_GRID_HOST}:{SELENIUM_GRID_PORT}"
 CLIENT_CONFIG = ClientConfig(
@@ -153,6 +161,10 @@ class ChromeTests(SeleniumGenericTests):
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('--headless=new')
+            if TEST_MULTIPLE_VERSIONS:
+                browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
+                if browser_version:
+                    options.set_capability('browserVersion', browser_version)
             if TEST_NODE_RELAY == 'Android':
                 options.set_capability('platformName', TEST_NODE_RELAY)
                 options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
@@ -195,6 +207,11 @@ class EdgeTests(SeleniumGenericTests):
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('--headless=new')
+            if TEST_MULTIPLE_VERSIONS:
+                browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
+                if browser_version:
+                    options.set_capability('browserVersion', browser_version)
+            options.set_capability('platformName', 'Linux')
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
@@ -229,6 +246,11 @@ class FirefoxTests(SeleniumGenericTests):
             options.set_capability('se:screenResolution', '1920x1080')
             if SELENIUM_GRID_TEST_HEADLESS:
                 options.add_argument('-headless')
+            if TEST_MULTIPLE_VERSIONS:
+                browser_version = random.choice(LIST_FIREFOX_VERSIONS)
+                if browser_version:
+                    options.set_capability('browserVersion', browser_version)
+            options.set_capability('platformName', 'Linux')
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,

@@ -15,7 +15,7 @@ if [ -n ${SELENIUM_GRID_USERNAME} ] && [ -n ${SELENIUM_GRID_PASSWORD} ]; then
   echo "SELENIUM_REMOTE_HEADERS={\"Authorization\": \"Basic ${BASIC_AUTH}\"}" >> .env
 fi
 
-echo "SELENIUM_REMOTE_CAPABILITIES={\"browserName\": \"${BROWSER}\"}" >> .env
+echo "SELENIUM_REMOTE_CAPABILITIES={\"browserName\": \"${BROWSER}\", \"platformName\": \"Linux\"}" >> .env
 echo "NODE_EXTRA_CA_CERTS=${CHART_CERT_PATH}" >> .env
 
 cat .env

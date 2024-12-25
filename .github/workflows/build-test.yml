@@ -16,11 +16,18 @@ on:
         type: boolean
         default: true
   push:
+    branches:
+      - trunk
     paths-ignore:
       - '**.md'
+      - '.*'
   pull_request:
     paths-ignore:
       - '**.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions: write-all
 
@@ -33,14 +40,17 @@ env:
 
 jobs:
   docker-test:
+    if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Seleium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
     with:
       release: ${{ inputs.release == 'true' }}
 
   helm-chart-test:
+    if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
+    secrets: inherit
     with:
       release: ${{ inputs.release == 'true' }}
 

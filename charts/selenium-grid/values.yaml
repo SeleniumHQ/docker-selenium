@@ -363,7 +363,7 @@ serverConfigMap:
   nameOverride:
   # -- Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap
   env:
-    SE_JAVA_OPTS: "-Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000 -XX:+UseZGC"
+    SE_JAVA_OPTS: "-XX:+UseG1GC -Xmx1024m -Xms256m -XX:MaxGCPauseMillis=1000 -Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000"
     # Log level of supervisord. Accept values: critical, error, warn, info, debug, trace, blather (http://supervisord.org/logging.html)
     SE_SUPERVISORD_LOG_LEVEL: "info"
   # -- Custom annotations for configmap
@@ -1117,8 +1117,10 @@ chromeNode:
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "chrome"
+    # -- browserVersion from the capability
+    browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1300,8 +1302,10 @@ firefoxNode:
     browserName: "firefox"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "firefox"
+    # -- browserVersion from the capability
+    browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1482,8 +1486,10 @@ edgeNode:
     browserName: "MicrosoftEdge"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "msedge"
+    # -- browserVersion from the capability
+    browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1666,6 +1672,8 @@ relayNode:
     sessionBrowserName: ""
     # -- platformName from the capability
     platformName: "Android"
+    # -- browserVersion from the capability
+    browserVersion: ""
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1818,19 +1826,19 @@ customLabels: {}
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-  image:
-    keda:
-      registry: selenium
-      repository: keda
-      tag: "2.16.0-selenium-grid-20241204"
-    metricsApiServer:
-      registry: selenium
-      repository: keda-metrics-apiserver
-      tag: "2.16.0-selenium-grid-20241204"
-    webhooks:
-      registry: selenium
-      repository: keda-admission-webhooks
-      tag: "2.16.0-selenium-grid-20241204"
+#  image:
+#    keda:
+#      registry: selenium
+#      repository: keda
+#      tag: "2.16.0-selenium-grid-20241204"
+#    metricsApiServer:
+#      registry: selenium
+#      repository: keda-metrics-apiserver
+#      tag: "2.16.0-selenium-grid-20241204"
+#    webhooks:
+#      registry: selenium
+#      repository: keda-admission-webhooks
+#      tag: "2.16.0-selenium-grid-20241204"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

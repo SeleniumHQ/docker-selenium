@@ -2,6 +2,11 @@ name: Test Grid Autoscaling in Kubernetes
 
 on:
   workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: false
+      DOCKER_PASSWORD:
+        required: false
     inputs:
       release:
         description: 'Test a new release process'
@@ -35,6 +40,10 @@ on:
         required: false
         type: string
         default: '20'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -135,10 +144,14 @@ jobs:
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
-          echo "IMAGE_REGISTRY=artifactory/selenium" >> $GITHUB_ENV
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Setup Kubernetes cluster
         uses: nick-invision/retry@master
         with:
@@ -205,7 +218,7 @@ jobs:
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
           git add .keda/.
-          git commit -m "[ci] Upload autoscaling in K8s test results [skip ci]" -a
+          git commit -m "[ci] Upload autoscaling in K8s test results" -m "[skip ci]" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:

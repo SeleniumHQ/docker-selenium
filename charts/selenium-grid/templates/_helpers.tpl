@@ -343,6 +343,14 @@ template:
         {{- end }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+        {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
+          - name: SE_NODE_BROWSER_VERSION
+            value: {{ default "" .node.hpa.browserVersion | quote }}
+        {{- end }}
+        {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
+          - name: SE_NODE_PLATFORM_NAME
+            value: {{ default "Linux" .node.hpa.platformName | quote }}
+        {{- end }}
           - name: SE_NODE_CONTAINER_NAME
             valueFrom:
               fieldRef:

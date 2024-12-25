@@ -7,7 +7,7 @@ appVersion: 4.27.0-20241204
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.16.0
+  version: 2.16.1
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://kubernetes.github.io/ingress-nginx
@@ -27,7 +27,7 @@ dependencies:
   name: postgresql
   condition: postgresql.enabled
 - repository: https://charts.bitnami.com/bitnami
-  version: 20.6.0
+  version: 20.6.1
   name: redis
   condition: redis.enabled
 maintainers:

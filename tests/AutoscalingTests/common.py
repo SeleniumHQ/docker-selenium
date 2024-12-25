@@ -34,7 +34,9 @@ def get_pod_count():
     return len([line for line in result.stdout.splitlines() if "selenium-node-" in line and "Running" in line])
 
 def create_session(browser_name):
-    return webdriver.Remote(command_executor=CLIENT_CONFIG.remote_server_addr, options=BROWSER[browser_name], client_config=CLIENT_CONFIG)
+    options = BROWSER[browser_name]
+    options.set_capability("platformName", "Linux")
+    return webdriver.Remote(command_executor=CLIENT_CONFIG.remote_server_addr, options=options, client_config=CLIENT_CONFIG)
 
 def wait_for_count_matches(sessions, timeout=10, interval=5):
     elapsed = 0
