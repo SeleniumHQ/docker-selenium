@@ -2,6 +2,11 @@ name: Build & test
 
 on:
   workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: false
+      DOCKER_PASSWORD:
+        required: false
     inputs:
       release:
         description: 'Test a new release process'
@@ -41,7 +46,7 @@ env:
 jobs:
   docker-test:
     if: contains(toJson(github.event.commits), '[skip test]') == false
-    name: Test Seleium Grid on Docker
+    name: Test Selenium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
     with:
       release: ${{ inputs.release == 'true' }}
