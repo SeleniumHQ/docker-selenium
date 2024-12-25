@@ -79,7 +79,8 @@ def randomly_quit_sessions(sessions, sublist_size):
             session.quit()
             sessions.remove(session)
         print(f"QUIT: {len(sessions_to_quit)} sessions have been randomly quit.")
-    return len(sessions_to_quit)
+        return len(sessions_to_quit)
+    return 0
 
 def get_result_file_name():
     return f"tests/autoscaling_results"
