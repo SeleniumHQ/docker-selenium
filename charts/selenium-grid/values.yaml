@@ -1120,7 +1120,7 @@ chromeNode:
     # -- browserVersion from the capability
     browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1305,7 +1305,7 @@ firefoxNode:
     # -- browserVersion from the capability
     browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1489,7 +1489,7 @@ edgeNode:
     # -- browserVersion from the capability
     browserVersion: ""
     # -- platformName from the capability
-    platformName: "linux"
+    platformName: "Linux"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1826,19 +1826,19 @@ customLabels: {}
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-  image:
-    keda:
-      registry: selenium
-      repository: keda
-      tag: "2.16.0-selenium-grid-20241204"
-    metricsApiServer:
-      registry: selenium
-      repository: keda-metrics-apiserver
-      tag: "2.16.0-selenium-grid-20241204"
-    webhooks:
-      registry: selenium
-      repository: keda-admission-webhooks
-      tag: "2.16.0-selenium-grid-20241204"
+#  image:
+#    keda:
+#      registry: selenium
+#      repository: keda
+#      tag: "2.16.0-selenium-grid-20241204"
+#    metricsApiServer:
+#      registry: selenium
+#      repository: keda-metrics-apiserver
+#      tag: "2.16.0-selenium-grid-20241204"
+#    webhooks:
+#      registry: selenium
+#      repository: keda-admission-webhooks
+#      tag: "2.16.0-selenium-grid-20241204"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

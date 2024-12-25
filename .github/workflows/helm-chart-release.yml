@@ -33,7 +33,7 @@ env:
 
 jobs:
   helm-chart-test:
-    if: github.event.inputs.skip-test != 'true'
+    if: github.event.inputs.skip-test != 'true' && contains(toJson(github.event.commits), '[skip test]') == false
     uses: ./.github/workflows/helm-chart-test.yml
     with:
       release: ${{ github.event.inputs.release == 'true' }}
@@ -114,7 +114,7 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update chart ${LATEST_CHART_VERSION} changelog [skip ci]" -a || true
+          git commit -m "[ci] Update chart ${LATEST_CHART_VERSION} changelog" -m "[skip ci]" -a || true
 
       - name: Push changes
         if: github.event.inputs.skip-commit != 'true'

@@ -8,8 +8,10 @@ DEFAULT_TAG="trunk"
 SET_TAG=${1:-$(git rev-parse --abbrev-ref HEAD)}
 
 function get_keda_version() {
+  KEDA_CORE_VERSION=$(grep KEDA_CORE_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
   KEDA_TAG_VERSION=$(grep KEDA_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
   KEDA_IMAGE_TAG=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/values.yaml' -print0 | xargs -0 cat | grep $KEDA_TAG_VERSION | head -n 1 | cut -d ':' -f 2 | tr -d '[:space:]' | tr -d '"')
+  IS_PATCHED_VERSION=$(grep TEST_PATCHED_KEDA Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 }
 
 # Get current chart app version
@@ -88,10 +90,14 @@ generate_changelog() {
   fi
 
   get_keda_version
-  echo "### Experimental" >>"$temp_file"
-  echo "- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)" >>"$temp_file"
-  if [ -n "$KEDA_IMAGE_TAG" ]; then
-    echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_IMAGE_TAG" >>"$temp_file"
+  if [ "${IS_PATCHED_VERSION}" == "true" ]; then
+    echo "### Experimental" >>"$temp_file"
+    echo "- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)" >>"$temp_file"
+    if [ -n "$KEDA_IMAGE_TAG" ]; then
+      echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_IMAGE_TAG" >>"$temp_file"
+    fi
+  else
+    echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_CORE_VERSION" >>"$temp_file"
   fi
   echo "" >>"$temp_file"
 

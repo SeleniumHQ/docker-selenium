@@ -218,7 +218,7 @@ jobs:
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
           git add .keda/.
-          git commit -m "[ci] Upload autoscaling in K8s test results [skip ci]" -a
+          git commit -m "[ci] Upload autoscaling in K8s test results" -m "[skip ci]" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
