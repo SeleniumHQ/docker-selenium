@@ -43,7 +43,7 @@ jobs:
         run: |
           git config --local user.email "selenium-ci@users.noreply.github.com"
           git config --local user.name "Selenium CI Bot"
-          git commit -m "Update chart configuration table" -a
+          git commit -m "[ci] Update chart configuration table" -m "[skip test]" -a
       - name: Push changes
         if: env.diff == 'true'
         uses: ad-m/github-push-action@master

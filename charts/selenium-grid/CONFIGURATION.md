@@ -21,7 +21,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | postgresql | 16.3.2 |
 | https://charts.bitnami.com/bitnami | redis | 20.6.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | 3.3.3 |
-| https://kedacore.github.io/charts | keda | 2.16.0 |
+| https://kedacore.github.io/charts | keda | 2.16.1 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.11.3 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 67.2.0 |
 
@@ -407,7 +407,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | chromeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| chromeNode.hpa.platformName | string | `"linux"` | platformName from the capability |
+| chromeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -459,7 +459,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hpa.browserName | string | `"firefox"` | browserName from the capability |
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | firefoxNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| firefoxNode.hpa.platformName | string | `"linux"` | platformName from the capability |
+| firefoxNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -511,7 +511,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName from the capability |
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | edgeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| edgeNode.hpa.platformName | string | `"linux"` | platformName from the capability |
+| edgeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -595,7 +595,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
-| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.16.0-selenium-grid-20241204"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.16.0-selenium-grid-20241204"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.16.0-selenium-grid-20241204"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
