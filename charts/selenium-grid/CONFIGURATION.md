@@ -423,10 +423,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
-| chromeNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
+| chromeNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| chromeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| chromeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -475,10 +475,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
-| firefoxNode.hpa.browserName | string | `"firefox"` | browserName from the capability |
+| firefoxNode.hpa.browserName | string | `"firefox"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| firefoxNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| firefoxNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -527,10 +527,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
-| edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName from the capability |
+| edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| edgeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| edgeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -579,10 +579,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
 | relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
 | relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |
-| relayNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
+| relayNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| relayNode.hpa.platformName | string | `"Android"` | platformName from the capability |
-| relayNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
+| relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| relayNode.hpa.platformName | string | `"Android"` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |

@@ -975,15 +975,15 @@ crossBrowsers:
   # -- Additional chrome nodes, array of objects with the same structure as `chromeNode`
   chromeNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional nodes
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional nodes
   # -- Additional firefox nodes, array of objects with the same structure as `firefoxNode`
   firefoxNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional node browsers
   # -- Additional edge nodes, array of objects with the same structure as `edgeNode`
   edgeNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional node browsers
   # -- Additional release nodes, array of objects with the same structure as `relayNode`
   relayNode:
     - nameOverride:
@@ -1150,14 +1150,14 @@ chromeNode:
   # -- Override the scaledObjectOptions for chrome nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "chrome"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1335,14 +1335,14 @@ firefoxNode:
   # -- Override the scaledObjectOptions for firefox nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "firefox"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "firefox"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1519,14 +1519,14 @@ edgeNode:
   # -- Override the scaledObjectOptions for edge nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "MicrosoftEdge"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "msedge"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1703,15 +1703,14 @@ relayNode:
   # -- Override the scaledObjectOptions for relay nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: ""
-    # -- platformName from the capability
-    platformName: "Android"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: "Android"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 

@@ -1,0 +1,39 @@
+# In this case, each browser node has 2 scaler triggers, one for any platform and one for specific Linux.
+#
+# For example:
+# Below incoming request will only trigger the scaler platform any.
+# options = ChromeOptions()
+# driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+#
+# Below incoming request will only trigger the scaler platform Linux.
+# options = ChromeOptions()
+# options.set_capability('platformName', 'Linux')
+# driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+crossBrowsers:
+  chromeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-any'
+      hpa:
+        platformName: ''
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-linux'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
+  firefoxNode:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-any'
+      hpa:
+        platformName: ''
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-linux'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
+  edgeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-platform-any'
+      hpa:
+        platformName: ''
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-platform-linux'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
