@@ -13,7 +13,6 @@ services:
       - browser_video
     environment:
       - SE_NODE_BROWSER_VERSION=
-      - SE_ENABLE_TRACING=false
       - SE_NODE_MAX_SESSIONS=1
       - SE_NODE_OVERRIDE_MAX_SESSIONS=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}

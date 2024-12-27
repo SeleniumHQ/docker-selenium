@@ -40,13 +40,10 @@ services:
       # Password encrypted using command: rclone obscure <your_password>
       - SE_RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
       - SE_RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
-      - SE_ENABLE_TRACING=false
 
   selenium-hub:
     image: selenium/hub:4.27.0-20241225
     container_name: selenium-hub
-    environment:
-      - SE_ENABLE_TRACING=false
     ports:
       - "4442:4442"
       - "4443:4443"

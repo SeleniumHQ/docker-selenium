@@ -17,7 +17,6 @@ services:
       - selenium-hub
       - ftp_server
     environment:
-      - SE_ENABLE_TRACING=false
       - SE_NODE_DOCKER_CONFIG_FILENAME=docker.toml
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
@@ -43,7 +42,6 @@ services:
     user: ${UID}
     container_name: selenium-hub
     environment:
-      - SE_ENABLE_TRACING=false
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
     ports:

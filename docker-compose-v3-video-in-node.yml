@@ -15,7 +15,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
@@ -32,7 +31,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
@@ -49,7 +47,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
@@ -57,8 +54,6 @@ services:
   selenium-hub:
     image: selenium/hub:4.27.0-20241225
     container_name: selenium-hub
-    environment:
-      - SE_ENABLE_TRACING=false
     ports:
       - "4442:4442"
       - "4443:4443"

@@ -9,7 +9,6 @@ services:
       - ./videos/config.toml:/opt/selenium/config.toml
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - SE_ENABLE_TRACING=false
       - SE_VNC_NO_PASSWORD=true
       - SE_START_VNC=true
       - SE_LOG_LEVEL=${LOG_LEVEL}

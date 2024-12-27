@@ -14,7 +14,6 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_ENABLE_TLS=true
-      - SE_ENABLE_TRACING=false
 
   selenium-sessions:
     image: selenium/sessions:4.27.0-20241225
@@ -30,7 +29,6 @@ services:
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TLS=true
-      - SE_ENABLE_TRACING=false
 
   selenium-session-queue:
     image: selenium/session-queue:4.27.0-20241225
@@ -41,7 +39,6 @@ services:
       - "5559:5559"
     environment:
       - SE_ENABLE_TLS=true
-      - SE_ENABLE_TRACING=false
 
   selenium-distributor:
     image: selenium/distributor:4.27.0-20241225
@@ -63,7 +60,6 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TLS=true
-      - SE_ENABLE_TRACING=false
 
   selenium-router:
     image: selenium/router:4.27.0-20241225
@@ -84,7 +80,6 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
       - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TLS=true
-      - SE_ENABLE_TRACING=false
 
   chrome:
     image: selenium/node-chrome:4.27.0-20241225
@@ -100,7 +95,6 @@ services:
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https
-      - SE_ENABLE_TRACING=false
 
   edge:
     image: selenium/node-edge:4.27.0-20241225
@@ -116,7 +110,6 @@ services:
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https
-      - SE_ENABLE_TRACING=false
 
   firefox:
     image: selenium/node-firefox:4.27.0-20241225
@@ -132,4 +125,3 @@ services:
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https
-      - SE_ENABLE_TRACING=false

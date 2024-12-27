@@ -12,7 +12,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   edge:
     image: selenium/node-edge:beta
@@ -23,7 +22,6 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   firefox:
     image: selenium/node-firefox:beta
@@ -34,13 +32,10 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   selenium-hub:
     image: selenium/hub:latest
     container_name: selenium-hub
-    environment:
-      - SE_ENABLE_TRACING=false
     ports:
       - "4442:4442"
       - "4443:4443"

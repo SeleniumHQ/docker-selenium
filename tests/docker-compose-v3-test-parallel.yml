@@ -19,7 +19,6 @@ services:
       - ./videos:/videos
     environment:
       - SE_NODE_BROWSER_VERSION=
-      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -55,7 +54,6 @@ services:
       - ./videos:/videos
     environment:
       - SE_NODE_BROWSER_VERSION=
-      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -87,7 +85,6 @@ services:
       - ./videos/certs:/opt/selenium/secrets
     environment:
       - SE_NODE_BROWSER_VERSION=
-      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -115,7 +112,6 @@ services:
     volumes:
       - ./videos/certs:/opt/selenium/secrets
     environment:
-      - SE_ENABLE_TRACING=false
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_SESSION_REQUEST_TIMEOUT=${REQUEST_TIMEOUT}
       - SE_SUPERVISORD_LOG_LEVEL=error
