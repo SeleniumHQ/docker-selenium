@@ -55,9 +55,12 @@ spec:
                   fieldPath: status.podIP
             - name: SE_EVENT_BUS_PORT
               value: {{ .Values.components.eventBus.port | quote }}
-        {{- with .Values.components.extraEnvironmentVariables }}
+          {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.components.eventBus.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "seleniumGrid.logging.configmap.fullname" $ }}
@@ -68,7 +71,10 @@ spec:
             - secretRef:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- with .Values.components.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.components.eventBus.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
           {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}

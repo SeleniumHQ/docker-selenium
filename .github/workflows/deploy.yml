@@ -37,6 +37,7 @@ jobs:
     name: Build and Test
     if: contains(toJson(github.event.commits), '[deploy]') == true || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
+    secrets: inherit
     with:
       release: ${{ github.event.inputs.stable || true }}
 

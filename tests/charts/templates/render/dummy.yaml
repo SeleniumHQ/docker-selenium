@@ -92,29 +92,44 @@ ingress:
 isolateComponents: true
 
 components:
-  subPath: *gridAppRoot
   router:
+    subPath: *gridAppRoot
     disableUI: true
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    extraEnvironmentVariables:
+      - name: SE_JAVA_OPTS
+        value: "-Xmx1g"
   distributor:
     newSessionThreadPoolSize: 24
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    extraEnvironmentVariables:
+      - name: SE_JAVA_OPTS
+        value: "-Xmx2g"
   eventBus:
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    extraEnvironmentVariables:
+      - name: SE_JAVA_OPTS
+        value: "-Xmx2g"
   sessionQueue:
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    extraEnvironmentVariables:
+      - name: SE_JAVA_OPTS
+        value: "-Xmx1g"
   sessionMap:
     annotations:
       "restartOnUpdate": "true"
     serviceType: NodePort
+    extraEnvironmentVariables:
+      - name: SE_JAVA_OPTS
+        value: "-Xmx1g"
     externalDatastore:
       enabled: true
       backend: postgresql

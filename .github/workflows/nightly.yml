@@ -15,6 +15,7 @@ jobs:
     name: Build and Test Nightly
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.skip-test == 'false')
     uses: ./.github/workflows/build-test.yml
+    secrets: inherit
     with:
       release: false
 

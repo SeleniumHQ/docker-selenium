@@ -32,9 +32,11 @@ TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PA
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
 TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS = os.environ.get('TEST_MULTIPLE_VERSIONS', 'false').lower() == 'true'
+TEST_MULTIPLE_PLATFORMS = os.environ.get('TEST_MULTIPLE_PLATFORMS', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICIT', 'true').lower() == 'true'
 LIST_CHROMIUM_VERSIONS = ['130.0', '129.0', '128.0']
 LIST_FIREFOX_VERSIONS = ['132.0', '131.0', '130.0', '129.0', '128.0']
+LIST_PLATFORMS = ['Linux', None]
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
   LIST_CHROMIUM_VERSIONS.append(None)
@@ -165,6 +167,7 @@ class ChromeTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
+                    options.set_capability('platformName', 'Linux')
             if TEST_NODE_RELAY == 'Android':
                 options.set_capability('platformName', TEST_NODE_RELAY)
                 options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
@@ -176,8 +179,10 @@ class ChromeTests(SeleniumGenericTests):
                 options.set_capability('appium:appWaitDuration', 120000)
                 options.set_capability('appium:suppressKillServer', True)
                 options.set_capability('appium:allowDelayAdb', False)
-            else:
-                options.set_capability('platformName', 'Linux')
+            if TEST_MULTIPLE_PLATFORMS:
+                platform_name = random.choice(LIST_PLATFORMS)
+                if platform_name:
+                    options.set_capability('platformName', platform_name)
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
@@ -211,7 +216,11 @@ class EdgeTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-            options.set_capability('platformName', 'Linux')
+                    options.set_capability('platformName', 'Linux')
+            if TEST_MULTIPLE_PLATFORMS:
+                platform_name = random.choice(LIST_PLATFORMS)
+                if platform_name:
+                    options.set_capability('platformName', platform_name)
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
@@ -250,7 +259,11 @@ class FirefoxTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_FIREFOX_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-            options.set_capability('platformName', 'Linux')
+                    options.set_capability('platformName', 'Linux')
+            if TEST_MULTIPLE_PLATFORMS:
+                platform_name = random.choice(LIST_PLATFORMS)
+                if platform_name:
+                    options.set_capability('platformName', platform_name)
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,

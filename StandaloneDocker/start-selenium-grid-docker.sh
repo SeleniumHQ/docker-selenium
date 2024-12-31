@@ -96,7 +96,7 @@ fi
 
 EXTRA_LIBS=""
 
-if [ "$SE_ENABLE_TRACING" = "true" ]; then
+if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
   [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
   EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}

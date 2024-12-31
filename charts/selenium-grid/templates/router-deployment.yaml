@@ -61,7 +61,7 @@ spec:
               value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}.{{ .Release.Namespace }}'
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
-            {{- with .Values.components.subPath }}
+            {{- with .Values.components.router.subPath }}
             - name: SE_SUB_PATH
               value: {{ include "utils.trimTrailingSlash" . | quote }}
             {{- end }}
@@ -70,6 +70,9 @@ spec:
               value: {{ .Values.components.router.disableUI | quote }}
             {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          {{- with .Values.components.router.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
           envFrom:
@@ -81,9 +84,12 @@ spec:
                 name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
             - secretRef:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
-            {{- with .Values.components.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- with .Values.components.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.components.router.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- range $fileName, $value := $.Values.routerConfigMap.extraScripts }}
             - name: {{ tpl (default (include "seleniumGrid.router.configmap.fullname" $) $.Values.routerConfigMap.scriptVolumeMountName) $ | quote }}

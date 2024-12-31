@@ -62,8 +62,8 @@ hub:
   serviceType: NodePort
 
 components:
-  subPath: *gridAppRoot
   router:
+    subPath: *gridAppRoot
     serviceType: NodePort
 
 chromeNode:

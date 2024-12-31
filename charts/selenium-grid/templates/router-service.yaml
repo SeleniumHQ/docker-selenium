@@ -18,6 +18,12 @@ spec:
     app: {{ template "seleniumGrid.router.fullname" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.router.serviceType }}
+  {{- if and (eq .Values.components.router.serviceType "ClusterIP") ( .Values.components.router.clusterIP ) }}
+  clusterIP: {{ .Values.components.router.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.components.router.serviceType "ExternalName") ( .Values.components.router.externalName ) }}
+  externalName: {{ .Values.components.router.externalName }}
+  {{- end }}
   {{- if and (eq .Values.components.router.serviceType "LoadBalancer") (.Values.components.router.loadBalancerIP) }}
   loadBalancerIP: {{ .Values.components.router.loadBalancerIP }}
   {{- end }}

@@ -1,3 +1,33 @@
+## :heavy_check_mark: selenium-grid-0.38.2
+
+- Chart is using image tag 4.27.0-20241225
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.15, v1.29.10, v1.30.6, v1.31.2, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.3.1, 
+- Chart is tested on Helm versions: v3.11.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.3, 
+
+### Changed
+- [`53a78a72`](http://github.com/seleniumhq/docker-selenium/commit/53a78a7223937a6bc9ec2bb4c327016426c50b5f) - [ci] Update tag 4.27.0-20241225 in docs and files :: Selenium CI Bot
+- [`dddbebbf`](http://github.com/seleniumhq/docker-selenium/commit/dddbebbf74243ea3c96e59165c06d4877fc03a7f) - K8s: Config clusterIP, externalName to svc of Hub, Router, EventBus :: Viet Nguyen Duc
+- [`08a9ea1d`](http://github.com/seleniumhq/docker-selenium/commit/08a9ea1df0bb635d50ff7a5d25122921f4ad8b78) - K8s: Node preStop rely on local PID :: Viet Nguyen Duc
+- [`d4ed4ef2`](http://github.com/seleniumhq/docker-selenium/commit/d4ed4ef27a95c4b87d90a6043141f163ffbb05af) - [ci] Update workflow for secrets inherit :: Viet Nguyen Duc
+- [`c91807ba`](http://github.com/seleniumhq/docker-selenium/commit/c91807bae149834d1b0942363ca9de27187145ae) - Update Helm release kube-prometheus-stack to v67.2.1 (#2518) :: renovate[bot]
+- [`ffb182d0`](http://github.com/seleniumhq/docker-selenium/commit/ffb182d0db500d2c7e9025623222faeef145c33d) - Update Helm release postgresql to v16.3.3 (#2523) :: renovate[bot]
+- [`a8413090`](http://github.com/seleniumhq/docker-selenium/commit/a84130906c1c97c619f5e35e83ca0e33b05aa65e) - Update Helm release redis to v20.6.1 (#2524) :: renovate[bot]
+- [`f5679f51`](http://github.com/seleniumhq/docker-selenium/commit/f5679f5165cc4999ab2d254d00814c89c7dd6f83) - Docker: Improve the video recording container graceful shutdown (#2527) :: Viet Nguyen Duc
+- [`d86d252f`](http://github.com/seleniumhq/docker-selenium/commit/d86d252f6d4b92c57acb05fed52be87741f205b9) -  K8s: Autoscaling using KEDA core 2.16.1 (#2531) :: Viet Nguyen Duc
+- [`6f90ecba`](http://github.com/seleniumhq/docker-selenium/commit/6f90ecbacc651f4775ac9b6d848a86f698dbbddb) - K8s: Selenium Grid in case multiple scaler triggers are activate (#2515) :: Viet Nguyen Duc
+- [`2741b810`](http://github.com/seleniumhq/docker-selenium/commit/2741b81098e1b516349e64e830953d2c3a9189f9) - Update Helm release postgresql to v16.3.2 (#2516) :: renovate[bot]
+- [`d4f67f0f`](http://github.com/seleniumhq/docker-selenium/commit/d4f67f0fbb04c62431a094cfabd538ba753867f5) - Update Helm release postgresql to v16.2.5 (#2496) :: renovate[bot]
+- [`6e322d14`](http://github.com/seleniumhq/docker-selenium/commit/6e322d149a5e07978efe1ea3d9ee17dc8b8a6eeb) - Update Helm release redis to v20.6.0 (#2514) :: renovate[bot]
+- [`732b3756`](http://github.com/seleniumhq/docker-selenium/commit/732b37564d6713f93cfc7e9d1fc4367c1b895889) - Update Helm release kube-prometheus-stack to v67.2.0 (#2513) :: renovate[bot]
+- [`033b65b7`](http://github.com/seleniumhq/docker-selenium/commit/033b65b70c7c4329732511b2906cdbc427f0efc0) - Update Helm release redis to v20.4.1 (#2499) :: renovate[bot]
+- [`5369ab1c`](http://github.com/seleniumhq/docker-selenium/commit/5369ab1cfea5dd54d5fcecfaa06788614635bfaa) - Update Helm release kube-prometheus-stack to v67 (#2510) :: renovate[bot]
+- [`d66ac528`](http://github.com/seleniumhq/docker-selenium/commit/d66ac5283a06d293af0ee140cac8867a3b39ec46) - Build static FFmpeg and copy binary to Node base (#2468) :: Viet Nguyen Duc
+- [`36d98e98`](http://github.com/seleniumhq/docker-selenium/commit/36d98e988b9427f619db426a184b909a41992784) - Correct kubectl cli params in keda patch job (#2501) :: jbolsens-legion
+- [`bd948709`](http://github.com/seleniumhq/docker-selenium/commit/bd9487096046548b37b8515a3236e7fa87971ecf) - Update chart 0.38.1 changelog :: Viet Nguyen Duc
+
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.16.1
+
 ## :heavy_check_mark: selenium-grid-0.38.1
 
 - Chart is using image tag 4.27.0-20241204

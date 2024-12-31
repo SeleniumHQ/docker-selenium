@@ -4,7 +4,7 @@
 version: "3"
 services:
   chrome:
-    image: selenium/node-chrome:4.27.0-20241204
+    image: selenium/node-chrome:4.27.0-20241225
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -12,10 +12,9 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   edge:
-    image: selenium/node-edge:4.27.0-20241204
+    image: selenium/node-edge:4.27.0-20241225
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -23,10 +22,9 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   firefox:
-    image: selenium/node-firefox:4.27.0-20241204
+    image: selenium/node-firefox:4.27.0-20241225
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -34,13 +32,10 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=false
 
   selenium-hub:
-    image: selenium/hub:4.27.0-20241204
+    image: selenium/hub:4.27.0-20241225
     container_name: selenium-hub
-    environment:
-      - SE_ENABLE_TRACING=false
     ports:
       - "4442:4442"
       - "4443:4443"

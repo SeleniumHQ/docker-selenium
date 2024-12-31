@@ -1,72 +1,97 @@
+# Specify both platformName: 'Linux' and browserVersion in scaler metadata if the Grid deployment with
+# multiple Nodes autoscaling require different trigger metadata and non-autoscaling Nodes in different stereotypes
+#
+# For example: below incoming requests will be scaled by one scaler which is matched.
+# options = ChromeOptions()
+# options.set_capability('platformName', 'Linux')
+# options.set_capability('browserVersion', '131.0')
+# driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
 crossBrowsers:
   chromeNode:
     # Keep the first iteration with latest version of Chrome
-    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-latest'
       hpa:
+        platformName: 'Linux'
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-chrome-131'
       imageTag: '131.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '131.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-130'
       imageTag: '130.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '130.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-129'
       imageTag: '129.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '129.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-128'
       imageTag: '128.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '128.0'
   firefoxNode:
     # Keep the first iteration with latest version of Firefox
-    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-latest'
       hpa:
+        platformName: 'Linux'
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-firefox-133'
       imageTag: '133.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '133.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-132'
       imageTag: '132.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '132.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-131'
       imageTag: '131.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '131.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-130'
       imageTag: '130.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '130.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-129'
       imageTag: '129.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '129.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-128'
       imageTag: '128.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '128.0'
   edgeNode:
     # Keep the first iteration with latest version of Edge
-    - nameOverride:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-latest'
       hpa:
+        platformName: 'Linux'
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-edge-131'
       imageTag: '131.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '131.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-130'
       imageTag: '130.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '130.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-129'
       imageTag: '129.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '129.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-128'
       imageTag: '128.0'
       hpa:
+        platformName: 'Linux'
         browserVersion: '128.0'

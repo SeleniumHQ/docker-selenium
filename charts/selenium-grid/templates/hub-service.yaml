@@ -18,6 +18,12 @@ spec:
     app: {{ template "seleniumGrid.hub.fullname" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.hub.serviceType }}
+  {{- if and (eq .Values.hub.serviceType "ClusterIP") ( .Values.hub.clusterIP ) }}
+  clusterIP: {{ .Values.hub.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.hub.serviceType "ExternalName") ( .Values.hub.externalName ) }}
+  externalName: {{ .Values.hub.externalName }}
+  {{- end }}
   {{- if and (eq .Values.hub.serviceType "LoadBalancer") ( .Values.hub.loadBalancerIP ) }}
   loadBalancerIP: {{ .Values.hub.loadBalancerIP }}
   {{- end }}

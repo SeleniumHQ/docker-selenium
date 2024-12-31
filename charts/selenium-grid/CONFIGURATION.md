@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.38.1](https://img.shields.io/badge/Version-0.38.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.27.0-20241204](https://img.shields.io/badge/AppVersion-4.27.0--20241204-informational?style=flat-square)
+![Version: 0.38.2](https://img.shields.io/badge/Version-0.38.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.27.0-20241225](https://img.shields.io/badge/AppVersion-4.27.0--20241225-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -22,7 +22,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | redis | 20.6.1 |
 | https://jaegertracing.github.io/helm-charts | jaeger | 3.3.3 |
 | https://kedacore.github.io/charts | keda | 2.16.1 |
-| https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.11.3 |
+| https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.12.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 67.2.1 |
 
 ## Values
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.27.0-20241204"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.27.0-20241204"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.1-20241204"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.27.0-20241225"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.27.0-20241225"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.1-20241225"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnami/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -173,7 +173,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.imageTag | string | `nil` | Router image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.router.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.router.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.router.subPath | string | `""` | Custom sub path for Router |
 | components.router.disableUI | bool | `false` | Disable the Grid UI |
+| components.router.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router |
+| components.router.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
 | components.router.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.router.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.router.annotations | object | `{}` | Custom annotations for router pods |
@@ -185,6 +188,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.resources | object | `{}` | Resources for router container |
 | components.router.securityContext | object | `{}` | SecurityContext for router container |
 | components.router.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| components.router.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
+| components.router.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
 | components.router.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | components.router.serviceAnnotations | object | `{}` | Custom annotations for router service |
 | components.router.tolerations | list | `[]` | Tolerations for router pods |
@@ -196,6 +201,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
+| components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
+| components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.distributor.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.distributor.annotations | object | `{}` | Custom annotations for Distributor pods |
@@ -216,6 +223,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.imageTag | string | `nil` | Event Bus image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.eventBus.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.eventBus.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.eventBus.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Event Bus |
+| components.eventBus.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Event Bus |
 | components.eventBus.affinity | object | `{}` | Specify affinity for Event Bus pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.eventBus.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.eventBus.annotations | object | `{}` | Custom annotations for Event Bus pods |
@@ -228,6 +237,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.resources | object | `{}` | Resources for event-bus container |
 | components.eventBus.securityContext | object | `{}` | SecurityContext for event-bus container |
 | components.eventBus.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| components.eventBus.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
+| components.eventBus.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
+| components.eventBus.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | components.eventBus.serviceAnnotations | object | `{}` | Custom annotations for Event Bus service |
 | components.eventBus.tolerations | list | `[]` | Tolerations for Event Bus pods |
 | components.eventBus.nodeSelector | object | `{}` | Node selector for Event Bus pods |
@@ -237,6 +249,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.imageTag | string | `nil` | Session Map image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionMap.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionMap.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.sessionMap.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Map |
+| components.sessionMap.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Map |
 | components.sessionMap.affinity | object | `{}` | Specify affinity for Session Map pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.sessionMap.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.sessionMap.annotations | object | `{}` | Custom annotations for Session Map pods |
@@ -257,6 +271,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.sessionQueue.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Queue |
+| components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.sessionQueue.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.sessionQueue.annotations | object | `{}` | Custom annotations for Session Queue pods |
@@ -269,9 +285,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.tolerations | list | `[]` | Tolerations for Session Queue pods |
 | components.sessionQueue.nodeSelector | object | `{}` | Node selector for Session Queue pods |
 | components.sessionQueue.priorityClassName | string | `""` | Priority class name for Session Queue pods |
-| components.subPath | string | `""` | Custom sub path for all components |
-| components.extraEnvironmentVariables | string | `nil` | Custom environment variables for all components |
-| components.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for all components |
+| components.extraEnvironmentVariables | list | `[]` | Custom environment variables for all components |
+| components.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for all components |
 | hub.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | hub.imageName | string | `"hub"` | Selenium Hub image name |
 | hub.imageTag | string | `nil` | Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter) |
@@ -293,13 +308,15 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | hub.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | hub.subPath | string | `""` | Custom sub path for the hub deployment |
-| hub.extraEnvironmentVariables | string | `nil` | Custom environment variables for selenium-hub |
-| hub.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
+| hub.extraEnvironmentVariables | list | `[]` | Custom environment variables for selenium-hub |
+| hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for selenium-hub container |
 | hub.extraVolumes | list | `[]` | Extra volumes for selenium-hub pod |
 | hub.resources | object | `{}` | Resources for selenium-hub container |
 | hub.securityContext | object | `{}` | SecurityContext for selenium-hub container |
 | hub.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| hub.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
+| hub.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
 | hub.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | hub.serviceAnnotations | object | `{}` | Custom annotations for Selenium Hub service |
 | hub.tolerations | list | `[]` | Tolerations for selenium-hub pods |
@@ -324,6 +341,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.exporter.port | int | `9199` |  |
 | monitoring.exporter.service.enabled | bool | `true` | Create a service for exporter |
 | monitoring.exporter.service.type | string | `"ClusterIP"` | Service type |
+| monitoring.exporter.service.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
+| monitoring.exporter.service.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
 | monitoring.exporter.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
 | monitoring.exporter.service.nodePort | int | `30199` | Node port for service |
 | monitoring.exporter.service.annotations | object | `{}` | Annotations for exporter service |
@@ -383,8 +402,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.tolerations | list | `[]` | Tolerations for chrome-node pods |
 | chromeNode.nodeSelector | object | `{}` | Node selector for chrome-node pods |
 | chromeNode.hostAliases | string | `nil` | Custom host aliases for chrome nodes |
-| chromeNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for chrome nodes |
-| chromeNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes |
+| chromeNode.extraEnvironmentVariables | list | `[]` | Custom environment variables for chrome nodes |
+| chromeNode.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes |
 | chromeNode.service.enabled | bool | `false` | Create a service for node |
 | chromeNode.service.type | string | `"ClusterIP"` | Service type |
 | chromeNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
@@ -404,10 +423,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
-| chromeNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
+| chromeNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| chromeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| chromeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -435,8 +454,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.resources.limits | object | `{"cpu":"1","memory":"2Gi"}` | Limit resources for firefox-node pods |
 | firefoxNode.securityContext | object | `{}` | SecurityContext for firefox-node container |
 | firefoxNode.hostAliases | string | `nil` | Custom host aliases for firefox nodes |
-| firefoxNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for firefox nodes |
-| firefoxNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes |
+| firefoxNode.extraEnvironmentVariables | list | `[]` | Custom environment variables for firefox nodes |
+| firefoxNode.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes |
 | firefoxNode.service.enabled | bool | `false` | Create a service for node |
 | firefoxNode.service.type | string | `"ClusterIP"` | Service type |
 | firefoxNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
@@ -456,10 +475,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
-| firefoxNode.hpa.browserName | string | `"firefox"` | browserName from the capability |
+| firefoxNode.hpa.browserName | string | `"firefox"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| firefoxNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| firefoxNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -487,8 +506,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.resources.limits | object | `{"cpu":"1","memory":"2Gi"}` | Limit resources for edge-node pods |
 | edgeNode.securityContext | object | `{}` | SecurityContext for edge-node container |
 | edgeNode.hostAliases | string | `nil` | Custom host aliases for edge nodes |
-| edgeNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for edge nodes |
-| edgeNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes |
+| edgeNode.extraEnvironmentVariables | list | `[]` | Custom environment variables for edge nodes |
+| edgeNode.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes |
 | edgeNode.service.enabled | bool | `false` | Create a service for node |
 | edgeNode.service.type | string | `"ClusterIP"` | Service type |
 | edgeNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
@@ -508,10 +527,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
-| edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName from the capability |
+| edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| edgeNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
-| edgeNode.hpa.platformName | string | `"Linux"` | platformName from the capability |
+| edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -539,8 +558,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.tolerations | list | `[]` | Tolerations for relay-node pods |
 | relayNode.nodeSelector | object | `{}` | Node selector for relay-node pods |
 | relayNode.hostAliases | string | `nil` | Custom host aliases for relay nodes |
-| relayNode.extraEnvironmentVariables | string | `nil` | Custom environment variables for relay nodes |
-| relayNode.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for relay nodes |
+| relayNode.extraEnvironmentVariables | list | `[]` | Custom environment variables for relay nodes |
+| relayNode.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for relay nodes |
 | relayNode.service.enabled | bool | `false` | Create a service for node |
 | relayNode.service.type | string | `"ClusterIP"` | Service type |
 | relayNode.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
@@ -560,10 +579,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
 | relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
 | relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |
-| relayNode.hpa.browserName | string | `"chrome"` | browserName from the capability |
+| relayNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
-| relayNode.hpa.platformName | string | `"Android"` | platformName from the capability |
-| relayNode.hpa.browserVersion | string | `""` | browserVersion from the capability |
+| relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
+| relayNode.hpa.platformName | string | `"Android"` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -585,15 +604,15 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.resources.requests | object | `{"cpu":"1","memory":"1Gi"}` | Request resources for video recorder pods |
 | videoRecorder.resources.limits | object | `{"cpu":"1","memory":"1Gi"}` | Limit resources for video recorder pods |
 | videoRecorder.securityContext | string | `nil` | SecurityContext for recorder container |
-| videoRecorder.extraEnvironmentVariables | string | `nil` | Extra environment variables for video recorder |
-| videoRecorder.extraEnvFrom | string | `nil` | Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder. |
+| videoRecorder.extraEnvironmentVariables | list | `[]` | Extra environment variables for video recorder |
+| videoRecorder.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder. |
 | videoRecorder.terminationGracePeriodSeconds | int | `30` | Terminating grace period for video recorder |
 | videoRecorder.startupProbe | object | `{}` | Startup probe settings |
 | videoRecorder.livenessProbe | object | `{}` | Liveness probe settings |
 | videoRecorder.lifecycle | object | `{}` | Define lifecycle events for video recorder |
 | videoRecorder.extraVolumeMounts | list | `[]` | Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap. NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended. |
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
-| videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":null,"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
+| videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":[],"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |

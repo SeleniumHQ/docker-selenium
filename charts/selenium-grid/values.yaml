@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.27.0-20241204
+    imageTag: 4.27.0-20241225
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.27.0-20241204
+    nodesImageTag: 4.27.0-20241225
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.1-20241204
+    videoImageTag: ffmpeg-7.1-20241225
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -397,8 +397,14 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Custom sub path for Router
+    subPath: ""
     # -- Disable the Grid UI
     disableUI: false
+    # -- Specify extra environment variables for Router
+    extraEnvironmentVariables: []
+    # -- Specify extra environment variables from ConfigMap and Secret for Router
+    extraEnvFrom: []
     # -- Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -442,6 +448,10 @@ components:
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
+    # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
+    clusterIP: ""
+    # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
+    externalName: ""
     # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
     loadBalancerIP: ""
     # -- Custom annotations for router service
@@ -469,6 +479,10 @@ components:
 
     # -- Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
     newSessionThreadPoolSize:
+    # -- Specify extra environment variables for Distributor
+    extraEnvironmentVariables: []
+    # -- Specify extra environment variables from ConfigMap and Secret for Distributor
+    extraEnvFrom: []
     # -- Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -535,6 +549,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify extra environment variables for Event Bus
+    extraEnvironmentVariables: []
+    # -- Specify extra environment variables from ConfigMap and Secret for Event Bus
+    extraEnvFrom: []
     # -- Specify affinity for Event Bus pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -559,6 +577,12 @@ components:
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
+    # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
+    clusterIP: ""
+    # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
+    externalName: ""
+    # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+    loadBalancerIP: ""
     # -- Custom annotations for Event Bus service
     serviceAnnotations: {}
     # -- Tolerations for Event Bus pods
@@ -582,6 +606,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify extra environment variables for Session Map
+    extraEnvironmentVariables: []
+    # -- Specify extra environment variables from ConfigMap and Secret for Session Map
+    extraEnvFrom: []
     # -- Specify affinity for Session Map pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -636,6 +664,10 @@ components:
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
 
+    # -- Specify extra environment variables for Session Queue
+    extraEnvironmentVariables: []
+    # -- Specify extra environment variables from ConfigMap and Secret for Session Queue
+    extraEnvFrom: []
     # -- Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -661,11 +693,8 @@ components:
     # -- Priority class name for Session Queue pods
     priorityClassName: ""
 
-  # -- Custom sub path for all components
-  subPath: ""
-
   # -- Custom environment variables for all components
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -675,7 +704,7 @@ components:
     #       key: secret-key
 
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for all components
-  extraEnvFrom:
+  extraEnvFrom: []
     # - configMapRef:
     #   name: proxy-settings
     # - secretRef:
@@ -748,7 +777,7 @@ hub:
   # -- Custom sub path for the hub deployment
   subPath: ""
   # -- Custom environment variables for selenium-hub
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name: SECRET_VARIABLE
@@ -757,7 +786,7 @@ hub:
     #       name: secret-name
     #       key: secret-key
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub
-  extraEnvFrom:
+  extraEnvFrom: []
     # - configMapRef:
     #   name: proxy-settings
     # - secretRef:
@@ -780,6 +809,10 @@ hub:
   securityContext: {}
   # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
   serviceType: ClusterIP
+  # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
+  clusterIP: ""
+  # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
+  externalName: ""
   # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
   loadBalancerIP: ""
   # -- Custom annotations for Selenium Hub service
@@ -834,6 +867,10 @@ monitoring:
       enabled: true
       # -- Service type
       type: ClusterIP
+      # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
+      clusterIP: ""
+      # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
+      externalName: ""
       # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
       loadBalancerIP: ""
       # -- Node port for service
@@ -938,15 +975,15 @@ crossBrowsers:
   # -- Additional chrome nodes, array of objects with the same structure as `chromeNode`
   chromeNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional nodes
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional nodes
   # -- Additional firefox nodes, array of objects with the same structure as `firefoxNode`
   firefoxNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional node browsers
   # -- Additional edge nodes, array of objects with the same structure as `edgeNode`
   edgeNode:
     - nameOverride:
-  # - Refer to file `cross-browsers-values.yaml` to configure additional node browsers
+  # - Refer to file `multiple-nodes-platform-version.yaml` to configure additional node browsers
   # -- Additional release nodes, array of objects with the same structure as `relayNode`
   relayNode:
     - nameOverride:
@@ -1021,7 +1058,7 @@ chromeNode:
     #   hostnames:
     #     - "example.org"
   # -- Custom environment variables for chrome nodes
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -1030,7 +1067,7 @@ chromeNode:
     #       name: secret-name
     #       key: secret-key
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for chrome nodes
-  extraEnvFrom:
+  extraEnvFrom: []
     # - configMapRef:
     #   name: proxy-settings
     # - secretRef:
@@ -1113,14 +1150,14 @@ chromeNode:
   # -- Override the scaledObjectOptions for chrome nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "chrome"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1206,7 +1243,7 @@ firefoxNode:
     #   hostnames:
     #     - "example.org"
   # -- Custom environment variables for firefox nodes
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -1215,7 +1252,7 @@ firefoxNode:
     #       name: secret-name
     #       key: secret-key
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for firefox nodes
-  extraEnvFrom:
+  extraEnvFrom: []
     # - configMapRef:
     #   name: proxy-settings
     # - secretRef:
@@ -1298,14 +1335,14 @@ firefoxNode:
   # -- Override the scaledObjectOptions for firefox nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "firefox"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "firefox"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1390,7 +1427,7 @@ edgeNode:
     #   hostnames:
     #     - "example.org"
   # -- Custom environment variables for edge nodes
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
     #   value: "-Xmx512m"
     # - name:
@@ -1399,7 +1436,7 @@ edgeNode:
     #       name: secret-name
     #       key: secret-key
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for edge nodes
-  extraEnvFrom:
+  extraEnvFrom: []
     # - configMapRef:
     #   name: proxy-settings
     # - secretRef:
@@ -1482,14 +1519,14 @@ edgeNode:
   # -- Override the scaledObjectOptions for edge nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "MicrosoftEdge"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: "msedge"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # -- platformName from the capability
-    platformName: "Linux"
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1574,7 +1611,7 @@ relayNode:
   #   hostnames:
   #     - "example.org"
   # -- Custom environment variables for relay nodes
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
   # - name: SE_JAVA_OPTS
   #   value: "-Xmx512m"
   # - name:
@@ -1583,7 +1620,7 @@ relayNode:
   #       name: secret-name
   #       key: secret-key
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for relay nodes
-  extraEnvFrom:
+  extraEnvFrom: []
   # - configMapRef:
   #   name: proxy-settings
   # - secretRef:
@@ -1666,15 +1703,14 @@ relayNode:
   # -- Override the scaledObjectOptions for relay nodes
   scaledObjectOptions:
   hpa:
-    # -- browserName from the capability
+    # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "chrome"
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: ""
-    # -- platformName from the capability
-    platformName: "Android"
-    # -- browserVersion from the capability
+    # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
-    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
+    # -- platformName should match with Node stereotype and request capability is scaled by this scaler
+    platformName: "Android"
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1753,9 +1789,9 @@ videoRecorder:
   # -- SecurityContext for recorder container
   securityContext:
   # -- Extra environment variables for video recorder
-  extraEnvironmentVariables:
+  extraEnvironmentVariables: []
   # -- Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder.
-  extraEnvFrom:
+  extraEnvFrom: []
   # - configMapRef:
   #   name: proxy-settings
   # - secretRef:
@@ -1806,7 +1842,7 @@ videoRecorder:
       runAsUser: 0
     command: []
     args: []
-    extraEnvironmentVariables:
+    extraEnvironmentVariables: []
     # - name: AWS_ACCESS_KEY_ID
     #   value: aws_access_key_id
     # - name: AWS_SECRET_ACCESS_KEY
@@ -1830,15 +1866,15 @@ keda:
 #    keda:
 #      registry: selenium
 #      repository: keda
-#      tag: "2.16.0-selenium-grid-20241204"
+#      tag: "2.16.1-selenium-grid-20241225"
 #    metricsApiServer:
 #      registry: selenium
 #      repository: keda-metrics-apiserver
-#      tag: "2.16.0-selenium-grid-20241204"
+#      tag: "2.16.1-selenium-grid-20241225"
 #    webhooks:
 #      registry: selenium
 #      repository: keda-admission-webhooks
-#      tag: "2.16.0-selenium-grid-20241204"
+#      tag: "2.16.1-selenium-grid-20241225"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

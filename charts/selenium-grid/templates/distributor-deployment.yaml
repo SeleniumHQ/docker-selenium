@@ -73,6 +73,9 @@ spec:
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
+          {{- with .Values.components.distributor.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "seleniumGrid.distributor.configmap.fullname" . }}
@@ -88,9 +91,12 @@ spec:
                 name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
             - secretRef:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
-            {{- with .Values.components.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- with .Values.components.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.components.distributor.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- range $fileName, $value := $.Values.distributorConfigMap.extraScripts }}
             - name: {{ tpl (default (include "seleniumGrid.distributor.configmap.fullname" $) $.Values.distributorConfigMap.scriptVolumeMountName) $ | quote }}

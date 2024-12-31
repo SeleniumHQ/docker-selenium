@@ -1,7 +1,7 @@
 FROM ubuntu:noble AS builder
-ARG VERSION_FFMPEG="7.1"
-ARG VERSION_RCLONE="v1.68.2"
-ARG VERSION_GO="latest"
+ARG FFMPEG_VERSION="7.1"
+ARG RCLONE_VER="v1.68.2"
+ARG GO_VERSION="latest"
 ARG GO_CRYPTO_VERSION="v0.31.0"
 ARG GO_NET_VERSION="v0.33.0"
 
@@ -19,19 +19,19 @@ RUN apt-get update -qqy \
     && apt-get -qyy clean \
     && mkdir -p /usr/local/src
 
-RUN if [ "${VERSION_GO}" = "latest" ]; then \
-        VERSION_GO=$(curl -sk https://go.dev/dl/?mode=json | jq -r '.[0].version'); \
+RUN if [ "${GO_VERSION}" = "latest" ]; then \
+        GO_VERSION=$(curl -sk https://go.dev/dl/?mode=json | jq -r '.[0].version'); \
     fi \
-    && curl -skLO https://go.dev/dl/$VERSION_GO.linux-$(dpkg --print-architecture).tar.gz \
-    && tar -xf $VERSION_GO.linux-$(dpkg --print-architecture).tar.gz -C /usr/local \
-    && rm -rf $VERSION_GO.linux-$(dpkg --print-architecture).tar.gz* \
+    && curl -skLO https://go.dev/dl/${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz \
+    && tar -xf ${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz -C /usr/local \
+    && rm -rf ${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz* \
     && ln -sf /usr/local/go/bin/go /usr/bin/go \
     && go version
 
 RUN cd /usr/local/src \
     && git clone https://github.com/rclone/rclone.git \
     && cd rclone \
-    && git checkout $VERSION_RCLONE \
+    && git checkout ${RCLONE_VER} \
     # Patch deps version in go.mod to fix CVEs
     && sed -i "s|golang.org/x/crypto v.*|golang.org/x/crypto ${GO_CRYPTO_VERSION}|g" go.mod \
     && sed -i "s|golang.org/x/net v.*|golang.org/x/net ${GO_NET_VERSION}|g" go.mod \
@@ -57,8 +57,9 @@ RUN cd /usr/local/src \
 RUN cd /usr/local/src \
     && git clone https://github.com/FFmpeg/FFmpeg.git \
     && cd FFmpeg \
-    && git checkout release/$VERSION_FFMPEG \
-    && PKG_CONFIG_PATH="/usr/local/lib/pkgconfig" ./configure \
+    && git checkout release/${FFMPEG_VERSION} \
+    && rm -rf .git \
+    && PKG_CONFIG_PATH="/usr/local/lib/pkgconfig" FFMPEG_VERSION=${FFMPEG_VERSION} ./configure \
     --prefix="/usr/local" \
     --extra-cflags="-I/usr/local/include" \
     --extra-ldflags="-L/usr/local/lib" \
@@ -87,3 +88,5 @@ RUN apt-get -qqy update \
 RUN ldd /usr/local/bin/ffmpeg \
     && ffmpeg -version \
     && rclone --version
+
+USER 101

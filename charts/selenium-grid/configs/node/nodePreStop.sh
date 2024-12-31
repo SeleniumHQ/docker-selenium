@@ -4,9 +4,18 @@ probe_name="lifecycle.${1:-"preStop"}"
 SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/bin"}
+PRESTOP_WAIT_STRATEGY=${SE_NODE_PRESTOP_WAIT_STRATEGY:-"deployment"}
 
 max_time=3
 retry_time=5
+
+if [ "${PRESTOP_WAIT_STRATEGY,,}" = "job" ]; then
+  echo "$(date -u +"${ts_format}") [${probe_name}] - Using pre-stop strategy Job to wait for current sessions to be finished"
+  while pgrep -f 'java.*selenium' | grep -v $$; do sleep 5; done
+  exit 0
+fi
+
+echo "$(date -u +"${ts_format}") [${probe_name}] - Using pre-stop strategy Deployment to wait for current sessions to be finished"
 
 ID=$(echo $RANDOM)
 tmp_node_file="/tmp/nodeProbe${ID}"

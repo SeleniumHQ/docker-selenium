@@ -11,7 +11,6 @@ services:
       - selenium-hub
       - browser_video
     environment:
-      - SE_ENABLE_TRACING=false
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
@@ -60,8 +59,6 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
-    environment:
-      - SE_ENABLE_TRACING=false
     healthcheck:
       test: "/opt/bin/check-grid.sh --host 0.0.0.0 --port 4444"
       interval: 15s

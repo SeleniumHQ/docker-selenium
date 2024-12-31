@@ -49,9 +49,12 @@ spec:
                   fieldPath: status.podIP
             - name: SE_SESSIONS_PORT
               value: {{ .Values.components.sessionMap.port | quote }}
-        {{- with .Values.components.extraEnvironmentVariables }}
+          {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.components.sessionMap.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ template "seleniumGrid.sessionMap.configmap.fullname" $ }}
@@ -65,9 +68,12 @@ spec:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
             - configMapRef:
                 name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
-            {{- with .Values.components.extraEnvFrom }}
-              {{- toYaml . | nindent 12 }}
-            {{- end }}
+          {{- with .Values.components.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.components.sessionMap.extraEnvFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
           {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}

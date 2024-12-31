@@ -13,6 +13,12 @@ spec:
     app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
     app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
   type: {{ .Values.monitoring.exporter.service.type }}
+  {{- if and (eq .Values.monitoring.exporter.service.type "ClusterIP") ( .Values.monitoring.exporter.service.clusterIP ) }}
+  clusterIP: {{ .Values.monitoring.exporter.service.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.monitoring.exporter.service.type "ExternalName") ( .Values.monitoring.exporter.service.externalName ) }}
+  externalName: {{ .Values.monitoring.exporter.service.externalName }}
+  {{- end }}
   {{- if and (eq .Values.monitoring.exporter.service.type "LoadBalancer") ( .Values.monitoring.exporter.service.loadBalancerIP ) }}
   loadBalancerIP: {{ .Values.monitoring.exporter.service.loadBalancerIP }}
   {{- end }}

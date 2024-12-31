@@ -1,14 +1,12 @@
-# To execute this docker compose yml file use `docker compose -f docker-compose-v3-tracing.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-in-node.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-tracing.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-in-node.yml down`
 version: "3"
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:latest
-    ports:
-      - "16686:16686"
-      - "4317:4317"
   chrome:
+    deploy:
+      mode: replicated
+      replicas: 3
     image: selenium/node-chrome:4.27.0-20241225
     shm_size: 2gb
     depends_on:
@@ -17,11 +15,14 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   edge:
+    deploy:
+      mode: replicated
+      replicas: 3
     image: selenium/node-edge:4.27.0-20241225
     shm_size: 2gb
     depends_on:
@@ -30,11 +31,14 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   firefox:
+    deploy:
+      mode: replicated
+      replicas: 3
     image: selenium/node-firefox:4.27.0-20241225
     shm_size: 2gb
     depends_on:
@@ -43,9 +47,9 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   selenium-hub:
     image: selenium/hub:4.27.0-20241225
@@ -54,9 +58,3 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
-    depends_on:
-      - jaeger
-    environment:
-      - SE_ENABLE_TRACING=true
-      - SE_OTEL_TRACES_EXPORTER=otlp
-      - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317

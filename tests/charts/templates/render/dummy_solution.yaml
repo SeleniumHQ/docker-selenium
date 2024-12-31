@@ -93,19 +93,34 @@ selenium-grid:
   isolateComponents: true
 
   components:
-    subPath: *gridAppRoot
     router:
+      subPath: *gridAppRoot
       disableUI: true
       serviceType: NodePort
+      extraEnvironmentVariables:
+        - name: SE_JAVA_OPTS
+          value: "-Xmx1g"
     distributor:
       newSessionThreadPoolSize: 24
       serviceType: NodePort
+      extraEnvironmentVariables:
+        - name: SE_JAVA_OPTS
+          value: "-Xmx1g"
     eventBus:
       serviceType: NodePort
+      extraEnvironmentVariables:
+        - name: SE_JAVA_OPTS
+          value: "-Xmx1g"
     sessionQueue:
       serviceType: NodePort
+      extraEnvironmentVariables:
+        - name: SE_JAVA_OPTS
+          value: "-Xmx1g"
     sessionMap:
       serviceType: NodePort
+      extraEnvironmentVariables:
+        - name: SE_JAVA_OPTS
+          value: "-Xmx1g"
       externalDatastore:
         enabled: true
         backend: redis

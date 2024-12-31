@@ -23,4 +23,5 @@ hub:
   subPath: *gridAppRoot
 
 components:
-  subPath: *gridAppRoot
+  router:
+    subPath: *gridAppRoot

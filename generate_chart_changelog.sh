@@ -63,6 +63,15 @@ generate_changelog() {
   echo "$k8s_versions_tested" >>"$temp_file"
   echo "$docker_versions_tested" >>"$temp_file"
   echo "$helm_versions_tested" >>"$temp_file"
+  get_keda_version
+  if [ "${IS_PATCHED_VERSION}" == "true" ]; then
+    if [ -n "$KEDA_IMAGE_TAG" ]; then
+      echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_IMAGE_TAG" >>"$temp_file"
+      echo "- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)" >>"$temp_file"
+    fi
+  else
+    echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_CORE_VERSION" >>"$temp_file"
+  fi
   echo "" >>"$temp_file"
 
   if [ -n "$added_changes" ]; then
@@ -88,18 +97,6 @@ generate_changelog() {
     echo "$changed_changes" >>"$temp_file"
     echo "" >>"$temp_file"
   fi
-
-  get_keda_version
-  if [ "${IS_PATCHED_VERSION}" == "true" ]; then
-    echo "### Experimental" >>"$temp_file"
-    echo "- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)" >>"$temp_file"
-    if [ -n "$KEDA_IMAGE_TAG" ]; then
-      echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_IMAGE_TAG" >>"$temp_file"
-    fi
-  else
-    echo "- Chart is tested autoscaling capabilities with KEDA image tag: $KEDA_CORE_VERSION" >>"$temp_file"
-  fi
-  echo "" >>"$temp_file"
 
   # Create chart_release_notes.md
   release_notes_file="$CHART_DIR/RELEASE_NOTES.md"

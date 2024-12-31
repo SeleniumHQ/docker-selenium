@@ -18,6 +18,15 @@ spec:
     app: {{ template "seleniumGrid.eventBus.fullname" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
   type: {{ .Values.components.eventBus.serviceType }}
+  {{- if and (eq .Values.components.eventBus.serviceType "ClusterIP") ( .Values.components.eventBus.clusterIP ) }}
+  clusterIP: {{ .Values.components.eventBus.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.components.eventBus.serviceType "ExternalName") ( .Values.components.eventBus.externalName ) }}
+  externalName: {{ .Values.components.eventBus.externalName }}
+  {{- end }}
+  {{- if and (eq .Values.components.eventBus.serviceType "LoadBalancer") ( .Values.components.eventBus.loadBalancerIP ) }}
+  loadBalancerIP: {{ .Values.components.eventBus.loadBalancerIP }}
+  {{- end }}
   ports:
     - name: http-evtbus
       protocol: TCP

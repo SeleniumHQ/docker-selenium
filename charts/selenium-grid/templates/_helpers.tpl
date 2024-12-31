@@ -762,7 +762,7 @@ Graphql Url for internal monitoring exporter
 {{- define "seleniumGrid.url.subPath" -}}
 {{- $subPath := "" -}}
 {{- if $.Values.isolateComponents -}}
-  {{- $subPath = default $subPath $.Values.components.subPath -}}
+  {{- $subPath = default $subPath $.Values.components.router.subPath -}}
 {{- else -}}
   {{- $subPath = default $subPath $.Values.hub.subPath -}}
 {{- end -}}
