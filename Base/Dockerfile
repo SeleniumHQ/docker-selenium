@@ -63,7 +63,7 @@ RUN if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
     supervisor \
     gnupg2 \
     libnss3-tools \
-    openjdk-${JRE_VERSION}-jre-headless \
+    openjdk-${JRE_VERSION}-jdk-headless \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN --mount=type=secret,id=SEL_PASSWD \
@@ -96,7 +96,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
-  && mkdir -p /opt/selenium /opt/selenium/assets /opt/selenium/secrets /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
+  && mkdir -p /opt/selenium /opt/selenium/assets /opt/selenium/secrets /opt/selenium/logs /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
     ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb ${VIDEO_FOLDER} \
   # NSSDB initialization with an empty password
   && certutil -d sql:${HOME}/.pki/nssdb -N --empty-password \
@@ -142,8 +142,9 @@ RUN --mount=type=secret,id=SEL_PASSWD \
 #======================================
 # Add Grid check script
 #======================================
-COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh handle_heap_dump.sh /opt/bin/
 COPY --chown="${SEL_UID}:${SEL_GID}" mask /usr/local/bin/
+RUN chmod +x /opt/bin/*.sh /usr/local/bin/mask
 
 #======================================
 # Add Supervisor configuration file
@@ -187,6 +188,8 @@ ENV SE_BIND_HOST=false \
     SE_STRUCTURED_LOGS=false \
     SE_ENABLE_TRACING=true \
     SE_ENABLE_TLS=false \
+    SE_JAVA_OPTS_DEFAULT="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs" \
+    SE_JAVA_HEAP_DUMP="false" \
     SE_JAVA_HTTPCLIENT_VERSION="HTTP_1_1" \
     SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="/opt/selenium/secrets/server.pass" \

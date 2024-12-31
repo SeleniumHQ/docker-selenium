@@ -123,6 +123,19 @@ if [ -n "${SE_JAVA_HTTPCLIENT_VERSION}" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.httpclient.version=${SE_JAVA_HTTPCLIENT_VERSION}"
 fi
 
+if [ -n "${SE_JAVA_OPTS_DEFAULT}" ]; then
+  SE_JAVA_OPTS="${SE_JAVA_OPTS_DEFAULT} $SE_JAVA_OPTS"
+fi
+
+function handle_heap_dump() {
+  /opt/bin/handle_heap_dump.sh $SELENIUM_SERVER_PID /opt/selenium/logs
+}
+if [ "${SE_JAVA_HEAP_DUMP}" = "true" ]; then
+  trap handle_heap_dump ERR SIGTERM SIGINT
+else
+  trap handle_heap_dump ERR
+fi
+
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} node \
@@ -131,4 +144,8 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --bind-host ${SE_BIND_HOST} \
   --detect-drivers false \
   --config /opt/selenium/${SE_NODE_DOCKER_CONFIG_FILENAME:-"config.toml"} \
-  ${SE_GRID_URL} ${SE_OPTS}
+  ${SE_GRID_URL} ${SE_OPTS} &
+
+SELENIUM_SERVER_PID=$!
+
+wait $SELENIUM_SERVER_PID

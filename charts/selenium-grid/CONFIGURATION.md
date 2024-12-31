@@ -289,6 +289,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.priorityClassName | string | `""` | Priority class name for Session Queue pods |
 | components.extraEnvironmentVariables | list | `[]` | Custom environment variables for all components |
 | components.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for all components |
+| components.extraVolumeMounts | list | `[]` | Extra volume mounts for component container |
+| components.extraVolumes | list | `[]` | Extra volumes for component pod |
 | hub.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | hub.imageName | string | `"hub"` | Selenium Hub image name |
 | hub.imageTag | string | `nil` | Selenium Hub image tag (this overwrites global.seleniumGrid.imageTag parameter) |
@@ -312,8 +314,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.subPath | string | `""` | Custom sub path for the hub deployment |
 | hub.extraEnvironmentVariables | list | `[]` | Custom environment variables for selenium-hub |
 | hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
-| hub.extraVolumeMounts | list | `[]` | Extra volume mounts for selenium-hub container |
-| hub.extraVolumes | list | `[]` | Extra volumes for selenium-hub pod |
+| hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
+| hub.extraVolumes | list | `[]` | Extra volumes for Hub pod |
 | hub.resources | object | `{}` | Resources for selenium-hub container |
 | hub.securityContext | object | `{}` | SecurityContext for selenium-hub container |
 | hub.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |

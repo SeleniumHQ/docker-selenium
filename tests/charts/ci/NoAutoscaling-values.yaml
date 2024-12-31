@@ -13,10 +13,20 @@ chromeNode:
       value: "1080"
     - name: TZ
       value: "Asia/Saigon"
+    - name: SE_JAVA_HEAP_DUMP
+      value: "true"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:
     enabled: &livenessProbe true
+  extraVolumeMounts: &extraVolumeMounts
+    - name: logs
+      mountPath: /opt/selenium/logs
+      subPath: logs
+  extraVolumes: &extraVolumes
+    - name: logs
+      persistentVolumeClaim:
+        claimName: selenium-grid-pvc-local
 # Configuration for edge nodes
 edgeNode:
   port: 8888
@@ -25,6 +35,8 @@ edgeNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes
 # Configuration for firefox nodes
 firefoxNode:
   port: 7777
@@ -33,3 +45,5 @@ firefoxNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes

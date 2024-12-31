@@ -24,6 +24,8 @@ chromeNode:
       value: "Asia/Saigon"
     - name: SE_NODE_SESSION_TIMEOUT
       value: "3600"
+    - name: SE_JAVA_HEAP_DUMP
+      value: "true"
   readinessProbe:
     enabled: &readinessProbe false
   livenessProbe:

@@ -12,6 +12,9 @@ pacmd set-default-source v1.monitor
 
 rm -f /tmp/.X*lock
 
+# set -e: exit asap if a command exits with a non-zero status
+set -e
+
 function append_se_opts() {
   local option="${1}"
   local value="${2:-""}"
@@ -175,6 +178,19 @@ if [ -n "${SE_JAVA_HTTPCLIENT_VERSION}" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.httpclient.version=${SE_JAVA_HTTPCLIENT_VERSION}"
 fi
 
+if [ -n "${SE_JAVA_OPTS_DEFAULT}" ]; then
+  SE_JAVA_OPTS="${SE_JAVA_OPTS_DEFAULT} $SE_JAVA_OPTS"
+fi
+
+function handle_heap_dump() {
+  /opt/bin/handle_heap_dump.sh $SELENIUM_SERVER_PID /opt/selenium/logs
+}
+if [ "${SE_JAVA_HEAP_DUMP}" = "true" ]; then
+  trap handle_heap_dump ERR SIGTERM SIGINT
+else
+  trap handle_heap_dump ERR
+fi
+
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   ${CHROME_DRIVER_PATH_PROPERTY} \
   ${EDGE_DRIVER_PATH_PROPERTY} \
@@ -182,4 +198,8 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} \
   node \
-  ${SE_OPTS}
+  ${SE_OPTS} &
+
+SELENIUM_SERVER_PID=$!
+
+wait $SELENIUM_SERVER_PID

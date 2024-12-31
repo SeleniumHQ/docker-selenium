@@ -29,9 +29,21 @@ hub:
       value: "false"
     - name: SE_LOG_LISTEN_GRAPHQL
       value: "true"
+    - name: SE_JAVA_HEAP_DUMP
+      value: "true"
+  extraVolumeMounts: &extraVolumeMounts
+    - name: logs
+      mountPath: /opt/selenium/logs
+      subPath: logs
+  extraVolumes: &extraVolumes
+    - name: logs
+      persistentVolumeClaim:
+        claimName: selenium-grid-pvc-local
 
 components:
   extraEnvironmentVariables: *extraEnvironmentVariables
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes
 
 keda:
   webhooks:

@@ -73,13 +73,11 @@ cleanup() {
   # Iterate over the pods and print their logs
   for pod in $pods; do
     echo "Logs for pod $pod"
-    kubectl logs -n ${SELENIUM_NAMESPACE} $pod --all-containers > tests/tests/pod_logs_${pod}.txt
+    kubectl logs -n ${SELENIUM_NAMESPACE} $pod --all-containers --tail=10000 > tests/tests/pod_logs_${pod}.txt
   done
-  if [ "${SKIP_CLEANUP}" = "false" ]; then
+  if [ "${SKIP_CLEANUP}" = "false" ] || [ "${CI:-false}" != "false" ]; then
     echo "Clean up chart release and namespace"
     helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --wait
-    kubectl patch ns ${SELENIUM_NAMESPACE} -p '{"metadata":{"finalizers":null}}'
-    kubectl delete namespace ${SELENIUM_NAMESPACE} --wait=false
   fi
 }
 
@@ -97,6 +95,7 @@ on_failure() {
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     cleanup
+    sudo chmod -R 777 ${HOST_PATH}/logs
     exit $exit_status
 }
 
@@ -137,7 +136,7 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   envsubst < ${LOCAL_PVC_YAML} > ./tests/tests/local-pvc.yaml
   LOCAL_PVC_YAML=./tests/tests/local-pvc.yaml
   kubectl delete -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML} --ignore-not-found=true
-  sudo rm -rf ${HOST_PATH}; sudo mkdir -p ${HOST_PATH}
+  sudo rm -rf ${HOST_PATH}; sudo mkdir -p ${HOST_PATH}/logs
   sudo chmod -R 777 ${HOST_PATH}
   kubectl create ns ${SELENIUM_NAMESPACE} || true
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}

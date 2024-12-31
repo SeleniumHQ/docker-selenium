@@ -49,10 +49,20 @@ chromeNode:
       value: "Asia/Saigon"
     - name: SE_NODE_SESSION_TIMEOUT
       value: "3600"
+    - name: SE_JAVA_HEAP_DUMP
+      value: "true"
   readinessProbe:
     enabled: &readinessProbe true
   livenessProbe:
     enabled: &livenessProbe true
+  extraVolumeMounts: &extraVolumeMounts
+    - name: logs
+      mountPath: /opt/selenium/logs
+      subPath: logs
+  extraVolumes: &extraVolumes
+    - name: logs
+      persistentVolumeClaim:
+        claimName: selenium-grid-pvc-local
 
 # Configuration for edge nodes
 edgeNode:
@@ -75,6 +85,8 @@ edgeNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes
 
 # Configuration for firefox nodes
 firefoxNode:
@@ -84,3 +96,5 @@ firefoxNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+  extraVolumeMounts: *extraVolumeMounts
+  extraVolumes: *extraVolumes

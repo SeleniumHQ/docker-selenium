@@ -714,6 +714,17 @@ components:
     # - secretRef:
     #   name: mysecret
 
+  # -- Extra volume mounts for component container
+  extraVolumeMounts: []
+  # - name: logs-volume
+  #   mountPath: /opt/selenium/logs
+
+  # -- Extra volumes for component pod
+  extraVolumes: []
+  # - name: logs-volume
+  #   persistentVolumeClaim:
+  #     claimName: external-logs-pvc
+
 # Configuration for selenium hub deployment (applied only if `isolateComponents: false`)
 hub:
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
@@ -795,18 +806,15 @@ hub:
     #   name: proxy-settings
     # - secretRef:
     #   name: mysecret
-  # -- Extra volume mounts for selenium-hub container
+  # -- Extra volume mounts for Hub container
   extraVolumeMounts: []
-  # - name: my-extra-volume
-  #   mountPath: /home/seluser/Downloads
-
-  # -- Extra volumes for selenium-hub pod
+  # - name: logs-volume
+  #   mountPath: /opt/selenium/logs
+  # -- Extra volumes for Hub pod
   extraVolumes: []
-  # - name: my-extra-volume
-  #   emptyDir: {}
-  # - name: my-extra-volume-from-pvc
+  # - name: logs-volume
   #   persistentVolumeClaim:
-  #     claimName: my-pv-claim
+  #     claimName: external-logs-pvc
   # -- Resources for selenium-hub container
   resources: {}
   # -- SecurityContext for selenium-hub container
