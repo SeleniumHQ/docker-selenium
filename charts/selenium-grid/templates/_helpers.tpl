@@ -707,7 +707,7 @@ Graphql Url for internal monitoring exporter
 {{- end -}}
 
 {{- define "seleniumGrid.url.host" -}}
-{{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
 {{- if eq (include "seleniumGrid.ingress.enabled" $) "true" -}}
   {{- if and (not .Values.ingress.hostname) .Values.global.K8S_PUBLIC_IP -}}
     {{- $host = .Values.global.K8S_PUBLIC_IP -}}
@@ -721,7 +721,7 @@ Graphql Url for internal monitoring exporter
 {{- end -}}
 
 {{- define "seleniumGrid.server.url.host" -}}
-{{- $host := printf "%s.%s" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
+{{- $host := printf "%s.%s.svc.cluster.local" (include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ ) (.Release.Namespace) -}}
 {{- $host }}
 {{- end -}}
 

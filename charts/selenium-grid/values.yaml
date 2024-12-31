@@ -232,6 +232,8 @@ ingress:
 busConfigMap:
   # -- Override the name of the bus configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data: {}
   # -- Custom annotations for configmap
   annotations: {}
 
@@ -282,6 +284,8 @@ routerConfigMap:
 nodeConfigMap:
   # -- Override the name of the node configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data: {}
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)

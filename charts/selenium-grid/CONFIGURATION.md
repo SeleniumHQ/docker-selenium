@@ -110,6 +110,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | ingress.paths | list | `[]` | List of paths for the ingress resource. This will override the default path |
 | ingress.tls | list | `[]` | TLS backend configuration for ingress resource |
 | busConfigMap.nameOverride | string | `nil` | Override the name of the bus configMap |
+| busConfigMap.data | object | `{}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | busConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | sessionMapConfigMap.nameOverride | string | `nil` | Override the name of the session map configMap |
 | sessionMapConfigMap.annotations | object | `{}` | Custom annotations for configmap |
@@ -129,6 +130,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | routerConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap |
 | routerConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | nodeConfigMap.nameOverride | string | `nil` | Override the name of the node configMap |
+| nodeConfigMap.data | object | `{}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | nodeConfigMap.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | nodeConfigMap.extraScriptsImportFrom | string | `"configs/node/**"` | Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory) |
 | nodeConfigMap.extraScriptsDirectory | string | `"/opt/bin"` | Directory where the extra scripts are mounted to |

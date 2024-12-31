@@ -1,3 +1,6 @@
+{{- $distributorHost := printf "%s.%s.svc.cluster.local" (include "seleniumGrid.distributor.fullname" .) (.Release.Namespace) -}}
+{{- $routerHost := printf "%s.%s.svc.cluster.local" (include "seleniumGrid.router.fullname" .) (.Release.Namespace) -}}
+{{- $hubHost := printf "%s.%s.svc.cluster.local" (include "seleniumGrid.hub.fullname" .) (.Release.Namespace) -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -13,12 +16,12 @@ metadata:
     {{- end }}
 data:
 {{- if .Values.isolateComponents }}
-  SE_DISTRIBUTOR_HOST: '{{ include "seleniumGrid.distributor.fullname" . }}.{{ .Release.Namespace }}'
+  SE_DISTRIBUTOR_HOST: {{ $distributorHost | quote }}
   SE_DISTRIBUTOR_PORT: '{{ .Values.components.distributor.port }}'
-  SE_ROUTER_HOST: '{{ include "seleniumGrid.router.fullname" . }}.{{ .Release.Namespace }}'
+  SE_ROUTER_HOST: {{ $routerHost | quote }}
   SE_ROUTER_PORT: '{{ .Values.components.router.port }}'
 {{- else }}
-  SE_HUB_HOST: '{{ include "seleniumGrid.hub.fullname" . }}.{{ .Release.Namespace }}'
+  SE_HUB_HOST: {{ $hubHost | quote }}
   SE_HUB_PORT: '{{ .Values.hub.port }}'
 {{- end }}
   NODE_CONFIG_DIRECTORY: '{{ $.Values.nodeConfigMap.extraScriptsDirectory }}'
@@ -37,6 +40,9 @@ data:
   {{- with $.Values.nodeConfigMap.leftoversCleanup.tmpFilesAfterDays }}
   SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS: '{{ . }}'
   {{- end }}
+{{- end }}
+{{- with .Values.nodeConfigMap.data }}
+  {{- tpl (toYaml .) $ | nindent 2 }}
 {{- end }}
 {{- $fileProceeded := list -}}
 {{- range $path, $_ :=  .Files.Glob $.Values.nodeConfigMap.extraScriptsImportFrom }}
