@@ -26,7 +26,7 @@ CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ] || [ `arch` = "arm64" ]; t
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
-FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/10/2024-10-28-09-56-35-mozilla-central/firefox-133.0a1.en-US.linux-aarch64.tar.bz2)
+FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/10/2024-10-28-09-56-35-mozilla-central/firefox-133.0a1.en-US.linux-aarch64.deb)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
 KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.16.1-selenium-grid)
 KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.16.1)

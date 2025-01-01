@@ -10,19 +10,18 @@ USER root
 #============================================
 # Firefox cleanup script and supervisord file
 #============================================
-COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh install-firefox-apt.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh install-firefox-apt.sh install-firefox-package.sh /opt/bin/
 COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
-RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh /opt/bin/install-firefox-apt.sh
+RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh /opt/bin/install-firefox-apt.sh /opt/bin/install-firefox-package.sh
 
 #=========
 # Firefox
 #=========
 ARG FIREFOX_VERSION=latest
-ARG FIREFOX_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64-aarch64&lang=en-US"
+ARG FIREFOX_DOWNLOAD_URL=""
 RUN apt-get update -qqy && \
   if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
     if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then \
-      FIREFOX_DOWNLOAD_URL="https://download.mozilla.org/?product=firefox-$FIREFOX_VERSION-ssl&os=linux64&lang=en-US"; \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
       && apt install -y firefox$FIREFOX_VERSION \
@@ -31,10 +30,11 @@ RUN apt-get update -qqy && \
         ln -fs $(which firefox$FIREFOX_VERSION) /usr/bin/firefox ; \
       fi ; \
     else \
-      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2" ; \
+      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.deb" ; \
     fi \
   else \
-    if [ $FIREFOX_VERSION = "nightly-latest" ]; then \
+    if [ $FIREFOX_VERSION = "latest" ]; then \
+      FIREFOX_VERSION="nightly-latest" ; \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
       && apt install -y firefox$FIREFOX_VERSION \
@@ -46,15 +46,8 @@ RUN apt-get update -qqy && \
       FIREFOX_DOWNLOAD_URL="${FIREFOX_DOWNLOAD_URL}" ; \
     fi ; \
   fi && \
-  if [ "$INSTALL_VIA_APT" != "true" ]; then \
-    apt-get -qqy --no-install-recommends install libavcodec-extra libgtk-3-dev libdbus-glib-1-dev xz-utils \
-    && wget --no-verbose -O /tmp/firefox.tar.bz2 $FIREFOX_DOWNLOAD_URL \
-    && rm -rf /opt/firefox \
-    && tar -C /opt -xjf /tmp/firefox.tar.bz2 || (mv /tmp/firefox.tar.bz2 /tmp/firefox.tar.xz && tar -C /opt -xJf /tmp/firefox.tar.xz) \
-    && rm -rf /tmp/firefox.tar.bz2 /tmp/firefox.tar.xz \
-    && mv /opt/firefox /opt/firefox-$FIREFOX_VERSION \
-    && mkdir -p /opt/firefox-$FIREFOX_VERSION/distribution/extensions \
-    && ln -fs /opt/firefox-$FIREFOX_VERSION/firefox /usr/bin/firefox ; \
+  if [ "${INSTALL_VIA_APT}" != "true" ]; then \
+    /opt/bin/install-firefox-package.sh "${FIREFOX_DOWNLOAD_URL}" "${FIREFOX_VERSION}" ; \
   fi \
   # Download the language pack for Firefox
   && /opt/bin/get_lang_package.sh \
