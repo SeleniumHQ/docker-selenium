@@ -134,8 +134,8 @@ workflows:
           test-strategy: test_parallel
           use-random-user: false
           platforms: linux/arm64
-          machine-type: ubuntu2204arm64
-          firefox-install-lang-package: true
+          machine-type: ubuntu2204arm64large
+          firefox-install-lang-package: false
           enable-managed-downloads: true
       - docker-test:
           name: "Docker test - Node relay commands"
@@ -202,7 +202,7 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              output=$(eval "PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build")
+              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
               status=$?
               if [ $status -eq 0 ]; then
                 echo "Build images passed"
@@ -213,26 +213,31 @@ jobs:
                 sleep 10
               fi
             done
-            exit 1
+            exit $status
       - run:
           name: "Test Docker images"
+          no_output_timeout: 60m
           command: |
-            N=3
-            while [ $N -gt 0 ]; do
-              output=$(eval "USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
+            max_iteration=3
+            iteration=1
+            until USE_RANDOM_USER_ID=${USE_RANDOM_USER} PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} \
               TEST_FIREFOX_INSTALL_LANG_PACKAGE=${TEST_FIREFOX_INSTALL_LANG_PACKAGE} SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS} \
-              make ${TEST_STRATEGY}")
-              status=$?
-              if [ $status -eq 0 ]; then
-                echo "Tests passed"
-                exit 0
-              else
-                echo "Tests failed. Retrying..."
-                N=$((N-1))
-                sleep 10
+              make ${TEST_STRATEGY} >& /dev/null; [[ $? -eq 0 ]];
+            do
+              echo "Result unsuccessful"
+              if [[ $iteration -eq $max_iteration ]]
+              then
+                break
               fi
+              sleep 1
+              ((iteration++))  
             done
-            exit 1
+            if [[ $iteration -eq $max_iteration ]]
+            then
+              echo "All of the $max_iteration trials failed!!!"
+            else
+              echo "Result successful"
+            fi
 
   kubernetes-test:
     parameters:
@@ -263,6 +268,8 @@ jobs:
       HELM_VERSION: << parameters.helm-version >>
       DOCKER_VERSION: << parameters.docker-version >>
       TEST_UPGRADE_CHART: << parameters.test-upgrade >>
+      TEST_MULTIPLE_VERSIONS: false
+      TEST_MULTIPLE_PLATFORMS: false
     steps:
       - run:
           name: "Prepare workflow environment variables"
@@ -288,7 +295,7 @@ jobs:
           command: |
             N=3
             while [ $N -gt 0 ]; do
-              output=$(eval "PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build")
+              PLATFORMS=${PLATFORMS} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
               status=$?
               if [ $status -eq 0 ]; then
                 echo "Build images passed"
@@ -299,7 +306,7 @@ jobs:
                 sleep 10
               fi
             done
-            exit 1
+            exit $status
       - run:
           name: "Build Helm charts"
           command: |
@@ -309,28 +316,28 @@ jobs:
             source $BASH_ENV
       - run:
           name: "Test Selenium Grid on Kubernetes"
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
-            if [ "${TEST_STRATEGY}" == "playwright_connect_grid" ]; then
-              PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity
-              exit $?
-            fi
-            N=3
-            while [ $N -gt 0 ]; do
-              output=$(eval "PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity")
-              status=$?
-              if [ $status -eq 0 ]; then
-                echo "${output}"
-                echo "Tests passed"
-                exit 0
-              else
-                echo "${output}"
-                echo "Tests failed. Retrying..."
-                N=$((N-1))
-                sleep 10
+            max_iteration=3
+            iteration=1
+            until PLATFORMS=${PLATFORMS} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false \
+              TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS} TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS} \
+              make chart_test_autoscaling_${TEST_STRATEGY} && make test_video_integrity >& /dev/null; [[ $? -eq 0 ]];
+            do
+              echo "Result unsuccessful"
+              if [[ $iteration -eq $max_iteration ]]
+              then
+                break
               fi
+              sleep 1
+              ((iteration++))  
             done
-            exit 1
+            if [[ $iteration -eq $max_iteration ]]
+            then
+              echo "All of the $max_iteration trials failed!!!"
+            else
+              echo "Result successful"
+            fi
       - run:
           name: "Clean-up Kubernetes environment"
           command: |

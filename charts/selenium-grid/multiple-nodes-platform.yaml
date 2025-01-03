@@ -20,7 +20,7 @@ crossBrowsers:
         platformName: 'Linux'
         browserVersion: ''
   firefoxNode:
-    - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-any'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-any'
       hpa:
         platformName: ''
         browserVersion: ''

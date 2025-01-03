@@ -67,6 +67,20 @@ TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS:-"false"}
 TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"true"}
 TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
 
+wait_for_terminated() {
+  # Wait until no pods are in "Terminating" state
+  while true; do
+    terminating_pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} --no-headers | grep Terminating | wc -l)
+    if [ $terminating_pods -eq 0 ]; then
+      echo "No pods in 'Terminating' state."
+      break
+    else
+      echo "Waiting for $terminating_pods pod(s) to terminate..."
+      sleep 2
+    fi
+  done
+}
+
 cleanup() {
   # Get the list of pods
   pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
@@ -77,7 +91,9 @@ cleanup() {
   done
   if [ "${SKIP_CLEANUP}" = "false" ] || [ "${CI:-false}" != "false" ]; then
     echo "Clean up chart release and namespace"
-    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --wait
+    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --no-hooks || true
+    wait_for_terminated
+    sudo chmod -R 777 ${HOST_PATH}/logs
   fi
 }
 
@@ -94,13 +110,13 @@ on_failure() {
     kubectl describe all -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
-    cleanup
     sudo chmod -R 777 ${HOST_PATH}/logs
     exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR EXIT
+trap 'cleanup' ERR
 
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   rm -rf tests/tests/*
@@ -496,16 +512,6 @@ else
   ./tests/bootstrap.sh ${MATRIX_BROWSER}
 fi
 
-# Wait until no pods are in "Terminating" state
-while true; do
-  terminating_pods=$(kubectl get pods -n ${SELENIUM_NAMESPACE} --no-headers | grep Terminating | wc -l)
-  if [ $terminating_pods -eq 0 ]; then
-    echo "No pods in 'Terminating' state."
-    break
-  else
-    echo "Waiting for $terminating_pods pod(s) to terminate..."
-    sleep 2
-  fi
-done
+wait_for_terminated
 
 cleanup

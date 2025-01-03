@@ -213,7 +213,9 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: ${{ env.ARTIFACT_NAME }}-videos
-          path: ./tests/videos/
+          path: |
+            ./tests/videos/
+            !./tests/videos/**/*.hprof
       - name: Test chart upgrade
         if: (matrix.test-upgrade == true)
         run: |
