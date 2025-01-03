@@ -88,6 +88,10 @@ generate_readme_charts:
 		$$HOME/go/bin/helm-docs --chart-search-root charts/selenium-grid --output-file CONFIGURATION.md --sort-values-order file ; \
 	fi
 
+update_list_env_vars:
+	python3 -m pip install -r tests/requirements.txt ; \
+	python3 scripts/generate_list_env_vars/extract_env.py
+
 lint_readme_charts: generate_readme_charts
 	git diff --stat --exit-code ; \
 	EXIT_CODE=$$? ; \

@@ -8,8 +8,7 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 fi
 
-python3 -m pip install pyyaml==6.0.1 \
-                      | grep -v 'Requirement already satisfied'
+python3 -m pip install -r requirements.txt | grep -v 'Requirement already satisfied'
 
 cd ..
 

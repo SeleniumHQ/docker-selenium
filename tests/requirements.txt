@@ -3,3 +3,4 @@ requests
 chardet
 csv2md
 selenium
+pyyaml

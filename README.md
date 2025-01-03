@@ -34,6 +34,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Dev and Beta Channel Browser Images](#dev-and-beta-channel-browser-images)
   * [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
   * [Dev and Beta on the Grid](#dev-and-beta-on-the-grid)
+* [Environment Variables](#environment-variables)
 * [Execution modes](#execution-modes)
   * [Standalone](#standalone)
   * [Hub and Nodes](#hub-and-nodes)
@@ -347,6 +348,10 @@ services:
 ```
 
 For more information on the Dev and Beta channel container images, see the blog post on [Dev and Beta Channel Browsers via Docker Selenium](https://www.selenium.dev/blog/2022/dev-and-beta-channel-browsers-via-docker-selenium/).
+
+## Environment Variables
+
+Checkout full list of environment variables [here](ENV_VARIABLES.md).
 
 ## Execution modes
 
