@@ -692,9 +692,9 @@ services:
 `SE_VIDEO_FILE_NAME=auto` will use the session id as the video file name. This ensures that the video file name is unique to upload.
 Video file name construction automatically works based on Node endpoint `/status` (and optional GraphQL endpoint) to get session ID, capabilities.
 
-`SE_VIDEO_UPLOAD_ENABLED=true` will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
+`SE_VIDEO_UPLOAD_ENABLED=true` (`false` by default) will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
 
-`SE_VIDEO_INTERNAL_UPLOAD=true` will use RCLONE installed in the container for upload. If you want to use another sidecar container for upload, set it to `false`.
+`SE_VIDEO_INTERNAL_UPLOAD=true` (by default) will use RCLONE installed in the container for upload. If you want to use another sidecar container for upload, set it to `false`.
 
 | ENV variables per mode                   | Hub/Nodes         | Standalone roles | Dynamic Grid   |
 |------------------------------------------|-------------------|------------------|----------------|
