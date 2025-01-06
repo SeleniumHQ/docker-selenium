@@ -34,7 +34,7 @@ permissions:
 jobs:
   build-and-test:
     name: Test K8s
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +43,7 @@ jobs:
             test-strategy: playwright_connect_grid
             cluster: 'minikube'
             helm-version: 'v3.11.3'
-            docker-version: '24.0.9'
+            docker-version: '26.1.4'
             python-version: '3.8'
             test-upgrade: true
             service-mesh: true
@@ -51,7 +51,7 @@ jobs:
             test-strategy: disabled
             cluster: 'minikube'
             helm-version: 'v3.11.3'
-            docker-version: '24.0.9'
+            docker-version: '26.1.4'
             python-version: '3.8'
             test-upgrade: true
             service-mesh: false
@@ -59,7 +59,7 @@ jobs:
             test-strategy: job
             cluster: 'minikube'
             helm-version: 'v3.12.3'
-            docker-version: '24.0.9'
+            docker-version: '26.1.4'
             python-version: '3.9'
             test-upgrade: true
             service-mesh: true
@@ -67,19 +67,19 @@ jobs:
             test-strategy: deployment
             cluster: 'minikube'
             helm-version: 'v3.13.3'
-            docker-version: '24.0.9'
+            docker-version: '26.1.4'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
-          - k8s-version: 'v1.29.10'
+          - k8s-version: 'v1.29.12'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
-            docker-version: '25.0.5'
+            docker-version: '26.1.4'
             python-version: '3.11'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.30.6'
+          - k8s-version: 'v1.30.8'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
@@ -87,11 +87,11 @@ jobs:
             python-version: '3.12'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: deployment_https
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
             test-upgrade: true
             service-mesh: false

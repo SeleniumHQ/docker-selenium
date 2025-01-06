@@ -56,46 +56,46 @@ env:
 jobs:
   build-and-test:
     name: Test K8s
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_in_chaos
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_deployment_count_in_chaos
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_deployment_count_with_node_max_sessions
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.2'
+          - k8s-version: 'v1.31.4'
             test-strategy: test_k8s_autoscaling_deployment_count
             cluster: 'minikube'
-            helm-version: 'v3.16.3'
-            docker-version: '27.3.1'
+            helm-version: 'v3.16.4'
+            docker-version: '27.4.1'
             python-version: '3.13'
     env:
       CLUSTER: ${{ matrix.cluster }}
@@ -197,7 +197,7 @@ jobs:
   publish-results:
     name: Publish Results
     if: (!failure() && !cancelled() && (github.event.inputs.publish-results == 'true'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build-and-test
     steps:
       - name: Checkout code
@@ -231,7 +231,7 @@ jobs:
   pr-results:
     name: Create a PR with the results
     if: (!failure() && !cancelled() && (github.event.inputs.pr-results == 'true'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build-and-test
     steps:
       - name: Checkout code
