@@ -35,6 +35,7 @@ jobs:
   helm-chart-test:
     if: github.event.inputs.skip-test != 'true' && contains(toJson(github.event.commits), '[skip test]') == false
     uses: ./.github/workflows/helm-chart-test.yml
+    secrets: inherit
     with:
       release: ${{ github.event.inputs.release == 'true' }}
 
@@ -42,7 +43,7 @@ jobs:
     needs:
       - helm-chart-test
     if: (!failure() && !cancelled())
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions: write-all
     env:
       NAME: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}

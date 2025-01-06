@@ -59,6 +59,8 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_title(self):
         self.driver.get('https://the-internet.herokuapp.com')
+        wait = WebDriverWait(self.driver, WEB_DRIVER_WAIT_TIMEOUT)
+        wait.until(EC.title_is('The Internet'))
         self.assertTrue(self.driver.title == 'The Internet')
 
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/03-work-with-frames/python/frames.py
@@ -167,7 +169,7 @@ class ChromeTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-                    options.set_capability('platformName', 'Linux')
+                options.set_capability('platformName', 'Linux')
             if TEST_NODE_RELAY == 'Android':
                 options.set_capability('platformName', TEST_NODE_RELAY)
                 options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)

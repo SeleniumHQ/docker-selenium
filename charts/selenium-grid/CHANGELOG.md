@@ -1,3 +1,21 @@
+## :heavy_check_mark: selenium-grid-0.38.4
+
+- Chart is using image tag 4.27.0-20250101
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.15, v1.29.10, v1.30.6, v1.31.2, 
+- Chart is tested on container runtime Docker versions: 24.0.9, 24.0.9, 24.0.9, 24.0.9, 25.0.5, 26.1.4, 27.3.1, 
+- Chart is tested on Helm versions: v3.11.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.3, 
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.16.1
+
+### Changed
+- [`d6333285`](http://github.com/seleniumhq/docker-selenium/commit/d63332853af9d75f4b15b441a435820072a23f35) - K8s: Release Helm chart 0.38.4 :: Viet Nguyen Duc
+- [`5e7cd22a`](http://github.com/seleniumhq/docker-selenium/commit/5e7cd22a5abe1f1fcaf73332cd6779552021c464) - Update Helm release kube-prometheus-stack to v67.7.0 (#2557) :: renovate[bot]
+- [`89b53515`](http://github.com/seleniumhq/docker-selenium/commit/89b53515fed54d0dbeb25e884726944a022429de) - K8s: Optimize template syntax without using default function :: Viet Nguyen Duc
+- [`d3441094`](http://github.com/seleniumhq/docker-selenium/commit/d344109467116dc7c03392bbb4173b424227e2b6) - Update Helm release kube-prometheus-stack to v67.6.0 (#2554) :: renovate[bot]
+- [`0654a586`](http://github.com/seleniumhq/docker-selenium/commit/0654a58636450c8bfa266534ad3876be7c628ad7) - Update Helm release postgresql to v16.3.5 (#2555) :: renovate[bot]
+- [`da7612bf`](http://github.com/seleniumhq/docker-selenium/commit/da7612bf67a873182dcedc5d277eab2cc8b48600) - K8s: Node template handle `hpa.platformName` different with default in `values.yaml` :: Viet Nguyen Duc
+- [`dce68319`](http://github.com/seleniumhq/docker-selenium/commit/dce683196d5f9f6a4f198fb5ff5ca6e9d93242bf) - K8s: Correct typo in values file `multiple-nodes-platform.yaml` :: Viet Nguyen Duc
+- [`ab8e5195`](http://github.com/seleniumhq/docker-selenium/commit/ab8e5195e371fb38a7c61c5c1d2e4bf96fa9f6b2) - [ci] Update chart 0.38.3 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.38.3
 
 - Chart is using image tag 4.27.0-20250101

@@ -358,6 +358,10 @@ class ChartTemplateTests(unittest.TestCase):
                     for env in doc['spec']['template']['spec']['containers'][0]['env']:
                         if env['name'] == 'SE_NODE_MAX_SESSIONS':
                             self.assertTrue(env['value'] == str(resources_name[doc['metadata']['name']]), "Value is not matched")
+                        if env['name'] == 'SE_NODE_PLATFORM_NAME':
+                            self.assertTrue(env['value'] == "", "Platform name is not matched")
+                        if env['name'] == 'SE_NODE_BROWSER_VERSION':
+                            self.assertTrue(env['value'] == "", "Browser version is not matched")
                             count += 1
         self.assertEqual(count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}")
 

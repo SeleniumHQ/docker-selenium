@@ -43,7 +43,7 @@ if [ -f /opt/selenium/browser_binary_location ] && [ -z "${SE_BROWSER_BINARY_LOC
 fi
 
 if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"Linux\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
+	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
 else
 	SE_NODE_STEREOTYPE="$SE_NODE_STEREOTYPE"
 fi

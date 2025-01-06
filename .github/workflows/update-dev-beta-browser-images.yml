@@ -25,7 +25,7 @@ jobs:
 
   deploy:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy: 
       fail-fast: false
       matrix:
@@ -116,7 +116,7 @@ jobs:
     needs:
       - deploy
     if: failure() && ( github.run_attempt < 3 )
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@main

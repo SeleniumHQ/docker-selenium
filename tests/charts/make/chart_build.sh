@@ -1,17 +1,8 @@
 #!/bin/bash
-set -x
+set -o xtrace
 
 SET_VERSION=${SET_VERSION:-"true"}
 CHART_PATH=${CHART_PATH:-"charts/selenium-grid"}
-# Function to be executed on command failure
-on_failure() {
-    local exit_status=$?
-    echo "There is step failed with exit status $exit_status"
-    exit $exit_status
-}
-
-# Trap ERR signal and call on_failure function
-trap 'on_failure' ERR
 
 cd tests || true
 
@@ -21,12 +12,9 @@ if [ "${CI:-false}" = "false" ]; then
   source docker-selenium-tests/bin/activate
 else
   export PATH=$PATH:/home/$USER/.local/bin
-  pip3 install -U yamale yamllint
 fi
 
-python3 -m pip install yamale==4.0.4 \
-                      yamllint==1.33.0 \
-                      | grep -v 'Requirement already satisfied' || true
+python3 -m pip install -r requirements.txt | grep -v 'Requirement already satisfied'
 
 cd ..
 rm -rf ${CHART_PATH}/Chart.lock

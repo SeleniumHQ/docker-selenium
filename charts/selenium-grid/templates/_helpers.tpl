@@ -345,11 +345,11 @@ template:
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
           - name: SE_NODE_BROWSER_VERSION
-            value: {{ default "" .node.hpa.browserVersion | quote }}
+            value: {{ if hasKey .node.hpa "browserVersion" }}{{ .node.hpa.browserVersion | quote }}{{ else }}""{{ end }}
         {{- end }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
           - name: SE_NODE_PLATFORM_NAME
-            value: {{ default "Linux" .node.hpa.platformName | quote }}
+            value: {{ if hasKey .node.hpa "platformName" }}{{ .node.hpa.platformName | quote }}{{ else }}""{{ end }}
         {{- end }}
           - name: SE_NODE_CONTAINER_NAME
             valueFrom:
