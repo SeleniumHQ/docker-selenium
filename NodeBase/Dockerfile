@@ -31,22 +31,22 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================================
 # Shared cleanup script environment variables
 #============================================
-    SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=false \
-    SE_BROWSER_LEFTOVERS_INTERVAL_SECS=3600 \
-    SE_BROWSER_LEFTOVERS_PROCESSES_SECS=7200 \
-    SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS=1 \
+    SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP="false" \
+    SE_BROWSER_LEFTOVERS_INTERVAL_SECS="3600" \
+    SE_BROWSER_LEFTOVERS_PROCESSES_SECS="7200" \
+    SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS="1" \
 #========================
 # Selenium Configuration
 #========================
     # Drain the Node after N sessions (a value higher than zero enables the feature)
-    SE_DRAIN_AFTER_SESSION_COUNT=0 \
-    SE_NODE_MAX_SESSIONS=1 \
-    SE_NODE_SESSION_TIMEOUT=300 \
-    SE_NODE_OVERRIDE_MAX_SESSIONS=false \
-    SE_NODE_HEARTBEAT_PERIOD=30 \
+    SE_DRAIN_AFTER_SESSION_COUNT="0" \
+    SE_NODE_MAX_SESSIONS="1" \
+    SE_NODE_SESSION_TIMEOUT="300" \
+    SE_NODE_OVERRIDE_MAX_SESSIONS="false" \
+    SE_NODE_HEARTBEAT_PERIOD="30" \
     SE_OTEL_SERVICE_NAME="selenium-node" \
     # Setting Selenium Manager to work offline
-    SE_OFFLINE=true \
+    SE_OFFLINE="true" \
     SE_NODE_BROWSER_VERSION="stable" \
     SE_NODE_PLATFORM_NAME="Linux" \
 #============================
@@ -54,22 +54,22 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
     SE_RECORD_VIDEO=false \
     DISPLAY_CONTAINER_NAME="localhost" \
-    SE_SCREEN_WIDTH=1920 \
-    SE_SCREEN_HEIGHT=1080 \
-    SE_SCREEN_DEPTH=24 \
-    SE_SCREEN_DPI=96 \
-    SE_START_XVFB=true \
-    SE_START_VNC=true \
-    SE_START_NO_VNC=true \
-    SE_NO_VNC_PORT=7900 \
-    SE_VNC_PORT=5900 \
-    DISPLAY=:99.0 \
-    DISPLAY_NUM=99 \
+    SE_SCREEN_WIDTH="1920" \
+    SE_SCREEN_HEIGHT="1080" \
+    SE_SCREEN_DEPTH="24" \
+    SE_SCREEN_DPI="96" \
+    SE_START_XVFB="true" \
+    SE_START_VNC="true" \
+    SE_START_NO_VNC="true" \
+    SE_NO_VNC_PORT="7900" \
+    SE_VNC_PORT="5900" \
+    DISPLAY=":99.0" \
+    DISPLAY_NUM="99" \
     # Path to the Configfile
-    CONFIG_FILE=/opt/selenium/config.toml \
-    GENERATE_CONFIG=true \
+    CONFIG_FILE="/opt/selenium/config.toml" \
+    GENERATE_CONFIG="true" \
     # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
-    DBUS_SESSION_BUS_ADDRESS=/dev/null
+    DBUS_SESSION_BUS_ADDRESS="/dev/null"
 
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \

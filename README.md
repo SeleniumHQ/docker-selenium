@@ -351,7 +351,21 @@ For more information on the Dev and Beta channel container images, see the blog 
 
 ## Environment Variables
 
-Checkout full list of environment variables [here](ENV_VARIABLES.md).
+**Checkout full list of environment variables [here](ENV_VARIABLES.md).**
+
+How to update or contribute to list of environment variables? Follow below steps:
+
+1. Refresh the list to pick up new environment variables or default value
+
+    ```bash
+    make update_list_env_vars
+    ```
+
+    The script can be updated in [scripts/generate_list_env_vars/extract_env.py](scripts/generate_list_env_vars/extract_env.py).
+
+2. Update the description for each environment variable in the file [scripts/generate_list_env_vars/description.yaml](scripts/generate_list_env_vars/description.yaml).
+
+3. Run the command in step (1) one more time to update the list of environment variables with new descriptions.
 
 ## Execution modes
 

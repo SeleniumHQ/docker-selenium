@@ -22,6 +22,6 @@ EXPOSE 5556
 
 ENV SE_OTEL_SERVICE_NAME="selenium-session-map" \
     # Path to the Configfile
-    CONFIG_FILE=/opt/selenium/config.toml \
-    GENERATE_CONFIG=true \
-    SE_SESSIONS_MAP_EXTERNAL_DATASTORE=false
+    CONFIG_FILE="/opt/selenium/config.toml" \
+    GENERATE_CONFIG="true" \
+    SE_SESSIONS_MAP_EXTERNAL_DATASTORE="false"

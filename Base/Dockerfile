@@ -169,31 +169,31 @@ RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
 # Configure environement
 #======================================
     # Boolean value, maps "--bind-host"
-ENV SE_BIND_HOST=false \
+ENV SE_BIND_HOST="false" \
     SE_SERVER_PROTOCOL="http" \
     CONFIG_FILE="/opt/selenium/config.toml" \
     # Boolean value, maps "--reject-unsupported-caps"
-    SE_REJECT_UNSUPPORTED_CAPS=false \
-    SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true \
+    SE_REJECT_UNSUPPORTED_CAPS="false" \
+    SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED="true" \
     SE_OTEL_TRACES_EXPORTER="otlp" \
     SE_SUPERVISORD_LOG_LEVEL="info" \
     SE_SUPERVISORD_CHILD_LOG_DIR="/tmp" \
     SE_SUPERVISORD_LOG_FILE="/tmp/supervisord.log" \
     SE_SUPERVISORD_PID_FILE="/tmp/supervisord.pid" \
-    SE_SUPERVISORD_AUTO_RESTART=true \
-    SE_SUPERVISORD_START_RETRIES=5 \
+    SE_SUPERVISORD_AUTO_RESTART="true" \
+    SE_SUPERVISORD_START_RETRIES="5" \
     SE_LOG_TIMESTAMP_FORMAT="%Y-%m-%d %H:%M:%S,%3N" \
     SE_LOG_LEVEL="INFO" \
-    SE_HTTP_LOGS=false \
-    SE_STRUCTURED_LOGS=false \
-    SE_ENABLE_TRACING=true \
-    SE_ENABLE_TLS=false \
+    SE_HTTP_LOGS="false" \
+    SE_STRUCTURED_LOGS="false" \
+    SE_ENABLE_TRACING="true" \
+    SE_ENABLE_TLS="false" \
     SE_JAVA_OPTS_DEFAULT="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs" \
     SE_JAVA_HEAP_DUMP="false" \
     SE_JAVA_HTTPCLIENT_VERSION="HTTP_1_1" \
     SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="/opt/selenium/secrets/server.pass" \
-    SE_JAVA_DISABLE_HOSTNAME_VERIFICATION=true \
+    SE_JAVA_DISABLE_HOSTNAME_VERIFICATION="true" \
     SE_HTTPS_CERTIFICATE="/opt/selenium/secrets/tls.crt" \
     SE_HTTPS_PRIVATE_KEY="/opt/selenium/secrets/tls.key"
 

@@ -29,7 +29,7 @@ def extract_variables_from_dockerfiles(directory_path):
                 try:
                     with open(file_path, 'r') as f:
                         content = f.read()
-                    pattern = r'\b(SE_[A-Za-z0-9_]+)\s*=\s*["\']?([\w./-]*)["\']?'
+                    pattern = r'\b(SE_[A-Za-z0-9_]+)\s*=\s*["\']([^"\']*)["\']'
                     matches = re.findall(pattern, content)
                     for var, value in matches:
                         variables[var] = value

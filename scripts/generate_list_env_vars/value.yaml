@@ -9,7 +9,7 @@
 - name: SE_CODEC
   default: libx264
 - name: SE_PRESET
-  default: -preset
+  default: -preset ultrafast
 - name: SE_VIDEO_UPLOAD_ENABLED
   default: 'false'
 - name: SE_VIDEO_INTERNAL_UPLOAD
@@ -29,7 +29,7 @@
 - name: SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS
   default: ''
 - name: SE_LOG_TIMESTAMP_FORMAT
-  default: ''
+  default: '%Y-%m-%d %H:%M:%S,%3N'
 - name: SE_VIDEO_RECORD_STANDALONE
   default: ''
 - name: SE_NODE_PORT
@@ -57,7 +57,7 @@
 - name: SE_NODE_GRID_GRAPHQL_URL
   default: ''
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX
-  default: ''
+  default: '[:alnum:]-_'
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   default: ''
 - name: SE_RCLONE_CONFIG
@@ -115,7 +115,7 @@
 - name: SE_JAVA_HTTPCLIENT_VERSION
   default: HTTP_1_1
 - name: SE_JAVA_OPTS_DEFAULT
-  default: -XX
+  default: -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs
 - name: SE_JAVA_HEAP_DUMP
   default: 'false'
 - name: SE_BIND_HOST
@@ -213,7 +213,7 @@
 - name: SE_VIDEO_CONTAINER_NAME
   default: ''
 - name: SE_RECORD_VIDEO
-  default: 'false'
+  default: 'true'
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP
   default: 'false'
 - name: SE_NODE_MAX_SESSIONS

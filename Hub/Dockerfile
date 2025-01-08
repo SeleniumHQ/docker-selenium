@@ -15,13 +15,13 @@ EXPOSE 4443
 EXPOSE 4444
 
 # In seconds, maps to "--session-request-timeout"
-ENV SE_SESSION_REQUEST_TIMEOUT=300 \
+ENV SE_SESSION_REQUEST_TIMEOUT="300" \
 # In seconds, maps to "--session-retry-interval"
-    SE_SESSION_RETRY_INTERVAL=15 \
+    SE_SESSION_RETRY_INTERVAL="15" \
 # In seconds, maps to "--healthcheck-interval"
-    SE_HEALTHCHECK_INTERVAL=120 \
+    SE_HEALTHCHECK_INTERVAL="120" \
 # Boolean value, maps "--relax-checks"
-    SE_RELAX_CHECKS=true \
+    SE_RELAX_CHECKS="true" \
     SE_OTEL_SERVICE_NAME="selenium-hub"
 
 COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-hub.sh \

@@ -32,23 +32,23 @@ RUN ffmpeg -version \
     && rclone --version \
     && touch /opt/selenium/upload.conf
 
-ENV DISPLAY_NUM=99 \
+ENV DISPLAY_NUM="99" \
     DISPLAY_CONTAINER_NAME="selenium" \
-    SE_RECORD_VIDEO=true \
+    SE_RECORD_VIDEO="true" \
     SE_SERVER_PROTOCOL="http" \
-    SE_VIDEO_POLL_INTERVAL=1 \
-    SE_SCREEN_WIDTH=1920 \
-    SE_SCREEN_HEIGHT=1080 \
-    SE_FRAME_RATE=15 \
+    SE_VIDEO_POLL_INTERVAL="1" \
+    SE_SCREEN_WIDTH="1920" \
+    SE_SCREEN_HEIGHT="1080" \
+    SE_FRAME_RATE="15" \
     SE_CODEC="libx264" \
     SE_PRESET="-preset ultrafast" \
     VIDEO_FOLDER="/videos" \
-    SE_VIDEO_FILE_NAME=video.mp4 \
+    SE_VIDEO_FILE_NAME="video.mp4" \
     SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_" \
     # Environment variables for the uploader
     RCLONE_CONFIG="/opt/selenium/upload.conf" \
-    SE_VIDEO_UPLOAD_ENABLED=false \
-    SE_VIDEO_INTERNAL_UPLOAD=true \
+    SE_VIDEO_UPLOAD_ENABLED="false" \
+    SE_VIDEO_INTERNAL_UPLOAD="true" \
     SE_UPLOAD_DESTINATION_PREFIX=""
 
 EXPOSE 9000

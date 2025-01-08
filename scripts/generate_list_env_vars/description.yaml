@@ -336,13 +336,14 @@
   description: ''
   cli: ''
 - name: SE_OFFLINE
-  description: ''
+  description: Selenium Manager offline mode, use the browser and driver pre-configured
+    in the image
   cli: ''
 - name: SE_NODE_BROWSER_VERSION
-  description: ''
+  description: Overwrite the default browserVersion in Node stereotype
   cli: ''
 - name: SE_NODE_PLATFORM_NAME
-  description: ''
+  description: Overwrite the default platformName in Node stereotype
   cli: ''
 - name: SE_SUPERVISORD_LOG_LEVEL
   description: ''
