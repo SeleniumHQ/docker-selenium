@@ -36,7 +36,7 @@ TEST_MULTIPLE_PLATFORMS = os.environ.get('TEST_MULTIPLE_PLATFORMS', 'false').low
 TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICIT', 'true').lower() == 'true'
 LIST_CHROMIUM_VERSIONS = ['130.0', '129.0', '128.0']
 LIST_FIREFOX_VERSIONS = ['132.0', '131.0', '130.0', '129.0', '128.0']
-LIST_PLATFORMS = ['Linux', None]
+LIST_PLATFORMS = ['Linux', None, 'Windows']
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
   LIST_CHROMIUM_VERSIONS.append(None)
@@ -169,7 +169,7 @@ class ChromeTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-                options.set_capability('platformName', 'Linux')
+                options.set_capability('platformName', LIST_PLATFORMS[0])
             if TEST_NODE_RELAY == 'Android':
                 options.set_capability('platformName', TEST_NODE_RELAY)
                 options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
@@ -218,7 +218,7 @@ class EdgeTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_CHROMIUM_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-                    options.set_capability('platformName', 'Linux')
+                    options.set_capability('platformName', LIST_PLATFORMS[0])
             if TEST_MULTIPLE_PLATFORMS:
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:
@@ -261,7 +261,7 @@ class FirefoxTests(SeleniumGenericTests):
                 browser_version = random.choice(LIST_FIREFOX_VERSIONS)
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
-                    options.set_capability('platformName', 'Linux')
+                    options.set_capability('platformName', LIST_PLATFORMS[0])
             if TEST_MULTIPLE_PLATFORMS:
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:

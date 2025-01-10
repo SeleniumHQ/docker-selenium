@@ -1,38 +1,3 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ftp-server
-  namespace: ${SELENIUM_NAMESPACE}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ftp-server
-  template:
-    metadata:
-      labels:
-        app: ftp-server
-    spec:
-      containers:
-        - name: ftp-server
-          image: delfer/alpine-ftp-server:latest
-          env:
-            - name: USERS
-              value: "seluser|selenium.dev"
-            - name: MAX_PORT
-              value: "21005"
-            - name: TINI_SUBREAPER
-              value: "true"
-          volumeMounts:
-            - mountPath: /ftp/seluser
-              name: ftp-upload
-              subPath: seluser
-          command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
-      volumes:
-        - name: ftp-upload
-          persistentVolumeClaim:
-            claimName: ${TEST_PV_CLAIM_NAME}
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -73,6 +38,41 @@ spec:
       port: 21005
       targetPort: 21005
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftp-server
+  namespace: ${SELENIUM_NAMESPACE}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ftp-server
+  template:
+    metadata:
+      labels:
+        app: ftp-server
+    spec:
+      containers:
+        - name: ftp-server
+          image: delfer/alpine-ftp-server:latest
+          env:
+            - name: USERS
+              value: "seluser|selenium.dev"
+            - name: MAX_PORT
+              value: "21005"
+            - name: TINI_SUBREAPER
+              value: "true"
+          volumeMounts:
+            - mountPath: /ftp/seluser
+              name: ftp-upload
+              subPath: seluser
+          command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
+      volumes:
+        - name: ftp-upload
+          persistentVolumeClaim:
+            claimName: ${TEST_PV_CLAIM_NAME}
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -105,5 +105,5 @@ spec:
   hostPath:
     path: "${HOST_PATH}"
     type: DirectoryOrCreate
-  persistentVolumeReclaimPolicy: Retain
+  persistentVolumeReclaimPolicy: Delete
   storageClassName: "standard"

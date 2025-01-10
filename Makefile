@@ -26,14 +26,14 @@ CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ] || [ `arch` = "arm64" ]; t
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
-FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/10/2024-10-28-09-56-35-mozilla-central/firefox-133.0a1.en-US.linux-aarch64.deb)
+FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/11/2024-11-25-09-40-45-mozilla-central/firefox-134.0a1.en-US.linux-aarch64.deb)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
 KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.16.1-selenium-grid)
 KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.16.1)
 KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.16.1-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.16.1-selenium-grid-20241224)
-TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.16.1-selenium-grid-20250108)
+TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),true)
 
 all: hub \
 	distributor \

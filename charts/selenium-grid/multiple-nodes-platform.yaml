@@ -19,6 +19,10 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-windows'
+      hpa:
+        platformName: 'windows'
+        browserVersion: ''
   firefoxNode:
     - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-any'
       hpa:
@@ -28,6 +32,10 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-windows'
+      hpa:
+        platformName: 'windows'
+        browserVersion: ''
   edgeNode:
     - nameOverride: '{{ $.Release.Name }}-node-edge-platform-any'
       hpa:
@@ -36,4 +44,8 @@ crossBrowsers:
     - nameOverride: '{{ $.Release.Name }}-node-edge-platform-linux'
       hpa:
         platformName: 'Linux'
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-platform-windows'
+      hpa:
+        platformName: 'windows'
         browserVersion: ''
