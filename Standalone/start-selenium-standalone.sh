@@ -125,7 +125,7 @@ fi
 /opt/bin/generate_relay_config
 
 echo "Selenium Grid Standalone configuration: "
-cat /opt/selenium/config.toml
+cat "${CONFIG_FILE}"
 echo "Starting Selenium Grid Standalone..."
 
 EXTRA_LIBS=""
@@ -191,7 +191,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --relax-checks ${SE_RELAX_CHECKS} \
   --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
-  --config /opt/selenium/config.toml \
+  --config ${CONFIG_FILE} \
   ${SUB_PATH_CONFIG} \
   ${SE_OPTS} &
 

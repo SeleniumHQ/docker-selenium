@@ -94,6 +94,9 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
   fi
 fi
 
+echo "Selenium Grid Standalone Docker configuration: "
+cat "${CONFIG_FILE}"
+
 EXTRA_LIBS=""
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
@@ -149,7 +152,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --relax-checks ${SE_RELAX_CHECKS} \
   --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
-  --config /opt/selenium/config.toml \
+  --config ${CONFIG_FILE} \
   ${SE_GRID_URL} ${SE_OPTS} &
 
 SELENIUM_SERVER_PID=$!

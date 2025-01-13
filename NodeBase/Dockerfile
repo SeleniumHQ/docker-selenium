@@ -65,8 +65,6 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_VNC_PORT="5900" \
     DISPLAY=":99.0" \
     DISPLAY_NUM="99" \
-    # Path to the Configfile
-    CONFIG_FILE="/opt/selenium/config.toml" \
     GENERATE_CONFIG="true" \
     # Following line fixes https://github.com/SeleniumHQ/docker-selenium/issues/87
     DBUS_SESSION_BUS_ADDRESS="/dev/null"

@@ -89,6 +89,13 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
   fi
 fi
 
+if [ ! -z "${SE_NODE_DOCKER_CONFIG_FILENAME}" ]; then
+  CONFIG_FILE="/opt/selenium/${SE_NODE_DOCKER_CONFIG_FILENAME}"
+fi
+
+echo "Selenium Grid Node Docker configuration: "
+cat "${CONFIG_FILE}"
+
 EXTRA_LIBS=""
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
@@ -143,7 +150,7 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --subscribe-events tcp://"${SE_EVENT_BUS_HOST}":${SE_EVENT_BUS_SUBSCRIBE_PORT} \
   --bind-host ${SE_BIND_HOST} \
   --detect-drivers false \
-  --config /opt/selenium/${SE_NODE_DOCKER_CONFIG_FILENAME:-"config.toml"} \
+  --config ${CONFIG_FILE} \
   ${SE_GRID_URL} ${SE_OPTS} &
 
 SELENIUM_SERVER_PID=$!

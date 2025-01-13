@@ -36,7 +36,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
     HOME=${HOME} \
     TZ=${TZ} \
     SEL_DOWNLOAD_DIR=${HOME}/Downloads \
-    VIDEO_FOLDER="/videos"
+    VIDEO_FOLDER="/videos" \
+    # Path to the Configfile
+    CONFIG_FILE="/opt/selenium/config.toml"
 
 #========================
 # Miscellaneous packages
@@ -100,7 +102,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
     ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb ${VIDEO_FOLDER} \
   # NSSDB initialization with an empty password
   && certutil -d sql:${HOME}/.pki/nssdb -N --empty-password \
-  && touch /opt/selenium/config.toml \
+  && touch ${CONFIG_FILE} \
   && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} \
   && wget --no-verbose https://github.com/${AUTHORS}/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
@@ -171,7 +173,6 @@ RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
     # Boolean value, maps "--bind-host"
 ENV SE_BIND_HOST="false" \
     SE_SERVER_PROTOCOL="http" \
-    CONFIG_FILE="/opt/selenium/config.toml" \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS="false" \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED="true" \
