@@ -6,10 +6,12 @@ kind: ScaledJob
 metadata:
   name: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
   namespace: {{ $.Release.Namespace }}
+  {{- if $.Values.autoscaling.annotations }}
   annotations:
     {{- with $.Values.autoscaling.annotations }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- end }}
   labels:
     app: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
     app.kubernetes.io/name: {{ template "seleniumGrid.relayNode.fullname" (list $nodeConfig $) }}
