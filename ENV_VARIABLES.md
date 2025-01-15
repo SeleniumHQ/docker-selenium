@@ -53,7 +53,7 @@
 | SE_HTTPS_PRIVATE_KEY | /opt/selenium/secrets/tls.key |  |  |
 | SE_ENABLE_TRACING | true |  |  |
 | SE_OTEL_EXPORTER_ENDPOINT |  |  |  |
-| SE_OTEL_SERVICE_NAME | selenium-router |  |  |
+| SE_OTEL_SERVICE_NAME | selenium-standalone-docker |  |  |
 | SE_OTEL_JVM_ARGS |  |  |  |
 | SE_OTEL_TRACES_EXPORTER | otlp |  |  |
 | SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED | true |  |  |
@@ -88,7 +88,7 @@
 | SE_REJECT_UNSUPPORTED_CAPS | false |  |  |
 | SE_NEW_SESSION_THREAD_POOL_SIZE |  |  |  |
 | SE_SESSION_REQUEST_TIMEOUT | 300 |  |  |
-| SE_SESSION_RETRY_INTERVAL | 5 |  |  |
+| SE_SESSION_RETRY_INTERVAL | 15 |  |  |
 | SE_HEALTHCHECK_INTERVAL | 120 |  |  |
 | SE_RELAX_CHECKS | true |  |  |
 | SE_SESSION_QUEUE_HOST |  |  |  |
@@ -119,3 +119,5 @@
 | SE_SUPERVISORD_LOG_FILE | /tmp/supervisord.log |  |  |
 | SE_SUPERVISORD_AUTO_RESTART | true |  |  |
 | SE_SUPERVISORD_START_RETRIES | 5 |  |  |
+| SE_RECORD_AUDIO | false | Flag to enable recording the audio source (default is Pulse Audio input) |  |
+| SE_AUDIO_SOURCE | -f pulse -ac 2 -i default | FFmpeg arguments to record the audio source |  |

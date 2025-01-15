@@ -360,3 +360,9 @@
 - name: SE_SUPERVISORD_START_RETRIES
   description: ''
   cli: ''
+- name: SE_RECORD_AUDIO
+  description: Flag to enable recording the audio source (default is Pulse Audio input)
+  cli: ''
+- name: SE_AUDIO_SOURCE
+  description: FFmpeg arguments to record the audio source
+  cli: ''

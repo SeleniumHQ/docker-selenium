@@ -204,14 +204,23 @@ function graceful_exit_force() {
   exit 0
 }
 
+if [ "${SE_RECORD_AUDIO,,}" = "true" ]; then
+  echo "$(date -u +"${ts_format}") [${process_name}] - Audio source arguments: ${SE_AUDIO_SOURCE}"
+else
+  SE_AUDIO_SOURCE=""
+fi
+
 if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto" ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
   trap graceful_exit SIGTERM SIGINT EXIT
   wait_for_display
   video_file="$VIDEO_FOLDER/$VIDEO_FILE_NAME"
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
   ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-    -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-  wait $!
+    -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
+  FFMPEG_PID=$!
+  if ps -p $FFMPEG_PID >/dev/null; then
+    wait $FFMPEG_PID
+  fi
   wait_for_file_integrity
 
 else
@@ -243,8 +252,11 @@ else
       video_file="${VIDEO_FOLDER}/$video_file_name"
       echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
       ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-        -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-      recording_started="true"
+        -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
+      FFMPEG_PID=$!
+      if ps -p $FFMPEG_PID >/dev/null; then
+        recording_started="true"
+      fi
       echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
       sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then

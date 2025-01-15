@@ -6,6 +6,7 @@ from collections import OrderedDict
 def extract_variables_from_shell_scripts(directory_path):
     variables = OrderedDict()
     for root, _, files in os.walk(directory_path):
+        files.sort()
         for file in files:
             if file.endswith(".sh"):
                 file_path = os.path.join(root, file)
@@ -23,6 +24,7 @@ def extract_variables_from_shell_scripts(directory_path):
 def extract_variables_from_dockerfiles(directory_path):
     variables = OrderedDict()
     for root, _, files in os.walk(directory_path):
+        files.sort()
         for file in files:
             if file.startswith("Dockerfile"):
                 file_path = os.path.join(root, file)
@@ -40,6 +42,7 @@ def extract_variables_from_dockerfiles(directory_path):
 def combine_dictionaries(dict1, dict2):
     combined_dict = OrderedDict(dict1)
     combined_dict.update(dict2)
+    combined_dict = dict(sorted(combined_dict.items()))
     return combined_dict
 
 def read_description_yaml(file_path):

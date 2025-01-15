@@ -17,9 +17,11 @@ COPY --from=source /usr/local/bin/rclone /usr/local/bin/rclone
 
 RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
-    libx11-dev libxcb-shm0 libxcb1-dev \
+    libx11-dev libxcb-shm0 libxcb1-dev libpulse-dev libasound2-dev \
     x11-xserver-utils x11-utils \
     python3-pip \
+    && apt-get -qqy update \
+    && apt-get -yq upgrade \
     && pip install --upgrade --break-system-packages --no-cache-dir setuptools psutil \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
@@ -35,6 +37,8 @@ RUN ffmpeg -version \
 ENV DISPLAY_NUM="99" \
     DISPLAY_CONTAINER_NAME="selenium" \
     SE_RECORD_VIDEO="true" \
+    SE_RECORD_AUDIO="false" \
+    SE_AUDIO_SOURCE="-f pulse -ac 2 -i default" \
     SE_SERVER_PROTOCOL="http" \
     SE_VIDEO_POLL_INTERVAL="1" \
     SE_SCREEN_WIDTH="1920" \

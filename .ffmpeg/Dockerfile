@@ -9,7 +9,7 @@ USER root
 # Install build tools
 #======================================
 ARG TOOLS_DEPS="autoconf automake cmake libfreetype6 gcc build-essential libtool make nasm pkg-config zlib1g-dev numactl \
-libnuma-dev libx11-dev libxcb-shm0 libxcb1-dev yasm git curl jq wget ca-certificates"
+libnuma-dev libx11-dev libxcb-shm0 libxcb1-dev libpulse-dev libasound2-dev yasm git curl jq wget ca-certificates"
 
 RUN apt-get update -qqy \
     && apt-get upgrade -yq \
@@ -66,6 +66,8 @@ RUN cd /usr/local/src \
     --enable-nonfree \
     --enable-libx264 \
     --enable-libxcb \
+    --enable-libpulse \
+    --enable-alsa \
     --enable-static \
     && make \
     && make install
@@ -80,7 +82,9 @@ COPY --from=builder /usr/local/bin/rclone /usr/local/bin/rclone
 
 RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
-    libx11-dev libxcb-shm0 libxcb1-dev \
+    libx11-dev libxcb-shm0 libxcb1-dev libpulse-dev libasound2-dev \
+    && apt-get -qqy update \
+    && apt-get -yq upgrade \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN ldd /usr/local/bin/ffmpeg \
