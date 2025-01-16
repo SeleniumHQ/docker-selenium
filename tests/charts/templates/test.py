@@ -80,7 +80,7 @@ class ChartTemplateTests(unittest.TestCase):
                 logger.info(f"Assert graphql url is constructed without basic auth in url")
                 base64_url = doc['data']['SE_NODE_GRID_GRAPHQL_URL']
                 decoded_url = base64.b64decode(base64_url).decode('utf-8')
-                self.assertTrue(decoded_url == f'https://{RELEASE_NAME}selenium-router.default.svc.cluster.local:4444/selenium/graphql', decoded_url)
+                self.assertTrue(decoded_url == f'https://{RELEASE_NAME}selenium-router.default:4444/selenium/graphql', decoded_url)
 
     def test_distributor_new_session_thread_pool_size(self):
         resources_name = [f'{RELEASE_NAME}selenium-distributor']
