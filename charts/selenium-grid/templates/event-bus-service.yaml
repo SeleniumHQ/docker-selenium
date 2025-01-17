@@ -49,4 +49,10 @@ spec:
       {{- if and (eq .Values.components.eventBus.serviceType "NodePort") .Values.components.eventBus.subscribeNodePort }}
       nodePort: {{ .Values.components.eventBus.subscribeNodePort }}
       {{- end }}
+  {{- with .Values.components.eventBus.serviceExternalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.components.eventBus.serviceSessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
 {{- end }}

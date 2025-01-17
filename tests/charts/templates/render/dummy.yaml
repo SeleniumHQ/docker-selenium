@@ -37,7 +37,7 @@ monitoring:
           insecure_skip_verify: true
         static_configs:
           - targets:
-              - '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}.{{ .Release.Namespace }}:{{ $.Values.monitoring.exporter.port }}'
+              - '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}:{{ $.Values.monitoring.exporter.port }}'
 
 autoscaling:
   enableWithExistingKEDA: true

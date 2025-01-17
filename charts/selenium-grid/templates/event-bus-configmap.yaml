@@ -1,4 +1,4 @@
-{{- $eventBusHost := printf "%s.%s" (ternary (include "seleniumGrid.eventBus.fullname" .) (include "seleniumGrid.hub.fullname" .) .Values.isolateComponents) (.Release.Namespace) -}}
+{{- $eventBusHost := printf "%s" (ternary (include "seleniumGrid.eventBus.fullname" .) (include "seleniumGrid.hub.fullname" .) .Values.isolateComponents) -}}
 {{- $eventBusPublishPort := ternary .Values.components.eventBus.publishPort .Values.hub.publishPort .Values.isolateComponents -}}
 {{- $eventBusSubscribePort := ternary .Values.components.eventBus.subscribePort .Values.hub.subscribePort .Values.isolateComponents -}}
 apiVersion: v1

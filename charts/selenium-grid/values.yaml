@@ -460,6 +460,10 @@ components:
     loadBalancerIP: ""
     # -- Custom annotations for router service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for router pods
     tolerations: []
     # -- Node selector for router pods
@@ -532,6 +536,10 @@ components:
     serviceType: ClusterIP
     # -- Custom annotations for Distributor service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Distributor pods
     tolerations: []
     # -- Node selector for Distributor pods
@@ -589,6 +597,10 @@ components:
     loadBalancerIP: ""
     # -- Custom annotations for Event Bus service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Event Bus pods
     tolerations: []
     # -- Node selector for Event Bus pods
@@ -630,6 +642,10 @@ components:
     serviceType: ClusterIP
     # -- Custom annotations for Session Map service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Session Map pods
     tolerations: []
     # -- Node selector for Session Map pods
@@ -690,6 +706,10 @@ components:
     serviceType: ClusterIP
     # -- Custom annotations for Session Queue service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Session Queue pods
     tolerations: []
     # -- Node selector for Session Queue pods
@@ -829,6 +849,10 @@ hub:
   loadBalancerIP: ""
   # -- Custom annotations for Selenium Hub service
   serviceAnnotations: {}
+  # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+  serviceExternalTrafficPolicy: ""
+  # -- Set session affinity to None, ClientIP or ClientIPString
+  serviceSessionAffinity: ""
   # -- Tolerations for selenium-hub pods
   tolerations: []
   # -- Node selector for selenium-hub pods
@@ -844,7 +868,7 @@ tracing:
   # -- Exporter type for tracing. Recommended `otlp` for wide compatibility with observability backends (e.g. Jaeger, Elastic, etc.)
   exporter: otlp
   # -- Exporter endpoint for pushing trace data
-  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317"
+  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector:4317"
   # -- Enable global auto-configuration for tracing
   globalAutoConfigure: true
   ingress:
@@ -889,6 +913,10 @@ monitoring:
       nodePort: 30199
       # -- Annotations for exporter service
       annotations: {}
+      # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+      externalTrafficPolicy: ""
+      # -- Set session affinity to None, ClientIP or ClientIPString
+      sessionAffinity: ""
     replicas: 1
   additionalScrapeConfigs:
     key: ""
@@ -1099,6 +1127,10 @@ chromeNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for chrome-node pods
@@ -1284,6 +1316,10 @@ firefoxNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: "2Gi"
   # -- Priority class name for firefox-node pods
@@ -1468,6 +1504,10 @@ edgeNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for edge-node pods
@@ -1652,6 +1692,10 @@ relayNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for relay-node pods

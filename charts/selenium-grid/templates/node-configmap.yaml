@@ -1,6 +1,6 @@
-{{- $distributorHost := printf "%s.%s" (include "seleniumGrid.distributor.fullname" .) (.Release.Namespace) -}}
-{{- $routerHost := printf "%s.%s" (include "seleniumGrid.router.fullname" .) (.Release.Namespace) -}}
-{{- $hubHost := printf "%s.%s" (include "seleniumGrid.hub.fullname" .) (.Release.Namespace) -}}
+{{- $distributorHost := printf "%s" (include "seleniumGrid.distributor.fullname" .) -}}
+{{- $routerHost := printf "%s" (include "seleniumGrid.router.fullname" .) -}}
+{{- $hubHost := printf "%s" (include "seleniumGrid.hub.fullname" .) -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
