@@ -4,16 +4,6 @@ workflows:
   build-and-test-multi-arch:
     jobs:
       - kubernetes-test:
-          name: "K8s test - Playwright Connect Autoscaling Grid"
-          platforms: linux/arm64
-          machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.25.16'
-          test-strategy: playwright_connect_grid
-          cluster: 'minikube'
-          helm-version: 'v3.11.3'
-          docker-version: '24.0.9'
-          test-upgrade: true
-      - kubernetes-test:
           name: "K8s test - Autoscaling disabled"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
@@ -47,7 +37,7 @@ workflows:
           name: "K8s test - Autoscaling Jobs - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.29.12'
+          k8s-version: 'v1.29.13'
           test-strategy: job_https
           cluster: 'minikube'
           helm-version: 'v3.14.3'
@@ -57,7 +47,7 @@ workflows:
           name: "K8s test - Autoscaling Jobs - Ingress hostname"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.30.8'
+          k8s-version: 'v1.30.9'
           test-strategy: job_hostname
           cluster: 'minikube'
           helm-version: 'v3.15.4'
@@ -67,11 +57,21 @@ workflows:
           name: "K8s test - Autoscaling Deployments - HTTPS"
           platforms: linux/arm64
           machine-type: ubuntu2204arm64large
-          k8s-version: 'v1.31.4'
+          k8s-version: 'v1.31.5'
           test-strategy: deployment_https
           cluster: 'minikube'
           helm-version: 'v3.16.4'
           docker-version: '27.4.1'
+          test-upgrade: true
+      - kubernetes-test:
+          name: "K8s test - Playwright Connect Autoscaling Grid"
+          platforms: linux/arm64
+          machine-type: ubuntu2204arm64large
+          k8s-version: 'v1.32.1'
+          test-strategy: playwright_connect_grid
+          cluster: 'minikube'
+          helm-version: 'v3.17.0'
+          docker-version: '26.1.4'
           test-upgrade: true
       - docker-test:
           name: "Docker test - Use random user (true)"

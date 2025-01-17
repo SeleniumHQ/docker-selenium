@@ -34,19 +34,11 @@ permissions:
 jobs:
   build-and-test:
     name: Test K8s
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.25.16'
-            test-strategy: playwright_connect_grid
-            cluster: 'minikube'
-            helm-version: 'v3.11.3'
-            docker-version: '26.1.4'
-            python-version: '3.8'
-            test-upgrade: true
-            service-mesh: true
           - k8s-version: 'v1.26.15'
             test-strategy: disabled
             cluster: 'minikube'
@@ -55,6 +47,7 @@ jobs:
             python-version: '3.8'
             test-upgrade: true
             service-mesh: false
+            os: ubuntu-24.04
           - k8s-version: 'v1.27.16'
             test-strategy: job
             cluster: 'minikube'
@@ -63,6 +56,7 @@ jobs:
             python-version: '3.9'
             test-upgrade: true
             service-mesh: true
+            os: ubuntu-24.04
           - k8s-version: 'v1.28.15'
             test-strategy: deployment
             cluster: 'minikube'
@@ -71,7 +65,8 @@ jobs:
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
-          - k8s-version: 'v1.29.12'
+            os: ubuntu-24.04
+          - k8s-version: 'v1.29.13'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
@@ -79,7 +74,8 @@ jobs:
             python-version: '3.11'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.30.8'
+            os: ubuntu-24.04
+          - k8s-version: 'v1.30.9'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
@@ -87,7 +83,8 @@ jobs:
             python-version: '3.12'
             test-upgrade: true
             service-mesh: false
-          - k8s-version: 'v1.31.4'
+            os: ubuntu-24.04
+          - k8s-version: 'v1.31.5'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.16.4'
@@ -95,6 +92,16 @@ jobs:
             python-version: '3.13'
             test-upgrade: true
             service-mesh: false
+            os: ubuntu-24.04
+          - k8s-version: 'v1.32.1'
+            test-strategy: playwright_connect_grid
+            cluster: 'minikube'
+            helm-version: 'v3.17.0'
+            docker-version: '26.1.4'
+            python-version: '3.10'
+            test-upgrade: true
+            service-mesh: true
+            os: ubuntu-24.04
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
@@ -199,7 +206,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@main
         with:
-          name: "${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}"
+          name: "${{ env.ARTIFACT_NAME }}_${{ env.CHART_FILE_NAME }}_${{ matrix.os }}"
           path: ${{ env.CHART_PACKAGE_PATH }}
       - name: Upload chart test artifacts
         if: always()
