@@ -147,6 +147,9 @@ selenium-grid:
       uploader:
         enabled: false
 
+  relayNode:
+    enabled: true
+
   videoRecorder:
     enabled: true
     uploader:
