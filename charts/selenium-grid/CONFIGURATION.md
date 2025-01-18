@@ -110,11 +110,16 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | ingress.paths | list | `[]` | List of paths for the ingress resource. This will override the default path |
 | ingress.tls | list | `[]` | TLS backend configuration for ingress resource |
 | busConfigMap.nameOverride | string | `nil` | Override the name of the bus configMap |
-| busConfigMap.data | object | `{}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
+| busConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | busConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | sessionMapConfigMap.nameOverride | string | `nil` | Override the name of the session map configMap |
+| sessionMapConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | sessionMapConfigMap.annotations | object | `{}` | Custom annotations for configmap |
+| sessionQueueConfigMap.nameOverride | string | `nil` | Override the name of the session map configMap |
+| sessionQueueConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
+| sessionQueueConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | distributorConfigMap.nameOverride | string | `nil` | Override the name of the distributor configMap |
+| distributorConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | distributorConfigMap.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | distributorConfigMap.extraScriptsImportFrom | string | `"configs/distributor/**"` | Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory) |
 | distributorConfigMap.extraScriptsDirectory | string | `"/opt/bin"` | Directory where the extra scripts are mounted to |
@@ -122,6 +127,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | distributorConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap. Default is same as this configMap name |
 | distributorConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | routerConfigMap.nameOverride | string | `nil` | Override the name of the router configMap |
+| routerConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | routerConfigMap.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | routerConfigMap.extraScriptsImportFrom | string | `"configs/router/**"` | Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory) |
 | routerConfigMap.extraScriptsDirectory | string | `"/opt/bin"` | Directory where the extra scripts are mounted to |
@@ -130,7 +136,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | routerConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap |
 | routerConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | nodeConfigMap.nameOverride | string | `nil` | Override the name of the node configMap |
-| nodeConfigMap.data | object | `{}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
+| nodeConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=50"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | nodeConfigMap.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | nodeConfigMap.extraScriptsImportFrom | string | `"configs/node/**"` | Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory) |
 | nodeConfigMap.extraScriptsDirectory | string | `"/opt/bin"` | Directory where the extra scripts are mounted to |
@@ -160,15 +166,16 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | uploaderConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap |
 | uploaderConfigMap.secretVolumeMountName | string | `nil` | Name of Secret is used to store the `secretFiles` |
 | uploaderConfigMap.annotations | object | `{}` | Custom annotations for configmap |
-| loggingConfigMap | object | `{"annotations":{},"nameOverride":null}` | ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging) |
+| loggingConfigMap | object | `{"annotations":{},"data":{},"nameOverride":null}` | ConfigMap that contains common environment variables for Logging (https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging) |
 | loggingConfigMap.nameOverride | string | `nil` | Override the name of the logging configMap |
+| loggingConfigMap.data | object | `{}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | loggingConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | serverConfigMap.nameOverride | string | `nil` | Override the name of the server configMap |
-| serverConfigMap.env | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -Xmx1024m -Xms256m -XX:MaxGCPauseMillis=1000 -Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000","SE_SUPERVISORD_LOG_LEVEL":"info"}` | Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap |
+| serverConfigMap.data | object | `{"SE_SUPERVISORD_LOG_LEVEL":"info"}` | Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap |
 | serverConfigMap.annotations | object | `{}` | Custom annotations for configmap |
 | secrets.create | bool | `true` | Create the default secret for all components. If using an external secret, set to false and provide its name in `nameOverride` below |
 | secrets.nameOverride | string | `nil` | Override to use an external secret |
-| secrets.env | object | `{"SE_VNC_PASSWORD":"secret"}` | Extra environment variables set to the secret |
+| secrets.data | object | `{"SE_VNC_PASSWORD":"secret"}` | Extra environment variables set to the secret |
 | secrets.annotations | object | `{}` | Custom annotations for secret |
 | components.router.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | components.router.imageName | string | `"router"` | Router image name |
@@ -187,7 +194,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
 | components.router.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | components.router.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
-| components.router.resources | object | `{}` | Resources for router container |
+| components.router.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for router container |
 | components.router.securityContext | object | `{}` | SecurityContext for router container |
 | components.router.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.router.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
@@ -215,7 +222,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
 | components.distributor.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | components.distributor.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
-| components.distributor.resources | object | `{}` | Resources for Distributor container |
+| components.distributor.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Distributor container |
 | components.distributor.securityContext | object | `{}` | SecurityContext for Distributor container |
 | components.distributor.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.distributor.serviceAnnotations | object | `{}` | Custom annotations for Distributor service |
@@ -240,7 +247,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.publishNodePort | int | `30442` | NodePort exposed where events are published |
 | components.eventBus.subscribePort | int | `4443` | Container port where to subscribe for events |
 | components.eventBus.subscribeNodePort | int | `30443` | NodePort exposed where to subscribe for events |
-| components.eventBus.resources | object | `{}` | Resources for event-bus container |
+| components.eventBus.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for event-bus container |
 | components.eventBus.securityContext | object | `{}` | SecurityContext for event-bus container |
 | components.eventBus.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.eventBus.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
@@ -263,7 +270,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.sessionMap.annotations | object | `{}` | Custom annotations for Session Map pods |
 | components.sessionMap.port | int | `5556` | Session Map container port |
-| components.sessionMap.resources | object | `{}` | Resources for Session Map container |
+| components.sessionMap.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Session Map container |
 | components.sessionMap.securityContext | object | `{}` | SecurityContext for Session Map container |
 | components.sessionMap.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.sessionMap.serviceAnnotations | object | `{}` | Custom annotations for Session Map service |
@@ -288,7 +295,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.annotations | object | `{}` | Custom annotations for Session Queue pods |
 | components.sessionQueue.port | int | `5559` | Session Queue container port |
 | components.sessionQueue.nodePort | int | `30559` | Session Queue expose NodePort |
-| components.sessionQueue.resources | object | `{}` | Resources for Session Queue container |
+| components.sessionQueue.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Session Queue container |
 | components.sessionQueue.securityContext | object | `{}` | SecurityContext for Session Queue container |
 | components.sessionQueue.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.sessionQueue.serviceAnnotations | object | `{}` | Custom annotations for Session Queue service |
@@ -326,7 +333,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
 | hub.extraVolumes | list | `[]` | Extra volumes for Hub pod |
-| hub.resources | object | `{}` | Resources for selenium-hub container |
+| hub.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"1Gi"}}` | Resources for selenium-hub container |
 | hub.securityContext | object | `{}` | SecurityContext for selenium-hub container |
 | hub.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | hub.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
@@ -627,8 +634,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.uploader.entryPointFileName | string | `"upload.sh"` | Uploader entry point file name |
 | videoRecorder.uploader.secrets | string | `nil` | For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase) |
 | videoRecorder.ports | list | `[9000]` | Video recording container port |
-| videoRecorder.resources.requests | object | `{"cpu":"1","memory":"1Gi"}` | Request resources for video recorder pods |
-| videoRecorder.resources.limits | object | `{"cpu":"1","memory":"1Gi"}` | Limit resources for video recorder pods |
+| videoRecorder.resources.requests | object | `{"cpu":"0.1","memory":"128Mi"}` | Request resources for video recorder pods |
+| videoRecorder.resources.limits | object | `{"cpu":"0.5","memory":"1Gi"}` | Limit resources for video recorder pods |
 | videoRecorder.securityContext | string | `nil` | SecurityContext for recorder container |
 | videoRecorder.extraEnvironmentVariables | list | `[]` | Extra environment variables for video recorder |
 | videoRecorder.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for video recorder. |

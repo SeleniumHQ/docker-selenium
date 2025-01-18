@@ -1,0 +1,19 @@
+{{- if .Values.isolateComponents }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.sessionQueue.configmap.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+{{- with .Values.sessionQueueConfigMap.annotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+{{- range $key, $value := $.Values.sessionQueueConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+{{- end }}
+{{- end }}

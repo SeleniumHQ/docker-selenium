@@ -18,6 +18,6 @@ data:
   SE_EVENT_BUS_HOST: {{ $eventBusHost | quote }}
   SE_EVENT_BUS_PUBLISH_PORT: {{ $eventBusPublishPort | quote }}
   SE_EVENT_BUS_SUBSCRIBE_PORT: {{ $eventBusSubscribePort | quote }}
-{{- with .Values.busConfigMap.data }}
-  {{- tpl (toYaml .) $ | nindent 2 }}
+{{- range $key, $value := $.Values.busConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
 {{- end }}

@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: {{ template "seleniumGrid.server.configmap.fullname" . }}
   namespace: {{ .Release.Namespace }}
-{{- with .Values.busConfigMap.annotations }}
+{{- with .Values.serverConfigMap.annotations }}
   annotations: {{- toYaml . | nindent 4 }}
 {{- end }}
   labels:
@@ -21,6 +21,6 @@ data:
   SE_JAVA_SSL_TRUST_STORE_PASSWORD: {{ printf "%s/%s" .Values.tls.certVolumeMountPath .Values.tls.trustStorePasswordFile | quote }}
   SE_JAVA_DISABLE_HOSTNAME_VERIFICATION: {{ .Values.tls.disableHostnameVerification | quote }}
 {{- end }}
-{{- range $key, $value := .Values.serverConfigMap.env }}
-  {{ $key }}: {{ $value | quote }}
+{{- range $key, $value := $.Values.serverConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
 {{- end }}

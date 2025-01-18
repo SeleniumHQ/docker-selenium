@@ -233,7 +233,8 @@ busConfigMap:
   # -- Override the name of the bus configMap
   nameOverride:
   # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
-  data: {}
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Custom annotations for configmap
   annotations: {}
 
@@ -241,12 +242,28 @@ busConfigMap:
 sessionMapConfigMap:
   # -- Override the name of the session map configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
+  # -- Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains environment variables for session queue
+sessionQueueConfigMap:
+  # -- Override the name of the session map configMap
+  nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Custom annotations for configmap
   annotations: {}
 
 distributorConfigMap:
   # -- Override the name of the distributor configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -264,6 +281,9 @@ distributorConfigMap:
 routerConfigMap:
   # -- Override the name of the router configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -285,7 +305,8 @@ nodeConfigMap:
   # -- Override the name of the node configMap
   nameOverride:
   # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
-  data: {}
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=50"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -359,6 +380,8 @@ uploaderConfigMap:
 loggingConfigMap:
   # -- Override the name of the logging configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data: {}
   # -- Custom annotations for configmap
   annotations: {}
 
@@ -366,8 +389,7 @@ serverConfigMap:
   # -- Override the name of the server configMap
   nameOverride:
   # -- Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap
-  env:
-    SE_JAVA_OPTS: "-XX:+UseG1GC -Xmx1024m -Xms256m -XX:MaxGCPauseMillis=1000 -Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000"
+  data:
     # Log level of supervisord. Accept values: critical, error, warn, info, debug, trace, blather (http://supervisord.org/logging.html)
     SE_SUPERVISORD_LOG_LEVEL: "info"
   # -- Custom annotations for configmap
@@ -380,7 +402,7 @@ secrets:
   # -- Override to use an external secret
   nameOverride:
   # -- Extra environment variables set to the secret
-  env:
+  data:
     SE_VNC_PASSWORD: "secret"
   # -- Custom annotations for secret
   annotations: {}
@@ -447,7 +469,13 @@ components:
       periodSeconds: 60
       successThreshold: 1
     # -- Resources for router container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for router container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -529,7 +557,13 @@ components:
       periodSeconds: 60
       successThreshold: 1
     # -- Resources for Distributor container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for Distributor container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -584,7 +618,13 @@ components:
     # -- NodePort exposed where to subscribe for events
     subscribeNodePort: 30443
     # -- Resources for event-bus container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for event-bus container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -635,7 +675,13 @@ components:
     # -- Session Map container port
     port: 5556
     # -- Resources for Session Map container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
     # -- SecurityContext for Session Map container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -699,7 +745,13 @@ components:
     # -- Session Queue expose NodePort
     nodePort: 30559
     # -- Resources for Session Queue container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
     # -- SecurityContext for Session Queue container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -836,7 +888,13 @@ hub:
   #   persistentVolumeClaim:
   #     claimName: external-logs-pvc
   # -- Resources for selenium-hub container
-  resources: {}
+  resources:
+    requests:
+      cpu: "0.5"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
   # -- SecurityContext for selenium-hub container
   securityContext: {}
   # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -1836,12 +1894,12 @@ videoRecorder:
   resources:
     # -- Request resources for video recorder pods
     requests:
-      memory: "1Gi"
-      cpu: "1"
+      memory: "128Mi"
+      cpu: "0.1"
     # -- Limit resources for video recorder pods
     limits:
       memory: "1Gi"
-      cpu: "1"
+      cpu: "0.5"
   # -- SecurityContext for recorder container
   securityContext:
   # -- Extra environment variables for video recorder

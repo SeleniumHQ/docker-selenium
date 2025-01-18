@@ -99,6 +99,13 @@ Session Map ConfigMap fullname
 {{- end -}}
 
 {{/*
+Session Queue ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.sessionQueue.configmap.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-session-queue-config" $)) .Values.sessionQueueConfigMap.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Router fullname
 */}}
 {{- define "seleniumGrid.router.fullname" -}}

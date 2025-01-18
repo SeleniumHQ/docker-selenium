@@ -41,9 +41,6 @@ data:
   SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS: '{{ . }}'
   {{- end }}
 {{- end }}
-{{- with .Values.nodeConfigMap.data }}
-  {{- tpl (toYaml .) $ | nindent 2 }}
-{{- end }}
 {{- $fileProceeded := list -}}
 {{- range $path, $_ :=  .Files.Glob $.Values.nodeConfigMap.extraScriptsImportFrom }}
   {{- $fileName := base $path -}}
@@ -59,4 +56,7 @@ data:
   {{- if not (has $fileName $fileProceeded) }}
 {{- $fileName | nindent 2 -}}: {{- toYaml (default "" $value) | indent 4 }}
   {{- end }}
+{{- end }}
+{{- range $key, $value := $.Values.nodeConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
 {{- end }}
