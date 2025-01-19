@@ -1,3 +1,30 @@
+## :heavy_check_mark: selenium-grid-0.38.5
+
+- Chart is using image tag 4.27.0-20250101
+- Chart is tested on Kubernetes versions: v1.25.16, v1.26.15, v1.27.16, v1.28.15, v1.29.12, v1.30.8, v1.31.4, 
+- Chart is tested on container runtime Docker versions: 26.1.4, 26.1.4, 26.1.4, 26.1.4, 26.1.4, 26.1.4, 27.4.1, 
+- Chart is tested on Helm versions: v3.11.3, v3.11.3, v3.12.3, v3.13.3, v3.14.3, v3.15.4, v3.16.4, 
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.16.1-selenium-grid-20250101
+- Selenium Grid Scaler implementation preview. [README](https://github.com/seleniumhq/docker-selenium/tree/trunk/.keda/README.md)
+
+### Changed
+- [`bd0581df`](http://github.com/seleniumhq/docker-selenium/commit/bd0581dfe475cd406f1e3f4efb9fc8ae301d0a6a) - [docs] Update list of chart configs :: Viet Nguyen Duc
+- [`1dedde79`](http://github.com/seleniumhq/docker-selenium/commit/1dedde7998eafaf2591cdf278e33b0e608b680c1) - K8s: Update KEDA patch version in default chart :: Viet Nguyen Duc
+- [`a1950776`](http://github.com/seleniumhq/docker-selenium/commit/a195077697ccc36cb387f56d1ca23e5786710e42) - K8s: Fix chart template for relay node (#2594) :: Viet Nguyen Duc
+- [`2130c340`](http://github.com/seleniumhq/docker-selenium/commit/2130c3401f782f446415182cbc51591465b67f94) - K8s: Update default component ConfigMap and resources limits (#2596) :: Viet Nguyen Duc
+- [`9ab8d6dd`](http://github.com/seleniumhq/docker-selenium/commit/9ab8d6dda3e615de6bc618703c145c4e280e9267) - [docs] Add a tip to get started with Helm chart :: Viet Nguyen Duc
+- [`7a51fd2b`](http://github.com/seleniumhq/docker-selenium/commit/7a51fd2b1c54bba34939f9c41314484904f8202b) - K8s: Update template for service configs (#2593) :: Viet Nguyen Duc
+- [`7cbd6379`](http://github.com/seleniumhq/docker-selenium/commit/7cbd637963bd887e2055b4862c513736f3d0e38d) - K8s: Remove .svc.cluster.local from component host using service name (#2591) :: Viet Nguyen Duc
+- [`f692a3c9`](http://github.com/seleniumhq/docker-selenium/commit/f692a3c9298466be1ab78baef983a3496620bbb2) - Update Helm release postgresql to v16.4.1 (#2579) :: renovate[bot]
+- [`92841c54`](http://github.com/seleniumhq/docker-selenium/commit/92841c54ae8a487c5b9fd06decc19ba929915119) - Update Helm release kube-prometheus-stack to v68 (#2581) :: renovate[bot]
+- [`6423b485`](http://github.com/seleniumhq/docker-selenium/commit/6423b485c0d03bf9ae6e4e9b556846ba684be6cc) - [Helm Chart] only add annotations stanza if they are annotations to add  (#2580) :: AvivGuiser
+- [`93034dc3`](http://github.com/seleniumhq/docker-selenium/commit/93034dc36eadf2d7c89a1193d15a38665cb52dce) - Update Helm release redis to v20.6.2 (#2570) :: renovate[bot]
+- [`5eeb9c08`](http://github.com/seleniumhq/docker-selenium/commit/5eeb9c0868442b3ae96147151bbb98bf5ddec003) - Update Helm release kube-prometheus-stack to v67.10.0 (#2576) :: renovate[bot]
+- [`e0c3beba`](http://github.com/seleniumhq/docker-selenium/commit/e0c3bebad584184207308facd71aabd0142aedca) - K8s: Bump KEDA patch version (#2575) :: Viet Nguyen Duc
+- [`2d3c355e`](http://github.com/seleniumhq/docker-selenium/commit/2d3c355e859a34796ed70824b923023e2f7c8e66) - Update Helm release kube-prometheus-stack to v67.9.0 (#2567) :: renovate[bot]
+- [`d99871d9`](http://github.com/seleniumhq/docker-selenium/commit/d99871d9936f7fd6edf2aef938bdf718f7f56d0c) - Update Helm release kube-prometheus-stack to v67.8.0 (#2561) :: renovate[bot]
+- [`1666105f`](http://github.com/seleniumhq/docker-selenium/commit/1666105f1b885bdf097deb6b71500eae3a9440d6) - [ci] Update chart 0.38.4 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.38.4
 
 - Chart is using image tag 4.27.0-20250101

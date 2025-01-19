@@ -26,4 +26,10 @@ spec:
       {{- if and (eq .Values.components.sessionQueue.serviceType "NodePort") .Values.components.sessionQueue.nodePort }}
       nodePort: {{ .Values.components.sessionQueue.nodePort }}
       {{- end }}
+  {{- with .Values.components.sessionQueue.serviceExternalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.components.sessionQueue.serviceSessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
 {{- end }}

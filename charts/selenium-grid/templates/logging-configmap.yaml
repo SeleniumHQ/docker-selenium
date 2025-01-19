@@ -21,3 +21,6 @@ data:
   SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED: {{ .Values.tracing.globalAutoConfigure | quote }}
   SE_OTEL_EXPORTER_ENDPOINT: {{ tpl .Values.tracing.exporterEndpoint $ | quote }}
 {{- end }}
+{{- range $key, $value := $.Values.loggingConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+{{- end }}

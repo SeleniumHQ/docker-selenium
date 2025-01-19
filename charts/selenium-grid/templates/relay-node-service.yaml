@@ -42,6 +42,12 @@ spec:
       {{- end }}
     {{- end }}
   {{- end }}
+  {{- with $nodeConfig.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with $nodeConfig.service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
 ---
 {{- end }}
 {{- end }}

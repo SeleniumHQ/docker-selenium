@@ -126,7 +126,6 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.java.global-autoconfigure.enabled=${SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED}"
   fi
   if [ -n "$SE_OTEL_JVM_ARGS" ]; then
-    echo "List arguments for OpenTelemetry: ${SE_OTEL_JVM_ARGS}"
     SE_JAVA_OPTS="$SE_JAVA_OPTS ${SE_OTEL_JVM_ARGS}"
   fi
 else
@@ -154,6 +153,10 @@ fi
 
 if [ -n "${SE_JAVA_OPTS_DEFAULT}" ]; then
   SE_JAVA_OPTS="${SE_JAVA_OPTS_DEFAULT} $SE_JAVA_OPTS"
+fi
+
+if [ -n "${JAVA_OPTS:-$SE_JAVA_OPTS}" ]; then
+  echo "Using JAVA_OPTS: ${JAVA_OPTS:-$SE_JAVA_OPTS}"
 fi
 
 function handle_heap_dump() {

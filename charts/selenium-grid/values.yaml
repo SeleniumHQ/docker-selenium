@@ -233,7 +233,8 @@ busConfigMap:
   # -- Override the name of the bus configMap
   nameOverride:
   # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
-  data: {}
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Custom annotations for configmap
   annotations: {}
 
@@ -241,12 +242,28 @@ busConfigMap:
 sessionMapConfigMap:
   # -- Override the name of the session map configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
+  # -- Custom annotations for configmap
+  annotations: {}
+
+# ConfigMap that contains environment variables for session queue
+sessionQueueConfigMap:
+  # -- Override the name of the session map configMap
+  nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Custom annotations for configmap
   annotations: {}
 
 distributorConfigMap:
   # -- Override the name of the distributor configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -264,6 +281,9 @@ distributorConfigMap:
 routerConfigMap:
   # -- Override the name of the router configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -285,7 +305,8 @@ nodeConfigMap:
   # -- Override the name of the node configMap
   nameOverride:
   # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
-  data: {}
+  data:
+    SE_JAVA_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=50"
   # -- Default mode for ConfigMap is mounted as file
   defaultMode: 0755
   # -- Directory where the extra scripts are imported to ConfigMap by default (if given a relative path, it should be in chart's directory)
@@ -359,6 +380,8 @@ uploaderConfigMap:
 loggingConfigMap:
   # -- Override the name of the logging configMap
   nameOverride:
+  # -- Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values
+  data: {}
   # -- Custom annotations for configmap
   annotations: {}
 
@@ -366,8 +389,7 @@ serverConfigMap:
   # -- Override the name of the server configMap
   nameOverride:
   # -- Extra common environment variables for Server (https://www.selenium.dev/documentation/grid/configuration/cli_options/#server) to server configMap
-  env:
-    SE_JAVA_OPTS: "-XX:+UseG1GC -Xmx1024m -Xms256m -XX:MaxGCPauseMillis=1000 -Djdk.httpclient.keepalive.timeout=300 -Djdk.httpclient.maxstreams=10000"
+  data:
     # Log level of supervisord. Accept values: critical, error, warn, info, debug, trace, blather (http://supervisord.org/logging.html)
     SE_SUPERVISORD_LOG_LEVEL: "info"
   # -- Custom annotations for configmap
@@ -380,7 +402,7 @@ secrets:
   # -- Override to use an external secret
   nameOverride:
   # -- Extra environment variables set to the secret
-  env:
+  data:
     SE_VNC_PASSWORD: "secret"
   # -- Custom annotations for secret
   annotations: {}
@@ -447,7 +469,13 @@ components:
       periodSeconds: 60
       successThreshold: 1
     # -- Resources for router container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for router container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -460,6 +488,10 @@ components:
     loadBalancerIP: ""
     # -- Custom annotations for router service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for router pods
     tolerations: []
     # -- Node selector for router pods
@@ -525,13 +557,23 @@ components:
       periodSeconds: 60
       successThreshold: 1
     # -- Resources for Distributor container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for Distributor container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # -- Custom annotations for Distributor service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Distributor pods
     tolerations: []
     # -- Node selector for Distributor pods
@@ -576,7 +618,13 @@ components:
     # -- NodePort exposed where to subscribe for events
     subscribeNodePort: 30443
     # -- Resources for event-bus container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
     # -- SecurityContext for event-bus container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -589,6 +637,10 @@ components:
     loadBalancerIP: ""
     # -- Custom annotations for Event Bus service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Event Bus pods
     tolerations: []
     # -- Node selector for Event Bus pods
@@ -623,13 +675,23 @@ components:
     # -- Session Map container port
     port: 5556
     # -- Resources for Session Map container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
     # -- SecurityContext for Session Map container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # -- Custom annotations for Session Map service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Session Map pods
     tolerations: []
     # -- Node selector for Session Map pods
@@ -683,13 +745,23 @@ components:
     # -- Session Queue expose NodePort
     nodePort: 30559
     # -- Resources for Session Queue container
-    resources: {}
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
     # -- SecurityContext for Session Queue container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
     serviceType: ClusterIP
     # -- Custom annotations for Session Queue service
     serviceAnnotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    serviceExternalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    serviceSessionAffinity: ""
     # -- Tolerations for Session Queue pods
     tolerations: []
     # -- Node selector for Session Queue pods
@@ -816,7 +888,13 @@ hub:
   #   persistentVolumeClaim:
   #     claimName: external-logs-pvc
   # -- Resources for selenium-hub container
-  resources: {}
+  resources:
+    requests:
+      cpu: "0.5"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
   # -- SecurityContext for selenium-hub container
   securityContext: {}
   # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -829,6 +907,10 @@ hub:
   loadBalancerIP: ""
   # -- Custom annotations for Selenium Hub service
   serviceAnnotations: {}
+  # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+  serviceExternalTrafficPolicy: ""
+  # -- Set session affinity to None, ClientIP or ClientIPString
+  serviceSessionAffinity: ""
   # -- Tolerations for selenium-hub pods
   tolerations: []
   # -- Node selector for selenium-hub pods
@@ -844,7 +926,7 @@ tracing:
   # -- Exporter type for tracing. Recommended `otlp` for wide compatibility with observability backends (e.g. Jaeger, Elastic, etc.)
   exporter: otlp
   # -- Exporter endpoint for pushing trace data
-  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector.{{ .Release.Namespace }}:4317"
+  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector:4317"
   # -- Enable global auto-configuration for tracing
   globalAutoConfigure: true
   ingress:
@@ -889,6 +971,10 @@ monitoring:
       nodePort: 30199
       # -- Annotations for exporter service
       annotations: {}
+      # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+      externalTrafficPolicy: ""
+      # -- Set session affinity to None, ClientIP or ClientIPString
+      sessionAffinity: ""
     replicas: 1
   additionalScrapeConfigs:
     key: ""
@@ -1099,6 +1185,10 @@ chromeNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for chrome-node pods
@@ -1284,6 +1374,10 @@ firefoxNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: "2Gi"
   # -- Priority class name for firefox-node pods
@@ -1468,6 +1562,10 @@ edgeNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for edge-node pods
@@ -1652,6 +1750,10 @@ relayNode:
     #   targetPort: 5900
     # -- Custom annotations for service
     annotations: {}
+    # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+    externalTrafficPolicy: ""
+    # -- Set session affinity to None, ClientIP or ClientIPString
+    sessionAffinity: ""
   # -- Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi")
   dshmVolumeSizeLimit: ""
   # -- Priority class name for relay-node pods
@@ -1792,12 +1894,12 @@ videoRecorder:
   resources:
     # -- Request resources for video recorder pods
     requests:
-      memory: "1Gi"
-      cpu: "1"
+      memory: "128Mi"
+      cpu: "0.1"
     # -- Limit resources for video recorder pods
     limits:
       memory: "1Gi"
-      cpu: "1"
+      cpu: "0.5"
   # -- SecurityContext for recorder container
   securityContext:
   # -- Extra environment variables for video recorder
@@ -1874,19 +1976,19 @@ customLabels: {}
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-#  image:
-#    keda:
-#      registry: selenium
-#      repository: keda
-#      tag: "2.16.1-selenium-grid-20250101"
-#    metricsApiServer:
-#      registry: selenium
-#      repository: keda-metrics-apiserver
-#      tag: "2.16.1-selenium-grid-20250101"
-#    webhooks:
-#      registry: selenium
-#      repository: keda-admission-webhooks
-#      tag: "2.16.1-selenium-grid-20250101"
+  image:
+    keda:
+      registry: selenium
+      repository: keda
+      tag: "2.16.1-selenium-grid-20250101"
+    metricsApiServer:
+      registry: selenium
+      repository: keda-metrics-apiserver
+      tag: "2.16.1-selenium-grid-20250101"
+    webhooks:
+      registry: selenium
+      repository: keda-admission-webhooks
+      tag: "2.16.1-selenium-grid-20250101"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

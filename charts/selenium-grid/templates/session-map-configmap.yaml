@@ -42,4 +42,7 @@ data:
 {{- else }}
   SE_SESSIONS_MAP_EXTERNAL_DATASTORE: "false"
 {{- end }}
+{{- range $key, $value := $.Values.sessionMapConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+{{- end }}
 {{- end }}

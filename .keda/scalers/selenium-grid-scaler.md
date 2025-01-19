@@ -22,7 +22,7 @@ triggers:
       url: 'http://selenium-hub:4444/graphql' # Required. Can be ommitted if specified via TriggerAuthentication/ClusterTriggerAuthentication.
       browserName: ''  # Optional. Required to be matched with the request in queue and Node stereotypes (Similarly for `browserVersion` and `platformName`).
       browserVersion: '' # Optional.
-      platformName: 'linux' # Optional.
+      platformName: '' # Optional.
       unsafeSsl : 'false' # Optional.
       activationThreshold: 0 # Optional.
 ```
@@ -35,7 +35,7 @@ triggers:
 - `browserVersion` - Version of browser that usually gets passed in the browser capability. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `unsafeSsl` - Skip certificate validation when connecting over HTTPS. (Values: `true`, `false`, Default: `false`, Optional)
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
-- `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Default: `Linux`, Optional)
+- `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
 
 **Trigger Authentication**
@@ -66,6 +66,8 @@ spec:
         env:
         - name: SE_NODE_BROWSER_VERSION
           value: ''
+        - name: SE_NODE_PLATFORM_NAME
+          value: 'Linux'
 
 ---
 

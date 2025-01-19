@@ -16,7 +16,9 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Settings when scalingType with `deployment`](#settings-when-scalingtype-with-deployment-)
     * [Settings when scalingType with `job`](#settings-when-scalingtype-with-job)
     * [Scaler trigger configuration](#scaler-trigger-configuration)
+    * [Define multiple scalers with different trigger parameters.](#define-multiple-scalers-with-different-trigger-parameters)
     * [Settings fixed-sized thread pool for the Distributor to create new sessions](#settings-fixed-sized-thread-pool-for-the-distributor-to-create-new-sessions)
+    * [Troubleshooting](#troubleshooting)
   * [Updating Selenium-Grid release](#updating-selenium-grid-release)
   * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
   * [Ingress Configuration](#ingress-configuration)
@@ -87,6 +89,20 @@ helm install selenium-grid --set ingress.hostname=selenium-grid.k8s.local docker
 
 # Notes: In case you want to set hostname is selenium-grid.local. You need to add the IP and hostname to the local host file in `/etc/hosts`
 sudo -- sh -c -e "echo \"$(hostname -I | cut -d' ' -f1) selenium-grid.local\" >> /etc/hosts"
+```
+
+When deploying the chart with your custom values, it is recommended to create a YAML file with all configs need to change and corresponding values, then pass it to Helm CLI via `--values` flag. This will help you to manage and reuse the config values easily for multiple deployment env as well as other GitOps toos like ArgoCD, Flux, etc. It also helps us quickly to identify the problem when you need support for an issue. For example:
+
+```yaml
+# your_deployment_values.yaml
+isolateComponents: true
+basicAuth:
+  enabled: true
+ingress:
+  enabled: false
+components:
+  router:
+    serviceType: "NodePort"
 ```
 
 ### Installing the Nightly chart
@@ -355,6 +371,20 @@ By default, the Distributor uses a fixed-sized thread pool with default value is
 In autoscaling, by default, it will calculate based on `no. of node types * maxReplicaCount`. For example: `autoscaling.scaledOptions.maxReplicaCount=50`, 3 node types (`Chrome, Firefox, Edge` enabled), the value is `50 * 3 + 1 = 151` is set to environment variable `SE_NEW_SESSION_THREAD_POOL_SIZE` to adjust the Distributor config `--newsession-threadpool-size`
 
 You can override the default calculation by another value via `components.distributor.newSessionThreadPoolSize` (in full distributed mode) or `hub.newSessionThreadPoolSize` (in basic mode).
+
+### Troubleshooting
+
+This is a list of common issues that you might encounter when enabling autoscaling in Selenium Grid.
+
+- Autoscaling isn't working when deploying KEDA core and Selenium Grid in different namespaces.
+
+For example, you deployed KEDA core in `keda` namespace, and Selenium Grid in `selenium` namespace with config `autoscaling.enableWithExistingKEDA=true`. You observe that the ScaledObject/ScaledJob is created but the scaler isn't triggered.
+Use `kubectl logs` to see `keda-operator` pod logs, if you see the error message looks like
+
+> ERROR   scale_handler   Error getting scaler metrics and activity, but continue {"scaledJob.Name": "selenium-node-firefox-latest", "Scaler": "*scalers.seleniumGridScaler:", "error": "error requesting selenium grid endpoint: Post \"http://selenium-router:4444/graphql\": dial tcp: lookup selenium-router on 10.96.0.10:53: no such host"}
+
+It probably is the DNS issue. You need to check the GraphQL endpoint provided in the trigger metadata is accessible from the KEDA core namespace. In case different namespaces, and using svc name, you might need to use <service-name>.<namespace-name> as the domain name.
+At cluster level, you might need to configure network policies to allow traffic between namespaces properly.
 
 ## Updating Selenium-Grid release
 

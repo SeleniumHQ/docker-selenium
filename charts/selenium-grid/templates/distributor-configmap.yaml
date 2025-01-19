@@ -28,3 +28,6 @@ data:
 {{- $fileName | nindent 2 -}}: {{- toYaml (default "" $value) | indent 4 }}
   {{- end }}
 {{- end }}
+{{- range $key, $value := $.Values.distributorConfigMap.data }}
+  {{ $key }}: {{ tpl $value $ | quote }}
+{{- end }}

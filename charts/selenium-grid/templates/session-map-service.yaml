@@ -23,4 +23,10 @@ spec:
       protocol: TCP
       port: {{ .Values.components.sessionMap.port }}
       targetPort: {{ .Values.components.sessionMap.port }}
+  {{- with .Values.components.sessionMap.serviceExternalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.components.sessionMap.serviceSessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
 {{- end }}

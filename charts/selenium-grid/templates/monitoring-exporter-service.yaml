@@ -30,4 +30,10 @@ spec:
     {{- if and (eq .Values.monitoring.exporter.service.type "NodePort") .Values.monitoring.exporter.service.nodePort }}
       nodePort: {{ .Values.monitoring.exporter.service.nodePort }}
     {{- end }}
+  {{- with .Values.monitoring.exporter.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
   {{- end }}
+  {{- with .Values.monitoring.exporter.service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
+{{- end }}

@@ -35,4 +35,10 @@ spec:
       {{- if and (eq $.Values.components.router.serviceType "NodePort") $.Values.components.router.nodePort }}
       nodePort: {{ $.Values.components.router.nodePort }}
       {{- end }}
+  {{- with .Values.components.router.serviceExternalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.components.router.serviceSessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
 {{- end }}

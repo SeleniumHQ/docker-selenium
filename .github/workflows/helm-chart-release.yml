@@ -29,6 +29,11 @@ on:
 permissions: write-all
 
 env:
+  GH_CLI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_CLI_TOKEN_PR: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
+  RUN_ID: ${{ github.run_id }}
+  RERUN_FAILED_ONLY: ${{ github.event.inputs.rerunFailedOnly || true }}
+  RUN_ATTEMPT: ${{ github.run_attempt }}
   FORCE_RELEASE: ${{ github.event.inputs.release == 'true' }}
 
 jobs:
@@ -124,3 +129,32 @@ jobs:
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
           branch: trunk
+
+  rerun-workflow-when-failure:
+    name: Rerun workflow when failure
+    needs:
+      - helm-chart-test
+    if: failure() && ( github.run_attempt < 3 )
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh
+      - name: Authenticate GitHub CLI for PR
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "$GH_CLI_TOKEN_PR" | gh auth login --with-token
+      - name: Authenticate GitHub CLI
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "$GH_CLI_TOKEN" | gh auth login --with-token
+      - name: Rerun workflow when failure
+        run: |
+          echo "Rerun workflow ID $RUN_ID in attempt #$(($RUN_ATTEMPT + 1))"
+          gh workflow run rerun-failed.yml \
+            --repo $GITHUB_REPOSITORY \
+            --raw-field runId=$RUN_ID \
+            --raw-field rerunFailedOnly=$RERUN_FAILED_ONLY
