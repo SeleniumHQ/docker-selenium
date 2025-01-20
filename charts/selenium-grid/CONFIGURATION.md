@@ -195,6 +195,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | components.router.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | components.router.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for router container |
+| components.router.replicas | int | `1` | Number of replicas for router |
 | components.router.securityContext | object | `{}` | SecurityContext for router container |
 | components.router.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.router.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |

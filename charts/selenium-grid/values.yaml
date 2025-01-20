@@ -476,6 +476,7 @@ components:
       limits:
         cpu: "1"
         memory: "2Gi"
+    # -- Number of replicas for router
     replicas: 1
     # -- SecurityContext for router container
     securityContext: {}
