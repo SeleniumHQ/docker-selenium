@@ -476,6 +476,7 @@ components:
       limits:
         cpu: "1"
         memory: "2Gi"
+    replicas: 1
     # -- SecurityContext for router container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
