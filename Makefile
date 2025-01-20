@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.27.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.27.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.27.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.28.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.28.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.28.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.28.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.27.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.29.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.28.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -209,10 +209,12 @@ standalone_firefox: firefox
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:$(TAG_VERSION) .
 
 standalone_firefox_dev: firefox_dev
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:dev .
 
 standalone_firefox_beta: firefox_beta
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
 
 standalone_chrome: chrome
 	case "$(PLATFORMS)" in \
@@ -226,10 +228,12 @@ standalone_chrome: chrome
   esac
 
 standalone_chrome_dev: chrome_dev
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:dev .
 
 standalone_chrome_beta: chrome_beta
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:beta .
 
 standalone_chromium: chromium
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
@@ -246,10 +250,12 @@ standalone_edge: edge
   esac
 
 standalone_edge_dev: edge_dev
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-edge -t $(NAME)/standalone-edge:dev .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-edge -t $(NAME)/standalone-edge:dev .
 
 standalone_edge_beta: edge_beta
-	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-edge -t $(NAME)/standalone-edge:beta .
 
 video: base
 	cd ./Video && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg FFMPEG_BASED_NAME=$(FFMPEG_BASED_NAME) --build-arg FFMPEG_BASED_TAG=$(FFMPEG_BASED_TAG) $(FROM_IMAGE_ARGS) -t $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) .
