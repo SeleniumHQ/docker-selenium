@@ -44,7 +44,7 @@ if [[ -z "${SE_NODE_GRID_URL}" ]]; then
 else
 	echo "grid-url = \"${SE_NODE_GRID_URL}\"" >>"$FILENAME"
 fi
-echo "session-timeout = \"${SE_NODE_SESSION_TIMEOUT}\"" >>"$FILENAME"
+echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"

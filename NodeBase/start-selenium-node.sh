@@ -53,10 +53,6 @@ if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
   exit 1
 fi
 
-if [ ! -z "$SE_NODE_SESSION_TIMEOUT" ]; then
-  append_se_opts "--session-timeout" "${SE_NODE_SESSION_TIMEOUT}"
-fi
-
 if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
   append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
 fi
