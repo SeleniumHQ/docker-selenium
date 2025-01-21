@@ -319,12 +319,18 @@ template:
       {{- with .node.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}
+      {{- with .node.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
+      {{- end }}
     {{- if .recorder.enabled }}
       - name: "pre-puller-{{ .recorder.name }}"
         image: {{ printf "%s/%s:%s" $videoImageRegistry .recorder.imageName $videoImageTag }}
         command: ["bash", "-c", "'true'"]
       {{- with .recorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .recorder.securityContext }}
+        securityContext: {{- toYaml . | nindent 10 }}
       {{- end }}
     {{- end }}
     {{- with .node.initContainers }}
