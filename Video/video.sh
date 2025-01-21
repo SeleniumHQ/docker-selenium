@@ -259,7 +259,7 @@ else
       fi
       echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
       sleep ${poll_interval}
-    elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
+    elif [[ "$recording_started" = "true" && ( "$session_id" != "$prev_session_id" || "$session_id" == "null" || "$session_id" == "" ) ]]; then
       stop_recording
       wait_for_file_integrity
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
