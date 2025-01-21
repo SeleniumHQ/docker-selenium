@@ -476,7 +476,7 @@ components:
       limits:
         cpu: "1"
         memory: "2Gi"
-    # -- Number of replicas for router
+    # -- Number of replicas
     replicas: 1
     # -- SecurityContext for router container
     securityContext: {}
@@ -566,6 +566,8 @@ components:
       limits:
         cpu: "1"
         memory: "2Gi"
+    # -- Number of replicas
+    replicas: 1
     # -- SecurityContext for Distributor container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -627,6 +629,8 @@ components:
       limits:
         cpu: "1"
         memory: "2Gi"
+    # -- Number of replicas
+    replicas: 1
     # -- SecurityContext for event-bus container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -684,6 +688,8 @@ components:
       limits:
         cpu: "1"
         memory: "1Gi"
+    # -- Number of replicas
+    replicas: 1
     # -- SecurityContext for Session Map container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -754,6 +760,8 @@ components:
       limits:
         cpu: "1"
         memory: "1Gi"
+    # -- Number of replicas
+    replicas: 1
     # -- SecurityContext for Session Queue container
     securityContext: {}
     # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
@@ -897,6 +905,8 @@ hub:
     limits:
       cpu: "1"
       memory: "2Gi"
+  # -- Number of replicas
+  replicas: 1
   # -- SecurityContext for selenium-hub container
   securityContext: {}
   # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)

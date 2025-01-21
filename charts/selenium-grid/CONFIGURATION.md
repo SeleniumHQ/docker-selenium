@@ -195,7 +195,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | components.router.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | components.router.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for router container |
-| components.router.replicas | int | `1` | Number of replicas for router |
+| components.router.replicas | int | `1` | Number of replicas |
 | components.router.securityContext | object | `{}` | SecurityContext for router container |
 | components.router.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.router.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
@@ -224,6 +224,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | components.distributor.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | components.distributor.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Distributor container |
+| components.distributor.replicas | int | `1` | Number of replicas |
 | components.distributor.securityContext | object | `{}` | SecurityContext for Distributor container |
 | components.distributor.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.distributor.serviceAnnotations | object | `{}` | Custom annotations for Distributor service |
@@ -249,6 +250,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.subscribePort | int | `4443` | Container port where to subscribe for events |
 | components.eventBus.subscribeNodePort | int | `30443` | NodePort exposed where to subscribe for events |
 | components.eventBus.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for event-bus container |
+| components.eventBus.replicas | int | `1` | Number of replicas |
 | components.eventBus.securityContext | object | `{}` | SecurityContext for event-bus container |
 | components.eventBus.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.eventBus.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
@@ -272,6 +274,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.annotations | object | `{}` | Custom annotations for Session Map pods |
 | components.sessionMap.port | int | `5556` | Session Map container port |
 | components.sessionMap.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Session Map container |
+| components.sessionMap.replicas | int | `1` | Number of replicas |
 | components.sessionMap.securityContext | object | `{}` | SecurityContext for Session Map container |
 | components.sessionMap.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.sessionMap.serviceAnnotations | object | `{}` | Custom annotations for Session Map service |
@@ -297,6 +300,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.port | int | `5559` | Session Queue container port |
 | components.sessionQueue.nodePort | int | `30559` | Session Queue expose NodePort |
 | components.sessionQueue.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Session Queue container |
+| components.sessionQueue.replicas | int | `1` | Number of replicas |
 | components.sessionQueue.securityContext | object | `{}` | SecurityContext for Session Queue container |
 | components.sessionQueue.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | components.sessionQueue.serviceAnnotations | object | `{}` | Custom annotations for Session Queue service |
@@ -335,6 +339,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
 | hub.extraVolumes | list | `[]` | Extra volumes for Hub pod |
 | hub.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"1Gi"}}` | Resources for selenium-hub container |
+| hub.replicas | int | `1` | Number of replicas |
 | hub.securityContext | object | `{}` | SecurityContext for selenium-hub container |
 | hub.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
 | hub.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |

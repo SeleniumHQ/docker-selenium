@@ -17,7 +17,7 @@ metadata:
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.hub $.Values.global.seleniumGrid) }}
-  replicas: 1
+  replicas: {{ max 1 (.Values.hub.replicas | int) }}
   revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
     matchLabels:
