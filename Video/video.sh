@@ -22,11 +22,11 @@ ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
 if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
-  JQ_SESSION_ID_QUERY=".value.nodes[-1]?.slots[-1]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"4444"}
   NODE_STATUS_ENDPOINT="$(/opt/bin/video_gridUrl.sh)/status"
 else
-  JQ_SESSION_ID_QUERY=".[-1]?.node?.slots | .[-1]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".[]?.node?.slots | .[0]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
@@ -259,7 +259,7 @@ else
       fi
       echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
       sleep ${poll_interval}
-    elif [[ "$recording_started" = "true" && ("$session_id" != "$prev_session_id" || "$session_id" == "null" || "$session_id" == "") ]]; then
+    elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
       wait_for_file_integrity
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then

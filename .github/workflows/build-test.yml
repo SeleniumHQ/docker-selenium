@@ -26,7 +26,7 @@ on:
     paths-ignore:
       - '**.md'
       - '.*'
-  pull_request_target:
+  pull_request:
     paths-ignore:
       - '**.md'
 

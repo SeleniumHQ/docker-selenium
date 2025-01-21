@@ -170,7 +170,7 @@ jobs:
           retry_wait_seconds: 60
           command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
       - name: Login Docker Hub
-        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" || true
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}

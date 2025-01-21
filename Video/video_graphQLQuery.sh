@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 max_time=1
-retry_time=2
+retry_time=3
 
 # Define parameters
 SESSION_ID=$1
