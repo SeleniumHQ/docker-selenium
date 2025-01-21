@@ -22,11 +22,11 @@ ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
 if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
-  JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".value.nodes[-1]?.slots[-1]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"4444"}
   NODE_STATUS_ENDPOINT="$(/opt/bin/video_gridUrl.sh)/status"
 else
-  JQ_SESSION_ID_QUERY=".[]?.node?.slots | .[0]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".[-1]?.node?.slots | .[-1]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
