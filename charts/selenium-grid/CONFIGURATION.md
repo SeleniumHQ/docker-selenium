@@ -395,6 +395,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.serviceAccount | string | `""` | Define an external service account name contains permissions to patch KEDA scaled resources |
 | autoscaling.patchObjectFinalizers.imagePullSecret | string | `""` | Custom pull secret for container in patch job |
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
+| autoscaling.patchObjectFinalizers.nodeSelector | object | `{}` | Node selector for patch job pods|
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
 | autoscaling.scaledOptions.minReplicaCount | int | `0` | Minimum number of replicas |
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
