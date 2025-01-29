@@ -45,4 +45,6 @@ spec:
         - name: {{ default $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}
     {{- end }}
       restartPolicy: Never
+      nodeSelector:
+        {{- toYaml $.Values.autoscaling.patchObjectFinalizers.nodeSelector | nindent 8 }}      
 {{- end }}
