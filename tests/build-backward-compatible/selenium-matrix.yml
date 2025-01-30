@@ -11,6 +11,12 @@ matrix:
         - 124
         - 123
         - 122
+    4.28.1:
+      BASE_RELEASE: selenium-4.28.0
+      BASE_VERSION: 4.28.1
+      VERSION: 4.28.1
+      BINDING_VERSION: 4.28.1
+      CDP:
     4.20.0:
       BASE_RELEASE: selenium-4.20.0
       BASE_VERSION: 4.20.0

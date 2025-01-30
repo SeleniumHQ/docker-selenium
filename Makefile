@@ -12,6 +12,7 @@ CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
 AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
+RELEASE_OLD_VERSION := $(or $(RELEASE_OLD_VERSION),$(RELEASE_OLD_VERSION),false)
 FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS) --sbom=true --attest type=provenance,mode=max
 BUILD_ARGS := $(BUILD_ARGS) --progress plain
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
@@ -337,16 +338,16 @@ edge_upgrade_version:
 tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_chromium_images tag_and_push_firefox_images tag_and_push_edge_images
 
 tag_and_push_chrome_images:
-	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome $(RELEASE_OLD_VERSION)
 
 tag_and_push_chromium_images:
-	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium $(RELEASE_OLD_VERSION)
 
 tag_and_push_edge_images:
-	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) edge
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) edge $(RELEASE_OLD_VERSION)
 
 tag_and_push_firefox_images:
-	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox $(RELEASE_OLD_VERSION)
 
 tag_ffmpeg_latest:
 	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:latest

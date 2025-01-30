@@ -1,9 +1,45 @@
 matrix:
   # List of versions get from
   # Edge: https://packages.microsoft.com/repos/edge/pool/main/m/microsoft-edge-stable
-  # Chrome: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable
+  # Chrome: https://www.ubuntuupdates.org/package/google_chrome/stable/main/base/google-chrome-stable or https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/
   # Firefox: https://download-installer.cdn.mozilla.net/pub/firefox/releases
   CDP:
+    133:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '133.0.3'
+    132:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '132.0.2'
+    131:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '131.0.3'
+    130:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '130.0.1'
+    129:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '129.0.2'
+    128:
+      EDGE_VERSION:
+      CHROME_VERSION:
+      FIREFOX_VERSION: '128.0.3'
+    127:
+      EDGE_VERSION: 'microsoft-edge-stable=127.0.2651.105-1'
+      CHROME_VERSION: 'google-chrome-stable=127.0.6533.119-1'
+      FIREFOX_VERSION: '127.0.2'
+    126:
+      EDGE_VERSION: 'microsoft-edge-stable=126.0.2592.113-1'
+      CHROME_VERSION: 'google-chrome-stable=126.0.6478.182-1'
+      FIREFOX_VERSION: '126.0.1'
+    125:
+      EDGE_VERSION: 'microsoft-edge-stable=125.0.2535.92-1'
+      CHROME_VERSION: 'google-chrome-stable=125.0.6422.141-1'
+      FIREFOX_VERSION: '125.0.3'
     124:
       EDGE_VERSION: 'microsoft-edge-stable=124.0.2478.51-1'
       CHROME_VERSION: 'google-chrome-stable=124.0.6367.60-1'
@@ -56,3 +92,11 @@ matrix:
       EDGE_VERSION: 'microsoft-edge-stable=112.0.1722.64-1'
       CHROME_VERSION: 'google-chrome-stable=112.0.5615.165-1'
       FIREFOX_VERSION: '112.0.2'
+    111:
+      EDGE_VERSION: 'microsoft-edge-stable=111.0.1661.62-1'
+      CHROME_VERSION: 'google-chrome-stable=111.0.5563.146-1'
+      FIREFOX_VERSION: '111.0.1'
+    110:
+      EDGE_VERSION: 'microsoft-edge-stable=110.0.1587.69-1'
+      CHROME_VERSION: 'google-chrome-stable=110.0.5481.177-1'
+      FIREFOX_VERSION: '110.0.1'

@@ -16,6 +16,7 @@ SELENIUM_VERSION=$1
 CDP_VERSIONS=$2
 BROWSER=${3:-"all"}
 PUSH_IMAGE=${4:-"false"}
+RELEASE_OLD_VERSION=${5:-"true"}
 
 IFS=',' read -ra VERSION_LIST <<< "$CDP_VERSIONS"
 
@@ -50,17 +51,16 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
     fi
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} make tag_and_push_firefox_images)"
+      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_firefox_images)"
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "edge" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} make tag_and_push_edge_images)"
+      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_edge_images)"
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} make tag_and_push_chrome_images)"
+      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_chrome_images)"
   fi
 done
 
-readarray -t LOG_LINES <<< "$TAG_LOG_OUTPUT"
-for line in "${LOG_LINES[@]}"; do
-    echo "$line"
+echo "$TAG_LOG_OUTPUT" | while IFS= read -r line; do
+  echo "$line"
 done
