@@ -1,0 +1,106 @@
+name: Deploy specific Chrome version
+
+on:
+  workflow_dispatch:
+    inputs:
+      stable:
+        description: 'Use upstream stable build'
+        required: true
+        type: string
+        default: 'true'
+      grid-version:
+        description: 'Grid version to build. E.g: 4.28.1'
+        required: false
+        type: string
+      browser-version:
+        description: 'Browser version to build. E.g: 120'
+        required: true
+        type: string
+      browser-name:
+        description: 'Browser name to build. E.g: chrome'
+        required: true
+        type: string
+        default: 'chrome'
+      push-image:
+        description: 'Push images to registry after build & test is successful'
+        required: false
+        type: boolean
+        default: true
+      build-date:
+        description: 'Build date'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  deploy:
+    name: Deploy and Release
+    runs-on: ubuntu-24.04
+    permissions: write-all
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make setup_dev_env
+      - name: Output Docker info
+        run: docker info
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ github.event.inputs.stable || true }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sets build date
+        run: |
+          if [ -z "${BUILD_DATE}" ]; then
+            echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          else
+            echo "BUILD_DATE=${BUILD_DATE}" >> $GITHUB_ENV
+          fi
+          echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+        env:
+          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
+      - name: Get Grid version
+        run: |
+          echo ${BASE_VERSION}
+          echo "GRID_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
+      - name: Display Grid version
+        run: echo ${GRID_VERSION}
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Build images
+        run: |
+          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME}
+          make hub
+        env:
+          GRID_VERSION: ${{ github.event.inputs.grid-version || env.GRID_VERSION }}
+          BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
+          BROWSER_NAME: ${{ github.event.inputs.browser-name }}
+      - name: Test images
+        run: |
+          make test_chrome
+      - name: Push images
+        run: |
+          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} true
+        env:
+          GRID_VERSION: ${{ github.event.inputs.grid-version || env.GRID_VERSION }}
+          BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
+          BROWSER_NAME: ${{ github.event.inputs.browser-name }}
