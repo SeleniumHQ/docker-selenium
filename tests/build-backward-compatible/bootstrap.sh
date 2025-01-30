@@ -15,15 +15,19 @@ cd ..
 SELENIUM_VERSION=$1
 CDP_VERSIONS=$2
 BROWSER=${3:-"all"}
-PUSH_IMAGE=${4:-"false"}
-RELEASE_OLD_VERSION=${5:-"true"}
+REUSE_BASE=${4:-"false"}
+PUSH_IMAGE=${5:-"false"}
+SKIP_BUILD=${6:-"false"}
+RELEASE_OLD_VERSION=${7:-"true"}
 
 IFS=',' read -ra VERSION_LIST <<< "$CDP_VERSIONS"
+
+mkdir -p CHANGELOG/${SELENIUM_VERSION}
 
 for CDP_VERSION in "${VERSION_LIST[@]}"; do
   python3 tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION}
   export $(cat .env | xargs)
-  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ]; then
+  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${FIREFOX_VERSION}" ]; then
       BUILD_ARGS="--build-arg FIREFOX_VERSION=${FIREFOX_VERSION}"
       BUILD_ARGS="${BUILD_ARGS}" make standalone_firefox
@@ -32,7 +36,7 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
       exit 1
     fi
   fi
-  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "edge" ]; then
+  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "edge" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${EDGE_VERSION}" ]; then
       BUILD_ARGS="--build-arg EDGE_VERSION=${EDGE_VERSION}"
       BUILD_ARGS="${BUILD_ARGS}" make standalone_edge
@@ -41,26 +45,35 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
       exit 1
     fi
   fi
-  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ]; then
+  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${CHROME_VERSION}" ]; then
       BUILD_ARGS="--build-arg CHROME_VERSION=${CHROME_VERSION}"
-      BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome
+      if [ "${REUSE_BASE}" = "true" ]; then
+        BUILD_ARGS="${BUILD_ARGS}" make chrome_only standalone_chrome_only
+      else
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome
+      fi
     else
       echo "Chrome version not found in matrix for input ${CDP_VERSION}"
       exit 1
     fi
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_firefox_images)"
+      TAG_LOG_OUTPUT="$(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_firefox_images)"
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "edge" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_edge_images)"
+      TAG_LOG_OUTPUT="$(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_edge_images)"
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ]; then
-      TAG_LOG_OUTPUT="$TAG_LOG_OUTPUT $(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_chrome_images)"
+      TAG_LOG_OUTPUT="$(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_chrome_images)"
   fi
-done
 
-echo "$TAG_LOG_OUTPUT" | while IFS= read -r line; do
-  echo "$line"
+  if [ "${PUSH_IMAGE}" = "false" ]; then
+    echo -n "" > ./CHANGELOG/${SELENIUM_VERSION}/${BROWSER}_${CDP_VERSION}.md
+    echo "$TAG_LOG_OUTPUT" | while IFS= read -r line; do
+      echo "$line" >> ./CHANGELOG/${SELENIUM_VERSION}/${BROWSER}_${CDP_VERSION}.md
+    done ;
+  else
+    echo "${TAG_LOG_OUTPUT}"
+  fi
 done

@@ -9,24 +9,24 @@ matrix:
       CHROME_VERSION:
       FIREFOX_VERSION: '133.0.3'
     132:
-      EDGE_VERSION:
-      CHROME_VERSION:
+      EDGE_VERSION: 'microsoft-edge-stable=132.0.2957.127-1'
+      CHROME_VERSION: 'google-chrome-stable=132.0.6834.159-1'
       FIREFOX_VERSION: '132.0.2'
     131:
-      EDGE_VERSION:
-      CHROME_VERSION:
+      EDGE_VERSION: 'microsoft-edge-stable=131.0.2903.147-1'
+      CHROME_VERSION: 'google-chrome-stable=131.0.6778.264-1'
       FIREFOX_VERSION: '131.0.3'
     130:
-      EDGE_VERSION:
-      CHROME_VERSION:
+      EDGE_VERSION: 'microsoft-edge-stable=130.0.2849.80-1'
+      CHROME_VERSION: 'google-chrome-stable=130.0.6723.116-1'
       FIREFOX_VERSION: '130.0.1'
     129:
-      EDGE_VERSION:
-      CHROME_VERSION:
+      EDGE_VERSION: 'microsoft-edge-stable=129.0.2792.89-1'
+      CHROME_VERSION: 'google-chrome-stable=129.0.6668.100-1'
       FIREFOX_VERSION: '129.0.2'
     128:
-      EDGE_VERSION:
-      CHROME_VERSION:
+      EDGE_VERSION: 'microsoft-edge-stable=128.0.2739.79-1'
+      CHROME_VERSION: 'google-chrome-stable=128.0.6613.137-1'
       FIREFOX_VERSION: '128.0.3'
     127:
       EDGE_VERSION: 'microsoft-edge-stable=127.0.2651.105-1'
@@ -42,7 +42,7 @@ matrix:
       FIREFOX_VERSION: '125.0.3'
     124:
       EDGE_VERSION: 'microsoft-edge-stable=124.0.2478.51-1'
-      CHROME_VERSION: 'google-chrome-stable=124.0.6367.60-1'
+      CHROME_VERSION: 'google-chrome-stable=124.0.6367.207-1'
       FIREFOX_VERSION: '124.0.2'
     123:
       EDGE_VERSION: 'microsoft-edge-stable=123.0.2420.97-1'

@@ -8,41 +8,52 @@ on:
         required: true
         type: string
         default: 'true'
+      reuse-base:
+        description: 'Reuse base image to build'
+        required: false
+        type: boolean
+        default: true
       grid-version:
-        description: 'Grid version to build. E.g: 4.28.1'
+        description: 'Grid version to build. E.g: 4.28.1. Must provide if reusing base image'
         required: false
         type: string
-      browser-version:
-        description: 'Browser version to build. E.g: 120'
-        required: true
+        default: ''
+      build-date:
+        description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
+        required: false
         type: string
+        default: ''
       browser-name:
         description: 'Browser name to build. E.g: chrome'
         required: true
         type: string
         default: 'chrome'
+      browser-version:
+        description: 'Browser version to build. E.g: 120'
+        required: true
+        type: string
       push-image:
-        description: 'Push images to registry after build & test is successful'
-        required: false
+        description: 'Push image after testing successfully'
+        required: true
         type: boolean
         default: true
-      build-date:
-        description: 'Build date'
-        required: false
-        type: string
-        default: ''
+
+env:
+  GRID_VERSION: ${{ github.event.inputs.grid-version }}
+  BROWSER_NAME: ${{ github.event.inputs.browser-name }}
+  BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
+  REUSE_BASE: ${{ github.event.inputs.reuse-base || true }}
+  BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
+  NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+  AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+  PUSH_IMAGE: ${{ github.event.inputs.push-image || false }}
 
 jobs:
   deploy:
-    name: Deploy and Release
+    name: Deploy Node/Standalone Chrome with specific browser version
     runs-on: ubuntu-24.04
     permissions: write-all
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
         with:
@@ -70,12 +81,8 @@ jobs:
             echo "BUILD_DATE=${BUILD_DATE}" >> $GITHUB_ENV
           fi
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
-          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
-        env:
-          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
-          BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
       - name: Get Grid version
+        if: env.GRID_VERSION == ''
         run: |
           echo ${BASE_VERSION}
           echo "GRID_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
@@ -86,21 +93,24 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-      - name: Build images
+      - name: Build images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         run: |
-          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME}
-          make hub
-        env:
-          GRID_VERSION: ${{ github.event.inputs.grid-version || env.GRID_VERSION }}
-          BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
-          BROWSER_NAME: ${{ github.event.inputs.browser-name }}
-      - name: Test images
+          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
+      - name: Build Hub image for testing
+        if: env.REUSE_BASE == 'false'
+        run: make hub
+      - name: Test images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         run: |
           make test_chrome
-      - name: Push images
+          make test_chrome_standalone
+      - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
+        if: env.PUSH_IMAGE == 'true'
         run: |
-          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} true
-        env:
-          GRID_VERSION: ${{ github.event.inputs.grid-version || env.GRID_VERSION }}
-          BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
-          BROWSER_NAME: ${{ github.event.inputs.browser-name }}
+          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE} true true
+      - name: Upload changelog
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: image_tags_${{ env.GRID_VERSION }}_${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}
+          path: ./CHANGELOG/${{ env.GRID_VERSION }}/${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}.md
+          if-no-files-found: ignore

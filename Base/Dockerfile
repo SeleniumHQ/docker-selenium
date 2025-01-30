@@ -6,6 +6,7 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
+ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.46.0
 ARG GRPC_VERSION=1.69.0
@@ -123,9 +124,9 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt \
         && java -jar /tmp/cs fetch --classpath --cache /external_jars \
-        org.seleniumhq.selenium:selenium-session-map-jdbc:${VERSION} \
+        org.seleniumhq.selenium:selenium-session-map-jdbc:${MVN_SELENIUM_VERSION} \
         org.postgresql:postgresql:${POSTGRESQL_VERSION} \
-        org.seleniumhq.selenium:selenium-session-map-redis:${VERSION} \
+        org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
         # Patch specific version for CVEs in the dependencies
         io.lettuce:lettuce-core:6.5.1.RELEASE \
         > /external_jars/.classpath_session_map.txt \

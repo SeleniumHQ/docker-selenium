@@ -22,6 +22,7 @@ echo "Tagging images for browser ${BROWSER}, version ${VERSION}, build date ${BU
 case "${BROWSER}" in
 
 chrome)
+  echo "Selenium Grid version -> ${TAG_VERSION}"
   CHROME_VERSION=$(docker run --platform ${PLATFORM} --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
   echo "Chrome version -> "${CHROME_VERSION}
   CHROME_SHORT_VERSION="$(short_version ${CHROME_VERSION})"
@@ -71,6 +72,7 @@ chrome)
 
   ;;
 chromium)
+  echo "Selenium Grid version -> ${TAG_VERSION}"
   CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
   echo "Chromium version -> "${CHROMIUM_VERSION}
   CHROMIUM_SHORT_VERSION="$(short_version ${CHROMIUM_VERSION})"
@@ -120,6 +122,7 @@ chromium)
 
   ;;
 edge)
+  echo "Selenium Grid version -> ${TAG_VERSION}"
   EDGE_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
   echo "Edge version -> "${EDGE_VERSION}
   EDGE_SHORT_VERSION="$(short_version ${EDGE_VERSION})"
@@ -169,6 +172,7 @@ edge)
 
   ;;
 firefox)
+  echo "Selenium Grid version -> ${TAG_VERSION}"
   FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
   echo "Firefox version -> "${FIREFOX_VERSION}
   FIREFOX_SHORT_VERSION="$(short_version ${FIREFOX_VERSION})"
