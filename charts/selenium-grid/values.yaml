@@ -1044,7 +1044,7 @@ autoscaling:
         cpu: 200m
         memory: 500Mi
     # -- Node selector for the patch job
-    nodeSelector: {}        
+    nodeSelector: {}
   # -- Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     # -- Minimum number of replicas
