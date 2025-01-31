@@ -17,8 +17,19 @@ if [[ -n "${SE_NODE_RELAY_URL}" ]]; then
 	if [[ -n "${SE_NODE_RELAY_PROTOCOL_VERSION}" ]]; then
 		echo "protocol-version = \"${SE_NODE_RELAY_PROTOCOL_VERSION}\"" >>"$FILENAME"
 	fi
-	echo "configs = [
-  \"${SE_NODE_RELAY_MAX_SESSIONS}\", \"{\\\"browserName\\\": \\\"${SE_NODE_RELAY_BROWSER_NAME}\\\", \\\"platformName\\\": \\\"${SE_NODE_RELAY_PLATFORM_NAME}\\\", \\\"appium:platformVersion\\\": \\\"${SE_NODE_RELAY_PLATFORM_VERSION}\\\"}\"
-  ]
-  " >>"$FILENAME"
+	if [[ -z "${SE_NODE_RELAY_STEREOTYPE}" ]]; then
+		SE_NODE_RELAY_STEREOTYPE="{\"browserName\": \"${SE_NODE_RELAY_BROWSER_NAME}\", \"platformName\": \"${SE_NODE_RELAY_PLATFORM_NAME}\", \"appium:platformVersion\": \"${SE_NODE_RELAY_PLATFORM_VERSION}\"}"
+	else
+		SE_NODE_RELAY_STEREOTYPE="${SE_NODE_RELAY_STEREOTYPE}"
+	fi
+	if [[ -n "${SE_NODE_RELAY_STEREOTYPE_EXTRA}" ]]; then
+		echo "Merging SE_NODE_RELAY_STEREOTYPE_EXTRA=${SE_NODE_RELAY_STEREOTYPE_EXTRA} to main relay stereotype"
+		SE_NODE_RELAY_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_RELAY_STEREOTYPE}" "${SE_NODE_RELAY_STEREOTYPE_EXTRA}")"
+		if [[ $? -ne 0 ]]; then
+			echo "Failed to merge SE_NODE_RELAY_STEREOTYPE_EXTRA. Please check the format of the JSON string. Keep using main relay stereotype."
+		else
+			echo "Merged relay stereotype: ${SE_NODE_RELAY_STEREOTYPE}"
+		fi
+	fi
+	echo "configs = ['${SE_NODE_RELAY_MAX_SESSIONS}', '${SE_NODE_RELAY_STEREOTYPE}']" >>"$FILENAME"
 fi

@@ -48,8 +48,7 @@ echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"
-# When node is handled both browser and relay, SE_NODE_MAX_CONCURRENCY is used to configure max concurrency based on sum of them
-echo "max-sessions = ${SE_NODE_MAX_CONCURRENCY:-${SE_NODE_MAX_SESSIONS}}
+echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >>"$FILENAME"
 
 if [ -f /opt/selenium/browser_name ]; then

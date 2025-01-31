@@ -68,6 +68,7 @@ services:
       - SE_NODE_RELAY_PLATFORM_NAME=Android
       - SE_NODE_RELAY_PLATFORM_VERSION=${ANDROID_PLATFORM_API}
       - SE_NODE_RELAY_BROWSER_NAME=chrome
+      - SE_NODE_RELAY_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
       - SE_NODE_RELAY_WEB_VNC=ws://emulator:6080/websockify
 
   emulator:

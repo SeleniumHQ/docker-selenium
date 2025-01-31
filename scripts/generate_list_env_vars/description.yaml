@@ -378,10 +378,6 @@
 - name: SE_NODE_HOST
   description: ''
   cli: ''
-- name: SE_NODE_MAX_CONCURRENCY
-  description: When node is handled both browser and relay, SE_NODE_MAX_CONCURRENCY
-    is used to configure max concurrency based on sum of them
-  cli: ''
 - name: SE_NODE_RELAY_BROWSER_NAME
   description: ''
   cli: ''
@@ -430,4 +426,11 @@
   cli: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_SCHEME
   description: ''
+  cli: ''
+- name: SE_NODE_RELAY_STEREOTYPE
+  description: Capabilities in JSON string to overwrite the default Node relay stereotype
+  cli: ''
+- name: SE_NODE_RELAY_STEREOTYPE_EXTRA
+  description: Extra capabilities in JSON string that wants to merge to the default
+    Node relay stereotype
   cli: ''

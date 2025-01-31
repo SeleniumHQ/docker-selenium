@@ -1180,7 +1180,7 @@ The following is an en example of configuration relay commands.
 If you want to relay commands only, `selenium/node-base` is suitable and lightweight for this purpose.
 In case you want to configure node with both browsers and relay commands, respective node images can be used.
 
-To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below
+To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below. Those will be used to generate the default relay config in TOML format looks like below.
 
 ```toml
 [relay]
@@ -1189,6 +1189,10 @@ status-endpoint = "${SE_NODE_RELAY_STATUS_ENDPOINT}"
 protocol-version = "${SE_NODE_RELAY_PROTOCOL_VERSION}"
 configs = [ '${SE_NODE_RELAY_MAX_SESSIONS}', '{"browserName": "${SE_NODE_RELAY_BROWSER_NAME}", "platformName": "${SE_NODE_RELAY_PLATFORM_NAME}", "appium:platformVersion": "${SE_NODE_RELAY_PLATFORM_VERSION}"}' ]
 ```
+
+Instead of input value for each environment variable to construct the default relay stereotype, you can use the `SE_NODE_RELAY_STEREOTYPE` environment variable to overwrite the default relay stereotype with your custom stereotype.
+
+In another case, if you want to retain the default relay stereotype and append additional capabilities, you can use the `SE_NODE_RELAY_STEREOTYPE_EXTRA` environment variable to set your capabilities. Those will be merged to the default relay stereotype.
 
 To run a sample test with the relayed node, you can clone the project and try below command:
 

@@ -13,5 +13,5 @@ max-sessions = 1
 url = "http://standalone:4444/wd/hub"
 status-endpoint = "/status"
 configs = [
-    '1', '{"browserName":"${BROWSER_NAME}","platformName":"linux"}'
+    '3', '{"browserName":"${BROWSER_NAME}","platformName":"linux"}'
 ]

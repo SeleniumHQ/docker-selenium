@@ -72,8 +72,8 @@ set_containerd_image_store:
 	docker info -f '{{ .DriverStatus }}'
 
 format_shell_scripts:
-	sudo apt-get update -qq ; \
-  sudo apt-get install -yq shfmt ; \
+	sudo apt-get update -qq || true ; \
+  sudo apt-get install -yq shfmt || true ; \
   shfmt -l -w -d $${PWD}/*.sh $${PWD}/**/*.sh $$PWD/**.sh $$PWD/**/generate_** $$PWD/**/wrap_* ; \
   git diff --stat --exit-code ; \
   EXIT_CODE=$$? ; \

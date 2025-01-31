@@ -96,8 +96,6 @@
   default: '30'
 - name: SE_NODE_HOST
   default: ''
-- name: SE_NODE_MAX_CONCURRENCY
-  default: ''
 - name: SE_NODE_MAX_SESSIONS
   default: '1'
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
@@ -123,6 +121,10 @@
 - name: SE_NODE_RELAY_PROTOCOL_VERSION
   default: ''
 - name: SE_NODE_RELAY_STATUS_ENDPOINT
+  default: ''
+- name: SE_NODE_RELAY_STEREOTYPE
+  default: ''
+- name: SE_NODE_RELAY_STEREOTYPE_EXTRA
   default: ''
 - name: SE_NODE_RELAY_URL
   default: ''
