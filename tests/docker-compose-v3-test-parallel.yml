@@ -38,6 +38,7 @@ services:
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
+      - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
     restart: always
 
   firefox:
@@ -73,6 +74,7 @@ services:
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
+      - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
     restart: always
 
   edge:
@@ -106,6 +108,7 @@ services:
       - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
+      - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
     restart: always
 
   selenium-hub:
