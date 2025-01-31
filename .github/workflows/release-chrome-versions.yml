@@ -22,18 +22,23 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: ''
+        default: '20250123'
       browser-name:
         description: 'Browser name to build. E.g: chrome'
         required: true
         type: string
         default: 'chrome'
-      browser-version:
-        description: 'Browser version to build. E.g: 120'
+      browser-versions:
+        description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        type: string
+        default: '[97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132]'
       push-image:
         description: 'Push image after testing successfully'
+        required: true
+        type: boolean
+        default: false
+      pr-changelog:
+        description: 'Create a PR for CHANGELOG'
         required: true
         type: boolean
         default: true
@@ -41,18 +46,25 @@ on:
 env:
   GRID_VERSION: ${{ github.event.inputs.grid-version }}
   BROWSER_NAME: ${{ github.event.inputs.browser-name }}
-  BROWSER_VERSION: ${{ github.event.inputs.browser-version }}
   REUSE_BASE: ${{ github.event.inputs.reuse-base || true }}
   BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
   NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
   AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
   PUSH_IMAGE: ${{ github.event.inputs.push-image || false }}
+  PR_CHANGELOG: ${{ github.event.inputs.pr-changelog || true }}
+  RUN_ID: ${{ github.run_id }}
 
 jobs:
   deploy:
-    name: Deploy Node/Standalone Chrome with specific browser version
+    name: Deploy Node/Standalone Chrome
     runs-on: ubuntu-24.04
     permissions: write-all
+    strategy:
+      fail-fast: false
+      matrix:
+        browser-version: ${{ fromJSON(github.event.inputs.browser-versions)}}
+    outputs:
+      GRID_VERSION: ${{ steps.display_grid_version.outputs.GRID_VERSION }}
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -81,21 +93,32 @@ jobs:
             echo "BUILD_DATE=${BUILD_DATE}" >> $GITHUB_ENV
           fi
           echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
+          echo "BROWSER_VERSION=${BROWSER_VERSION}" >> $GITHUB_ENV
+        env:
+          BROWSER_VERSION: ${{ matrix.browser-version }}
       - name: Get Grid version
         if: env.GRID_VERSION == ''
         run: |
           echo ${BASE_VERSION}
           echo "GRID_VERSION=${BASE_VERSION}" >> $GITHUB_ENV
       - name: Display Grid version
-        run: echo ${GRID_VERSION}
+        id: display_grid_version
+        run: |
+          echo ${GRID_VERSION}
+          echo "GRID_VERSION=${GRID_VERSION}" >> "$GITHUB_OUTPUT"
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Build images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
-        run: |
-          ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
       - name: Build Hub image for testing
         if: env.REUSE_BASE == 'false'
         run: make hub
@@ -114,3 +137,48 @@ jobs:
           name: image_tags_${{ env.GRID_VERSION }}_${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}
           path: ./CHANGELOG/${{ env.GRID_VERSION }}/${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}.md
           if-no-files-found: ignore
+
+  pr-results:
+    name: Create a PR with changelog
+    if: (!failure() && !cancelled() && (github.event.inputs.pr-changelog == 'true'))
+    runs-on: ubuntu-24.04
+    needs: deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Get Grid version
+        run: |
+          echo "GRID_VERSION=${GRID_VERSION}" >> $GITHUB_ENV
+        env:
+          GRID_VERSION: ${{ needs.deploy.outputs.GRID_VERSION }}
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          path: ./CHANGELOG/${{ env.GRID_VERSION }}
+          pattern: 'image_tags_*'
+          merge-multiple: 'true'
+          run-id: ${{ env.RUN_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit configs
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@main
+        with:
+          token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          commit-message: "[ci] Upload CHANGELOG for Node/Standalone ${{ env.BROWSER_NAME }} version with Grid ${{ env.GRID_VERSION }}"
+          title: "[ci] Upload CHANGELOG for Node/Standalone ${{ env.BROWSER_NAME }} version with Grid ${{ env.GRID_VERSION }}"
+          body: "This PR contains the CHANGELOG for Node/Standalone Chrome with specific browser versions: ${{ github.event.inputs.browser-versions }}"
+          committer: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          author: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          branch: browser-node-changelog
+      - name: Check outputs
+        if: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"

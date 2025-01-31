@@ -25,7 +25,7 @@ IFS=',' read -ra VERSION_LIST <<< "$CDP_VERSIONS"
 mkdir -p CHANGELOG/${SELENIUM_VERSION}
 
 for CDP_VERSION in "${VERSION_LIST[@]}"; do
-  python3 tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION}
+  python3 tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION} ${BROWSER}
   export $(cat .env | xargs)
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "firefox" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${FIREFOX_VERSION}" ]; then

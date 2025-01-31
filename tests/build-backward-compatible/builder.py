@@ -30,19 +30,23 @@ if __name__ == '__main__':
     # Get versions from arguments
     selenium_version = sys.argv[1]
     cdp_version = int(sys.argv[2])
+    browser_name = sys.argv[3]
     # Create .env with component versions
-    BASE_RELEASE = matrix["selenium"][selenium_version]["BASE_RELEASE"]
-    BASE_VERSION = matrix["selenium"][selenium_version]["BASE_VERSION"]
-    VERSION = matrix["selenium"][selenium_version]["VERSION"]
-    BINDING_VERSION = matrix["selenium"][selenium_version]["BINDING_VERSION"]
-    FIREFOX_VERSION = matrix["CDP"][cdp_version]["FIREFOX_VERSION"]
-    EDGE_VERSION = matrix["CDP"][cdp_version]["EDGE_VERSION"]
-    CHROME_VERSION = matrix["CDP"][cdp_version]["CHROME_VERSION"]
     with open('.env', 'w') as f:
-        f.write(f"BASE_RELEASE={BASE_RELEASE}\n")
-        f.write(f"BASE_VERSION={BASE_VERSION}\n")
-        f.write(f"VERSION={VERSION}\n")
-        f.write(f"BINDING_VERSION={BINDING_VERSION}\n")
+      BASE_RELEASE = matrix["selenium"][selenium_version]["BASE_RELEASE"]
+      BASE_VERSION = matrix["selenium"][selenium_version]["BASE_VERSION"]
+      VERSION = matrix["selenium"][selenium_version]["VERSION"]
+      BINDING_VERSION = matrix["selenium"][selenium_version]["BINDING_VERSION"]
+      f.write(f"BASE_RELEASE={BASE_RELEASE}\n")
+      f.write(f"BASE_VERSION={BASE_VERSION}\n")
+      f.write(f"VERSION={VERSION}\n")
+      f.write(f"BINDING_VERSION={BINDING_VERSION}\n")
+      if browser_name == "firefox" or browser_name == "all":
+        FIREFOX_VERSION = matrix["CDP"][cdp_version]["FIREFOX_VERSION"]
         f.write(f"FIREFOX_VERSION={FIREFOX_VERSION}\n")
+      if browser_name == "edge" or browser_name == "all":
+        EDGE_VERSION = matrix["CDP"][cdp_version]["EDGE_VERSION"]
         f.write(f"EDGE_VERSION={EDGE_VERSION}\n")
+      if browser_name == "chrome" or browser_name == "all":
+        CHROME_VERSION = matrix["CDP"][cdp_version]["CHROME_VERSION"]
         f.write(f"CHROME_VERSION={CHROME_VERSION}")
