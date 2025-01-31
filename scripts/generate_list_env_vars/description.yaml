@@ -366,3 +366,68 @@
 - name: SE_AUDIO_SOURCE
   description: FFmpeg arguments to record the audio source
   cli: ''
+- name: SE_BROWSER_BINARY_LOCATION
+  description: ''
+  cli: ''
+- name: SE_NODE_BROWSER_NAME
+  description: ''
+  cli: ''
+- name: SE_NODE_CONTAINER_NAME
+  description: ''
+  cli: ''
+- name: SE_NODE_HOST
+  description: ''
+  cli: ''
+- name: SE_NODE_MAX_CONCURRENCY
+  description: When node is handled both browser and relay, SE_NODE_MAX_CONCURRENCY
+    is used to configure max concurrency based on sum of them
+  cli: ''
+- name: SE_NODE_RELAY_BROWSER_NAME
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_MAX_SESSIONS
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_PLATFORM_NAME
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_PLATFORM_VERSION
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_PROTOCOL_VERSION
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_STATUS_ENDPOINT
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_URL
+  description: ''
+  cli: ''
+- name: SE_NODE_STEREOTYPE
+  description: Capabilities in JSON string to overwrite the default Node stereotype
+  cli: ''
+- name: SE_NODE_STEREOTYPE_EXTRA
+  description: Extra capabilities in JSON string that wants to merge to the default
+    Node stereotype
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_HOSTNAME
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_URL
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_USER
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_PORT
+  description: ''
+  cli: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_SCHEME
+  description: ''
+  cli: ''
