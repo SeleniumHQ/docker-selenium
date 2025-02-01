@@ -71,7 +71,9 @@ function wait_for_display() {
   until xset b off >/dev/null 2>&1; do
     sleep ${poll_interval}
   done
-  VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
+  if [ -z "$SE_SCREEN_WIDTH" -o -z "$SE_SCREEN_HEIGHT" ]; then
+    VIDEO_SIZE=$(xdpyinfo | grep 'dimensions:' | awk '{print $2}')
+  fi
   echo "$(date -u +"${ts_format}") [${process_name}] - Display ${DISPLAY} is open with dimensions ${VIDEO_SIZE}"
 }
 
