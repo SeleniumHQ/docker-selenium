@@ -39,7 +39,11 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "edge" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${EDGE_VERSION}" ]; then
       BUILD_ARGS="--build-arg EDGE_VERSION=${EDGE_VERSION}"
-      BUILD_ARGS="${BUILD_ARGS}" make standalone_edge
+      if [ "${REUSE_BASE}" = "true" ]; then
+        BUILD_ARGS="${BUILD_ARGS}" make edge_only standalone_edge_only
+      else
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_edge
+      fi
     else
       echo "Edge version not found in matrix for input ${CDP_VERSION}"
       exit 1

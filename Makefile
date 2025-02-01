@@ -177,7 +177,7 @@ chrome_beta:
 chromium: node_base
 	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
-edge: node_base
+edge_only:
 	case "$(PLATFORMS)" in \
     *linux/amd64*) \
       echo "Microsoft Edge is only supported on linux/amd64" \
@@ -187,6 +187,8 @@ edge: node_base
        echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
       ;; \
   esac
+
+edge: node_base edge_only
 
 edge_dev:
 	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg EDGE_VERSION=microsoft-edge-dev -t $(NAME)/node-edge:dev .
@@ -244,7 +246,7 @@ standalone_chrome_beta: chrome_beta
 standalone_chromium: chromium
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
-standalone_edge: edge
+standalone_edge_only:
 	case "$(PLATFORMS)" in \
     *linux/amd64*) \
       echo "Microsoft Edge is only supported on linux/amd64" \
@@ -254,6 +256,8 @@ standalone_edge: edge
        echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
       ;; \
   esac
+
+standalone_edge: edge standalone_edge_only
 
 standalone_edge_dev: edge_dev
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
