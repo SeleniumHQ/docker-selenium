@@ -56,7 +56,7 @@ env:
 
 jobs:
   deploy:
-    name: Deploy Node/Standalone Chrome
+    name: Node/Standalone Chrome
     runs-on: ubuntu-24.04
     permissions: write-all
     strategy:

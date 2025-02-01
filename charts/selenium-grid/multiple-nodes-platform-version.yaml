@@ -128,6 +128,71 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: '110.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-109'
+      imageTag: '109.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '109.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-108'
+      imageTag: '108.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '108.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-107'
+      imageTag: '107.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '107.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-106'
+      imageTag: '106.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '106.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-105'
+      imageTag: '105.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '105.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-104'
+      imageTag: '104.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '104.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-103'
+      imageTag: '103.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '103.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-102'
+      imageTag: '102.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '102.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-101'
+      imageTag: '101.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '101.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-100'
+      imageTag: '100.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '100.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-99'
+      imageTag: '99.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '99.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-98'
+      imageTag: '98.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '98.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-97'
+      imageTag: '97.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '97.0'
   firefoxNode:
     # Keep the first iteration with latest version of Firefox
     - nameOverride: '{{ $.Release.Name }}-node-firefox-latest'
