@@ -53,7 +53,7 @@
 | SE_HTTPS_PRIVATE_KEY | /opt/selenium/secrets/tls.key |  |  |
 | SE_ENABLE_TRACING | true |  |  |
 | SE_OTEL_EXPORTER_ENDPOINT |  |  |  |
-| SE_OTEL_SERVICE_NAME | selenium-standalone-docker |  |  |
+| SE_OTEL_SERVICE_NAME | selenium-router |  |  |
 | SE_OTEL_JVM_ARGS |  |  |  |
 | SE_OTEL_TRACES_EXPORTER | otlp |  |  |
 | SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED | true |  |  |
@@ -121,3 +121,25 @@
 | SE_SUPERVISORD_START_RETRIES | 5 |  |  |
 | SE_RECORD_AUDIO | false | Flag to enable recording the audio source (default is Pulse Audio input) |  |
 | SE_AUDIO_SOURCE | -f pulse -ac 2 -i default | FFmpeg arguments to record the audio source |  |
+| SE_BROWSER_BINARY_LOCATION |  |  |  |
+| SE_NODE_BROWSER_NAME |  |  |  |
+| SE_NODE_CONTAINER_NAME |  |  |  |
+| SE_NODE_HOST |  |  |  |
+| SE_NODE_RELAY_BROWSER_NAME |  |  |  |
+| SE_NODE_RELAY_MAX_SESSIONS |  |  |  |
+| SE_NODE_RELAY_PLATFORM_NAME |  |  |  |
+| SE_NODE_RELAY_PLATFORM_VERSION |  |  |  |
+| SE_NODE_RELAY_PROTOCOL_VERSION |  |  |  |
+| SE_NODE_RELAY_STATUS_ENDPOINT |  |  |  |
+| SE_NODE_RELAY_URL |  |  |  |
+| SE_NODE_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node stereotype |  |
+| SE_NODE_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node stereotype |  |
+| SE_SESSIONS_MAP_EXTERNAL_HOSTNAME |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_JDBC_URL |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_JDBC_USER |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_PORT |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_SCHEME |  |  |  |
+| SE_NODE_RELAY_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node relay stereotype |  |
+| SE_NODE_RELAY_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node relay stereotype |  |

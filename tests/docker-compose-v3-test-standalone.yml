@@ -20,6 +20,7 @@ services:
       - SE_ROUTER_USERNAME=${BASIC_AUTH_USERNAME}
       - SE_ROUTER_PASSWORD=${BASIC_AUTH_PASSWORD}
       - SE_SUB_PATH=${SUB_PATH}
+      - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
     ports:
       - "4444:4444"
     healthcheck:

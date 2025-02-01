@@ -8,7 +8,7 @@ def extract_variables_from_shell_scripts(directory_path):
     for root, _, files in os.walk(directory_path):
         files.sort()
         for file in files:
-            if file.endswith(".sh"):
+            if file.endswith(".sh") or file.startswith("generate_"):
                 file_path = os.path.join(root, file)
                 try:
                     with open(file_path, 'r') as f:

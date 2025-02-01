@@ -48,8 +48,7 @@ echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"
-# When node is handled both browser and relay, SE_NODE_MAX_CONCURRENCY is used to configure max concurrency based on sum of them
-echo "max-sessions = ${SE_NODE_MAX_CONCURRENCY:-${SE_NODE_MAX_SESSIONS}}
+echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
 " >>"$FILENAME"
 
 if [ -f /opt/selenium/browser_name ]; then
@@ -61,12 +60,22 @@ fi
 if [ -f /opt/selenium/browser_binary_location ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
 	SE_BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
 fi
+SE_NODE_CONTAINER_NAME="${SE_NODE_CONTAINER_NAME:-$(hostname)}"
 
 # 'browserName' is mandatory for default stereotype
 if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]]; then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\"}"
+	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
 else
 	SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
+fi
+if [[ -n "${SE_NODE_STEREOTYPE_EXTRA}" ]]; then
+	echo "Merging SE_NODE_STEREOTYPE_EXTRA=${SE_NODE_STEREOTYPE_EXTRA} to main stereotype"
+	SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${SE_NODE_STEREOTYPE_EXTRA}")"
+	if [[ $? -ne 0 ]]; then
+		echo "Failed to merge SE_NODE_STEREOTYPE_EXTRA. Please check the format of the JSON string. Keep using main stereotype."
+	else
+		echo "Merged stereotype: ${SE_NODE_STEREOTYPE}"
+	fi
 fi
 
 # 'stereotype' setting is mandatory

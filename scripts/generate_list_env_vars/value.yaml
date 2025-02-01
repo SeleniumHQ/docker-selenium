@@ -2,6 +2,8 @@
   default: -f pulse -ac 2 -i default
 - name: SE_BIND_HOST
   default: 'false'
+- name: SE_BROWSER_BINARY_LOCATION
+  default: ''
 - name: SE_BROWSER_LEFTOVERS_INTERVAL_SECS
   default: '3600'
 - name: SE_BROWSER_LEFTOVERS_PROCESSES_SECS
@@ -72,8 +74,12 @@
   default: '%Y-%m-%d %H:%M:%S,%3N'
 - name: SE_NEW_SESSION_THREAD_POOL_SIZE
   default: ''
+- name: SE_NODE_BROWSER_NAME
+  default: ''
 - name: SE_NODE_BROWSER_VERSION
   default: stable
+- name: SE_NODE_CONTAINER_NAME
+  default: ''
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
   default: ''
 - name: SE_NODE_ENABLE_CDP
@@ -88,6 +94,8 @@
   default: ''
 - name: SE_NODE_HEARTBEAT_PERIOD
   default: '30'
+- name: SE_NODE_HOST
+  default: ''
 - name: SE_NODE_MAX_SESSIONS
   default: '1'
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
@@ -102,8 +110,30 @@
   default: ''
 - name: SE_NODE_REGISTER_PERIOD
   default: ''
+- name: SE_NODE_RELAY_BROWSER_NAME
+  default: ''
+- name: SE_NODE_RELAY_MAX_SESSIONS
+  default: ''
+- name: SE_NODE_RELAY_PLATFORM_NAME
+  default: ''
+- name: SE_NODE_RELAY_PLATFORM_VERSION
+  default: ''
+- name: SE_NODE_RELAY_PROTOCOL_VERSION
+  default: ''
+- name: SE_NODE_RELAY_STATUS_ENDPOINT
+  default: ''
+- name: SE_NODE_RELAY_STEREOTYPE
+  default: ''
+- name: SE_NODE_RELAY_STEREOTYPE_EXTRA
+  default: ''
+- name: SE_NODE_RELAY_URL
+  default: ''
 - name: SE_NODE_SESSION_TIMEOUT
   default: '300'
+- name: SE_NODE_STEREOTYPE
+  default: ''
+- name: SE_NODE_STEREOTYPE_EXTRA
+  default: ''
 - name: SE_NO_VNC_PORT
   default: '7900'
 - name: SE_OFFLINE
@@ -117,7 +147,7 @@
 - name: SE_OTEL_JVM_ARGS
   default: ''
 - name: SE_OTEL_SERVICE_NAME
-  default: selenium-standalone-docker
+  default: selenium-router
 - name: SE_OTEL_TRACES_EXPORTER
   default: otlp
 - name: SE_PRESET
@@ -158,6 +188,20 @@
   default: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_DATASTORE
   default: 'false'
+- name: SE_SESSIONS_MAP_EXTERNAL_HOSTNAME
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_URL
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_JDBC_USER
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_PORT
+  default: ''
+- name: SE_SESSIONS_MAP_EXTERNAL_SCHEME
+  default: ''
 - name: SE_SESSIONS_MAP_HOST
   default: ''
 - name: SE_SESSIONS_MAP_PORT

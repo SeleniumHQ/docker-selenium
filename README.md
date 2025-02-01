@@ -1112,9 +1112,60 @@ Here is an example with the default values of these environment variables:
 $ docker run -d \
   -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
   -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\",\"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\",\"platformName\": \"Linux\"}" \
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+  -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\", \"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\", \"platformName\":\"${SE_NODE_PLATFORM_NAME}\"}" \
   --shm-size="2g" selenium/node-chrome:4.28.1-20250123
 ```
+
+In another case, if you want to retain the default Node stereotype and append additional capabilities, you can use the `SE_NODE_STEREOTYPE_EXTRA` environment variable to set your capabilities. Those will be merged to the default stereotype. For example:
+```bash
+$ docker run -d \
+  -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
+  -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
+  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+  -e SE_NODE_STEREOTYPE_EXTRA="{\"myApp:version\":\"beta\", \"myApp:publish:\":\"public\"}" \
+  --shm-size="2g" selenium/node-chrome:4.28.1-20250123
+```
+
+This help setting custom capabilities for matching specific Nodes. For example, you added your custom capabilities when starting the Node, and you want assign a test to run on that Node which matches your capabilities. For example in test code:
+
+```python
+options = ChromeOptions()
+options.set_capability('myApp:version', 'beta')
+options.set_capability('myApp:publish', 'public')
+driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+```
+
+Noted: Your custom capabilities with key values should be in W3C capabilities convention, extension capabilities key must contain a ":" (colon) character, denoting an implementation specific namespace.
+
+Noted: Ensure that Node config `detect-drivers = false` in `config.toml` (or `--detect-drivers false` in CLI option) to make feature setting custom capabilities for matching specific Nodes get working.
+
+In addition, default Node stereotype includes capability `se:containerName` which can visible in node capabilities, or session capabilities to identify the container name where the node/session is running. **The prefixed `se:containerName` is not included in slot matcher**. By default, value is getting from `hostname` command in container, this value is equivalent to the `container_id` that you saw via `docker ps` command. If you want to override this value, you can set the environment variable `SE_NODE_CONTAINER_NAME` to your desired value. For example, when deploy to Kubernetes cluster, you can assign Pod name to env var `SE_NODE_CONTAINER_NAME` to track a node is running in which Pod.
+
+```yaml
+  env:
+    - name: SE_NODE_CONTAINER_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.name
+```
+
+In an advanced case, where you control to spawn up a Node container, let it register to Hub, and then trigger a test to be assigned exactly to run on that Node. By default, the value of command `$(hostname)` is added to capability name `container:hostname` in Node stereotype. Combine with above feature setting custom capabilities for matching specific Nodes. You can use the `hostname` of the Node container just spawned up and set it as a custom capability. For example, in Python binding:
+
+```bash
+$ docker run -d --name my-node-1 -e SE_EVENT_BUS_HOST=localhost -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+  --shm-size="2g" selenium/node-chrome:4.28.1-20250123
+$ docker exec -i my-node-1 hostname
+a6971f95bbab
+```
+
+```python
+options = ChromeOptions()
+options.set_capability('container:hostname', 'a6971f95bbab')
+driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+```
+
+_Noted: Those above changes require new image tag where the changeset is included & released._
 
 ### Node configuration relay commands
 
@@ -1129,7 +1180,7 @@ The following is an en example of configuration relay commands.
 If you want to relay commands only, `selenium/node-base` is suitable and lightweight for this purpose.
 In case you want to configure node with both browsers and relay commands, respective node images can be used.
 
-To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below
+To use environment variables for generate relay configs, set `SE_NODE_RELAY_URL` and other variables as below. Those will be used to generate the default relay config in TOML format looks like below.
 
 ```toml
 [relay]
@@ -1138,6 +1189,10 @@ status-endpoint = "${SE_NODE_RELAY_STATUS_ENDPOINT}"
 protocol-version = "${SE_NODE_RELAY_PROTOCOL_VERSION}"
 configs = [ '${SE_NODE_RELAY_MAX_SESSIONS}', '{"browserName": "${SE_NODE_RELAY_BROWSER_NAME}", "platformName": "${SE_NODE_RELAY_PLATFORM_NAME}", "appium:platformVersion": "${SE_NODE_RELAY_PLATFORM_VERSION}"}' ]
 ```
+
+Instead of input value for each environment variable to construct the default relay stereotype, you can use the `SE_NODE_RELAY_STEREOTYPE` environment variable to overwrite the default relay stereotype with your custom stereotype.
+
+In another case, if you want to retain the default relay stereotype and append additional capabilities, you can use the `SE_NODE_RELAY_STEREOTYPE_EXTRA` environment variable to set your capabilities. Those will be merged to the default relay stereotype.
 
 To run a sample test with the relayed node, you can clone the project and try below command:
 
