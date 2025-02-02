@@ -19,6 +19,7 @@ RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh /opt/bin/i
 #=========
 ARG FIREFOX_VERSION=latest
 ARG FIREFOX_DOWNLOAD_URL=""
+ARG FIREFOX_LANG_VERSION=${FIREFOX_VERSION}
 RUN apt-get update -qqy && \
   if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
     if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then \
@@ -30,7 +31,10 @@ RUN apt-get update -qqy && \
         ln -fs $(which firefox$FIREFOX_VERSION) /usr/bin/firefox ; \
       fi ; \
     else \
-      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.deb" ; \
+      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.deb" \
+      && if [ "404" = "$(curl -s -o /dev/null -w "%{http_code}" $FIREFOX_DOWNLOAD_URL)" ]; then \
+        FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2" ; \
+      fi ; \
     fi \
   else \
     if [ ${FIREFOX_VERSION} = "latest" ] && [ ${FIREFOX_DOWNLOAD_URL} = "" ]; then \
@@ -52,7 +56,7 @@ RUN apt-get update -qqy && \
     /opt/bin/install-firefox-package.sh "${FIREFOX_DOWNLOAD_URL}" "${FIREFOX_VERSION}" ; \
   fi \
   # Download the language pack for Firefox
-  && /opt/bin/get_lang_package.sh \
+  && /opt/bin/get_lang_package.sh ${FIREFOX_LANG_VERSION} \
   # Do one more upgrade to fix possible CVEs from Firefox dependencies
   && apt-get update -qqy \
   && apt-get upgrade -yq \

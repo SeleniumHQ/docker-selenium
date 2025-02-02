@@ -13,6 +13,10 @@ trap on_exit EXIT ERR
 VERSION=${1:-$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')}
 TARGET_DIR="${2:-$(dirname $(readlink -f $(which firefox)))/distribution/extensions}"
 BASE_URL="https://ftp.mozilla.org/pub/firefox/releases/$VERSION/linux-x86_64/xpi/"
+if [ "404" = "$(curl -s -o /dev/null -w "%{http_code}" ${BASE_URL})" ]; then
+  VERSION="$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')"
+  BASE_URL="https://ftp.mozilla.org/pub/firefox/releases/$VERSION/linux-x86_64/xpi/"
+fi
 
 # Create target directory if it doesn't exist
 mkdir -p "${TARGET_DIR}"

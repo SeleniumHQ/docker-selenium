@@ -119,6 +119,7 @@ jobs:
           retry_wait_seconds: 60
           command: |
             ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
+            cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Build Hub image for testing
         if: env.REUSE_BASE == 'false'
         run: make hub

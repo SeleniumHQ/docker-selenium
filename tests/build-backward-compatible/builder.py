@@ -50,6 +50,8 @@ if __name__ == '__main__':
         if "FIREFOX_PLATFORMS" in matrix["CDP"][cdp_version]:
           FIREFOX_PLATFORMS = matrix["CDP"][cdp_version]["FIREFOX_PLATFORMS"]
           f.write(f"PLATFORMS={FIREFOX_PLATFORMS}\n")
+        else:
+          f.write(f"PLATFORMS=linux/amd64\n")
       if browser_name == "edge" or browser_name == "all":
         EDGE_VERSION = matrix["CDP"][cdp_version]["EDGE_VERSION"]
         f.write(f"EDGE_VERSION={EDGE_VERSION}\n")

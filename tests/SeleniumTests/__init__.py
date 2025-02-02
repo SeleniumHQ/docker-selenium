@@ -101,10 +101,10 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_play_video(self):
         driver = self.driver
-        driver.get('https://docs.flowplayer.com/tools/stream-tester')
+        driver.get('https://googleads.github.io/googleads-ima-html5/vsi/')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
         play_button = wait.until(
-            EC.element_to_be_clickable((By.TAG_NAME, 'flowplayer-play-icon'))
+            EC.element_to_be_clickable((By.ID, 'play-button'))
         )
         play_button.click()
         video = driver.find_element(By.TAG_NAME, 'video')

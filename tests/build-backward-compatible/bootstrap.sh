@@ -31,9 +31,14 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
     if [ -n "${FIREFOX_VERSION}" ]; then
       BUILD_ARGS="--build-arg FIREFOX_VERSION=${FIREFOX_VERSION} --build-arg FIREFOX_DOWNLOAD_URL=${FIREFOX_DOWNLOAD_URL}"
       if [ "${REUSE_BASE}" = "true" ]; then
-        BUILD_ARGS="${BUILD_ARGS}" make firefox_only standalone_firefox_only
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make firefox_only
+        if [ $? -ne 0 ]; then
+          echo "Error building Node image"
+          exit 1
+        fi
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make standalone_firefox_only
       else
-        BUILD_ARGS="${BUILD_ARGS}" make standalone_firefox
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make standalone_firefox
       fi
     else
       echo "Firefox version not found in matrix for input ${CDP_VERSION}"
@@ -44,7 +49,12 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
     if [ -n "${EDGE_VERSION}" ]; then
       BUILD_ARGS="--build-arg EDGE_VERSION=${EDGE_VERSION}"
       if [ "${REUSE_BASE}" = "true" ]; then
-        BUILD_ARGS="${BUILD_ARGS}" make edge_only standalone_edge_only
+        BUILD_ARGS="${BUILD_ARGS}" make edge_only
+        if [ $? -ne 0 ]; then
+          echo "Error building Node image"
+          exit 1
+        fi
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_edge_only
       else
         BUILD_ARGS="${BUILD_ARGS}" make standalone_edge
       fi
@@ -57,7 +67,12 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
     if [ -n "${CHROME_VERSION}" ]; then
       BUILD_ARGS="--build-arg CHROME_VERSION=${CHROME_VERSION}"
       if [ "${REUSE_BASE}" = "true" ]; then
-        BUILD_ARGS="${BUILD_ARGS}" make chrome_only standalone_chrome_only
+        BUILD_ARGS="${BUILD_ARGS}" make chrome_only
+        if [ $? -ne 0 ]; then
+          echo "Error building Node image"
+          exit 1
+        fi
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome_only
       else
         BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome
       fi

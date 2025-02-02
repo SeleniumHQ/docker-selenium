@@ -664,7 +664,7 @@ test_edge_standalone:
   esac
 
 test_firefox_download_lang_packs:
-	FIREFOX_VERSION=$$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION') ; \
+	FIREFOX_VERSION=$(or $(FIREFOX_VERSION), $$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')) ; \
 	./NodeFirefox/get_lang_package.sh $$FIREFOX_VERSION ./tests/target/firefox_lang_packs
 
 test_firefox: test_firefox_download_lang_packs
