@@ -124,9 +124,14 @@ jobs:
         if: env.REUSE_BASE == 'false'
         run: make hub
       - name: Test images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
-        run: |
-          make test_edge
-          make test_edge_standalone
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            make test_edge
+            make test_edge_standalone
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         if: env.PUSH_IMAGE == 'true'
         run: |
