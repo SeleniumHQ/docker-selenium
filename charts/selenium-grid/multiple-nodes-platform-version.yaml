@@ -4,7 +4,7 @@
 # For example: below incoming requests will be scaled by one scaler which is matched.
 # options = ChromeOptions()
 # options.set_capability('platformName', 'Linux')
-# options.set_capability('browserVersion', '131.0')
+# options.set_capability('browserVersion', '131.0') # Unset this capability for using latest version
 # driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
 crossBrowsers:
   chromeNode:
@@ -199,59 +199,289 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-134'
+      imageTag: '134.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '134.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-133'
-      imageTag: '133.0'
+      imageTag: '133.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '133.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-132'
-      imageTag: '132.0'
+      imageTag: '132.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '132.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-131'
-      imageTag: '131.0'
+      imageTag: '131.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '131.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-130'
-      imageTag: '130.0'
+      imageTag: '130.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '130.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-129'
-      imageTag: '129.0'
+      imageTag: '129.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '129.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-128'
-      imageTag: '128.0'
+      imageTag: '128.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '128.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-127'
+      imageTag: '127.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '127.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-126'
+      imageTag: '126.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '126.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-125'
+      imageTag: '125.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '125.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-124'
+      imageTag: '124.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '124.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-123'
+      imageTag: '123.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '123.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-122'
+      imageTag: '122.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '122.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-121'
+      imageTag: '121.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '121.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-120'
+      imageTag: '120.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '120.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-119'
+      imageTag: '119.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '119.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-118'
+      imageTag: '118.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '118.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-117'
+      imageTag: '117.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '117.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-116'
+      imageTag: '116.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '116.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-115'
+      imageTag: '115.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '115.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-114'
+      imageTag: '114.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '114.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-113'
+      imageTag: '113.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '113.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-112'
+      imageTag: '112.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '112.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-111'
+      imageTag: '111.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '111.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-110'
+      imageTag: '110.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '110.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-109'
+      imageTag: '109.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '109.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-108'
+      imageTag: '108.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '108.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-107'
+      imageTag: '107.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '107.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-106'
+      imageTag: '106.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '106.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-105'
+      imageTag: '105.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '105.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-104'
+      imageTag: '104.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '104.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-103'
+      imageTag: '103.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '103.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-102'
+      imageTag: '102.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '102.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-101'
+      imageTag: '101.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '101.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-100'
+      imageTag: '100.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '100.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-99'
+      imageTag: '99.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '99.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-98'
+      imageTag: '98.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '98.0'
   edgeNode:
     # Keep the first iteration with latest version of Edge
     - nameOverride: '{{ $.Release.Name }}-node-edge-latest'
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-132'
+      imageTag: '132.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '132.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-131'
-      imageTag: '131.0'
+      imageTag: '131.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '131.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-130'
-      imageTag: '130.0'
+      imageTag: '130.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '130.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-129'
-      imageTag: '129.0'
+      imageTag: '129.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '129.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-128'
-      imageTag: '128.0'
+      imageTag: '128.0-20250123'
       hpa:
         platformName: 'Linux'
         browserVersion: '128.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-127'
+      imageTag: '127.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '127.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-126'
+      imageTag: '126.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '126.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-125'
+      imageTag: '125.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '125.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-124'
+      imageTag: '124.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '124.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-123'
+      imageTag: '123.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '123.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-122'
+      imageTag: '122.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '122.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-121'
+      imageTag: '121.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '121.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-120'
+      imageTag: '120.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '120.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-119'
+      imageTag: '119.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '119.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-118'
+      imageTag: '118.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '118.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-117'
+      imageTag: '117.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '117.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-116'
+      imageTag: '116.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '116.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-115'
+      imageTag: '115.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '115.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-114'
+      imageTag: '114.0-20250123'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '114.0'
