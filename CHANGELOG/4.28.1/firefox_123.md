@@ -1,3 +1,4 @@
+```
 ./tag_and_push_browser_images.sh 4.28.1 20250202 selenium false firefox true
 Tagging images for browser firefox, version 4.28.1, build date 20250202, namespace selenium
 Selenium Grid version -> 4.28.1-20250202
@@ -17,3 +18,4 @@ Tagged selenium/node-firefox:123.0-geckodriver-0.35-20250202
 Tagged selenium/standalone-firefox:123.0-geckodriver-0.35-20250202
 Tagged selenium/node-firefox:123.0-20250202
 Tagged selenium/standalone-firefox:123.0-20250202
+```
