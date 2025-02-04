@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20241118.1
+FROM ubuntu:noble-20250127
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <selenium-developers@googlegroups.com>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
