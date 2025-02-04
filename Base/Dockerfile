@@ -21,7 +21,7 @@ ARG HOME=/home/${SEL_USER}
 ARG UID=1200
 ARG GID=1201
 ARG TZ="UTC"
-ARG JRE_VERSION=17
+ARG JRE_VERSION=21
 ARG TARGETARCH
 ARG TARGETVARIANT
 
@@ -128,7 +128,6 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         org.postgresql:postgresql:${POSTGRESQL_VERSION} \
         org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
         # Patch specific version for CVEs in the dependencies
-        io.lettuce:lettuce-core:6.5.1.RELEASE \
         > /external_jars/.classpath_session_map.txt \
         && chmod 664 /external_jars/.classpath_session_map.txt ; \
      fi \
