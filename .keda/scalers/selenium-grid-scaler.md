@@ -23,7 +23,7 @@ triggers:
       browserName: ''  # Optional. Required to be matched with the request in queue and Node stereotypes (Similarly for `browserVersion` and `platformName`).
       browserVersion: '' # Optional.
       platformName: '' # Optional.
-      unsafeSsl : 'false' # Optional.
+      unsafeSsl: 'false' # Optional.
       activationThreshold: 0 # Optional.
 ```
 
@@ -37,6 +37,7 @@ triggers:
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
 - `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
+- `capabilities` - Add more custom capabilities for matching specific Nodes. (Optional)
 
 **Trigger Authentication**
 - `username` - Username for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
@@ -88,7 +89,7 @@ spec:
         url: 'http://selenium-hub:4444/graphql'
         browserName: 'chrome'
         platformName: 'Linux'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 Noted:
@@ -198,7 +199,7 @@ spec:
         browserName: 'chrome'
         platformName: 'Linux'
         browserVersion: '131.0'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 The request to trigger this scaler should be
@@ -207,6 +208,69 @@ The request to trigger this scaler should be
 options = ChromeOptions()
 options.set_capability('platformName', 'Linux')
 options.set_capability('browserVersion', '131.0')
+driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+```
+
+For an advanced use case, you also can set custom capabilities for matching specific Nodes in the scaler trigger metadata. For example
+
+```yaml
+kind: Deployment
+metadata:
+  name: selenium-node-chrome
+  labels:
+    deploymentName: selenium-node-chrome
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: selenium-node-chrome
+          image: selenium/node-chrome:132.0
+          ports:
+            - containerPort: 5555
+          env:
+            - name: SE_NODE_BROWSER_VERSION
+              value: '132.0'
+            - name: SE_NODE_PLATFORM_NAME
+              value: 'Linux'
+            # Append custom capabilities to Node stereotype. See: https://github.com/SeleniumHQ/docker-selenium?tab=readme-ov-file#node-configuration-options
+            - name: SE_NODE_STEREOTYPE_EXTRA
+              value: "{\"myApp:version\":\"beta\", \"myApp:publish:\":\"public\"}"
+
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-scaledobject-chrome-132
+  namespace: keda
+  labels:
+    deploymentName: selenium-node-chrome-132
+spec:
+  maxReplicaCount: 8
+  scaleTargetRef:
+    name: selenium-node-chrome-132
+  triggers:
+    - type: selenium-grid
+      metadata:
+        url: 'http://selenium-hub:4444/graphql'
+        browserName: 'chrome'
+        platformName: 'Linux'
+        browserVersion: '132.0'
+        unsafeSsl: 'true'
+        # Add custom capabilities for matching specific Nodes in scaler trigger metadata. See: https://github.com/kedacore/keda/pull/6536
+        capabilities: "{\"myApp:version\":\"beta\", \"myApp:publish:\":\"public\"}"
+```
+
+The request to trigger this scaler should be
+
+```python
+options = ChromeOptions()
+options.set_capability('platformName', 'Linux')
+options.set_capability('browserVersion', '132.0')
+# Add custom capabilities for matching specific Nodes in client binding. See: https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes
+options.set_capability('myApp:version', 'beta')
+options.set_capability('myApp:publish', 'public')
 driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
 ```
 
@@ -230,7 +294,7 @@ spec:
         url: 'http://selenium-hub:4444/graphql'
         browserName: 'firefox'
         platformName: 'Linux'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 Request to trigger the scaler
@@ -262,7 +326,7 @@ spec:
         browserName: 'MicrosoftEdge'
         sessionBrowserName: 'msedge'
         platformName: 'Linux'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 Request to trigger the scaler
@@ -294,7 +358,7 @@ spec:
         browserName: 'chrome'
         platformName: 'Linux'
         nodeMaxSessions: 4
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 If you are supporting multiple versions of browser capability in your Selenium Grid, You should create one scaler for every browser version and pass the `browserVersion` in the metadata.
@@ -318,7 +382,7 @@ spec:
         browserName: 'chrome'
         platformName: 'Linux'
         browserVersion: '91.0'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 ```yaml
@@ -340,7 +404,7 @@ spec:
         browserName: 'chrome'
         platformName: 'Linux'
         browserVersion: '90.0'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
 ```
 
 ### Authentication Parameters
@@ -396,7 +460,7 @@ spec:
       metadata:
         browserName: 'chrome'
         platformName: 'Linux'
-        unsafeSsl : 'true'
+        unsafeSsl: 'true'
       authenticationRef:
         name: keda-trigger-auth-selenium-grid-secret
 ```

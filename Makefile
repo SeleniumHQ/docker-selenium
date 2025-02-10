@@ -282,7 +282,7 @@ fetch_grid_scaler_resources:
 	&& cd ./.keda/scalers \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler.go -o selenium_grid_scaler.go \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler_test.go -o selenium_grid_scaler_test.go \
-	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.16/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
+	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.17/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
 
 fetch_grid_scaler_images:
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda:$(KEDA_BASED_TAG)
