@@ -49,7 +49,9 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda](https://github.com/kedacore/keda)
 
-- https://github.com/kedacore/keda/pull/6477
+- https://github.com/kedacore/keda/pull/6536 (plan, v2.17.0)
+
+- https://github.com/kedacore/keda/pull/6477 (plan, v2.17.0)
 
 - ~~https://github.com/kedacore/keda/pull/6437 (merged, v2.16.1)~~
 
@@ -59,9 +61,11 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda-docs](https://github.com/kedacore/keda-docs)
 
-- https://github.com/kedacore/keda-docs/pull/1522
+- https://github.com/kedacore/keda-docs/pull/1533 (plan, v2.17.0)
 
-- https://github.com/kedacore/keda-docs/pull/1515
+- https://github.com/kedacore/keda-docs/pull/1522 (plan, v2.17.0)
+
+- ~~https://github.com/kedacore/keda-docs/pull/1515 (merged, v2.16.1)~~
 
 - ~~https://github.com/kedacore/keda-docs/pull/1468 (merged, v2.16.0)~~
 
