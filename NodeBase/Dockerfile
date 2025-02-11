@@ -101,6 +101,11 @@ RUN apt-get update -qqy \
     fonts-wqy-zenhei \
     fonts-tlwg-loma-otf \
     fonts-noto-color-emoji \
+#==============================
+# shared system certificate support
+#==============================
+    p11-kit \
+    p11-kit-modules \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
   && apt-get -qyy autoremove \
