@@ -26,7 +26,7 @@ RUN apt-get -qqy update \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 COPY *.conf /etc/supervisor/conf.d/
-COPY --chown="${SEL_UID}:${SEL_GID}" *.sh video_ready.py /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" *.sh *.py /opt/bin/
 
 USER ${SEL_UID}
 
