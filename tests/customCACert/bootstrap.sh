@@ -22,7 +22,7 @@ docker build ${COMMON_BUILD_ARGS} --build-arg BASE=node-edge -t ${NAMESPACE}/nod
 
 list_cert_files=($(find ./charts/selenium-grid/certs/ -name "*.crt"))
 for cert_file_path in "${list_cert_files[@]}"; do
-  cert_nick_name="SeleniumHQ"
+  cert_nick_name="SeleniumHQ_$(basename $cert_file_path)"
   docker run --entrypoint="" --rm  ${NAMESPACE}/node-chrome:${VERSION} bash -c "certutil -L -d sql:/home/seluser/.pki/nssdb -n ${cert_nick_name}"
   docker run --entrypoint="" --rm  ${NAMESPACE}/node-firefox:${VERSION} bash -c "certutil -L -d sql:/home/seluser/.pki/nssdb -n ${cert_nick_name}"
   docker run --entrypoint="" --rm  ${NAMESPACE}/node-edge:${VERSION} bash -c "certutil -L -d sql:/home/seluser/.pki/nssdb -n ${cert_nick_name}"
