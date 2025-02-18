@@ -14,10 +14,12 @@ else
 	FILENAME="$CONFIG_FILE"
 fi
 
-echo "[events]
-publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
-subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
-" >"$FILENAME"
+if [[ -n "${SE_EVENT_BUS_HOST}" ]]; then
+	echo "[events]
+    publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
+    subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
+    " >"$FILENAME"
+fi
 
 if [[ -z "${SE_NODE_HOST}" ]] && [[ -z "${SE_NODE_PORT}" ]]; then
 	echo "Configuring server..."

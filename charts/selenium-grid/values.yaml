@@ -50,6 +50,10 @@ global:
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
+    # -- How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again.
+    nodeRegisterPeriod: 120
+    # -- How often, in seconds, the Node will try to register itself for the first time to the Distributor.
+    nodeRegisterCycle: 5
 
 tls:
   # -- Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below
@@ -1259,6 +1263,10 @@ chromeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for chrome nodes
   scaledOptions:
   # -- Override the scaledJobOptions for chrome nodes
@@ -1274,6 +1282,8 @@ chromeNode:
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
     platformName: ""
+    # -- Setting more custom capabilities for matching specific Nodes
+    capabilities: ""
     # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
@@ -1448,6 +1458,10 @@ firefoxNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for firefox nodes
   scaledOptions:
   # -- Override the scaledJobOptions for firefox nodes
@@ -1463,6 +1477,8 @@ firefoxNode:
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
     platformName: ""
+    # -- Setting more custom capabilities for matching specific Nodes
+    capabilities: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1636,6 +1652,10 @@ edgeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for edge nodes
   scaledOptions:
   # -- Override the scaledJobOptions for edge nodes
@@ -1651,6 +1671,8 @@ edgeNode:
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
     platformName: ""
+    # -- Setting more custom capabilities for matching specific Nodes
+    capabilities: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1824,6 +1846,10 @@ relayNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for relay nodes
   scaledOptions:
   # -- Override the scaledJobOptions for relay nodes
@@ -1839,6 +1865,8 @@ relayNode:
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
     platformName: "Android"
+    # -- Setting more custom capabilities for matching specific Nodes
+    capabilities: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 

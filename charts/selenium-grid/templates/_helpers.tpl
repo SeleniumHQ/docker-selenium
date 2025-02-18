@@ -284,6 +284,8 @@ Common pod template
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
+{{- $nodeRegisterCycle := default $.Values.global.seleniumGrid.nodeRegisterCycle .node.nodeRegisterCycle | int64 -}}
 template:
   metadata:
     labels:
@@ -357,6 +359,10 @@ template:
           - name: SE_NODE_PLATFORM_NAME
             value: {{ if hasKey .node.hpa "platformName" }}{{ .node.hpa.platformName | quote }}{{ else }}""{{ end }}
         {{- end }}
+        {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
+          - name: SE_NODE_STEREOTYPE_EXTRA
+            value: {{ if hasKey .node.hpa "capabilities" }}{{ .node.hpa.capabilities | quote }}{{ else }}""{{ end }}
+        {{- end }}
           - name: SE_NODE_CONTAINER_NAME
             valueFrom:
               fieldRef:
@@ -373,14 +379,10 @@ template:
                 fieldPath: status.podIP
           - name: SE_NODE_PORT
             value: {{ .node.port | quote }}
-        {{- with .node.startupProbe.timeoutSeconds }}
           - name: SE_NODE_REGISTER_PERIOD
-            value: {{ . | quote }}
-        {{- end }}
-        {{- with .node.startupProbe.periodSeconds }}
+            value: {{ $nodeRegisterPeriod | quote }}
           - name: SE_NODE_REGISTER_CYCLE
-            value: {{ . | quote }}
-        {{- end }}
+            value: {{ $nodeRegisterCycle | quote }}
         {{- with .node.extraEnvironmentVariables }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}

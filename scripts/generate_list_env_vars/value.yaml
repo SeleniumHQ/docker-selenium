@@ -31,9 +31,9 @@
 - name: SE_EVENT_BUS_PORT
   default: ''
 - name: SE_EVENT_BUS_PUBLISH_PORT
-  default: ''
+  default: '4442'
 - name: SE_EVENT_BUS_SUBSCRIBE_PORT
-  default: ''
+  default: '4443'
 - name: SE_EXTERNAL_URL
   default: ''
 - name: SE_FRAME_RATE
@@ -107,9 +107,11 @@
 - name: SE_NODE_PRESTOP_WAIT_STRATEGY
   default: ''
 - name: SE_NODE_REGISTER_CYCLE
-  default: ''
+  default: '10'
 - name: SE_NODE_REGISTER_PERIOD
-  default: ''
+  default: '120'
+- name: SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE
+  default: 'true'
 - name: SE_NODE_RELAY_BROWSER_NAME
   default: ''
 - name: SE_NODE_RELAY_MAX_SESSIONS

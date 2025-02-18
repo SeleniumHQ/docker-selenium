@@ -72,13 +72,13 @@
 | SE_VNC_NO_PASSWORD |  |  |  |
 | SE_VNC_VIEW_ONLY |  |  |  |
 | SE_VNC_PASSWORD |  |  |  |
-| SE_EVENT_BUS_PUBLISH_PORT |  |  |  |
-| SE_EVENT_BUS_SUBSCRIBE_PORT |  |  |  |
+| SE_EVENT_BUS_PUBLISH_PORT | 4442 |  |  |
+| SE_EVENT_BUS_SUBSCRIBE_PORT | 4443 |  |  |
 | SE_NODE_SESSION_TIMEOUT | 300 |  |  |
 | SE_NODE_ENABLE_MANAGED_DOWNLOADS |  |  |  |
 | SE_NODE_ENABLE_CDP |  |  |  |
-| SE_NODE_REGISTER_PERIOD |  |  |  |
-| SE_NODE_REGISTER_CYCLE |  |  |  |
+| SE_NODE_REGISTER_PERIOD | 120 |  |  |
+| SE_NODE_REGISTER_CYCLE | 10 |  |  |
 | SE_NODE_HEARTBEAT_PERIOD | 30 |  |  |
 | SE_REGISTRATION_SECRET |  |  |  |
 | SE_BROWSER_LEFTOVERS_PROCESSES_SECS | 7200 |  |  |
@@ -143,3 +143,4 @@
 | SE_SESSIONS_MAP_EXTERNAL_SCHEME |  |  |  |
 | SE_NODE_RELAY_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node relay stereotype |  |
 | SE_NODE_RELAY_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node relay stereotype |  |
+| SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE | true | If this flag is enabled, the Node will shut down after the register period is completed. This is useful for container environments to restart and register again. If restarted multiple times, the Node container status will be CrashLoopBackOff | --register-shutdown-on-failure |

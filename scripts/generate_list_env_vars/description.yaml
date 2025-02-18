@@ -434,3 +434,9 @@
   description: Extra capabilities in JSON string that wants to merge to the default
     Node relay stereotype
   cli: ''
+- name: SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE
+  description: If this flag is enabled, the Node will shut down after the register
+    period is completed. This is useful for container environments to restart and
+    register again. If restarted multiple times, the Node container status will be
+    CrashLoopBackOff
+  cli: --register-shutdown-on-failure

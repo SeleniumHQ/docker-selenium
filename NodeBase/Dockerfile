@@ -38,12 +38,17 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #========================
 # Selenium Configuration
 #========================
+    SE_EVENT_BUS_PUBLISH_PORT="4442" \
+    SE_EVENT_BUS_SUBSCRIBE_PORT="4443" \
     # Drain the Node after N sessions (a value higher than zero enables the feature)
     SE_DRAIN_AFTER_SESSION_COUNT="0" \
     SE_NODE_MAX_SESSIONS="1" \
     SE_NODE_SESSION_TIMEOUT="300" \
     SE_NODE_OVERRIDE_MAX_SESSIONS="false" \
     SE_NODE_HEARTBEAT_PERIOD="30" \
+    SE_NODE_REGISTER_PERIOD="120" \
+    SE_NODE_REGISTER_CYCLE="10" \
+    SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE="true" \
     SE_OTEL_SERVICE_NAME="selenium-node" \
     # Setting Selenium Manager to work offline
     SE_OFFLINE="true" \
