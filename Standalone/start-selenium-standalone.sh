@@ -174,12 +174,10 @@ if [ -n "${JAVA_OPTS:-$SE_JAVA_OPTS}" ]; then
 fi
 
 function handle_heap_dump() {
-  /opt/bin/handle_heap_dump.sh $SELENIUM_SERVER_PID /opt/selenium/logs
+  /opt/bin/handle_heap_dump.sh /opt/selenium/logs
 }
 if [ "${SE_JAVA_HEAP_DUMP}" = "true" ]; then
   trap handle_heap_dump ERR SIGTERM SIGINT
-else
-  trap handle_heap_dump ERR
 fi
 
 java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
@@ -196,8 +194,4 @@ java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
   --bind-host ${SE_BIND_HOST} \
   --config ${CONFIG_FILE} \
   ${SUB_PATH_CONFIG} \
-  ${SE_OPTS} &
-
-SELENIUM_SERVER_PID=$!
-
-wait $SELENIUM_SERVER_PID
+  ${SE_OPTS}
