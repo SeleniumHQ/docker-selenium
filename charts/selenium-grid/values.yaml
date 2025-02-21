@@ -2056,6 +2056,9 @@ kube-prometheus-stack:
         additionalScrapeConfigs:
           name: '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}'
           key: '{{ template "seleniumGrid.monitoring.scrape.key" $ }}'
+  prometheusOperator:
+    admissionWebhooks:
+      enabled: false
 
 # -- Configuration for dependency chart jaeger
 jaeger:
