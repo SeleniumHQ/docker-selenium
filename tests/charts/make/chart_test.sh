@@ -181,6 +181,12 @@ HELM_COMMAND_SET_IMAGES=" \
 --set edgeNode.nodeMaxSessions=${MAX_SESSIONS_EDGE} \
 "
 
+if [ -n "${TRACING_EXPORTER_ENDPOINT}" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tracing.exporterEndpoint=\\"${TRACING_EXPORTER_ENDPOINT}\\" \
+  "
+fi
+
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=false \

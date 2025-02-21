@@ -1040,6 +1040,22 @@ tracing:
 By default, the exporter is set to `otlp`. It is wide compatibility with many tracing backends.
 Read more: [vendors](https://opentelemetry.io/ecosystem/vendors/) native support OpenTelemetry and guidelines on [integration](https://opentelemetry.io/ecosystem/integrations/)
 
+In case your observability collector agents running on the Kubernetes Nodes as Daemonsets, you can to set `tracing.exporterEndpoint` point to IP address for Kubernetes node. For example:
+
+```yaml
+tracing:
+    enabledWithExistingEndpoint: true
+    exporterEndpoint: 'http://$KUBERNETES_NODE_HOST_IP:4317'
+```
+
+In each component deployment, we already exposed the environment variable `KUBERNETES_NODE_HOST_IP` to get the IP address of the Kubernetes node where the component is running. So, you can use environment variable pattern in the value of `tracing.exporterEndpoint` as above.
+
+Note: If you set value via Helm CLI, ensure to escape the `$` character in the value to prevent it confused with the shell variable. For example:
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE --set tracing.exporterEndpoint="http://\$KUBERNETES_NODE_HOST_IP:4317" [...]
+```
+
 ### Configuration of Session Map using External Datastore
 
 Feature [documentation](https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/). It requires the Grid deployed in distributed mode. The feature is disabled by default.

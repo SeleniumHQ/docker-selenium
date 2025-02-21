@@ -343,6 +343,10 @@ template:
         image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+          - name: KUBERNETES_NODE_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
           - name: SE_NODE_MAX_SESSIONS
             value: {{ $nodeMaxSessions | quote }}
         {{- if gt $nodeMaxSessions 1 }}
