@@ -13,6 +13,7 @@ ARG GRPC_VERSION=1.69.0
 ARG NETTY_VERSION=4.1.117.Final
 ARG CS_VERSION=2.1.18
 ARG POSTGRESQL_VERSION=42.7.5
+ARG ENVSUBST_VERSION=1.4.2
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -153,6 +154,15 @@ COPY supervisord.conf /etc
 ARG CERT_TRUST_ATTR=TCu,Cu,Tu
 COPY --chown="${SEL_UID}:${SEL_GID}" certs/add-cert-helper.sh certs/add-jks-helper.sh /opt/bin/
 COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jks certs/server.pass /opt/selenium/secrets/
+
+#===================================================
+# Add envsubst binary
+#===================================================
+RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi) \
+    && curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
+    && chmod +x envsubst \
+    && mv envsubst /usr/local/bin \
+    && ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
 
 #===================================================
 # Run the following commands as non-privileged user
