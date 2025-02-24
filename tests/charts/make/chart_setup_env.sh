@@ -171,9 +171,9 @@ GOBIN=$HOME/go/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 $HOME/go/bin/helm-docs -h || true
 echo "==============================="
 echo "Installing envsubst for AMD64 / ARM64"
-ENVSUBST_VERSION="v1.4.2"
+ENVSUBST_VERSION="1.4.2-patch.124"
 ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)
-curl -fsSL https://github.com/a8m/envsubst/releases/download/${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
+curl -fsSL https://github.com/NDViet/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
 chmod +x envsubst
 sudo mv envsubst /usr/local/bin
 sudo ln -sf /usr/local/bin/envsubst /usr/bin/envsubst

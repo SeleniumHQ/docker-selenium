@@ -60,6 +60,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions: write-all
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         browser-version: ${{ fromJSON(github.event.inputs.browser-versions)}}
@@ -106,8 +107,6 @@ jobs:
         run: |
           echo ${GRID_VERSION}
           echo "GRID_VERSION=${GRID_VERSION}" >> "$GITHUB_OUTPUT"
-      - name: Create CHANGELOG directory
-        run: mkdir -p ./CHANGELOG/${{ env.GRID_VERSION }}
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:

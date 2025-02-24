@@ -1,7 +1,7 @@
 matrix:
   browser:
     '135':
-      FIREFOX_VERSION: null
+      FIREFOX_VERSION: 135.0.1
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2025/01/2025-01-06-09-47-46-mozilla-central/firefox-135.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '134':
