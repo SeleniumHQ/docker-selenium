@@ -1,3 +1,7 @@
+global:
+  seleniumGrid:
+    nodeEnableManagedDownloads: ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+
 autoscaling:
   scalingType: job
   scaledJobOptions:
@@ -12,8 +16,6 @@ autoscaling:
 # Configuration for chrome nodes
 chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH
@@ -30,8 +32,6 @@ chromeNode:
     enabled: &readinessProbe false
   livenessProbe:
     enabled: &livenessProbe true
-  hpa:
-    capabilities: "{\"se:downloadsEnabled\": ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}}"
 # Configuration for edge nodes
 edgeNode:
   extraEnvironmentVariables: *extraEnvironmentVariables
@@ -39,8 +39,6 @@ edgeNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
-  hpa:
-    capabilities: "{\"se:downloadsEnabled\": ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}}"
 # Configuration for firefox nodes
 firefoxNode:
   extraEnvironmentVariables: *extraEnvironmentVariables
@@ -48,5 +46,3 @@ firefoxNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
-  hpa:
-    capabilities: "{\"se:downloadsEnabled\": ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}}"

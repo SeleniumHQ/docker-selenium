@@ -187,14 +187,6 @@ if [ -n "${TRACING_EXPORTER_ENDPOINT}" ]; then
   "
 fi
 
-if [ "${DISABLE_HPA_CAPABILITIES_SET}" = "true" ]; then
-  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set chromeNode.hpa.capabilities=null \
-  --set edgeNode.hpa.capabilities=null \
-  --set firefoxNode.hpa.capabilities=null \
-  "
-fi
-
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=false \

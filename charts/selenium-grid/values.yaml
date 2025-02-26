@@ -50,6 +50,8 @@ global:
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
+    # -- This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid)
+    nodeEnableManagedDownloads: false
     # -- How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again.
     nodeRegisterPeriod: 120
     # -- How often, in seconds, the Node will try to register itself for the first time to the Distributor.
@@ -1263,6 +1265,8 @@ chromeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
@@ -1458,6 +1462,8 @@ firefoxNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
@@ -1652,6 +1658,8 @@ edgeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
@@ -1846,6 +1854,8 @@ relayNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level

@@ -1,3 +1,7 @@
+global:
+  seleniumGrid:
+    nodeEnableManagedDownloads: ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+
 autoscaling:
   scalingType: deployment
   scaledOptions:
@@ -37,8 +41,6 @@ chromeNode:
       value: "--disable-features=OptimizationGuideModelDownloading,OptimizationHintsFetching,OptimizationTargetPrediction,OptimizationHints"
     - name: SE_BROWSER_ARGS_DISABLE_SEARCH_ENGINE
       value: "--disable-search-engine-choice-screen"
-    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH

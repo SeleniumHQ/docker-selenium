@@ -208,6 +208,7 @@ Common autoscaling spec template
 {{- define "seleniumGrid.autoscalingTemplate" -}}
 {{- $spec := toYaml (dict) -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -244,6 +245,9 @@ triggers:
       {{- tpl (toYaml .) $ | nindent 6 }}
       {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
+      {{- end }}
+      {{- if not .enableManagedDownloads }}
+      enableManagedDownloads: {{ $nodeEnableManagedDownloads | quote }}
       {{- end }}
     {{- end }}
     authenticationRef:
@@ -284,6 +288,7 @@ Common pod template
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
 {{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
 {{- $nodeRegisterCycle := default $.Values.global.seleniumGrid.nodeRegisterCycle .node.nodeRegisterCycle | int64 -}}
 template:
@@ -353,6 +358,8 @@ template:
           - name: SE_NODE_OVERRIDE_MAX_SESSIONS
             value: "true"
         {{- end }}
+          - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+            value: {{ $nodeEnableManagedDownloads | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}

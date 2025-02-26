@@ -49,6 +49,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
+| global.seleniumGrid.nodeEnableManagedDownloads | bool | `false` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
 | global.seleniumGrid.nodeRegisterPeriod | int | `120` | How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again. |
 | global.seleniumGrid.nodeRegisterCycle | int | `5` | How often, in seconds, the Node will try to register itself for the first time to the Distributor. |
 | tls.create | bool | `true` | Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below |
@@ -456,6 +457,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for chrome-node container |
 | chromeNode.extraVolumes | list | `[]` | Extra volumes for chrome-node pod |
 | chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| chromeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | chromeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | chromeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
@@ -513,6 +515,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.extraVolumeMounts | list | `[]` | Extra volume mounts for firefox-node container |
 | firefoxNode.extraVolumes | list | `[]` | Extra volumes for firefox-node pod |
 | firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| firefoxNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | firefoxNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | firefoxNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
@@ -570,6 +573,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for edge-node container |
 | edgeNode.extraVolumes | list | `[]` | Extra volumes for edge-node pod |
 | edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| edgeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | edgeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | edgeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
@@ -627,6 +631,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.extraVolumeMounts | list | `[]` | Extra volume mounts for relay-node container |
 | relayNode.extraVolumes | list | `[]` | Extra volumes for relay-node pod |
 | relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| relayNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | relayNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | relayNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
