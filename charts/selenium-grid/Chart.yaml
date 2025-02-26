@@ -21,7 +21,7 @@ dependencies:
 - repository: https://prometheus-community.github.io/helm-charts
   version: 69.4.1
   name: kube-prometheus-stack
-  condition: monitoring.enabled, prometheus-stack.enabled
+  condition: monitoring.enabled, kube-prometheus-stack.enabled
 - repository: https://charts.bitnami.com/bitnami
   version: 16.4.1
   name: postgresql

@@ -39,6 +39,7 @@ triggers:
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
 - `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
+- `enableManagedDownloads`- Set this for Node enabled to auto manage files downloaded for a given session on the Node. When the client requests enabling this feature, it can only be assigned to the Node that also enabled it. Otherwise, the request will wait until it timed out. (Default: `false`, Optional).
 - `capabilities` - Add more custom capabilities for matching specific Nodes. It should be in JSON string, see [example](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) (Optional)
 
 **Trigger Authentication**
@@ -221,6 +222,70 @@ The request to trigger this scaler should be
 options = ChromeOptions()
 options.set_capability('platformName', 'Linux')
 options.set_capability('browserVersion', '131.0')
+driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+```
+
+#### Selenium Grid scaler trigger metadata with Node `enableManagedDownloads`
+
+In image `selenium/node-chrome`, the environment variable `SE_NODE_ENABLE_MANAGED_DOWNLOADS` is used to append the `--enable-managed-downloads` CLI option to the Node. This option is used to enable the Node to auto manage files downloaded for a given session on the Node. The request with enabling this feature can only be assigned to the Node also enabled it, otherwise the request will be waited until request timed out.
+
+```yaml
+kind: Deployment
+metadata:
+  name: selenium-node-chrome
+  labels:
+    deploymentName: selenium-node-chrome
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+        - name: selenium-node-chrome
+          image: selenium/node-chrome:132.0
+          ports:
+          - containerPort: 5555
+          env:
+          - name: SE_NODE_BROWSER_VERSION
+            value: '132.0'
+          - name: SE_NODE_PLATFORM_NAME
+            value: 'Linux'
+          # https://www.selenium.dev/documentation/grid/configuration/cli_options/#node
+          - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+            value: "true"
+
+---
+
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-grid-scaledobject-chrome-132
+  namespace: keda
+  labels:
+    deploymentName: selenium-node-chrome-132
+spec:
+  maxReplicaCount: 8
+  scaleTargetRef:
+    name: selenium-node-chrome-132
+  triggers:
+    - type: selenium-grid
+      metadata:
+        url: 'http://selenium-hub:4444/graphql'
+        browserName: 'chrome'
+        platformName: 'Linux'
+        browserVersion: '132.0'
+        unsafeSsl: 'true'
+        # Scaler trigger param configuration should be aligned with Node stereotype.
+        enableManagedDownloads: "true"
+```
+
+The request to trigger this scaler should be
+
+```python
+options = ChromeOptions()
+options.set_capability('platformName', 'Linux')
+options.set_capability('browserVersion', '132.0')
+# https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid
+options.enable_downloads = True
 driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
 ```
 
