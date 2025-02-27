@@ -209,6 +209,7 @@ Common autoscaling spec template
 {{- $spec := toYaml (dict) -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
+{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -248,6 +249,9 @@ triggers:
       {{- end }}
       {{- if not .enableManagedDownloads }}
       enableManagedDownloads: {{ $nodeEnableManagedDownloads | quote }}
+      {{- end }}
+      {{- if not .capabilities }}
+      capabilities: {{ $nodeCustomCapabilities | quote }}
       {{- end }}
     {{- end }}
     authenticationRef:
@@ -289,6 +293,7 @@ Common pod template
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
+{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
 {{- $nodeRegisterCycle := default $.Values.global.seleniumGrid.nodeRegisterCycle .node.nodeRegisterCycle | int64 -}}
 template:
@@ -360,6 +365,8 @@ template:
         {{- end }}
           - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
             value: {{ $nodeEnableManagedDownloads | quote }}
+          - name: SE_NODE_STEREOTYPE_EXTRA
+            value: {{ $nodeCustomCapabilities | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
@@ -369,10 +376,6 @@ template:
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
           - name: SE_NODE_PLATFORM_NAME
             value: {{ if hasKey .node.hpa "platformName" }}{{ .node.hpa.platformName | quote }}{{ else }}""{{ end }}
-        {{- end }}
-        {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
-          - name: SE_NODE_STEREOTYPE_EXTRA
-            value: {{ if hasKey .node.hpa "capabilities" }}{{ .node.hpa.capabilities | quote }}{{ else }}""{{ end }}
         {{- end }}
           - name: SE_NODE_CONTAINER_NAME
             valueFrom:

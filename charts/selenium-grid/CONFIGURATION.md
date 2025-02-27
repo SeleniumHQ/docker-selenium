@@ -50,6 +50,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
 | global.seleniumGrid.nodeEnableManagedDownloads | bool | `false` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
+| global.seleniumGrid.nodeCustomCapabilities | string | `""` | Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) |
 | global.seleniumGrid.nodeRegisterPeriod | int | `120` | How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again. |
 | global.seleniumGrid.nodeRegisterCycle | int | `5` | How often, in seconds, the Node will try to register itself for the first time to the Distributor. |
 | tls.create | bool | `true` | Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below |
@@ -458,6 +459,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.extraVolumes | list | `[]` | Extra volumes for chrome-node pod |
 | chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | chromeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
+| chromeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | chromeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | chromeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
@@ -467,7 +469,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
-| chromeNode.hpa.capabilities | string | `""` | Setting more custom capabilities for matching specific Nodes |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -516,6 +517,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.extraVolumes | list | `[]` | Extra volumes for firefox-node pod |
 | firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | firefoxNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
+| firefoxNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | firefoxNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | firefoxNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
@@ -525,7 +527,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
-| firefoxNode.hpa.capabilities | string | `""` | Setting more custom capabilities for matching specific Nodes |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -574,6 +575,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.extraVolumes | list | `[]` | Extra volumes for edge-node pod |
 | edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | edgeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
+| edgeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | edgeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | edgeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
@@ -583,7 +585,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
-| edgeNode.hpa.capabilities | string | `""` | Setting more custom capabilities for matching specific Nodes |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
@@ -632,6 +633,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.extraVolumes | list | `[]` | Extra volumes for relay-node pod |
 | relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | relayNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
+| relayNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | relayNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | relayNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
@@ -641,7 +643,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.platformName | string | `"Android"` | platformName should match with Node stereotype and request capability is scaled by this scaler |
-| relayNode.hpa.capabilities | string | `""` | Setting more custom capabilities for matching specific Nodes |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |

@@ -18,6 +18,8 @@ global:
         topologyKey: kubernetes.io/hostname
         whenUnsatisfiable: DoNotSchedule
     nodeMaxSessions: 3
+    nodeEnableManagedDownloads: true
+    nodeCustomCapabilities: "{'myApp:version':'beta','myApp:publish':'public'}"
 
 selenium-grid:
   autoscaling:
