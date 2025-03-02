@@ -17,7 +17,7 @@
 - name: SE_DISTRIBUTOR_HOST
   default: ''
 - name: SE_DISTRIBUTOR_PORT
-  default: ''
+  default: '5553'
 - name: SE_DRAIN_AFTER_SESSION_COUNT
   default: '0'
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP
@@ -29,7 +29,7 @@
 - name: SE_EVENT_BUS_HOST
   default: ''
 - name: SE_EVENT_BUS_PORT
-  default: ''
+  default: '5557'
 - name: SE_EVENT_BUS_PUBLISH_PORT
   default: '4442'
 - name: SE_EVENT_BUS_SUBSCRIBE_PORT
@@ -51,7 +51,7 @@
 - name: SE_HUB_HOST
   default: ''
 - name: SE_HUB_PORT
-  default: ''
+  default: '4444'
 - name: SE_JAVA_DISABLE_HOSTNAME_VERIFICATION
   default: 'true'
 - name: SE_JAVA_HEAP_DUMP
@@ -173,7 +173,7 @@
 - name: SE_ROUTER_PASSWORD
   default: ''
 - name: SE_ROUTER_PORT
-  default: ''
+  default: '4444'
 - name: SE_ROUTER_USERNAME
   default: ''
 - name: SE_SCREEN_DEPTH
@@ -186,8 +186,6 @@
   default: '1920'
 - name: SE_SERVER_PROTOCOL
   default: http
-- name: SE_SESSIONS_HOST
-  default: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_DATASTORE
   default: 'false'
 - name: SE_SESSIONS_MAP_EXTERNAL_HOSTNAME
@@ -207,13 +205,11 @@
 - name: SE_SESSIONS_MAP_HOST
   default: ''
 - name: SE_SESSIONS_MAP_PORT
-  default: ''
-- name: SE_SESSIONS_PORT
-  default: ''
+  default: '5556'
 - name: SE_SESSION_QUEUE_HOST
   default: ''
 - name: SE_SESSION_QUEUE_PORT
-  default: ''
+  default: '5559'
 - name: SE_SESSION_REQUEST_TIMEOUT
   default: '300'
 - name: SE_SESSION_RETRY_INTERVAL

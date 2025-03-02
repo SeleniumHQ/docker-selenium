@@ -22,6 +22,7 @@ ENV SE_SESSION_REQUEST_TIMEOUT="300" \
     SE_HEALTHCHECK_INTERVAL="120" \
 # Boolean value, maps "--relax-checks"
     SE_RELAX_CHECKS="true" \
+    SE_HUB_PORT="4444" \
     SE_OTEL_SERVICE_NAME="selenium-hub"
 
 COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-grid-hub.sh \

@@ -1,7 +1,6 @@
 # To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid-secure.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-secure.yml down`
-version: "3"
 services:
   selenium-event-bus:
     image: selenium/event-bus:4.29.0-20250222
@@ -26,8 +25,6 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TLS=true
 
   selenium-session-queue:
@@ -53,12 +50,8 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_SESSIONS_MAP_HOST=selenium-sessions
-      - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
-      - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TLS=true
 
   selenium-router:
@@ -74,11 +67,8 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_DISTRIBUTOR_HOST=selenium-distributor
-      - SE_DISTRIBUTOR_PORT=5553
       - SE_SESSIONS_MAP_HOST=selenium-sessions
-      - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
-      - SE_SESSION_QUEUE_PORT=5559
       - SE_ENABLE_TLS=true
 
   chrome:
@@ -90,8 +80,6 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https
@@ -105,8 +93,6 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https
@@ -120,8 +106,6 @@ services:
       - ./charts/selenium-grid/certs:/opt/selenium/secrets
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TLS=true
       - SE_NODE_GRID_URL=https://localhost:4444
       - SE_SERVER_PROTOCOL=https

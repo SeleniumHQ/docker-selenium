@@ -290,12 +290,6 @@
 - name: SE_NODE_PRESTOP_WAIT_STRATEGY
   description: ''
   cli: ''
-- name: SE_SESSIONS_HOST
-  description: ''
-  cli: ''
-- name: SE_SESSIONS_PORT
-  description: ''
-  cli: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_DATASTORE
   description: ''
   cli: ''

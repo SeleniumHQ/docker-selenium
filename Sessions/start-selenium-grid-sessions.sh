@@ -41,14 +41,14 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [ ! -z "$SE_SESSIONS_HOST" ]; then
-  echo "Using SE_SESSIONS_HOST: ${SE_SESSIONS_HOST}"
-  HOST_CONFIG="--host ${SE_SESSIONS_HOST}"
+if [ ! -z "${SE_SESSIONS_MAP_HOST}" ]; then
+  echo "Using SE_SESSIONS_MAP_HOST: ${SE_SESSIONS_MAP_HOST}"
+  HOST_CONFIG="--host ${SE_SESSIONS_MAP_HOST}"
 fi
 
-if [ ! -z "$SE_SESSIONS_PORT" ]; then
-  echo "Using SE_SESSIONS_PORT: ${SE_SESSIONS_PORT}"
-  PORT_CONFIG="--port ${SE_SESSIONS_PORT}"
+if [ ! -z "${SE_SESSIONS_MAP_PORT}" ]; then
+  echo "Using SE_SESSIONS_MAP_PORT: ${SE_SESSIONS_MAP_PORT}"
+  PORT_CONFIG="--port ${SE_SESSIONS_MAP_PORT}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then

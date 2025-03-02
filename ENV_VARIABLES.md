@@ -26,8 +26,8 @@
 | SE_NODE_GRID_URL |  | Node config, public URL of the Grid as a whole (typically the address of the Hub or the Router) | --grid-url |
 | SE_HUB_HOST |  | Hub config, host address the Hub should listen on | --host |
 | SE_ROUTER_HOST |  | Router config, host address the Router should listen on | --host |
-| SE_HUB_PORT |  | Hub config, port the Hub should listen on (default 4444) | --port |
-| SE_ROUTER_PORT |  | Router config, port the Router should listen on (default 4444) | --port |
+| SE_HUB_PORT | 4444 | Hub config, port the Hub should listen on (default 4444) | --port |
+| SE_ROUTER_PORT | 4444 | Router config, port the Router should listen on (default 4444) | --port |
 | SE_NODE_GRID_GRAPHQL_URL |  | Video recording config, GraphQL URL to query test metadata for dynamic file name |  |
 | SE_VIDEO_FILE_NAME_TRIM_REGEX | [:alnum:]-_ | Bash regex to trim the file name if it is too long |  |
 | SE_VIDEO_FILE_NAME_SUFFIX |  | Append a suffix session id along with test metadata |  |
@@ -39,7 +39,7 @@
 | SE_RCLONE_ |  |  |  |
 | SE_OPTS |  |  |  |
 | SE_EVENT_BUS_HOST |  |  |  |
-| SE_EVENT_BUS_PORT |  |  |  |
+| SE_EVENT_BUS_PORT | 5557 |  |  |
 | SE_LOG_LEVEL | INFO |  |  |
 | SE_HTTP_LOGS | false |  |  |
 | SE_STRUCTURED_LOGS | false |  |  |
@@ -92,17 +92,15 @@
 | SE_HEALTHCHECK_INTERVAL | 120 |  |  |
 | SE_RELAX_CHECKS | true |  |  |
 | SE_SESSION_QUEUE_HOST |  |  |  |
-| SE_SESSION_QUEUE_PORT |  |  |  |
+| SE_SESSION_QUEUE_PORT | 5559 |  |  |
 | SE_VIDEO_FOLDER |  |  |  |
 | SE_LOG_LISTEN_GRAPHQL |  |  |  |
 | SE_NODE_PRESTOP_WAIT_STRATEGY |  |  |  |
-| SE_SESSIONS_HOST |  |  |  |
-| SE_SESSIONS_PORT |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_DATASTORE | false |  |  |
 | SE_SESSIONS_MAP_HOST |  |  |  |
-| SE_SESSIONS_MAP_PORT |  |  |  |
+| SE_SESSIONS_MAP_PORT | 5556 |  |  |
 | SE_DISTRIBUTOR_HOST |  |  |  |
-| SE_DISTRIBUTOR_PORT |  |  |  |
+| SE_DISTRIBUTOR_PORT | 5553 |  |  |
 | SE_GRID_URL |  |  |  |
 | SE_NODE_DOCKER_CONFIG_FILENAME |  |  |  |
 | SE_NODE_GRACEFUL_SHUTDOWN |  |  |  |
