@@ -1,7 +1,6 @@
 # To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-upload-dynamic-grid.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload-dynamic-grid.yml down`
-version: "3"
 services:
   # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
   ftp_server:
@@ -25,8 +24,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_VIDEO_RECORD_STANDALONE=true
       - SE_VIDEO_FILE_NAME=auto
       - SE_VIDEO_FILE_NAME_SUFFIX=true

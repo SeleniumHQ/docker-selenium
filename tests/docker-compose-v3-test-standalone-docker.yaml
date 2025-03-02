@@ -1,4 +1,3 @@
-version: "3"
 services:
   standalone-docker:
     image: ${NAMESPACE}/standalone-docker:${TAG}

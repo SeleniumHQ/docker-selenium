@@ -266,7 +266,6 @@ $ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalon
 # To execute this docker compose yml file use `docker compose -f docker-compose-v3-beta-channel.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-beta-channel.yml down`
-version: "3"
 services:
   chrome:
     image: selenium/node-chrome:beta
@@ -275,8 +274,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
     image: selenium/node-edge:beta
@@ -285,8 +282,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
     image: selenium/node-firefox:beta
@@ -295,8 +290,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-hub:
     image: selenium/hub:latest
@@ -312,7 +305,6 @@ services:
 # To execute this docker compose yml file use `docker compose -f docker-compose-v3-dev-channel.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-dev-channel.yml down`
-version: "3"
 services:
   chrome:
     image: selenium/node-chrome:dev
@@ -321,8 +313,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
     image: selenium/node-edge:dev
@@ -331,8 +321,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
     image: selenium/node-firefox:dev
@@ -341,8 +329,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-hub:
     image: selenium/hub:latest
@@ -411,18 +397,12 @@ $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-chrome:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-edge:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-firefox:4.29.0-20250222
 ```
 
@@ -433,18 +413,12 @@ $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-chrome:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-edge:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-firefox:4.29.0-20250222
 ```
 
@@ -473,8 +447,6 @@ $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.29.0-2
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-2> \
     selenium/node-chrome:4.29.0-20250222
 ```
@@ -485,8 +457,6 @@ $ docker run -d -p 5555:5555 \
 $ docker run -d -p 5555:5555 `
     --shm-size="2g" `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-2> `
     selenium/node-chrome:4.29.0-20250222
 ```
@@ -500,8 +470,6 @@ $ docker run -d -p 5555:5555 `
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-3> \
     selenium/node-edge:4.29.0-20250222
 ```
@@ -512,8 +480,6 @@ $ docker run -d -p 5555:5555 \
 $ docker run -d -p 5555:5555 `
     --shm-size="2g" `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-3> `
     selenium/node-edge:4.29.0-20250222
 ```
@@ -526,8 +492,6 @@ $ docker run -d -p 5555:5555 `
 $ docker run -d -p 5555:5555 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
     selenium/node-firefox:4.29.0-20250222
 ```
@@ -538,8 +502,6 @@ $ docker run -d -p 5555:5555 \
 $ docker run -d -p 5555:5555 `
     --shm-size="2g" `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-4> `
     selenium/node-firefox:4.29.0-20250222
 ```
@@ -552,8 +514,6 @@ $ docker run -d -p 5555:5555 `
 $ docker run -d -p 5556:5556 \
     --shm-size="2g" \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -e SE_NODE_HOST=<ip-from-machine-4> \
     -e SE_NODE_PORT=5556 \
     selenium/node-chrome:4.29.0-20250222
@@ -565,8 +525,6 @@ $ docker run -d -p 5556:5556 \
 $ docker run -d -p 5556:5556 `
     --shm-size="2g" `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -e SE_NODE_HOST=<ip-from-machine-4> `
     -e SE_NODE_PORT=5556 `
     selenium/node-chrome:4.29.0-20250222
@@ -691,7 +649,6 @@ Notes: To reach the GraphQL endpoint, the recorder container needs to know the H
 Besides the video recording mentioned above, you can enable the upload functionality by setting the following environment variables:
 
 ```yaml
-version: "3"
 services:
   chrome_video:
     image: selenium/video:ffmpeg-7.1-20250222
@@ -843,8 +800,6 @@ virtual machines.
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -857,8 +812,6 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
@@ -911,8 +864,6 @@ $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.29.0-2
 ```bash
 $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     -v ${PWD}/config.toml:/opt/selenium/config.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -924,8 +875,6 @@ $ docker run -d -p 5555:5555 \
 ```bash
 $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     -v ${PWD}/config.toml:/opt/selenium/config.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
@@ -1117,8 +1066,6 @@ Here is an example with the default values of these environment variables:
 ```bash
 $ docker run -d \
   -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
-  -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
   -e SE_NODE_STEREOTYPE="{\"browserName\":\"${SE_NODE_BROWSER_NAME}\", \"browserVersion\":\"${SE_NODE_BROWSER_VERSION}\", \"platformName\":\"${SE_NODE_PLATFORM_NAME}\"}" \
   --shm-size="2g" selenium/node-chrome:4.29.0-20250222
 ```
@@ -1127,8 +1074,6 @@ In another case, if you want to retain the default Node stereotype and append ad
 ```bash
 $ docker run -d \
   -e SE_EVENT_BUS_HOST=<event_bus_ip|event_bus_name> \
-  -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
   -e SE_NODE_STEREOTYPE_EXTRA="{\"myApp:version\":\"beta\", \"myApp:publish:\":\"public\"}" \
   --shm-size="2g" selenium/node-chrome:4.29.0-20250222
 ```
@@ -1159,7 +1104,7 @@ In addition, default Node stereotype includes capability `se:containerName` whic
 In an advanced case, where you control to spawn up a Node container, let it register to Hub, and then trigger a test to be assigned exactly to run on that Node. By default, the value of command `$(hostname)` is added to capability name `container:hostname` in Node stereotype. Combine with above feature setting custom capabilities for matching specific Nodes. You can use the `hostname` of the Node container just spawned up and set it as a custom capability. For example, in Python binding:
 
 ```bash
-$ docker run -d --name my-node-1 -e SE_EVENT_BUS_HOST=localhost -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
+$ docker run -d --name my-node-1 -e SE_EVENT_BUS_HOST=localhost \
   --shm-size="2g" selenium/node-chrome:4.29.0-20250222
 $ docker exec -i my-node-1 hostname
 a6971f95bbab
@@ -1271,8 +1216,8 @@ To avoid starting the server you can set the `SE_START_XVFB` environment variabl
 (or any other value than `true`), for example:
 
 ``` bash
-$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-  -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.29.0-20250222
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+  -e SE_START_XVFB=false --shm-size="2g" selenium/node-chrome:4.29.0-20250222
 ```
 
 For more information, see this GitHub [issue](https://github.com/SeleniumHQ/docker-selenium/issues/567).
@@ -1558,18 +1503,12 @@ $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub \
   selenium/hub:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-chrome:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-edge:4.29.0-20250222
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-firefox:4.29.0-20250222
 
 ```
@@ -1791,24 +1730,18 @@ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 	-e SE_ENABLE_TRACING=true \
 	-e SE_OTEL_TRACES_EXPORTER=otlp \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-chrome:4.29.0-20250222
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
 	-e SE_OTEL_TRACES_EXPORTER=otlp \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-edge:4.29.0-20250222
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
 	-e SE_ENABLE_TRACING=true \
 	-e SE_OTEL_TRACES_EXPORTER=otlp \
 	-e SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317 \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-firefox:4.29.0-20250222
 ```
 

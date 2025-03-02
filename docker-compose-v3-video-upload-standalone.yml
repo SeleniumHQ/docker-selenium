@@ -2,7 +2,6 @@
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload-standalone.yml down`
 # ${variable_pattern} get value from .env in the same directory
-version: "3"
 services:
   # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
   ftp_server:

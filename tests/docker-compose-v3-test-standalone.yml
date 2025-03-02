@@ -2,7 +2,6 @@
 # Ensure .env file with following variables is present in the same directory as this file
 # docker compose -f docker-compose-v3-test-standalone.yml up --abort-on-container-exit --build
 # To clean up, `docker compose -f docker-compose-v3-test-standalone.yml down`
-version: "3"
 services:
   standalone:
     image: selenium/standalone-${BROWSER}:${TAG}
