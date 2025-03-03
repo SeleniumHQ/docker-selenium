@@ -66,7 +66,7 @@ jobs:
             test-upgrade: true
             service-mesh: true
             os: ubuntu-24.04
-          - k8s-version: 'v1.29.13'
+          - k8s-version: 'v1.29.14'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
@@ -75,7 +75,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.30.9'
+          - k8s-version: 'v1.30.10'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
@@ -84,7 +84,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.31.5'
+          - k8s-version: 'v1.31.6'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.16.4'
@@ -93,7 +93,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.32.1'
+          - k8s-version: 'v1.32.2'
             test-strategy: playwright_connect_grid
             cluster: 'minikube'
             helm-version: 'v3.17.0'

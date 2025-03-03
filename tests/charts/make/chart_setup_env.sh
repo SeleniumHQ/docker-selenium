@@ -43,15 +43,14 @@ docker version
 docker buildx version
 docker buildx use default
 if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes ;
+    docker run --privileged --rm tonistiigi/binfmt --install all
 else
-    docker run --rm --privileged aptman/qus -- -r ;
-    docker run --rm --privileged aptman/qus -s -- -p
+    docker run --privileged --rm tonistiigi/binfmt --install all
 fi
 docker info
 echo "==============================="
 echo "Installing Docker compose for AMD64 / ARM64"
-DOCKER_COMPOSE_VERSION="v2.26.0"
+DOCKER_COMPOSE_VERSION="v2.33.1"
 curl -fsSL -o ./docker-compose "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-$(uname -m)"
 chmod +x ./docker-compose
 sudo mv ./docker-compose /usr/libexec/docker/cli-plugins
@@ -83,7 +82,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     rm -rf minikube-linux-$(dpkg --print-architecture)
     echo "==============================="
     echo "Installing Go"
-    GO_VERSION="1.23.3"
+    GO_VERSION="1.24.0"
     curl -sLO https://go.dev/dl/go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz
     tar -xvf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz -C /tmp
     rm -rf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz*
@@ -96,14 +95,14 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     go version
     echo "==============================="
     echo "Installing CRI-CTL (CLI for CRI-compatible container runtimes)"
-    CRICTL_VERSION="v1.30.0"
+    CRICTL_VERSION="v1.32.0"
     curl -fsSL -o crictl.tar.gz https://github.com/kubernetes-sigs/cri-tools/releases/download/$CRICTL_VERSION/crictl-$CRICTL_VERSION-linux-$(dpkg --print-architecture).tar.gz
     sudo tar -xf crictl.tar.gz -C /usr/local/bin
     rm -rf crictl.tar.gz
     crictl --version || true
     echo "==============================="
     echo "Installing CRI-Dockerd"
-    CRI_DOCKERD_VERSION="0.3.14"
+    CRI_DOCKERD_VERSION="0.3.16"
     curl -fsSL -o cri-dockerd.tgz https://github.com/Mirantis/cri-dockerd/releases/download/v$CRI_DOCKERD_VERSION/cri-dockerd-$CRI_DOCKERD_VERSION.$(dpkg --print-architecture).tgz
     sudo tar -xf cri-dockerd.tgz -C /tmp
     sudo mv /tmp/cri-dockerd/cri-dockerd /usr/local/bin/cri-dockerd
@@ -121,7 +120,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     cri-dockerd --version
     echo "==============================="
     echo "Installing CNI-Plugins (Container Network Interface)"
-    CNI_PLUGIN_VERSION="v1.4.0"
+    CNI_PLUGIN_VERSION="v1.6.2"
     CNI_PLUGIN_TAR="cni-plugins-linux-$(dpkg --print-architecture)-$CNI_PLUGIN_VERSION.tgz"
     CNI_PLUGIN_INSTALL_DIR="/opt/cni/bin"
     curl -sLO "https://github.com/containernetworking/plugins/releases/download/$CNI_PLUGIN_VERSION/$CNI_PLUGIN_TAR"
@@ -154,7 +153,7 @@ helm version
 echo "==============================="
 
 echo "Installing chart-testing for AMD64 / ARM64"
-CHART_TESTING_VERSION="3.10.1"
+CHART_TESTING_VERSION="3.12.0"
 curl -fsSL -o ct.tar.gz https://github.com/helm/chart-testing/releases/download/v${CHART_TESTING_VERSION}/chart-testing_${CHART_TESTING_VERSION}_linux_$(dpkg --print-architecture).tar.gz
 sudo mkdir -p /opt/ct
 sudo tar -xzf ct.tar.gz -C /opt/ct
