@@ -66,38 +66,38 @@ jobs:
             test-upgrade: true
             service-mesh: true
             os: ubuntu-24.04
-          - k8s-version: 'v1.29.14'
+          - k8s-version: 'v1.29.13'
             test-strategy: job_https
             cluster: 'minikube'
             helm-version: 'v3.14.3'
-            docker-version: '26.1.4'
+            docker-version: '27.5.1'
             python-version: '3.11'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.30.10'
+          - k8s-version: 'v1.30.9'
             test-strategy: job_hostname
             cluster: 'minikube'
             helm-version: 'v3.15.4'
-            docker-version: '26.1.4'
+            docker-version: '27.5.1'
             python-version: '3.12'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: deployment_https
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-24.04
-          - k8s-version: 'v1.32.2'
+          - k8s-version: 'v1.32.1'
             test-strategy: playwright_connect_grid
             cluster: 'minikube'
             helm-version: 'v3.17.0'
-            docker-version: '26.1.4'
+            docker-version: '28.0.1'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true

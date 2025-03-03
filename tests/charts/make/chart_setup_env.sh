@@ -2,7 +2,7 @@
 
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
-DOCKER_VERSION=${DOCKER_VERSION:-""}
+DOCKER_VERSION=${DOCKER_VERSION:-"26.1.4"}
 HELM_VERSION=${HELM_VERSION:-"latest"}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 

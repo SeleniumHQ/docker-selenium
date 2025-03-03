@@ -61,41 +61,41 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_in_chaos
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_job_count_strategy_default
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_deployment_count_in_chaos
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_deployment_count_with_node_max_sessions
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
-          - k8s-version: 'v1.31.6'
+          - k8s-version: 'v1.31.5'
             test-strategy: test_k8s_autoscaling_deployment_count
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '28.0.1'
             python-version: '3.13'
     env:
       CLUSTER: ${{ matrix.cluster }}
