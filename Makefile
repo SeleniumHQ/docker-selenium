@@ -60,7 +60,9 @@ check_dev_env:
 
 setup_dev_env:
 	./tests/charts/make/chart_setup_env.sh ; \
-  make set_containerd_image_store
+	exit_code=$$? ; \
+  make set_containerd_image_store ; \
+  exit $$exit_code ;
 
 set_containerd_image_store:
 	sudo mkdir -p /etc/docker

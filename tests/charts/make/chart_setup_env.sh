@@ -2,7 +2,7 @@
 
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
-DOCKER_VERSION=${DOCKER_VERSION:-"26.1.4"}
+DOCKER_VERSION=${DOCKER_VERSION:-""}
 HELM_VERSION=${HELM_VERSION:-"latest"}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 
@@ -28,6 +28,7 @@ echo \
 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -qq || true
 if [ -n "${DOCKER_VERSION}" ]; then
+  DOCKER_VERSION_EXPECT=$DOCKER_VERSION
   if [[ "${DOCKER_VERSION}" == "20.10"* ]]; then
     DOCKER_VERSION="=5:${DOCKER_VERSION}~3-0~$(. /etc/os-release; echo "$ID")-$(. /etc/os-release; echo "$VERSION_CODENAME")"
   else
@@ -36,21 +37,28 @@ if [ -n "${DOCKER_VERSION}" ]; then
   echo "Installing package docker-ce${DOCKER_VERSION}"
   ALLOW_DOWNGRADE="--allow-downgrades"
 fi
-sudo apt-get install -yq ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
-sudo apt-get install -yq ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
+sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
+sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
 sudo chmod 666 /var/run/docker.sock
+if [ -n "${DOCKER_VERSION_EXPECT}" ]; then
+  DOCKER_VERSION_ACTUAL="$(docker version --format '{{.Server.Version}}')"
+  if [ "${DOCKER_VERSION_EXPECT}" != "${DOCKER_VERSION_ACTUAL}" ]; then
+    exit 1
+  fi
+fi
 docker version
 docker buildx version
-docker buildx use default
+docker buildx use default || true
 if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    docker run --privileged --rm tonistiigi/binfmt --install all
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes ;
 else
-    docker run --privileged --rm tonistiigi/binfmt --install all
+    docker run --rm --privileged aptman/qus -- -r ;
+    docker run --rm --privileged aptman/qus -s -- -p
 fi
 docker info
 echo "==============================="
 echo "Installing Docker compose for AMD64 / ARM64"
-DOCKER_COMPOSE_VERSION="v2.33.1"
+DOCKER_COMPOSE_VERSION="v2.26.0"
 curl -fsSL -o ./docker-compose "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-$(uname -m)"
 chmod +x ./docker-compose
 sudo mv ./docker-compose /usr/libexec/docker/cli-plugins
@@ -95,14 +103,14 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     go version
     echo "==============================="
     echo "Installing CRI-CTL (CLI for CRI-compatible container runtimes)"
-    CRICTL_VERSION="v1.32.0"
+    CRICTL_VERSION="v1.30.0"
     curl -fsSL -o crictl.tar.gz https://github.com/kubernetes-sigs/cri-tools/releases/download/$CRICTL_VERSION/crictl-$CRICTL_VERSION-linux-$(dpkg --print-architecture).tar.gz
     sudo tar -xf crictl.tar.gz -C /usr/local/bin
     rm -rf crictl.tar.gz
     crictl --version || true
     echo "==============================="
     echo "Installing CRI-Dockerd"
-    CRI_DOCKERD_VERSION="0.3.16"
+    CRI_DOCKERD_VERSION="0.3.14"
     curl -fsSL -o cri-dockerd.tgz https://github.com/Mirantis/cri-dockerd/releases/download/v$CRI_DOCKERD_VERSION/cri-dockerd-$CRI_DOCKERD_VERSION.$(dpkg --print-architecture).tgz
     sudo tar -xf cri-dockerd.tgz -C /tmp
     sudo mv /tmp/cri-dockerd/cri-dockerd /usr/local/bin/cri-dockerd
@@ -120,7 +128,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     cri-dockerd --version
     echo "==============================="
     echo "Installing CNI-Plugins (Container Network Interface)"
-    CNI_PLUGIN_VERSION="v1.6.2"
+    CNI_PLUGIN_VERSION="v1.4.0"
     CNI_PLUGIN_TAR="cni-plugins-linux-$(dpkg --print-architecture)-$CNI_PLUGIN_VERSION.tgz"
     CNI_PLUGIN_INSTALL_DIR="/opt/cni/bin"
     curl -sLO "https://github.com/containernetworking/plugins/releases/download/$CNI_PLUGIN_VERSION/$CNI_PLUGIN_TAR"

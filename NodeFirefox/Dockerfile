@@ -21,7 +21,7 @@ ARG FIREFOX_VERSION=latest
 ARG FIREFOX_DOWNLOAD_URL=""
 ARG FIREFOX_LANG_VERSION=${FIREFOX_VERSION}
 RUN apt-get update -qqy && \
-  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+  if [ "$(dpkg --print-architecture)" = "amd64" ] || [ $FIREFOX_VERSION = "latest" ]; then \
     if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
