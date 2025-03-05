@@ -166,3 +166,10 @@ matrix:
     '97':
       CHROME_VERSION: google-chrome-stable=97.0.4692.99-1
       FIREFOX_VERSION: 97.0.2
+    '96':
+      CHROME_VERSION: google-chrome-stable=96.0.4664.110-1
+      FIREFOX_VERSION: 96.0.3
+    '95':
+      CHROME_VERSION: google-chrome-stable=95.0.4638.69-1
+      EDGE_VERSION: microsoft-edge-stable=95.0.1020.40-1
+      FIREFOX_VERSION: 95.0.2

@@ -31,7 +31,7 @@ on:
       browser-versions:
         description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        default: '[114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133]'
+        default: '[95, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133]'
       push-image:
         description: 'Push image after testing successfully'
         required: true
@@ -123,7 +123,7 @@ jobs:
       - name: Build Hub image for testing
         if: env.REUSE_BASE == 'false'
         run: make hub
-      - name: Test images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
+      - name: Test images Node with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
@@ -131,6 +131,13 @@ jobs:
           retry_wait_seconds: 60
           command: |
             make test_edge
+      - name: Test images Standalone with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
             make test_edge_standalone
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         if: env.PUSH_IMAGE == 'true'
