@@ -153,8 +153,7 @@ Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platfo
 $ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selenium/standalone-chromium:latest
 ```
 
-- Mozilla Firefox now is available for Linux/ARM64 via [Nightly channel](https://blog.nightly.mozilla.org/2024/04/19/firefox-nightly-now-available-for-linux-on-arm64/).
-The Firefox version in ARM64 will be different with the AMD64 until the stable release is available (Noted: we had workaround by pinning the versions getting from [Firefox download installer](https://download-installer.cdn.mozilla.net/pub/firefox/nightly/). The Firefox (node and standalone) images are available in multi-arch.
+- Mozilla Firefox now is available for Linux/ARM64 via APT stable channel from v136+. The Firefox (node and standalone) images are available in multi-arch.
 
 Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.
 
