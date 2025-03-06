@@ -10,7 +10,7 @@ USER root
 # Install Chromium
 ARG CHROMIUM_VERSION="latest"
 ARG CHROMIUM_DEB_SITE="http://deb.debian.org/debian"
-RUN echo "deb ${CHROMIUM_DEB_SITE}/ stable main" >> /etc/apt/sources.list \
+RUN echo "deb ${CHROMIUM_DEB_SITE}/ sid main" >> /etc/apt/sources.list \
   && wget -qO- https://ftp-master.debian.org/keys/archive-key-12.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/debian-archive-keyring.gpg \
   && wget -qO- https://ftp-master.debian.org/keys/archive-key-12-security.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/debian-archive-security-keyring.gpg \
   && apt-get update -qqy \
