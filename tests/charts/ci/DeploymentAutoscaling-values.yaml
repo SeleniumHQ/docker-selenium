@@ -100,3 +100,9 @@ firefoxNode:
     enabled: *livenessProbe
   extraVolumeMounts: *extraVolumeMounts
   extraVolumes: *extraVolumes
+
+# Configuration for relay nodes
+relayNode:
+  extraEnvFrom:
+    - secretRef:
+        name: test-cloud-credentials

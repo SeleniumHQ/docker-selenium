@@ -66,6 +66,7 @@ TEST_EXISTING_PTS=${TEST_EXISTING_PTS:-"false"}
 TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS:-"false"}
 TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"true"}
 TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
+TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY:-"false"}
 TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME:-"false"}
 
 wait_for_terminated() {
@@ -91,6 +92,7 @@ cleanup() {
     kubectl logs -n ${SELENIUM_NAMESPACE} $pod --all-containers --tail=10000 > tests/tests/pod_logs_${pod}.txt
   done
   if [ "${SKIP_CLEANUP}" = "false" ] || [ "${CI:-false}" != "false" ]; then
+    helm ls -A
     echo "Clean up chart release and namespace"
     helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --no-hooks || true
     wait_for_terminated
@@ -112,12 +114,12 @@ on_failure() {
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     sudo chmod -R 777 ${HOST_PATH}/logs
+    cleanup
     exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
-trap 'on_failure' ERR EXIT
-trap 'cleanup' ERR
+trap 'on_failure' ERR
 
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   rm -rf tests/tests/*
@@ -347,9 +349,19 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}
     --from-file=tls.crt=${cert_dir}/tls.crt \
     --from-file=tls.key=${cert_dir}/tls.key \
     --from-file=server.jks=${cert_dir}/server.jks \
-    --from-file=server.pass=${cert_dir}/server.pass
+    --from-file=server.pass=${cert_dir}/server.pass \
+    --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
   fi
   CHART_CERT_PATH="./tests/tests/tls.crt"
+fi
+
+if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
+  kubectl create secret generic -n ${SELENIUM_NAMESPACE} test-cloud-credentials \
+  --from-literal=SAUCE_USERNAME=${SAUCE_USERNAME} \
+  --from-literal=SAUCE_ACCESS_KEY=${SAUCE_ACCESS_KEY} \
+  --from-literal=SAUCE_REGION=${SAUCE_REGION} \
+  --from-literal=SE_NODE_RELAY_URL="https://\$SAUCE_USERNAME:\$SAUCE_ACCESS_KEY@ondemand.\$SAUCE_REGION.saucelabs.com:443/wd/hub" \
+  --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
 fi
 
 if [ "${SECURE_INGRESS_ONLY_CONFIG_INLINE}" = "true" ]; then
@@ -421,9 +433,13 @@ if [ "${TEST_MULTIPLE_VERSIONS}" = "true" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
   --values ${CHART_PATH}/multiple-nodes-platform-version.yaml \
   "
-elif [ "${TEST_MULTIPLE_PLATFORMS}" = "true" ]; then
+elif [ "${TEST_MULTIPLE_PLATFORMS}" = "true" ] && [ "${TEST_MULTIPLE_PLATFORMS_RELAY}" != "true" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
   --values ${CHART_PATH}/multiple-nodes-platform.yaml \
+  "
+elif [ "${TEST_MULTIPLE_PLATFORMS_RELAY}" = "true" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${CHART_PATH}/multiple-nodes-platform-relay.yaml \
   "
 fi
 
@@ -504,6 +520,7 @@ export TEST_AUTOSCALING_ITERATIONS=${TEST_AUTOSCALING_ITERATIONS:-"20"}
 export TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS}
 export TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT}
 export TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS}
+export TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY}
 export TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME}
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
   ./tests/bootstrap.sh NodeFirefox
@@ -527,5 +544,3 @@ else
 fi
 
 wait_for_terminated
-
-cleanup

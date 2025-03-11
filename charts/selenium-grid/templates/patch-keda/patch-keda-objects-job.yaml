@@ -30,16 +30,19 @@ spec:
       containers:
         - name: kubectl
           image: {{ $.Values.global.seleniumGrid.kubectlImage }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Cleaning up ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
-              kubectl get ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} -o=json | jq '.metadata.finalizers = null' | kubectl apply -f - || true ;
-              kubectl delete ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait=false || true ;
-              kubectl delete hpa -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait=false || true ;
+          command: ["/bin/bash", "-c", "/cleanUpScript.sh"]
+          volumeMounts:
+            - name: cleanup-script
+              mountPath: /cleanUpScript.sh
+              subPath: cleanUpScript.sh
         {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
           resources: {{ toYaml . | nindent 12 }}
         {{- end }}
+      volumes:
+        - name: cleanup-script
+          configMap:
+            name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+            defaultMode: {{ $.Values.autoscaling.patchObjectFinalizers.defaultMode }}
     {{- if or $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}

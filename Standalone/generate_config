@@ -44,7 +44,10 @@ fi
 SE_NODE_CONTAINER_NAME="${SE_NODE_CONTAINER_NAME:-$(hostname)}"
 
 if [[ -z "$SE_NODE_STEREOTYPE" ]]; then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", ${SE_BROWSER_BINARY_LOCATION}, \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
+	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
+	if [[ -n "${SE_BROWSER_BINARY_LOCATION}" ]]; then
+		SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "{${SE_BROWSER_BINARY_LOCATION}}")"
+	fi
 else
 	SE_NODE_STEREOTYPE="$SE_NODE_STEREOTYPE"
 fi

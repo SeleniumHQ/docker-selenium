@@ -33,14 +33,19 @@ TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true'
 TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS = os.environ.get('TEST_MULTIPLE_VERSIONS', 'false').lower() == 'true'
 TEST_MULTIPLE_PLATFORMS = os.environ.get('TEST_MULTIPLE_PLATFORMS', 'false').lower() == 'true'
+TEST_MULTIPLE_PLATFORMS_RELAY = os.environ.get('TEST_MULTIPLE_PLATFORMS_RELAY', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICIT', 'true').lower() == 'true'
 LIST_CHROMIUM_VERSIONS = ['130.0', '129.0', '128.0']
 LIST_FIREFOX_VERSIONS = ['132.0', '131.0', '130.0', '129.0', '128.0']
-LIST_PLATFORMS = ['Linux', None, 'Windows']
+LIST_PLATFORMS = ['Linux', None, 'Windows 11']
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
   LIST_CHROMIUM_VERSIONS.append(None)
   LIST_FIREFOX_VERSIONS.append(None)
+
+if TEST_MULTIPLE_PLATFORMS_RELAY:
+    # Replace index with None to macOS
+    LIST_PLATFORMS[1] = 'macOS'
 
 SELENIUM_GRID_URL = f"{SELENIUM_GRID_PROTOCOL}://{SELENIUM_GRID_HOST}:{SELENIUM_GRID_PORT}"
 CLIENT_CONFIG = ClientConfig(

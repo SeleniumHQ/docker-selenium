@@ -46,3 +46,8 @@ firefoxNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+# Configuration for relay nodes
+relayNode:
+  extraEnvFrom:
+    - secretRef:
+        name: test-cloud-credentials

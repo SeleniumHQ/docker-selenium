@@ -1039,6 +1039,10 @@ autoscaling:
       "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
       # This should be run before all other hooks (since delete action is called), so use a negative weight
       "helm.sh/hook-weight": "-1"
+    # -- Define your custom script to replace the default script
+    cleanUpScript: ""
+    # -- Default mode for ConfigMap is mounted as file
+    defaultMode: 0755
     # -- Define an external service account name contains permissions to patch KEDA scaled resources
     serviceAccount: ""
     # -- Custom pull secret for container in patch job
@@ -1871,13 +1875,13 @@ relayNode:
   scaledObjectOptions:
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
-    browserName: "chrome"
+    browserName: ""
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: ""
     # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
-    platformName: "Android"
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 

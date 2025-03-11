@@ -21,7 +21,7 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-chrome-platform-windows'
       hpa:
-        platformName: 'windows'
+        platformName: 'Windows 11'
         browserVersion: ''
   firefoxNode:
     - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-any'
@@ -34,7 +34,7 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-firefox-platform-windows'
       hpa:
-        platformName: 'windows'
+        platformName: 'Windows 11'
         browserVersion: ''
   edgeNode:
     - nameOverride: '{{ $.Release.Name }}-node-edge-platform-any'
@@ -47,5 +47,5 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-edge-platform-windows'
       hpa:
-        platformName: 'windows'
+        platformName: 'Windows 11'
         browserVersion: ''

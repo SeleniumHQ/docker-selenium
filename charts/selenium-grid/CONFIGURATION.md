@@ -396,6 +396,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |
 | autoscaling.patchObjectFinalizers.activeDeadlineSeconds | int | `120` | Deadline (in seconds) for patch job to complete |
 | autoscaling.patchObjectFinalizers.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback,pre-delete","helm.sh/hook-delete-policy":"hook-succeeded,before-hook-creation","helm.sh/hook-weight":"-1"}` | Annotations for patch job |
+| autoscaling.patchObjectFinalizers.cleanUpScript | string | `""` | Define your custom script to replace the default script |
+| autoscaling.patchObjectFinalizers.defaultMode | int | `493` | Default mode for ConfigMap is mounted as file |
 | autoscaling.patchObjectFinalizers.serviceAccount | string | `""` | Define an external service account name contains permissions to patch KEDA scaled resources |
 | autoscaling.patchObjectFinalizers.imagePullSecret | string | `""` | Custom pull secret for container in patch job |
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
@@ -639,10 +641,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
 | relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
 | relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |
-| relayNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
+| relayNode.hpa.browserName | string | `""` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
-| relayNode.hpa.platformName | string | `"Android"` | platformName should match with Node stereotype and request capability is scaled by this scaler |
+| relayNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
