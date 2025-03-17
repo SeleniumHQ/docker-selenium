@@ -261,10 +261,17 @@ Server ConfigMap fullname
 {{- end -}}
 
 {{/*
+Delete scaledObjects leafover job fullname
+*/}}
+{{- define "seleniumGrid.keda.deleteObjectsJob.fullname" -}}
+{{- printf "%s-scaledobjects-deletion" (tpl ( default (include "seleniumGrid.component.name" (list "selenium-patch" $)) .Values.autoscaling.patchObjectFinalizers.nameOverride) $) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Patch scaledObjects finalizers job fullname
 */}}
 {{- define "seleniumGrid.keda.patchObjectsJob.fullname" -}}
-{{- tpl ( default (include "seleniumGrid.component.name" (list "selenium-patch-scaledobjects-finalizers" $)) .Values.autoscaling.patchObjectFinalizers.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-scaledobjects-finalizers" (tpl ( default (include "seleniumGrid.component.name" (list "selenium-patch" $)) .Values.autoscaling.patchObjectFinalizers.nameOverride) $) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

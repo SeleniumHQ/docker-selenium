@@ -2,16 +2,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+  name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
   namespace: {{ .Release.Namespace }}
   annotations: &patch_objects_job_annotations
-    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-weight": "-10"
   {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels: &patch_objects_job_labels
-    app: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
-    app.kubernetes.io/name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+    app: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
   {{- with $.Values.customLabels }}
     {{- toYaml . | nindent 4 }}
@@ -23,7 +23,7 @@ spec:
       annotations: *patch_objects_job_annotations
       {{- end }}
       labels: *patch_objects_job_labels
-      name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+      name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
     spec:
       activeDeadlineSeconds: {{ $.Values.autoscaling.patchObjectFinalizers.activeDeadlineSeconds }}
       serviceAccountName: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
@@ -31,11 +31,11 @@ spec:
       containers:
         - name: kubectl
           image: {{ $.Values.global.seleniumGrid.kubectlImage }}
-          command: ["/bin/bash", "-c", "/patchFinalizersScript.sh"]
+          command: ["/bin/bash", "-c", "/deleteObjectsScript.sh"]
           volumeMounts:
             - name: cleanup-script
-              mountPath: /patchFinalizersScript.sh
-              subPath: patchFinalizersScript.sh
+              mountPath: /deleteObjectsScript.sh
+              subPath: deleteObjectsScript.sh
         {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
           resources: {{ toYaml . | nindent 12 }}
         {{- end }}

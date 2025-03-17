@@ -92,7 +92,7 @@ cleanup() {
   done
   if [ "${SKIP_CLEANUP}" = "false" ] || [ "${CI:-false}" != "false" ]; then
     echo "Clean up chart release and namespace"
-    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --no-hooks || true
+    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} || true
     wait_for_terminated
     sudo chmod -R 777 ${HOST_PATH}/logs
   fi

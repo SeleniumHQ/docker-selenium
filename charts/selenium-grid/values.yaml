@@ -1032,13 +1032,17 @@ autoscaling:
     # -- Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists
     enabled: true
     # -- Deadline (in seconds) for patch job to complete
-    activeDeadlineSeconds: 120
+    activeDeadlineSeconds: 300
     # -- Annotations for patch job
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
       "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
-      # This should be run before all other hooks (since delete action is called), so use a negative weight
-      "helm.sh/hook-weight": "-1"
+    # -- Define your custom script to replace the default script
+    deleteObjectsScript: ""
+    # -- Define your custom script to replace the default script
+    patchFinalizersScript: ""
+    # -- Default mode for ConfigMap is mounted as file
+    defaultMode: 0755
     # -- Define an external service account name contains permissions to patch KEDA scaled resources
     serviceAccount: ""
     # -- Custom pull secret for container in patch job
