@@ -28,4 +28,4 @@ secrets:
   nameOverride: "selenium-grid-common-secrets"
 autoscaling:
   patchObjectFinalizers:
-    nameOverride: "selenium-grid-job-patch-objects"
+    nameOverride: "selenium-grid-patch"

@@ -357,10 +357,8 @@ fi
 
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   kubectl create secret generic -n ${SELENIUM_NAMESPACE} test-cloud-credentials \
-  --from-literal=SAUCE_USERNAME=${SAUCE_USERNAME} \
-  --from-literal=SAUCE_ACCESS_KEY=${SAUCE_ACCESS_KEY} \
   --from-literal=SAUCE_REGION=${SAUCE_REGION} \
-  --from-literal=SE_NODE_RELAY_URL="https://\$SAUCE_USERNAME:\$SAUCE_ACCESS_KEY@ondemand.\$SAUCE_REGION.saucelabs.com:443/wd/hub" \
+  --from-literal=SE_NODE_RELAY_URL="https://ondemand.\$SAUCE_REGION.saucelabs.com:443/wd/hub" \
   --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
 fi
 

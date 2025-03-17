@@ -4,8 +4,9 @@ kind: ConfigMap
 metadata:
   name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
   namespace: {{ .Release.Namespace }}
-  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
   annotations:
+    "helm.sh/hook-weight": "-20"
+  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
@@ -16,14 +17,44 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 data:
-{{- if $.Values.autoscaling.patchObjectFinalizers.cleanUpScript }}
-  cleanUpScript.sh: {{- toYaml $.Values.autoscaling.patchObjectFinalizers.cleanUpScript | nindent 4 }}
+{{- if $.Values.autoscaling.patchObjectFinalizers.deleteObjectsScript }}
+  deleteObjectsScript.sh: {{- toYaml $.Values.autoscaling.patchObjectFinalizers.deleteObjectsScript | nindent 4 }}
 {{- else }}
-  cleanUpScript.sh: |
+  deleteObjectsScript.sh: |
     #!/bin/bash
     set -e
     set -x
-    echo "Cleaning up ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
+    echo "Delete ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
+    for i in $(kubectl get ScaledObjects -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete ScaledObjects $i -n {{ .Release.Namespace }}
+        fi
+    done
+    for i in $(kubectl get ScaledJobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete ScaledJobs $i -n {{ .Release.Namespace }}
+        fi
+    done
+    for i in $(kubectl get TriggerAuthentication -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete TriggerAuthentication $i -n {{ .Release.Namespace }}
+        fi
+    done
+{{- end }}
+{{- if $.Values.autoscaling.patchObjectFinalizers.patchFinalizersScript }}
+  patchFinalizersScript.sh: {{- toYaml $.Values.autoscaling.patchObjectFinalizers.patchFinalizersScript | nindent 4 }}
+{{- else }}
+  patchFinalizersScript.sh: |
+    #!/bin/bash
+    set -e
+    set -x
+    echo "Patch finalizers of ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
     for i in $(kubectl get ScaledObjects -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
         -o jsonpath='{.items[*].metadata.name}{"\n"}');
     do

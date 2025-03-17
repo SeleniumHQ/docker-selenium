@@ -59,14 +59,10 @@ relayNode:
   videoRecorder:
     enabled: false
   extraEnvironmentVariables:
-#    - name: SAUCE_USERNAME
-#      value: "<your_SAUCE_USERNAME>"
-#    - name: SAUCE_ACCESS_KEY
-#      value: "<your_SAUCE_ACCESS_KEY>"
 #    - name: SAUCE_REGION
 #      value: "<your_SAUCE_REGION>"
 #    - name: SE_NODE_RELAY_URL
-#      value: "https://$SAUCE_USERNAME:$SAUCE_ACCESS_KEY@ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
+#      value: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
   extraEnvFrom:
 #    - secretRef:
 #        name: your-secret-with-all-env-vars

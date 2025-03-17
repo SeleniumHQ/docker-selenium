@@ -190,6 +190,13 @@ class ChromeTests(SeleniumGenericTests):
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:
                     options.set_capability('platformName', platform_name)
+            if TEST_MULTIPLE_PLATFORMS_RELAY:
+                options.set_capability('sauce:options', {
+                    'username': os.environ.get('SAUCE_USERNAME'),
+                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                    'seleniumVersion': '4.29.0',
+                })
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
@@ -228,6 +235,13 @@ class EdgeTests(SeleniumGenericTests):
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:
                     options.set_capability('platformName', platform_name)
+            if TEST_MULTIPLE_PLATFORMS_RELAY:
+                options.set_capability('sauce:options', {
+                    'username': os.environ.get('SAUCE_USERNAME'),
+                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                    'seleniumVersion': '4.29.0',
+                })
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
@@ -271,6 +285,13 @@ class FirefoxTests(SeleniumGenericTests):
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:
                     options.set_capability('platformName', platform_name)
+            if TEST_MULTIPLE_PLATFORMS_RELAY:
+                options.set_capability('sauce:options', {
+                    'username': os.environ.get('SAUCE_USERNAME'),
+                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                    'seleniumVersion': '4.29.0',
+                })
             start_time = time.time()
             self.driver = webdriver.Remote(
                 options=options,
