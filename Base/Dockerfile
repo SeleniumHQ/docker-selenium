@@ -195,7 +195,7 @@ ENV SE_BIND_HOST="false" \
     SE_STRUCTURED_LOGS="false" \
     SE_ENABLE_TRACING="true" \
     SE_ENABLE_TLS="false" \
-    SE_JAVA_OPTS_DEFAULT="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs" \
+    SE_JAVA_OPTS_DEFAULT="" \
     SE_JAVA_HEAP_DUMP="false" \
     SE_JAVA_HTTPCLIENT_VERSION="HTTP_1_1" \
     SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \

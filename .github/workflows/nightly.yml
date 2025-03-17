@@ -116,7 +116,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@main
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           check-latest: true
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}

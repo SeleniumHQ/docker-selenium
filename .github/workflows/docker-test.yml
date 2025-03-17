@@ -184,7 +184,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@main
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           check-latest: true
       - name: Enable KVM
         if: matrix.test-strategy == 'test_node_relay' && contains(matrix.os, 'arm') == false

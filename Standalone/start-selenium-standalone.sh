@@ -169,18 +169,21 @@ if [ -n "${SE_JAVA_OPTS_DEFAULT}" ]; then
   SE_JAVA_OPTS="${SE_JAVA_OPTS_DEFAULT} $SE_JAVA_OPTS"
 fi
 
-if [ -n "${JAVA_OPTS:-$SE_JAVA_OPTS}" ]; then
-  echo "Using JAVA_OPTS: ${JAVA_OPTS:-$SE_JAVA_OPTS}"
-fi
-
 function handle_heap_dump() {
   /opt/bin/handle_heap_dump.sh /opt/selenium/logs
 }
 if [ "${SE_JAVA_HEAP_DUMP}" = "true" ]; then
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs"
   trap handle_heap_dump ERR SIGTERM SIGINT
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
+if [ -n "${JAVA_OPTS}" ]; then
+  SE_JAVA_OPTS="$SE_JAVA_OPTS ${JAVA_OPTS}"
+fi
+
+echo "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+
+java ${SE_JAVA_OPTS} \
   ${CHROME_DRIVER_PATH_PROPERTY} \
   ${EDGE_DRIVER_PATH_PROPERTY} \
   ${GECKO_DRIVER_PATH_PROPERTY} \
