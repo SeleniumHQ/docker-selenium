@@ -56,11 +56,13 @@ crossBrowsers:
 
 relayNode:
   enabled: true
+#  relayUrl: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
   videoRecorder:
     enabled: false
   extraEnvironmentVariables:
 #    - name: SAUCE_REGION
 #      value: "<your_SAUCE_REGION>"
+# Or can give relay url directly to environment variable SE_NODE_RELAY_URL. Value can be referring to value of existing env vars.
 #    - name: SE_NODE_RELAY_URL
 #      value: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
   extraEnvFrom:

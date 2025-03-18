@@ -360,6 +360,11 @@ For example [multiple-nodes-platform.yaml](./multiple-nodes-platform.yaml) file,
 
 For example [multiple-nodes-platform-version.yaml](./multiple-nodes-platform-version.yaml) file, it defines multiple scalers with `platformName: 'Linux'` and last few previous stable versions per browser node to scale against requests with `browserVersion` and `platformName` capabilities.
 
+To extend your Grid, you can use Relay Node (which allows you to route Grid tests to another Grid, another network, or a cloud vendor).
+Besides on-prem browser Nodes with Linux-based, you also can serve test requests with other platforms, browsers or even mobile devices which provided by cloud vendors.
+Your teams will not worry about the underlying infrastructure, they just request to the single Grid endpoint hosted in your organization.
+Check out values file [multiple-nodes-platform-relay.yaml](./multiple-nodes-platform-relay.yaml) for more details.
+
 While deploying the chart, you can quickly use these extra values files by passing the file via `--values` flag to apply.
 
 ### Settings fixed-sized thread pool for the Distributor to create new sessions

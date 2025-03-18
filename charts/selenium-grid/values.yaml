@@ -1704,7 +1704,8 @@ edgeNode:
 relayNode:
   # -- Enable relay nodes
   enabled: false
-
+  # -- Specify another Grid, another network, or a cloud vendor that you wish to connect to (e.g. https://ondemand.us-west-1.saucelabs.com/wd/hub)
+  relayUrl: ""
   # -- NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
   # true (default) - if you want long-living pods

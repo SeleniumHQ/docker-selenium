@@ -369,6 +369,10 @@ template:
             value: {{ $nodeCustomCapabilities | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+        {{- with .node.relayUrl }}
+          - name: SE_NODE_RELAY_URL
+            value: {{ . | quote }}
+        {{- end }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
           - name: SE_NODE_BROWSER_NAME
             value: {{ if hasKey .node.hpa "browserName" }}{{ .node.hpa.browserName | quote }}{{ else }}""{{ end }}

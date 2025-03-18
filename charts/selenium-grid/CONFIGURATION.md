@@ -593,6 +593,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
 | relayNode.enabled | bool | `false` | Enable relay nodes |
+| relayNode.relayUrl | string | `""` | Specify another Grid, another network, or a cloud vendor that you wish to connect to (e.g. https://ondemand.us-west-1.saucelabs.com/wd/hub) |
 | relayNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long-living pods false - for provisioning your own custom type such as Jobs |
 | relayNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
 | relayNode.replicas | int | `1` | Number of relay nodes |

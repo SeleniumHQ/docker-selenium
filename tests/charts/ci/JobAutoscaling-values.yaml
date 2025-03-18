@@ -48,6 +48,7 @@ firefoxNode:
     enabled: *livenessProbe
 # Configuration for relay nodes
 relayNode:
+  relayUrl: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
   extraEnvFrom:
     - secretRef:
         name: test-cloud-credentials
