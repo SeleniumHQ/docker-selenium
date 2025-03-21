@@ -209,7 +209,7 @@ ingress:
     # -- Specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName" for NGINX Ingress Controller
     sslSecret: ""
     # -- Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller
-    useHttp2: true
+    useHttp2: false
     # -- Apply upstream keepalive settings once HTTP/2 is enabled
     upstreamKeepalive:
       # -- Set keepalive connections to corresponding annotations for NGINX Ingress Controller

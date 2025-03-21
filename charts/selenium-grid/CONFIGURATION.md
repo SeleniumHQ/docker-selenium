@@ -100,7 +100,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | ingress.nginx.proxyBuffer.number | int | `4` | Set buffer number to corresponding annotations for NGINX Ingress Controller |
 | ingress.nginx.sslPassthrough | bool | `true` | Enable corresponding annotations for NGINX Ingress Controller |
 | ingress.nginx.sslSecret | string | `""` | Specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName" for NGINX Ingress Controller |
-| ingress.nginx.useHttp2 | bool | `true` | Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller |
+| ingress.nginx.useHttp2 | bool | `false` | Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller |
 | ingress.nginx.upstreamKeepalive | object | `{"connections":10000,"requests":10000,"time":"1h"}` | Apply upstream keepalive settings once HTTP/2 is enabled |
 | ingress.nginx.upstreamKeepalive.connections | int | `10000` | Set keepalive connections to corresponding annotations for NGINX Ingress Controller |
 | ingress.nginx.upstreamKeepalive.time | string | `"1h"` | Set keepalive timeout to corresponding annotations for NGINX Ingress Controller |

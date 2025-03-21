@@ -91,6 +91,7 @@ selenium-grid:
     tls:
       - hosts:
           - '*.my.domain.com'
+        secretName: "selenium/my-external-secret"
 
   isolateComponents: true
 

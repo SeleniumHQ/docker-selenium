@@ -135,8 +135,8 @@ nginx.ingress.kubernetes.io/use-http2: {{ .useHttp2 | quote }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl .sslSecret $ | quote }}
     {{- else if (empty $.Values.ingress.tls) }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (include "seleniumGrid.tls.fullname" $)) $ | quote }}
-    {{- else }}
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
+    {{- else if (index $.Values.ingress.tls 0).secretName }}
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
     {{- end }}
   {{- end }}
   {{- with .upstreamKeepalive }}
