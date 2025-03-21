@@ -45,6 +45,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
+RUN echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" > /etc/apt/sources.list \
+    && echo "deb-src [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" >> /etc/apt/sources.list \
+    && echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list \
+    && echo "deb-src [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list
+
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
@@ -56,13 +61,17 @@ RUN apt-get -qqy update \
     unzip \
     wget \
     jq \
-    curl \
     supervisor \
     gnupg2 \
     libnss3-tools \
     openjdk-${JRE_VERSION}-jdk-headless \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
+    && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
+    && chmod +x /usr/bin/curl \
+    && curl --version
 
 RUN --mount=type=secret,id=SEL_PASSWD \
     if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
