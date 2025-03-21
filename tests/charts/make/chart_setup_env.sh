@@ -50,10 +50,9 @@ docker version
 docker buildx version
 docker buildx use default || true
 if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes ;
+    docker run --privileged --rm tonistiigi/binfmt --install all ;
 else
-    docker run --rm --privileged aptman/qus -- -r ;
-    docker run --rm --privileged aptman/qus -s -- -p
+    docker run --privileged --rm tonistiigi/binfmt --install all ;
 fi
 docker info
 echo "==============================="

@@ -9,8 +9,6 @@ services:
       - ./videos/relay_config.toml:/opt/selenium/config.toml
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - GENERATE_CONFIG=false
 
@@ -58,8 +56,6 @@ services:
       - emulator
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_NODE_SESSION_TIMEOUT=${SESSION_TIMEOUT}
       - SE_NODE_RELAY_URL=http://emulator:4723

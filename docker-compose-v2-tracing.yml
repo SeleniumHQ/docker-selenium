@@ -15,8 +15,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
@@ -30,8 +28,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
@@ -45,8 +41,6 @@ services:
       - selenium-hub
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_ENABLE_TRACING=true
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
