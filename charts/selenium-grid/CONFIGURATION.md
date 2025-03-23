@@ -20,7 +20,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | 16.5.2 |
 | https://charts.bitnami.com/bitnami | redis | 20.11.4 |
-| https://jaegertracing.github.io/helm-charts | jaeger | 3.4.0 |
+| https://jaegertracing.github.io/helm-charts | jaeger | 3.4.1 |
 | https://kedacore.github.io/charts | keda | 2.16.1 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.12.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 70.1.1 |
