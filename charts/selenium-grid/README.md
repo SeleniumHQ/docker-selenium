@@ -360,6 +360,11 @@ For example [multiple-nodes-platform.yaml](./multiple-nodes-platform.yaml) file,
 
 For example [multiple-nodes-platform-version.yaml](./multiple-nodes-platform-version.yaml) file, it defines multiple scalers with `platformName: 'Linux'` and last few previous stable versions per browser node to scale against requests with `browserVersion` and `platformName` capabilities.
 
+To extend your Grid, you can use Relay Node (which allows you to route Grid tests to another Grid, another network, or a cloud vendor).
+Besides on-prem browser Nodes with Linux-based, you also can serve test requests with other platforms, browsers or even mobile devices which provided by cloud vendors.
+Your teams will not worry about the underlying infrastructure, they just request to the single Grid endpoint hosted in your organization.
+Check out values file [multiple-nodes-platform-relay.yaml](./multiple-nodes-platform-relay.yaml) for more details.
+
 While deploying the chart, you can quickly use these extra values files by passing the file via `--values` flag to apply.
 
 ### Settings fixed-sized thread pool for the Distributor to create new sessions
@@ -1039,6 +1044,22 @@ tracing:
 
 By default, the exporter is set to `otlp`. It is wide compatibility with many tracing backends.
 Read more: [vendors](https://opentelemetry.io/ecosystem/vendors/) native support OpenTelemetry and guidelines on [integration](https://opentelemetry.io/ecosystem/integrations/)
+
+In case your observability collector agents running on the Kubernetes Nodes as Daemonsets, you can to set `tracing.exporterEndpoint` point to IP address for Kubernetes node. For example:
+
+```yaml
+tracing:
+    enabledWithExistingEndpoint: true
+    exporterEndpoint: 'http://$KUBERNETES_NODE_HOST_IP:4317'
+```
+
+In each component deployment, we already exposed the environment variable `KUBERNETES_NODE_HOST_IP` to get the IP address of the Kubernetes node where the component is running. So, you can use environment variable pattern in the value of `tracing.exporterEndpoint` as above.
+
+Note: If you set value via Helm CLI, ensure to escape the `$` character in the value to prevent it confused with the shell variable. For example:
+
+```bash
+helm upgrade -i $RELEASENAME -n $NAMESPACE --set tracing.exporterEndpoint="http://\$KUBERNETES_NODE_HOST_IP:4317" [...]
+```
 
 ### Configuration of Session Map using External Datastore
 

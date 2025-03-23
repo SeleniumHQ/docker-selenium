@@ -1,4 +1,3 @@
-version: "3"
 services:
   node-docker:
     image: ${NAMESPACE}/node-docker:${TAG}
@@ -19,8 +18,6 @@ services:
     environment:
       - SE_NODE_DOCKER_CONFIG_FILENAME=docker.toml
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
       - SE_OPTS=--enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
       - SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage

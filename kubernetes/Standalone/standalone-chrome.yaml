@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-standalone-chrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-standalone-chrome
+  template:
+    metadata:
+      labels:
+        app: selenium-standalone-chrome
+    spec:
+      containers:
+        - name: chrome
+          image: selenium/standalone-chrome:4.29.0-20250303
+          ports:
+            - containerPort: 4444
+            - containerPort: 7900
+          env:
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: "600"
+            - name: SE_ROUTER_USERNAME
+              value: "admin"
+            - name: SE_ROUTER_PASSWORD
+              value: "admin"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "600"
+            - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+              value: "true"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - curl -G --fail --silent -u ${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD} localhost:4444/status
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4444
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-standalone-chrome
+spec:
+  selector:
+    app: selenium-standalone-chrome
+  ports:
+    - name: web
+      port: 4444
+      targetPort: 4444
+      nodePort: 30444
+    - name: vnc
+      port: 7900
+      targetPort: 7900
+      nodePort: 30790
+  type: NodePort

@@ -1,0 +1,55 @@
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  annotations: &patch_objects_job_annotations
+    "helm.sh/hook-weight": "-10"
+  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels: &patch_objects_job_labels
+    app: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with $.Values.customLabels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  template:
+    metadata:
+      {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
+      annotations: *patch_objects_job_annotations
+      {{- end }}
+      labels: *patch_objects_job_labels
+      name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
+    spec:
+      activeDeadlineSeconds: {{ $.Values.autoscaling.patchObjectFinalizers.activeDeadlineSeconds }}
+      serviceAccountName: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
+      serviceAccount: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}
+      containers:
+        - name: kubectl
+          image: {{ $.Values.global.seleniumGrid.kubectlImage }}
+          command: ["/bin/bash", "-c", "/deleteObjectsScript.sh"]
+          volumeMounts:
+            - name: cleanup-script
+              mountPath: /deleteObjectsScript.sh
+              subPath: deleteObjectsScript.sh
+        {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
+          resources: {{ toYaml . | nindent 12 }}
+        {{- end }}
+      volumes:
+        - name: cleanup-script
+          configMap:
+            name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+            defaultMode: {{ $.Values.autoscaling.patchObjectFinalizers.defaultMode }}
+    {{- if or $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}
+    {{- end }}
+      restartPolicy: Never
+    {{- with .Values.autoscaling.patchObjectFinalizers.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}

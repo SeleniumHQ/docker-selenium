@@ -29,7 +29,7 @@ if __name__ == '__main__':
     matrix = selenium_matrix["matrix"]
     # Get versions from arguments
     selenium_version = sys.argv[1]
-    browser_version = int(sys.argv[2])
+    browser_version = sys.argv[2]
     browser_name = sys.argv[3]
     # Create .env with component versions
     with open('.env', 'w') as f:

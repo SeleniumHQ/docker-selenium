@@ -51,7 +51,7 @@ jobs:
       - build-test
     if: (contains(toJson(github.event.commits), '[deploy]') == true || (github.event_name == 'workflow_dispatch' && github.event.inputs.release == 'true')) && !failure() && !cancelled()
     name: Deploy and Release
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
     permissions: write-all
     steps:
       - name: Free Disk Space (Ubuntu)

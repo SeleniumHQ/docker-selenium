@@ -8,7 +8,7 @@ fi
 
 if [[ -n "${SE_NODE_RELAY_URL}" ]]; then
 	echo "[relay]" >>"$FILENAME"
-	echo "url = \"${SE_NODE_RELAY_URL}\"" >>"$FILENAME"
+	echo "url = \"$(envsubst < <(echo ${SE_NODE_RELAY_URL}))\"" >>"$FILENAME"
 	if [[ -z "${SE_NODE_RELAY_STATUS_ENDPOINT}" ]]; then
 		echo "status-endpoint = \"/status\"" >>"$FILENAME"
 	else
@@ -18,7 +18,17 @@ if [[ -n "${SE_NODE_RELAY_URL}" ]]; then
 		echo "protocol-version = \"${SE_NODE_RELAY_PROTOCOL_VERSION}\"" >>"$FILENAME"
 	fi
 	if [[ -z "${SE_NODE_RELAY_STEREOTYPE}" ]]; then
-		SE_NODE_RELAY_STEREOTYPE="{\"browserName\": \"${SE_NODE_RELAY_BROWSER_NAME}\", \"platformName\": \"${SE_NODE_RELAY_PLATFORM_NAME}\", \"appium:platformVersion\": \"${SE_NODE_RELAY_PLATFORM_VERSION}\"}"
+		SE_NODE_RELAY_STEREOTYPE="{\"browserName\": \"${SE_NODE_RELAY_BROWSER_NAME:-${SE_NODE_BROWSER_NAME}}\", \"platformName\": \"${SE_NODE_RELAY_PLATFORM_NAME:-${SE_NODE_PLATFORM_NAME}}\"}"
+		if [[ -n "${SE_NODE_RELAY_PLATFORM_VERSION}" ]]; then
+			SE_NODE_RELAY_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_RELAY_STEREOTYPE}" "{\"appium:platformVersion\":\"${SE_NODE_RELAY_PLATFORM_VERSION}\"}")"
+		fi
+		BROWSER_VERSION=${SE_NODE_RELAY_BROWSER_VERSION:-${SE_NODE_BROWSER_VERSION}}
+		if [[ -n "${BROWSER_VERSION}" ]] && [[ "${BROWSER_VERSION}" != "stable" ]]; then
+			SE_NODE_RELAY_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_RELAY_STEREOTYPE}" "{\"browserVersion\":\"${BROWSER_VERSION}\"}")"
+		fi
+		if [[ "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}" = "true" ]]; then
+			SE_NODE_RELAY_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_RELAY_STEREOTYPE}" "{\"se:downloadsEnabled\": true}")"
+		fi
 	else
 		SE_NODE_RELAY_STEREOTYPE="${SE_NODE_RELAY_STEREOTYPE}"
 	fi
@@ -31,5 +41,5 @@ if [[ -n "${SE_NODE_RELAY_URL}" ]]; then
 			echo "Merged relay stereotype: ${SE_NODE_RELAY_STEREOTYPE}"
 		fi
 	fi
-	echo "configs = ['${SE_NODE_RELAY_MAX_SESSIONS}', '${SE_NODE_RELAY_STEREOTYPE}']" >>"$FILENAME"
+	echo "configs = ['${SE_NODE_MAX_SESSIONS:-${SE_NODE_RELAY_MAX_SESSIONS}}', '${SE_NODE_RELAY_STEREOTYPE}']" >>"$FILENAME"
 fi

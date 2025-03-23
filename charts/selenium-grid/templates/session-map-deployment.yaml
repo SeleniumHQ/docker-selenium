@@ -41,13 +41,17 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionMap.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionMap.imagePullPolicy }}
           env:
+            - name: KUBERNETES_NODE_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionMap.fullname" . }}'
-            - name: SE_SESSIONS_HOST
+            - name: SE_SESSIONS_MAP_HOST
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: SE_SESSIONS_PORT
+            - name: SE_SESSIONS_MAP_PORT
               value: {{ .Values.components.sessionMap.port | quote }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}

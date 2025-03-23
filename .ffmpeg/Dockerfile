@@ -1,7 +1,10 @@
 FROM ubuntu:noble AS builder
-ARG FFMPEG_VERSION="7.1"
-ARG RCLONE_VER="v1.69.0"
+ARG FFMPEG_VERSION="7.1.1"
+ARG RCLONE_VER="v1.69.1"
 ARG GO_VERSION="latest"
+ARG GO_CRYPTO_VERSION="v0.35.0"
+ARG GO_OAUTH2_VERSION="v0.27.0"
+ARG GO_NET_VERSION="v0.36.0"
 
 USER root
 
@@ -28,13 +31,14 @@ RUN if [ "${GO_VERSION}" = "latest" ]; then \
     && go version
 
 RUN cd /usr/local/src \
-    && git clone https://github.com/rclone/rclone.git \
+    && git clone https://github.com/rclone/rclone.git --filter=blob:none \
     && cd rclone \
     && git checkout ${RCLONE_VER} \
     # Patch deps version in go.mod to fix CVEs
-#    && sed -i "s|golang.org/x/crypto v.*|golang.org/x/crypto ${GO_CRYPTO_VERSION}|g" go.mod \
-#    && sed -i "s|golang.org/x/net v.*|golang.org/x/net ${GO_NET_VERSION}|g" go.mod \
-#    && go mod tidy \
+    && sed -i "s|golang.org/x/crypto v.*|golang.org/x/crypto ${GO_CRYPTO_VERSION}|g" go.mod \
+    && sed -i "s|golang.org/x/oauth2 v.*|golang.org/x/oauth2 ${GO_OAUTH2_VERSION}|g" go.mod \
+    && sed -i "s|golang.org/x/net v.*|golang.org/x/net ${GO_NET_VERSION}|g" go.mod \
+    && go mod tidy \
     # Build rclone
     && make \
     && mv ~/go/bin/rclone /usr/local/bin/ \
@@ -44,7 +48,7 @@ RUN cd /usr/local/src \
 # Install x264 from source
 #======================================
 RUN cd /usr/local/src \
-    && git clone https://code.videolan.org/videolan/x264.git \
+    && git clone https://code.videolan.org/videolan/x264.git --filter=blob:none \
     && cd x264 \
     && ./configure --prefix="/usr/local" --enable-static \
     && make \
@@ -54,9 +58,9 @@ RUN cd /usr/local/src \
 # Install FFmpeg from source
 #======================================
 RUN cd /usr/local/src \
-    && git clone https://github.com/FFmpeg/FFmpeg.git \
+    && git clone https://github.com/FFmpeg/FFmpeg.git --filter=blob:none \
     && cd FFmpeg \
-    && git checkout release/${FFMPEG_VERSION} \
+    && git checkout n${FFMPEG_VERSION} \
     && rm -rf .git \
     && PKG_CONFIG_PATH="/usr/local/lib/pkgconfig" FFMPEG_VERSION=${FFMPEG_VERSION} ./configure \
     --prefix="/usr/local" \

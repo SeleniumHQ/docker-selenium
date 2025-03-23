@@ -27,11 +27,12 @@ function help_message() {
   echo "$(date -u +"${ts_format}") [${probe_name}] - If you believe Node is registered successfully but probe still report this message and fail for a long time. Workaround by set 'global.seleniumGrid.defaultNodeStartupProbe' to 'httpGet' and report us an issue for Chart improvement with your scenario."
 }
 
-if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status -o ${tmp_node_file}; then
-  NODE_ID=$(jq -r '.value.node.nodeId' ${tmp_node_file} || "")
-  NODE_STATUS=$(jq -r '.value.node.availability' ${tmp_node_file} || "")
+if curl --noproxy "*" -m ${max_time} -sfk "${SE_SERVER_PROTOCOL}://127.0.0.1:${SE_NODE_PORT}/status" -o "${tmp_node_file}"; then
+  NODE_ID=$(jq -r '.value.node.nodeId' "${tmp_node_file}" || echo "")
+  NODE_STATUS=$(jq -r '.value.node.availability' "${tmp_node_file}" || echo "")
+  SLOT_HAS_SESSION=$(jq -r '[.value.node.slots[]? | select(.session != null)] | length' "${tmp_node_file}" || echo 0)
   if [ -n "${NODE_ID}" ]; then
-    echo "$(date -u +"${ts_format}") [${probe_name}] - Node responds the ID: ${NODE_ID} with status: ${NODE_STATUS}"
+    echo "$(date -u +"${ts_format}") [${probe_name}] - Node responds the ID: ${NODE_ID} with status: ${NODE_STATUS}. Number of ongoing sessions: ${SLOT_HAS_SESSION}"
   else
     echo "$(date -u +"${ts_format}") [${probe_name}] - Wait for the Node to report its status"
     exit 1
@@ -52,14 +53,19 @@ if curl --noproxy "*" -m ${max_time} -sfk ${SE_SERVER_PROTOCOL}://127.0.0.1:${SE
     echo "$(date -u +"${ts_format}") [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. ${probe_name} will not work as expected."
   fi
 
-  curl --noproxy "*" -m ${max_time} -H "Authorization: Basic ${BASIC_AUTH}" -sfk "${grid_url}/status" -o ${tmp_grid_file}
-  GRID_NODE_ID=$(jq -e ".value.nodes[].id|select(. == \"${NODE_ID}\")" ${tmp_grid_file} | tr -d '"' || "")
+  endpoint_http_code=$(curl --noproxy "*" -m ${max_time} -H "Authorization: Basic ${BASIC_AUTH}" -sfk "${grid_url}/status" -o "${tmp_grid_file}" -w "%{http_code}")
+  GRID_NODE_ID=$(jq -e ".value.nodes[]?.id|select(. == \"${NODE_ID}\")" "${tmp_grid_file}" | tr -d '"' || echo "")
   if [ -n "${GRID_NODE_ID}" ]; then
     echo "$(date -u +"${ts_format}") [${probe_name}] - Grid responds a matched Node ID: ${GRID_NODE_ID}"
+  elif [ "${endpoint_http_code}" != "200" ]; then
+    echo "$(date -u +"${ts_format}") [${probe_name}] - Grid endpoint returns ${endpoint_http_code}. Skip checking upstream."
   fi
 
   if [ -n "${NODE_ID}" ] && [ -n "${GRID_NODE_ID}" ] && [ "${NODE_ID}" = "${GRID_NODE_ID}" ]; then
     echo "$(date -u +"${ts_format}") [${probe_name}] - Node ID: ${NODE_ID} is found in the Grid. Node is ready."
+    exit 0
+  elif [ -n "${NODE_ID}" ] && [ "${endpoint_http_code}" != "200" ]; then
+    echo "$(date -u +"${ts_format}") [${probe_name}] - Node ID: ${NODE_ID} report its status, but could not double check ID in Hub. Assume that Node is ready."
     exit 0
   else
     echo "$(date -u +"${ts_format}") [${probe_name}] - Node ID: ${NODE_ID} is not found in the Grid. Node is not ready."

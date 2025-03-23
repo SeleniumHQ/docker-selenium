@@ -4,8 +4,9 @@ kind: Job
 metadata:
   name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
   namespace: {{ .Release.Namespace }}
-  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
   annotations: &patch_objects_job_annotations
+    "helm.sh/hook-weight": "-1"
+  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels: &patch_objects_job_labels
@@ -30,16 +31,19 @@ spec:
       containers:
         - name: kubectl
           image: {{ $.Values.global.seleniumGrid.kubectlImage }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Cleaning up ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
-              kubectl get ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} -o=json | jq '.metadata.finalizers = null' | kubectl apply -f - || true ;
-              kubectl delete ScaledObjects,ScaledJobs,TriggerAuthentication -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait=false || true ;
-              kubectl delete hpa -n {{ .Release.Namespace }} -l component.autoscaling={{ .Release.Name }} --wait=false || true ;
+          command: ["/bin/bash", "-c", "/patchFinalizersScript.sh"]
+          volumeMounts:
+            - name: cleanup-script
+              mountPath: /patchFinalizersScript.sh
+              subPath: patchFinalizersScript.sh
         {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
           resources: {{ toYaml . | nindent 12 }}
         {{- end }}
+      volumes:
+        - name: cleanup-script
+          configMap:
+            name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+            defaultMode: {{ $.Values.autoscaling.patchObjectFinalizers.defaultMode }}
     {{- if or $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}
       imagePullSecrets:
         - name: {{ default $.Values.global.seleniumGrid.imagePullSecret $.Values.autoscaling.patchObjectFinalizers.imagePullSecret }}

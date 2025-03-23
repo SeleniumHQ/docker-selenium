@@ -76,6 +76,15 @@ edgeNode:
       cpu: 250m
       memory: 2500Mi
 
+relayNode:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 2500Mi
+
 videoRecorder:
   resources:
     requests:

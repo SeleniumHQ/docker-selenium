@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-node-chrome
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-node-chrome
+  template:
+    metadata:
+      labels:
+        app: selenium-node-chrome
+    spec:
+      containers:
+        - name: chrome
+          image: selenium/node-chrome:4.29.0-20250303
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-hub"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "600"
+            - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+              value: "true"
+            - name: SE_REGISTRATION_SECRET
+              value: "secret"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "2Gi"
+              cpu: "2"
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi

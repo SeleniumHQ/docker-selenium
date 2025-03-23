@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-standalone-firefox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-standalone-firefox
+  template:
+    metadata:
+      labels:
+        app: selenium-standalone-firefox
+    spec:
+      containers:
+        - name: chrome
+          image: selenium/standalone-firefox:4.29.0-20250303
+          ports:
+            - containerPort: 4444
+            - containerPort: 7900
+          env:
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: "600"
+            - name: SE_ROUTER_USERNAME
+              value: "admin"
+            - name: SE_ROUTER_PASSWORD
+              value: "admin"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "600"
+            - name: SE_NODE_OVERRIDE_MAX_SESSIONS
+              value: "true"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "0.5"
+            limits:
+              memory: "4Gi"
+              cpu: "2"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - curl -G --fail --silent -u ${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD} localhost:4444/status
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4444
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-standalone-firefox
+spec:
+  selector:
+    app: selenium-standalone-firefox
+  ports:
+    - name: web
+      port: 4444
+      targetPort: 4444
+      nodePort: 30446
+    - name: vnc
+      port: 7900
+      targetPort: 7900
+      nodePort: 30792
+  type: NodePort

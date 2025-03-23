@@ -1,0 +1,80 @@
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") $.Values.autoscaling.patchObjectFinalizers.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook-weight": "-20"
+  {{- with $.Values.autoscaling.patchObjectFinalizers.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.keda.patchObjectsJob.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with $.Values.customLabels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+{{- if $.Values.autoscaling.patchObjectFinalizers.deleteObjectsScript }}
+  deleteObjectsScript.sh: {{- toYaml $.Values.autoscaling.patchObjectFinalizers.deleteObjectsScript | nindent 4 }}
+{{- else }}
+  deleteObjectsScript.sh: |
+    #!/bin/bash
+    set -e
+    set -x
+    echo "Delete ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
+    for i in $(kubectl get ScaledObjects -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete ScaledObjects $i -n {{ .Release.Namespace }}
+        fi
+    done
+    for i in $(kubectl get ScaledJobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete ScaledJobs $i -n {{ .Release.Namespace }}
+        fi
+    done
+    for i in $(kubectl get TriggerAuthentication -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl delete TriggerAuthentication $i -n {{ .Release.Namespace }}
+        fi
+    done
+{{- end }}
+{{- if $.Values.autoscaling.patchObjectFinalizers.patchFinalizersScript }}
+  patchFinalizersScript.sh: {{- toYaml $.Values.autoscaling.patchObjectFinalizers.patchFinalizersScript | nindent 4 }}
+{{- else }}
+  patchFinalizersScript.sh: |
+    #!/bin/bash
+    set -e
+    set -x
+    echo "Patch finalizers of ScaledObjects, ScaledJobs and HPAs for {{ .Release.Name }} when upgrading or disabling autoscaling."
+    for i in $(kubectl get ScaledObjects -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl patch ScaledObjects $i -n {{ .Release.Namespace }} -p '{"metadata":{"finalizers":null}}' --type=merge
+        fi
+    done
+    for i in $(kubectl get ScaledJobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl patch ScaledJobs $i -n {{ .Release.Namespace }} -p '{"metadata":{"finalizers":null}}' --type=merge
+        fi
+    done
+    for i in $(kubectl get TriggerAuthentication -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
+        -o jsonpath='{.items[*].metadata.name}{"\n"}');
+    do
+        if [ -n "$i" ]; then
+            kubectl patch TriggerAuthentication $i -n {{ .Release.Namespace }} -p '{"metadata":{"finalizers":null}}' --type=merge
+        fi
+    done
+{{- end }}
+{{- end }}

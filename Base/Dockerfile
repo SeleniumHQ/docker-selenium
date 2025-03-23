@@ -1,6 +1,6 @@
 FROM ubuntu:noble-20250127
 ARG AUTHORS=SeleniumHQ
-LABEL authors="${AUTHORS} <selenium-developers@googlegroups.com>"
+LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
 
 # Arguments to define the version of dependencies to download
@@ -9,10 +9,11 @@ ARG RELEASE=selenium-${VERSION}
 ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.46.0
-ARG GRPC_VERSION=1.69.0
-ARG NETTY_VERSION=4.1.117.Final
+ARG GRPC_VERSION=1.70.0
+ARG NETTY_VERSION=4.1.118.Final
 ARG CS_VERSION=2.1.18
 ARG POSTGRESQL_VERSION=42.7.5
+ARG ENVSUBST_VERSION=1.4.3
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -44,6 +45,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
+RUN echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" > /etc/apt/sources.list \
+    && echo "deb-src [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" >> /etc/apt/sources.list \
+    && echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list \
+    && echo "deb-src [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list
+
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
   && apt-get -qqy --no-install-recommends install \
@@ -55,13 +61,17 @@ RUN apt-get -qqy update \
     unzip \
     wget \
     jq \
-    curl \
     supervisor \
     gnupg2 \
     libnss3-tools \
     openjdk-${JRE_VERSION}-jdk-headless \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
+    && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
+    && chmod +x /usr/bin/curl \
+    && curl --version
 
 RUN --mount=type=secret,id=SEL_PASSWD \
     if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
@@ -121,6 +131,8 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
         io.grpc:grpc-netty:${GRPC_VERSION} \
         io.netty:netty-codec-http:${NETTY_VERSION} \
+        io.netty:netty-handler:${NETTY_VERSION} \
+        io.netty:netty-common:${NETTY_VERSION} \
         > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt \
         && java -jar /tmp/cs fetch --classpath --cache /external_jars \
@@ -155,6 +167,15 @@ COPY --chown="${SEL_UID}:${SEL_GID}" certs/add-cert-helper.sh certs/add-jks-help
 COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jks certs/server.pass /opt/selenium/secrets/
 
 #===================================================
+# Add envsubst binary
+#===================================================
+RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi) \
+    && curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
+    && chmod +x envsubst \
+    && mv envsubst /usr/local/bin \
+    && ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
+
+#===================================================
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
@@ -183,7 +204,7 @@ ENV SE_BIND_HOST="false" \
     SE_STRUCTURED_LOGS="false" \
     SE_ENABLE_TRACING="true" \
     SE_ENABLE_TLS="false" \
-    SE_JAVA_OPTS_DEFAULT="-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs" \
+    SE_JAVA_OPTS_DEFAULT="" \
     SE_JAVA_HEAP_DUMP="false" \
     SE_JAVA_HTTPCLIENT_VERSION="HTTP_1_1" \
     SE_JAVA_SSL_TRUST_STORE="/opt/selenium/secrets/server.jks" \

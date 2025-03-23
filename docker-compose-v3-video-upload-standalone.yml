@@ -2,7 +2,6 @@
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-upload-standalone.yml down`
 # ${variable_pattern} get value from .env in the same directory
-version: "3"
 services:
   # Start a local FTP server to demonstrate video upload with RCLONE (https://github.com/delfer/docker-alpine-ftp-server)
   ftp_server:
@@ -17,7 +16,7 @@ services:
     stop_grace_period: 30s
 
   standalone_chrome:
-    image: selenium/standalone-chrome:4.28.1-20250202
+    image: selenium/standalone-chrome:4.29.0-20250303
     shm_size: 2gb
     ports:
       - "4444:4444"
@@ -27,7 +26,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_edge:
-    image: selenium/standalone-edge:4.28.1-20250202
+    image: selenium/standalone-edge:4.29.0-20250303
     shm_size: 2gb
     ports:
       - "5444:4444"
@@ -37,7 +36,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_firefox:
-    image: selenium/standalone-firefox:4.28.1-20250202
+    image: selenium/standalone-firefox:4.29.0-20250303
     shm_size: 2gb
     ports:
       - "6444:4444"
@@ -47,7 +46,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.1-20250202
+    image: selenium/video:ffmpeg-7.1-20250303
     depends_on:
       - standalone_chrome
     environment:
@@ -71,7 +70,7 @@ services:
     stop_grace_period: 30s
 
   edge_video:
-    image: selenium/video:ffmpeg-7.1-20250202
+    image: selenium/video:ffmpeg-7.1-20250303
     depends_on:
       - standalone_edge
     environment:
@@ -95,7 +94,7 @@ services:
     stop_grace_period: 30s
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.1-20250202
+    image: selenium/video:ffmpeg-7.1-20250303
     depends_on:
       - standalone_firefox
     environment:

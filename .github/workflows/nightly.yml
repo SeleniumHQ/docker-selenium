@@ -24,7 +24,7 @@ jobs:
       - build-test
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && !failure() && !cancelled()
     name: Deploy and Release Nightly
-    runs-on: blacksmith-8vcpu-ubuntu-2204
+    runs-on: ubuntu-24.04
     permissions: write-all
     steps:
       - name: Free Disk Space (Ubuntu)
@@ -116,7 +116,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@main
         with:
-          python-version: '3.11'
+          python-version: '3.13'
           check-latest: true
       - name: Update tag in docs and files
         run: ./update_tag_in_docs_and_files.sh ${LATEST_TAG} ${NEXT_TAG}

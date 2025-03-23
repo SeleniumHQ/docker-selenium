@@ -124,16 +124,16 @@
   cli: ''
 - name: SE_LOG_LEVEL
   description: ''
-  cli: ''
+  cli: --log-level
 - name: SE_HTTP_LOGS
   description: ''
-  cli: ''
+  cli: --http-logs
 - name: SE_STRUCTURED_LOGS
   description: ''
-  cli: ''
+  cli: --structured-logs
 - name: SE_EXTERNAL_URL
   description: ''
-  cli: ''
+  cli: --external-url
 - name: SE_ENABLE_TLS
   description: ''
   cli: ''
@@ -151,31 +151,31 @@
   cli: ''
 - name: SE_HTTPS_CERTIFICATE
   description: ''
-  cli: ''
+  cli: --https-certificate
 - name: SE_HTTPS_PRIVATE_KEY
   description: ''
-  cli: ''
+  cli: --https-private-key
 - name: SE_ENABLE_TRACING
   description: ''
-  cli: ''
+  cli: --tracing
 - name: SE_OTEL_EXPORTER_ENDPOINT
   description: ''
-  cli: ''
+  cli: -Dotel.exporter.otlp.endpoint=
 - name: SE_OTEL_SERVICE_NAME
   description: ''
-  cli: ''
+  cli: -Dotel.resource.attributes=service.name=
 - name: SE_OTEL_JVM_ARGS
   description: ''
   cli: ''
 - name: SE_OTEL_TRACES_EXPORTER
   description: ''
-  cli: ''
+  cli: -Dotel.traces.exporter
 - name: SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED
   description: ''
   cli: ''
 - name: SE_JAVA_HTTPCLIENT_VERSION
   description: ''
-  cli: ''
+  cli: -Dwebdriver.httpclient.version
 - name: SE_JAVA_OPTS_DEFAULT
   description: ''
   cli: ''
@@ -226,25 +226,25 @@
   cli: ''
 - name: SE_NODE_SESSION_TIMEOUT
   description: ''
-  cli: ''
+  cli: --session-timeout
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
   description: ''
-  cli: ''
+  cli: --enable-managed-downloads
 - name: SE_NODE_ENABLE_CDP
   description: ''
-  cli: ''
+  cli: --enable-cdp
 - name: SE_NODE_REGISTER_PERIOD
   description: ''
-  cli: ''
+  cli: --register-period
 - name: SE_NODE_REGISTER_CYCLE
   description: ''
-  cli: ''
+  cli: --register-cycle
 - name: SE_NODE_HEARTBEAT_PERIOD
   description: ''
-  cli: ''
+  cli: --heartbeat-period
 - name: SE_REGISTRATION_SECRET
   description: ''
-  cli: ''
+  cli: --registration-secret
 - name: SE_BROWSER_LEFTOVERS_PROCESSES_SECS
   description: ''
   cli: ''
@@ -256,31 +256,31 @@
   cli: ''
 - name: SE_DISABLE_UI
   description: ''
-  cli: ''
+  cli: --disable-ui
 - name: SE_REJECT_UNSUPPORTED_CAPS
   description: ''
-  cli: ''
+  cli: --reject-unsupported-caps
 - name: SE_NEW_SESSION_THREAD_POOL_SIZE
   description: ''
-  cli: ''
+  cli: --newsession-threadpool-size
 - name: SE_SESSION_REQUEST_TIMEOUT
   description: ''
-  cli: ''
+  cli: --session-request-timeout
 - name: SE_SESSION_RETRY_INTERVAL
   description: ''
-  cli: ''
+  cli: --session-retry-interval
 - name: SE_HEALTHCHECK_INTERVAL
   description: ''
-  cli: ''
+  cli: --healthcheck-interval
 - name: SE_RELAX_CHECKS
   description: ''
-  cli: ''
+  cli: --relax-checks
 - name: SE_SESSION_QUEUE_HOST
   description: ''
-  cli: ''
+  cli: --sessionqueue-host
 - name: SE_SESSION_QUEUE_PORT
   description: ''
-  cli: ''
+  cli: --sessionqueue-port
 - name: SE_VIDEO_FOLDER
   description: ''
   cli: ''
@@ -290,21 +290,15 @@
 - name: SE_NODE_PRESTOP_WAIT_STRATEGY
   description: ''
   cli: ''
-- name: SE_SESSIONS_HOST
-  description: ''
-  cli: ''
-- name: SE_SESSIONS_PORT
-  description: ''
-  cli: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_DATASTORE
   description: ''
   cli: ''
 - name: SE_SESSIONS_MAP_HOST
   description: ''
-  cli: ''
+  cli: --sessions-host
 - name: SE_SESSIONS_MAP_PORT
   description: ''
-  cli: ''
+  cli: --sessions-port
 - name: SE_DISTRIBUTOR_HOST
   description: ''
   cli: ''
@@ -313,7 +307,7 @@
   cli: ''
 - name: SE_GRID_URL
   description: ''
-  cli: ''
+  cli: --grid-url
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
   description: ''
   cli: ''
@@ -433,4 +427,16 @@
 - name: SE_NODE_RELAY_STEREOTYPE_EXTRA
   description: Extra capabilities in JSON string that wants to merge to the default
     Node relay stereotype
+  cli: ''
+- name: SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE
+  description: If this flag is enabled, the Node will shut down after the register
+    period is completed. This is useful for container environments to restart and
+    register again. If restarted multiple times, the Node container status will be
+    CrashLoopBackOff
+  cli: --register-shutdown-on-failure
+- name: SE_NODE_RELAY_BROWSER_VERSION
+  description: ''
+  cli: ''
+- name: SE_NODE_RELAY_ONLY
+  description: ''
   cli: ''

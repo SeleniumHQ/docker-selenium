@@ -40,6 +40,10 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.sessionQueue.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.sessionQueue.imagePullPolicy }}
           env:
+            - name: KUBERNETES_NODE_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}'
             - name: SE_SESSION_QUEUE_HOST

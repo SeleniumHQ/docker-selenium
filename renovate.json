@@ -12,5 +12,6 @@
       "packageNames": ["selenium/node-firefox"],
       "enabled": false
     }
-  ]
+  ],
+  "branchName": "renovate/{{packageName}}-update"
 }

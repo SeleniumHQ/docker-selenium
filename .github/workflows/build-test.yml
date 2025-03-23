@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: 'false'
+      test-patched-keda:
+        description: 'Test patched KEDA (true/false)'
+        required: false
+        default: ''
+        type: string
   workflow_dispatch:
     inputs:
       rerunFailedOnly:
@@ -20,6 +25,11 @@ on:
         required: false
         type: boolean
         default: true
+      test-patched-keda:
+        description: 'Test patched KEDA (true/false)'
+        required: false
+        default: ''
+        type: string
   push:
     branches:
       - trunk
@@ -58,6 +68,7 @@ jobs:
     secrets: inherit
     with:
       release: ${{ inputs.release == 'true' }}
+      test-patched-keda: ${{ github.event.inputs.test-patched-keda }}
 
   rerun-workflow-when-failure:
     name: Rerun workflow when failure

@@ -1,7 +1,6 @@
 # How to run this?
 # docker compose -f docker-compose-v3-test-video.yml up --abort-on-container-exit --build
 # To clean up, `docker compose -f docker-compose-v3-test-video.yml down`
-version: "3"
 services:
   browser:
     image: selenium/node-${BROWSER}:${TAG}
@@ -12,8 +11,6 @@ services:
       - browser_video
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
     ports:
       - "6900:5900"

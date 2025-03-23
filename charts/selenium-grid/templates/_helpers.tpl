@@ -135,8 +135,8 @@ nginx.ingress.kubernetes.io/use-http2: {{ .useHttp2 | quote }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl .sslSecret $ | quote }}
     {{- else if (empty $.Values.ingress.tls) }}
 nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (include "seleniumGrid.tls.fullname" $)) $ | quote }}
-    {{- else }}
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
+    {{- else if (index $.Values.ingress.tls 0).secretName }}
+nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
     {{- end }}
   {{- end }}
   {{- with .upstreamKeepalive }}
@@ -208,6 +208,8 @@ Common autoscaling spec template
 {{- define "seleniumGrid.autoscalingTemplate" -}}
 {{- $spec := toYaml (dict) -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
+{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
@@ -244,6 +246,12 @@ triggers:
       {{- tpl (toYaml .) $ | nindent 6 }}
       {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
+      {{- end }}
+      {{- if not .enableManagedDownloads }}
+      enableManagedDownloads: {{ $nodeEnableManagedDownloads | quote }}
+      {{- end }}
+      {{- if not .capabilities }}
+      capabilities: {{ $nodeCustomCapabilities | quote }}
       {{- end }}
     {{- end }}
     authenticationRef:
@@ -284,6 +292,10 @@ Common pod template
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
+{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
+{{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
+{{- $nodeRegisterCycle := default $.Values.global.seleniumGrid.nodeRegisterCycle .node.nodeRegisterCycle | int64 -}}
 template:
   metadata:
     labels:
@@ -341,14 +353,30 @@ template:
         image: {{ printf "%s/%s:%s" $nodeImageRegistry .node.imageName $nodeImageTag }}
         imagePullPolicy: {{ .node.imagePullPolicy }}
         env:
+          - name: KUBERNETES_NODE_HOST_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
           - name: SE_NODE_MAX_SESSIONS
             value: {{ $nodeMaxSessions | quote }}
         {{- if gt $nodeMaxSessions 1 }}
           - name: SE_NODE_OVERRIDE_MAX_SESSIONS
             value: "true"
         {{- end }}
+          - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+            value: {{ $nodeEnableManagedDownloads | quote }}
+          - name: SE_NODE_STEREOTYPE_EXTRA
+            value: {{ $nodeCustomCapabilities | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
             value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+        {{- with .node.relayUrl }}
+          - name: SE_NODE_RELAY_URL
+            value: {{ . | quote }}
+        {{- end }}
+        {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
+          - name: SE_NODE_BROWSER_NAME
+            value: {{ if hasKey .node.hpa "browserName" }}{{ .node.hpa.browserName | quote }}{{ else }}""{{ end }}
+        {{- end }}
         {{- if and (eq (include "seleniumGrid.useKEDA" $) "true") }}
           - name: SE_NODE_BROWSER_VERSION
             value: {{ if hasKey .node.hpa "browserVersion" }}{{ .node.hpa.browserVersion | quote }}{{ else }}""{{ end }}
@@ -373,14 +401,10 @@ template:
                 fieldPath: status.podIP
           - name: SE_NODE_PORT
             value: {{ .node.port | quote }}
-        {{- with .node.startupProbe.timeoutSeconds }}
           - name: SE_NODE_REGISTER_PERIOD
-            value: {{ . | quote }}
-        {{- end }}
-        {{- with .node.startupProbe.periodSeconds }}
+            value: {{ $nodeRegisterPeriod | quote }}
           - name: SE_NODE_REGISTER_CYCLE
-            value: {{ . | quote }}
-        {{- end }}
+            value: {{ $nodeRegisterCycle | quote }}
         {{- with .node.extraEnvironmentVariables }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}

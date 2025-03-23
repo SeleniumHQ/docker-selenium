@@ -66,6 +66,8 @@ TEST_EXISTING_PTS=${TEST_EXISTING_PTS:-"false"}
 TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS:-"false"}
 TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"true"}
 TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
+TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY:-"false"}
+TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME:-"false"}
 
 wait_for_terminated() {
   # Wait until no pods are in "Terminating" state
@@ -90,8 +92,9 @@ cleanup() {
     kubectl logs -n ${SELENIUM_NAMESPACE} $pod --all-containers --tail=10000 > tests/tests/pod_logs_${pod}.txt
   done
   if [ "${SKIP_CLEANUP}" = "false" ] || [ "${CI:-false}" != "false" ]; then
+    helm ls -A
     echo "Clean up chart release and namespace"
-    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} --no-hooks || true
+    helm delete ${RELEASE_NAME} --namespace ${SELENIUM_NAMESPACE} || true
     wait_for_terminated
     sudo chmod -R 777 ${HOST_PATH}/logs
   fi
@@ -111,12 +114,12 @@ on_failure() {
     kubectl describe pod -n ${SELENIUM_NAMESPACE} >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "There is step failed with exit status $exit_status"
     sudo chmod -R 777 ${HOST_PATH}/logs
+    cleanup
     exit $exit_status
 }
 
 # Trap ERR signal and call on_failure function
-trap 'on_failure' ERR EXIT
-trap 'cleanup' ERR
+trap 'on_failure' ERR
 
 if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   rm -rf tests/tests/*
@@ -180,6 +183,18 @@ HELM_COMMAND_SET_IMAGES=" \
 --set firefoxNode.nodeMaxSessions=${MAX_SESSIONS_FIREFOX} \
 --set edgeNode.nodeMaxSessions=${MAX_SESSIONS_EDGE} \
 "
+
+if [ -n "${TRACING_EXPORTER_ENDPOINT}" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set tracing.exporterEndpoint=\\"${TRACING_EXPORTER_ENDPOINT}\\" \
+  "
+fi
+
+if [ "${TEST_CUSTOM_SPECIFIC_NAME}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set global.seleniumGrid.nodeCustomCapabilities={'myApp:version':'beta','myApp:publish':'public'} \
+  "
+fi
 
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
@@ -334,9 +349,16 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}
     --from-file=tls.crt=${cert_dir}/tls.crt \
     --from-file=tls.key=${cert_dir}/tls.key \
     --from-file=server.jks=${cert_dir}/server.jks \
-    --from-file=server.pass=${cert_dir}/server.pass
+    --from-file=server.pass=${cert_dir}/server.pass \
+    --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
   fi
   CHART_CERT_PATH="./tests/tests/tls.crt"
+fi
+
+if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
+  kubectl create secret generic -n ${SELENIUM_NAMESPACE} test-cloud-credentials \
+  --from-literal=SAUCE_REGION=${SAUCE_REGION} \
+  --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
 fi
 
 if [ "${SECURE_INGRESS_ONLY_CONFIG_INLINE}" = "true" ]; then
@@ -408,9 +430,13 @@ if [ "${TEST_MULTIPLE_VERSIONS}" = "true" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
   --values ${CHART_PATH}/multiple-nodes-platform-version.yaml \
   "
-elif [ "${TEST_MULTIPLE_PLATFORMS}" = "true" ]; then
+elif [ "${TEST_MULTIPLE_PLATFORMS}" = "true" ] && [ "${TEST_MULTIPLE_PLATFORMS_RELAY}" != "true" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
   --values ${CHART_PATH}/multiple-nodes-platform.yaml \
+  "
+elif [ "${TEST_MULTIPLE_PLATFORMS_RELAY}" = "true" ]; then
+  HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
+  --values ${CHART_PATH}/multiple-nodes-platform-relay.yaml \
   "
 fi
 
@@ -439,7 +465,9 @@ elif [ "${TEST_EXISTING_KEDA}" != "true" ]; then
     "
   else
     HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-    --set keda.image=null \
+    --set keda.image.keda.registry=ghcr.io/kedacore --set keda.image.keda.repository=keda --set keda.image.keda.tag=null \
+    --set keda.image.metricsApiServer.registry=ghcr.io/kedacore --set keda.image.metricsApiServer.repository=keda-metrics-apiserver --set keda.image.metricsApiServer.tag=null \
+    --set keda.image.webhooks.registry=ghcr.io/kedacore --set keda.image.webhooks.repository=keda-admission-webhooks --set keda.image.webhooks.tag=null \
     "
   fi
 fi
@@ -491,6 +519,8 @@ export TEST_AUTOSCALING_ITERATIONS=${TEST_AUTOSCALING_ITERATIONS:-"20"}
 export TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS}
 export TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT}
 export TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS}
+export TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY}
+export TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME}
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
   ./tests/bootstrap.sh NodeFirefox
   if [ "${TEST_PLATFORMS}" = "linux/amd64" ]; then
@@ -513,5 +543,3 @@ else
 fi
 
 wait_for_terminated
-
-cleanup

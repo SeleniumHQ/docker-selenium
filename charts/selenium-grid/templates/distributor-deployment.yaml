@@ -43,6 +43,10 @@ spec:
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.distributor.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.distributor.imagePullPolicy }}
           env:
+            - name: KUBERNETES_NODE_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.distributor.fullname" . }}'
             - name: SE_DISTRIBUTOR_HOST

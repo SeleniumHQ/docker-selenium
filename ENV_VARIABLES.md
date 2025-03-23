@@ -26,8 +26,8 @@
 | SE_NODE_GRID_URL |  | Node config, public URL of the Grid as a whole (typically the address of the Hub or the Router) | --grid-url |
 | SE_HUB_HOST |  | Hub config, host address the Hub should listen on | --host |
 | SE_ROUTER_HOST |  | Router config, host address the Router should listen on | --host |
-| SE_HUB_PORT |  | Hub config, port the Hub should listen on (default 4444) | --port |
-| SE_ROUTER_PORT |  | Router config, port the Router should listen on (default 4444) | --port |
+| SE_HUB_PORT | 4444 | Hub config, port the Hub should listen on (default 4444) | --port |
+| SE_ROUTER_PORT | 4444 | Router config, port the Router should listen on (default 4444) | --port |
 | SE_NODE_GRID_GRAPHQL_URL |  | Video recording config, GraphQL URL to query test metadata for dynamic file name |  |
 | SE_VIDEO_FILE_NAME_TRIM_REGEX | [:alnum:]-_ | Bash regex to trim the file name if it is too long |  |
 | SE_VIDEO_FILE_NAME_SUFFIX |  | Append a suffix session id along with test metadata |  |
@@ -39,26 +39,26 @@
 | SE_RCLONE_ |  |  |  |
 | SE_OPTS |  |  |  |
 | SE_EVENT_BUS_HOST |  |  |  |
-| SE_EVENT_BUS_PORT |  |  |  |
-| SE_LOG_LEVEL | INFO |  |  |
-| SE_HTTP_LOGS | false |  |  |
-| SE_STRUCTURED_LOGS | false |  |  |
-| SE_EXTERNAL_URL |  |  |  |
+| SE_EVENT_BUS_PORT | 5557 |  |  |
+| SE_LOG_LEVEL | INFO |  | --log-level |
+| SE_HTTP_LOGS | false |  | --http-logs |
+| SE_STRUCTURED_LOGS | false |  | --structured-logs |
+| SE_EXTERNAL_URL |  |  | --external-url |
 | SE_ENABLE_TLS | false |  |  |
 | SE_JAVA_SSL_TRUST_STORE | /opt/selenium/secrets/server.jks |  |  |
 | SE_JAVA_OPTS |  |  |  |
 | SE_JAVA_SSL_TRUST_STORE_PASSWORD | /opt/selenium/secrets/server.pass |  |  |
 | SE_JAVA_DISABLE_HOSTNAME_VERIFICATION | true |  |  |
-| SE_HTTPS_CERTIFICATE | /opt/selenium/secrets/tls.crt |  |  |
-| SE_HTTPS_PRIVATE_KEY | /opt/selenium/secrets/tls.key |  |  |
-| SE_ENABLE_TRACING | true |  |  |
-| SE_OTEL_EXPORTER_ENDPOINT |  |  |  |
-| SE_OTEL_SERVICE_NAME | selenium-router |  |  |
+| SE_HTTPS_CERTIFICATE | /opt/selenium/secrets/tls.crt |  | --https-certificate |
+| SE_HTTPS_PRIVATE_KEY | /opt/selenium/secrets/tls.key |  | --https-private-key |
+| SE_ENABLE_TRACING | true |  | --tracing |
+| SE_OTEL_EXPORTER_ENDPOINT |  |  | -Dotel.exporter.otlp.endpoint= |
+| SE_OTEL_SERVICE_NAME | selenium-event-bus |  | -Dotel.resource.attributes=service.name= |
 | SE_OTEL_JVM_ARGS |  |  |  |
-| SE_OTEL_TRACES_EXPORTER | otlp |  |  |
+| SE_OTEL_TRACES_EXPORTER | otlp |  | -Dotel.traces.exporter |
 | SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED | true |  |  |
-| SE_JAVA_HTTPCLIENT_VERSION | HTTP_1_1 |  |  |
-| SE_JAVA_OPTS_DEFAULT | -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs |  |  |
+| SE_JAVA_HTTPCLIENT_VERSION | HTTP_1_1 |  | -Dwebdriver.httpclient.version |
+| SE_JAVA_OPTS_DEFAULT |  |  |  |
 | SE_JAVA_HEAP_DUMP | false |  |  |
 | SE_BIND_HOST | false |  |  |
 | SE_SCREEN_DEPTH | 24 |  |  |
@@ -72,38 +72,36 @@
 | SE_VNC_NO_PASSWORD |  |  |  |
 | SE_VNC_VIEW_ONLY |  |  |  |
 | SE_VNC_PASSWORD |  |  |  |
-| SE_EVENT_BUS_PUBLISH_PORT |  |  |  |
-| SE_EVENT_BUS_SUBSCRIBE_PORT |  |  |  |
-| SE_NODE_SESSION_TIMEOUT | 300 |  |  |
-| SE_NODE_ENABLE_MANAGED_DOWNLOADS |  |  |  |
-| SE_NODE_ENABLE_CDP |  |  |  |
-| SE_NODE_REGISTER_PERIOD |  |  |  |
-| SE_NODE_REGISTER_CYCLE |  |  |  |
-| SE_NODE_HEARTBEAT_PERIOD | 30 |  |  |
-| SE_REGISTRATION_SECRET |  |  |  |
+| SE_EVENT_BUS_PUBLISH_PORT | 4442 |  |  |
+| SE_EVENT_BUS_SUBSCRIBE_PORT | 4443 |  |  |
+| SE_NODE_SESSION_TIMEOUT | 300 |  | --session-timeout |
+| SE_NODE_ENABLE_MANAGED_DOWNLOADS |  |  | --enable-managed-downloads |
+| SE_NODE_ENABLE_CDP |  |  | --enable-cdp |
+| SE_NODE_REGISTER_PERIOD | 120 |  | --register-period |
+| SE_NODE_REGISTER_CYCLE | 10 |  | --register-cycle |
+| SE_NODE_HEARTBEAT_PERIOD | 30 |  | --heartbeat-period |
+| SE_REGISTRATION_SECRET |  |  | --registration-secret |
 | SE_BROWSER_LEFTOVERS_PROCESSES_SECS | 7200 |  |  |
 | SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS | 1 |  |  |
 | SE_BROWSER_LEFTOVERS_INTERVAL_SECS | 3600 |  |  |
-| SE_DISABLE_UI |  |  |  |
-| SE_REJECT_UNSUPPORTED_CAPS | false |  |  |
-| SE_NEW_SESSION_THREAD_POOL_SIZE |  |  |  |
-| SE_SESSION_REQUEST_TIMEOUT | 300 |  |  |
-| SE_SESSION_RETRY_INTERVAL | 15 |  |  |
-| SE_HEALTHCHECK_INTERVAL | 120 |  |  |
-| SE_RELAX_CHECKS | true |  |  |
-| SE_SESSION_QUEUE_HOST |  |  |  |
-| SE_SESSION_QUEUE_PORT |  |  |  |
+| SE_DISABLE_UI |  |  | --disable-ui |
+| SE_REJECT_UNSUPPORTED_CAPS | false |  | --reject-unsupported-caps |
+| SE_NEW_SESSION_THREAD_POOL_SIZE |  |  | --newsession-threadpool-size |
+| SE_SESSION_REQUEST_TIMEOUT | 300 |  | --session-request-timeout |
+| SE_SESSION_RETRY_INTERVAL | 15 |  | --session-retry-interval |
+| SE_HEALTHCHECK_INTERVAL | 120 |  | --healthcheck-interval |
+| SE_RELAX_CHECKS | true |  | --relax-checks |
+| SE_SESSION_QUEUE_HOST |  |  | --sessionqueue-host |
+| SE_SESSION_QUEUE_PORT | 5559 |  | --sessionqueue-port |
 | SE_VIDEO_FOLDER |  |  |  |
 | SE_LOG_LISTEN_GRAPHQL |  |  |  |
 | SE_NODE_PRESTOP_WAIT_STRATEGY |  |  |  |
-| SE_SESSIONS_HOST |  |  |  |
-| SE_SESSIONS_PORT |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_DATASTORE | false |  |  |
-| SE_SESSIONS_MAP_HOST |  |  |  |
-| SE_SESSIONS_MAP_PORT |  |  |  |
+| SE_SESSIONS_MAP_HOST |  |  | --sessions-host |
+| SE_SESSIONS_MAP_PORT | 5556 |  | --sessions-port |
 | SE_DISTRIBUTOR_HOST |  |  |  |
-| SE_DISTRIBUTOR_PORT |  |  |  |
-| SE_GRID_URL |  |  |  |
+| SE_DISTRIBUTOR_PORT | 5553 |  |  |
+| SE_GRID_URL |  |  | --grid-url |
 | SE_NODE_DOCKER_CONFIG_FILENAME |  |  |  |
 | SE_NODE_GRACEFUL_SHUTDOWN |  |  |  |
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
@@ -143,3 +141,6 @@
 | SE_SESSIONS_MAP_EXTERNAL_SCHEME |  |  |  |
 | SE_NODE_RELAY_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node relay stereotype |  |
 | SE_NODE_RELAY_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node relay stereotype |  |
+| SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE | true | If this flag is enabled, the Node will shut down after the register period is completed. This is useful for container environments to restart and register again. If restarted multiple times, the Node container status will be CrashLoopBackOff | --register-shutdown-on-failure |
+| SE_NODE_RELAY_BROWSER_VERSION |  |  |  |
+| SE_NODE_RELAY_ONLY | true |  |  |

@@ -47,6 +47,10 @@ spec:
             - containerPort: {{ .Values.components.eventBus.subscribePort }}
               protocol: TCP
           env:
+            - name: KUBERNETES_NODE_HOST_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.eventBus.fullname" . }}'
             - name: SE_EVENT_BUS_HOST

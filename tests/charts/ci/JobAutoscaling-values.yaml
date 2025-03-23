@@ -1,3 +1,7 @@
+global:
+  seleniumGrid:
+    nodeEnableManagedDownloads: ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
+
 autoscaling:
   scalingType: job
   scaledJobOptions:
@@ -12,8 +16,6 @@ autoscaling:
 # Configuration for chrome nodes
 chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH
@@ -44,3 +46,9 @@ firefoxNode:
     enabled: *readinessProbe
   livenessProbe:
     enabled: *livenessProbe
+# Configuration for relay nodes
+relayNode:
+  relayUrl: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
+  extraEnvFrom:
+    - secretRef:
+        name: test-cloud-credentials

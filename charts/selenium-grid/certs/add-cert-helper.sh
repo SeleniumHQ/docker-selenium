@@ -58,7 +58,7 @@ TARGET_CERT_DIR=${TARGET_CERT_DIR:-"/usr/local/share/ca-certificates"} # Target 
 BUNDLE_CA_CERTS=${BUNDLE_CA_CERTS:-"/etc/ssl/certs/ca-certificates.crt"} # Bundle CA certificates
 NSSDB_HOME=${NSSDB_HOME:-"${HOME}/.pki/nssdb"} # Default location of the NSSDB
 APPEND_CRT_KEY="/tmp/tls.crt"
-ALIAS=${ALIAS:-"SeleniumHQ"}
+ALIAS_PREFIX=${ALIAS_PREFIX:-"SeleniumHQ"}
 
 sudo mkdir -p ${TARGET_CERT_DIR}
 
@@ -75,6 +75,7 @@ for cert_file in "${cert_files[@]}"; do
   else
     echo "Processing $cert_file"
   fi
+  ALIAS="${ALIAS_PREFIX}_$(basename $cert_file)"
   cert_file=$(append_private_key_if_exists $cert_file)
   for cert_db_file in "${cert_db_files[@]}"; do
     echo "Adding to db: $cert_db_file"

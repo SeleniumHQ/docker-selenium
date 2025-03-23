@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.28.1-20250202
+    imageTag: 4.29.0-20250303
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.28.1-20250202
+    nodesImageTag: 4.29.0-20250303
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.1-20250202
+    videoImageTag: ffmpeg-7.1-20250303
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -50,6 +50,14 @@ global:
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
+    # -- This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid)
+    nodeEnableManagedDownloads: false
+    # -- Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes)
+    nodeCustomCapabilities: ""
+    # -- How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again.
+    nodeRegisterPeriod: 120
+    # -- How often, in seconds, the Node will try to register itself for the first time to the Distributor.
+    nodeRegisterCycle: 5
 
 tls:
   # -- Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below
@@ -201,7 +209,7 @@ ingress:
     # -- Specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName" for NGINX Ingress Controller
     sslSecret: ""
     # -- Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller
-    useHttp2: true
+    useHttp2: false
     # -- Apply upstream keepalive settings once HTTP/2 is enabled
     upstreamKeepalive:
       # -- Set keepalive connections to corresponding annotations for NGINX Ingress Controller
@@ -1024,13 +1032,17 @@ autoscaling:
     # -- Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists
     enabled: true
     # -- Deadline (in seconds) for patch job to complete
-    activeDeadlineSeconds: 120
+    activeDeadlineSeconds: 300
     # -- Annotations for patch job
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
       "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
-      # This should be run before all other hooks (since delete action is called), so use a negative weight
-      "helm.sh/hook-weight": "-1"
+    # -- Define your custom script to replace the default script
+    deleteObjectsScript: ""
+    # -- Define your custom script to replace the default script
+    patchFinalizersScript: ""
+    # -- Default mode for ConfigMap is mounted as file
+    defaultMode: 0755
     # -- Define an external service account name contains permissions to patch KEDA scaled resources
     serviceAccount: ""
     # -- Custom pull secret for container in patch job
@@ -1259,6 +1271,14 @@ chromeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
+  # -- Override the same config at the global level
+  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for chrome nodes
   scaledOptions:
   # -- Override the scaledJobOptions for chrome nodes
@@ -1274,7 +1294,6 @@ chromeNode:
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
     platformName: ""
-    # browserVersion: '91.0' # Optional. Only required when supporting multiple versions of browser in your Selenium Grid.
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1448,6 +1467,14 @@ firefoxNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
+  # -- Override the same config at the global level
+  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for firefox nodes
   scaledOptions:
   # -- Override the scaledJobOptions for firefox nodes
@@ -1636,6 +1663,14 @@ edgeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
+  # -- Override the same config at the global level
+  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for edge nodes
   scaledOptions:
   # -- Override the scaledJobOptions for edge nodes
@@ -1669,7 +1704,8 @@ edgeNode:
 relayNode:
   # -- Enable relay nodes
   enabled: false
-
+  # -- Specify another Grid, another network, or a cloud vendor that you wish to connect to (e.g. https://ondemand.us-west-1.saucelabs.com/wd/hub)
+  relayUrl: ""
   # -- NOTE: Only used when autoscaling.enabled is false
   # Enable creation of Deployment
   # true (default) - if you want long-living pods
@@ -1824,6 +1860,14 @@ relayNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the managed downloads in node
+  nodeEnableManagedDownloads:
+  # -- Override the same config at the global level
+  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level
+  nodeRegisterPeriod:
+  # -- Override the same config at the global level
+  nodeRegisterCycle:
   # -- Override the scaled options for relay nodes
   scaledOptions:
   # -- Override the scaledJobOptions for relay nodes
@@ -1832,13 +1876,13 @@ relayNode:
   scaledObjectOptions:
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
-    browserName: "chrome"
+    browserName: ""
     # -- sessionBrowserName if the browserName is different from the sessionBrowserName
     sessionBrowserName: ""
     # -- browserVersion should match with Node stereotype and request capability is scaled by this scaler
     browserVersion: ""
     # -- platformName should match with Node stereotype and request capability is scaled by this scaler
-    platformName: "Android"
+    platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
 
@@ -1994,15 +2038,15 @@ keda:
     keda:
       registry: selenium
       repository: keda
-      tag: "2.16.1-selenium-grid-20250202"
+      tag: "2.16.1-selenium-grid-20250303"
     metricsApiServer:
       registry: selenium
       repository: keda-metrics-apiserver
-      tag: "2.16.1-selenium-grid-20250202"
+      tag: "2.16.1-selenium-grid-20250303"
     webhooks:
       registry: selenium
       repository: keda-admission-webhooks
-      tag: "2.16.1-selenium-grid-20250202"
+      tag: "2.16.1-selenium-grid-20250303"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:
@@ -2028,6 +2072,9 @@ kube-prometheus-stack:
         additionalScrapeConfigs:
           name: '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}'
           key: '{{ template "seleniumGrid.monitoring.scrape.key" $ }}'
+  prometheusOperator:
+    admissionWebhooks:
+      enabled: false
 
 # -- Configuration for dependency chart jaeger
 jaeger:

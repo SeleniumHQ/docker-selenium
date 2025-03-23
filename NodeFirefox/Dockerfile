@@ -21,7 +21,9 @@ ARG FIREFOX_VERSION=latest
 ARG FIREFOX_DOWNLOAD_URL=""
 ARG FIREFOX_LANG_VERSION=${FIREFOX_VERSION}
 RUN apt-get update -qqy && \
-  if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+  FIREFOX_MAJOR_VERSION=${FIREFOX_VERSION%%.*} && \
+  ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "aarch64"; fi) && \
+  if [ "$(dpkg --print-architecture)" = "amd64" ] || [ $FIREFOX_VERSION = "latest" ] || [ "${FIREFOX_MAJOR_VERSION}" -ge 136 ]; then \
     if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
@@ -31,9 +33,9 @@ RUN apt-get update -qqy && \
         ln -fs $(which firefox$FIREFOX_VERSION) /usr/bin/firefox ; \
       fi ; \
     else \
-      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.deb" \
+      FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-$ARCH/en-US/firefox-$FIREFOX_VERSION.deb" \
       && if [ "404" = "$(curl -s -o /dev/null -w "%{http_code}" $FIREFOX_DOWNLOAD_URL)" ]; then \
-        FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-x86_64/en-US/firefox-$FIREFOX_VERSION.tar.bz2" ; \
+        FIREFOX_DOWNLOAD_URL="https://download-installer.cdn.mozilla.net/pub/firefox/releases/$FIREFOX_VERSION/linux-$ARCH/en-US/firefox-$FIREFOX_VERSION.tar.bz2" ; \
       fi ; \
     fi \
   else \

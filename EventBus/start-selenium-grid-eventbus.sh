@@ -94,7 +94,7 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.traces.exporter=${SE_OTEL_TRACES_EXPORTER}"
   fi
   if [ -n "$SE_OTEL_EXPORTER_ENDPOINT" ]; then
-    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.exporter.otlp.endpoint=${SE_OTEL_EXPORTER_ENDPOINT}"
+    SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.exporter.otlp.endpoint=$(envsubst < <(echo ${SE_OTEL_EXPORTER_ENDPOINT}))"
   fi
   if [ -n "$SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED" ]; then
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.java.global-autoconfigure.enabled=${SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED}"
@@ -116,27 +116,24 @@ if [ -n "${SE_JAVA_OPTS_DEFAULT}" ]; then
   SE_JAVA_OPTS="${SE_JAVA_OPTS_DEFAULT} $SE_JAVA_OPTS"
 fi
 
-if [ -n "${JAVA_OPTS:-$SE_JAVA_OPTS}" ]; then
-  echo "Using JAVA_OPTS: ${JAVA_OPTS:-$SE_JAVA_OPTS}"
-fi
-
 function handle_heap_dump() {
-  /opt/bin/handle_heap_dump.sh $SELENIUM_SERVER_PID /opt/selenium/logs
+  /opt/bin/handle_heap_dump.sh /opt/selenium/logs
 }
 if [ "${SE_JAVA_HEAP_DUMP}" = "true" ]; then
+  SE_JAVA_OPTS="$SE_JAVA_OPTS -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/opt/selenium/logs"
   trap handle_heap_dump ERR SIGTERM SIGINT
-else
-  trap handle_heap_dump ERR
 fi
 
-java ${JAVA_OPTS:-$SE_JAVA_OPTS} \
+if [ -n "${JAVA_OPTS}" ]; then
+  SE_JAVA_OPTS="$SE_JAVA_OPTS ${JAVA_OPTS}"
+fi
+
+echo "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+
+java ${SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
   ${EXTRA_LIBS} event-bus \
   --bind-host ${SE_BIND_HOST} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
-  ${SE_OPTS} &
-
-SELENIUM_SERVER_PID=$!
-
-wait $SELENIUM_SERVER_PID
+  ${SE_OPTS}

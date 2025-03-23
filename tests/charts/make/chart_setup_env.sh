@@ -3,6 +3,7 @@
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
 DOCKER_VERSION=${DOCKER_VERSION:-""}
+DOCKER_ENABLE_QEMU=${DOCKER_ENABLE_QEMU:-"true"}
 HELM_VERSION=${HELM_VERSION:-"latest"}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 
@@ -28,6 +29,7 @@ echo \
 sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update -qq || true
 if [ -n "${DOCKER_VERSION}" ]; then
+  DOCKER_VERSION_EXPECT=$DOCKER_VERSION
   if [[ "${DOCKER_VERSION}" == "20.10"* ]]; then
     DOCKER_VERSION="=5:${DOCKER_VERSION}~3-0~$(. /etc/os-release; echo "$ID")-$(. /etc/os-release; echo "$VERSION_CODENAME")"
   else
@@ -36,17 +38,20 @@ if [ -n "${DOCKER_VERSION}" ]; then
   echo "Installing package docker-ce${DOCKER_VERSION}"
   ALLOW_DOWNGRADE="--allow-downgrades"
 fi
-sudo apt-get install -yq ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
-sudo apt-get install -yq ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
+sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
+sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
 sudo chmod 666 /var/run/docker.sock
+if [ -n "${DOCKER_VERSION_EXPECT}" ]; then
+  DOCKER_VERSION_ACTUAL="$(docker version --format '{{.Server.Version}}')"
+  if [ "${DOCKER_VERSION_EXPECT}" != "${DOCKER_VERSION_ACTUAL}" ]; then
+    exit 1
+  fi
+fi
 docker version
 docker buildx version
-docker buildx use default
-if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes ;
-else
-    docker run --rm --privileged aptman/qus -- -r ;
-    docker run --rm --privileged aptman/qus -s -- -p
+docker buildx use default || true
+if [ "${DOCKER_ENABLE_QEMU}" = "true" ]; then
+    docker run --privileged --rm tonistiigi/binfmt --install all ;
 fi
 docker info
 echo "==============================="
@@ -83,7 +88,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     rm -rf minikube-linux-$(dpkg --print-architecture)
     echo "==============================="
     echo "Installing Go"
-    GO_VERSION="1.23.3"
+    GO_VERSION="1.24.0"
     curl -sLO https://go.dev/dl/go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz
     tar -xvf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz -C /tmp
     rm -rf go$GO_VERSION.linux-$(dpkg --print-architecture).tar.gz*
@@ -154,7 +159,7 @@ helm version
 echo "==============================="
 
 echo "Installing chart-testing for AMD64 / ARM64"
-CHART_TESTING_VERSION="3.10.1"
+CHART_TESTING_VERSION="3.12.0"
 curl -fsSL -o ct.tar.gz https://github.com/helm/chart-testing/releases/download/v${CHART_TESTING_VERSION}/chart-testing_${CHART_TESTING_VERSION}_linux_$(dpkg --print-architecture).tar.gz
 sudo mkdir -p /opt/ct
 sudo tar -xzf ct.tar.gz -C /opt/ct
@@ -171,9 +176,9 @@ GOBIN=$HOME/go/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 $HOME/go/bin/helm-docs -h || true
 echo "==============================="
 echo "Installing envsubst for AMD64 / ARM64"
-ENVSUBST_VERSION="v1.4.2"
+ENVSUBST_VERSION="1.4.3"
 ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)
-curl -fsSL https://github.com/a8m/envsubst/releases/download/${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
+curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
 chmod +x envsubst
 sudo mv envsubst /usr/local/bin
 sudo ln -sf /usr/local/bin/envsubst /usr/bin/envsubst

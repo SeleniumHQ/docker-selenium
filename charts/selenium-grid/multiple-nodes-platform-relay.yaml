@@ -1,0 +1,70 @@
+# Utilize Relay Node to set up hybrid Autoscaling Grid with using on-premise and test cloud provider (e.g. SauceLabs, BrowserStack, etc.)
+#
+# For example: below incoming requests will be served by Node container on-premise
+# options = ChromeOptions()
+# options.set_capability('platformName', 'Linux')
+# driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+#
+# Below incoming requests will be served by Relay Node where commands are forwarded to test cloud provider
+# options = ChromeOptions()
+# options.set_capability('platformName', 'macOS 13.0')
+# driver = webdriver.Remote(options=options, command_executor=SELENIUM_GRID_URL)
+crossBrowsers:
+  chromeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-linux'
+      hpa:
+        platformName: 'Linux'
+  firefoxNode:
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-linux'
+      hpa:
+        platformName: 'Linux'
+  edgeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-linux'
+      hpa:
+        platformName: 'Linux'
+  relayNode:
+    - nameOverride: '{{ $.Release.Name }}-node-relay-chrome-macos'
+      hpa:
+        browserName: 'chrome'
+        platformName: 'macOS'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-chrome-windows'
+      hpa:
+        browserName: 'chrome'
+        platformName: 'Windows 11'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-firefox-macos'
+      hpa:
+        browserName: 'firefox'
+        platformName: 'macOS'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-firefox-windows'
+      hpa:
+        browserName: 'firefox'
+        platformName: 'Windows 11'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-edge-macos'
+      hpa:
+        browserName: "MicrosoftEdge"
+        sessionBrowserName: "msedge"
+        platformName: 'macOS'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-edge-windows'
+      hpa:
+        browserName: "MicrosoftEdge"
+        sessionBrowserName: "msedge"
+        platformName: 'Windows 11'
+    - nameOverride: '{{ $.Release.Name }}-node-relay-safari-macos'
+      hpa:
+        browserName: 'safari'
+        platformName: 'macOS'
+
+relayNode:
+  enabled: true
+#  relayUrl: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
+  videoRecorder:
+    enabled: false
+  extraEnvironmentVariables:
+#    - name: SAUCE_REGION
+#      value: "<your_SAUCE_REGION>"
+# Or can give relay url directly to environment variable SE_NODE_RELAY_URL. Value can be referring to value of existing env vars.
+#    - name: SE_NODE_RELAY_URL
+#      value: "https://ondemand.$SAUCE_REGION.saucelabs.com:443/wd/hub"
+  extraEnvFrom:
+#    - secretRef:
+#        name: your-secret-with-all-env-vars

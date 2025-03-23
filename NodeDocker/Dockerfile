@@ -29,4 +29,6 @@ COPY --chown="${SEL_UID}:${SEL_GID}" config.toml /opt/selenium/
 
 COPY selenium-grid-docker.conf /etc/supervisor/conf.d/
 
-ENV SE_OTEL_SERVICE_NAME="selenium-node-docker"
+ENV SE_OTEL_SERVICE_NAME="selenium-node-docker" \
+    SE_EVENT_BUS_PUBLISH_PORT="4442" \
+    SE_EVENT_BUS_SUBSCRIBE_PORT="4443"

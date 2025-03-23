@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-hub
+  labels:
+    app: selenium-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-hub
+  template:
+    metadata:
+      labels:
+        app: selenium-hub
+    spec:
+      containers:
+        - name: selenium-hub
+          image: selenium/hub:4.29.0-20250303
+          ports:
+            - containerPort: 4444
+            - containerPort: 4443
+            - containerPort: 4442
+          env:
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: "600"
+            - name: SE_ROUTER_USERNAME
+              value: "admin"
+            - name: SE_ROUTER_PASSWORD
+              value: "admin"
+            - name: SE_REGISTRATION_SECRET
+              value: "secret"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2048Mi"
+              cpu: "1"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - curl -G --fail --silent -u ${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD} localhost:4444/status
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4444
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
