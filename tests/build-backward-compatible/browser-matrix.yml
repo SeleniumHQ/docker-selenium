@@ -12,8 +12,8 @@ matrix:
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2025/01/2025-01-06-09-47-46-mozilla-central/firefox-135.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '134':
-      EDGE_VERSION: null
-      CHROME_VERSION: google-chrome-stable=134.0.6998.35-1
+      EDGE_VERSION: microsoft-edge-stable=134.0.3124.83-1
+      CHROME_VERSION: google-chrome-stable=134.0.6998.165-1
       FIREFOX_VERSION: 134.0.2
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/11/2024-11-25-09-40-45-mozilla-central/firefox-134.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
