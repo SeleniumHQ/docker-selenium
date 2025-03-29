@@ -239,7 +239,7 @@ else
 
   wait_for_api_respond
   while curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
-    session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
+    session_id=$(jq -e "${JQ_SESSION_ID_QUERY}" /tmp/status.json || echo "null")
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
       return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
