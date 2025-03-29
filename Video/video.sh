@@ -182,7 +182,6 @@ function wait_for_file_integrity() {
 function stop_if_recording_inprogress() {
   if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running; then
     stop_recording
-    wait_for_file_integrity
   fi
 }
 
@@ -223,7 +222,6 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
   fi
-  wait_for_file_integrity
 
 else
   trap graceful_exit_force SIGTERM SIGINT EXIT
@@ -239,7 +237,7 @@ else
 
   wait_for_api_respond
   while curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
-    session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
+    session_id=$(jq -e "${JQ_SESSION_ID_QUERY}" /tmp/status.json || echo "null")
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
       return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
@@ -263,7 +261,6 @@ else
       sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
-      wait_for_file_integrity
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
         exit
