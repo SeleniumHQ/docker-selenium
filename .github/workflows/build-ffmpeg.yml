@@ -20,7 +20,7 @@ on:
 jobs:
   deploy:
     name: Build and Deploy FFmpeg
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions: write-all
     steps:
       - name: Checkout code

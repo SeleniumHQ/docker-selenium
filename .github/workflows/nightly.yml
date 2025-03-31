@@ -24,14 +24,11 @@ jobs:
       - build-test
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && !failure() && !cancelled()
     name: Deploy and Release Nightly
-    runs-on: ubuntu-24.04
+    runs-on: blacksmith-8vcpu-ubuntu-2204
     permissions: write-all
     steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: false
-          large-packages: false
       - name: Checkout code
         uses: actions/checkout@main
         with:

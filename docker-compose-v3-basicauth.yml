@@ -3,7 +3,7 @@
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-basicauth.yml down`
 services:
   chrome:
-    image: selenium/node-chrome:4.29.0-20250303
+    image: selenium/node-chrome:4.30.0-20250323
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -11,7 +11,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   edge:
-    image: selenium/node-edge:4.29.0-20250303
+    image: selenium/node-edge:4.30.0-20250323
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -19,7 +19,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   firefox:
-    image: selenium/node-firefox:4.29.0-20250303
+    image: selenium/node-firefox:4.30.0-20250323
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -27,7 +27,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   selenium-hub:
-    image: selenium/hub:4.29.0-20250303
+    image: selenium/hub:4.30.0-20250323
     container_name: selenium-hub
     ports:
       - "4442:4442"
