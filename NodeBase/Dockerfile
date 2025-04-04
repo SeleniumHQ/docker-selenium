@@ -133,7 +133,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && rm websockify.zip \
   # Setup dependencies
   && cd websockify-${WEBSOCKIFY_VERSION#v} \
-  && python3 -m pip install --break-system-packages . \
+  && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
   # Move websockify and run to the noVNC directory
   && mv websockify /opt/bin/noVNC/utils/websockify \
   && mv run /opt/bin/noVNC/utils/websockify \

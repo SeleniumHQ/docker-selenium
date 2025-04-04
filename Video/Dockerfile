@@ -19,10 +19,8 @@ RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
     libx11-6 libx11-xcb1 libxcb1 libpulse0 libasound2t64 \
     x11-xserver-utils x11-utils \
-    python3-pip \
     && apt-get -qqy update \
     && apt-get -yq upgrade \
-    && pip install --upgrade --break-system-packages --no-cache-dir setuptools psutil \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 COPY *.conf /etc/supervisor/conf.d/

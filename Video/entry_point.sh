@@ -10,7 +10,13 @@ if ! whoami &>/dev/null; then
   fi
 fi
 
-/usr/bin/supervisord --configuration /etc/supervisord.conf &
+if [ -n "${VIRTUAL_ENV}" ]; then
+  echo "Virtual environment detected at ${VIRTUAL_ENV}, activating..."
+  source ${VIRTUAL_ENV}/bin/activate
+  python3 --version
+fi
+
+supervisord --configuration /etc/supervisord.conf &
 
 SUPERVISOR_PID=$!
 

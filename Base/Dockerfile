@@ -8,9 +8,8 @@ ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.46.0
-ARG GRPC_VERSION=1.70.0
-ARG NETTY_VERSION=4.1.118.Final
+ARG OPENTELEMETRY_VERSION=1.48.0
+ARG GRPC_VERSION=1.71.0
 ARG CS_VERSION=2.1.18
 ARG POSTGRESQL_VERSION=42.7.5
 ARG ENVSUBST_VERSION=1.4.3
@@ -61,12 +60,34 @@ RUN apt-get -qqy update \
     unzip \
     wget \
     jq \
-    supervisor \
     gnupg2 \
     libnss3-tools \
     openjdk-${JRE_VERSION}-jdk-headless \
     ca-certificates \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#========================================
+# Install Python for utilities
+#========================================
+RUN apt-get -qqy update \
+    && apt-get upgrade -yq \
+    && apt-get -qqy --no-install-recommends install \
+    python3 python3-pip python3-venv python3-setuptools \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+ENV VENV_PATH=/opt/venv
+RUN python3 -m venv $VENV_PATH \
+    echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
+
+RUN $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
+    && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
+    && unzip /tmp/supervisor.zip -d /tmp \
+    && cd /tmp/supervisor-main \
+    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
+    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
+
+ENV PATH="$VENV_PATH/bin:$PATH" \
+    VIRTUAL_ENV="$VENV_PATH"
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
     && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
@@ -130,9 +151,6 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
         io.grpc:grpc-netty:${GRPC_VERSION} \
-        io.netty:netty-codec-http:${NETTY_VERSION} \
-        io.netty:netty-handler:${NETTY_VERSION} \
-        io.netty:netty-common:${NETTY_VERSION} \
         > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt \
         && java -jar /tmp/cs fetch --classpath --cache /external_jars \
