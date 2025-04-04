@@ -3,6 +3,7 @@
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
 DOCKER_VERSION=${DOCKER_VERSION:-""}
+DOCKER_ENABLE_QEMU=${DOCKER_ENABLE_QEMU:-"true"}
 HELM_VERSION=${HELM_VERSION:-"latest"}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
 
@@ -49,11 +50,8 @@ fi
 docker version
 docker buildx version
 docker buildx use default || true
-if [ "$(dpkg --print-architecture)" = "amd64" ]; then
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes ;
-else
-    docker run --rm --privileged aptman/qus -- -r ;
-    docker run --rm --privileged aptman/qus -s -- -p
+if [ "${DOCKER_ENABLE_QEMU}" = "true" ]; then
+    docker run --privileged --rm tonistiigi/binfmt --install all ;
 fi
 docker info
 echo "==============================="

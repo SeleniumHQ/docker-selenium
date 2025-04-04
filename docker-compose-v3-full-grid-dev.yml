@@ -3,7 +3,7 @@
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-dev.yml down`
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.29.0-20250303
+    image: selenium/event-bus:4.30.0-20250323
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-event-bus
@@ -13,7 +13,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.29.0-20250303
+    image: selenium/sessions:4.30.0-20250323
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-sessions
@@ -25,7 +25,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
 
   selenium-session-queue:
-    image: selenium/session-queue:4.29.0-20250303
+    image: selenium/session-queue:4.30.0-20250323
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-session-queue
@@ -33,7 +33,7 @@ services:
       - "5559:5559"
 
   selenium-distributor:
-    image: selenium/distributor:4.29.0-20250303
+    image: selenium/distributor:4.30.0-20250323
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-distributor
@@ -49,7 +49,7 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
 
   selenium-router:
-    image: selenium/router:4.29.0-20250303
+    image: selenium/router:4.30.0-20250323
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     container_name: selenium-router
@@ -65,7 +65,7 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
 
   chrome:
-    image: selenium/node-chrome:4.29.0-20250303
+    image: selenium/node-chrome:4.30.0-20250323
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
@@ -75,7 +75,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
 
   edge:
-    image: selenium/node-edge:4.29.0-20250303
+    image: selenium/node-edge:4.30.0-20250323
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
@@ -85,7 +85,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
 
   firefox:
-    image: selenium/node-firefox:4.29.0-20250303
+    image: selenium/node-firefox:4.30.0-20250323
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar

@@ -172,13 +172,16 @@ jobs:
       - name: Format and lint scripts
         run: |
           make format_shell_scripts
+      - name: Disable QEMU
+        if: matrix.test-strategy == 'test_node_relay' && contains(matrix.os, 'amd') == true
+        run: echo "DOCKER_ENABLE_QEMU=false >> $GITHUB_ENV"
       - name: Set up containerd image store feature
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            make setup_dev_env
+            DOCKER_ENABLE_QEMU=${DOCKER_ENABLE_QEMU} make setup_dev_env
       - name: Output Docker info
         run: docker info
       - name: Set up Python

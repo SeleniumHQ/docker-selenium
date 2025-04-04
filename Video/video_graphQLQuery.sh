@@ -8,7 +8,7 @@ SESSION_ID=$1
 if [ -n "${SE_NODE_GRID_GRAPHQL_URL}" ]; then
   GRAPHQL_ENDPOINT=${SE_NODE_GRID_GRAPHQL_URL}
 else
-  GRAPHQL_ENDPOINT="$(/opt/bin/video_gridUrl.sh)"
+  GRAPHQL_ENDPOINT="$(python3 /opt/bin/video_gridUrl.py)"
 fi
 if [[ -n ${GRAPHQL_ENDPOINT} ]] && [[ ! ${GRAPHQL_ENDPOINT} == */graphql ]]; then
   GRAPHQL_ENDPOINT="${GRAPHQL_ENDPOINT}/graphql"
