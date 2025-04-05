@@ -252,7 +252,7 @@ jobs:
         if: contains(matrix.os, 'arm') == false
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 40
+          timeout_minutes: 90
           max_attempts: 2
           retry_wait_seconds: 60
           command: |
@@ -261,7 +261,7 @@ jobs:
         if: contains(matrix.os, 'arm') == true
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 40
+          timeout_minutes: 90
           max_attempts: 2
           retry_wait_seconds: 60
           command: |

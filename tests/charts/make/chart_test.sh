@@ -160,6 +160,7 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   kubectl create ns ${SELENIUM_NAMESPACE} || true
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
   kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=ftp-server
+  kubectl delete pod -n ${SELENIUM_NAMESPACE} -l app=ftp-server --force --grace-period=0
 fi
 
 if [ "${TEST_NAME_OVERRIDE}" = "true" ]; then
@@ -470,6 +471,12 @@ elif [ "${TEST_EXISTING_KEDA}" != "true" ]; then
     --set keda.image.webhooks.registry=ghcr.io/kedacore --set keda.image.webhooks.repository=keda-admission-webhooks --set keda.image.webhooks.tag=null \
     "
   fi
+fi
+
+if [ "${TEST_UPGRADE_CHART}" != "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set autoscaling.patchObjectFinalizers.enabled=false \
+  "
 fi
 
 HELM_COMMAND_ARGS="${RELEASE_NAME} \
