@@ -23,9 +23,10 @@ triggers:
       browserName: ''  # Optional. Required to be matched with the request in queue and Node stereotypes (Similarly for `browserVersion` and `platformName`).
       browserVersion: '' # Optional.
       platformName: '' # Optional.
-      unsafeSsl: 'false' # Optional.
+      unsafeSsl: false # Optional.
       activationThreshold: 0 # Optional.
       nodeMaxSessions: 1 # Optional.
+      enableManagedDownloads: true # Optional.
       capabilities: '' # Optional.
 ```
 
@@ -39,7 +40,7 @@ triggers:
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
 - `platformName` - Name of the browser platform. Refer to the [Selenium Grid's](https://www.selenium.dev/documentation/en/getting_started_with_webdriver/browsers/) and [WebdriverIO's](https://webdriver.io/docs/options/#capabilities) documentation for more info. (Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
-- `enableManagedDownloads`- Set this for Node enabled to auto manage files downloaded for a given session on the Node. When the client requests enabling this feature, it can only be assigned to the Node that also enabled it. Otherwise, the request will wait until it timed out. (Default: `false`, Optional).
+- `enableManagedDownloads`- Set this for Node enabled to auto manage files downloaded for a given session on the Node. When the client requests enabling this feature, it can only be assigned to the Node that also enabled it. Otherwise, the request will wait until it timed out. (Default: `true`, Optional).
 - `capabilities` - Add more custom capabilities for matching specific Nodes. It should be in JSON string, see [example](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) (Optional)
 
 **Trigger Authentication**
