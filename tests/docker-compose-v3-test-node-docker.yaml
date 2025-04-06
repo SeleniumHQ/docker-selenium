@@ -16,7 +16,6 @@ services:
       - selenium-hub
       - ftp_server
     environment:
-      - SE_NODE_DOCKER_CONFIG_FILENAME=docker.toml
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS}
       - SE_OPTS=--enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS}

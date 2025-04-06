@@ -102,7 +102,7 @@
 | SE_DISTRIBUTOR_HOST |  |  |  |
 | SE_DISTRIBUTOR_PORT | 5553 |  |  |
 | SE_GRID_URL |  |  | --grid-url |
-| SE_NODE_DOCKER_CONFIG_FILENAME |  |  |  |
+| SE_NODE_DOCKER_CONFIG_FILENAME | docker.toml |  |  |
 | SE_NODE_GRACEFUL_SHUTDOWN |  |  |  |
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
 | SE_RECORD_VIDEO | true |  |  |

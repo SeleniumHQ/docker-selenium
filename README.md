@@ -753,6 +753,9 @@ video-image = "selenium/video:ffmpeg-7.1.1.1-20250323"
 #port = <port-from-node-machine>
 ```
 
+**Mount the local `config.toml` file to the container path `/opt/selenium/docker.toml`**.
+This config file path specific for Dynamic Grid (node/standalone docker) by default to avoid conflict with the config file in node browser containers (since users can share volumes config to node browser containers, see below section for details).
+
 With the optional config key `host-config-keys` under section [docker] in a config.toml file (or CLI option --docker-host-config-keys). Users can specify a list of docker host configuration keys that should be passed to browser containers.
 
 Valid key names for Docker host config can be found in the Docker API [documentation](https://docs.docker.com/engine/api/latest/#tag/Container/operation/ContainerCreate) or via the command `docker inspect` the node-docker container.
@@ -799,7 +802,7 @@ virtual machines.
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.30.0-20250323
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
-    -v ${PWD}/config.toml:/opt/selenium/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/node-docker:4.30.0-20250323
@@ -811,7 +814,7 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.30.0-20250323
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
-    -v ${PWD}/config.toml:/opt/selenium/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/node-docker:4.30.0-20250323
@@ -832,7 +835,7 @@ $ docker network rm grid
 
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 \
-    -v ${PWD}/config.toml:/opt/selenium/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/standalone-docker:4.30.0-20250323
@@ -842,7 +845,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
 
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 `
-    -v ${PWD}/config.toml:/opt/selenium/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/standalone-docker:4.30.0-20250323
@@ -863,7 +866,7 @@ $ docker run -d -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.30.0-2
 ```bash
 $ docker run -d -p 5555:5555 \
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> \
-    -v ${PWD}/config.toml:/opt/selenium/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/node-docker:4.30.0-20250323
@@ -874,7 +877,7 @@ $ docker run -d -p 5555:5555 \
 ```bash
 $ docker run -d -p 5555:5555 `
     -e SE_EVENT_BUS_HOST=<ip-from-machine-1> `
-    -v ${PWD}/config.toml:/opt/selenium/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/node-docker:4.30.0-20250323
@@ -932,7 +935,7 @@ be forwared and set in the container. You can set the desired environment variab
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 \
     -e SE_NODE_SESSION_TIMEOUT=700 \
-    -v ${PWD}/config.toml:/opt/selenium/config.toml \
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml \
     -v ${PWD}/assets:/opt/selenium/assets \
     -v /var/run/docker.sock:/var/run/docker.sock \
     selenium/standalone-docker:4.30.0-20250323
@@ -943,7 +946,7 @@ docker run --rm --name selenium-docker -p 4444:4444 \
 ```bash
 docker run --rm --name selenium-docker -p 4444:4444 `
     -e SE_NODE_SESSION_TIMEOUT=700 `
-    -v ${PWD}/config.toml:/opt/selenium/config.toml `
+    -v ${PWD}/config.toml:/opt/selenium/docker.toml `
     -v ${PWD}/assets:/opt/selenium/assets `
     -v /var/run/docker.sock:/var/run/docker.sock `
     selenium/standalone-docker:4.30.0-20250323

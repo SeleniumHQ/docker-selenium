@@ -94,6 +94,10 @@ if [ "${SE_ENABLE_TLS}" = "true" ]; then
   fi
 fi
 
+if [ ! -z "${SE_NODE_DOCKER_CONFIG_FILENAME}" ]; then
+  CONFIG_FILE="/opt/selenium/${SE_NODE_DOCKER_CONFIG_FILENAME}"
+fi
+
 echo "Selenium Grid Standalone Docker configuration: "
 cat "${CONFIG_FILE}"
 
