@@ -106,11 +106,18 @@ if [ ! -z "${CONFIG_FILE}" ]; then
 fi
 
 EXTRA_LIBS=""
+if [ -n "${SE_EXTRA_LIBS}" ]; then
+  echo "Adding external jars to classpath: ${SE_EXTRA_LIBS}"
+  EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
+fi
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
-  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
-  EXTRA_LIBS="${EXTRA_LIBS}${EXTERNAL_JARS}"
+  if [ -n "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="${EXTRA_LIBS}:${EXTERNAL_JARS}"
+  elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+  fi
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
@@ -136,12 +143,11 @@ fi
 
 if [ "${SE_SESSIONS_MAP_EXTERNAL_DATASTORE}" = "true" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath_session_map.txt)
-  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
-  EXTRA_LIBS="${EXTRA_LIBS}${EXTERNAL_JARS}"
-fi
-
-if [ -n "${EXTRA_LIBS}" ]; then
-  EXTRA_LIBS="--ext ${EXTRA_LIBS}"
+  if [ -n "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="${EXTRA_LIBS}:${EXTERNAL_JARS}"
+  elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+  fi
 fi
 
 cat "$CONFIG_FILE"

@@ -150,11 +150,18 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
 fi
 
 EXTRA_LIBS=""
+if [ -n "${SE_EXTRA_LIBS}" ]; then
+  echo "Adding external jars to classpath: ${SE_EXTRA_LIBS}"
+  EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
+fi
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
   EXTERNAL_JARS=$(</external_jars/.classpath.txt)
-  [ -n "$EXTRA_LIBS" ] && [ -n "${EXTERNAL_JARS}" ] && EXTRA_LIBS=${EXTRA_LIBS}:
-  EXTRA_LIBS="--ext "${EXTRA_LIBS}${EXTERNAL_JARS}
+  if [ -n "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="${EXTRA_LIBS}:${EXTERNAL_JARS}"
+  elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+  fi
   echo "Tracing is enabled"
   echo "Classpath will be enriched with these external jars : " ${EXTRA_LIBS}
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
