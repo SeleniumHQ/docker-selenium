@@ -145,8 +145,10 @@ spec:
                 name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
             - secretRef:
                 name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+            {{- if $.Values.basicAuth.enabled }}
             - secretRef:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+            {{- end }}
           {{- with .Values.hub.extraEnvFrom }}
               {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -182,8 +184,8 @@ spec:
       {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.hub.affinity }}
       affinity: {{- toYaml $affinityYaml | nindent 8 }}
     {{- end }}
-    {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.distributor.topologySpreadConstraints }}
-      {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.distributor.topologySpreadConstraints }}
+    {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.hub.topologySpreadConstraints }}
+      {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.hub.topologySpreadConstraints }}
       topologySpreadConstraints:
       {{- range $constraint := $topologySpreadConstraints }}
         - {{ toYaml $constraint | nindent 10 | trim }}

@@ -93,8 +93,10 @@ spec:
                 name: {{ template "seleniumGrid.server.configmap.fullname" . }}
             - secretRef:
                 name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+            {{- if $.Values.basicAuth.enabled }}
             - secretRef:
                 name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+            {{- end }}
           {{- with .Values.components.extraEnvFrom }}
             {{- toYaml . | nindent 12 }}
           {{- end }}

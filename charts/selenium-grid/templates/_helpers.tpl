@@ -419,8 +419,10 @@ template:
               name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
           - secretRef:
               name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+          {{- if $.Values.basicAuth.enabled }}
           - secretRef:
               name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+          {{- end }}
           {{- with .node.extraEnvFrom }}
             {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
@@ -547,8 +549,10 @@ template:
             name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
         - configMapRef:
             name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+        {{- if $.Values.basicAuth.enabled }}
         - secretRef:
             name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+        {{- end }}
         {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
         - secretRef:
             name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
@@ -606,8 +610,10 @@ template:
         envFrom:
           - configMapRef:
               name: {{ template "seleniumGrid.uploader.configmap.fullname" $ }}
+          {{- if $.Values.basicAuth.enabled }}
           - secretRef:
               name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+          {{- end }}
           - secretRef:
               name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
         {{- with .uploader.extraEnvFrom }}

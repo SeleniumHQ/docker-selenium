@@ -18,10 +18,12 @@ spec:
   - parameter: url
     name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
     key: SE_NODE_GRID_GRAPHQL_URL
+  {{- if $.Values.basicAuth.enabled }}
   - parameter: username
     name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
     key: SE_ROUTER_USERNAME
   - parameter: password
     name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
     key: SE_ROUTER_PASSWORD
+  {{- end }}
 {{- end }}
