@@ -11,6 +11,8 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
@@ -26,6 +28,8 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
@@ -40,6 +44,8 @@ services:
     shm_size: 2gb
     depends_on:
       - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
@@ -53,3 +59,15 @@ services:
       - "4442:4442"
       - "4443:4443"
       - "4444:4444"
+
+  # File browser to manage the videos from local volume
+  file_browser:
+    image: filebrowser/filebrowser:latest
+    container_name: file_browser
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - /tmp/videos:/srv
+    environment:
+      - FB_NOAUTH=true
