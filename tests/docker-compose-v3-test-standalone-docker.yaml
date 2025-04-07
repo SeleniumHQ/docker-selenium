@@ -5,7 +5,7 @@ services:
       - ftp_server
     volumes:
       - ./videos:/opt/selenium/assets
-      - ./videos/config.toml:/opt/selenium/config.toml
+      - ./videos/config.toml:/opt/selenium/docker.toml
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - SE_VNC_NO_PASSWORD=true

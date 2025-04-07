@@ -2,12 +2,10 @@
 # To deploy the Grid, `docker stack deploy -c docker-compose-v3-swarm.yml grid`
 # Stop with `docker stack rm grid`
 # Stop swarm mode `docker swarm leave --force`
-
-version: '3.7'
-
 services:
   chrome:
     image: selenium/node-chrome:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -17,6 +15,7 @@ services:
 
   edge:
     image: selenium/node-edge:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub

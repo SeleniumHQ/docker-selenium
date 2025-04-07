@@ -145,6 +145,7 @@ function stop_recording() {
   stop_ffmpeg
   echo "$(date -u +"${ts_format}") [${process_name}] - Video recording stopped"
   recorded_count=$((recorded_count + 1))
+  recording_started="false"
   if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]]; then
     upload_destination=${UPLOAD_DESTINATION_PREFIX}/${video_file_name}
     echo "$(date -u +"${ts_format}") [${process_name}] - Add to pipe a signal Uploading video to $upload_destination"
@@ -152,7 +153,6 @@ function stop_recording() {
   elif [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]]; then
     echo "$(date -u +"${ts_format}") [${process_name}] - Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading."
   fi
-  recording_started="false"
 }
 
 function check_if_ffmpeg_running() {
@@ -182,7 +182,6 @@ function wait_for_file_integrity() {
 function stop_if_recording_inprogress() {
   if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running; then
     stop_recording
-    wait_for_file_integrity
   fi
 }
 
@@ -223,7 +222,6 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
   fi
-  wait_for_file_integrity
 
 else
   trap graceful_exit_force SIGTERM SIGINT EXIT
@@ -247,23 +245,23 @@ else
       video_file_name="${return_list[1]}.mp4"
       endpoint_url="${return_list[2]}"
       /opt/bin/validate_endpoint.sh "${endpoint_url}" "true"
-      echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
-      log_node_response
-    fi
-    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$caps_se_video_record" = "true" ]]; then
-      video_file="${VIDEO_FOLDER}/$video_file_name"
-      echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
-      ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-        -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-      FFMPEG_PID=$!
-      if ps -p $FFMPEG_PID >/dev/null; then
-        recording_started="true"
+      if [[ "$caps_se_video_record" = "true" ]]; then
+        echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
+        log_node_response
+        video_file="${VIDEO_FOLDER}/$video_file_name"
+        echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
+        ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
+          -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
+        FFMPEG_PID=$!
+        if ps -p $FFMPEG_PID >/dev/null; then
+          recording_started="true"
+          prev_session_id=$session_id
+        fi
+        echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
+        sleep ${poll_interval}
       fi
-      echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
-      sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
-      wait_for_file_integrity
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Node will be drained since max sessions reached count number ($max_recorded_count)"
         exit
@@ -271,10 +269,8 @@ else
     elif [[ $recording_started = "true" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Video recording in progress"
       sleep ${poll_interval}
-    else
-      sleep ${poll_interval}
     fi
-    prev_session_id=$session_id
   done
+  stop_if_recording_inprogress
   echo "$(date -u +"${ts_format}") [${process_name}] - Node API is not responding now, exiting..."
 fi

@@ -44,7 +44,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.revisionHistoryLimit | int | `10` | Specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background. |
 | global.seleniumGrid.structuredLogs | bool | `false` | Whether to enable structured logging |
 | global.seleniumGrid.httpLogs | bool | `false` | Enable http logging. Tracing should be enabled to log http logs. |
-| global.seleniumGrid.updateStrategy.type | string | `"RollingUpdate"` | Specify update strategy for all components, can be overridden individually |
+| global.seleniumGrid.updateStrategy.type | string | `"Recreate"` | Specify update strategy for all components, can be overridden individually |
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
@@ -420,7 +420,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | crossBrowsers.relayNode | list | `[{"nameOverride":null}]` | Additional release nodes, array of objects with the same structure as `relayNode` |
 | chromeNode.enabled | bool | `true` | Enable chrome nodes |
 | chromeNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long-living pods false - for provisioning your own custom type such as Jobs |
-| chromeNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
+| chromeNode.updateStrategy | object | `{"type":null}` | Global update strategy will be overwritten by individual component |
 | chromeNode.replicas | int | `1` | Number of chrome nodes |
 | chromeNode.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | chromeNode.imageName | string | `"node-chrome"` | Image of chrome nodes |
@@ -478,7 +478,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.videoRecorder | object | `{}` | Override specific video recording settings for chrome node |
 | firefoxNode.enabled | bool | `true` | Enable firefox nodes |
 | firefoxNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long living pods false - for provisioning your own custom type such as Jobs |
-| firefoxNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
+| firefoxNode.updateStrategy | object | `{"type":null}` | Global update strategy will be overwritten by individual component |
 | firefoxNode.replicas | int | `1` | Number of firefox nodes |
 | firefoxNode.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | firefoxNode.imageName | string | `"node-firefox"` | Image of firefox nodes |
@@ -536,7 +536,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.videoRecorder | object | `{}` | Override specific video recording settings for firefox node |
 | edgeNode.enabled | bool | `true` | Enable edge nodes |
 | edgeNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long living pods false - for provisioning your own custom type such as Jobs |
-| edgeNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
+| edgeNode.updateStrategy | object | `{"type":null}` | Global update strategy will be overwritten by individual component |
 | edgeNode.replicas | int | `1` | Number of edge nodes |
 | edgeNode.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | edgeNode.imageName | string | `"node-edge"` | Image of edge nodes |
@@ -595,7 +595,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.enabled | bool | `false` | Enable relay nodes |
 | relayNode.relayUrl | string | `""` | Specify another Grid, another network, or a cloud vendor that you wish to connect to (e.g. https://ondemand.us-west-1.saucelabs.com/wd/hub) |
 | relayNode.deploymentEnabled | bool | `true` | NOTE: Only used when autoscaling.enabled is false Enable creation of Deployment true (default) - if you want long-living pods false - for provisioning your own custom type such as Jobs |
-| relayNode.updateStrategy | object | `{"type":"RollingUpdate"}` | Global update strategy will be overwritten by individual component |
+| relayNode.updateStrategy | object | `{"type":null}` | Global update strategy will be overwritten by individual component |
 | relayNode.replicas | int | `1` | Number of relay nodes |
 | relayNode.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | relayNode.imageName | string | `"node-base"` | Image of relay nodes |

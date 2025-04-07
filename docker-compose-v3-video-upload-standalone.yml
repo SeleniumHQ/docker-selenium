@@ -17,6 +17,7 @@ services:
 
   standalone_chrome:
     image: selenium/standalone-chrome:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     ports:
       - "4444:4444"
@@ -27,6 +28,7 @@ services:
 
   standalone_edge:
     image: selenium/standalone-edge:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     ports:
       - "5444:4444"

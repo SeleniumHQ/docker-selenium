@@ -9,6 +9,7 @@ services:
       - "4317:4317"
   chrome:
     image: selenium/node-chrome:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -20,6 +21,7 @@ services:
 
   edge:
     image: selenium/node-edge:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub

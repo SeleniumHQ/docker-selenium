@@ -6,6 +6,8 @@ configs = [
     "selenium/standalone-chrome:4.30.0-20250323", '{"browserName": "chrome", "platformName": "linux"}',
     "selenium/standalone-edge:4.30.0-20250323", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
+# Share configs of volumes, DNS, extra hosts between node-docker and node browser containers
+host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 
 # URL for connecting to the docker daemon
 # host.docker.internal works for macOS and Windows.

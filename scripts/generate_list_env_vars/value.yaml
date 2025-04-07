@@ -81,7 +81,7 @@
 - name: SE_NODE_CONTAINER_NAME
   default: ''
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
-  default: ''
+  default: docker.toml
 - name: SE_NODE_ENABLE_CDP
   default: ''
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS

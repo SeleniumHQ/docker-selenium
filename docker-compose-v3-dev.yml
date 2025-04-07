@@ -4,6 +4,7 @@
 services:
   chrome:
     image: selenium/node-chrome:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
@@ -14,6 +15,7 @@ services:
 
   edge:
     image: selenium/node-edge:4.30.0-20250323
+    platform: linux/amd64
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar

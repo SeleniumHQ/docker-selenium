@@ -269,10 +269,11 @@ class ChartTemplateTests(unittest.TestCase):
                     f'{RELEASE_NAME}selenium-event-bus',
                     f'{RELEASE_NAME}selenium-router',
                     f'{RELEASE_NAME}selenium-session-map',
-                    f'{RELEASE_NAME}selenium-session-queue',]
-        rolling  = [f'{RELEASE_NAME}selenium-node-chrome',
+                    f'{RELEASE_NAME}selenium-session-queue',
+                    f'{RELEASE_NAME}selenium-node-chrome',
                     f'{RELEASE_NAME}selenium-node-edge',
                     f'{RELEASE_NAME}selenium-node-firefox',]
+        rolling = []
         count_recreate = 0
         count_rolling = 0
         for doc in LIST_OF_DOCUMENTS:
@@ -282,7 +283,7 @@ class ChartTemplateTests(unittest.TestCase):
                 count_rolling += 1
             if doc['metadata']['name'] in recreate and doc['kind'] == 'Deployment':
                 logger.info(f"Assert updateStrategy is set in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['strategy']['type'] == 'RollingUpdate', f"Resource {doc['metadata']['name']} doesn't have strategy RollingUpdate")
+                self.assertTrue(doc['spec']['strategy']['type'] == 'Recreate', f"Resource {doc['metadata']['name']} doesn't have strategy Recreate")
                 count_recreate += 1
         self.assertEqual(count_rolling, len(rolling), "No deployment resources found with strategy RollingUpdate")
         self.assertEqual(count_recreate, len(recreate), "No deployment resources found with strategy Recreate")

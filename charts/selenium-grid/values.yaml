@@ -34,7 +34,7 @@ global:
     httpLogs: false
     updateStrategy:
       # -- Specify update strategy for all components, can be overridden individually
-      type: RollingUpdate
+      type: Recreate
       # type: RollingUpdate
       # -- Specify for strategy RollingUpdate
       rollingUpdate:
@@ -1124,7 +1124,7 @@ chromeNode:
   deploymentEnabled: true
   # -- Global update strategy will be overwritten by individual component
   updateStrategy:
-    type: RollingUpdate
+    type:
   # -- Number of chrome nodes
   replicas: 1
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
@@ -1320,7 +1320,7 @@ firefoxNode:
   deploymentEnabled: true
   # -- Global update strategy will be overwritten by individual component
   updateStrategy:
-    type: RollingUpdate
+    type:
   # -- Number of firefox nodes
   replicas: 1
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
@@ -1516,7 +1516,7 @@ edgeNode:
   deploymentEnabled: true
   # -- Global update strategy will be overwritten by individual component
   updateStrategy:
-    type: RollingUpdate
+    type:
   # -- Number of edge nodes
   replicas: 1
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
@@ -1713,7 +1713,7 @@ relayNode:
   deploymentEnabled: true
   # -- Global update strategy will be overwritten by individual component
   updateStrategy:
-    type: RollingUpdate
+    type:
   # -- Number of relay nodes
   replicas: 1
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)

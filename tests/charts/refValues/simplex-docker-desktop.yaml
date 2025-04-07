@@ -1,10 +1,7 @@
-# README: This is a sample values for chart deployment in Minikube
-# Chart dependency ingress-nginx is installed together by enabling `ingress-nginx.enabled`
+# README: This is a sample values for chart deployment in K8s cluster started by Docker Desktop
+# Chart dependency ingress-nginx is installed together by enabling `ingress.enableWithController`
 # Chart dependency keda is installed together by enabling `autoscaling.enable`
-# Enabled ingress without hostname, set the subPath `/selenium`. Set K8S_PUBLIC_IP point to the public host IP, where Minikube is running
-# `ingress-nginx.controller.hostNetwork` is set to true to allow access from outside the cluster via http://<K8S_PUBLIC_IP>/selenium
-# Components serviceType is set to NodePort to allow access from outside the cluster via K8S_PUBLIC_IP and NodePort http://<K8S_PUBLIC_IP>:30444/selenium
-# Use this reference values to deploy e.g. `helm upgrade --install test --values tests/charts/refValues/simplex-minikube.yaml docker-selenium/selenium-grid --version <0.26.3_onwards>`
+# Enabled ingress without hostname, set the subPath `/selenium`. NGINX type LoadBalancer to expose access from `http://localhost/selenium`
 global:
   seleniumGrid:
     logLevel: INFO
@@ -69,7 +66,7 @@ edgeNode:
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes
 
 videoRecorder:
-  enabled: false
+  enabled: true
 
 ingress-nginx:
   controller:
