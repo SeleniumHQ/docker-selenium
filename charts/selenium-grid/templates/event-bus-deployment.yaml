@@ -82,8 +82,8 @@ spec:
           {{- with .Values.components.eventBus.extraEnvFrom }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          volumeMounts:
           {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+          volumeMounts:
             - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
               mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
@@ -123,8 +123,8 @@ spec:
     {{- with .Values.components.eventBus.priorityClassName }}
       priorityClassName: {{ . }}
     {{- end }}
-      volumes:
       {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+      volumes:
         - name: {{ include "seleniumGrid.tls.fullname" .  | quote }}
           secret:
             secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}

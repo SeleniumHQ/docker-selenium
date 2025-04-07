@@ -29,21 +29,21 @@ data:
         -o jsonpath='{.items[*].metadata.name}{"\n"}');
     do
         if [ -n "$i" ]; then
-            kubectl delete ScaledObjects $i -n {{ .Release.Namespace }}
+            kubectl delete ScaledObjects $i -n {{ .Release.Namespace }} --wait=false --cascade=foreground
         fi
     done
     for i in $(kubectl get ScaledJobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
         -o jsonpath='{.items[*].metadata.name}{"\n"}');
     do
         if [ -n "$i" ]; then
-            kubectl delete ScaledJobs $i -n {{ .Release.Namespace }}
+            kubectl delete ScaledJobs $i -n {{ .Release.Namespace }} --wait=false
         fi
     done
     for i in $(kubectl get TriggerAuthentication -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }} \
         -o jsonpath='{.items[*].metadata.name}{"\n"}');
     do
         if [ -n "$i" ]; then
-            kubectl delete TriggerAuthentication $i -n {{ .Release.Namespace }}
+            kubectl delete TriggerAuthentication $i -n {{ .Release.Namespace }} --wait=false
         fi
     done
 {{- end }}
