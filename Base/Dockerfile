@@ -216,6 +216,7 @@ ENV SE_BIND_HOST="false" \
     SE_SUPERVISORD_PID_FILE="/tmp/supervisord.pid" \
     SE_SUPERVISORD_AUTO_RESTART="true" \
     SE_SUPERVISORD_START_RETRIES="5" \
+    SE_SUPERVISORD_UNIX_SERVER_PASSWORD="secret" \
     SE_LOG_TIMESTAMP_FORMAT="%Y-%m-%d %H:%M:%S,%3N" \
     SE_LOG_LEVEL="INFO" \
     SE_HTTP_LOGS="false" \
