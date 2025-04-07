@@ -130,7 +130,6 @@ fi
 
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
-  echo "Adding external jars to classpath: ${SE_EXTRA_LIBS}"
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
 fi
 
@@ -142,8 +141,6 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
     EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
   fi
   echo "Tracing is enabled"
-  echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
-
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.resource.attributes=service.name=${SE_OTEL_SERVICE_NAME}"
   fi
@@ -163,6 +160,10 @@ else
   append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
+fi
+
+if [ -n "${EXTRA_LIBS}" ]; then
+  echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
 fi
 
 if [ ! -z "${SE_BIND_HOST}" ]; then
