@@ -14,6 +14,19 @@ services:
     command: ["/bin/sh", "-c", "/sbin/tini -- /bin/start_vsftpd.sh && tail -f /dev/null"]
     stop_grace_period: 30s
 
+  # File browser to manage the uploaded videos from the FTP server
+  file_browser:
+    image: filebrowser/filebrowser:latest
+    container_name: file_browser
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      # Mount the local directory `/tmp/upload` to file browser's `/srv` directory to check out the uploaded videos
+      - /tmp/upload:/srv
+    environment:
+      - FB_NOAUTH=true
+
   node-docker:
     image: selenium/node-docker:4.30.0-20250323
     volumes:
