@@ -49,11 +49,13 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda](https://github.com/kedacore/keda)
 
-- https://github.com/kedacore/keda/pull/6570 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda/pull/6684 (merged, v2.17.0)~~
 
-- https://github.com/kedacore/keda/pull/6536 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda/pull/6570 (merged, v2.17.0)~~
 
-- https://github.com/kedacore/keda/pull/6477 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda/pull/6536 (merged, v2.17.0)~~
+
+- ~~https://github.com/kedacore/keda/pull/6477 (merged, v2.17.0)~~
 
 - ~~https://github.com/kedacore/keda/pull/6437 (merged, v2.16.1)~~
 
@@ -63,11 +65,13 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda-docs](https://github.com/kedacore/keda-docs)
 
-- https://github.com/kedacore/keda-docs/pull/1542 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda-docs/pull/1560 (merged, v2.17.0)~~
 
-- https://github.com/kedacore/keda-docs/pull/1533 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda-docs/pull/1542 (merged, v2.17.0)~~
 
-- https://github.com/kedacore/keda-docs/pull/1522 (plan, v2.17.0)
+- ~~https://github.com/kedacore/keda-docs/pull/1533 (merged, v2.17.0)~~
+
+- ~~https://github.com/kedacore/keda-docs/pull/1522 (merged, v2.17.0)~~
 
 - ~~https://github.com/kedacore/keda-docs/pull/1515 (merged, v2.16.1)~~
 
