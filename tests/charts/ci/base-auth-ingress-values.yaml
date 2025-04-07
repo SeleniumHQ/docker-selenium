@@ -55,4 +55,4 @@ ingress-nginx:
       enabled: true
     kind: DaemonSet
     service:
-      type: ClusterIP
+      type: LoadBalancer

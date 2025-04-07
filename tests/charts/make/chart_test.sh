@@ -185,6 +185,12 @@ HELM_COMMAND_SET_IMAGES=" \
 --set edgeNode.nodeMaxSessions=${MAX_SESSIONS_EDGE} \
 "
 
+if [ -n "${SET_UPDATE_STRATEGY}" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set global.seleniumGrid.updateStrategy.type=${SET_UPDATE_STRATEGY} \
+  "
+fi
+
 if [ -n "${TRACING_EXPORTER_ENDPOINT}" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tracing.exporterEndpoint=\\"${TRACING_EXPORTER_ENDPOINT}\\" \
