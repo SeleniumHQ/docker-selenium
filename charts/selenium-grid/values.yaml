@@ -2034,19 +2034,19 @@ customLabels: {}
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-  image:
-    keda:
-      registry: selenium
-      repository: keda
-      tag: "2.16.1-selenium-grid-20250323"
-    metricsApiServer:
-      registry: selenium
-      repository: keda-metrics-apiserver
-      tag: "2.16.1-selenium-grid-20250323"
-    webhooks:
-      registry: selenium
-      repository: keda-admission-webhooks
-      tag: "2.16.1-selenium-grid-20250323"
+#  image:
+#    keda:
+#      registry: selenium
+#      repository: keda
+#      tag: "2.16.1-selenium-grid-20250323"
+#    metricsApiServer:
+#      registry: selenium
+#      repository: keda-metrics-apiserver
+#      tag: "2.16.1-selenium-grid-20250323"
+#    webhooks:
+#      registry: selenium
+#      repository: keda-admission-webhooks
+#      tag: "2.16.1-selenium-grid-20250323"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

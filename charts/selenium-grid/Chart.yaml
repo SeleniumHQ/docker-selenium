@@ -7,7 +7,7 @@ appVersion: 4.30.0-20250323
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.16.1
+  version: 2.17.0
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://kubernetes.github.io/ingress-nginx

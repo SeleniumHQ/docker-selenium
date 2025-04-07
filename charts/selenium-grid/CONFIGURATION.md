@@ -21,7 +21,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | postgresql | 16.6.0 |
 | https://charts.bitnami.com/bitnami | redis | 20.11.4 |
 | https://jaegertracing.github.io/helm-charts | jaeger | 3.4.1 |
-| https://kedacore.github.io/charts | keda | 2.16.1 |
+| https://kedacore.github.io/charts | keda | 2.17.0 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | 4.12.1 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | 70.4.1 |
 
@@ -678,7 +678,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":[],"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
-| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.16.1-selenium-grid-20250323"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.16.1-selenium-grid-20250323"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.16.1-selenium-grid-20250323"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
