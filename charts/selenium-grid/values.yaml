@@ -2030,6 +2030,100 @@ videoRecorder:
 # -- Custom labels for k8s resources
 customLabels: {}
 
+videoManager:
+  # -- Enable video manager
+  enabled: false
+  # -- Override deployment name of video manager
+  nameOverride: ""
+  ingress:
+    # -- Enable ingress resource to access the file browser
+    enabled: true
+    # -- Annotations for file browser ingress resource
+    annotations:
+    # -- Configure paths for file browser ingress resource
+    paths: []
+  # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
+  imageRegistry: "filebrowser"
+  # -- File browser image name
+  imageName: "filebrowser"
+  # -- File browser image tag (this overwrites global.seleniumGrid.imageTag parameter)
+  imageTag: "latest"
+  # -- Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images)
+  imagePullPolicy: IfNotPresent
+  # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
+  imagePullSecret: ""
+  config:
+    # -- Base URL use to access the file browser (e.g. http://public.ip/recordings)
+    baseurl: "recordings"
+    # -- Username for the first user when using quick config (default "admin")
+    username: ""
+    # -- Hashed password (bcrypt) for the first user when using quick config (default "admin")
+    password: ""
+    # -- Use the noauth auther when using quick setup
+    noauth: true
+  # -- Specify extra environment variables for Router
+  extraEnvironmentVariables: []
+  # -- Specify extra environment variables from ConfigMap and Secret for Router
+  extraEnvFrom: []
+  # -- Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter
+  affinity: {}
+  # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
+  topologySpreadConstraints: []
+  # -- Custom annotations for router pods
+  annotations: {}
+  # -- Router container port
+  port: 80
+  # -- Router expose NodePort
+  nodePort: 30080
+  # -- Startup probe settings
+  startupProbe: {}
+  # -- Readiness probe settings
+  readinessProbe: {}
+  # -- Liveness probe settings
+  livenessProbe: {}
+  lifecycle: {}
+  # -- Resources for router container
+  resources:
+    requests:
+      cpu: "0.1"
+      memory: "128Mi"
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+  # -- Number of replicas
+  replicas: 1
+  # -- SecurityContext for router container
+  securityContext: { }
+  # -- Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types)
+  serviceType: ClusterIP
+  # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
+  clusterIP: ""
+  # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
+  externalName: ""
+  # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
+  loadBalancerIP: ""
+  # -- Custom annotations for router service
+  serviceAnnotations: { }
+  # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
+  serviceExternalTrafficPolicy: ""
+  # -- Set session affinity to None, ClientIP or ClientIPString
+  serviceSessionAffinity: ""
+  # -- Tolerations for router pods
+  tolerations: [ ]
+  # -- Node selector for router pods
+  nodeSelector: { }
+  # -- Priority class name for router pods
+  priorityClassName: ""
+  extraVolumeMounts: [ ]
+  # - name: srv
+  #   mountPath: /srv
+  #   subPath: srv
+  # -- Extra volumes for video recorder pod
+  extraVolumes: [ ]
+  # - name: srv
+  #   persistentVolumeClaim:
+  #     claimName: video-pv-claim
+
 # Configuration for dependency chart keda
 keda:
   # enabled: false

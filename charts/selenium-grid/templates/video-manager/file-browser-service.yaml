@@ -1,0 +1,44 @@
+{{- if .Values.videoManager.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "seleniumGrid.videoManager.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ template "seleniumGrid.videoManager.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- with .Values.videoManager.serviceAnnotations }}
+  annotations: {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  selector:
+    app: {{ template "seleniumGrid.videoManager.fullname" $ }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: {{ .Values.videoManager.serviceType }}
+  {{- if and (eq .Values.videoManager.serviceType "ClusterIP") ( .Values.videoManager.clusterIP ) }}
+  clusterIP: {{ .Values.videoManager.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.videoManager.serviceType "ExternalName") ( .Values.videoManager.externalName ) }}
+  externalName: {{ .Values.videoManager.externalName }}
+  {{- end }}
+  {{- if and (eq .Values.videoManager.serviceType "LoadBalancer") (.Values.videoManager.loadBalancerIP) }}
+  loadBalancerIP: {{ .Values.videoManager.loadBalancerIP }}
+  {{- end }}
+  ports:
+    - name: web
+      protocol: TCP
+      port: {{ .Values.videoManager.port }}
+      targetPort: {{ .Values.videoManager.port }}
+      {{- if and (eq $.Values.videoManager.serviceType "NodePort") $.Values.videoManager.nodePort }}
+      nodePort: {{ $.Values.videoManager.nodePort }}
+      {{- end }}
+  {{- with .Values.videoManager.serviceExternalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.videoManager.serviceSessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
+{{- end }}

@@ -678,6 +678,46 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":[],"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
 | customLabels | object | `{}` | Custom labels for k8s resources |
+| videoManager.enabled | bool | `false` | Enable video manager |
+| videoManager.nameOverride | string | `""` | Override deployment name of video manager |
+| videoManager.ingress.enabled | bool | `true` | Enable ingress resource to access the file browser |
+| videoManager.ingress.annotations | string | `nil` | Annotations for file browser ingress resource |
+| videoManager.ingress.paths | list | `[]` | Configure paths for file browser ingress resource |
+| videoManager.imageRegistry | string | `"filebrowser"` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
+| videoManager.imageName | string | `"filebrowser"` | File browser image name |
+| videoManager.imageTag | string | `"latest"` | File browser image tag (this overwrites global.seleniumGrid.imageTag parameter) |
+| videoManager.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
+| videoManager.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| videoManager.config.baseurl | string | `"recordings"` | Base URL use to access the file browser (e.g. http://public.ip/recordings) |
+| videoManager.config.username | string | `""` | Username for the first user when using quick config (default "admin") |
+| videoManager.config.password | string | `""` | Hashed password (bcrypt) for the first user when using quick config (default "admin") |
+| videoManager.config.noauth | bool | `true` | Use the noauth auther when using quick setup |
+| videoManager.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router |
+| videoManager.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
+| videoManager.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
+| videoManager.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| videoManager.annotations | object | `{}` | Custom annotations for router pods |
+| videoManager.port | int | `80` | Router container port |
+| videoManager.nodePort | int | `30080` | Router expose NodePort |
+| videoManager.startupProbe | object | `{}` | Startup probe settings |
+| videoManager.readinessProbe | object | `{}` | Readiness probe settings |
+| videoManager.livenessProbe | object | `{}` | Liveness probe settings |
+| videoManager.lifecycle | object | `{}` |  |
+| videoManager.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.1","memory":"128Mi"}}` | Resources for router container |
+| videoManager.replicas | int | `1` | Number of replicas |
+| videoManager.securityContext | object | `{}` | SecurityContext for router container |
+| videoManager.serviceType | string | `"ClusterIP"` | Kubernetes service type (see https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) |
+| videoManager.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
+| videoManager.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
+| videoManager.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
+| videoManager.serviceAnnotations | object | `{}` | Custom annotations for router service |
+| videoManager.serviceExternalTrafficPolicy | string | `""` | Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/) |
+| videoManager.serviceSessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
+| videoManager.tolerations | list | `[]` | Tolerations for router pods |
+| videoManager.nodeSelector | object | `{}` | Node selector for router pods |
+| videoManager.priorityClassName | string | `""` | Priority class name for router pods |
+| videoManager.extraVolumeMounts | list | `[]` |  |
+| videoManager.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |

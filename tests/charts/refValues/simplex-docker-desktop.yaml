@@ -68,6 +68,9 @@ edgeNode:
 videoRecorder:
   enabled: true
 
+videoManager:
+    enabled: true
+
 ingress-nginx:
   controller:
     hostPort:

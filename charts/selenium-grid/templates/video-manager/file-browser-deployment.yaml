@@ -1,0 +1,121 @@
+{{- if .Values.videoManager.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "seleniumGrid.videoManager.fullname" $ }}
+  namespace: {{ .Release.Namespace }}
+  labels: &app_labels
+    app: {{ template "seleniumGrid.videoManager.fullname" $ }}
+    app.kubernetes.io/name: {{ template "seleniumGrid.videoManager.fullname" $ }}
+    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- with .Values.customLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  strategy:
+    {{- template "seleniumGrid.updateStrategy" (list $.Values.videoManager $.Values.global.seleniumGrid) }}
+  replicas: {{ max 1 ($.Values.videoManager.replicas | int) }}
+  revisionHistoryLimit: {{ .Values.global.seleniumGrid.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: {{ template "seleniumGrid.videoManager.fullname" $ }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels: *app_labels
+      {{- with .Values.videoManager.annotations }}
+      annotations: {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+      containers:
+        - name: file-browser
+          image: {{ printf "%s/%s:%s" .Values.videoManager.imageRegistry .Values.videoManager.imageName .Values.videoManager.imageTag }}
+          imagePullPolicy: {{ .Values.videoManager.imagePullPolicy }}
+          env:
+          {{- with .Values.videoManager.config.baseurl }}
+            - name: FB_BASEURL
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with .Values.videoManager.config.username }}
+            - name: FB_USERNAME
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with .Values.videoManager.config.password }}
+            - name: FB_PASSWORD
+              value: {{ . | quote }}
+          {{- end }}
+          {{- if .Values.videoManager.config.noauth }}
+            - name: FB_NOAUTH
+              value: "true"
+          {{- end }}
+          {{- with .Values.videoManager.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          {{- with .Values.videoManager.extraEnvFrom }}
+          envFrom: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+          {{- if .Values.videoManager.extraVolumeMounts }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- else }}
+            - name: srv
+              mountPath: /srv
+              subPath: srv
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.videoManager.port }}
+              protocol: TCP
+        {{- with .Values.videoManager.resources }}
+          resources: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.videoManager.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.videoManager.startupProbe }}
+          startupProbe: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.videoManager.livenessProbe }}
+          livenessProbe: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.videoManager.lifecycle }}
+          lifecycle: {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- with .Values.videoManager.nodeSelector }}
+      nodeSelector: {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.affinity .Values.videoManager.affinity }}
+      {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.videoManager.affinity }}
+      affinity: {{- toYaml $affinityYaml | nindent 8 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.videoManager.topologySpreadConstraints }}
+      {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.videoManager.topologySpreadConstraints }}
+      topologySpreadConstraints:
+      {{- range $constraint := $topologySpreadConstraints }}
+        - {{ toYaml $constraint | nindent 10 | trim }}
+        {{- if not $constraint.labelSelector }}
+          labelSelector:
+            matchLabels:
+              app: {{ template "seleniumGrid.videoManager.fullname" $ }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- with .Values.videoManager.tolerations }}
+      tolerations: {{ toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.imagePullSecret .Values.videoManager.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ default .Values.global.seleniumGrid.imagePullSecret .Values.videoManager.imagePullSecret }}
+    {{- end }}
+    {{- with .Values.videoManager.priorityClassName }}
+      priorityClassName: {{ . }}
+    {{- end }}
+      volumes:
+      {{- if .Values.videoManager.extraVolumes }}
+        {{ tpl (toYaml .) $ | nindent 8 }}
+      {{- else }}
+        - name: srv
+          emptyDir: {}
+      {{- end }}
+{{- end }}

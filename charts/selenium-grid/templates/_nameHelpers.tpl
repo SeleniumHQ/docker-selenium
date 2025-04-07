@@ -233,6 +233,13 @@ Recorder ConfigMap fullname
 {{- end -}}
 
 {{/*
+Video manager fullname
+*/}}
+{{- define "seleniumGrid.videoManager.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-video-manager" $)) .Values.videoManager.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Uploader ConfigMap fullname
 */}}
 {{- define "seleniumGrid.uploader.configmap.fullname" -}}
