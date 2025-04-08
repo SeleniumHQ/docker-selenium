@@ -38,7 +38,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SEL_DOWNLOAD_DIR=${HOME}/Downloads \
     VIDEO_FOLDER="/videos" \
     # Path to the Configfile
-    CONFIG_FILE="/opt/selenium/config.toml"
+    CONFIG_FILE="/opt/selenium/config.toml" \
+    VENV_PATH=/opt/venv
 
 #========================
 # Miscellaneous packages
@@ -69,25 +70,15 @@ RUN apt-get -qqy update \
 #========================================
 # Install Python for utilities
 #========================================
+ENV PATH="$VENV_PATH/bin:$PATH" \
+    VIRTUAL_ENV="$VENV_PATH"
+
 RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install \
-    python3 python3-pip python3-venv python3-setuptools \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-ENV VENV_PATH=/opt/venv
-RUN python3 -m venv $VENV_PATH \
+    python3 python3-pip python3-venv \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
     echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
-
-RUN $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
-    && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
-    && unzip /tmp/supervisor.zip -d /tmp \
-    && cd /tmp/supervisor-main \
-    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
-    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
-
-ENV PATH="$VENV_PATH/bin:$PATH" \
-    VIRTUAL_ENV="$VENV_PATH"
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
     && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
@@ -197,6 +188,14 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
+
+RUN python3 -m venv $VENV_PATH \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
+    && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
+    && unzip /tmp/supervisor.zip -d /tmp \
+    && cd /tmp/supervisor-main \
+    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
+    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
 
 RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
     && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
