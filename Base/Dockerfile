@@ -78,7 +78,7 @@ RUN apt-get -qqy update \
     && apt-get -qqy --no-install-recommends install \
     python3 python3-pip python3-venv \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-    echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
+    && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
     && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
