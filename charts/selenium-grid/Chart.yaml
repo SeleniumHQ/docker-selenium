@@ -23,7 +23,7 @@ dependencies:
   name: kube-prometheus-stack
   condition: monitoring.enabled, kube-prometheus-stack.enabled
 - repository: https://charts.bitnami.com/bitnami
-  version: 16.6.2
+  version: 16.6.3
   name: postgresql
   condition: postgresql.enabled
 - repository: https://charts.bitnami.com/bitnami
