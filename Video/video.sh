@@ -32,7 +32,10 @@ else
 fi
 
 /opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
-BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+fi
 
 if [ -d "${VIDEO_FOLDER}" ]; then
   echo "$(date -u +"${ts_format}") [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
@@ -78,7 +81,7 @@ function wait_for_display() {
 }
 
 function check_if_api_respond() {
-  endpoint_checks=$(curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
+  endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
     return 1
   fi
@@ -236,7 +239,7 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
+  while curl --noproxy "*" -H "${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
     session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"

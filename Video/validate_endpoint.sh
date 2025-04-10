@@ -6,16 +6,19 @@ max_time=1
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="endpoint.checks"
 
-BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+fi
 
 if [ "${graphql_endpoint}" = "true" ]; then
   endpoint_checks=$(curl --noproxy "*" -m ${max_time} -k -X POST \
     -H "Content-Type: application/json" \
-    -H "Authorization: Basic ${BASIC_AUTH}" \
+    -H "${BASIC_AUTH}" \
     --data '{"query":"{ grid { sessionCount } }"}' \
     -s "${endpoint}" -o /dev/null -w "%{http_code}")
 else
-  endpoint_checks=$(curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -m ${max_time} -s -k -o /dev/null -w "%{http_code}" "${endpoint}")
+  endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -m ${max_time} -s -k -o /dev/null -w "%{http_code}" "${endpoint}")
 fi
 
 if [[ "$endpoint_checks" = "404" ]]; then
