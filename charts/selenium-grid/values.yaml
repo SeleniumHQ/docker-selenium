@@ -1019,6 +1019,8 @@ autoscaling:
   # Configuration for ScaledObject triggers https://keda.sh/docs/latest/reference/scaledobject-spec/#triggers
   # -- Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA).
   useCachedMetrics: false
+  # -- Set trigger name.
+  triggerName: ""
   # -- The type of metric that should be used (The default: AverageValue in KEDA)
   metricType: ""
   # -- Annotations for KEDA resources: ScaledObject and ScaledJob
