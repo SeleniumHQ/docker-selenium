@@ -10,9 +10,10 @@ ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.48.0
 ARG GRPC_VERSION=1.71.0
+ARG NETTY_VERSION=4.2.0.Final
 ARG CS_VERSION=2.1.18
 ARG POSTGRESQL_VERSION=42.7.5
-ARG ENVSUBST_VERSION=1.4.3
+ARG ENVSUBST_VERSION=1.4.4
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -77,6 +78,7 @@ RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install \
     python3 python3-pip python3-venv \
+    && python3 -m pip install --upgrade setuptools virtualenv --break-system-packages \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
     && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
@@ -142,6 +144,9 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
         io.grpc:grpc-netty:${GRPC_VERSION} \
+        io.netty:netty-codec-http:${NETTY_VERSION} \
+        io.netty:netty-handler:${NETTY_VERSION} \
+        io.netty:netty-common:${NETTY_VERSION} \
         > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt \
         && java -jar /tmp/cs fetch --classpath --cache /external_jars \
@@ -179,7 +184,7 @@ COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jk
 # Add envsubst binary
 #===================================================
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi) \
-    && curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
+    && curl -fsSL https://github.com/ndviet/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
     && chmod +x envsubst \
     && mv envsubst /usr/local/bin \
     && ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
