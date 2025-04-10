@@ -390,6 +390,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
 | autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"0"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.useCachedMetrics | bool | `false` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA). |
+| autoscaling.triggerName | string | `""` | Set trigger name. |
 | autoscaling.metricType | string | `""` | The type of metric that should be used (The default: AverageValue in KEDA) |
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
