@@ -25,16 +25,25 @@ if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
   JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"4444"}
   NODE_STATUS_ENDPOINT="$(python3 /opt/bin/video_gridUrl.py)/status"
+  NODE_OWNER_ENDPOINT="$(python3 /opt/bin/video_gridUrl.py)/se/grid/node/owner"
 else
   JQ_SESSION_ID_QUERY=".[]?.node?.slots | .[0]?.session?.sessionId"
   SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
+  NODE_OWNER_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/se/grid/node/owner"
 fi
 
 /opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
 if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
   BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
   BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+fi
+
+# Set headers if Node Registration Secret is set
+if [ ! -z "${SE_REGISTRATION_SECRET}" ]; then
+  HEADERS="X-REGISTRATION-SECRET: ${SE_REGISTRATION_SECRET}"
+else
+  HEADERS="X-REGISTRATION-SECRET;"
 fi
 
 if [ -d "${VIDEO_FOLDER}" ]; then
@@ -93,6 +102,7 @@ function wait_for_api_respond() {
   until check_if_api_respond; do
     sleep ${poll_interval}
   done
+  echo "$(date -u +"${ts_format}") [${process_name}] - Node endpoint is responding now. Proceeding next steps..."
   return 0
 }
 
@@ -276,4 +286,5 @@ else
   done
   stop_if_recording_inprogress
   echo "$(date -u +"${ts_format}") [${process_name}] - Node API is not responding now, exiting..."
+  echo "$(date -u +"${ts_format}") [${process_name}] - Noted: Set container restart policy to spin up process again for recording another session might come up"
 fi
