@@ -11,8 +11,8 @@ matrix:
       FIREFOX_VERSION: 136.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '135':
-      EDGE_VERSION: microsoft-edge-stable=135.0.3179.54-1
-      CHROME_VERSION: google-chrome-stable=135.0.7049.52-1
+      EDGE_VERSION: microsoft-edge-stable=135.0.3179.73-1
+      CHROME_VERSION: google-chrome-stable=135.0.7049.84-1
       FIREFOX_VERSION: 135.0.1
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2025/01/2025-01-06-09-47-46-mozilla-central/firefox-135.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
