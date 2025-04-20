@@ -20,6 +20,7 @@ file_ready_max_attempts=${SE_VIDEO_FILE_READY_WAIT_ATTEMPTS:-5}
 wait_uploader_shutdown_max_attempts=${SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS:-5}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
+tmux_session_name="video_recorder"
 
 if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
   JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
@@ -140,22 +141,28 @@ function exit_on_max_session_reach() {
   fi
 }
 
-function stop_ffmpeg() {
-  while true; do
-    FFMPEG_PID=$(pgrep -f ffmpeg | tr '\n' ' ')
-    if [ -n "$FFMPEG_PID" ]; then
-      kill -SIGTERM $FFMPEG_PID
-      wait $FFMPEG_PID
-    fi
-    if ! pgrep -f ffmpeg >/dev/null; then
-      break
-    fi
-    sleep ${poll_interval}
+function stop_all_recording() {
+  current_record_sessions="$(tmux list-sessions -F "#{session_name}")"
+  echo "$(date -u +"${ts_format}") [${process_name}] - Current recording session(s): $current_record_sessions"
+  for session in $current_record_sessions; do
+    echo "Sending 'q' (quit signal) to session: $session"
+    tmux send-keys -t "$session" 'q'
+  done
+}
+
+function stop_all_recording_and_wait() {
+  stop_all_recording
+  for session in $current_record_sessions; do
+    echo "Waiting for session '$session' to finish..."
+    while tmux has-session -t "$session" 2>/dev/null; do
+      sleep 1
+    done
+    echo "Session '$session' ended."
   done
 }
 
 function stop_recording() {
-  stop_ffmpeg
+  stop_all_recording_and_wait
   echo "$(date -u +"${ts_format}") [${process_name}] - Video recording stopped"
   recorded_count=$((recorded_count + 1))
   recording_started="false"
@@ -166,12 +173,11 @@ function stop_recording() {
   elif [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -z "${UPLOAD_DESTINATION_PREFIX}" ]]; then
     echo "$(date -u +"${ts_format}") [${process_name}] - Upload destination not known since UPLOAD_DESTINATION_PREFIX is not set. Continue without uploading."
   fi
+  echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for a while to record next coming session if any"
 }
 
-function check_if_ffmpeg_running() {
-  if pgrep -f ffmpeg >/dev/null; then
-    return 0
-  fi
+function check_if_any_session_running() {
+  tmux list-sessions -F "#{session_name}" 2>/dev/null | grep -q . && return 0
   return 1
 }
 
@@ -193,7 +199,7 @@ function wait_for_file_integrity() {
 }
 
 function stop_if_recording_inprogress() {
-  if [[ "$recording_started" = "true" ]] || check_if_ffmpeg_running; then
+  if [[ "$recording_started" = "true" ]] || check_if_any_session_running; then
     stop_recording
   fi
 }
@@ -206,7 +212,7 @@ function log_node_response() {
 
 function graceful_exit() {
   echo "$(date -u +"${ts_format}") [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down recorder"
-  stop_if_recording_inprogress
+  stop_all_recording_and_wait
   send_exit_signal_to_uploader
   wait_util_uploader_shutdown
 }
@@ -216,6 +222,12 @@ function graceful_exit_force() {
   kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
   echo "$(date -u +"${ts_format}") [${process_name}] - Ready to shutdown the recorder"
   exit 0
+}
+
+function get_tmux_session_unique_index() {
+  tmux_index=$(tmux list-sessions 2>/dev/null | grep -o "${tmux_session_name}:[0-9]*" | cut -d: -f2)
+  tmux_index=${tmux_index:-0}
+  tmux_index=$((tmux_index + 1))
 }
 
 if [ "${SE_RECORD_AUDIO,,}" = "true" ]; then
@@ -229,12 +241,11 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   wait_for_display
   video_file="$VIDEO_FOLDER/$VIDEO_FILE_NAME"
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
-  ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-    -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-  FFMPEG_PID=$!
-  if ps -p $FFMPEG_PID >/dev/null; then
-    wait $FFMPEG_PID
-  fi
+  get_tmux_session_unique_index
+  tmux new-session -d -s ${tmux_session_name}${tmux_index} "ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p \"$video_file\""
+  while tmux has-session -t "${tmux_session_name}${tmux_index}" 2>/dev/null; do
+    sleep 5
+  done
 
 else
   trap graceful_exit_force SIGTERM SIGINT EXIT
@@ -263,10 +274,9 @@ else
         log_node_response
         video_file="${VIDEO_FOLDER}/$video_file_name"
         echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
-        ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab \
-          -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p "$video_file" &
-        FFMPEG_PID=$!
-        if ps -p $FFMPEG_PID >/dev/null; then
+        get_tmux_session_unique_index
+        tmux new-session -d -s ${tmux_session_name}${tmux_index} "ffmpeg -hide_banner -loglevel warning -flags low_delay -threads 2 -fflags nobuffer+genpts -strict experimental -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET} -pix_fmt yuv420p \"$video_file\""
+        if tmux has-session -t ${tmux_session_name}${tmux_index} 2>/dev/null; then
           recording_started="true"
           prev_session_id=$session_id
         fi

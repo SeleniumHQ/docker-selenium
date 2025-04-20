@@ -66,6 +66,7 @@ RUN apt-get -qqy update \
     libnss3-tools \
     openjdk-${JRE_VERSION}-jdk-headless \
     ca-certificates \
+    tmux \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #========================================
