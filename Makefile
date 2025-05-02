@@ -377,17 +377,23 @@ tag_latest:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
-	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
-	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:latest
-	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
-	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+	case "$(PLATFORMS)" in *linux/amd64*) \
+		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
+		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest && \
+		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest && \
+		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest \
+		;; \
+	*) \
+	    echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+	    ;; \
+	esac
 
 release_ffmpeg_latest:
 	docker push $(NAME)/ffmpeg:latest
@@ -427,17 +433,23 @@ tag_nightly:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
-	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
-	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
-	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
-	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
+	case "$(PLATFORMS)" in *linux/amd64*) \
+		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly && \
+		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly && \
+		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly && \
+		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly \
+		;; \
+	*) \
+	    echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+	    ;; \
+	esac
 
 release_nightly: release_grid_scaler_nightly
 	docker push $(NAME)/base:nightly

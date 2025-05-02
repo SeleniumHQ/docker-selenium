@@ -8,11 +8,11 @@ LABEL authors=${AUTHORS}
 # Inputs: heads, tags
 ARG NOVNC_SOURCE="tags"
 # Inputs: master, "v1.4.0"
-ARG NOVNC_VERSION="v1.5.0"
+ARG NOVNC_VERSION="v1.6.0"
 # Inputs: heads, tags
 ARG WEBSOCKIFY_SOURCE="tags"
 # Inputs: master, "v0.11.0"
-ARG WEBSOCKIFY_VERSION="v0.12.0"
+ARG WEBSOCKIFY_VERSION="v0.13.0"
 ARG LANG_WHICH=en
 ARG LANG_WHERE=US
 ARG ENCODING=UTF-8
@@ -77,6 +77,23 @@ ENV LANG_WHICH=${LANG_WHICH} \
 
 RUN apt-get update -qqy \
   && apt-get -qqy --no-install-recommends install \
+#==============================
+# Locale and encoding settings
+#==============================
+    language-pack-en \
+    locales \
+    libfontconfig \
+    libfreetype6 \
+    xfonts-scalable \
+    xfonts-cyrillic \
+    fonts-ubuntu \
+    fonts-liberation \
+    fonts-ipafont-gothic \
+    fonts-wqy-zenhei \
+    fonts-tlwg-loma-otf \
+    fonts-noto-color-emoji \
+    fonts-noto-cjk \
+    fonts-indic \
 #==============
 # Xvfb
 #==============
@@ -93,27 +110,14 @@ RUN apt-get update -qqy \
 #=========
     fluxbox eterm hsetroot feh \
 #==============================
-# Locale and encoding settings
-#==============================
-    language-pack-en \
-    locales \
-    libfontconfig \
-    libfreetype6 \
-    xfonts-scalable \
-    xfonts-cyrillic \
-    fonts-ubuntu \
-    fonts-liberation \
-    fonts-ipafont-gothic \
-    fonts-wqy-zenhei \
-    fonts-tlwg-loma-otf \
-    fonts-noto-color-emoji \
-#==============================
 # shared system certificate support
 #==============================
     p11-kit \
     p11-kit-modules \
   && locale-gen ${LANGUAGE} \
   && dpkg-reconfigure --frontend noninteractive locales \
+  # For Fluxbox style, use fonts-wqy-zenhei which has a large international language coverage
+  && sed -i 's/Ubuntu-/WenQuanYi Zen Hei-/g' /usr/share/fluxbox/styles/ubuntu-light \
   && apt-get -qyy autoremove \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
   && apt-get -qyy clean
