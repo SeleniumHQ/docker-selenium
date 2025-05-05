@@ -142,12 +142,12 @@ function exit_on_max_session_reach() {
 
 function stop_ffmpeg() {
   while true; do
-    FFMPEG_PID=$(pgrep -f ffmpeg | tr '\n' ' ')
+    FFMPEG_PID=$(pgrep -f "ffmpeg -hide_banner" | tr '\n' ' ')
     if [ -n "$FFMPEG_PID" ]; then
       kill -SIGTERM $FFMPEG_PID
       wait $FFMPEG_PID
     fi
-    if ! pgrep -f ffmpeg >/dev/null; then
+    if ! pgrep -f "ffmpeg -hide_banner" >/dev/null; then
       break
     fi
     sleep ${poll_interval}
@@ -169,7 +169,7 @@ function stop_recording() {
 }
 
 function check_if_ffmpeg_running() {
-  if pgrep -f ffmpeg >/dev/null; then
+  if pgrep -f "ffmpeg -hide_banner" >/dev/null; then
     return 0
   fi
   return 1
