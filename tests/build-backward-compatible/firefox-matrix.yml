@@ -1,0 +1,280 @@
+matrix:
+  browser:
+    '138':
+      FIREFOX_VERSION: 138.0.1
+    '137':
+      FIREFOX_VERSION: 137.0.2
+    '136':
+      FIREFOX_VERSION: 136.0.4
+    '135':
+      FIREFOX_VERSION: 135.0.1
+    '134':
+      FIREFOX_VERSION: 134.0.2
+    '133':
+      FIREFOX_VERSION: 133.0.3
+    '132':
+      FIREFOX_VERSION: 132.0.2
+    '131':
+      FIREFOX_VERSION: 131.0.3
+    '130':
+      FIREFOX_VERSION: 130.0.1
+    '129':
+      FIREFOX_VERSION: 129.0.2
+    '128':
+      FIREFOX_VERSION: 128.0.3
+    '127':
+      FIREFOX_VERSION: 127.0.2
+    '126':
+      FIREFOX_VERSION: 126.0.1
+    '125':
+      FIREFOX_VERSION: 125.0.3
+    '124':
+      FIREFOX_VERSION: 124.0.2
+    '123':
+      FIREFOX_VERSION: 123.0.1
+    '122':
+      FIREFOX_VERSION: 122.0.1
+    '121':
+      FIREFOX_VERSION: 121.0.1
+    '120':
+      FIREFOX_VERSION: 120.0.1
+    '119':
+      FIREFOX_VERSION: 119.0.1
+    '118':
+      FIREFOX_VERSION: 118.0.2
+    '117':
+      FIREFOX_VERSION: 117.0.1
+    '116':
+      FIREFOX_VERSION: 116.0.3
+    '115':
+      FIREFOX_VERSION: 115.0.3
+    '114':
+      FIREFOX_VERSION: 114.0.2
+    '113':
+      FIREFOX_VERSION: 113.0.2
+    '112':
+      FIREFOX_VERSION: 112.0.2
+    '111':
+      FIREFOX_VERSION: 111.0.1
+    '110':
+      FIREFOX_VERSION: 110.0.1
+    '109':
+      FIREFOX_VERSION: 109.0.1
+    '108':
+      FIREFOX_VERSION: 108.0.2
+    '107':
+      FIREFOX_VERSION: 107.0.1
+    '106':
+      FIREFOX_VERSION: 106.0.5
+    '105':
+      FIREFOX_VERSION: 105.0.3
+    '104':
+      FIREFOX_VERSION: 104.0.2
+    '103':
+      FIREFOX_VERSION: 103.0.2
+    '102':
+      FIREFOX_VERSION: 102.0.1
+    '101':
+      FIREFOX_VERSION: 101.0.1
+    '100':
+      FIREFOX_VERSION: 100.0.2
+    '99':
+      FIREFOX_VERSION: 99.0.1
+    '98':
+      FIREFOX_VERSION: 98.0.2
+    '97':
+      FIREFOX_VERSION: 97.0.2
+    '96':
+      FIREFOX_VERSION: 96.0.3
+    '95':
+      FIREFOX_VERSION: 95.0.2
+    '94':
+      FIREFOX_VERSION: 94.0.2
+    '93':
+      FIREFOX_VERSION: '93.0'
+    '92':
+      FIREFOX_VERSION: 92.0.1
+    '91':
+      FIREFOX_VERSION: 91.0.2
+    '90':
+      FIREFOX_VERSION: 90.0.2
+    '89':
+      FIREFOX_VERSION: 89.0.2
+    '88':
+      FIREFOX_VERSION: 88.0.1
+    '87':
+      FIREFOX_VERSION: '87.0'
+    '86':
+      FIREFOX_VERSION: 86.0.1
+    '85':
+      FIREFOX_VERSION: 85.0.2
+    '84':
+      FIREFOX_VERSION: 84.0.2
+    '83':
+      FIREFOX_VERSION: '83.0'
+    '82':
+      FIREFOX_VERSION: 82.0.3
+    '81':
+      FIREFOX_VERSION: 81.0.2
+    '80':
+      FIREFOX_VERSION: 80.0.1
+    '79':
+      FIREFOX_VERSION: '79.0'
+    '78':
+      FIREFOX_VERSION: 78.0.2
+    '77':
+      FIREFOX_VERSION: 77.0.1
+    '76':
+      FIREFOX_VERSION: 76.0.1
+    '75':
+      FIREFOX_VERSION: '75.0'
+    '74':
+      FIREFOX_VERSION: 74.0.1
+    '73':
+      FIREFOX_VERSION: 73.0.1
+    '72':
+      FIREFOX_VERSION: 72.0.2
+    '71':
+      FIREFOX_VERSION: '71.0'
+    '70':
+      FIREFOX_VERSION: 70.0.1
+    '69':
+      FIREFOX_VERSION: 69.0.3
+    '68':
+      FIREFOX_VERSION: 68.0.2
+    '67':
+      FIREFOX_VERSION: 67.0.4
+    '66':
+      FIREFOX_VERSION: 66.0.5
+    '65':
+      FIREFOX_VERSION: 65.0.2
+    '64':
+      FIREFOX_VERSION: 64.0.2
+    '63':
+      FIREFOX_VERSION: 63.0.3
+    '62':
+      FIREFOX_VERSION: 62.0.3
+    '61':
+      FIREFOX_VERSION: 61.0.2
+    '60':
+      FIREFOX_VERSION: 60.0.2
+    '59':
+      FIREFOX_VERSION: 59.0.3
+    '58':
+      FIREFOX_VERSION: 58.0.2
+    '57':
+      FIREFOX_VERSION: 57.0.4
+    '56':
+      FIREFOX_VERSION: 56.0.2
+    '55':
+      FIREFOX_VERSION: 55.0.3
+    '54':
+      FIREFOX_VERSION: 54.0.1
+    '53':
+      FIREFOX_VERSION: 53.0.3
+    '52':
+      FIREFOX_VERSION: 52.0.2
+    '51':
+      FIREFOX_VERSION: 51.0.1
+    '50':
+      FIREFOX_VERSION: 50.1.0
+    '49':
+      FIREFOX_VERSION: 49.0.2
+    '48':
+      FIREFOX_VERSION: 48.0.2
+    '47':
+      FIREFOX_VERSION: 47.0.2
+    '46':
+      FIREFOX_VERSION: 46.0.1
+    '45':
+      FIREFOX_VERSION: 45.0.2
+    '44':
+      FIREFOX_VERSION: 44.0.2
+    '43':
+      FIREFOX_VERSION: 43.0.4
+    '42':
+      FIREFOX_VERSION: '42.0'
+    '41':
+      FIREFOX_VERSION: 41.0.2
+    '40':
+      FIREFOX_VERSION: 40.0.3
+    '39':
+      FIREFOX_VERSION: 39.0.3
+    '38':
+      FIREFOX_VERSION: 38.0.6
+    '37':
+      FIREFOX_VERSION: 37.0.2
+    '36':
+      FIREFOX_VERSION: 36.0.4
+    '35':
+      FIREFOX_VERSION: 35.0.1
+    '34':
+      FIREFOX_VERSION: 34.0.5
+    '33':
+      FIREFOX_VERSION: 33.1.1
+    '32':
+      FIREFOX_VERSION: 32.0.3
+    '31':
+      FIREFOX_VERSION: '31.0'
+    '30':
+      FIREFOX_VERSION: '30.0'
+    '29':
+      FIREFOX_VERSION: 29.0.1
+    '28':
+      FIREFOX_VERSION: '28.0'
+    '27':
+      FIREFOX_VERSION: 27.0.1
+    '26':
+      FIREFOX_VERSION: '26.0'
+    '25':
+      FIREFOX_VERSION: 25.0.1
+    '24':
+      FIREFOX_VERSION: '24.0'
+    '23':
+      FIREFOX_VERSION: 23.0.1
+    '22':
+      FIREFOX_VERSION: '22.0'
+    '21':
+      FIREFOX_VERSION: '21.0'
+    '20':
+      FIREFOX_VERSION: 20.0.1
+    '19':
+      FIREFOX_VERSION: 19.0.2
+    '18':
+      FIREFOX_VERSION: 18.0.2
+    '17':
+      FIREFOX_VERSION: 17.0.1
+    '16':
+      FIREFOX_VERSION: 16.0.2
+    '15':
+      FIREFOX_VERSION: 15.0.1
+    '14':
+      FIREFOX_VERSION: 14.0.1
+    '13':
+      FIREFOX_VERSION: 13.0.1
+    '12':
+      FIREFOX_VERSION: '12.0'
+    '11':
+      FIREFOX_VERSION: '11.0'
+    '10':
+      FIREFOX_VERSION: 10.0.2
+    '9':
+      FIREFOX_VERSION: 9.0.1
+    '8':
+      FIREFOX_VERSION: 8.0.1
+    '7':
+      FIREFOX_VERSION: 7.0.1
+    '6':
+      FIREFOX_VERSION: 6.0.2
+    '5':
+      FIREFOX_VERSION: 5.0.12
+    '4':
+      FIREFOX_VERSION: 4.0.1
+    '3':
+      FIREFOX_VERSION: 3.6.28
+    '2':
+      FIREFOX_VERSION: '2.0'
+    '1':
+      FIREFOX_VERSION: '1.5'
+    '0':
+      FIREFOX_VERSION: 0.10.1

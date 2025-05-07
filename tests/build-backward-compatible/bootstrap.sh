@@ -24,6 +24,7 @@ IFS=',' read -ra VERSION_LIST <<< "$CDP_VERSIONS"
 
 mkdir -p CHANGELOG/${SELENIUM_VERSION}
 
+python3 tests/build-backward-compatible/fetch_firefox_version.py
 python3 tests/build-backward-compatible/fetch_version.py
 
 for CDP_VERSION in "${VERSION_LIST[@]}"; do

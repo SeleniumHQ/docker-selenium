@@ -22,17 +22,28 @@ ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
 if [ "${SE_VIDEO_RECORD_STANDALONE}" = "true" ]; then
-  JQ_SESSION_ID_QUERY=".value.nodes[]?.slots[]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".value.nodes[0]?.slots[-1]?.session?.sessionId"
+  JQ_SESSION_CAPABILITIES_QUERY=".value.nodes[0]?.slots[-1]?.session?.capabilities"
   SE_NODE_PORT=${SE_NODE_PORT:-"4444"}
-  NODE_STATUS_ENDPOINT="$(python3 /opt/bin/video_gridUrl.py)/status"
+  NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 else
-  JQ_SESSION_ID_QUERY=".[]?.node?.slots | .[0]?.session?.sessionId"
+  JQ_SESSION_ID_QUERY=".value.node?.slots[-1]?.session?.sessionId"
+  JQ_SESSION_CAPABILITIES_QUERY=".value.node?.slots[-1]?.session?.capabilities"
   SE_NODE_PORT=${SE_NODE_PORT:-"5555"}
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
 
-/opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
-BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+fi
+
+# Set headers if Node Registration Secret is set
+if [ ! -z "${SE_REGISTRATION_SECRET}" ]; then
+  HEADERS="X-REGISTRATION-SECRET: ${SE_REGISTRATION_SECRET}"
+else
+  HEADERS="X-REGISTRATION-SECRET;"
+fi
 
 if [ -d "${VIDEO_FOLDER}" ]; then
   echo "$(date -u +"${ts_format}") [${process_name}] - Video folder exists: ${VIDEO_FOLDER}"
@@ -78,8 +89,9 @@ function wait_for_display() {
 }
 
 function check_if_api_respond() {
-  endpoint_checks=$(curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
+  endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
+    /opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
     return 1
   fi
   return 0
@@ -90,6 +102,7 @@ function wait_for_api_respond() {
   until check_if_api_respond; do
     sleep ${poll_interval}
   done
+  echo "$(date -u +"${ts_format}") [${process_name}] - Node endpoint is responding now. Proceeding next steps..."
   return 0
 }
 
@@ -129,12 +142,12 @@ function exit_on_max_session_reach() {
 
 function stop_ffmpeg() {
   while true; do
-    FFMPEG_PID=$(pgrep -f ffmpeg | tr '\n' ' ')
+    FFMPEG_PID=$(pgrep -f "ffmpeg -hide_banner" | tr '\n' ' ')
     if [ -n "$FFMPEG_PID" ]; then
       kill -SIGTERM $FFMPEG_PID
       wait $FFMPEG_PID
     fi
-    if ! pgrep -f ffmpeg >/dev/null; then
+    if ! pgrep -f "ffmpeg -hide_banner" >/dev/null; then
       break
     fi
     sleep ${poll_interval}
@@ -156,7 +169,7 @@ function stop_recording() {
 }
 
 function check_if_ffmpeg_running() {
-  if pgrep -f ffmpeg >/dev/null; then
+  if pgrep -f "ffmpeg -hide_banner" >/dev/null; then
     return 0
   fi
   return 1
@@ -186,8 +199,8 @@ function stop_if_recording_inprogress() {
 }
 
 function log_node_response() {
-  if [[ -f "/tmp/graphQL_$session_id.json" ]]; then
-    jq '.' "/tmp/graphQL_$session_id.json"
+  if [[ -n "${session_capabilities}" ]]; then
+    jq '.' <<<"${session_capabilities}"
   fi
 }
 
@@ -236,15 +249,14 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -H "Authorization: Basic ${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >/tmp/status.json; do
-    session_id=$(jq -r "${JQ_SESSION_ID_QUERY}" /tmp/status.json)
+  while curl --noproxy "*" -H "${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
+    session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
-      return_list=($(bash ${VIDEO_CONFIG_DIRECTORY}/video_graphQLQuery.sh "$session_id"))
+      session_capabilities="$(jq -r "${JQ_SESSION_CAPABILITIES_QUERY}" "/tmp/status.json")"
+      return_list=($(bash "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.sh" "${session_id}" "${session_capabilities}"))
       caps_se_video_record="${return_list[0]}"
       video_file_name="${return_list[1]}.mp4"
-      endpoint_url="${return_list[2]}"
-      /opt/bin/validate_endpoint.sh "${endpoint_url}" "true"
       if [[ "$caps_se_video_record" = "true" ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
         log_node_response
@@ -273,4 +285,5 @@ else
   done
   stop_if_recording_inprogress
   echo "$(date -u +"${ts_format}") [${process_name}] - Node API is not responding now, exiting..."
+  echo "$(date -u +"${ts_format}") [${process_name}] - Noted: Set container restart policy to spin up process again for recording another session might come up"
 fi

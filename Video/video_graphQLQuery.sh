@@ -14,7 +14,10 @@ if [[ -n ${GRAPHQL_ENDPOINT} ]] && [[ ! ${GRAPHQL_ENDPOINT} == */graphql ]]; the
   GRAPHQL_ENDPOINT="${GRAPHQL_ENDPOINT}/graphql"
 fi
 
-BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+fi
 
 VIDEO_CAP_NAME=${VIDEO_CAP_NAME:-"se:recordVideo"}
 TEST_NAME_CAP=${TEST_NAME_CAP:-"se:name"}
@@ -29,7 +32,7 @@ if [ -n "${GRAPHQL_ENDPOINT}" ]; then
     # Send GraphQL query
     endpoint_checks=$(curl --noproxy "*" -m ${max_time} -k -X POST \
       -H "Content-Type: application/json" \
-      -H "Authorization: Basic ${BASIC_AUTH}" \
+      -H "${BASIC_AUTH}" \
       --data '{"query":"{ session (id: \"'${SESSION_ID}'\") { id, capabilities, startTime, uri, nodeId, nodeUri, sessionDurationMillis, slot { id, stereotype, lastStarted } } } "}' \
       -s "${GRAPHQL_ENDPOINT}" -o "/tmp/graphQL_${SESSION_ID}.json" -w "%{http_code}")
     current_check=$((current_check + 1))

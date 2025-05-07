@@ -54,6 +54,29 @@ components:
     subPath: *gridAppRoot
     serviceType: NodePort
 
+crossBrowsers:
+  chromeNode:
+    - overrideName: node-chrome-any
+      hpa:
+        platformName: ''
+    - overrideName: node-chrome-linux
+      hpa:
+        platformName: 'Linux'
+  firefoxNode:
+    - overrideName: node-firefox-any
+      hpa:
+        platformName: ''
+    - overrideName: node-firefox-linux
+      hpa:
+        platformName: 'Linux'
+  edgeNode:
+    - overrideName: node-edge-any
+      hpa:
+        platformName: ''
+    - overrideName: node-edge-linux
+      hpa:
+        platformName: 'Linux'
+
 chromeNode:
   extraEnvironmentVariables: &extraEnvironmentVariablesNodes
     - name: SE_VNC_NO_PASSWORD

@@ -1,0 +1,59 @@
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-video-arm64.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-video-arm64.yml down`
+services:
+  chrome:
+    deploy:
+      mode: replicated
+      replicas: 1
+    image: selenium/node-chromium:latest
+    shm_size: 2gb
+    ports:
+      - "5900:5900"
+    depends_on:
+      - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+
+  firefox:
+    deploy:
+      mode: replicated
+      replicas: 1
+    image: selenium/node-firefox:latest
+    shm_size: 2gb
+    ports:
+      - "5901:5900"
+    depends_on:
+      - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  # File browser to manage the videos from local volume
+  file_browser:
+    image: filebrowser/filebrowser:latest
+    container_name: file_browser
+    restart: always
+    ports:
+      - "8081:80"
+    volumes:
+      - /tmp/videos:/srv
+    environment:
+      - FB_NOAUTH=true

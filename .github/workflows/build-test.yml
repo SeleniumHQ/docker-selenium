@@ -35,10 +35,14 @@ on:
       - trunk
     paths-ignore:
       - '**.md'
+      - '**/*.md'
+      - 'CHANGELOG/**'
       - '.*'
   pull_request:
     paths-ignore:
       - '**.md'
+      - '**/*.md'
+      - 'CHANGELOG/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == github.ref_protected && github.run_id || github.event.pull_request.number || github.ref }}

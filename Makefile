@@ -1,13 +1,13 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.31.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.31.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.31.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.32.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.32.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.32.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.32.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.31.0)
-MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),4.31.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSIO3_NIGHTLY),4.33.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.32.0)
+MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),4.32.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -20,7 +20,7 @@ MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
 FFMPEG_VERSION := $(or $(FFMPEG_VERSION),$(FFMPEG_VERSION),7.1)
-FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VERSION),ffmpeg-7.1.1.1)
+FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VERSION),ffmpeg-7.1)
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-7.1)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),selenium)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),latest)
@@ -30,7 +30,7 @@ SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
-KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.16.1-selenium-grid)
+KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.17.0-selenium-grid)
 KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.17.0)
 KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.17.0-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
@@ -377,17 +377,23 @@ tag_latest:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
-	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
-	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:latest
-	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
-	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+	case "$(PLATFORMS)" in *linux/amd64*) \
+		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
+		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest && \
+		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest && \
+		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest \
+		;; \
+	*) \
+	    echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+	    ;; \
+	esac
 
 release_ffmpeg_latest:
 	docker push $(NAME)/ffmpeg:latest
@@ -427,17 +433,23 @@ tag_nightly:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
-	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
-	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
-	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
-	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
+	case "$(PLATFORMS)" in *linux/amd64*) \
+		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly && \
+		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly && \
+		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly && \
+		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly \
+		;; \
+	*) \
+	    echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+	    ;; \
+	esac
 
 release_nightly: release_grid_scaler_nightly
 	docker push $(NAME)/base:nightly

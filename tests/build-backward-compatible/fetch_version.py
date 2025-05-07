@@ -5,14 +5,19 @@ from collections import OrderedDict
 # URLs of the source YAML files
 chrome_url = 'https://raw.githubusercontent.com/NDViet/google-chrome-stable/refs/heads/main/browser-matrix.yml'
 edge_url = 'https://raw.githubusercontent.com/NDViet/microsoft-edge-stable/refs/heads/main/browser-matrix.yml'
+firefox_url = 'tests/build-backward-compatible/firefox-matrix.yml'
 
 # Local YAML file to update
 local_file = 'tests/build-backward-compatible/browser-matrix.yml'
 
-def fetch_yaml(url):
-    response = requests.get(url)
-    response.raise_for_status()
-    return yaml.load(response.text, Loader=yaml.SafeLoader)
+def fetch_yaml(url, local = False):
+    if not local:
+        response = requests.get(url)
+        response.raise_for_status()
+        return yaml.load(response.text, Loader=yaml.SafeLoader)
+    else:
+        with open(url, 'r') as f:
+            return yaml.load(f, Loader=yaml.SafeLoader)
 
 def merge_dicts(dict1, dict2):
     for key, value in dict2.items():
@@ -37,6 +42,7 @@ def main():
     # Fetch source YAML data
     chrome_data = fetch_yaml(chrome_url)
     edge_data = fetch_yaml(edge_url)
+    firefox_data = fetch_yaml(firefox_url, local=True)
 
     # Load local YAML data
     with open(local_file, 'r') as file:
@@ -45,6 +51,7 @@ def main():
     # Update local YAML data with source data
     updated = update_local_yaml(local_data, chrome_data)
     updated |= update_local_yaml(local_data, edge_data)
+    updated |= update_local_yaml(local_data, firefox_data)
 
     # Save updated local YAML data
     if updated:

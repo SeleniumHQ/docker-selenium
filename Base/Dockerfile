@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20250127
+FROM ubuntu:noble@sha256:6015f66923d7afbc53558d7ccffd325d43b4e249f41a6e93eef074c9505d2233
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
@@ -10,9 +10,10 @@ ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.48.0
 ARG GRPC_VERSION=1.71.0
+ARG NETTY_VERSION=4.2.0.Final
 ARG CS_VERSION=2.1.18
 ARG POSTGRESQL_VERSION=42.7.5
-ARG ENVSUBST_VERSION=1.4.3
+ARG ENVSUBST_VERSION=1.4.4
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -38,7 +39,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     SEL_DOWNLOAD_DIR=${HOME}/Downloads \
     VIDEO_FOLDER="/videos" \
     # Path to the Configfile
-    CONFIG_FILE="/opt/selenium/config.toml"
+    CONFIG_FILE="/opt/selenium/config.toml" \
+    VENV_PATH=/opt/venv
 
 #========================
 # Miscellaneous packages
@@ -69,25 +71,16 @@ RUN apt-get -qqy update \
 #========================================
 # Install Python for utilities
 #========================================
+ENV PATH="$VENV_PATH/bin:$PATH" \
+    VIRTUAL_ENV="$VENV_PATH"
+
 RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install \
-    python3 python3-pip python3-venv python3-setuptools \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
-
-ENV VENV_PATH=/opt/venv
-RUN python3 -m venv $VENV_PATH \
-    echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
-
-RUN $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
-    && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
-    && unzip /tmp/supervisor.zip -d /tmp \
-    && cd /tmp/supervisor-main \
-    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
-    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
-
-ENV PATH="$VENV_PATH/bin:$PATH" \
-    VIRTUAL_ENV="$VENV_PATH"
+    python3 python3-pip python3-venv \
+    && python3 -m pip install --upgrade setuptools virtualenv --break-system-packages \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
+    && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
     && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
@@ -151,6 +144,9 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
         io.grpc:grpc-netty:${GRPC_VERSION} \
+        io.netty:netty-codec-http:${NETTY_VERSION} \
+        io.netty:netty-handler:${NETTY_VERSION} \
+        io.netty:netty-common:${NETTY_VERSION} \
         > /external_jars/.classpath.txt \
         && chmod 664 /external_jars/.classpath.txt \
         && java -jar /tmp/cs fetch --classpath --cache /external_jars \
@@ -188,7 +184,7 @@ COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jk
 # Add envsubst binary
 #===================================================
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi) \
-    && curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
+    && curl -fsSL https://github.com/ndviet/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst \
     && chmod +x envsubst \
     && mv envsubst /usr/local/bin \
     && ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
@@ -197,6 +193,14 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 # Run the following commands as non-privileged user
 #===================================================
 USER ${SEL_UID}:${SEL_GID}
+
+RUN python3 -m venv $VENV_PATH \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
+    && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
+    && unzip /tmp/supervisor.zip -d /tmp \
+    && cd /tmp/supervisor-main \
+    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
+    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
 
 RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
     && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
@@ -216,6 +220,7 @@ ENV SE_BIND_HOST="false" \
     SE_SUPERVISORD_PID_FILE="/tmp/supervisord.pid" \
     SE_SUPERVISORD_AUTO_RESTART="true" \
     SE_SUPERVISORD_START_RETRIES="5" \
+    SE_SUPERVISORD_UNIX_SERVER_PASSWORD="secret" \
     SE_LOG_TIMESTAMP_FORMAT="%Y-%m-%d %H:%M:%S,%3N" \
     SE_LOG_LEVEL="INFO" \
     SE_HTTP_LOGS="false" \

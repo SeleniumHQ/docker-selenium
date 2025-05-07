@@ -43,7 +43,10 @@ function signal_hub_to_drain_node() {
   return_list=($(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh))
   grid_url=${return_list[0]}
   grid_check=${return_list[1]}
-  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+    BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+    BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+  fi
   if [ -n "${grid_url}" ]; then
     if [ "${grid_check}" = "401" ]; then
       echo "$(date -u +"${ts_format}") [${probe_name}] - Hub/Router requires authentication. Please check env vars SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD are given."
@@ -51,7 +54,7 @@ function signal_hub_to_drain_node() {
       echo "$(date -u +"${ts_format}") [${probe_name}] - Hub/Router endpoint could not be found. Please check the endpoint ${grid_url}"
     elif [ "${grid_check}" = "200" ]; then
       echo "$(date -u +"${ts_format}") [${probe_name}] - Hub/Router endpoint is reachable. Signaling Hub/Router to drain node"
-      curl --noproxy "*" -m ${max_time} -k -X POST -H "Authorization: Basic ${BASIC_AUTH}" ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
+      curl --noproxy "*" -m ${max_time} -k -X POST -H "${BASIC_AUTH}" ${grid_url}/se/grid/distributor/node/${NODE_ID}/drain --header "${HEADERS}"
     else
       echo "$(date -u +"${ts_format}") [${probe_name}] - Hub/Router endpoint returns ${grid_check}. Skip signaling upstream."
     fi

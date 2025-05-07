@@ -11,6 +11,18 @@ matrix:
         - 124
         - 123
         - 122
+    4.32.0:
+      BASE_RELEASE: selenium-4.32.0
+      BASE_VERSION: 4.32.0
+      VERSION: 4.32.0
+      BINDING_VERSION: 4.32.0
+      browser:
+    4.31.0:
+      BASE_RELEASE: selenium-4.31.0
+      BASE_VERSION: 4.31.0
+      VERSION: 4.31.0
+      BINDING_VERSION: 4.31.0
+      browser:
     4.30.0:
       BASE_RELEASE: selenium-4.30.0
       BASE_VERSION: 4.30.0

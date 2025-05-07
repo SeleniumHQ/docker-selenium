@@ -41,7 +41,10 @@ if curl --noproxy "*" -m ${max_time} -sfk "${SE_SERVER_PROTOCOL}://127.0.0.1:${S
   return_list=($(bash ${NODE_CONFIG_DIRECTORY}/nodeGridUrl.sh))
   grid_url=${return_list[0]}
   grid_check=${return_list[1]}
-  BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+  if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
+    BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
+    BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+  fi
 
   if [ -n "${grid_url}" ]; then
     if [ "${grid_check}" = "401" ]; then
@@ -53,7 +56,7 @@ if curl --noproxy "*" -m ${max_time} -sfk "${SE_SERVER_PROTOCOL}://127.0.0.1:${S
     echo "$(date -u +"${ts_format}") [${probe_name}] - There is no configured HUB/ROUTER host or SE_NODE_GRID_URL isn't set. ${probe_name} will not work as expected."
   fi
 
-  endpoint_http_code=$(curl --noproxy "*" -m ${max_time} -H "Authorization: Basic ${BASIC_AUTH}" -sfk "${grid_url}/status" -o "${tmp_grid_file}" -w "%{http_code}")
+  endpoint_http_code=$(curl --noproxy "*" -m ${max_time} -H "${BASIC_AUTH}" -sfk "${grid_url}/status" -o "${tmp_grid_file}" -w "%{http_code}")
   GRID_NODE_ID=$(jq -e ".value.nodes[]?.id|select(. == \"${NODE_ID}\")" "${tmp_grid_file}" | tr -d '"' || echo "")
   if [ -n "${GRID_NODE_ID}" ]; then
     echo "$(date -u +"${ts_format}") [${probe_name}] - Grid responds a matched Node ID: ${GRID_NODE_ID}"

@@ -1,3 +1,75 @@
+## :heavy_check_mark: selenium-grid-0.43.0
+
+- Chart is using image tag 4.32.0-20250505
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.11,v1.31.7,v1.32.3
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.0
+
+### Changed
+- [`f8a7a68b`](http://github.com/seleniumhq/docker-selenium/commit/f8a7a68b549299dcf726c42eb7a6e9971a30bb13) - [ci] Update tag 4.32.0-20250505 in docs and files :: Selenium CI Bot
+- [`78ff7f68`](http://github.com/seleniumhq/docker-selenium/commit/78ff7f681ceb9f3092f62d57529f04475e776a83) - Update Helm release kube-prometheus-stack to v71 (#2815) :: renovate[bot]
+- [`25b72891`](http://github.com/seleniumhq/docker-selenium/commit/25b728915ae4b0276bb070cbc1e22b8d2510a2bf) - Update Helm release kube-prometheus-stack to v70.10.0 (#2809) :: renovate[bot]
+- [`88642195`](http://github.com/seleniumhq/docker-selenium/commit/88642195025a565794d1d5ee108d61e75ebfcd19) - Update Helm release redis to v20.13.4 (#2814) :: renovate[bot]
+- [`e3b1899f`](http://github.com/seleniumhq/docker-selenium/commit/e3b1899f9495bf3a7d8b62c3657c87f49f8a2765) - Update Helm release redis to v20.13.3 (#2810) :: renovate[bot]
+- [`3aab80d6`](http://github.com/seleniumhq/docker-selenium/commit/3aab80d60453c7c45c7854e046e22dfba48ee596) - Update Helm release ingress-nginx to v4.12.2 (#2811) :: renovate[bot]
+- [`1746b4ac`](http://github.com/seleniumhq/docker-selenium/commit/1746b4ac8bff0850d8f24888a5095e2552b97cd6) - Update Helm release postgresql to v16.6.6 (#2806) :: renovate[bot]
+- [`880a513c`](http://github.com/seleniumhq/docker-selenium/commit/880a513c2c3e8d5bc0e107f5c03511d919c142c9) - Update Helm release redis to v20.13.2 (#2803) :: renovate[bot]
+- [`3f902e7c`](http://github.com/seleniumhq/docker-selenium/commit/3f902e7c6604294a61f8522997d00c9707dbd2b3) - Update Helm release kube-prometheus-stack to v70.8.0 (#2805) :: renovate[bot]
+- [`70d7f929`](http://github.com/seleniumhq/docker-selenium/commit/70d7f92953e6f0851381d4c57c48659349b56a39) - Update Helm release postgresql to v16.6.5 (#2802) :: renovate[bot]
+- [`96155a44`](http://github.com/seleniumhq/docker-selenium/commit/96155a44cf4e96bbae90096c1b6f68ec795726e0) - Update Helm release redis to v20.13.1 (#2801) :: renovate[bot]
+- [`c2c9f0e2`](http://github.com/seleniumhq/docker-selenium/commit/c2c9f0e28209d2f23909224b2f557200151fd77a) - Update Helm release postgresql to v16.6.4 (#2800) :: renovate[bot]
+- [`5d49cc63`](http://github.com/seleniumhq/docker-selenium/commit/5d49cc63f3d4fe2cc4ee147e07b819c8dee5d0de) - Update Helm release redis to v20.12.2 (#2797) :: renovate[bot]
+- [`be0c3462`](http://github.com/seleniumhq/docker-selenium/commit/be0c3462005ec6e57b451605b5fc92f8e57ac8af) - [docs] Update note in chart values :: Viet Nguyen Duc
+- [`44f46584`](http://github.com/seleniumhq/docker-selenium/commit/44f46584226c217d8cff06369053194d4c55c4af) - Update Helm release kube-prometheus-stack to v70.7.0 (#2794) :: renovate[bot]
+- [`3f7b0b09`](http://github.com/seleniumhq/docker-selenium/commit/3f7b0b09ef73ec353d69249244204083b306ad68) - Update Helm release redis to v20.12.1 (#2793) :: renovate[bot]
+- [`0cdd6ec9`](http://github.com/seleniumhq/docker-selenium/commit/0cdd6ec93e9f09493763d556d1877b96f3740f79) - Update Helm release kube-prometheus-stack to v70.5.0 (#2790) :: renovate[bot]
+- [`ddd2ec07`](http://github.com/seleniumhq/docker-selenium/commit/ddd2ec07789ebbde7fa37320211b30c73ac9605c) - Update Helm release redis to v20.12.0 (#2789) :: renovate[bot]
+- [`f9c72df7`](http://github.com/seleniumhq/docker-selenium/commit/f9c72df7b71f2efe48a1906de22f4c34c4dabe81) - [ci] Update chart 0.42.1 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.42.1
+
+- Chart is using image tag 4.31.0-20250414
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.11,v1.31.7,v1.32.3
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.0
+
+### Changed
+- [`614242b8`](http://github.com/seleniumhq/docker-selenium/commit/614242b856031c44c06dbc8ca73ca33b4bdd44b1) - [ci] Update tag 4.31.0-20250414 in docs and files :: Selenium CI Bot
+- [`cb786352`](http://github.com/seleniumhq/docker-selenium/commit/cb7863526c7c86c25f34642baffe46c6069e60de) - Docker: Update basic auth headers in util scripts (#2779) :: Viet Nguyen Duc
+- [`35b2d0e1`](http://github.com/seleniumhq/docker-selenium/commit/35b2d0e14e714568c607165cfc73fd4d849cdf4f) - [ci] Update chart configuration table :: Selenium CI Bot
+- [`9bd4d8a7`](http://github.com/seleniumhq/docker-selenium/commit/9bd4d8a7deab9aab337986bffa180da5a44da5c0) - K8s: Add ability to config trigger name (#2777) :: Romain THERRAT
+- [`b6c1227d`](http://github.com/seleniumhq/docker-selenium/commit/b6c1227d696442215a97303227d7f12f9c3a449c) - Update Helm release redis to v20.11.5 (#2772) :: renovate[bot]
+- [`a07c626d`](http://github.com/seleniumhq/docker-selenium/commit/a07c626d50b1c96c0b5879b2a660c1c5942f4559) - Update Helm release postgresql to v16.6.3 (#2773) :: renovate[bot]
+- [`8f280e1b`](http://github.com/seleniumhq/docker-selenium/commit/8f280e1be538fa4d2411306c52db25be59ea786b) - [ci] Update chart 0.42.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.42.0
+
+- Chart is using image tag 4.31.0-20250404
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.11,v1.31.7,v1.32.3
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.0
+
+### Fixed
+- [`e1631d56`](http://github.com/seleniumhq/docker-selenium/commit/e1631d5681e3298901c27beb3919874288a96e95) - Fix lint chart values :: Viet Nguyen Duc
+
+### Changed
+- [`1bf02dad`](http://github.com/seleniumhq/docker-selenium/commit/1bf02dadeef1e6c53e7bedde670eb7016388b1e2) - [ci] Update tag 4.31.0-20250404 in docs and files :: Selenium CI Bot
+- [`9efdd3e0`](http://github.com/seleniumhq/docker-selenium/commit/9efdd3e0e29f9e1257d28cebb605089c5efee340) - K8s: Add template for file browser video records service (#2763) :: Viet Nguyen Duc
+- [`9348ed1b`](http://github.com/seleniumhq/docker-selenium/commit/9348ed1bc845bd773473ad0ec8ff9229129f64b3) - K8s: Strictly handle `basicAuth.enabled` in template (#2760) :: Viet Nguyen Duc
+- [`c2ac0473`](http://github.com/seleniumhq/docker-selenium/commit/c2ac047331551e298482997fb21d3de2a5db8348) - Update Helm release postgresql to v16.6.2 (#2759) :: renovate[bot]
+- [`402592bd`](http://github.com/seleniumhq/docker-selenium/commit/402592bd62f823ffc093a38acd3cc22dd0c64d91) - Update Helm release keda to v2.17.0 (#2758) :: renovate[bot]
+- [`1fe8d6e4`](http://github.com/seleniumhq/docker-selenium/commit/1fe8d6e492c754e07d5ec3bef92bdf67343c2b5e) - Update Helm release kube-prometheus-stack to v70.4.2 (#2757) :: renovate[bot]
+- [`83093214`](http://github.com/seleniumhq/docker-selenium/commit/8309321489a873f91972ce748c3c378721efd257) - Update Helm release postgresql to v16.6.1 (#2756) :: renovate[bot]
+- [`d34cc0d4`](http://github.com/seleniumhq/docker-selenium/commit/d34cc0d4e72f2f69be1009d361a4a6ec70d95f55) - K8s: Update strategy as Recreate by default (#2755) :: Viet Nguyen Duc
+- [`26c45cdb`](http://github.com/seleniumhq/docker-selenium/commit/26c45cdb94ba40fb2ba0423098eb68d626743f82) - K8s: Config  is true by default :: Viet Nguyen Duc
+- [`1cca6ba8`](http://github.com/seleniumhq/docker-selenium/commit/1cca6ba8ef0d5ad1026a3c894a57164dfc275b38) - Update Helm release kube-prometheus-stack to v70.4.1 (#2747) :: renovate[bot]
+- [`77a23f7a`](http://github.com/seleniumhq/docker-selenium/commit/77a23f7a73f439013f419104520f5ccc3cdabd16) - Update Helm release kube-prometheus-stack to v70.4.0 (#2744) :: renovate[bot]
+- [`4c35f64b`](http://github.com/seleniumhq/docker-selenium/commit/4c35f64befa0b0627e3abb3fb87e708eb874afbe) - [ci] Update chart 0.41.1 changelog :: Selenium CI Bot
+- [`f310b3d4`](http://github.com/seleniumhq/docker-selenium/commit/f310b3d4faae94e6321f2c02b6715dde0ca3d6cf) - Update Helm release postgresql to v16.6.0 (#2741) :: renovate[bot]
+
 ## :heavy_check_mark: selenium-grid-0.41.1
 
 - Chart is using image tag 4.30.0-20250323
