@@ -58,7 +58,7 @@ spec:
           {{- end }}
           volumeMounts:
           {{- if .Values.videoManager.extraVolumeMounts }}
-            {{- tpl (toYaml .) $ | nindent 12 }}
+            {{- tpl (toYaml .Values.videoManager.extraVolumeMounts) $ | nindent 12 }}
           {{- else }}
             - name: srv
               mountPath: /srv
@@ -113,7 +113,7 @@ spec:
     {{- end }}
       volumes:
       {{- if .Values.videoManager.extraVolumes }}
-        {{ tpl (toYaml .) $ | nindent 8 }}
+        {{- tpl (toYaml .Values.videoManager.extraVolumes) $ | nindent 8 }}
       {{- else }}
         - name: srv
           emptyDir: {}

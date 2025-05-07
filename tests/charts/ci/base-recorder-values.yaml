@@ -26,3 +26,14 @@ videoRecorder:
       RCLONE_CONFIG_MYFTP_USER: "seluser"
       RCLONE_CONFIG_MYFTP_PASS: "KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig"
       RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY: "5"
+
+videoManager:
+  enabled: true
+  extraVolumeMounts:
+    - name: srv
+      mountPath: /srv
+      subPath: srv
+  extraVolumes:
+    - name: srv
+      persistentVolumeClaim:
+        claimName: ${TEST_PV_CLAIM_NAME}

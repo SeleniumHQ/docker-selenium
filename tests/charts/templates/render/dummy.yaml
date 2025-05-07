@@ -200,3 +200,14 @@ uploaderConfigMap:
     upload.sh: |
       #!/bin/bash
       echo "This is override script"
+
+videoManager:
+  enabled: true
+  extraVolumeMounts:
+    - name: srv
+      mountPath: /srv
+      subPath: srv
+  extraVolumes:
+    - name: srv
+      persistentVolumeClaim:
+        claimName: my-external-pvc
