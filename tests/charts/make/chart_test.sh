@@ -106,7 +106,10 @@ on_failure() {
     if [ ${RENDER_HELM_TEMPLATE_ONLY} = "true" ]; then
       exit $exit_status
     fi
-    kubectl get pods -A
+    kubectl get pods -n "${SELENIUM_NAMESPACE}" -o jsonpath='{.items[*].metadata.name}' | tr ' ' '\n' | while read pod; do
+      echo "Logs for pod $pod"
+      kubectl logs -n "${SELENIUM_NAMESPACE}" "$pod" --all-containers --tail=10000
+    done
     echo "Get all resources in all namespaces"
     kubectl get all -A >> tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
     echo "Describe all resources in the ${SELENIUM_NAMESPACE} namespace for debugging purposes"

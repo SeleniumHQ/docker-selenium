@@ -2056,8 +2056,8 @@ videoManager:
   # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
   imagePullSecret: ""
   config:
-    # -- Base URL use to access the file browser (e.g. http://public.ip/recordings)
-    baseurl: "recordings"
+    # -- Base URL use to access the file browser (in case expose both Grid and file browser via ingress, e.g. Grid at http://public.ip/selenium and FB at http://public.ip/recordings)
+    baseurl: "/recordings"
     # -- Username for the first user when using quick config (default "admin")
     username: ""
     # -- Hashed password (bcrypt) for the first user when using quick config (default "admin")

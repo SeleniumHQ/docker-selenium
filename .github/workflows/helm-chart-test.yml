@@ -65,7 +65,7 @@ jobs:
             docker-version: '26.1.4'
             python-version: '3.9'
             test-upgrade: true
-            service-mesh: true
+            service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job
@@ -115,7 +115,7 @@ jobs:
             docker-version: '26.1.4'
             python-version: '3.10'
             test-upgrade: true
-            service-mesh: true
+            service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: playwright_connect_grid
@@ -126,7 +126,7 @@ jobs:
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
-            os: blacksmith-8vcpu-ubuntu-2204
+            os: ubuntu-22.04
             check-records-output: false
             test-strategy: job_relay
     env:

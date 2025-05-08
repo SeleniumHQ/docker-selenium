@@ -707,6 +707,43 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 | `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                                | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
 | `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                                   | Directory of config file (change it when conf file in another directory is mounted)       |
 
+## Video recordings manager
+
+We utilize [File Browser](https://filebrowser.org/) as a video manager. It is a web-based file manager that allows you to manage files and folders in the storage.
+
+The File Browser container dir `/srv` should be mounted to the same storage as video recordings stored. For example a compose file:
+
+```yaml
+services:
+  chrome:
+    deploy:
+      mode: replicated
+      replicas: 3
+    image: selenium/node-chrome:4.32.0-20250505
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    volumes:
+      - /tmp/videos:/videos
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_NODE_GRID_URL=http://selenium-hub:4444
+
+  file_browser:
+      image: filebrowser/filebrowser:latest
+      container_name: file_browser
+      restart: always
+      ports:
+          - "8081:80"
+      volumes:
+          - /tmp/videos:/srv
+      environment:
+          - FB_NOAUTH=true
+```
+
 ___
 
 ## Dynamic Grid
@@ -1009,6 +1046,8 @@ Get started to deploy Selenium Grid on Kubernetes, you can refer to YAML files i
 
 To simplify the deployment process, hide the complexity of Kubernetes objects, and provide a more straightforward way to deploy Selenium Grid on Kubernetes, we offer a Helm chart to deploy Selenium Grid to Kubernetes.
 Read more details at the Helm [chart README](./charts/selenium-grid/README.md) and [chart CONFIGURATION](./charts/selenium-grid/CONFIGURATION.md).
+
+- Get started to hands-on with Selenium Grid on Kubernetes. See local env setup with [Docker Desktop](./tests/charts/refValues/README.md).
 
 ___
 

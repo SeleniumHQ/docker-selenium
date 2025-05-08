@@ -1,6 +1,6 @@
 {{- range $i, $newNode := .Values.crossBrowsers.chromeNode }}
 {{- $nodeConfig := merge $newNode $.Values.chromeNode -}}
-{{- if and $nodeConfig.enabled (include "seleniumGrid.useKEDA" $) (eq $.Values.autoscaling.scalingType "job") }}
+{{- if and $nodeConfig.enabled (eq (include "seleniumGrid.useKEDA" $) "true") (eq $.Values.autoscaling.scalingType "job") }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:

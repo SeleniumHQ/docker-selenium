@@ -36,6 +36,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of video recorder and video uploader](#configuration-of-video-recorder-and-video-uploader)
       * [Video recorder](#video-recorder)
       * [Video uploader](#video-uploader)
+      * [Video manager](#video-manager)
     * [Configuration of Secure Communication](#configuration-of-secure-communication)
       * [Create TLS Secret](#create-tls-secret)
       * [Secure Connection to Selenium Grid components](#secure-connection-to-selenium-grid-components)
@@ -792,6 +793,45 @@ videoRecorder:
         imageName: bitnami/aws-cli
         imageTag: latest
 ```
+
+#### Video manager
+
+We utilize [File Browser](https://filebrowser.org/) as a video manager. It is a web-based file manager that allows you to manage files and folders in the storage. The video manager is disabled by default. To enable it, you need to set config key `videoManager.enabled` to `true`.
+
+The service can be exposed via NodePort or Ingress (if enabled global ingress). By default, there is a baseurl is `/recordings`, if enabled svc type NodePort: `http://<node-ip>:30080/recordings`, or ingress `http://<ingress-hostname>/recordings`. You also can change the baseurl to another value via config key `videoManager.config.baseurl`
+
+
+The File Browser container dir `/srv` should be mounted to the same storage as video recordings stored. The storage here is persistent volume claim (PVC) that is created by you or dynamically provisioned by the storage class. Configure recorder and manager to use the same PVC. For example
+
+```yaml
+videoRecorder:
+  enabled: true
+  extraVolumeMounts:
+    - name: videos
+      mountPath: /videos
+      subPath: videos
+  extraVolumes:
+    - name: videos
+      persistentVolumeClaim:
+        claimName: local-pv-storage
+
+videoManager:
+  enabled: true
+  extraVolumeMounts:
+    - name: videos
+      mountPath: /srv
+      subPath: videos
+  extraVolumes:
+    - name: videos
+      persistentVolumeClaim:
+        claimName: local-pv-storage
+```
+
+When configuration is done, via File Browser you can centralize all the recordings in one place. You can manage the recordings, delete them, or download them.
+
+![img_1.png](./images/video-manager_1.png)
+
+![img_2.png](./images/video-manager_2.png)
 
 ### Configuration of Secure Communication
 

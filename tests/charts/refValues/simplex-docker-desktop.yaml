@@ -56,24 +56,24 @@ components:
 
 crossBrowsers:
   chromeNode:
-    - overrideName: node-chrome-any
+    - nameOverride: node-chrome-any
       hpa:
         platformName: ''
-    - overrideName: node-chrome-linux
+    - nameOverride: node-chrome-linux
       hpa:
         platformName: 'Linux'
   firefoxNode:
-    - overrideName: node-firefox-any
+    - nameOverride: node-firefox-any
       hpa:
         platformName: ''
-    - overrideName: node-firefox-linux
+    - nameOverride: node-firefox-linux
       hpa:
         platformName: 'Linux'
   edgeNode:
-    - overrideName: node-edge-any
+    - nameOverride: node-edge-any
       hpa:
         platformName: ''
-    - overrideName: node-edge-linux
+    - nameOverride: node-edge-linux
       hpa:
         platformName: 'Linux'
 
@@ -90,9 +90,25 @@ edgeNode:
 
 videoRecorder:
   enabled: true
+  extraVolumeMounts:
+    - name: videos
+      mountPath: /videos
+      subPath: videos
+  extraVolumes:
+    - name: videos
+      persistentVolumeClaim:
+        claimName: local-pv-storage
 
 videoManager:
-    enabled: true
+  enabled: true
+  extraVolumeMounts:
+    - name: videos
+      mountPath: /srv
+      subPath: videos
+  extraVolumes:
+    - name: videos
+      persistentVolumeClaim:
+        claimName: local-pv-storage
 
 ingress-nginx:
   controller:

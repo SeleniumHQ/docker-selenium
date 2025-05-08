@@ -689,7 +689,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.imageTag | string | `"latest"` | File browser image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | videoManager.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | videoManager.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
-| videoManager.config.baseurl | string | `"recordings"` | Base URL use to access the file browser (e.g. http://public.ip/recordings) |
+| videoManager.config.baseurl | string | `"/recordings"` | Base URL use to access the file browser (in case expose both Grid and file browser via ingress, e.g. Grid at http://public.ip/selenium and FB at http://public.ip/recordings) |
 | videoManager.config.username | string | `""` | Username for the first user when using quick config (default "admin") |
 | videoManager.config.password | string | `""` | Hashed password (bcrypt) for the first user when using quick config (default "admin") |
 | videoManager.config.noauth | bool | `true` | Use the noauth auther when using quick setup |

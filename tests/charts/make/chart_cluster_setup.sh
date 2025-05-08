@@ -42,16 +42,18 @@ if [ "${CLUSTER}" = "kind" ]; then
   echo "Start Kind cluster"
   kind create cluster --image kindest/node:${KUBERNETES_VERSION} --wait ${WAIT_TIMEOUT} --name ${CLUSTER_NAME} --config tests/charts/config/kind-cluster.yaml
 elif [ "${CLUSTER}" = "minikube" ]; then
+  HOST_IP="$(hostname -I | cut -d' ' -f1)"
   echo "Start Minikube cluster"
   sudo chmod 777 /tmp
   export CHANGE_MINIKUBE_NONE_USER=true
-  sudo -SE minikube start --vm-driver=none \
+  NO_PROXY="$NO_PROXY,$HOST_IP" sudo -SE minikube start --vm-driver=none \
   --kubernetes-version=${KUBERNETES_VERSION} --network-plugin=cni --cni=${CNI} --container-runtime=${CONTAINER_RUNTIME} --wait=all
   sudo chown -R $USER $HOME/.kube $HOME/.minikube
   if [ "${SERVICE_MESH}" = "true" ]; then
     minikube addons enable istio-provisioner
     minikube addons enable istio
   fi
+  kubectl set env daemonset/calico-node -n kube-system IP_AUTODETECTION_METHOD="can-reach=${HOST_IP}"
 fi
 
 if [ "${CLUSTER}" = "kind" ]; then

@@ -23,3 +23,5 @@
 .vscode/
 ci/
 certs/add-*-helper.sh
+CHANGELOG.md
+TESTING.md

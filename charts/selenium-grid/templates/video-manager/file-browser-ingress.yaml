@@ -53,7 +53,7 @@ spec:
                 name: {{ include "seleniumGrid.videoManager.fullname" $ | quote }}
                 port:
                   number: 80
-            path: {{ printf "/%s" $.Values.videoManager.config.baseurl | quote }}
+            path: {{ $.Values.videoManager.config.baseurl | quote }}
             pathType: Prefix
         {{- end }}
 {{- end }}
