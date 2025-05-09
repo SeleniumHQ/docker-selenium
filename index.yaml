@@ -28,6 +28,48 @@ entries:
     version: 1.0.0-nightly
   - apiVersion: v2
     appVersion: 4.32.0-20250505
+    created: "2025-05-09T22:23:12.156282084Z"
+    dependencies:
+    - condition: autoscaling.enabled, keda.enabled
+      name: keda
+      repository: https://kedacore.github.io/charts
+      version: ^2.17
+    - condition: ingress.enableWithController, ingress-nginx.enabled
+      name: ingress-nginx
+      repository: https://kubernetes.github.io/ingress-nginx
+      version: ^4
+    - condition: tracing.enabled, jaeger.enabled
+      name: jaeger
+      repository: https://jaegertracing.github.io/helm-charts
+      version: ^3
+    - condition: monitoring.enabled, kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: ^71
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ^16
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^21
+    description: A Helm chart for creating a Selenium Grid Server in Kubernetes
+    digest: a184e839e2397799c6e76ec1e02a157269e879ca44eb3eccd6ea0ad0b3758209
+    icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
+    maintainers:
+    - email: docker-selenium@seleniumhq.org
+      name: SeleniumHQ
+      url: https://github.com/SeleniumHQ
+    name: selenium-grid
+    sources:
+    - https://github.com/SeleniumHQ/docker-selenium
+    type: application
+    urls:
+    - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.43.1/selenium-grid-0.43.1.tgz
+    version: 0.43.1
+  - apiVersion: v2
+    appVersion: 4.32.0-20250505
     created: "2025-05-05T13:28:38.758717962Z"
     dependencies:
     - condition: autoscaling.enabled, keda.enabled
@@ -2424,4 +2466,4 @@ entries:
     urls:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.3.0/selenium-grid-0.3.0.tgz
     version: 0.3.0
-generated: "2025-05-05T13:28:38.759025754Z"
+generated: "2025-05-09T22:23:12.156645822Z"
