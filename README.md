@@ -1268,6 +1268,7 @@ For more information, see this GitHub [issue](https://github.com/SeleniumHQ/dock
 
 Noted:
 - In new Chrome/Chromium versions (v127+), `SE_START_XVFB` is required to be set to `true` to run in `--headless=new` mode.
+- In new Chrome/Chromium versions (v132+), `--headless` only runs in the [`new` mode](https://developer.chrome.com/blog/removing-headless-old-from-chrome), so you need to set `SE_START_XVFB` to `true` when using `--headless` mode.
 
 ### Stopping the Node/Standalone after N sessions have been executed
 
