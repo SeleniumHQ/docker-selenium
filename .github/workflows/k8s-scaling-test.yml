@@ -92,23 +92,23 @@ jobs:
             python-version: '3.11'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_job_count_strategy_default
-          - k8s-version: 'v1.30.11'
+          - k8s-version: 'v1.30.13'
             cluster: 'minikube'
             helm-version: 'v3.15.4'
             docker-version: '27.5.1'
             python-version: '3.12'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_deployment_count_in_chaos
-          - k8s-version: 'v1.31.7'
+          - k8s-version: 'v1.31.9'
             cluster: 'minikube'
             helm-version: 'v3.16.4'
             docker-version: '27.4.1'
             python-version: '3.13'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_deployment_count_with_node_max_sessions
-          - k8s-version: 'v1.32.3'
+          - k8s-version: 'v1.32.5'
             cluster: 'minikube'
-            helm-version: 'v3.17.0'
+            helm-version: 'v3.17.3'
             docker-version: '26.1.4'
             python-version: '3.10'
             os: ubuntu-22.04

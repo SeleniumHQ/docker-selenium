@@ -3,7 +3,7 @@ matrix:
     '138':
       EDGE_VERSION: null
       CHROME_VERSION: null
-      FIREFOX_VERSION: 138.0.1
+      FIREFOX_VERSION: 138.0.3
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '137':
       EDGE_VERSION: null
@@ -11,8 +11,8 @@ matrix:
       FIREFOX_VERSION: 137.0.2
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '136':
-      EDGE_VERSION: microsoft-edge-stable=136.0.3240.50-1
-      CHROME_VERSION: google-chrome-stable=136.0.7103.59-1
+      EDGE_VERSION: microsoft-edge-stable=136.0.3240.64-1
+      CHROME_VERSION: google-chrome-stable=136.0.7103.113-1
       FIREFOX_VERSION: 136.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '135':

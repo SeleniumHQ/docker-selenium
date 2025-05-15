@@ -49,6 +49,8 @@ You can involve to review and discuss the pull requests to help us early detect 
 
 [kedacore/keda](https://github.com/kedacore/keda)
 
+- ~~https://github.com/kedacore/keda/pull/6772 (merged, v2.17.1)~~
+
 - ~~https://github.com/kedacore/keda/pull/6684 (merged, v2.17.0)~~
 
 - ~~https://github.com/kedacore/keda/pull/6570 (merged, v2.17.0)~~
