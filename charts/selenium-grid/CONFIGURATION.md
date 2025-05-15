@@ -38,6 +38,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
 | global.seleniumGrid.defaultNodeStartupProbe | string | `"exec"` | Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
+| global.seleniumGrid.defaultNodeReadinessProbe | string | `"exec"` | Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.defaultNodeLivenessProbe | string | `"exec"` | Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.defaultComponentLivenessProbe | string | `"exec"` | Set default liveness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.stdoutProbeLog | bool | `false` | Probe logs output can be retrieved using `kubectl logs`. Noted: this will not work if shareProcessNamespace is enabled |
@@ -147,6 +148,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | nodeConfigMap.extraScripts."nodeGridUrl.sh" | string | `""` |  |
 | nodeConfigMap.extraScripts."nodePreStop.sh" | string | `""` |  |
 | nodeConfigMap.extraScripts."nodeProbe.sh" | string | `""` |  |
+| nodeConfigMap.extraScripts."nodeProbeReadiness.sh" | string | `""` |  |
 | nodeConfigMap.scriptVolumeMountName | string | `nil` | Name of volume mount is used to mount scripts in the ConfigMap |
 | nodeConfigMap.leftoversCleanup.enabled | bool | `false` | Enable feature automatic browser leftovers cleanup stuck browser processes, tmp files |
 | nodeConfigMap.leftoversCleanup.jobIntervalInSecs | int | `3600` | Interval in seconds to run the cleanup job |
@@ -454,7 +456,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | chromeNode.priorityClassName | string | `""` | Priority class name for chrome-node pods |
 | chromeNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
-| chromeNode.readinessProbe | object | `{"enabled":false,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
+| chromeNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | chromeNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | chromeNode.terminationGracePeriodSeconds | int | `30` | Time to wait for pod termination |
 | chromeNode.deregisterLifecycle | string | `nil` | Define preStop command to shut down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle |
@@ -512,7 +514,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.dshmVolumeSizeLimit | string | `"2Gi"` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | firefoxNode.priorityClassName | string | `""` | Priority class name for firefox-node pods |
 | firefoxNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
-| firefoxNode.readinessProbe | object | `{"enabled":false,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
+| firefoxNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | firefoxNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | firefoxNode.terminationGracePeriodSeconds | int | `30` | Time to wait for pod termination |
 | firefoxNode.deregisterLifecycle | string | `nil` | Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle |
@@ -570,7 +572,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | edgeNode.priorityClassName | string | `""` | Priority class name for edge-node pods |
 | edgeNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
-| edgeNode.readinessProbe | object | `{"enabled":false,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
+| edgeNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | edgeNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | edgeNode.terminationGracePeriodSeconds | int | `30` | Time to wait for pod termination |
 | edgeNode.deregisterLifecycle | string | `nil` | Define preStop command to shuts down the chrome node gracefully. This overwrites autoscaling.deregisterLifecycle |
@@ -629,7 +631,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | relayNode.priorityClassName | string | `""` | Priority class name for relay-node pods |
 | relayNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
-| relayNode.readinessProbe | object | `{"enabled":false,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
+| relayNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | relayNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | relayNode.terminationGracePeriodSeconds | int | `30` | Time to wait for pod termination |
 | relayNode.deregisterLifecycle | string | `nil` | Define preStop command to shut down the relay node gracefully. This overwrites autoscaling.deregisterLifecycle |

@@ -491,7 +491,10 @@ template:
       {{- with .node.readinessProbe }}
         readinessProbe:
         {{- if (ne (include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $)) "{}") }}
-          {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 12 }}
+          {{- include "seleniumGrid.probe.fromUserDefine" (dict "values" . "root" $) | nindent 10 }}
+        {{- else if eq $.Values.global.seleniumGrid.defaultNodeReadinessProbe "exec" }}
+          exec:
+            command: ["bash", "-c", "{{ $.Values.nodeConfigMap.extraScriptsDirectory }}/nodeProbeReadiness.sh Readiness {{ include "seleniumGrid.probe.stdout" $ }}"]
         {{- else }}
           httpGet:
             scheme: {{ default (include "seleniumGrid.probe.httpGet.schema" $) .schema }}

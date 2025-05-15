@@ -21,6 +21,8 @@ global:
     # -- Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     defaultNodeStartupProbe: exec
     # -- Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
+    defaultNodeReadinessProbe: exec
+    # -- Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     defaultNodeLivenessProbe: exec
     # -- Set default liveness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     defaultComponentLivenessProbe: exec
@@ -328,6 +330,8 @@ nodeConfigMap:
     nodePreStop.sh: ""
     # -- Key to set contents for script file via --set-file
     nodeProbe.sh: ""
+    # -- Key to set contents for script file via --set-file
+    nodeProbeReadiness.sh: ""
   # -- Name of volume mount is used to mount scripts in the ConfigMap
   scriptVolumeMountName:
   leftoversCleanup:
@@ -1235,7 +1239,7 @@ chromeNode:
 
   # -- Readiness probe settings
   readinessProbe:
-    enabled: false
+    enabled: true
     path: /status
     initialDelaySeconds: 10
     failureThreshold: 10
@@ -1431,7 +1435,7 @@ firefoxNode:
 
   # -- Readiness probe settings
   readinessProbe:
-    enabled: false
+    enabled: true
     path: /status
     initialDelaySeconds: 10
     failureThreshold: 10
@@ -1627,7 +1631,7 @@ edgeNode:
 
   # -- Readiness probe settings
   readinessProbe:
-    enabled: false
+    enabled: true
     path: /status
     initialDelaySeconds: 10
     failureThreshold: 10
@@ -1824,7 +1828,7 @@ relayNode:
 
   # -- Readiness probe settings
   readinessProbe:
-    enabled: false
+    enabled: true
     path: /status
     initialDelaySeconds: 10
     failureThreshold: 10
