@@ -23,7 +23,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://jaegertracing.github.io/helm-charts | jaeger | ^3 |
 | https://kedacore.github.io/charts | keda | ^2.17 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | ^4 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^71 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^72.0.0 |
 
 ## Values
 
