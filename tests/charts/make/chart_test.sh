@@ -68,6 +68,7 @@ TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"true"}
 TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
 TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY:-"false"}
 TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME:-"false"}
+TEST_VIDEO_RECORDER_SIDECAR=${TEST_VIDEO_RECORDER_SIDECAR:-"false"}
 
 wait_for_terminated() {
   # Wait until no pods are in "Terminating" state
@@ -406,6 +407,12 @@ if [ "${EXTERNAL_UPLOADER_CONFIG}" = "true" ]; then
     HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
     --set videoRecorder.uploader.secrets=null \
     --set-file uploaderConfigMap.secretFiles.upload\.conf=${TEST_VALUES_PATH}/uploader.conf \
+    "
+fi
+
+if [ "${TEST_VIDEO_RECORDER_SIDECAR}" = "true" ]; then
+    HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+    --set videoRecorder.sidecarContainer=true
     "
 fi
 

@@ -683,6 +683,14 @@ videoRecorder:
   enabled: true
 ```
 
+From chart version `0.44.0+`, by default, the video recorder is not running as sidecar container anymore. Recording function will be performed in browser node container itself (check out the [implementation](https://github.com/SeleniumHQ/docker-selenium/discussions/2539)).
+If you want to enable the video recorder as a sidecar container, you can set the following values:
+
+```yaml
+videoRecorder:
+  sidecarContainer: true
+```
+
 At chart deployment level, that config will enable video container always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
 
 ```python

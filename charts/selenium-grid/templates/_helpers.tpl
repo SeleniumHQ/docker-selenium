@@ -337,7 +337,7 @@ template:
       {{- with .node.securityContext }}
         securityContext: {{- toYaml . | nindent 10 }}
       {{- end }}
-    {{- if .recorder.enabled }}
+    {{- if (and .recorder.enabled .recorder.sidecarContainer) }}
       - name: "pre-puller-{{ .recorder.name }}"
         image: {{ printf "%s/%s:%s" $videoImageRegistry .recorder.imageName $videoImageTag }}
         command: ["bash", "-c", "'true'"]
@@ -408,6 +408,10 @@ template:
             value: {{ $nodeRegisterPeriod | quote }}
           - name: SE_NODE_REGISTER_CYCLE
             value: {{ $nodeRegisterCycle | quote }}
+        {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
+          - name: SE_RECORD_VIDEO
+            value: "true"
+        {{- end }}
         {{- with .node.extraEnvironmentVariables }}
           {{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
@@ -422,12 +426,21 @@ template:
               name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
           - secretRef:
               name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+          {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
+          - configMapRef:
+              name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
+          {{- end }}
           {{- if $.Values.basicAuth.enabled }}
           - secretRef:
               name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- end }}
           {{- with .node.extraEnvFrom }}
-            {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
+          {{- with .recorder.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
           {{- end }}
         ports:
           - containerPort: {{ .node.port }}
@@ -447,6 +460,9 @@ template:
         {{- if not (empty .node.dshmVolumeSizeLimit) }}
           - name: dshm
             mountPath: /dev/shm
+        {{- end }}
+        {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
+          {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 10 }}
         {{- end }}
         {{- range $fileName, $value := $.Values.nodeConfigMap.extraScripts }}
           - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}
@@ -528,7 +544,7 @@ template:
     {{- if .node.sidecars }}
       {{- toYaml .node.sidecars | nindent 6 }}
     {{- end }}
-    {{- if .recorder.enabled }}
+    {{- if (and .recorder.enabled .recorder.sidecarContainer) }}
       - name: {{ .recorder.name }}
         image: {{ printf "%s/%s:%s" $videoImageRegistry .recorder.imageName $videoImageTag }}
         imagePullPolicy: {{ .recorder.imagePullPolicy }}
@@ -547,25 +563,25 @@ template:
         {{- tpl (toYaml .) $ | nindent 8 }}
       {{- end }}
         envFrom:
-        - configMapRef:
-            name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
-        - configMapRef:
-            name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
-        - configMapRef:
-            name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
-        - configMapRef:
-            name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
-        {{- if $.Values.basicAuth.enabled }}
-        - secretRef:
-            name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
-        {{- end }}
-        {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
-        - secretRef:
-            name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
-        {{- end }}
-      {{- with .recorder.extraEnvFrom }}
-        {{- tpl (toYaml .) $ | nindent 8 }}
-      {{- end }}
+          - configMapRef:
+              name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
+          - configMapRef:
+              name: {{ template "seleniumGrid.node.configmap.fullname" $ }}
+          - configMapRef:
+              name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
+          - configMapRef:
+              name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+          {{- if $.Values.basicAuth.enabled }}
+          - secretRef:
+              name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+          {{- end }}
+          {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
+          - secretRef:
+              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+          {{- end }}
+          {{- with .recorder.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
       {{- if gt (len .recorder.ports) 0 }}
         ports:
       {{- range .recorder.ports }}
@@ -574,11 +590,11 @@ template:
       {{- end }}
       {{- end }}
         volumeMounts:
-      {{- if not (empty .node.dshmVolumeSizeLimit) }}
-        - name: dshm
-          mountPath: /dev/shm
-      {{- end }}
-      {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 8 }}
+          {{- if not (empty .node.dshmVolumeSizeLimit) }}
+          - name: dshm
+            mountPath: /dev/shm
+          {{- end }}
+          {{- tpl (include "seleniumGrid.video.volumeMounts" .) $ | nindent 10 }}
       {{- with .recorder.resources }}
         resources: {{- toYaml . | nindent 10 }}
       {{- end }}

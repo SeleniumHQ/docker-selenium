@@ -166,6 +166,7 @@ relayNode:
 
 videoRecorder:
   enabled: true
+  sidecarContainer: true
   uploader:
     enabled: true
     name: s3

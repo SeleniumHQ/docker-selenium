@@ -655,6 +655,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | relayNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
 | videoRecorder.enabled | bool | `false` | Enable video recording in all browser nodes |
+| videoRecorder.sidecarContainer | bool | `false` | Video recorder run as a sidecar container (2 containers in the same pod), or a single container with browser and recorder https://github.com/SeleniumHQ/docker-selenium/discussions/2539 |
 | videoRecorder.name | string | `"video"` | Container name is set to resource specs |
 | videoRecorder.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | videoRecorder.imageName | string | `"video"` | Image of video recorder |

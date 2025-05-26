@@ -155,6 +155,7 @@ selenium-grid:
 
   videoRecorder:
     enabled: true
+    sidecarContainer: true
     uploader:
       enabled: true
       destinationPrefix: "s3://bucket-name"

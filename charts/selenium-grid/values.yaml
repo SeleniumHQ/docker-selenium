@@ -1908,6 +1908,9 @@ relayNode:
 videoRecorder:
   # -- Enable video recording in all browser nodes
   enabled: false
+  # -- Video recorder run as a sidecar container (2 containers in the same pod), or a single container with browser and recorder
+  # https://github.com/SeleniumHQ/docker-selenium/discussions/2539
+  sidecarContainer: false
   # -- Container name is set to resource specs
   name: video
   # -- Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter)
