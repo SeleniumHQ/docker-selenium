@@ -68,7 +68,7 @@ RUN apt-get update -qqy && \
 # GeckoDriver
 #============
 ARG GECKODRIVER_VERSION=latest
-RUN LATEST_VERSION=$(curl -sk https://api.github.com/repos/mozilla/geckodriver/releases/latest | jq -r '.tag_name') \
+RUN LATEST_VERSION=$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/mozilla/geckodriver/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#') \
   && DRIVER_ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "linux64"; else echo "linux-aarch64"; fi) \
   && GK_VERSION=$(if [ ${GECKODRIVER_VERSION:-latest} = "latest" ]; then echo "${LATEST_VERSION}"; else echo $GECKODRIVER_VERSION; fi) \
   && echo "Using GeckoDriver version: "$GK_VERSION \
