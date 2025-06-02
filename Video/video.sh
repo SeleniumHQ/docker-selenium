@@ -254,7 +254,7 @@ else
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
       session_capabilities="$(jq -r "${JQ_SESSION_CAPABILITIES_QUERY}" "/tmp/status.json")"
-      return_list=($(bash "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.sh" "${session_id}" "${session_capabilities}"))
+      return_list=($(python3 "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.py" "${session_id}" "${session_capabilities}"))
       caps_se_video_record="${return_list[0]}"
       video_file_name="${return_list[1]}.mp4"
       if [[ "$caps_se_video_record" = "true" ]]; then
