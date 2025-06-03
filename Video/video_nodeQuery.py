@@ -46,7 +46,7 @@ def main() -> None:
             pass
 
     # Check if enabling to record video
-    if isinstance(record_video, str) and record_video.lower() == "false":
+    if (isinstance(record_video, str) and record_video.lower() == "false") or record_video is False:
         record_video = "false"
     else:
         record_video = "true"
