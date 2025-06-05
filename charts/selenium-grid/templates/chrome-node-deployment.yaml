@@ -21,7 +21,7 @@ spec:
     {{- template "seleniumGrid.updateStrategy" (list $nodeConfig $.Values.global.seleniumGrid) }}
   {{- if not (eq (include "seleniumGrid.useKEDA" $) "true") }}
   replicas: {{ $nodeConfig.replicas }}
-  {{- else }}
+  {{- else if $.Values.autoscaling.setReplicasInSpec }}
   replicas: {{ default $.Values.autoscaling.scaledOptions.minReplicaCount ($nodeConfig.scaledOptions).minReplicaCount }}
   {{- end }}
   revisionHistoryLimit: {{ $.Values.global.seleniumGrid.revisionHistoryLimit }}

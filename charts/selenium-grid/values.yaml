@@ -1013,6 +1013,8 @@ autoscaling:
   enableWithExistingKEDA: false
   # -- Which type of KEDA scaling to use: job or deployment
   scalingType: job
+  # -- Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state
+  setReplicasInSpec: true
   # -- Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes
   authenticationRef:
     name: ""

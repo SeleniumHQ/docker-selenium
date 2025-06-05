@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.44.0](https://img.shields.io/badge/Version-0.44.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.33.0-20250525](https://img.shields.io/badge/AppVersion-4.33.0--20250525-informational?style=flat-square)
+![Version: 0.44.1](https://img.shields.io/badge/Version-0.44.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.33.0-20250525](https://img.shields.io/badge/AppVersion-4.33.0--20250525-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -390,6 +390,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
+| autoscaling.setReplicasInSpec | bool | `true` | Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state |
 | autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"0"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.useCachedMetrics | bool | `false` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA). |
 | autoscaling.triggerName | string | `""` | Set trigger name. |
