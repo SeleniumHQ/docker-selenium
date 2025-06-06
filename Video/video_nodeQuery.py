@@ -92,13 +92,19 @@ def normalize_filename(filename: str, trim_pattern: str) -> str:
 
     # Convert trim pattern to regex
     # Handle character classes like [:alnum:]
-    if "[:alnum:]" in trim_pattern:
-        # Create regex pattern for alphanumeric characters plus other allowed chars
-        allowed_chars = trim_pattern.replace("[:alnum:]", "a-zA-Z0-9")
-        pattern = f"[^{allowed_chars}]"
-    else:
-        # Direct character set
-        pattern = f"[^{re.escape(trim_pattern)}]"
+    posix_classes = {
+        "[:alnum:]": "a-zA-Z0-9",
+        "[:alpha:]": "a-zA-Z",
+        "[:digit:]": "0-9",
+        "[:space:]": " \t\n\r\f\v"
+    }
+
+    allowed_chars = trim_pattern
+    for posix_class, replacement in posix_classes.items():
+        if posix_class in allowed_chars:
+            allowed_chars = allowed_chars.replace(posix_class, replacement)
+
+    pattern = f"[^{re.escape(allowed_chars)}]"
 
     # Remove disallowed characters
     normalized = re.sub(pattern, "", normalized)
