@@ -1901,5 +1901,14 @@ mkdir /tmp/videos
 chown 1200:1201 /tmp/videos
 ```
 
+### Websocket connections per session get exhausted
+
+> org.openqa.selenium.remote.http.ConnectionFailedException: JdkWebSocket initial request execution error`
+
+This was reported in [#2850](https://github.com/SeleniumHQ/docker-selenium/issues/2850).
+Actually, from Grid version v4.26.0+, in Node CLI option `--connection-limit-per-session` (`SE_NODE_CONNECTION_LIMIT_PER_SESSION` environment variable) is set to `10` by default. Let X be the maximum number of websocket connections per session.This will ensure one session is not able to exhaust the connection limit of the host. Websocket connection might come from enable CDP, BiDi.
+
+Your test scenario or test framework implementation might be creating more than `X` connections per session, which will lead to the error above. You can optimize your implementation to use less connections per session, or you can increase the limit by setting the environment variable `SE_NODE_CONNECTION_LIMIT_PER_SESSION` to a value higher than `10` to allow more connections per session.
+
 ## Stargazers over time
 [![Stargazers over time](https://starchart.cc/SeleniumHQ/docker-selenium.svg?variant=adaptive)](https://starchart.cc/SeleniumHQ/docker-selenium)

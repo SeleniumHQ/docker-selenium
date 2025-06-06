@@ -49,6 +49,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_NODE_REGISTER_PERIOD="120" \
     SE_NODE_REGISTER_CYCLE="10" \
     SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE="true" \
+    SE_NODE_CONNECTION_LIMIT_PER_SESSION="10" \
     SE_OTEL_SERVICE_NAME="selenium-node" \
     SE_NODE_RELAY_ONLY="true" \
     # Setting Selenium Manager to work offline

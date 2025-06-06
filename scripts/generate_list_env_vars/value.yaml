@@ -36,6 +36,8 @@
   default: '4443'
 - name: SE_EXTERNAL_URL
   default: ''
+- name: SE_EXTRA_LIBS
+  default: ''
 - name: SE_FRAME_RATE
   default: '15'
 - name: SE_GRID_URL
@@ -78,6 +80,8 @@
   default: ''
 - name: SE_NODE_BROWSER_VERSION
   default: stable
+- name: SE_NODE_CONNECTION_LIMIT_PER_SESSION
+  default: '200'
 - name: SE_NODE_CONTAINER_NAME
   default: ''
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
@@ -240,6 +244,8 @@
   default: /tmp/supervisord.pid
 - name: SE_SUPERVISORD_START_RETRIES
   default: '5'
+- name: SE_SUPERVISORD_UNIX_SERVER_PASSWORD
+  default: secret
 - name: SE_UPLOAD_COMMAND
   default: ''
 - name: SE_UPLOAD_DESTINATION_PREFIX

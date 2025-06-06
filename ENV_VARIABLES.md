@@ -144,4 +144,6 @@
 | SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE | true | If this flag is enabled, the Node will shut down after the register period is completed. This is useful for container environments to restart and register again. If restarted multiple times, the Node container status will be CrashLoopBackOff | --register-shutdown-on-failure |
 | SE_NODE_RELAY_BROWSER_VERSION |  |  |  |
 | SE_NODE_RELAY_ONLY | true |  |  |
-| SE_EXTRA_LIBS | | Extra jars to add to the classpath | --ext |
+| SE_EXTRA_LIBS |  | Extra jars to add to the classpath in server component bootstrap | --ext |
+| SE_NODE_CONNECTION_LIMIT_PER_SESSION | 10 |  |  |
+| SE_SUPERVISORD_UNIX_SERVER_PASSWORD | secret |  |  |
