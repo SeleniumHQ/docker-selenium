@@ -29,7 +29,7 @@ def run_browser_instance(browser, grid_url):
     elif browser == "edge":
         options = EdgeOptions()
     options.enable_bidi = True
-    options.enable_downloads = True
+    options.enable_downloads = False
 
     while True:
         driver = webdriver.Remote(

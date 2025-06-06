@@ -17,6 +17,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_VNC_NO_PASSWORD=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_RECORD_VIDEO=true
 
   firefox:
     deploy:
@@ -32,6 +33,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_VNC_NO_PASSWORD=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_RECORD_VIDEO=true
 
   selenium-hub:
     image: selenium/hub:4.33.0-20250525
