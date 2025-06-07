@@ -38,6 +38,8 @@
   default: ''
 - name: SE_EXTRA_LIBS
   default: ''
+- name: SE_FFMPEG_THREADS
+  default: ''
 - name: SE_FRAME_RATE
   default: '15'
 - name: SE_GRID_URL
@@ -81,7 +83,7 @@
 - name: SE_NODE_BROWSER_VERSION
   default: stable
 - name: SE_NODE_CONNECTION_LIMIT_PER_SESSION
-  default: '200'
+  default: '10'
 - name: SE_NODE_CONTAINER_NAME
   default: ''
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
@@ -155,6 +157,8 @@
 - name: SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED
   default: 'true'
 - name: SE_OTEL_JVM_ARGS
+  default: ''
+- name: SE_OTEL_RESOURCE_ATTRIBUTES
   default: ''
 - name: SE_OTEL_SERVICE_NAME
   default: selenium-event-bus
@@ -256,7 +260,11 @@
   default: ''
 - name: SE_UPLOAD_RETAIN_LOCAL_FILE
   default: ''
+- name: SE_VIDEO_BUFSIZE
+  default: ''
 - name: SE_VIDEO_CONTAINER_NAME
+  default: ''
+- name: SE_VIDEO_CRF
   default: ''
 - name: SE_VIDEO_FILE_NAME
   default: video.mp4
@@ -270,6 +278,8 @@
   default: ''
 - name: SE_VIDEO_INTERNAL_UPLOAD
   default: 'true'
+- name: SE_VIDEO_MAXRATE
+  default: ''
 - name: SE_VIDEO_POLL_INTERVAL
   default: '1'
 - name: SE_VIDEO_RECORD_STANDALONE
