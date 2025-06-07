@@ -7,7 +7,7 @@ metadata:
   labels: &exporter_labels
     app: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
     app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 spec:
   replicas: {{ .Values.monitoring.exporter.replicas }}
   selector:

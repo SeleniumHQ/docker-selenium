@@ -7,10 +7,7 @@ metadata:
   labels: &app_labels
     app: {{ template "seleniumGrid.videoManager.fullname" $ }}
     app.kubernetes.io/name: {{ template "seleniumGrid.videoManager.fullname" $ }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.videoManager $.Values.global.seleniumGrid) }}

@@ -682,7 +682,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.extraVolumeMounts | list | `[]` | Custom video recorder back-end scripts (video.sh, video_ready.py, etc.) further by ConfigMap. NOTE: For the mount point with the name "video", or "video-scripts", it will override the default. For other names, it will be appended. |
 | videoRecorder.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
 | videoRecorder.s3 | object | `{"args":[],"command":[],"extraEnvironmentVariables":[],"imageName":"aws-cli","imagePullPolicy":"IfNotPresent","imageRegistry":"bitnami","imageTag":"latest","securityContext":{"runAsUser":0}}` | Container spec for the uploader if above it is defined as "uploader.name: s3" |
-| customLabels | object | `{}` | Custom labels for k8s resources |
+| customLabels | object | `{}` | Add more labels to all resources created by this chart or override existing label keys |
 | videoManager.enabled | bool | `false` | Enable video manager |
 | videoManager.nameOverride | string | `""` | Override deployment name of video manager |
 | videoManager.ingress.enabled | bool | `true` | Enable ingress resource to access the file browser |

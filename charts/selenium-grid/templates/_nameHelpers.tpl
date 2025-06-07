@@ -32,11 +32,28 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "seleniumGrid.commonLabels" -}}
-app.kubernetes.io/managed-by: {{ .Release.Service | lower }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/version: {{ .Chart.AppVersion }}
-app.kubernetes.io/component: {{ printf "selenium-grid-%s" .Chart.AppVersion }}
-helm.sh/chart: {{ include "seleniumGrid.chart" . }}
+{{- $defaultLabels := dict
+    "app.kubernetes.io/managed-by" (.Release.Service | lower)
+    "app.kubernetes.io/instance" .Release.Name
+    "app.kubernetes.io/version" .Chart.AppVersion
+    "app.kubernetes.io/component" (printf "selenium-grid-%s" .Chart.AppVersion)
+    "helm.sh/chart" (include "seleniumGrid.chart" .)
+}}
+{{- $customLabels := tpl (toYaml (.Values.customLabels | default dict)) $ | fromYaml }}
+{{- $mergedLabels := merge $defaultLabels $customLabels }}
+{{- toYaml $mergedLabels | nindent 0 }}
+{{- end -}}
+
+{{/*
+Bring common labels to tracing resource attributes
+*/}}
+{{- define "seleniumGrid.tracing.attributes" -}}
+{{- $labels := include "seleniumGrid.commonLabels" $ | fromYaml }}
+{{- $attrs := list }}
+{{- range $k, $v := $labels }}
+{{- $attrs = append $attrs (printf "%s=%s" $k $v) }}
+{{- end }}
+{{- join "," $attrs }}
 {{- end -}}
 
 {{/*

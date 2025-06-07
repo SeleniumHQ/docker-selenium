@@ -2039,7 +2039,7 @@ videoRecorder:
     #       name: secret-name
     #       key: secret-key
 
-# -- Custom labels for k8s resources
+# -- Add more labels to all resources created by this chart or override existing label keys
 customLabels: {}
 
 videoManager:

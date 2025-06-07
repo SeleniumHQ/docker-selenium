@@ -16,10 +16,7 @@ metadata:
   name: {{ template "seleniumGrid.ingress.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
   {{- $ingressAnnotations := (include "seleniumGrid.ingress.nginx.annotations.default" . | toString | fromYaml ) }}
   {{- with .Values.ingress.annotations -}}
     {{- $ingressAnnotations = mergeOverwrite $ingressAnnotations . }}

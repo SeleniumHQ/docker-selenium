@@ -12,9 +12,6 @@ metadata:
     app: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
     app.kubernetes.io/name: {{ template "seleniumGrid.rbac.roleBinding.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-    {{- with $.Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
 subjects:
   - kind: ServiceAccount
     name: {{ default (include "seleniumGrid.serviceAccount.fullname" $) $.Values.autoscaling.patchObjectFinalizers.serviceAccount }}

@@ -10,6 +10,9 @@ tls:
   ingress:
     enabled: true
 
+tracing:
+  enabled: true
+
 ingress:
   enableWithController: true
   annotations:
@@ -117,3 +120,8 @@ ingress-nginx:
     kind: DaemonSet
     service:
       type: LoadBalancer
+
+customLabels:
+  organization: "SeleniumHQ"
+  environment: "dev"
+

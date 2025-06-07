@@ -7,10 +7,7 @@ metadata:
   labels: &session_map_labels
     app: {{ template "seleniumGrid.sessionMap.fullname" . }}
     app.kubernetes.io/name: {{ template "seleniumGrid.sessionMap.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.components.sessionMap $.Values.global.seleniumGrid) }}
@@ -47,6 +44,8 @@ spec:
                   fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionMap.fullname" . }}'
+            - name: SE_OTEL_RESOURCE_ATTRIBUTES
+              value: {{ include "seleniumGrid.tracing.attributes" $ | quote }}
             - name: SE_SESSIONS_MAP_HOST
               valueFrom:
                 fieldRef:
