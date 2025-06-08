@@ -8,10 +8,7 @@ metadata:
   annotations: {{- toYaml . | nindent 4 }}
 {{- end }}
   labels:
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 data:
 {{- with .Values.uploaderConfigMap.extraScriptsDirectory }}
   UPLOAD_CONFIG_DIRECTORY: '{{ . }}'

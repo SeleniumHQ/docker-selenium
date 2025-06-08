@@ -7,10 +7,7 @@ metadata:
   labels: &distributor_labels
     app: {{ template "seleniumGrid.distributor.fullname" . }}
     app.kubernetes.io/name: {{ template "seleniumGrid.distributor.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.components.distributor $.Values.global.seleniumGrid) }}
@@ -49,6 +46,8 @@ spec:
                   fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.distributor.fullname" . }}'
+            - name: SE_OTEL_RESOURCE_ATTRIBUTES
+              value: {{ include "seleniumGrid.tracing.attributes" $ | quote }}
             - name: SE_DISTRIBUTOR_HOST
               valueFrom:
                 fieldRef:

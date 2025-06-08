@@ -7,10 +7,7 @@ metadata:
   annotations: {{- toYaml . | nindent 4 }}
 {{- end }}
   labels:
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 data:
   SE_LOG_LEVEL: {{ default "INFO" .Values.global.seleniumGrid.logLevel | quote }}
   SE_STRUCTURED_LOGS: {{ default false .Values.global.seleniumGrid.structuredLogs | quote }}

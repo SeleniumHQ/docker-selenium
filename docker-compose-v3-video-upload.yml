@@ -29,7 +29,7 @@ services:
       - FB_NOAUTH=true
 
   chrome:
-    image: selenium/node-chrome:4.33.0-20250525
+    image: selenium/node-chrome:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -38,7 +38,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   edge:
-    image: selenium/node-edge:4.33.0-20250525
+    image: selenium/node-edge:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -47,7 +47,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   firefox:
-    image: selenium/node-firefox:4.33.0-20250525
+    image: selenium/node-firefox:4.33.0-20250606
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -55,7 +55,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - chrome
     environment:
@@ -75,7 +75,7 @@ services:
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
 
   edge_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - edge
     environment:
@@ -95,7 +95,7 @@ services:
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - firefox
     environment:
@@ -115,7 +115,7 @@ services:
       - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
 
   selenium-hub:
-    image: selenium/hub:4.33.0-20250525
+    image: selenium/hub:4.33.0-20250606
     container_name: selenium-hub
     ports:
       - "4442:4442"

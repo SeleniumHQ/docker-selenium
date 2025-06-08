@@ -28,7 +28,7 @@ services:
       - FB_NOAUTH=true
 
   node-docker:
-    image: selenium/node-docker:4.33.0-20250525
+    image: selenium/node-docker:4.33.0-20250606
     volumes:
       - ./assets:/opt/selenium/assets
       - ./NodeDocker/config.toml:/opt/selenium/docker.toml
@@ -52,7 +52,7 @@ services:
       - SE_RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
 
   selenium-hub:
-    image: selenium/hub:4.33.0-20250525
+    image: selenium/hub:4.33.0-20250606
     container_name: selenium-hub
     ports:
       - "4442:4442"

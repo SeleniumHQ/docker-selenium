@@ -4,7 +4,7 @@
 # Stop swarm mode `docker swarm leave --force`
 services:
   chrome:
-    image: selenium/node-chrome:4.33.0-20250525
+    image: selenium/node-chrome:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     environment:
@@ -14,7 +14,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   edge:
-    image: selenium/node-edge:4.33.0-20250525
+    image: selenium/node-edge:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     environment:
@@ -24,7 +24,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   firefox:
-    image: selenium/node-firefox:4.33.0-20250525
+    image: selenium/node-firefox:4.33.0-20250606
     shm_size: 2gb
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
@@ -33,7 +33,7 @@ services:
     entrypoint: bash -c 'SE_OPTS="--host $$HOSTNAME" /opt/bin/entry_point.sh'
 
   selenium-hub:
-    image: selenium/hub:4.33.0-20250525
+    image: selenium/hub:4.33.0-20250606
     ports:
       - "4442:4442"
       - "4443:4443"

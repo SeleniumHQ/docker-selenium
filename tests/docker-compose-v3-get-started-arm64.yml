@@ -5,11 +5,9 @@ services:
   chrome:
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
     image: selenium/node-chromium:latest
     shm_size: 2gb
-    ports:
-      - "5900:5900"
     depends_on:
       - selenium-hub
     volumes:
@@ -23,11 +21,9 @@ services:
   firefox:
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 3
     image: selenium/node-firefox:latest
     shm_size: 2gb
-    ports:
-      - "5901:5900"
     depends_on:
       - selenium-hub
     volumes:

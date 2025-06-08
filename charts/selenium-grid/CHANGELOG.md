@@ -1,3 +1,18 @@
+## :heavy_check_mark: selenium-grid-0.44.2
+
+- Chart is using image tag 4.33.0-20250606
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.13,v1.31.9,v1.32.5,v1.33.1
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.3,v3.18.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.1
+
+### Changed
+- [`5efe4cf2`](http://github.com/seleniumhq/docker-selenium/commit/5efe4cf26bd518d7cd7c30eb46c5932329c3f66a) - [ci] Update tag 4.33.0-20250606 in docs and files :: Selenium CI Bot
+- [`c06d1a24`](http://github.com/seleniumhq/docker-selenium/commit/c06d1a24f33e9f96d506f4c8c438e6d93bd2095b) - K8s: Helm config `customLabels` to add more tracing resource attributes (#2858) :: Viet Nguyen Duc
+- [`1989f7b8`](http://github.com/seleniumhq/docker-selenium/commit/1989f7b899b0f265bbb5bd8fd7c38b831f86a7e0) - Update Helm release kube-prometheus-stack to v73 (#2853) :: renovate[bot]
+- [`fb86e414`](http://github.com/seleniumhq/docker-selenium/commit/fb86e41490cca3e6c8e083191f745e82cd6b9aad) - K8s: Add chart config `autoscaling.setReplicasInSpec` in case ArgoCD with AutoSync :: Viet Nguyen Duc
+- [`10fa7b3d`](http://github.com/seleniumhq/docker-selenium/commit/10fa7b3d21df27e442038e78b23b57ce0ce881e4) - [ci] Update chart 0.44.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.44.0
 
 - Chart is using image tag 4.33.0-20250525

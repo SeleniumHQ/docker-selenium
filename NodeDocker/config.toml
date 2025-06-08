@@ -2,9 +2,9 @@
 # Configs have a mapping between the Docker image to use and the capabilities that need to be matched to
 # start a container with the given image.
 configs = [
-    "selenium/standalone-firefox:4.33.0-20250525", '{"browserName": "firefox", "platformName": "linux"}',
-    "selenium/standalone-chrome:4.33.0-20250525", '{"browserName": "chrome", "platformName": "linux"}',
-    "selenium/standalone-edge:4.33.0-20250525", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    "selenium/standalone-firefox:4.33.0-20250606", '{"browserName": "firefox", "platformName": "linux"}',
+    "selenium/standalone-chrome:4.33.0-20250606", '{"browserName": "chrome", "platformName": "linux"}',
+    "selenium/standalone-edge:4.33.0-20250606", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 # Share configs of volumes, DNS, extra hosts between node-docker and node browser containers
 host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
@@ -16,7 +16,7 @@ host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 # socat -4 TCP-LISTEN:2375,fork UNIX-CONNECT:/var/run/docker.sock
 url = "http://127.0.0.1:2375"
 # Docker image used for video recording
-video-image = "selenium/video:ffmpeg-7.1-20250525"
+video-image = "selenium/video:ffmpeg-7.1-20250606"
 
 # Uncomment the following section if you are running the node on a separate VM
 # Fill out the placeholders with appropriate values

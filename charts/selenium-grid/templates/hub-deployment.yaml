@@ -7,11 +7,8 @@ metadata:
   labels: &hub_labels
     app: {{ template "seleniumGrid.hub.fullname" . }}
     app.kubernetes.io/name: {{ template "seleniumGrid.hub.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
     {{- with .Values.hub.labels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
-    {{- with .Values.customLabels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
@@ -110,6 +107,8 @@ spec:
                   fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.hub.fullname" . }}'
+            - name: SE_OTEL_RESOURCE_ATTRIBUTES
+              value: {{ include "seleniumGrid.tracing.attributes" $ | quote }}
             - name: SE_HUB_HOST
               valueFrom:
                 fieldRef:

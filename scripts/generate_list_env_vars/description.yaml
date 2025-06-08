@@ -440,3 +440,27 @@
 - name: SE_NODE_RELAY_ONLY
   description: ''
   cli: ''
+- name: SE_EXTRA_LIBS
+  description: Extra jars to add to the classpath in server component bootstrap
+  cli: --ext
+- name: SE_NODE_CONNECTION_LIMIT_PER_SESSION
+  description: ''
+  cli: ''
+- name: SE_SUPERVISORD_UNIX_SERVER_PASSWORD
+  description: ''
+  cli: ''
+- name: SE_FFMPEG_THREADS
+  description: ''
+  cli: ''
+- name: SE_OTEL_RESOURCE_ATTRIBUTES
+  description: Add more attributes to the OpenTelemetry resource, e.g. "service.version=1.0.0,deployment.environment=production"
+  cli: ''
+- name: SE_VIDEO_BUFSIZE
+  description: ''
+  cli: ''
+- name: SE_VIDEO_CRF
+  description: ''
+  cli: ''
+- name: SE_VIDEO_MAXRATE
+  description: ''
+  cli: ''

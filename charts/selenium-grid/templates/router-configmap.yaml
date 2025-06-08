@@ -7,10 +7,7 @@ metadata:
   annotations: {{- toYaml . | nindent 4 }}
 {{- end }}
   labels:
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 data:
   ROUTER_CONFIG_DIRECTORY: '{{ $.Values.routerConfigMap.extraScriptsDirectory }}'
 {{- $fileProceeded := list -}}

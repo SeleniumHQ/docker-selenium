@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.33.0-20250525
+    imageTag: 4.33.0-20250606
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.33.0-20250525
+    nodesImageTag: 4.33.0-20250606
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.1-20250525
+    videoImageTag: ffmpeg-7.1-20250606
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -2039,7 +2039,7 @@ videoRecorder:
     #       name: secret-name
     #       key: secret-key
 
-# -- Custom labels for k8s resources
+# -- Add more labels to all resources created by this chart or override existing label keys
 customLabels: {}
 
 videoManager:
@@ -2144,15 +2144,15 @@ keda:
 #    keda:
 #      registry: selenium
 #      repository: keda
-#      tag: "2.17.1-selenium-grid-20250525"
+#      tag: "2.17.1-selenium-grid-20250606"
 #    metricsApiServer:
 #      registry: selenium
 #      repository: keda-metrics-apiserver
-#      tag: "2.17.1-selenium-grid-20250525"
+#      tag: "2.17.1-selenium-grid-20250606"
 #    webhooks:
 #      registry: selenium
 #      repository: keda-admission-webhooks
-#      tag: "2.17.1-selenium-grid-20250525"
+#      tag: "2.17.1-selenium-grid-20250606"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

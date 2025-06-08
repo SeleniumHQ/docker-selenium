@@ -29,7 +29,7 @@ services:
       - FB_NOAUTH=true
 
   standalone_chrome:
-    image: selenium/standalone-chrome:4.33.0-20250525
+    image: selenium/standalone-chrome:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     ports:
@@ -40,7 +40,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_edge:
-    image: selenium/standalone-edge:4.33.0-20250525
+    image: selenium/standalone-edge:4.33.0-20250606
     platform: linux/amd64
     shm_size: 2gb
     ports:
@@ -51,7 +51,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   standalone_firefox:
-    image: selenium/standalone-firefox:4.33.0-20250525
+    image: selenium/standalone-firefox:4.33.0-20250606
     shm_size: 2gb
     ports:
       - "6444:4444"
@@ -61,7 +61,7 @@ services:
       - SE_SUB_PATH=/selenium
 
   chrome_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - standalone_chrome
     environment:
@@ -85,7 +85,7 @@ services:
     stop_grace_period: 30s
 
   edge_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - standalone_edge
     environment:
@@ -109,7 +109,7 @@ services:
     stop_grace_period: 30s
 
   firefox_video:
-    image: selenium/video:ffmpeg-7.1-20250525
+    image: selenium/video:ffmpeg-7.1-20250606
     depends_on:
       - standalone_firefox
     environment:

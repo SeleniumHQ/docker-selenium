@@ -7,10 +7,7 @@ metadata:
   labels: &session_queue_labels
     app: {{ template "seleniumGrid.sessionQueue.fullname" . }}
     app.kubernetes.io/name: {{ template "seleniumGrid.sessionQueue.fullname" . }}
-    {{- include "seleniumGrid.commonLabels" . | nindent 4 }}
-    {{- with .Values.customLabels }}
-      {{- toYaml . | nindent 4 }}
-    {{- end }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 spec:
   strategy:
     {{- template "seleniumGrid.updateStrategy" (list $.Values.components.sessionQueue $.Values.global.seleniumGrid) }}
@@ -46,6 +43,8 @@ spec:
                   fieldPath: status.hostIP
             - name: SE_OTEL_SERVICE_NAME
               value: '{{ template "seleniumGrid.sessionQueue.fullname" . }}'
+            - name: SE_OTEL_RESOURCE_ATTRIBUTES
+              value: {{ include "seleniumGrid.tracing.attributes" $ | quote }}
             - name: SE_SESSION_QUEUE_HOST
               valueFrom:
                 fieldRef:

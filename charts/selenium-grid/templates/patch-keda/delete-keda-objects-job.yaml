@@ -13,9 +13,6 @@ metadata:
     app: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
     app.kubernetes.io/name: {{ template "seleniumGrid.keda.deleteObjectsJob.fullname" $ }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-  {{- with $.Values.customLabels }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 spec:
   template:
     metadata:

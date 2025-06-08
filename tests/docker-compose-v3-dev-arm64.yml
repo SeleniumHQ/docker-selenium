@@ -6,7 +6,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chromium:4.33.0-20250525
+    image: selenium/node-chromium:4.33.0-20250606
     platform: linux/arm64
     shm_size: 2gb
     volumes:
@@ -17,12 +17,13 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_VNC_NO_PASSWORD=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_RECORD_VIDEO=true
 
   firefox:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.33.0-20250525
+    image: selenium/node-firefox:4.33.0-20250606
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
@@ -32,9 +33,10 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_VNC_NO_PASSWORD=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=true
+      - SE_RECORD_VIDEO=true
 
   selenium-hub:
-    image: selenium/hub:4.33.0-20250525
+    image: selenium/hub:4.33.0-20250606
     container_name: selenium-hub
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
