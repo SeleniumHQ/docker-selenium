@@ -6,6 +6,7 @@ import yaml
 
 local_file = 'tests/build-backward-compatible/firefox-matrix.yml'
 
+
 def fetch_firefox_versions():
     url = 'https://ftp.mozilla.org/pub/firefox/releases/'
     resp = requests.get(url)
@@ -30,5 +31,6 @@ def fetch_firefox_versions():
         yaml_struct['matrix']['browser'][str(major)] = {'FIREFOX_VERSION': version}
     with open(local_file, 'w') as file:
         yaml.dump(yaml_struct, file, default_flow_style=False, sort_keys=False)
+
 
 fetch_firefox_versions()

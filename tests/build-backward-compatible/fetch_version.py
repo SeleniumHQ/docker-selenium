@@ -11,7 +11,8 @@ firefox_url = 'tests/build-backward-compatible/firefox-matrix.yml'
 # Local YAML file to update
 local_file = 'tests/build-backward-compatible/browser-matrix.yml'
 
-def fetch_yaml(url, local = False):
+
+def fetch_yaml(url, local=False):
     if not local:
         response = requests.get(url)
         response.raise_for_status()
@@ -20,12 +21,14 @@ def fetch_yaml(url, local = False):
         with open(url, 'r') as f:
             return yaml.load(f, Loader=yaml.SafeLoader)
 
+
 def merge_dicts(dict1, dict2):
     for key, value in dict2.items():
         if key in dict1 and isinstance(dict1[key], dict) and isinstance(value, dict):
             merge_dicts(dict1[key], value)
         elif key in dict1 and '_PACKAGE_' not in key:
             dict1[key] = value if value is not None else ""
+
 
 def update_local_yaml(local_data, source_data):
     updated = False
@@ -38,6 +41,7 @@ def update_local_yaml(local_data, source_data):
                     updated = True
             merge_dicts(original_details, details)
     return updated
+
 
 def main():
     # Fetch source YAML data
@@ -61,6 +65,7 @@ def main():
         print("Local YAML file updated.")
     else:
         print("No updates needed.")
+
 
 if __name__ == '__main__':
     main()

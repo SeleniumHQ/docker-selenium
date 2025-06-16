@@ -8,6 +8,7 @@ import yaml
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+
 def load_template(yaml_file):
     try:
         with open(yaml_file) as file:
@@ -17,22 +18,30 @@ def load_template(yaml_file):
     except yaml.YAMLError as error:
         print("Error in configuration file: ", error)
 
+
 class ChartTemplateTests(unittest.TestCase):
     def test_set_affinity(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',
-                          f'{RELEASE_NAME}selenium-event-bus',
-                          f'{RELEASE_NAME}selenium-router',
-                          f'{RELEASE_NAME}selenium-session-map',
-                          f'{RELEASE_NAME}selenium-session-queue']
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-distributor',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+            f'{RELEASE_NAME}selenium-event-bus',
+            f'{RELEASE_NAME}selenium-router',
+            f'{RELEASE_NAME}selenium-session-map',
+            f'{RELEASE_NAME}selenium-session-queue',
+        ]
         count = 0
         logger.info(f"Assert affinity is set in global and nodes")
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
                 logger.info(f"Assert affinity is set in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['template']['spec']['affinity']['podAffinity']['requiredDuringSchedulingIgnoredDuringExecution'][0]['labelSelector']['matchExpressions'] is not None)
+                self.assertTrue(
+                    doc['spec']['template']['spec']['affinity']['podAffinity'][
+                        'requiredDuringSchedulingIgnoredDuringExecution'
+                    ][0]['labelSelector']['matchExpressions']
+                    is not None
+                )
                 count += 1
         self.assertEqual(count, len(resources_name), "Not all resources have affinity set")
 
@@ -43,18 +52,28 @@ class ChartTemplateTests(unittest.TestCase):
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Ingress':
                 logger.info(f"Assert ingress ingress annotations")
                 logger.info(f"Config `ingress.nginx.proxyTimeout` is able to be set a different value")
-                self.assertTrue(doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-read-timeout'] == '360')
+                self.assertTrue(
+                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-read-timeout'] == '360'
+                )
                 logger.info(f"Duplicated in `ingress.annotations` take precedence to overwrite the default value")
-                self.assertTrue(doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-connect-timeout'] == '3600')
+                self.assertTrue(
+                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-connect-timeout'] == '3600'
+                )
                 logger.info(f"Default annotation is able to be disabled by setting it to null")
-                self.assertTrue(doc['metadata']['annotations'].get('nginx.ingress.kubernetes.io/proxy-buffers-number')  is None)
+                self.assertTrue(
+                    doc['metadata']['annotations'].get('nginx.ingress.kubernetes.io/proxy-buffers-number') is None
+                )
                 logger.info(f"Default annotation is added if no override value")
-                self.assertTrue(doc['metadata']['annotations']['nginx.ingress.kubernetes.io/client-body-buffer-size']  == '512M')
+                self.assertTrue(
+                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/client-body-buffer-size'] == '512M'
+                )
                 count += 1
         self.assertEqual(count, len(resources_name), "No ingress resources found")
 
     def test_sub_path_append_to_node_grid_url_and_basic_auth_should_not_include(self):
-        resources_name = [f'{RELEASE_NAME}selenium-secrets',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-secrets',
+        ]
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
                 logger.info(f"Assert graphql url is constructed without basic auth in url")
@@ -75,20 +94,26 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "ENV variable SE_SUB_PATH is not populated")
 
     def test_graphql_url_for_autoscaling_constructed_without_basic_auth_in_url(self):
-        resources_name = [f'{RELEASE_NAME}selenium-secrets',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-secrets',
+        ]
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Secret':
                 logger.info(f"Assert graphql url is constructed without basic auth in url")
                 base64_url = doc['data']['SE_NODE_GRID_GRAPHQL_URL']
                 decoded_url = base64.b64decode(base64_url).decode('utf-8')
-                self.assertTrue(decoded_url == f'https://{RELEASE_NAME}selenium-router.default:4444/selenium/graphql', decoded_url)
+                self.assertTrue(
+                    decoded_url == f'https://{RELEASE_NAME}selenium-router.default:4444/selenium/graphql', decoded_url
+                )
 
     def test_distributor_new_session_thread_pool_size(self):
         resources_name = [f'{RELEASE_NAME}selenium-distributor']
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
-                logger.info(f"Assert newSessionThreadPoolSize is set to Distributor env SE_NEW_SESSION_THREAD_POOL_SIZE")
+                logger.info(
+                    f"Assert newSessionThreadPoolSize is set to Distributor env SE_NEW_SESSION_THREAD_POOL_SIZE"
+                )
                 list_env = doc['spec']['template']['spec']['containers'][0]['env']
                 for env in list_env:
                     if env['name'] == 'SE_NEW_SESSION_THREAD_POOL_SIZE' and env['value'] == '24':
@@ -108,14 +133,16 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "ENV variable SE_DISABLE_UI is not populated")
 
     def test_log_level_set_to_logging_config_map(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',
-                          f'{RELEASE_NAME}selenium-event-bus',
-                          f'{RELEASE_NAME}selenium-router',
-                          f'{RELEASE_NAME}selenium-session-map',
-                          f'{RELEASE_NAME}selenium-session-queue']
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-distributor',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+            f'{RELEASE_NAME}selenium-event-bus',
+            f'{RELEASE_NAME}selenium-router',
+            f'{RELEASE_NAME}selenium-session-map',
+            f'{RELEASE_NAME}selenium-session-queue',
+        ]
         logger.info(f"Assert log level value is set to logging ConfigMap")
         count_config = 0
         for doc in LIST_OF_DOCUMENTS:
@@ -138,15 +165,20 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "Logging ConfigMap is not present in expected resources")
 
     def test_node_port_set_when_service_type_is_node_port(self):
-        single_node_port = {f'{RELEASE_NAME}selenium-distributor': 30553,
-                            f'{RELEASE_NAME}selenium-router': 30444,
-                            f'{RELEASE_NAME}selenium-session-queue': 30559}
+        single_node_port = {
+            f'{RELEASE_NAME}selenium-distributor': 30553,
+            f'{RELEASE_NAME}selenium-router': 30444,
+            f'{RELEASE_NAME}selenium-session-queue': 30559,
+        }
         count = 0
         logger.info(f"Assert NodePort is set to components service")
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in single_node_port.keys() and doc['kind'] == 'Service':
                 logger.info(f"Assert NodePort is set to service {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['ports'][0]['nodePort'] == single_node_port[doc['metadata']['name']], f"Service {doc['metadata']['name']} with expect NodePort {single_node_port[doc['metadata']['name']]} is not found")
+                self.assertTrue(
+                    doc['spec']['ports'][0]['nodePort'] == single_node_port[doc['metadata']['name']],
+                    f"Service {doc['metadata']['name']} with expect NodePort {single_node_port[doc['metadata']['name']]} is not found",
+                )
                 count += 1
         self.assertEqual(count, len(single_node_port.keys()), "Number of services with NodePort is not correct")
 
@@ -155,8 +187,10 @@ class ChartTemplateTests(unittest.TestCase):
         prefix = "selenium-" if RELEASE_NAME == "" else RELEASE_NAME
         for doc in LIST_OF_DOCUMENTS:
             logger.info(f"Assert metadata name: {doc['metadata']['name']}")
-            self.assertTrue(doc['metadata']['name'].startswith(RELEASE_NAME),
-                            f"Metadata name {doc['metadata']['name']} is not prefixed with RELEASE NAME: {RELEASE_NAME}")
+            self.assertTrue(
+                doc['metadata']['name'].startswith(RELEASE_NAME),
+                f"Metadata name {doc['metadata']['name']} is not prefixed with RELEASE NAME: {RELEASE_NAME}",
+            )
 
     def test_extra_script_import_to_node_configmap(self):
         resources_name = [f'{RELEASE_NAME}selenium-node-config']
@@ -194,9 +228,11 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "No recorder config resources found")
 
     def test_upload_conf_mount_to_video_container(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+        ]
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
@@ -223,24 +259,36 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "Volume mount for upload config is not present in the container")
 
     def test_terminationGracePeriodSeconds_in_deployment_autoscaling(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+        ]
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
                 logger.info(f"Assert terminationGracePeriodSeconds is set in resource {doc['metadata']['name']}")
                 self.assertTrue(doc['spec']['template']['spec']['terminationGracePeriodSeconds'] == 7200)
                 count += 1
-        self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't override a higher value than autoscaling.terminationGracePeriodSeconds")
+        self.assertEqual(
+            count,
+            len(resources_name),
+            "node.terminationGracePeriodSeconds doesn't override a higher value than autoscaling.terminationGracePeriodSeconds",
+        )
 
-        resources_name = [f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+        ]
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
                 logger.info(f"Assert terminationGracePeriodSeconds is set in resource {doc['metadata']['name']}")
                 self.assertTrue(doc['spec']['template']['spec']['terminationGracePeriodSeconds'] == 3600)
                 count += 1
-        self.assertEqual(count, len(resources_name), "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds")
+        self.assertEqual(
+            count,
+            len(resources_name),
+            "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds",
+        )
 
     def test_enable_leftovers_cleanup(self):
         resources_name = [f'{RELEASE_NAME}selenium-node-config']
@@ -266,43 +314,58 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "No node config resources found")
 
     def test_update_strategy_in_all_components(self):
-        recreate = [f'{RELEASE_NAME}selenium-distributor',
-                    f'{RELEASE_NAME}selenium-event-bus',
-                    f'{RELEASE_NAME}selenium-router',
-                    f'{RELEASE_NAME}selenium-session-map',
-                    f'{RELEASE_NAME}selenium-session-queue',
-                    f'{RELEASE_NAME}selenium-node-chrome',
-                    f'{RELEASE_NAME}selenium-node-edge',
-                    f'{RELEASE_NAME}selenium-node-firefox',]
+        recreate = [
+            f'{RELEASE_NAME}selenium-distributor',
+            f'{RELEASE_NAME}selenium-event-bus',
+            f'{RELEASE_NAME}selenium-router',
+            f'{RELEASE_NAME}selenium-session-map',
+            f'{RELEASE_NAME}selenium-session-queue',
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+        ]
         rolling = []
         count_recreate = 0
         count_rolling = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in rolling and doc['kind'] == 'Deployment':
                 logger.info(f"Assert updateStrategy is set in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['strategy']['type'] == 'RollingUpdate', f"Resource {doc['metadata']['name']} doesn't have strategy RollingUpdate")
+                self.assertTrue(
+                    doc['spec']['strategy']['type'] == 'RollingUpdate',
+                    f"Resource {doc['metadata']['name']} doesn't have strategy RollingUpdate",
+                )
                 count_rolling += 1
             if doc['metadata']['name'] in recreate and doc['kind'] == 'Deployment':
                 logger.info(f"Assert updateStrategy is set in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['strategy']['type'] == 'Recreate', f"Resource {doc['metadata']['name']} doesn't have strategy Recreate")
+                self.assertTrue(
+                    doc['spec']['strategy']['type'] == 'Recreate',
+                    f"Resource {doc['metadata']['name']} doesn't have strategy Recreate",
+                )
                 count_recreate += 1
         self.assertEqual(count_rolling, len(rolling), "No deployment resources found with strategy RollingUpdate")
         self.assertEqual(count_recreate, len(recreate), "No deployment resources found with strategy Recreate")
 
     def test_topologySpreadConstraints_in_all_components(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',
-                          f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-event-bus',
-                          f'{RELEASE_NAME}selenium-router',
-                          f'{RELEASE_NAME}selenium-session-map',
-                          f'{RELEASE_NAME}selenium-session-queue',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+            f'{RELEASE_NAME}selenium-distributor',
+            f'{RELEASE_NAME}selenium-event-bus',
+            f'{RELEASE_NAME}selenium-router',
+            f'{RELEASE_NAME}selenium-session-map',
+            f'{RELEASE_NAME}selenium-session-queue',
+        ]
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
                 logger.info(f"Assert topologySpreadConstraints is set in resource {doc['metadata']['name']}")
-                self.assertTrue(doc['spec']['template']['spec']['topologySpreadConstraints'][0]['labelSelector']['matchLabels']['app'] == doc['metadata']['name'])
+                self.assertTrue(
+                    doc['spec']['template']['spec']['topologySpreadConstraints'][0]['labelSelector']['matchLabels'][
+                        'app'
+                    ]
+                    == doc['metadata']['name']
+                )
                 count += 1
         self.assertEqual(count, len(resources_name), "No deployment resources found with topologySpreadConstraints")
 
@@ -316,18 +379,22 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, 0, "Basic auth secret resource is created when nameOverride is set")
 
     def test_router_envFrom_secretRef_name_use_external_secret_when_basicAuth_nameOverride_is_set(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',
-                          f'{RELEASE_NAME}selenium-distributor',
-                          f'{RELEASE_NAME}selenium-event-bus',
-                          f'{RELEASE_NAME}selenium-router',
-                          f'{RELEASE_NAME}selenium-session-map',
-                          f'{RELEASE_NAME}selenium-session-queue',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+            f'{RELEASE_NAME}selenium-distributor',
+            f'{RELEASE_NAME}selenium-event-bus',
+            f'{RELEASE_NAME}selenium-router',
+            f'{RELEASE_NAME}selenium-session-map',
+            f'{RELEASE_NAME}selenium-session-queue',
+        ]
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
-                logger.info(f"Assert envFrom secretRef name is set to external secret when basicAuth nameOverride is set")
+                logger.info(
+                    f"Assert envFrom secretRef name is set to external secret when basicAuth nameOverride is set"
+                )
                 list_env_from = doc['spec']['template']['spec']['containers'][0]['envFrom']
                 for env in list_env_from:
                     if env.get('secretRef') is not None:
@@ -336,9 +403,11 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertTrue(is_present, "ENV variable from secretRef name is not set to external secret")
 
     def test_scaler_triggers_authenticationRef_name_is_added(self):
-        resources_name = [f'{RELEASE_NAME}selenium-node-chrome',
-                          f'{RELEASE_NAME}selenium-node-edge',
-                          f'{RELEASE_NAME}selenium-node-firefox',]
+        resources_name = [
+            f'{RELEASE_NAME}selenium-node-chrome',
+            f'{RELEASE_NAME}selenium-node-edge',
+            f'{RELEASE_NAME}selenium-node-firefox',
+        ]
         is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
@@ -347,25 +416,35 @@ class ChartTemplateTests(unittest.TestCase):
                 self.assertTrue(name, f'{RELEASE_NAME}selenium-scaler-trigger-auth')
 
     def test_scaler_triggers_parameter_nodeMaxSessions_global_and_individual_value(self):
-        resources_name = {f'{RELEASE_NAME}selenium-node-chrome': 2,
-                          f'{RELEASE_NAME}selenium-node-edge': 3,
-                          f'{RELEASE_NAME}selenium-node-firefox': 1,}
+        resources_name = {
+            f'{RELEASE_NAME}selenium-node-chrome': 2,
+            f'{RELEASE_NAME}selenium-node-edge': 3,
+            f'{RELEASE_NAME}selenium-node-firefox': 1,
+        }
         count = 0
         for resource_name in resources_name.keys():
             for doc in LIST_OF_DOCUMENTS:
                 if doc['metadata']['name'] == resource_name and doc['kind'] == 'ScaledObject':
                     logger.info(f"Assert nodeMaxSessions parameter is set in scaler triggers")
-                    self.assertTrue(doc['spec']['triggers'][0]['metadata']['nodeMaxSessions'] == str(resources_name[doc['metadata']['name']]))
+                    self.assertTrue(
+                        doc['spec']['triggers'][0]['metadata']['nodeMaxSessions']
+                        == str(resources_name[doc['metadata']['name']])
+                    )
                 if doc['metadata']['name'] == resource_name and doc['kind'] == 'Deployment':
                     for env in doc['spec']['template']['spec']['containers'][0]['env']:
                         if env['name'] == 'SE_NODE_MAX_SESSIONS':
-                            self.assertTrue(env['value'] == str(resources_name[doc['metadata']['name']]), "Value is not matched")
+                            self.assertTrue(
+                                env['value'] == str(resources_name[doc['metadata']['name']]), "Value is not matched"
+                            )
                         if env['name'] == 'SE_NODE_PLATFORM_NAME':
                             self.assertTrue(env['value'] == "", "Platform name is not matched")
                         if env['name'] == 'SE_NODE_BROWSER_VERSION':
                             self.assertTrue(env['value'] == "", "Browser version is not matched")
                             count += 1
-        self.assertEqual(count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}")
+        self.assertEqual(
+            count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}"
+        )
+
 
 if __name__ == '__main__':
     failed = False

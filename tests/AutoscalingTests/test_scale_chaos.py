@@ -13,12 +13,15 @@ RESULTS = []
 TEST_NODE_MAX_SESSIONS = int(os.getenv("TEST_NODE_MAX_SESSIONS", 1))
 TEST_AUTOSCALING_ITERATIONS = int(os.getenv("TEST_AUTOSCALING_ITERATIONS", 20))
 
+
 def signal_handler(signum, frame):
     print("Signal received, quitting all sessions...")
     close_all_sessions(SESSIONS)
 
+
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
+
 
 class SeleniumAutoscalingTests(unittest.TestCase):
     def test_run_tests(self):
@@ -40,18 +43,20 @@ class SeleniumAutoscalingTests(unittest.TestCase):
                 print(f"INFO: Total sessions: {total_sessions}")
                 print(f"INFO: Total pods: {total_pods}")
                 closed_session = randomly_quit_sessions(SESSIONS, random.randint(3, 12))
-                RESULTS.append({
-                    FIELD_NAMES[0]: iteration + 1,
-                    FIELD_NAMES[1]: new_request_sessions,
-                    FIELD_NAMES[2]: f"{elapsed_time:.2f} s",
-                    FIELD_NAMES[3]: failed_sessions,
-                    FIELD_NAMES[4]: new_scaled_pods,
-                    FIELD_NAMES[5]: total_sessions,
-                    FIELD_NAMES[6]: total_pods,
-                    FIELD_NAMES[7]: TEST_NODE_MAX_SESSIONS,
-                    FIELD_NAMES[8]: (total_pods * TEST_NODE_MAX_SESSIONS) - total_sessions,
-                    FIELD_NAMES[9]: closed_session,
-                })
+                RESULTS.append(
+                    {
+                        FIELD_NAMES[0]: iteration + 1,
+                        FIELD_NAMES[1]: new_request_sessions,
+                        FIELD_NAMES[2]: f"{elapsed_time:.2f} s",
+                        FIELD_NAMES[3]: failed_sessions,
+                        FIELD_NAMES[4]: new_scaled_pods,
+                        FIELD_NAMES[5]: total_sessions,
+                        FIELD_NAMES[6]: total_pods,
+                        FIELD_NAMES[7]: TEST_NODE_MAX_SESSIONS,
+                        FIELD_NAMES[8]: (total_pods * TEST_NODE_MAX_SESSIONS) - total_sessions,
+                        FIELD_NAMES[9]: closed_session,
+                    }
+                )
                 time.sleep(15)
         finally:
             print(f"FINISH: Closing {len(SESSIONS)} sessions.")
@@ -59,6 +64,7 @@ class SeleniumAutoscalingTests(unittest.TestCase):
             output_file = get_result_file_name()
             export_results_to_csv(f"{output_file}.csv", FIELD_NAMES, RESULTS)
             export_results_csv_to_md(f"{output_file}.csv", f"{output_file}.md")
+
 
 if __name__ == "__main__":
     unittest.main()

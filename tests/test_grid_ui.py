@@ -17,6 +17,7 @@ if browser not in ["chrome", "firefox", "edge"]:
     print("Unsupported browser. Use 'chrome', 'firefox', or 'edge'.")
     sys.exit(1)
 
+
 def run_browser_instance(browser):
 
     while True:
@@ -44,6 +45,7 @@ def run_browser_instance(browser):
             )
 
             import random
+
             elements = driver.find_elements(By.XPATH, "//*[@data-testid='VideocamIcon']/..")
             if elements:
                 random.choice(elements).click()
@@ -53,6 +55,7 @@ def run_browser_instance(browser):
         finally:
             time.sleep(15)  # Keep the browser open for 10 seconds
             driver.quit()
+
 
 import concurrent.futures
 

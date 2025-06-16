@@ -43,6 +43,7 @@ def run_browser_instance(browser, grid_url):
         time.sleep(100)
         driver.quit()
 
+
 with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
     for _ in range(3):
         executor.submit(run_browser_instance, browser, GRID_URL)

@@ -12,24 +12,26 @@ from docker.errors import NotFound
 
 
 def clean_up():
-  logger.info("Cleaning up...")
+    logger.info("Cleaning up...")
 
-  test_container = client.containers.get(test_container_id)
-  test_container.kill()
-  test_container.remove()
+    test_container = client.containers.get(test_container_id)
+    test_container.kill()
+    test_container.remove()
 
-  if standalone:
-     logger.info("Standalone Cleaned up")
-  else:
-     # Kill the launched hub
-     hub = client.containers.get(hub_id)
-     hub.kill()
-     hub.remove()
-     logger.info("Hub / Node Cleaned up")
+    if standalone:
+        logger.info("Standalone Cleaned up")
+    else:
+        # Kill the launched hub
+        hub = client.containers.get(hub_id)
+        hub.kill()
+        hub.remove()
+        logger.info("Hub / Node Cleaned up")
+
 
 def signal_handler(signum, frame):
     clean_up()
     sys.exit(0)
+
 
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGQUIT, signal_handler)
@@ -59,19 +61,15 @@ except:
 IMAGE_NAME_MAP = {
     # Hub
     'Hub': 'hub',
-
     # Chrome Images
     'NodeChrome': 'node-chrome',
     'StandaloneChrome': 'standalone-chrome',
-
     # Edge Images
     'NodeEdge': 'node-edge',
     'StandaloneEdge': 'standalone-edge',
-
     # Firefox Images
     'NodeFirefox': 'node-firefox',
     'StandaloneFirefox': 'standalone-firefox',
-
     # Chromium Images
     'NodeChromium': 'node-chromium',
     'StandaloneChromium': 'standalone-chromium',
@@ -79,23 +77,18 @@ IMAGE_NAME_MAP = {
 
 TEST_NAME_MAP = {
     "Android": "ChromeTests",
-
     # Chrome Images
     'NodeChrome': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
-
     # Edge Images
     'NodeEdge': 'EdgeTests',
     'StandaloneEdge': 'EdgeTests',
-
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
-
     # Chromium Images
     'NodeChromium': 'ChromeTests',
     'StandaloneChromium': 'ChromeTests',
-
     # Chart Parallel Test
     'JobAutoscaling': 'JobAutoscalingTests',
     'DeploymentAutoscaling': 'DeploymentAutoscalingTests',
@@ -108,6 +101,7 @@ FROM_IMAGE_ARGS = {
     'BASE_RELEASE': BASE_RELEASE,
 }
 
+
 def get_platform():
     os_arch = platform.machine()
     if os_arch == 'x86_64':
@@ -116,6 +110,7 @@ def get_platform():
         os_arch = 'linux/arm64'
     logger.info("Current OS platform: %s" % os_arch)
     return os_arch
+
 
 def launch_hub(network_name):
     """
@@ -142,11 +137,11 @@ def launch_hub(network_name):
 
     grid_ports = {'4442': 4442, '4443': 4443, '4444': 4444}
     if use_random_user_id:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub",
-                                            ports=grid_ports, user=random_user_id)
+        hub_container_id = launch_container(
+            'Hub', network=network_name, name="selenium-hub", ports=grid_ports, user=random_user_id
+        )
     else:
-        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub",
-                                            ports=grid_ports)
+        hub_container_id = launch_container('Hub', network=network_name, name="selenium-hub", ports=grid_ports)
 
     logger.info("Hub Launched")
     return hub_container_id
@@ -178,11 +173,13 @@ def launch_container(container, **kwargs):
             logger.info(f"Building {container} container in platform {PLATFORM}...")
             set_from_image_base_for_standalone(container)
             build_path = get_build_path(container)
-            client.images.build(path='../%s' % build_path,
-                                tag=f"{NAMESPACE}/{IMAGE_NAME_MAP[container]}:{VERSION}",
-                                rm=True,
-                                buildargs=FROM_IMAGE_ARGS,
-                                platform=PLATFORM,)
+            client.images.build(
+                path='../%s' % build_path,
+                tag=f"{NAMESPACE}/{IMAGE_NAME_MAP[container]}:{VERSION}",
+                rm=True,
+                buildargs=FROM_IMAGE_ARGS,
+                platform=PLATFORM,
+            )
             logger.info("Done building %s" % container)
 
     # Run the container
@@ -194,17 +191,19 @@ def launch_container(container, **kwargs):
         'no_proxy': no_proxy,
         'SE_EVENT_BUS_HOST': 'selenium-hub',
         'SE_EVENT_BUS_PUBLISH_PORT': 4442,
-        'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443
+        'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443,
     }
     if container != 'Hub':
         environment['SE_NODE_ENABLE_MANAGED_DOWNLOADS'] = "true"
-    container_id = client.containers.run(f"{NAMESPACE}/{IMAGE_NAME_MAP[container]}:{VERSION}",
-                                         detach=True,
-                                         environment=environment,
-                                         shm_size="2G",
-                                         read_only=FILESYSTEM_READ_ONLY,
-                                         tmpfs={'/tmp': 'rw'},
-                                         **kwargs).short_id
+    container_id = client.containers.run(
+        f"{NAMESPACE}/{IMAGE_NAME_MAP[container]}:{VERSION}",
+        detach=True,
+        environment=environment,
+        shm_size="2G",
+        read_only=FILESYSTEM_READ_ONLY,
+        tmpfs={'/tmp': 'rw'},
+        **kwargs,
+    ).short_id
     logger.info("%s up and running" % container)
     return container_id
 
@@ -212,15 +211,15 @@ def launch_container(container, **kwargs):
 def set_from_image_base_for_standalone(container):
     match = standalone_browser_container_matches(container)
     if match != None:
-      FROM_IMAGE_ARGS['BASE'] = 'node-' + match.group(2).lower()
+        FROM_IMAGE_ARGS['BASE'] = 'node-' + match.group(2).lower()
 
 
 def get_build_path(container):
     match = standalone_browser_container_matches(container)
     if match == None:
-      return container
+        return container
     else:
-      return match.group(1)
+        return match.group(1)
 
 
 def standalone_browser_container_matches(container):
@@ -255,9 +254,9 @@ if __name__ == '__main__':
             """
             ports = {'4444': 4444}
             if use_random_user_id:
-               test_container_id = launch_container(image, ports=ports, user=random_user_id)
+                test_container_id = launch_container(image, ports=ports, user=random_user_id)
             else:
-               test_container_id = launch_container(image, ports=ports)
+                test_container_id = launch_container(image, ports=ports)
         else:
             """
             Hub / Node Configuration
@@ -267,9 +266,9 @@ if __name__ == '__main__':
             hub_id = launch_hub("grid")
             ports = {'5555': 5555, '7900': 7900}
             if use_random_user_id:
-               test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
+                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
             else:
-               test_container_id = launch_container(image, network='grid', ports=ports)
+                test_container_id = launch_container(image, network='grid', ports=ports)
             prune_networks()
 
         logger.info('========== / Containers ready to go ==========')

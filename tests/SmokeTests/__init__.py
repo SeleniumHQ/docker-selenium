@@ -19,7 +19,8 @@ HUB_CHECKS_MAX_ATTEMPTS = os.environ.get('HUB_CHECKS_MAX_ATTEMPTS', 3)
 HUB_CHECKS_INTERVAL = os.environ.get('HUB_CHECKS_INTERVAL', 10)
 
 if CHART_CERT_PATH:
-  os.environ['REQUESTS_CA_BUNDLE'] = CHART_CERT_PATH
+    os.environ['REQUESTS_CA_BUNDLE'] = CHART_CERT_PATH
+
 
 class SmokeTests(unittest.TestCase):
     def smoke_test_container(self, port):
@@ -36,14 +37,18 @@ class SmokeTests(unittest.TestCase):
             try:
                 grid_url_status = f'{SELENIUM_GRID_PROTOCOL}://{SELENIUM_GRID_HOST}:{port}/status'
                 if SELENIUM_GRID_USERNAME and SELENIUM_GRID_PASSWORD:
-                    response = requests.get(grid_url_status, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD))
+                    response = requests.get(
+                        grid_url_status, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD)
+                    )
                 else:
                     response = requests.get(grid_url_status)
                 status_json = response.json()
                 if not auto_scaling or (auto_scaling and auto_scaling_min_replica > 0):
                     self.assertTrue(status_json['value']['ready'], "Container is not ready on port %s" % port)
                 else:
-                    self.assertFalse(status_json['value']['ready'], "Container is autoscaling with min replica set to 0")
+                    self.assertFalse(
+                        status_json['value']['ready'], "Container is autoscaling with min replica set to 0"
+                    )
                 status_fetched = True
             except Exception as e:
                 time.sleep(sleep_interval)
@@ -54,11 +59,13 @@ class SmokeTests(unittest.TestCase):
         else:
             self.assertFalse(status_json['value']['ready'], "Container is autoscaling with min replica set to 0")
 
-
     def client_verify_cert(self, port):
         grid_url_status = f'{SELENIUM_GRID_PROTOCOL}://{SELENIUM_GRID_HOST}:{port}/status'
         cert_path = os.environ.get("REQUESTS_CA_BUNDLE")
-        response = requests.get(grid_url_status, verify=cert_path, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD))
+        response = requests.get(
+            grid_url_status, verify=cert_path, auth=HTTPBasicAuth(SELENIUM_GRID_USERNAME, SELENIUM_GRID_PASSWORD)
+        )
+
 
 class GridTest(SmokeTests):
     def test_grid_is_up(self):

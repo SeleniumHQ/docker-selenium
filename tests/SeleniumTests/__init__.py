@@ -41,8 +41,8 @@ LIST_FIREFOX_VERSIONS = ['132.0', '131.0', '130.0', '129.0', '128.0']
 LIST_PLATFORMS = ['Linux', None, 'Windows 11']
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
-  LIST_CHROMIUM_VERSIONS.append(None)
-  LIST_FIREFOX_VERSIONS.append(None)
+    LIST_CHROMIUM_VERSIONS.append(None)
+    LIST_FIREFOX_VERSIONS.append(None)
 
 if TEST_MULTIPLE_PLATFORMS_RELAY:
     # Replace index with None to macOS
@@ -61,6 +61,7 @@ CLIENT_CONFIG = ClientConfig(
 if TEST_NODE_RELAY == 'Android':
     time.sleep(90)
 
+
 class SeleniumGenericTests(unittest.TestCase):
 
     def test_title(self):
@@ -74,12 +75,8 @@ class SeleniumGenericTests(unittest.TestCase):
         driver = self.driver
         driver.get('http://the-internet.herokuapp.com/nested_frames')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
-        frame_top = wait.until(
-            EC.frame_to_be_available_and_switch_to_it('frame-top')
-        )
-        frame_middle = wait.until(
-            EC.frame_to_be_available_and_switch_to_it('frame-middle')
-        )
+        frame_top = wait.until(EC.frame_to_be_available_and_switch_to_it('frame-top'))
+        frame_middle = wait.until(EC.frame_to_be_available_and_switch_to_it('frame-middle'))
         self.assertTrue(driver.find_element(By.ID, 'content').text == "MIDDLE", "content should be MIDDLE")
 
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/05-select-from-a-dropdown/python/dropdown.py
@@ -109,17 +106,11 @@ class SeleniumGenericTests(unittest.TestCase):
         driver = self.driver
         driver.get('https://googleads.github.io/googleads-ima-html5/vsi/')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
-        play_button = wait.until(
-            EC.element_to_be_clickable((By.ID, 'play-button'))
-        )
+        play_button = wait.until(EC.element_to_be_clickable((By.ID, 'play-button')))
         play_button.click()
         video = driver.find_element(By.TAG_NAME, 'video')
-        wait.until(
-            lambda d: d.find_element(By.TAG_NAME, 'video').get_property('currentTime')
-        )
-        wait.until(
-            lambda d: d.find_element(By.TAG_NAME, 'video').get_property('paused') == False
-        )
+        wait.until(lambda d: d.find_element(By.TAG_NAME, 'video').get_property('currentTime'))
+        wait.until(lambda d: d.find_element(By.TAG_NAME, 'video').get_property('paused') == False)
         paused = video.get_property('paused')
         self.assertFalse(paused)
 
@@ -128,17 +119,13 @@ class SeleniumGenericTests(unittest.TestCase):
         driver.get('https://the-internet.herokuapp.com/download')
         file_name = 'some-file.txt'
         wait = WebDriverWait(driver, 30)
-        file_link = wait.until(
-            EC.element_to_be_clickable((By.LINK_TEXT, file_name))
-        )
+        file_link = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, file_name)))
         driver.execute_script("arguments[0].scrollIntoView();", file_link)
         file_link.click()
         if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
             time.sleep(4)
             return
-        wait.until(
-            lambda d: str(d.get_downloadable_files()[0]).endswith(file_name)
-        )
+        wait.until(lambda d: str(d.get_downloadable_files()[0]).endswith(file_name))
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):
@@ -192,24 +179,28 @@ class ChromeTests(SeleniumGenericTests):
                 if platform_name:
                     options.set_capability('platformName', platform_name)
             if TEST_MULTIPLE_PLATFORMS_RELAY:
-                options.set_capability('sauce:options', {
-                    'username': os.environ.get('SAUCE_USERNAME'),
-                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
-                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                    'seleniumVersion': '4.29.0',
-                })
+                options.set_capability(
+                    'sauce:options',
+                    {
+                        'username': os.environ.get('SAUCE_USERNAME'),
+                        'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                        'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                        'seleniumVersion': '4.29.0',
+                    },
+                )
             start_time = time.time()
             self.driver = webdriver.Remote(
-                options=options,
-                command_executor=SELENIUM_GRID_URL,
-                client_config=CLIENT_CONFIG
+                options=options, command_executor=SELENIUM_GRID_URL, client_config=CLIENT_CONFIG
             )
             end_time = time.time()
-            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+            )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
             raise e
+
 
 class EdgeTests(SeleniumGenericTests):
     def setUp(self):
@@ -237,24 +228,28 @@ class EdgeTests(SeleniumGenericTests):
                 if platform_name:
                     options.set_capability('platformName', platform_name)
             if TEST_MULTIPLE_PLATFORMS_RELAY:
-                options.set_capability('sauce:options', {
-                    'username': os.environ.get('SAUCE_USERNAME'),
-                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
-                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                    'seleniumVersion': '4.29.0',
-                })
+                options.set_capability(
+                    'sauce:options',
+                    {
+                        'username': os.environ.get('SAUCE_USERNAME'),
+                        'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                        'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                        'seleniumVersion': '4.29.0',
+                    },
+                )
             start_time = time.time()
             self.driver = webdriver.Remote(
-                options=options,
-                command_executor=SELENIUM_GRID_URL,
-                client_config=CLIENT_CONFIG
+                options=options, command_executor=SELENIUM_GRID_URL, client_config=CLIENT_CONFIG
             )
             end_time = time.time()
-            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+            )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
             raise e
+
 
 class FirefoxTests(SeleniumGenericTests):
     def setUp(self):
@@ -287,20 +282,23 @@ class FirefoxTests(SeleniumGenericTests):
                 if platform_name:
                     options.set_capability('platformName', platform_name)
             if TEST_MULTIPLE_PLATFORMS_RELAY:
-                options.set_capability('sauce:options', {
-                    'username': os.environ.get('SAUCE_USERNAME'),
-                    'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
-                    'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                    'seleniumVersion': '4.29.0',
-                })
+                options.set_capability(
+                    'sauce:options',
+                    {
+                        'username': os.environ.get('SAUCE_USERNAME'),
+                        'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
+                        'name': f"{self._testMethodName} ({self.__class__.__name__})",
+                        'seleniumVersion': '4.29.0',
+                    },
+                )
             start_time = time.time()
             self.driver = webdriver.Remote(
-                options=options,
-                command_executor=SELENIUM_GRID_URL,
-                client_config=CLIENT_CONFIG
+                options=options, command_executor=SELENIUM_GRID_URL, client_config=CLIENT_CONFIG
             )
             end_time = time.time()
-            print(f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)")
+            print(
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+            )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -313,19 +311,20 @@ class FirefoxTests(SeleniumGenericTests):
 
     def test_accept_languages(self):
         if TEST_FIREFOX_INSTALL_LANG_PACKAGE:
-            addon_id = webdriver.Firefox.install_addon(self.driver, "./target/firefox_lang_packs/langpack-vi@firefox.mozilla.org.xpi")
+            addon_id = webdriver.Firefox.install_addon(
+                self.driver, "./target/firefox_lang_packs/langpack-vi@firefox.mozilla.org.xpi"
+            )
         self.driver.get('https://gtranslate.io/detect-browser-language')
         wait = WebDriverWait(self.driver, WEB_DRIVER_WAIT_TIMEOUT)
-        lang_code = wait.until(
-            EC.presence_of_element_located((By.XPATH, '(//*[@class="notranslate"])[1]'))
-        )
+        lang_code = wait.until(EC.presence_of_element_located((By.XPATH, '(//*[@class="notranslate"])[1]')))
         self.driver.execute_script("arguments[0].scrollIntoView();", lang_code)
         self.assertTrue(lang_code.text == 'vi-VN', "Language code should be vi-VN")
         time.sleep(1)
         self.driver.get('https://google.com')
         time.sleep(2)
 
-class Autoscaling():
+
+class Autoscaling:
     def run(self, test_classes):
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []
@@ -368,6 +367,7 @@ class Autoscaling():
                         raise Exception(f"Rerun test failed: {str(test)} failed with exception: {str(e)}")
                 print(f"::warning:: Number of failed tests: {len(failed_tests)}. All tests passed in rerun!")
 
+
 class DeploymentAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
@@ -377,6 +377,7 @@ class DeploymentAutoscalingTests(unittest.TestCase):
         else:
             runner.run(platform.add_test_based_platform(TEST_PARALLEL_COUNT))
 
+
 class JobAutoscalingTests(unittest.TestCase):
     def test_parallel_autoscaling(self):
         runner = Autoscaling()
@@ -385,6 +386,7 @@ class JobAutoscalingTests(unittest.TestCase):
             runner.run(platform.add_test_based_platform(1))
         else:
             runner.run(platform.add_test_based_platform(TEST_PARALLEL_COUNT))
+
 
 class TestPlatform:
     def add_test_based_platform(self, repeat):
