@@ -1,8 +1,9 @@
-import os
-import unittest
-import time
 import json
+import os
 import ssl
+import time
+import unittest
+
 import requests
 from requests.auth import HTTPBasicAuth
 

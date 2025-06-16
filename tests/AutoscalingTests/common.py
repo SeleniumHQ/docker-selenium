@@ -1,17 +1,18 @@
-import unittest
-import random
-import time
-import subprocess
-import signal
 import concurrent.futures
 import csv
 import os
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.edge.options import Options as EdgeOptions
-from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.remote.client_config import ClientConfig
+import random
+import signal
+import subprocess
+import time
+import unittest
+
 from csv2md.table import Table
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.remote.client_config import ClientConfig
 
 BROWSER = {
     "chrome": ChromeOptions(),

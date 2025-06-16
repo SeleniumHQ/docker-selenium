@@ -1,14 +1,15 @@
 import logging
 import os
+import platform
 import random
+import re
+import signal
 import sys
 import unittest
-import re
-import platform
-import signal
 
 import docker
 from docker.errors import NotFound
+
 
 def clean_up():
   logger.info("Cleaning up...")

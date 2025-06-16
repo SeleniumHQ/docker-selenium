@@ -1,9 +1,10 @@
 import sys
 import time
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 if len(sys.argv) < 2:
     print("Usage: python3 get_started.py [chrome|firefox|edge]")
@@ -19,6 +20,7 @@ else:
     GRID_URL = "http://localhost:4444/wd/hub"
 
 import concurrent.futures
+
 
 def run_browser_instance(browser, grid_url):
     options = None

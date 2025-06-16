@@ -1,13 +1,13 @@
 import sys
+import time
 
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options as EdgeOptions
-import time
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 if len(sys.argv) < 2:
     print("Usage: python3 get_started.py [chrome|firefox|edge]")

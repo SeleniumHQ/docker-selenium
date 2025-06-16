@@ -1,6 +1,7 @@
-import yaml
-import sys
 import logging
+import sys
+
+import yaml
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

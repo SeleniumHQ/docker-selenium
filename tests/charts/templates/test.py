@@ -1,8 +1,9 @@
-import yaml
-import unittest
-import sys
-import logging
 import base64
+import logging
+import sys
+import unittest
+
+import yaml
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)

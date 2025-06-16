@@ -1,17 +1,18 @@
-import unittest
 import concurrent.futures
 import os
-import traceback
-import time
 import random
+import time
+import traceback
+import unittest
+
 from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.remote.client_config import ClientConfig
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 SELENIUM_GRID_PROTOCOL = os.environ.get('SELENIUM_GRID_PROTOCOL', 'http')
 SELENIUM_GRID_HOST = os.environ.get('SELENIUM_GRID_HOST', 'localhost')

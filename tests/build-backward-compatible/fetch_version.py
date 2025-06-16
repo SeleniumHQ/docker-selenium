@@ -1,6 +1,7 @@
+from collections import OrderedDict
+
 import requests
 import yaml
-from collections import OrderedDict
 
 # URLs of the source YAML files
 chrome_url = 'https://raw.githubusercontent.com/NDViet/google-chrome-stable/refs/heads/main/browser-matrix.yml'

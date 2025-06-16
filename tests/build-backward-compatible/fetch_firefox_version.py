@@ -1,7 +1,8 @@
-import requests
 import re
-import yaml
 from collections import defaultdict
+
+import requests
+import yaml
 
 local_file = 'tests/build-backward-compatible/firefox-matrix.yml'
 

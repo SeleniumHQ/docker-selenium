@@ -1,9 +1,11 @@
-import unittest
-import random
-import time
-import signal
 import csv
+import random
+import signal
+import time
+import unittest
+
 from csv2md.table import Table
+
 from .common import *
 
 SESSIONS = []
