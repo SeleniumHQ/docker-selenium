@@ -91,7 +91,7 @@ function wait_for_display() {
 function check_if_api_respond() {
   endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
-    /opt/bin/validate_endpoint.sh "${NODE_STATUS_ENDPOINT}"
+    python3 /opt/bin/validate_endpoint.py "${NODE_STATUS_ENDPOINT}"
     return 1
   fi
   return 0
