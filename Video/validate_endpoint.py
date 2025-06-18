@@ -20,7 +20,7 @@ def get_timestamp():
         ts_format_python = ts_format.replace('%3N', '%f')
         timestamp = datetime.now(timezone.utc).strftime(ts_format_python)
         # Convert microseconds to milliseconds (trim last 3 digits)
-        if ',%f' in ts_format:
+        if '%f' in ts_format_python:
             # Find the microseconds part and trim to milliseconds
             parts = timestamp.rsplit(',', 1)
             if len(parts) == 2 and len(parts[1]) == 6:
