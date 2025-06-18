@@ -30,7 +30,7 @@ def get_timestamp():
     return timestamp
 
 
-def create_session(max_time=1):
+def create_session():
     """Create requests session with timeout configuration."""
     session = requests.Session()
     return session
@@ -59,7 +59,7 @@ def validate_endpoint(endpoint, graphql_endpoint=False, max_time=1):
         max_time (int): Maximum time for request in seconds
     """
     process_name = "endpoint.checks"
-    session = create_session(max_time)
+    session = create_session()
 
     # Set up headers
     headers = {}
