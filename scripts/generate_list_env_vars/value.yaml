@@ -91,7 +91,7 @@
 - name: SE_NODE_ENABLE_CDP
   default: ''
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-  default: ''
+  default: 'true'
 - name: SE_NODE_GRACEFUL_SHUTDOWN
   default: ''
 - name: SE_NODE_GRID_GRAPHQL_URL

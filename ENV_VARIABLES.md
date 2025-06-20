@@ -75,7 +75,7 @@
 | SE_EVENT_BUS_PUBLISH_PORT | 4442 |  |  |
 | SE_EVENT_BUS_SUBSCRIBE_PORT | 4443 |  |  |
 | SE_NODE_SESSION_TIMEOUT | 300 |  | --session-timeout |
-| SE_NODE_ENABLE_MANAGED_DOWNLOADS |  |  | --enable-managed-downloads |
+| SE_NODE_ENABLE_MANAGED_DOWNLOADS | true |  | --enable-managed-downloads |
 | SE_NODE_ENABLE_CDP |  |  | --enable-cdp |
 | SE_NODE_REGISTER_PERIOD | 120 |  | --register-period |
 | SE_NODE_REGISTER_CYCLE | 10 |  | --register-cycle |
