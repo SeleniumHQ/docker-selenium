@@ -56,7 +56,6 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_OFFLINE="true" \
     SE_NODE_BROWSER_VERSION="stable" \
     SE_NODE_PLATFORM_NAME="Linux" \
-    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true" \
 #============================
 # Some configuration options
 #============================

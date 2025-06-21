@@ -32,4 +32,5 @@ COPY selenium-grid-docker.conf /etc/supervisor/conf.d/
 ENV SE_OTEL_SERVICE_NAME="selenium-node-docker" \
     SE_EVENT_BUS_PUBLISH_PORT="4442" \
     SE_EVENT_BUS_SUBSCRIBE_PORT="4443" \
-    SE_NODE_DOCKER_CONFIG_FILENAME="docker.toml"
+    SE_NODE_DOCKER_CONFIG_FILENAME="docker.toml" \
+    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"
