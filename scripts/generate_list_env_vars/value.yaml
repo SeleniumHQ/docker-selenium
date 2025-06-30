@@ -86,6 +86,8 @@
   default: '10'
 - name: SE_NODE_CONTAINER_NAME
   default: ''
+- name: SE_NODE_DELETE_SESSION_ON_UI
+  default: 'true'
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
   default: docker.toml
 - name: SE_NODE_ENABLE_CDP
@@ -161,7 +163,7 @@
 - name: SE_OTEL_RESOURCE_ATTRIBUTES
   default: ''
 - name: SE_OTEL_SERVICE_NAME
-  default: selenium-event-bus
+  default: selenium-router
 - name: SE_OTEL_TRACES_EXPORTER
   default: otlp
 - name: SE_PRESET

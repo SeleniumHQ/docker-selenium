@@ -72,6 +72,10 @@ if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
   append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
 fi
 
+if [ "$SE_NODE_DELETE_SESSION_ON_UI" = "true" ]; then
+  append_se_opts "--delete-session-on-ui" "true"
+fi
+
 if [ ! -z "$SE_LOG_LEVEL" ]; then
   append_se_opts "--log-level" "${SE_LOG_LEVEL}"
 fi
