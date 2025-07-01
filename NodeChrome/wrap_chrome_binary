@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -e
 
 WRAPPER_PATH=$(readlink -f /usr/bin/google-chrome)
 BASE_PATH="$WRAPPER_PATH-base"

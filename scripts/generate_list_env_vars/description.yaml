@@ -468,3 +468,8 @@
 - name: SE_NODE_DELETE_SESSION_ON_UI
   description: Enable capability to support deleting session on Grid UI
   cli: --delete-session-on-ui
+- name: SE_UPDATE_CHROME_COMPONENTS
+  description: 'Applicable for node-chrome, standalone-chrome (arch linux/amd64).
+    Update the latest version of Chrome and ChromeDriver at the beginning of the container
+    startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872)'
+  cli: ''

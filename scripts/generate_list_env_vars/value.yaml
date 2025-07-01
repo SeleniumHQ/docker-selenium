@@ -252,6 +252,8 @@
   default: '5'
 - name: SE_SUPERVISORD_UNIX_SERVER_PASSWORD
   default: secret
+- name: SE_UPDATE_CHROME_COMPONENTS
+  default: ''
 - name: SE_UPLOAD_COMMAND
   default: ''
 - name: SE_UPLOAD_DESTINATION_PREFIX
