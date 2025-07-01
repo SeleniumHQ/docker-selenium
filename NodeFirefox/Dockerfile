@@ -89,4 +89,5 @@ RUN echo "firefox" > /opt/selenium/browser_name \
     && firefox --version | awk '{print $3}' > /opt/selenium/browser_version \
     && echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location
 
-ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox"
+ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox" \
+    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

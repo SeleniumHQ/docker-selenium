@@ -228,7 +228,8 @@
   description: ''
   cli: --session-timeout
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-  description: ''
+  description: This causes the Node to auto manage files downloaded for a given session
+    on the Node
   cli: --enable-managed-downloads
 - name: SE_NODE_ENABLE_CDP
   description: ''
@@ -464,3 +465,6 @@
 - name: SE_VIDEO_MAXRATE
   description: ''
   cli: ''
+- name: SE_NODE_DELETE_SESSION_ON_UI
+  description: Enable capability to support deleting session on Grid UI
+  cli: --delete-session-on-ui

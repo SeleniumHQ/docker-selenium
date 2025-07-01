@@ -29,6 +29,7 @@ ENV SE_SESSION_REQUEST_TIMEOUT="300" \
 # Boolean value, maps "--relax-checks"
     SE_RELAX_CHECKS="true" \
     SE_REJECT_UNSUPPORTED_CAPS="true" \
-    SE_OTEL_SERVICE_NAME="selenium-standalone"
+    SE_OTEL_SERVICE_NAME="selenium-standalone" \
+    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"
 
 EXPOSE 4444

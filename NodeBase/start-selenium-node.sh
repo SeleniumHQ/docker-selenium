@@ -73,6 +73,10 @@ if [ "$SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE" = "true" ]; then
   append_se_opts "--register-shutdown-on-failure"
 fi
 
+if [ "$SE_NODE_DELETE_SESSION_ON_UI" = "true" ]; then
+  append_se_opts "--delete-session-on-ui" "true"
+fi
+
 if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
   append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
 fi
