@@ -110,7 +110,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     crictl --version || true
     echo "==============================="
     echo "Installing CRI-Dockerd"
-    CRI_DOCKERD_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/kubernetes-sigs/cri-tools/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
+    CRI_DOCKERD_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/Mirantis/cri-dockerd/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
     curl -fsSL -o cri-dockerd.tgz https://github.com/Mirantis/cri-dockerd/releases/download/v$CRI_DOCKERD_VERSION/cri-dockerd-$CRI_DOCKERD_VERSION.$(dpkg --print-architecture).tgz
     sudo tar -xf cri-dockerd.tgz -C /tmp
     sudo mv /tmp/cri-dockerd/cri-dockerd /usr/local/bin/cri-dockerd
@@ -161,7 +161,7 @@ helm version
 echo "==============================="
 
 echo "Installing chart-testing for AMD64 / ARM64"
-CHART_TESTING_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/helm/chart-testing/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
+CHART_TESTING_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/helm/chart-testing/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
 curl -fsSL -o ct.tar.gz https://github.com/helm/chart-testing/releases/download/v${CHART_TESTING_VERSION}/chart-testing_${CHART_TESTING_VERSION}_linux_$(dpkg --print-architecture).tar.gz
 sudo mkdir -p /opt/ct
 sudo tar -xzf ct.tar.gz -C /opt/ct
@@ -178,7 +178,7 @@ GOBIN=$HOME/go/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 $HOME/go/bin/helm-docs -h || true
 echo "==============================="
 echo "Installing envsubst for AMD64 / ARM64"
-ENVSUBST_VERSION="1.4.3"
+ENVSUBST_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/a8m/envsubst/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
 ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)
 curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
 chmod +x envsubst
