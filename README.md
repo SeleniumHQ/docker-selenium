@@ -28,6 +28,7 @@ Talk to us at https://www.selenium.dev/support/
 <!-- TOC -->
 * [Community](#community)
 * [Contents](#contents)
+* [System Recommendations](#system-recommendations)
 * [Quick start](#quick-start)
   * [Try them out in a ready-to-use GitPod environment!](#try-them-out-in-a-ready-to-use-gitpod-environment)
 * [Experimental Multi-Arch amd64/aarch64/armhf Images](#experimental-multi-arch-amd64aarch64armhf-images)
@@ -92,6 +93,12 @@ Talk to us at https://www.selenium.dev/support/
   * [Mounting volumes to retrieve video files](#mounting-volumes-to-retrieve-video-files)
 * [Stargazers over time](#stargazers-over-time)
 <!-- TOC -->
+
+## System Recommendations
+- Docker Engine 26.1.4 or later
+- Docker Compose v2.34.0 or later
+- Docker Buildx v0.25.0 or later
+- Kubernetes v1.26.15 or later
 
 ## Quick start
 
