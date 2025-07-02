@@ -128,6 +128,10 @@ if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
   append_se_opts "--reject-unsupported-caps" "${SE_REJECT_UNSUPPORTED_CAPS}"
 fi
 
+if [ ! -z "$SE_DISTRIBUTOR_SLOT_SELECTOR" ]; then
+  append_se_opts "--slot-selector" "${SE_DISTRIBUTOR_SLOT_SELECTOR}"
+fi
+
 if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
   append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi

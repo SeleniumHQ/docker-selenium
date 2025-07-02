@@ -529,6 +529,8 @@ components:
 
     # -- Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
     newSessionThreadPoolSize:
+    # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
+    slotSelectorStrategy: ""
     # -- Specify extra environment variables for Distributor
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
@@ -885,6 +887,8 @@ hub:
     successThreshold: 1
   # -- Custom sub path for the hub deployment
   subPath: ""
+  # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
+  slotSelectorStrategy: ""
   # -- Custom environment variables for selenium-hub
   extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
@@ -1015,6 +1019,12 @@ autoscaling:
   scalingType: job
   # -- Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state
   setReplicasInSpec: true
+  # By default, it is "org.openqa.selenium.grid.distributor.selector.DefaultSlotSelector". This is ensuring load balancing sessions across all available nodes.
+  # New strategy "org.openqa.selenium.grid.distributor.selector.GreedySlotSelector". This might be helpful in case autoscaling overprovisioned with max sessions greater than 1 per node.
+  # Ensure all slots in a node are filled with sessions before selecting the next available node. Note this is available since Selenium Server 4.34.0.
+  # Change this default chart value if you prefer default strategy or using this chart with older Selenium Server versions.
+  # -- Strategy for Selenium Hub/Distributor select slot to assign to a new session.
+  slotSelectorStrategy: "org.openqa.selenium.grid.distributor.selector.GreedySlotSelector"
   # -- Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes
   authenticationRef:
     name: ""

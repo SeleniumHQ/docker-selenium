@@ -473,3 +473,7 @@
     Update the latest version of Chrome and ChromeDriver at the beginning of the container
     startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872)'
   cli: ''
+- name: SE_DISTRIBUTOR_SLOT_SELECTOR
+  description: Full class name of non-default slot selector. This is used to select
+    a slot in a Node once the Node has been matched.
+  cli: --slot-selector

@@ -202,6 +202,16 @@ based on sum of maxReplicaCount of all enabled Nodes in autoscaling
 {{- $threadPoolSize -}}
 {{- end -}}
 
+{{- define "seleniumGrid.autoscaling.distributor.slotSelector" -}}
+{{- $slotSelector := "" -}}
+{{- if eq (include "seleniumGrid.useKEDA" $) "true" -}}
+{{- $slotSelector = $.Values.autoscaling.slotSelectorStrategy -}}
+{{- else -}}
+{{- $slotSelector = $.Values.isolateComponents | ternary $.Values.components.distributor.slotSelectorStrategy $.Values.hub.slotSelectorStrategy -}}
+{{- end -}}
+{{- $slotSelector -}}
+{{- end -}}
+
 {{/*
 Common autoscaling spec template
 */}}

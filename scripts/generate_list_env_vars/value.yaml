@@ -18,6 +18,8 @@
   default: ''
 - name: SE_DISTRIBUTOR_PORT
   default: '5553'
+- name: SE_DISTRIBUTOR_SLOT_SELECTOR
+  default: ''
 - name: SE_DRAIN_AFTER_SESSION_COUNT
   default: '0'
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP

@@ -219,6 +219,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
+| components.distributor.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -340,6 +341,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | hub.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | hub.subPath | string | `""` | Custom sub path for the hub deployment |
+| hub.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
 | hub.extraEnvironmentVariables | list | `[]` | Custom environment variables for selenium-hub |
 | hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
@@ -391,6 +393,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
 | autoscaling.setReplicasInSpec | bool | `true` | Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state |
+| autoscaling.slotSelectorStrategy | string | `"org.openqa.selenium.grid.distributor.selector.GreedySlotSelector"` | Strategy for Selenium Hub/Distributor select slot to assign to a new session. |
 | autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"0"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.useCachedMetrics | bool | `false` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA). |
 | autoscaling.triggerName | string | `""` | Set trigger name. |
