@@ -153,3 +153,4 @@
 | SE_VIDEO_CRF |  |  |  |
 | SE_VIDEO_MAXRATE |  |  |  |
 | SE_NODE_DELETE_SESSION_ON_UI | true | Enable capability to support deleting session on Grid UI | --delete-session-on-ui |
+| SE_UPDATE_CHROME_COMPONENTS |  | Applicable for node-chrome, standalone-chrome (arch linux/amd64). Update the latest version of Chrome and ChromeDriver at the beginning of the container startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872) |  |

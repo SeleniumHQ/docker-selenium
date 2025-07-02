@@ -2,6 +2,13 @@
 #
 # IMPORTANT: Change this file only in directory Standalone!
 
+# Check if Chrome components update is enabled
+if [ "${SE_UPDATE_CHROME_COMPONENTS}" = "true" ] && [ -f /opt/bin/update-chrome-components.sh ]; then
+  echo "Chrome components update enabled, checking for updates..."
+  echo "Note that after the container gets restarted, updated binaries will be lost unless you call the update script within the build container process."
+  /opt/bin/update-chrome-components.sh
+fi
+
 # Start the pulseaudio server
 pulseaudio -D --exit-idle-time=-1
 
