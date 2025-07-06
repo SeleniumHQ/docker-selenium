@@ -16,8 +16,8 @@ matrix:
       FIREFOX_VERSION: 139.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '138':
-      EDGE_VERSION: microsoft-edge-stable=138.0.3351.55-1
-      CHROME_VERSION: google-chrome-stable=138.0.7204.49-1
+      EDGE_VERSION: microsoft-edge-stable=138.0.3351.65-1
+      CHROME_VERSION: google-chrome-stable=138.0.7204.92-1
       FIREFOX_VERSION: 138.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '137':
