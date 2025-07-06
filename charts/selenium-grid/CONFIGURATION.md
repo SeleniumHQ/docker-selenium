@@ -672,6 +672,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.uploader.configFileName | string | `"upload.conf"` | Uploader config file name |
 | videoRecorder.uploader.entryPointFileName | string | `"upload.sh"` | Uploader entry point file name |
 | videoRecorder.uploader.secrets | string | `nil` | For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase) |
+| videoRecorder.uploader.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for uploader |
 | videoRecorder.ports | list | `[9000]` | Video recording container port |
 | videoRecorder.resources.requests | object | `{"cpu":"0.1","memory":"128Mi"}` | Request resources for video recorder pods |
 | videoRecorder.resources.limits | object | `{"cpu":"0.5","memory":"1Gi"}` | Limit resources for video recorder pods |

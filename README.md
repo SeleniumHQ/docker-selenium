@@ -639,7 +639,7 @@ If your test name is handled by the test framework, and it is unique for sure, y
 
 File name will be trimmed to 255 characters to avoid long file names. Moreover, `space` character will be replaced by `_` and only characters alphabets, numbers, `-` (hyphen), `_` (underscore) are retained in the file name.
 
-The trim regex is able to be customized by setting `SE_VIDEO_FILE_NAME_TRIM_REGEX` environment variable. The default value is `[:alnum:]-_`. The regex should be compatible with the `tr` command in bash.
+The trim regex is able to be customized by setting `SE_VIDEO_FILE_NAME_TRIM_REGEX` environment variable. The default value is `[^a-zA-Z0-9-_]`. The regex should be compatible with Python `re.compile()` function.
 
 At deployment level, the recorder container is up always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
 

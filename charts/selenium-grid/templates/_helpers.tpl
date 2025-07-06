@@ -450,6 +450,15 @@ template:
           {{- with .recorder.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
           {{- end }}
+          {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
+          {{- with $.Values.uploaderConfigMap.secretVolumeMountName }}
+          - secretRef:
+              name: {{ tpl . $ }}
+          {{- end }}
+          {{- with .recorder.uploader.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          {{- end }}
           {{- end }}
         ports:
           - containerPort: {{ .node.port }}
@@ -580,13 +589,20 @@ template:
               name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
           - configMapRef:
               name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+          - secretRef:
+              name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
           {{- if $.Values.basicAuth.enabled }}
           - secretRef:
               name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- end }}
           {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
+          {{- with $.Values.uploaderConfigMap.secretVolumeMountName }}
           - secretRef:
-              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+              name: {{ tpl . $ }}
+          {{- end }}
+          {{- with .recorder.uploader.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
           {{- end }}
           {{- with .recorder.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}

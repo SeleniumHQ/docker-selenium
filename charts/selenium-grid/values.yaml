@@ -1968,6 +1968,8 @@ videoRecorder:
     #  RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "xxx"
     #  RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
     #  RCLONE_CONFIG_GS_NO_CHECK_BUCKET: "true"
+    # -- Custom environment variables by sourcing entire configMap, Secret, etc. for uploader
+    extraEnvFrom: []
   # -- Video recording container port
   ports:
     - 9000

@@ -29,8 +29,8 @@
 | SE_HUB_PORT | 4444 | Hub config, port the Hub should listen on (default 4444) | --port |
 | SE_ROUTER_PORT | 4444 | Router config, port the Router should listen on (default 4444) | --port |
 | SE_NODE_GRID_GRAPHQL_URL |  | Video recording config, GraphQL URL to query test metadata for dynamic file name |  |
-| SE_VIDEO_FILE_NAME_TRIM_REGEX | [:alnum:]-_ | Bash regex to trim the file name if it is too long |  |
-| SE_VIDEO_FILE_NAME_SUFFIX |  | Append a suffix session id along with test metadata |  |
+| SE_VIDEO_FILE_NAME_TRIM_REGEX | [^a-zA-Z0-9-_] | Python regex to trim the file name if it is too long |  |
+| SE_VIDEO_FILE_NAME_SUFFIX | true | Append a suffix session id along with test metadata |  |
 | SE_RCLONE_CONFIG |  |  |  |
 | SE_UPLOAD_COMMAND |  |  |  |
 | SE_UPLOAD_OPTS |  |  |  |

@@ -5,8 +5,9 @@
   * [Configure Kubernetes cluster in Docker Desktop](#configure-kubernetes-cluster-in-docker-desktop)
   * [Deploy Selenium Grid solution using Helm chart](#deploy-selenium-grid-solution-using-helm-chart)
       * [Deploy PVC for video recording and video manager storage.](#deploy-pvc-for-video-recording-and-video-manager-storage)
+      * [Deploy the secret for credentials to upload video recordings to AWS S3.](#deploy-the-secret-for-credentials-to-upload-video-recordings-to-aws-s3)
       * [Add Docker Selenium Helm chart repository](#add-docker-selenium-helm-chart-repository)
-      * [Install latest chart with reference values.](#install-latest-chart-with-reference-values)
+      * [Install the latest chart with reference values.](#install-the-latest-chart-with-reference-values)
       * [Verify Grid installation](#verify-grid-installation)
       * [Browser Nodes in autoscaling from zero mode.](#browser-nodes-in-autoscaling-from-zero-mode)
       * [Run a test in Grid](#run-a-test-in-grid)
@@ -59,6 +60,22 @@ Checkout file [local-pvc-docker-desktop.yaml](local-pvc-docker-desktop.yaml)
 kubectl apply -f local-pvc-docker-desktop.yaml
 ```
 
+#### Deploy the secret for credentials to upload video recordings to AWS S3.
+
+Checkout file [aws-s3-upload-secret.yaml](aws-s3-upload-secret.yaml). Replace `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` with your AWS [access key](https://docs.aws.amazon.com/keyspaces/latest/devguide/aws.credentials.manage.html).
+
+```sh
+kubectl apply -f aws-s3-upload-secret.yaml
+```
+
+Note:
++ You also can export AWS secret values to environment variables and use `envsubst` to substitute them in the YAML file.
++ `envsubst` is a command that substitutes environment variables in the YAML file. Install it following the instructions at [envsubst](https://github.com/a8m/envsubst?tab=readme-ov-file#linux-and-macos).
+
+```sh
+envsubst <aws-s3-upload-secret.yaml | kubectl apply -f -
+```
+
 #### Add Docker Selenium Helm chart repository
 
 ```sh
@@ -66,7 +83,7 @@ helm repo add docker-selenium https://www.selenium.dev/docker-selenium
 helm repo update
 ```
 
-#### Install latest chart with reference values.
+#### Install the latest chart with reference values.
 
 Checkout file [simplex-docker-desktop.yaml](simplex-docker-desktop.yaml)
 

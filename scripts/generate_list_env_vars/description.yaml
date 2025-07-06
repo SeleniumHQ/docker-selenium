@@ -90,7 +90,7 @@
     file name
   cli: ''
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX
-  description: Bash regex to trim the file name if it is too long
+  description: Python regex to trim the file name if it is too long
   cli: ''
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   description: Append a suffix session id along with test metadata

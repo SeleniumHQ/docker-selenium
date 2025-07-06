@@ -4,8 +4,8 @@ import json
 import os
 import re
 import sys
-from typing import List, Tuple
 
+default_trim_pattern = "[^a-zA-Z0-9-_]"
 
 def main() -> None:
     """
@@ -26,7 +26,7 @@ def main() -> None:
     video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
     test_name_cap = os.environ.get("TEST_NAME_CAP", "se:name")
     video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
-    video_file_name_trim = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[:alnum:]-_")
+    video_file_name_trim = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", default_trim_pattern)
     video_file_name_suffix = os.environ.get("SE_VIDEO_FILE_NAME_SUFFIX", "true")
 
     # Initialize variables
@@ -79,7 +79,7 @@ def normalize_filename(filename: str, trim_pattern: str) -> str:
 
     Args:
         filename: The original filename
-        trim_pattern: Pattern defining allowed characters (e.g., "[:alnum:]-_")
+        trim_pattern: Pattern defining allowed characters
 
     Returns:
         Normalized filename
@@ -90,21 +90,10 @@ def normalize_filename(filename: str, trim_pattern: str) -> str:
     # Replace spaces with underscores
     normalized = filename.replace(" ", "_")
 
-    # Convert trim pattern to regex
-    # Handle character classes like [:alnum:]
-    posix_classes = {
-        "[:alnum:]": "a-zA-Z0-9",
-        "[:alpha:]": "a-zA-Z",
-        "[:digit:]": "0-9",
-        "[:space:]": " \t\n\r\f\v"
-    }
-
-    allowed_chars = trim_pattern
-    for posix_class, replacement in posix_classes.items():
-        if posix_class in allowed_chars:
-            allowed_chars = allowed_chars.replace(posix_class, replacement)
-
-    pattern = f"[^{re.escape(allowed_chars)}]"
+    try:
+        pattern = re.compile(trim_pattern)
+    except re.error:
+        pattern = re.compile(default_trim_pattern)
 
     # Remove disallowed characters
     normalized = re.sub(pattern, "", normalized)

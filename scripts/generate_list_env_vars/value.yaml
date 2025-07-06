@@ -275,9 +275,9 @@
 - name: SE_VIDEO_FILE_NAME
   default: video.mp4
 - name: SE_VIDEO_FILE_NAME_SUFFIX
-  default: ''
+  default: 'true'
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX
-  default: '[:alnum:]-_'
+  default: '[^a-zA-Z0-9-_]'
 - name: SE_VIDEO_FILE_READY_WAIT_ATTEMPTS
   default: ''
 - name: SE_VIDEO_FOLDER
