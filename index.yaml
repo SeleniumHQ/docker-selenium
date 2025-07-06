@@ -55,7 +55,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: ^21
     description: A Helm chart for creating a Selenium Grid Server in Kubernetes
-    digest: bb92867059b290996777f2204c720b36d432a9b22790232b06d30183e82e7b7e
+    digest: 74f66440ccb544d6c6b81889aa1502af17bfbc4230196acb63e5177c51816ab0
     icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
     maintainers:
     - email: docker-selenium@seleniumhq.org
@@ -2634,4 +2634,4 @@ entries:
     urls:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.3.0/selenium-grid-0.3.0.tgz
     version: 0.3.0
-generated: "2025-07-05T14:06:50.228341209Z"
+generated: "2025-07-05T14:06:51.228341209Z"
