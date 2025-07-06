@@ -18,7 +18,7 @@ echo "Installing Google Chrome: ${CHROME_VERSION}"
 
 # Add Google Chrome repository
 wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor | tee /etc/apt/trusted.gpg.d/google.gpg >/dev/null
-echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >>/etc/apt/sources.list.d/google-chrome.list
+echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >/etc/apt/sources.list.d/google-chrome.list
 
 # Update package list
 apt-get update -qqy
@@ -38,7 +38,6 @@ else
 fi
 
 # Cleanup
-rm /etc/apt/sources.list.d/google-chrome.list
 rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 echo "Google Chrome installation completed"

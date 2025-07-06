@@ -15,7 +15,7 @@ USER root
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
-  && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
+  && echo "deb https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
   && if echo "${EDGE_VERSION}" | grep -qE "microsoft-edge-stable[_|=][0-9]*"; \
     then \
@@ -26,7 +26,6 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
     else \
       apt-get -qqy --no-install-recommends install ${EDGE_VERSION} ; \
     fi \
-  && rm /etc/apt/sources.list.d/microsoft-edge.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================

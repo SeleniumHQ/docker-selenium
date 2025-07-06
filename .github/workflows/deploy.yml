@@ -135,7 +135,7 @@ jobs:
         if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 160
+          timeout_minutes: 180
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
