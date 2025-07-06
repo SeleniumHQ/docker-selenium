@@ -13,6 +13,26 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-137'
+      imageTag: '137.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '137.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-136'
+      imageTag: '136.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '136.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-135'
+      imageTag: '135.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '135.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-134'
+      imageTag: '134.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '134.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-133'
       imageTag: '133.0-20250707'
       hpa:
@@ -204,6 +224,26 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-139'
+      imageTag: '139.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '139.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-138'
+      imageTag: '138.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '138.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-137'
+      imageTag: '137.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '137.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-136'
+      imageTag: '136.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '136.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-135'
       imageTag: '135.0-20250707'
       hpa:
@@ -400,6 +440,26 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-137'
+      imageTag: '137.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '137.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-136'
+      imageTag: '136.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '136.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-135'
+      imageTag: '135.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '135.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-134'
+      imageTag: '134.0-20250707'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '134.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-133'
       imageTag: '133.0-20250707'
       hpa:
