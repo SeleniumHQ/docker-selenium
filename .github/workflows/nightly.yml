@@ -24,7 +24,7 @@ jobs:
       - build-test
     if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && !failure() && !cancelled()
     name: Deploy and Release Nightly
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     permissions: write-all
     steps:
       - name: Free Disk Space (Ubuntu)
