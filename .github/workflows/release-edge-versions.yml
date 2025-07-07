@@ -138,7 +138,8 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
-            make test_edge_standalone
+            make test_edge_standalone \
+            && make test_edge_standalone_java
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         if: env.PUSH_IMAGE == 'true'
         run: |

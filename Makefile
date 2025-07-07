@@ -626,12 +626,16 @@ release: tag_major_minor release_grid_scaler
 
 test: test_chrome \
  test_chrome_standalone \
+ test_chrome_standalone_java \
  test_chromium \
  test_chromium_standalone \
+ test_chromium_standalone_java \
  test_firefox \
  test_firefox_standalone \
+ test_firefox_standalone_java \
  test_edge \
- test_edge_standalone
+ test_edge_standalone \
+ test_edge_standalone_java
 
 test_chrome:
 	case "$(PLATFORMS)" in \
@@ -649,6 +653,17 @@ test_chrome_standalone:
     *linux/amd64*) \
 			echo "Google Chrome is only supported on linux/amd64" \
 			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome \
+      ;; \
+    *) \
+       echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+
+test_chrome_standalone_java:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Google Chrome is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome \
       ;; \
     *) \
        echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
@@ -677,6 +692,17 @@ test_edge_standalone:
       ;; \
   esac
 
+test_edge_standalone_java:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Microsoft Edge is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh edge standalone-edge \
+      ;; \
+    *) \
+       echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+
 test_firefox_download_lang_packs:
 	FIREFOX_VERSION=$(or $(FIREFOX_VERSION), $$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')) ; \
 	./NodeFirefox/get_lang_package.sh $$FIREFOX_VERSION ./tests/target/firefox_lang_packs
@@ -688,11 +714,17 @@ test_firefox: test_firefox_download_lang_packs
 test_firefox_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneFirefox
 
+test_firefox_standalone_java:
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh firefox standalone-firefox
+
 test_chromium:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChromium
 
 test_chromium_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChromium
+
+test_chromium_standalone_java:
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chromium
 
 test_parallel: hub chrome firefox edge chromium video
 	sudo rm -rf ./tests/tests
