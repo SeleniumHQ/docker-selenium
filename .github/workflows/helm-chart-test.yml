@@ -56,7 +56,7 @@ jobs:
             python-version: '3.9'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: disabled
           - k8s-version: 'v1.27.16'
@@ -66,7 +66,7 @@ jobs:
             python-version: '3.9'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: job
           - k8s-version: 'v1.28.15'
@@ -76,7 +76,7 @@ jobs:
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: deployment
           - k8s-version: 'v1.29.15'
@@ -86,7 +86,7 @@ jobs:
             python-version: '3.11'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: job_https
           - k8s-version: 'v1.30.13'
@@ -96,7 +96,7 @@ jobs:
             python-version: '3.12'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: job_hostname
           - k8s-version: 'v1.31.9'
@@ -106,7 +106,7 @@ jobs:
             python-version: '3.13'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: deployment_https
           - k8s-version: 'v1.32.5'
@@ -116,7 +116,7 @@ jobs:
             python-version: '3.10'
             test-upgrade: true
             service-mesh: false
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: true
             test-strategy: playwright_connect_grid
           - k8s-version: 'v1.33.1'
@@ -126,7 +126,7 @@ jobs:
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             check-records-output: false
             test-strategy: job_relay
     env:
