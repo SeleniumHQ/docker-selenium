@@ -114,6 +114,7 @@ nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
 nginx.ingress.kubernetes.io/proxy-buffering: "on"
     {{- with .size }}
 nginx.ingress.kubernetes.io/proxy-buffer-size: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-busy-buffers-size: {{ . | quote }}
 nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
     {{- end }}
     {{- with .number }}
