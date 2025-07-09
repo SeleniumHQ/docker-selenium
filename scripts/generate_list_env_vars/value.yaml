@@ -101,7 +101,7 @@
 - name: SE_NODE_GRID_GRAPHQL_URL
   default: ''
 - name: SE_NODE_GRID_URL
-  default: http://localhost:4444
+  default: ''
 - name: SE_NODE_HEARTBEAT_PERIOD
   default: '30'
 - name: SE_NODE_HOST

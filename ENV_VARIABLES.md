@@ -23,7 +23,7 @@
 | SE_SUPERVISORD_PID_FILE | /tmp/supervisord.pid | Default pid file will be created by supervisord |  |
 | SE_DRAIN_AFTER_SESSION_COUNT | 0 | Drain and detach node from grid after session count exceeds | --drain-after-session-count |
 | SE_SUB_PATH |  | A sub-path that should be considered for all user facing routes on the Hub/Router/Standalone | --sub-path |
-| SE_NODE_GRID_URL | http://localhost:4444 | Node config, public URL of the Grid as a whole (typically the address of the Hub or the Router) | --grid-url |
+| SE_NODE_GRID_URL |  | Node config, public URL of the Grid as a whole (typically the address of the Hub or the Router) | --grid-url |
 | SE_HUB_HOST |  | Hub config, host address the Hub should listen on | --host |
 | SE_ROUTER_HOST |  | Router config, host address the Router should listen on | --host |
 | SE_HUB_PORT | 4444 | Hub config, port the Hub should listen on (default 4444) | --port |

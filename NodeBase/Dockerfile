@@ -57,7 +57,6 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_NODE_BROWSER_VERSION="stable" \
     SE_NODE_PLATFORM_NAME="Linux" \
     SE_NODE_DELETE_SESSION_ON_UI="true" \
-    SE_NODE_GRID_URL="http://localhost:4444" \
 #============================
 # Some configuration options
 #============================
