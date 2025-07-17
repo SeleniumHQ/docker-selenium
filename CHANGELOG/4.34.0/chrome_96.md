@@ -1,21 +1,21 @@
 ```
-./tag_and_push_browser_images.sh 4.34.0 20250707 selenium false chrome true
-Tagging images for browser chrome, version 4.34.0, build date 20250707, namespace selenium
-Selenium Grid version -> 4.34.0-20250707
+./tag_and_push_browser_images.sh 4.34.0 20250717 selenium false chrome true
+Tagging images for browser chrome, version 4.34.0, build date 20250717, namespace selenium
+Selenium Grid version -> 4.34.0-20250717
 Chrome version -> 96.0.4664.110
 Short Chrome version -> 96.0
 ChromeDriver version -> 96.0.4664.45
 Short ChromeDriver version -> 96.0
-Tagged selenium/node-chrome:96.0.4664.110-chromedriver-96.0.4664.45-grid-4.34.0-20250707
-Tagged selenium/standalone-chrome:96.0.4664.110-chromedriver-96.0.4664.45-grid-4.34.0-20250707
-Tagged selenium/node-chrome:96.0.4664.110-chromedriver-96.0.4664.45-20250707
-Tagged selenium/standalone-chrome:96.0.4664.110-chromedriver-96.0.4664.45-20250707
-Tagged selenium/node-chrome:96.0.4664.110-20250707
-Tagged selenium/standalone-chrome:96.0.4664.110-20250707
-Tagged selenium/node-chrome:96.0-chromedriver-96.0-grid-4.34.0-20250707
-Tagged selenium/standalone-chrome:96.0-chromedriver-96.0-grid-4.34.0-20250707
-Tagged selenium/node-chrome:96.0-chromedriver-96.0-20250707
-Tagged selenium/standalone-chrome:96.0-chromedriver-96.0-20250707
-Tagged selenium/node-chrome:96.0-20250707
-Tagged selenium/standalone-chrome:96.0-20250707
+Tagged selenium/node-chrome:96.0.4664.110-chromedriver-96.0.4664.45-grid-4.34.0-20250717
+Tagged selenium/standalone-chrome:96.0.4664.110-chromedriver-96.0.4664.45-grid-4.34.0-20250717
+Tagged selenium/node-chrome:96.0.4664.110-chromedriver-96.0.4664.45-20250717
+Tagged selenium/standalone-chrome:96.0.4664.110-chromedriver-96.0.4664.45-20250717
+Tagged selenium/node-chrome:96.0.4664.110-20250717
+Tagged selenium/standalone-chrome:96.0.4664.110-20250717
+Tagged selenium/node-chrome:96.0-chromedriver-96.0-grid-4.34.0-20250717
+Tagged selenium/standalone-chrome:96.0-chromedriver-96.0-grid-4.34.0-20250717
+Tagged selenium/node-chrome:96.0-chromedriver-96.0-20250717
+Tagged selenium/standalone-chrome:96.0-chromedriver-96.0-20250717
+Tagged selenium/node-chrome:96.0-20250717
+Tagged selenium/standalone-chrome:96.0-20250717
 ```
