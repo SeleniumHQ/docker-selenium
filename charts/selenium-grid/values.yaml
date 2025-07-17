@@ -52,6 +52,10 @@ global:
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
+    # Noted:In case of autoscaling enabled, with scaling type `job`, Node will be drained following `nodeMaxSessions` by default
+    # If changing `nodeDrainAfterSessionCount` > `nodeMaxSessions` it will take precedence over `nodeMaxSessions` in scaling type `job`
+    # -- Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down
+    nodeDrainAfterSessionCount: 0
     # -- This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid)
     nodeEnableManagedDownloads: true
     # -- Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes)
@@ -1290,6 +1294,8 @@ chromeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1486,6 +1492,8 @@ firefoxNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1682,6 +1690,8 @@ edgeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1879,6 +1889,8 @@ relayNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level

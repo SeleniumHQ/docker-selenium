@@ -50,6 +50,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
+| global.seleniumGrid.nodeDrainAfterSessionCount | int | `0` | Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down |
 | global.seleniumGrid.nodeEnableManagedDownloads | bool | `true` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
 | global.seleniumGrid.nodeCustomCapabilities | string | `""` | Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) |
 | global.seleniumGrid.nodeRegisterPeriod | int | `120` | How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again. |
@@ -468,6 +469,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for chrome-node container |
 | chromeNode.extraVolumes | list | `[]` | Extra volumes for chrome-node pod |
 | chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| chromeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | chromeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | chromeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | chromeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -526,6 +528,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.extraVolumeMounts | list | `[]` | Extra volume mounts for firefox-node container |
 | firefoxNode.extraVolumes | list | `[]` | Extra volumes for firefox-node pod |
 | firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| firefoxNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | firefoxNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | firefoxNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | firefoxNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -584,6 +587,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for edge-node container |
 | edgeNode.extraVolumes | list | `[]` | Extra volumes for edge-node pod |
 | edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| edgeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | edgeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | edgeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | edgeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -643,6 +647,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.extraVolumeMounts | list | `[]` | Extra volume mounts for relay-node container |
 | relayNode.extraVolumes | list | `[]` | Extra volumes for relay-node pod |
 | relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| relayNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | relayNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | relayNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | relayNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |

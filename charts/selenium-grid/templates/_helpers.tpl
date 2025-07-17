@@ -306,6 +306,7 @@ Common pod template
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeDrainAfterSessionCount := default $.Values.global.seleniumGrid.nodeDrainAfterSessionCount .node.nodeDrainAfterSessionCount | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
 {{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
@@ -379,7 +380,7 @@ template:
           - name: SE_NODE_STEREOTYPE_EXTRA
             value: {{ $nodeCustomCapabilities | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
-            value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+            value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary (max $nodeMaxSessions $nodeDrainAfterSessionCount) $nodeDrainAfterSessionCount | quote }}
         {{- with .node.relayUrl }}
           - name: SE_NODE_RELAY_URL
             value: {{ . | quote }}
