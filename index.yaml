@@ -28,7 +28,7 @@ entries:
     version: 1.0.0-nightly
   - apiVersion: v2
     appVersion: 4.34.0-20250717
-    created: "2025-07-17T20:57:36.784357103Z"
+    created: "2025-07-17T20:57:37.784357103Z"
     dependencies:
     - condition: autoscaling.enabled, keda.enabled
       name: keda
@@ -55,7 +55,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: ^21
     description: A Helm chart for creating a Selenium Grid Server in Kubernetes
-    digest: c790c52fdeef68824b5ce117eba39aaf8c3ae20db0f2e9fb5c3b913c30b34171
+    digest: e64669b03b2c05c17ad367191b7c9ce7aa6c654b209cd2d3993ee28809bc8f4b
     icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
     maintainers:
     - email: docker-selenium@seleniumhq.org
@@ -2718,4 +2718,4 @@ entries:
     urls:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.3.0/selenium-grid-0.3.0.tgz
     version: 0.3.0
-generated: "2025-07-17T20:57:36.784731972Z"
+generated: "2025-07-17T20:57:37.784731972Z"
