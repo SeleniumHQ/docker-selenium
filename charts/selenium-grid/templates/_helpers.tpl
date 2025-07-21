@@ -254,7 +254,9 @@ triggers:
   - type: selenium-grid
     metadata:
     {{- with .node.hpa }}
-      {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- range $key, $value := . }}
+      {{ $key }}: {{ tpl ($value | toString) $ | quote }}
+      {{- end }}
       {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
       {{- end }}

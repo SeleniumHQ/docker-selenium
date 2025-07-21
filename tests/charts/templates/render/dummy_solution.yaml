@@ -136,6 +136,8 @@ selenium-grid:
     terminationGracePeriodSeconds: 7200
     service:
       enabled: true
+    hpa:
+      overProvisionRatio: 0.2
 
   firefoxNode:
     nodeMaxSessions: 1
@@ -144,6 +146,8 @@ selenium-grid:
     terminationGracePeriodSeconds: 720
     service:
       enabled: true
+    hpa:
+      overProvisionRatio: 0.2
 
   edgeNode:
     affinity: *affinity
@@ -152,9 +156,13 @@ selenium-grid:
     videoRecorder:
       uploader:
         enabled: false
+    hpa:
+      overProvisionRatio: 0.2
 
   relayNode:
     enabled: true
+    hpa:
+      overProvisionRatio: 0.2
 
   videoRecorder:
     enabled: true

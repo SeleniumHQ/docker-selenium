@@ -145,6 +145,8 @@ chromeNode:
   terminationGracePeriodSeconds: 7200
   service:
     enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 firefoxNode:
   nodeMaxSessions: 1
@@ -154,6 +156,8 @@ firefoxNode:
   terminationGracePeriodSeconds: 720
   service:
     enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 edgeNode:
   annotations:
@@ -163,9 +167,13 @@ edgeNode:
   videoRecorder:
     uploader:
       enabled: false
+  hpa:
+    overProvisionRatio: 0.2
 
 relayNode:
   enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 videoRecorder:
   enabled: true

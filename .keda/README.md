@@ -13,9 +13,9 @@ The stable implementation will be merged to the upstream KEDA repository frequen
 Replace the image registry and tag of these KEDA components with the patched image tag:
 
 ```bash
-docker pull selenium/keda:2.17.2-selenium-grid-20250717
-docker pull selenium/keda-metrics-apiserver:2.17.2-selenium-grid-20250717
-docker pull selenium/keda-admission-webhooks:2.17.2-selenium-grid-20250717
+docker pull selenium/keda:2.17.2-selenium-grid-20250721
+docker pull selenium/keda-metrics-apiserver:2.17.2-selenium-grid-20250721
+docker pull selenium/keda-admission-webhooks:2.17.2-selenium-grid-20250721
 ```
 
 Besides that, you also can use image tag `latest` or `nightly`.
@@ -27,15 +27,15 @@ If you are deploying KEDA core using their official Helm [chart](https://github.
     keda:
       registry: selenium
       repository: keda
-      tag: "2.17.2-selenium-grid-20250717"
+      tag: "2.17.2-selenium-grid-20250721"
     metricsApiServer:
       registry: selenium
       repository: keda-metrics-apiserver
-      tag: "2.17.2-selenium-grid-20250717"
+      tag: "2.17.2-selenium-grid-20250721"
     webhooks:
       registry: selenium
       repository: keda-admission-webhooks
-      tag: "2.17.2-selenium-grid-20250717"
+      tag: "2.17.2-selenium-grid-20250721"
 ```
 
 If you are deployment Selenium Grid chart with `autoscaling.enabled` is `true` (implies installing KEDA sub-chart), KEDA images registry and tag already set in the `values.yaml`. Refer to list [configuration](../charts/selenium-grid/CONFIGURATION.md).
@@ -48,6 +48,8 @@ Here is list of pull requests that are under testing and will be merged to the u
 You can involve to review and discuss the pull requests to help us early detect and fix any issues.
 
 [kedacore/keda](https://github.com/kedacore/keda)
+
+- https://github.com/kedacore/keda/pull/6920 (planned, v2.18.0)
 
 - ~~https://github.com/kedacore/keda/pull/6772 (merged, v2.17.1)~~
 

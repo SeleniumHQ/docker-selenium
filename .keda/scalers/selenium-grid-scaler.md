@@ -28,6 +28,7 @@ triggers:
       nodeMaxSessions: 1 # Optional.
       enableManagedDownloads: true # Optional.
       capabilities: '' # Optional.
+      overProvisionRatio: '' # Optional.
 ```
 
 **Parameter list:**
@@ -42,12 +43,15 @@ triggers:
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
 - `enableManagedDownloads`- Set this for Node enabled to auto manage files downloaded for a given session on the Node. When the client requests enabling this feature, it can only be assigned to the Node that also enabled it. Otherwise, the request will wait until it timed out. (Default: `true`, Optional).
 - `capabilities` - Add more custom capabilities for matching specific Nodes. It should be in JSON string, see [example](https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) (Optional)
+- `overProvisionRatio` - The number of overprovisioning ratio to scale more than the actual number of requests. For example, if there are 20 requests for the browser instead of scaling to 20 Nodes, it is able to scale 20% more than the requested, in this case is 24, in this case input value is `0.2` (Optional)
 
 **Trigger Authentication**
 - `username` - Username for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
 - `password` - Password for basic authentication in GraphQL endpoint instead of embedding in the URL. (Optional)
 - `authType` - Type of authentication to be used. This can be set to `Bearer` or `OAuth2` in case Selenium Grid behind an Ingress proxy with other authentication types. (Optional)
 - `accessToken` - Access token. This is required when `authType` is set a value. (Optional)
+
+Noted that trigger authentication parameters are able to set in either trigger metadata or trigger authentication. However, if both are set, the trigger authentication will take precedence.
 
 ### Example
 

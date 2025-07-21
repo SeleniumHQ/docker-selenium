@@ -482,6 +482,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| chromeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | chromeNode.videoRecorder | object | `{}` | Override specific video recording settings for chrome node |
@@ -541,6 +542,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| firefoxNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | firefoxNode.videoRecorder | object | `{}` | Override specific video recording settings for firefox node |
@@ -600,6 +602,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| edgeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -660,6 +663,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| relayNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | relayNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -732,6 +736,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.priorityClassName | string | `""` | Priority class name for router pods |
 | videoManager.extraVolumeMounts | list | `[]` |  |
 | videoManager.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
+| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.17.2-selenium-grid-20250721"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.17.2-selenium-grid-20250721"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.17.2-selenium-grid-20250721"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |

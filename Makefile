@@ -34,8 +34,8 @@ KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),
 KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.17.2)
 KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.17.2-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.17.2-selenium-grid-20250705)
-TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.17.2-selenium-grid-20250721)
+TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),true)
 
 all: hub \
 	distributor \
@@ -284,7 +284,7 @@ fetch_grid_scaler_resources:
 	&& cd ./.keda/scalers \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler.go -o selenium_grid_scaler.go \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler_test.go -o selenium_grid_scaler_test.go \
-	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.17/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
+	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.18/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
 
 fetch_grid_scaler_images:
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda:$(KEDA_BASED_TAG)
