@@ -6,13 +6,11 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
-ARG MVN_SELENIUM_VERSION
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.51.0
 ARG GRPC_VERSION=1.73.0
 ARG NETTY_VERSION=4.1.122.Final
 ARG CS_VERSION=2.1.24
-ARG POSTGRESQL_VERSION=42.7.7
 ARG ENVSUBST_VERSION=1.4.5
 
 #Arguments to define the user running Selenium
@@ -148,14 +146,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         io.netty:netty-handler:${NETTY_VERSION} \
         io.netty:netty-common:${NETTY_VERSION} \
         > /external_jars/.classpath.txt \
-        && chmod 664 /external_jars/.classpath.txt \
-        && java -jar /tmp/cs fetch --classpath --cache /external_jars \
-        org.seleniumhq.selenium:selenium-session-map-jdbc:${MVN_SELENIUM_VERSION} \
-        org.postgresql:postgresql:${POSTGRESQL_VERSION} \
-        org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
-        # Patch specific version for CVEs in the dependencies
-        > /external_jars/.classpath_session_map.txt \
-        && chmod 664 /external_jars/.classpath_session_map.txt ; \
+        && chmod 664 /external_jars/.classpath.txt ; \
      fi \
   && rm -fr /root/.cache/* \
   # (Note that .bashrc is only executed in interactive bash shells.)

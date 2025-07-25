@@ -131,7 +131,7 @@ gen_certs:
 
 base: prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
-	--build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) --secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
+	--secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make base
@@ -146,7 +146,8 @@ router: base
 	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
 
 sessions: base
-	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+	--build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue: base
 	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
