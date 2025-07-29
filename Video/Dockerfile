@@ -44,7 +44,8 @@ ENV DISPLAY_NUM="99" \
     SE_PRESET="-preset ultrafast" \
     VIDEO_FOLDER="/videos" \
     SE_VIDEO_FILE_NAME="video.mp4" \
-    SE_VIDEO_FILE_NAME_TRIM_REGEX="[:alnum:]-_" \
+    SE_VIDEO_FILE_NAME_TRIM_REGEX="[^a-zA-Z0-9-_]" \
+    SE_VIDEO_FILE_NAME_SUFFIX="true" \
     # Environment variables for the uploader
     RCLONE_CONFIG="/opt/selenium/upload.conf" \
     SE_VIDEO_UPLOAD_ENABLED="false" \

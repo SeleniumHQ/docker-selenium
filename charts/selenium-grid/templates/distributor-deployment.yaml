@@ -73,6 +73,10 @@ spec:
             - name: SE_NEW_SESSION_THREAD_POOL_SIZE
               value: '{{ template "seleniumGrid.autoscaling.distributor.threadPoolSize" $ }}'
             {{- end }}
+            {{- if not (empty (include "seleniumGrid.autoscaling.distributor.slotSelector" $)) }}
+            - name: SE_DISTRIBUTOR_SLOT_SELECTOR
+              value: {{ include "seleniumGrid.autoscaling.distributor.slotSelector" $ | quote }}
+            {{- end }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}

@@ -56,7 +56,9 @@ fi
 docker info
 echo "==============================="
 echo "Installing Docker compose for AMD64 / ARM64"
-DOCKER_COMPOSE_VERSION="v2.26.0"
+if [ -z "${DOCKER_COMPOSE_VERSION}" ]; then
+    DOCKER_COMPOSE_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/docker/compose/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
+fi
 curl -fsSL -o ./docker-compose "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-$(uname -m)"
 chmod +x ./docker-compose
 sudo mv ./docker-compose /usr/libexec/docker/cli-plugins
@@ -101,14 +103,14 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     go version
     echo "==============================="
     echo "Installing CRI-CTL (CLI for CRI-compatible container runtimes)"
-    CRICTL_VERSION="v1.30.0"
+    CRICTL_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/kubernetes-sigs/cri-tools/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
     curl -fsSL -o crictl.tar.gz https://github.com/kubernetes-sigs/cri-tools/releases/download/$CRICTL_VERSION/crictl-$CRICTL_VERSION-linux-$(dpkg --print-architecture).tar.gz
     sudo tar -xf crictl.tar.gz -C /usr/local/bin
     rm -rf crictl.tar.gz
     crictl --version || true
     echo "==============================="
     echo "Installing CRI-Dockerd"
-    CRI_DOCKERD_VERSION="0.3.14"
+    CRI_DOCKERD_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/Mirantis/cri-dockerd/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
     curl -fsSL -o cri-dockerd.tgz https://github.com/Mirantis/cri-dockerd/releases/download/v$CRI_DOCKERD_VERSION/cri-dockerd-$CRI_DOCKERD_VERSION.$(dpkg --print-architecture).tgz
     sudo tar -xf cri-dockerd.tgz -C /tmp
     sudo mv /tmp/cri-dockerd/cri-dockerd /usr/local/bin/cri-dockerd
@@ -126,7 +128,7 @@ elif [ "${CLUSTER}" = "minikube" ]; then
     cri-dockerd --version
     echo "==============================="
     echo "Installing CNI-Plugins (Container Network Interface)"
-    CNI_PLUGIN_VERSION="v1.4.0"
+    CNI_PLUGIN_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/containernetworking/plugins/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
     CNI_PLUGIN_TAR="cni-plugins-linux-$(dpkg --print-architecture)-$CNI_PLUGIN_VERSION.tgz"
     CNI_PLUGIN_INSTALL_DIR="/opt/cni/bin"
     curl -sLO "https://github.com/containernetworking/plugins/releases/download/$CNI_PLUGIN_VERSION/$CNI_PLUGIN_TAR"
@@ -147,7 +149,7 @@ echo "==============================="
 
 echo "Installing Helm for AMD64 / ARM64"
 if [ "${HELM_VERSION}" = "latest" ]; then
-    HELM_VERSION=$(curl -s https://api.github.com/repos/helm/helm/releases/latest | grep tag_name | cut -d '"' -f 4)
+    HELM_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/helm/helm/releases/latest | sed -E 's#.*/tag/(v[0-9.]+).*#\1#')"
 fi
 curl -fsSL -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-$(dpkg --print-architecture).tar.gz
 mkdir -p helm
@@ -159,7 +161,7 @@ helm version
 echo "==============================="
 
 echo "Installing chart-testing for AMD64 / ARM64"
-CHART_TESTING_VERSION="3.12.0"
+CHART_TESTING_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/helm/chart-testing/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
 curl -fsSL -o ct.tar.gz https://github.com/helm/chart-testing/releases/download/v${CHART_TESTING_VERSION}/chart-testing_${CHART_TESTING_VERSION}_linux_$(dpkg --print-architecture).tar.gz
 sudo mkdir -p /opt/ct
 sudo tar -xzf ct.tar.gz -C /opt/ct
@@ -176,7 +178,7 @@ GOBIN=$HOME/go/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 $HOME/go/bin/helm-docs -h || true
 echo "==============================="
 echo "Installing envsubst for AMD64 / ARM64"
-ENVSUBST_VERSION="1.4.3"
+ENVSUBST_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/a8m/envsubst/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
 ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)
 curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
 chmod +x envsubst

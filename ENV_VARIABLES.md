@@ -29,18 +29,18 @@
 | SE_HUB_PORT | 4444 | Hub config, port the Hub should listen on (default 4444) | --port |
 | SE_ROUTER_PORT | 4444 | Router config, port the Router should listen on (default 4444) | --port |
 | SE_NODE_GRID_GRAPHQL_URL |  | Video recording config, GraphQL URL to query test metadata for dynamic file name |  |
-| SE_VIDEO_FILE_NAME_TRIM_REGEX | [:alnum:]-_ | Bash regex to trim the file name if it is too long |  |
-| SE_VIDEO_FILE_NAME_SUFFIX |  | Append a suffix session id along with test metadata |  |
+| SE_VIDEO_FILE_NAME_TRIM_REGEX | [^a-zA-Z0-9-_] | Python regex to trim the file name if it is too long |  |
+| SE_VIDEO_FILE_NAME_SUFFIX | true | Append a suffix session id along with test metadata |  |
 | SE_RCLONE_CONFIG |  |  |  |
 | SE_UPLOAD_COMMAND |  |  |  |
 | SE_UPLOAD_OPTS |  |  |  |
 | SE_UPLOAD_RETAIN_LOCAL_FILE |  |  |  |
 | SE_VIDEO_UPLOAD_BATCH_CHECK |  |  |  |
 | SE_RCLONE_ |  |  |  |
-| SE_OPTS |  |  |  |
+| SE_OPTS |  | This is used to pass any additional CLI options (which doesn't have environment variable representation) to the component. Refer to list supported options per component in [documentation](https://www.selenium.dev/documentation/grid/configuration/cli_options/) |  |
 | SE_EVENT_BUS_HOST |  |  |  |
 | SE_EVENT_BUS_PORT | 5557 |  |  |
-| SE_LOG_LEVEL | INFO |  | --log-level |
+| SE_LOG_LEVEL | INFO | Log level. Default logging level is INFO. Log levels are described [here](https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html) | --log-level |
 | SE_HTTP_LOGS | false |  | --http-logs |
 | SE_STRUCTURED_LOGS | false |  | --structured-logs |
 | SE_EXTERNAL_URL |  |  | --external-url |
@@ -76,7 +76,7 @@
 | SE_EVENT_BUS_SUBSCRIBE_PORT | 4443 |  |  |
 | SE_NODE_SESSION_TIMEOUT | 300 |  | --session-timeout |
 | SE_NODE_ENABLE_MANAGED_DOWNLOADS | true | This causes the Node to auto manage files downloaded for a given session on the Node | --enable-managed-downloads |
-| SE_NODE_ENABLE_CDP |  |  | --enable-cdp |
+| SE_NODE_ENABLE_CDP |  | Enable CDP proxying in Grid. A Grid admin can disable CDP if the network doesnot allow websockets. True by default. | --enable-cdp |
 | SE_NODE_REGISTER_PERIOD | 120 |  | --register-period |
 | SE_NODE_REGISTER_CYCLE | 10 |  | --register-cycle |
 | SE_NODE_HEARTBEAT_PERIOD | 30 |  | --heartbeat-period |
@@ -145,7 +145,7 @@
 | SE_NODE_RELAY_BROWSER_VERSION |  |  |  |
 | SE_NODE_RELAY_ONLY | true |  |  |
 | SE_EXTRA_LIBS |  | Extra jars to add to the classpath in server component bootstrap | --ext |
-| SE_NODE_CONNECTION_LIMIT_PER_SESSION | 10 |  |  |
+| SE_NODE_CONNECTION_LIMIT_PER_SESSION | 20 |  |  |
 | SE_SUPERVISORD_UNIX_SERVER_PASSWORD | secret |  |  |
 | SE_FFMPEG_THREADS |  |  |  |
 | SE_OTEL_RESOURCE_ATTRIBUTES |  | Add more attributes to the OpenTelemetry resource, e.g. "service.version=1.0.0,deployment.environment=production" |  |
@@ -153,3 +153,5 @@
 | SE_VIDEO_CRF |  |  |  |
 | SE_VIDEO_MAXRATE |  |  |  |
 | SE_NODE_DELETE_SESSION_ON_UI | true | Enable capability to support deleting session on Grid UI | --delete-session-on-ui |
+| SE_UPDATE_CHROME_COMPONENTS |  | Applicable for node-chrome, standalone-chrome (arch linux/amd64). Update the latest version of Chrome and ChromeDriver at the beginning of the container startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872) |  |
+| SE_DISTRIBUTOR_SLOT_SELECTOR |  | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. | --slot-selector |

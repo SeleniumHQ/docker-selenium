@@ -18,6 +18,7 @@ global:
         topologyKey: kubernetes.io/hostname
         whenUnsatisfiable: DoNotSchedule
     nodeMaxSessions: 3
+    nodeDrainAfterSessionCount: 30
     nodeEnableManagedDownloads: true
     nodeCustomCapabilities: "{'myApp:version':'beta','myApp:publish':'public'}"
 
@@ -138,19 +139,25 @@ components:
 
 chromeNode:
   nodeMaxSessions: 2
+  nodeDrainAfterSessionCount: 10
   annotations:
     "restartOnUpdate": "true"
   terminationGracePeriodSeconds: 7200
   service:
     enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 firefoxNode:
   nodeMaxSessions: 1
+  nodeDrainAfterSessionCount: 20
   annotations:
     "restartOnUpdate": "true"
   terminationGracePeriodSeconds: 720
   service:
     enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 edgeNode:
   annotations:
@@ -160,9 +167,13 @@ edgeNode:
   videoRecorder:
     uploader:
       enabled: false
+  hpa:
+    overProvisionRatio: 0.2
 
 relayNode:
   enabled: true
+  hpa:
+    overProvisionRatio: 0.2
 
 videoRecorder:
   enabled: true

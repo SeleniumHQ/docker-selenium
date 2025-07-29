@@ -30,12 +30,12 @@ SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
-KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.17.1-selenium-grid)
-KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.17.1)
-KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.17.1-selenium-grid)
+KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.17.2-selenium-grid)
+KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.17.2)
+KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.17.2-selenium-grid)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.17.1-selenium-grid-20250606)
-TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.17.2-selenium-grid-20250721)
+TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),true)
 
 all: hub \
 	distributor \
@@ -131,7 +131,7 @@ gen_certs:
 
 base: prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
-	--build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) --secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
+	--secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make base
@@ -146,7 +146,8 @@ router: base
 	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
 
 sessions: base
-	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/sessions:$(TAG_VERSION) .
+	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+	--build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) -t $(NAME)/sessions:$(TAG_VERSION) .
 
 sessionqueue: base
 	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
@@ -284,7 +285,7 @@ fetch_grid_scaler_resources:
 	&& cd ./.keda/scalers \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler.go -o selenium_grid_scaler.go \
 	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda/v$(KEDA_BASED_TAG)/pkg/scalers/selenium_grid_scaler_test.go -o selenium_grid_scaler_test.go \
-	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.17/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
+	&& curl -L https://raw.githubusercontent.com/$(KEDA_BASED_NAME)/keda-docs/main/content/docs/2.18/scalers/selenium-grid-scaler.md -o selenium-grid-scaler.md
 
 fetch_grid_scaler_images:
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda:$(KEDA_BASED_TAG)
@@ -626,12 +627,16 @@ release: tag_major_minor release_grid_scaler
 
 test: test_chrome \
  test_chrome_standalone \
+ test_chrome_standalone_java \
  test_chromium \
  test_chromium_standalone \
+ test_chromium_standalone_java \
  test_firefox \
  test_firefox_standalone \
+ test_firefox_standalone_java \
  test_edge \
- test_edge_standalone
+ test_edge_standalone \
+ test_edge_standalone_java
 
 test_chrome:
 	case "$(PLATFORMS)" in \
@@ -649,6 +654,17 @@ test_chrome_standalone:
     *linux/amd64*) \
 			echo "Google Chrome is only supported on linux/amd64" \
 			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome \
+      ;; \
+    *) \
+       echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+
+test_chrome_standalone_java:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Google Chrome is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome \
       ;; \
     *) \
        echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
@@ -677,6 +693,17 @@ test_edge_standalone:
       ;; \
   esac
 
+test_edge_standalone_java:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Microsoft Edge is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh edge standalone-edge \
+      ;; \
+    *) \
+       echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+
 test_firefox_download_lang_packs:
 	FIREFOX_VERSION=$(or $(FIREFOX_VERSION), $$(curl -sk https://product-details.mozilla.org/1.0/firefox_versions.json | jq -r '.LATEST_FIREFOX_VERSION')) ; \
 	./NodeFirefox/get_lang_package.sh $$FIREFOX_VERSION ./tests/target/firefox_lang_packs
@@ -688,11 +715,17 @@ test_firefox: test_firefox_download_lang_packs
 test_firefox_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneFirefox
 
+test_firefox_standalone_java:
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh firefox standalone-firefox
+
 test_chromium:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChromium
 
 test_chromium_standalone:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChromium
+
+test_chromium_standalone_java:
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chromium
 
 test_parallel: hub chrome firefox edge chromium video
 	sudo rm -rf ./tests/tests
@@ -972,7 +1005,7 @@ chart_test_autoscaling_disabled:
 chart_test_autoscaling_deployment_https:
 	PLATFORMS=$(PLATFORMS) CHART_FULL_DISTRIBUTED_MODE=true CHART_ENABLE_BASIC_AUTH=true TEST_EXTERNAL_DATASTORE=postgresql TEST_MULTIPLE_VERSIONS=true AUTOSCALING_COOLDOWN_PERIOD=30 SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) \
 	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PORT=443 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=0 MAX_SESSIONS_FIREFOX=1 MAX_SESSIONS_EDGE=1 MAX_SESSIONS_CHROME=1 TEST_NAME_OVERRIDE=true \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=0 MAX_SESSIONS_FIREFOX=1 MAX_SESSIONS_EDGE=1 MAX_SESSIONS_CHROME=1 TEST_NODE_DRAIN_AFTER_SESSION_COUNT=3 TEST_NAME_OVERRIDE=true \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_basicAuth_secureIngress_defaultCerts_ingressHostName_disableHttp2_autoScaling_patchKEDA_scaledObject_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
@@ -981,7 +1014,7 @@ chart_test_autoscaling_deployment:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) AUTOSCALING_COOLDOWN_PERIOD=30 \
 	TRACING_EXPORTER_ENDPOINT="http://\$$KUBERNETES_NODE_HOST_IP:4317" TEST_CUSTOM_SPECIFIC_NAME=true \
 	SECURE_CONNECTION_SERVER=true SECURE_USE_EXTERNAL_CERT=true SERVICE_TYPE_NODEPORT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -I | cut -d' ' -f1) SELENIUM_GRID_PORT=31444 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 SELENIUM_GRID_MONITORING=false  \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 TEST_NODE_DRAIN_AFTER_SESSION_COUNT=3 SELENIUM_GRID_MONITORING=false  \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_enableTracing_secureServer_externalCerts_nodePort_autoScaling_scaledObject_existingKEDA_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling

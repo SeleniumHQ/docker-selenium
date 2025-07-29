@@ -101,6 +101,22 @@ videoRecorder:
     - name: videos
       persistentVolumeClaim:
         claimName: local-pv-storage
+  uploader:
+    enabled: true
+    destinationPrefix: "s3://upload-records-repo/batch01" # Replace this with your own S3 bucket name (and subdirectory if any)
+    extraEnvFrom:
+      - secretRef:
+          name: aws-s3-upload-secret # The external secret contains configs for S3 upload. See steps in README.
+#    secrets: # Uncomment the following lines if you want to attach the secret directly from chart values.
+#      RCLONE_CONFIG_S3_TYPE: "s3"
+#      RCLONE_CONFIG_S3_PROVIDER: "AWS"
+#      RCLONE_CONFIG_S3_ENV_AUTH: "true"
+#      RCLONE_CONFIG_S3_REGION: "ap-south-1"
+#      RCLONE_CONFIG_S3_LOCATION_CONSTRAINT: "ap-south-1"
+#      RCLONE_CONFIG_S3_ACL: "private"
+#      RCLONE_CONFIG_S3_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+#      RCLONE_CONFIG_S3_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+#      RCLONE_CONFIG_S3_NO_CHECK_BUCKET: "true"
 
 videoManager:
   enabled: true

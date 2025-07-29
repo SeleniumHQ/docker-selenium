@@ -18,6 +18,8 @@
   default: ''
 - name: SE_DISTRIBUTOR_PORT
   default: '5553'
+- name: SE_DISTRIBUTOR_SLOT_SELECTOR
+  default: ''
 - name: SE_DRAIN_AFTER_SESSION_COUNT
   default: '0'
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP
@@ -83,7 +85,7 @@
 - name: SE_NODE_BROWSER_VERSION
   default: stable
 - name: SE_NODE_CONNECTION_LIMIT_PER_SESSION
-  default: '10'
+  default: '20'
 - name: SE_NODE_CONTAINER_NAME
   default: ''
 - name: SE_NODE_DELETE_SESSION_ON_UI
@@ -252,6 +254,8 @@
   default: '5'
 - name: SE_SUPERVISORD_UNIX_SERVER_PASSWORD
   default: secret
+- name: SE_UPDATE_CHROME_COMPONENTS
+  default: ''
 - name: SE_UPLOAD_COMMAND
   default: ''
 - name: SE_UPLOAD_DESTINATION_PREFIX
@@ -271,9 +275,9 @@
 - name: SE_VIDEO_FILE_NAME
   default: video.mp4
 - name: SE_VIDEO_FILE_NAME_SUFFIX
-  default: ''
+  default: 'true'
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX
-  default: '[:alnum:]-_'
+  default: '[^a-zA-Z0-9-_]'
 - name: SE_VIDEO_FILE_READY_WAIT_ATTEMPTS
   default: ''
 - name: SE_VIDEO_FOLDER

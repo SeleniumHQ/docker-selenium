@@ -15,7 +15,7 @@ USER root
 #============================================
 ARG EDGE_VERSION="microsoft-edge-stable"
 RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.gpg >/dev/null \
-  && echo "deb https://packages.microsoft.com/repos/edge stable main" >> /etc/apt/sources.list.d/microsoft-edge.list \
+  && echo "deb https://packages.microsoft.com/repos/edge stable main" > /etc/apt/sources.list.d/microsoft-edge.list \
   && apt-get update -qqy \
   && if echo "${EDGE_VERSION}" | grep -qE "microsoft-edge-stable[_|=][0-9]*"; \
     then \
@@ -26,7 +26,6 @@ RUN wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
     else \
       apt-get -qqy --no-install-recommends install ${EDGE_VERSION} ; \
     fi \
-  && rm /etc/apt/sources.list.d/microsoft-edge.list \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #=================================
@@ -45,10 +44,10 @@ ARG EDGE_DRIVER_VERSION
 RUN DRIVER_ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "linux64"; else echo "linux-aarch64"; fi) \
   && if [ -z "$EDGE_DRIVER_VERSION" ]; \
   then EDGE_MAJOR_VERSION=$(microsoft-edge --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
-    && EDGE_DRIVER_VERSION=$(wget --no-verbose -O - "https://msedgedriver.azureedge.net/LATEST_RELEASE_${EDGE_MAJOR_VERSION}_LINUX" | tr -cd "\11\12\15\40-\176" | tr -d "\r"); \
+    && EDGE_DRIVER_VERSION=$(wget --no-verbose -O - "https://msedgedriver.microsoft.com/LATEST_RELEASE_${EDGE_MAJOR_VERSION}_LINUX" | tr -cd "\11\12\15\40-\176" | tr -d "\r"); \
   fi \
   && echo "Using msedgedriver version: "$EDGE_DRIVER_VERSION \
-  && wget --no-verbose -O /tmp/msedgedriver_${DRIVER_ARCH}.zip https://msedgedriver.azureedge.net/$EDGE_DRIVER_VERSION/edgedriver_${DRIVER_ARCH}.zip \
+  && wget --no-verbose -O /tmp/msedgedriver_${DRIVER_ARCH}.zip https://msedgedriver.microsoft.com/$EDGE_DRIVER_VERSION/edgedriver_${DRIVER_ARCH}.zip \
   && rm -rf /opt/selenium/msedgedriver \
   && unzip /tmp/msedgedriver_${DRIVER_ARCH}.zip -d /opt/selenium \
   && rm /tmp/msedgedriver_${DRIVER_ARCH}.zip \

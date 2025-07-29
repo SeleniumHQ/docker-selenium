@@ -90,7 +90,7 @@
     file name
   cli: ''
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX
-  description: Bash regex to trim the file name if it is too long
+  description: Python regex to trim the file name if it is too long
   cli: ''
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   description: Append a suffix session id along with test metadata
@@ -114,7 +114,9 @@
   description: ''
   cli: ''
 - name: SE_OPTS
-  description: ''
+  description: This is used to pass any additional CLI options (which doesn't have
+    environment variable representation) to the component. Refer to list supported
+    options per component in [documentation](https://www.selenium.dev/documentation/grid/configuration/cli_options/)
   cli: ''
 - name: SE_EVENT_BUS_HOST
   description: ''
@@ -123,7 +125,8 @@
   description: ''
   cli: ''
 - name: SE_LOG_LEVEL
-  description: ''
+  description: Log level. Default logging level is INFO. Log levels are described
+    [here](https://docs.oracle.com/en/java/javase/11/docs/api/java.logging/java/util/logging/Level.html)
   cli: --log-level
 - name: SE_HTTP_LOGS
   description: ''
@@ -232,7 +235,8 @@
     on the Node
   cli: --enable-managed-downloads
 - name: SE_NODE_ENABLE_CDP
-  description: ''
+  description: Enable CDP proxying in Grid. A Grid admin can disable CDP if the network
+    doesnot allow websockets. True by default.
   cli: --enable-cdp
 - name: SE_NODE_REGISTER_PERIOD
   description: ''
@@ -468,3 +472,12 @@
 - name: SE_NODE_DELETE_SESSION_ON_UI
   description: Enable capability to support deleting session on Grid UI
   cli: --delete-session-on-ui
+- name: SE_UPDATE_CHROME_COMPONENTS
+  description: 'Applicable for node-chrome, standalone-chrome (arch linux/amd64).
+    Update the latest version of Chrome and ChromeDriver at the beginning of the container
+    startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872)'
+  cli: ''
+- name: SE_DISTRIBUTOR_SLOT_SELECTOR
+  description: Full class name of non-default slot selector. This is used to select
+    a slot in a Node once the Node has been matched.
+  cli: --slot-selector

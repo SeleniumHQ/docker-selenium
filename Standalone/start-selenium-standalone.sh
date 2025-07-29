@@ -2,6 +2,13 @@
 #
 # IMPORTANT: Change this file only in directory Standalone!
 
+# Check if Chrome components update is enabled
+if [ "${SE_UPDATE_CHROME_COMPONENTS}" = "true" ] && [ -f /opt/bin/update-chrome-components.sh ]; then
+  echo "Chrome components update enabled, checking for updates..."
+  echo "Note that after the container gets restarted, updated binaries will be lost unless you call the update script within the build container process."
+  /opt/bin/update-chrome-components.sh
+fi
+
 # Start the pulseaudio server
 pulseaudio -D --exit-idle-time=-1
 
@@ -119,6 +126,10 @@ fi
 
 if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
   append_se_opts "--reject-unsupported-caps" "${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
+if [ ! -z "$SE_DISTRIBUTOR_SLOT_SELECTOR" ]; then
+  append_se_opts "--slot-selector" "${SE_DISTRIBUTOR_SLOT_SELECTOR}"
 fi
 
 if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then

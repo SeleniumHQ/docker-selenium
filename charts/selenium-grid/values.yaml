@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.33.0-20250606
+    imageTag: 4.34.0-20250717
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.33.0-20250606
+    nodesImageTag: 4.34.0-20250717
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-7.1-20250606
+    videoImageTag: ffmpeg-7.1-20250717
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnami/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -52,6 +52,11 @@ global:
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
+    # Noted: In case of autoscaling enabled, with scaling type `job`, Node will be drained following `nodeMaxSessions` by default
+    # If changing `nodeDrainAfterSessionCount` > `nodeMaxSessions` it will take precedence over `nodeMaxSessions` in scaling type `job`
+    # For other cases, `nodeDrainAfterSessionCount` > 0 always take effect.
+    # -- Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down
+    nodeDrainAfterSessionCount: 0
     # -- This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid)
     nodeEnableManagedDownloads: true
     # -- Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes)
@@ -529,6 +534,8 @@ components:
 
     # -- Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
     newSessionThreadPoolSize:
+    # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
+    slotSelectorStrategy: ""
     # -- Specify extra environment variables for Distributor
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
@@ -885,6 +892,8 @@ hub:
     successThreshold: 1
   # -- Custom sub path for the hub deployment
   subPath: ""
+  # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
+  slotSelectorStrategy: ""
   # -- Custom environment variables for selenium-hub
   extraEnvironmentVariables: []
     # - name: SE_JAVA_OPTS
@@ -1015,6 +1024,12 @@ autoscaling:
   scalingType: job
   # -- Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state
   setReplicasInSpec: true
+  # By default, it is "org.openqa.selenium.grid.distributor.selector.DefaultSlotSelector". This is ensuring load balancing sessions across all available nodes.
+  # New strategy "org.openqa.selenium.grid.distributor.selector.GreedySlotSelector". This might be helpful in case autoscaling overprovisioned with max sessions greater than 1 per node.
+  # Ensure all slots in a node are filled with sessions before selecting the next available node. Note this is available since Selenium Server 4.34.0.
+  # Change this default chart value if you prefer default strategy or using this chart with older Selenium Server versions.
+  # -- Strategy for Selenium Hub/Distributor select slot to assign to a new session.
+  slotSelectorStrategy: "org.openqa.selenium.grid.distributor.selector.GreedySlotSelector"
   # -- Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes
   authenticationRef:
     name: ""
@@ -1280,6 +1295,8 @@ chromeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1305,6 +1322,9 @@ chromeNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
+    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
+    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1476,6 +1496,8 @@ firefoxNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1501,6 +1523,9 @@ firefoxNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
+    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
+    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1672,6 +1697,8 @@ edgeNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1697,6 +1724,9 @@ edgeNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
+    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
+    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1869,6 +1899,8 @@ relayNode:
 
   # -- Override the number of max sessions per node
   nodeMaxSessions:
+  # -- Override the number of sessions to run before draining the node
+  nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
   # -- Override the same config at the global level
@@ -1894,6 +1926,9 @@ relayNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
+    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
+    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
+    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1958,6 +1993,8 @@ videoRecorder:
     #  RCLONE_CONFIG_GS_SECRET_ACCESS_KEY: "xxx"
     #  RCLONE_CONFIG_GS_ENDPOINT: "https://storage.googleapis.com"
     #  RCLONE_CONFIG_GS_NO_CHECK_BUCKET: "true"
+    # -- Custom environment variables by sourcing entire configMap, Secret, etc. for uploader
+    extraEnvFrom: []
   # -- Video recording container port
   ports:
     - 9000
@@ -2140,19 +2177,19 @@ videoManager:
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-#  image:
-#    keda:
-#      registry: selenium
-#      repository: keda
-#      tag: "2.17.1-selenium-grid-20250606"
-#    metricsApiServer:
-#      registry: selenium
-#      repository: keda-metrics-apiserver
-#      tag: "2.17.1-selenium-grid-20250606"
-#    webhooks:
-#      registry: selenium
-#      repository: keda-admission-webhooks
-#      tag: "2.17.1-selenium-grid-20250606"
+  image:
+    keda:
+      registry: selenium
+      repository: keda
+      tag: "2.17.2-selenium-grid-20250721"
+    metricsApiServer:
+      registry: selenium
+      repository: keda-metrics-apiserver
+      tag: "2.17.2-selenium-grid-20250721"
+    webhooks:
+      registry: selenium
+      repository: keda-admission-webhooks
+      tag: "2.17.2-selenium-grid-20250721"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.44.2](https://img.shields.io/badge/Version-0.44.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.33.0-20250606](https://img.shields.io/badge/AppVersion-4.33.0--20250606-informational?style=flat-square)
+![Version: 0.45.2](https://img.shields.io/badge/Version-0.45.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.34.0-20250717](https://img.shields.io/badge/AppVersion-4.34.0--20250717-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.33.0-20250606"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.33.0-20250606"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.1-20250606"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.34.0-20250717"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.34.0-20250717"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-7.1-20250717"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnami/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -50,6 +50,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
+| global.seleniumGrid.nodeDrainAfterSessionCount | int | `0` | Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down |
 | global.seleniumGrid.nodeEnableManagedDownloads | bool | `true` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
 | global.seleniumGrid.nodeCustomCapabilities | string | `""` | Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes) |
 | global.seleniumGrid.nodeRegisterPeriod | int | `120` | How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again. |
@@ -219,6 +220,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
+| components.distributor.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -340,6 +342,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":12,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | hub.livenessProbe | object | `{"enabled":true,"failureThreshold":30,"initialDelaySeconds":60,"path":"/readyz","periodSeconds":60,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
 | hub.subPath | string | `""` | Custom sub path for the hub deployment |
+| hub.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
 | hub.extraEnvironmentVariables | list | `[]` | Custom environment variables for selenium-hub |
 | hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
@@ -391,6 +394,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
 | autoscaling.setReplicasInSpec | bool | `true` | Force remove replicas in deployment spec in case ArgoCD with AutoSync enabled will try to resolve back to desired state |
+| autoscaling.slotSelectorStrategy | string | `"org.openqa.selenium.grid.distributor.selector.GreedySlotSelector"` | Strategy for Selenium Hub/Distributor select slot to assign to a new session. |
 | autoscaling.authenticationRef | object | `{"annotations":{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"0"},"name":""}` | Specify an external KEDA TriggerAuthentication resource is used for scaler triggers config. Apply for all browser nodes |
 | autoscaling.useCachedMetrics | bool | `false` | Enables caching of metric values during polling interval (as specified in .spec.pollingInterval, the default: false in KEDA). |
 | autoscaling.triggerName | string | `""` | Set trigger name. |
@@ -465,6 +469,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for chrome-node container |
 | chromeNode.extraVolumes | list | `[]` | Extra volumes for chrome-node pod |
 | chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| chromeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | chromeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | chromeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | chromeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -477,6 +482,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| chromeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | chromeNode.videoRecorder | object | `{}` | Override specific video recording settings for chrome node |
@@ -523,6 +529,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.extraVolumeMounts | list | `[]` | Extra volume mounts for firefox-node container |
 | firefoxNode.extraVolumes | list | `[]` | Extra volumes for firefox-node pod |
 | firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| firefoxNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | firefoxNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | firefoxNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | firefoxNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -535,6 +542,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| firefoxNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | firefoxNode.videoRecorder | object | `{}` | Override specific video recording settings for firefox node |
@@ -581,6 +589,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.extraVolumeMounts | list | `[]` | Extra volume mounts for edge-node container |
 | edgeNode.extraVolumes | list | `[]` | Extra volumes for edge-node pod |
 | edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| edgeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | edgeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | edgeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | edgeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -593,6 +602,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| edgeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -640,6 +650,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.extraVolumeMounts | list | `[]` | Extra volume mounts for relay-node container |
 | relayNode.extraVolumes | list | `[]` | Extra volumes for relay-node pod |
 | relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
+| relayNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | relayNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
 | relayNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
 | relayNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
@@ -652,6 +663,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
+| relayNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | relayNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -669,6 +681,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoRecorder.uploader.configFileName | string | `"upload.conf"` | Uploader config file name |
 | videoRecorder.uploader.entryPointFileName | string | `"upload.sh"` | Uploader entry point file name |
 | videoRecorder.uploader.secrets | string | `nil` | For environment variables used in uploader which contains sensitive information, store in secret and refer envFrom Set config for rclone via ENV var with format: RCLONE_CONFIG_ + name of remote + _ + name of config file option (make it all uppercase) |
+| videoRecorder.uploader.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for uploader |
 | videoRecorder.ports | list | `[9000]` | Video recording container port |
 | videoRecorder.resources.requests | object | `{"cpu":"0.1","memory":"128Mi"}` | Request resources for video recorder pods |
 | videoRecorder.resources.limits | object | `{"cpu":"0.5","memory":"1Gi"}` | Limit resources for video recorder pods |
@@ -723,6 +736,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.priorityClassName | string | `""` | Priority class name for router pods |
 | videoManager.extraVolumeMounts | list | `[]` |  |
 | videoManager.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
+| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.17.2-selenium-grid-20250721"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.17.2-selenium-grid-20250721"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.17.2-selenium-grid-20250721"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |

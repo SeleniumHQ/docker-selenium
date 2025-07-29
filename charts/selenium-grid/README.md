@@ -27,6 +27,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
       * [Configuration `global.K8S_PUBLIC_IP`](#configuration-globalk8s_public_ip)
     * [Configuration of Nodes](#configuration-of-nodes)
       * [Container ports and Service ports](#container-ports-and-service-ports)
+      * [Settings Node drain after session count](#settings-node-drain-after-session-count)
       * [Configuration of shm size limit for browser nodes](#configuration-of-shm-size-limit-for-browser-nodes)
     * [Configuration of Probes](#configuration-of-probes)
       * [Node Probes](#node-probes)
@@ -561,6 +562,21 @@ edgeNode:
     - containerPort: 7900
       name: novnc
       protocol: TCP
+```
+
+#### Settings Node drain after session count
+
+In case of autoscaling enabled, with scaling type `job`, Node will be drained following `nodeMaxSessions` (default is 1). So, behavior here is Job will take one session and then Node will be drained after that (something like one-time node). If you want to change this behavior, you can adjust the value in `nodeDrainAfterSessionCount` greater than `nodeMaxSessions` to take effect.
+
+In another hand, with scaling type `deployment`, Node only get drained when HPA choose pods to terminate (which aligns with `nodeDrainAfterSessionCount` is 0 by default). If you want to drain Node by your own logic, you can adjust the value in `nodeDrainAfterSessionCount` greater than 0 to take effect. The same logic applies in normal deployment as well (without autoscaling).
+
+```yaml
+global:
+  seleniumGrid:
+    nodeDrainAfterSessionCount: 30  # Apply for all nodes
+
+chromeNode:
+  nodeDrainAfterSessionCount: 10  # Set another value for chrome node
 ```
 
 #### Configuration of shm size limit for browser nodes

@@ -1,3 +1,44 @@
+## :heavy_check_mark: selenium-grid-0.45.2
+
+- Chart is using image tag 4.34.0-20250717
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.13,v1.31.9,v1.32.5,v1.33.1
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.3,v3.18.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.2
+
+### Changed
+- [`dbc18db0`](http://github.com/seleniumhq/docker-selenium/commit/dbc18db035f2b5822aa89db360b25dc81f5acd1d) - [ci] Update tag 4.34.0-20250717 in docs and files :: Selenium CI Bot
+- [`c239ba50`](http://github.com/seleniumhq/docker-selenium/commit/c239ba50b577272a3666d01dfff0bdc9fb840ddd) - K8s: Resilient Helm config to override `SE_DRAIN_AFTER_SESSION_COUNT` (#2902) :: Viet Nguyen Duc
+- [`3e3479e0`](http://github.com/seleniumhq/docker-selenium/commit/3e3479e007cab2c16a67407f9c9eb84fcbc21fbc) - [ci] Update chart 0.45.1 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.45.1
+
+- Chart is using image tag 4.34.0-20250707
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.13,v1.31.9,v1.32.5,v1.33.1
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.3,v3.18.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.2
+
+### Changed
+- [`c462c9c4`](http://github.com/seleniumhq/docker-selenium/commit/c462c9c439b1d44eed673b6dfc82bbf149c1d8f6) - K8s: Add new annotation as new rule in ingress-nginx controller (#2891) :: Viet Nguyen Duc
+- [`7dda02d5`](http://github.com/seleniumhq/docker-selenium/commit/7dda02d59435710f39e9871fcfc6f97a9c0ce60d) - K8s: Fix video uploader secrets pass to Node single container (#2886) :: Viet Nguyen Duc
+- [`e1982d72`](http://github.com/seleniumhq/docker-selenium/commit/e1982d7260f8ddcc2f678803b9c77cd0f73548f1) - [ci] Update chart 0.45.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.45.0
+
+- Chart is using image tag 4.34.0-20250707
+- Chart is tested on Kubernetes versions: v1.26.15,v1.27.16,v1.28.15,v1.29.15,v1.30.13,v1.31.9,v1.32.5,v1.33.1
+- Chart is tested on container runtime Docker versions: 26.1.4,27.4.1,27.5.1
+- Chart is tested on Helm versions: v3.11.3,v3.12.3,v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.3,v3.18.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.17.2
+
+### Changed
+- [`f4572831`](http://github.com/seleniumhq/docker-selenium/commit/f4572831fb77cdfd93107a26855585fc8c7f9bbc) - [ci] Update tag 4.34.0-20250707 in docs and files :: Selenium CI Bot
+- [`3c1453ec`](http://github.com/seleniumhq/docker-selenium/commit/3c1453ecf482ac34a6bdc09ba11858be8c24c9d2) - K8s: Distributor uses Greedy algo as slot selector strategy in autoscaling (#2875) :: Viet Nguyen Duc
+- [`ee44ced0`](http://github.com/seleniumhq/docker-selenium/commit/ee44ced029d1739055aaaf42abb1cf6cfa60cc09) - Update Helm release kube-prometheus-stack to v75 (#2867) :: renovate[bot]
+- [`d0391a9e`](http://github.com/seleniumhq/docker-selenium/commit/d0391a9ece9d48b0e93a29dae5439990c4e3325e) - Update Helm release kube-prometheus-stack to v74 (#2865) :: renovate[bot]
+- [`4cbb487a`](http://github.com/seleniumhq/docker-selenium/commit/4cbb487aa836f3f7fb40089a355295d21dc06b2f) - [ci] Update chart 0.44.2 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.44.2
 
 - Chart is using image tag 4.33.0-20250606

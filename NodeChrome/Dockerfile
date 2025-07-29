@@ -16,26 +16,16 @@ USER root
 #       google-chrome-unstable
 #============================================
 ARG CHROME_VERSION="google-chrome-stable"
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor | tee /etc/apt/trusted.gpg.d/google.gpg >/dev/null \
-  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
-  && apt-get update -qqy \
-  && if echo "${CHROME_VERSION}" | grep -qE "google-chrome-stable[_|=][0-9]*"; \
-    then \
-      CHROME_VERSION=$(echo "$CHROME_VERSION" | tr '=' '_') \
-      && wget -qO google-chrome.deb "https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/${CHROME_VERSION}_$(dpkg --print-architecture).deb" \
-      && apt-get -qqy --no-install-recommends install --allow-downgrades ./google-chrome.deb \
-      && rm -rf google-chrome.deb ; \
-    else \
-      apt-get -qqy --no-install-recommends install ${CHROME_VERSION} ; \
-    fi \
-  && rm /etc/apt/sources.list.d/google-chrome.list \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+COPY --chown="${SEL_UID}:${SEL_GID}" install-chrome.sh update-chrome-components.sh /opt/bin/
+RUN chmod +x /opt/bin/install-chrome.sh /opt/bin/update-chrome-components.sh \
+    && /opt/bin/install-chrome.sh
 
 #=================================
 # Chrome Launch Script Wrapper
 #=================================
-COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
-RUN /opt/bin/wrap_chrome_binary
+COPY --chown="${SEL_UID}:${SEL_GID}" wrap_chrome_binary /opt/bin/wrap_chrome_binary
+RUN chmod +x /opt/bin/wrap_chrome_binary \
+    && /opt/bin/wrap_chrome_binary
 
 #============================================
 # Chrome webdriver
@@ -44,30 +34,9 @@ RUN /opt/bin/wrap_chrome_binary
 # Latest released version will be used by default
 #============================================
 ARG CHROME_DRIVER_VERSION
-RUN DRIVER_ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "linux64"; else echo "linux-aarch64"; fi) \
-  && if [ ! -z "$CHROME_DRIVER_VERSION" ]; \
-  then CHROME_DRIVER_URL=https://storage.googleapis.com/chrome-for-testing-public/$CHROME_DRIVER_VERSION/${DRIVER_ARCH}/chromedriver-${DRIVER_ARCH}.zip ; \
-  else CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
-    && if [ $CHROME_MAJOR_VERSION -lt 115 ]; then \
-      echo "Geting ChromeDriver latest version from https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}" \
-      && CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//') \
-      && CHROME_DRIVER_URL=https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip ; \
-    else \
-      echo "Geting ChromeDriver latest version from https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}" \
-      && CHROME_DRIVER_VERSION=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//') \
-      && CHROME_DRIVER_URL=https://storage.googleapis.com/chrome-for-testing-public/$CHROME_DRIVER_VERSION/${DRIVER_ARCH}/chromedriver-${DRIVER_ARCH}.zip ; \
-    fi \
-  fi \
-  && echo "Using ChromeDriver from: "$CHROME_DRIVER_URL \
-  && echo "Using ChromeDriver version: "$CHROME_DRIVER_VERSION \
-  && wget --no-verbose -O /tmp/chromedriver_${DRIVER_ARCH}.zip $CHROME_DRIVER_URL \
-  && rm -rf /opt/selenium/chromedriver \
-  && unzip /tmp/chromedriver_${DRIVER_ARCH}.zip -d /opt/selenium \
-  && rm /tmp/chromedriver_${DRIVER_ARCH}.zip \
-  && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION || true \
-  && mv /opt/selenium/chromedriver-${DRIVER_ARCH}/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION || true \
-  && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-  && ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+COPY --chown="${SEL_UID}:${SEL_GID}" install-chromedriver.sh /opt/bin/
+RUN chmod +x /opt/bin/install-chromedriver.sh \
+    && /opt/bin/install-chromedriver.sh
 
 #============================================
 # Chrome cleanup script and supervisord file

@@ -22,7 +22,7 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: '20250606'
+        default: '20250717'
       browser-name:
         description: 'Browser name to build. E.g: firefox'
         required: true
@@ -138,7 +138,8 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
-            FIREFOX_VERSION=${FIREFOX_VERSION} make test_firefox_standalone
+            FIREFOX_VERSION=${FIREFOX_VERSION} make test_firefox_standalone \
+            && make test_firefox_standalone_java
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         if: env.PUSH_IMAGE == 'true'
         run: |

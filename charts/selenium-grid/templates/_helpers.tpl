@@ -114,6 +114,7 @@ nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
 nginx.ingress.kubernetes.io/proxy-buffering: "on"
     {{- with .size }}
 nginx.ingress.kubernetes.io/proxy-buffer-size: {{ . | quote }}
+nginx.ingress.kubernetes.io/proxy-busy-buffers-size: {{ . | quote }}
 nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
     {{- end }}
     {{- with .number }}
@@ -202,6 +203,16 @@ based on sum of maxReplicaCount of all enabled Nodes in autoscaling
 {{- $threadPoolSize -}}
 {{- end -}}
 
+{{- define "seleniumGrid.autoscaling.distributor.slotSelector" -}}
+{{- $slotSelector := "" -}}
+{{- if eq (include "seleniumGrid.useKEDA" $) "true" -}}
+{{- $slotSelector = $.Values.autoscaling.slotSelectorStrategy -}}
+{{- else -}}
+{{- $slotSelector = $.Values.isolateComponents | ternary $.Values.components.distributor.slotSelectorStrategy $.Values.hub.slotSelectorStrategy -}}
+{{- end -}}
+{{- $slotSelector -}}
+{{- end -}}
+
 {{/*
 Common autoscaling spec template
 */}}
@@ -243,7 +254,9 @@ triggers:
   - type: selenium-grid
     metadata:
     {{- with .node.hpa }}
-      {{- tpl (toYaml .) $ | nindent 6 }}
+      {{- range $key, $value := . }}
+      {{ $key }}: {{ tpl ($value | toString) $ | quote }}
+      {{- end }}
       {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
       {{- end }}
@@ -295,6 +308,7 @@ Common pod template
 {{- $videoImageRegistry := default $.Values.global.seleniumGrid.imageRegistry .recorder.imageRegistry -}}
 {{- $videoImageTag := default $.Values.global.seleniumGrid.videoImageTag .recorder.imageTag -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
+{{- $nodeDrainAfterSessionCount := default $.Values.global.seleniumGrid.nodeDrainAfterSessionCount .node.nodeDrainAfterSessionCount | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
 {{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
@@ -368,7 +382,7 @@ template:
           - name: SE_NODE_STEREOTYPE_EXTRA
             value: {{ $nodeCustomCapabilities | quote }}
           - name: SE_DRAIN_AFTER_SESSION_COUNT
-            value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+            value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary (max $nodeMaxSessions $nodeDrainAfterSessionCount) $nodeDrainAfterSessionCount | quote }}
         {{- with .node.relayUrl }}
           - name: SE_NODE_RELAY_URL
             value: {{ . | quote }}
@@ -439,6 +453,15 @@ template:
           {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
           {{- with .recorder.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
+          {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
+          {{- with $.Values.uploaderConfigMap.secretVolumeMountName }}
+          - secretRef:
+              name: {{ tpl . $ }}
+          {{- end }}
+          {{- with .recorder.uploader.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
           {{- end }}
           {{- end }}
         ports:
@@ -551,7 +574,7 @@ template:
         - name: SE_NODE_MAX_SESSIONS
           value: {{ $nodeMaxSessions | quote }}
         - name: SE_DRAIN_AFTER_SESSION_COUNT
-          value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary $nodeMaxSessions 0 | quote }}
+          value: {{ and (eq (include "seleniumGrid.useKEDA" $) "true") (eq .Values.autoscaling.scalingType "job") | ternary (max $nodeMaxSessions $nodeDrainAfterSessionCount) $nodeDrainAfterSessionCount | quote }}
         - name: SE_NODE_PORT
           value: {{ .node.port | quote }}
         - name: DISPLAY_CONTAINER_NAME
@@ -570,13 +593,20 @@ template:
               name: {{ template "seleniumGrid.recorder.configmap.fullname" $ }}
           - configMapRef:
               name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+          - secretRef:
+              name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
           {{- if $.Values.basicAuth.enabled }}
           - secretRef:
               name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
           {{- end }}
           {{- if and .recorder.uploader.enabled (empty .recorder.uploader.name) }}
+          {{- with $.Values.uploaderConfigMap.secretVolumeMountName }}
           - secretRef:
-              name: {{ tpl (default (include "seleniumGrid.common.secrets.fullname" $) $.Values.uploaderConfigMap.secretVolumeMountName) $ }}
+              name: {{ tpl . $ }}
+          {{- end }}
+          {{- with .recorder.uploader.extraEnvFrom }}
+          {{- tpl (toYaml .) $ | nindent 10 }}
+          {{- end }}
           {{- end }}
           {{- with .recorder.extraEnvFrom }}
           {{- tpl (toYaml .) $ | nindent 10 }}
