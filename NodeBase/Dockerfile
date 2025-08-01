@@ -82,20 +82,14 @@ RUN apt-get update -qqy \
 #==============================
 # Locale and encoding settings
 #==============================
-    language-pack-en \
     locales \
     libfontconfig \
     libfreetype6 \
-    xfonts-scalable \
-    xfonts-cyrillic \
-    fonts-ubuntu \
-    fonts-liberation \
-    fonts-ipafont-gothic \
     fonts-wqy-zenhei \
-    fonts-tlwg-loma-otf \
+    fonts-noto \
+    fonts-noto-core \
     fonts-noto-color-emoji \
     fonts-noto-cjk \
-    fonts-indic \
 #==============
 # Xvfb
 #==============
