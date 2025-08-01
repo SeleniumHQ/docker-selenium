@@ -203,6 +203,7 @@ ENV SE_BIND_HOST="false" \
     SE_SERVER_PROTOCOL="http" \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS="false" \
+    SE_DISTRIBUTOR_SLOT_SELECTOR="org.openqa.selenium.grid.distributor.selector.GreedySlotSelector" \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED="true" \
     SE_OTEL_TRACES_EXPORTER="otlp" \
     SE_SUPERVISORD_LOG_LEVEL="info" \

@@ -479,5 +479,6 @@
   cli: ''
 - name: SE_DISTRIBUTOR_SLOT_SELECTOR
   description: Full class name of non-default slot selector. This is used to select
-    a slot in a Node once the Node has been matched.
+    a slot in a Node once the Node has been matched. Switch to default, use class
+    name `org.openqa.selenium.grid.distributor.selector.DefaultSlotSelector`
   cli: --slot-selector
