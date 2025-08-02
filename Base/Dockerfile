@@ -7,8 +7,8 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.52.0
-ARG GRPC_VERSION=1.74.0
+ARG OPENTELEMETRY_VERSION=1.51.0
+ARG GRPC_VERSION=1.73.0
 ARG NETTY_VERSION=4.1.123.Final
 ARG CS_VERSION=2.1.24
 ARG ENVSUBST_VERSION=1.4.5
