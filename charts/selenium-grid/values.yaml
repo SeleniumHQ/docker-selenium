@@ -1080,6 +1080,8 @@ autoscaling:
         memory: 500Mi
     # -- Node selector for the patch job
     nodeSelector: {}
+    # -- Tolerations for the patch job
+    tolerations: []
   # -- Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     # Don't define `triggers` config here, it will apply the same to all node types. Instead, define it under `scaledOptions` of different node type

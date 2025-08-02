@@ -36,6 +36,9 @@ spec:
         {{- with $.Values.autoscaling.patchObjectFinalizers.resources }}
           resources: {{ toYaml . | nindent 12 }}
         {{- end }}
+        {{- with $.Values.autoscaling.patchObjectFinalizers.tolerations  }}
+          tolerations : {{ toYaml . | nindent 8 }}
+        {{- end }}
       volumes:
         - name: cleanup-script
           configMap:

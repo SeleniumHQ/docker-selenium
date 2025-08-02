@@ -154,4 +154,4 @@
 | SE_VIDEO_MAXRATE |  |  |  |
 | SE_NODE_DELETE_SESSION_ON_UI | true | Enable capability to support deleting session on Grid UI | --delete-session-on-ui |
 | SE_UPDATE_CHROME_COMPONENTS |  | Applicable for node-chrome, standalone-chrome (arch linux/amd64). Update the latest version of Chrome and ChromeDriver at the beginning of the container startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872) |  |
-| SE_DISTRIBUTOR_SLOT_SELECTOR |  | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. | --slot-selector |
+| SE_DISTRIBUTOR_SLOT_SELECTOR | org.openqa.selenium.grid.distributor.selector.GreedySlotSelector | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. Switch to default, use class name `org.openqa.selenium.grid.distributor.selector.DefaultSlotSelector` | --slot-selector |

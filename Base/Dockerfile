@@ -7,11 +7,12 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.51.0
-ARG GRPC_VERSION=1.73.0
-ARG NETTY_VERSION=4.1.122.Final
+ARG OPENTELEMETRY_VERSION=1.52.0
+ARG GRPC_VERSION=1.74.0
+ARG NETTY_VERSION=4.1.123.Final
 ARG CS_VERSION=2.1.24
 ARG ENVSUBST_VERSION=1.4.5
+ARG CURL_VERSION=8.15.0
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -76,12 +77,12 @@ RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install \
     python3 python3-pip python3-venv \
-    && python3 -m pip install --upgrade setuptools virtualenv --break-system-packages \
+    && python3 -m pip install --upgrade setuptools virtualenv requests --break-system-packages \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
     && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
-    && wget -q https://github.com/moparisthebest/static-curl/releases/download/v8.11.0/curl-$ARCH -O /usr/bin/curl \
+    && wget -q https://github.com/NDViet/static-curl/releases/download/${CURL_VERSION}/curl-$ARCH -O /usr/bin/curl \
     && chmod +x /usr/bin/curl \
     && curl --version
 
@@ -203,6 +204,7 @@ ENV SE_BIND_HOST="false" \
     SE_SERVER_PROTOCOL="http" \
     # Boolean value, maps "--reject-unsupported-caps"
     SE_REJECT_UNSUPPORTED_CAPS="false" \
+    SE_DISTRIBUTOR_SLOT_SELECTOR="org.openqa.selenium.grid.distributor.selector.GreedySlotSelector" \
     SE_OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED="true" \
     SE_OTEL_TRACES_EXPORTER="otlp" \
     SE_SUPERVISORD_LOG_LEVEL="info" \
