@@ -3,12 +3,9 @@
 import sys
 import os
 import base64
-import json
 from datetime import datetime
 from datetime import timezone
-from urllib.parse import urlparse
 import requests
-from requests.adapters import HTTPAdapter
 
 
 def get_timestamp():
@@ -49,14 +46,15 @@ def get_basic_auth():
     return {}
 
 
-def validate_endpoint(endpoint, graphql_endpoint=False, max_time=1):
+def validate_endpoint(endpoint, graphql_endpoint=False, connection_timeout=5, read_timeout=5):
     """
     Validate an endpoint by making HTTP request and checking status code.
 
     Args:
         endpoint (str): The endpoint URL to validate
         graphql_endpoint (bool): Whether this is a GraphQL endpoint
-        max_time (int): Maximum time for request in seconds
+        connection_timeout (int): Connection timeout in seconds
+        read_timeout (int): Read timeout in seconds
     """
     process_name = "endpoint.checks"
     session = create_session()
@@ -75,7 +73,7 @@ def validate_endpoint(endpoint, graphql_endpoint=False, max_time=1):
                 endpoint,
                 headers=headers,
                 json=data,
-                timeout=max_time,
+                timeout=(connection_timeout, read_timeout),
                 verify=False  # Equivalent to curl's -k flag
             )
         else:
@@ -83,14 +81,15 @@ def validate_endpoint(endpoint, graphql_endpoint=False, max_time=1):
             response = session.get(
                 endpoint,
                 headers=headers,
-                timeout=max_time,
+                timeout=(connection_timeout, read_timeout),
                 verify=False  # Equivalent to curl's -k flag
             )
 
         status_code = response.status_code
 
     except requests.exceptions.Timeout:
-        print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} timed out after {max_time} seconds")
+        print(
+            f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} timed out (connection: {connection_timeout}s, read: {read_timeout}s)")
         return False
     except requests.exceptions.ConnectionError:
         print(f"{get_timestamp()} [{process_name}] - Failed to connect to endpoint {endpoint}")
@@ -104,12 +103,14 @@ def validate_endpoint(endpoint, graphql_endpoint=False, max_time=1):
         print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is not found - status code: {status_code}")
         return False
     elif status_code == 401:
-        print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} requires authentication - status code: {status_code}. Please provide valid credentials via SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD environment variables.")
+        print(
+            f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} requires authentication - status code: {status_code}. Please provide valid credentials via SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD environment variables.")
         return False
     elif status_code != 200:
         print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is not available - status code: {status_code}")
         return False
 
+    print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is reachable - status code: {status_code}")
     return True
 
 
@@ -123,10 +124,10 @@ def main():
 
     endpoint = sys.argv[1]
     graphql_endpoint = len(sys.argv) > 2 and sys.argv[2].lower() == 'true'
-    max_time = int(os.environ.get('SE_ENDPOINT_CHECK_TIMEOUT', 1))
+    max_time = int(os.environ.get('SE_ENDPOINT_CHECK_TIMEOUT', 5))
 
     # Validate the endpoint
-    success = validate_endpoint(endpoint, graphql_endpoint, max_time)
+    success = validate_endpoint(endpoint, graphql_endpoint, max_time, max_time)
 
     # Exit with appropriate code
     sys.exit(0 if success else 1)

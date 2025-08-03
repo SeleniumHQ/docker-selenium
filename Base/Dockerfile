@@ -77,7 +77,7 @@ RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install \
     python3 python3-pip python3-venv \
-    && python3 -m pip install --upgrade setuptools virtualenv requests --break-system-packages \
+    && python3 -m pip install --upgrade setuptools virtualenv --break-system-packages \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
     && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
@@ -187,7 +187,7 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 USER ${SEL_UID}:${SEL_GID}
 
 RUN python3 -m venv $VENV_PATH \
-    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil requests \
     && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
     && unzip /tmp/supervisor.zip -d /tmp \
     && cd /tmp/supervisor-main \
