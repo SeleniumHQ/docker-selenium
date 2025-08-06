@@ -153,6 +153,15 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
   append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi
 
+if [ "$GENERATE_CONFIG" = true ]; then
+  echo "Generating Selenium Config for Distributor"
+  /opt/bin/generate_config
+fi
+
+if [ ! -z "${CONFIG_FILE}" ]; then
+  append_se_opts "--config" "${CONFIG_FILE}"
+fi
+
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
@@ -185,6 +194,18 @@ else
   append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
   echo "Tracing is disabled"
+fi
+
+if [ "${SE_DISTRIBUTOR_EXTERNAL_DATASTORE}" = "true" ]; then
+  echo "External datastore for distributor is enabled"
+  if [ -f "/external_jars/.classpath_distributor.txt" ]; then
+    EXTERNAL_JARS=$(</external_jars/.classpath_distributor.txt)
+  fi
+  if [ -n "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="${EXTRA_LIBS}:${EXTERNAL_JARS}"
+  elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
+    EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+  fi
 fi
 
 if [ -n "${EXTRA_LIBS}" ]; then

@@ -40,7 +40,7 @@ def run_browser_instance(browser, grid_url):
         )
         driver.get('https://www.google.com/')
         print(driver.title)
-        time.sleep(100)
+        time.sleep(10)
         driver.quit()
 
 

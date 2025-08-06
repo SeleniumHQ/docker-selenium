@@ -1,6 +1,6 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
-BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
+BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),20250804)
 BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.34.0)
 BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.34.0)
 BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.34.0)
@@ -140,7 +140,8 @@ hub: base
 	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
 
 distributor: base
-	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
+	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+  --build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) -t $(NAME)/distributor:$(TAG_VERSION) .
 
 router: base
 	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
@@ -149,8 +150,9 @@ sessions: base
 	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
 	--build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) -t $(NAME)/sessions:$(TAG_VERSION) .
 
-sessionqueue: base
-	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/session-queue:$(TAG_VERSION) .
+sessionqueue:
+	cd ./SessionQueue && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+  --build-arg MVN_SELENIUM_VERSION=$(MVN_SELENIUM_VERSION) -t $(NAME)/session-queue:$(TAG_VERSION) .
 
 event_bus: base
 	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .

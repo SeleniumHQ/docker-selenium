@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [[ -z "$CONFIG_FILE" ]]; then
+	FILENAME="/opt/selenium/config.toml"
+else
+	FILENAME="$CONFIG_FILE"
+fi
+
+echo "[distributor]" >"$FILENAME"
+
+if [ "${SE_DISTRIBUTOR_EXTERNAL_DATASTORE}" = "true" ]; then
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_SCHEME}" ]]; then
+		echo "scheme = \"${SE_DISTRIBUTOR_EXTERNAL_SCHEME}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_IMPLEMENTATION}" ]]; then
+		echo "implementation = \"${SE_DISTRIBUTOR_EXTERNAL_IMPLEMENTATION}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_HOSTNAME}" ]]; then
+		echo "hostname = \"${SE_DISTRIBUTOR_EXTERNAL_HOSTNAME}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_PORT}" ]]; then
+		echo "port = \"${SE_DISTRIBUTOR_EXTERNAL_PORT}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_JDBC_URL}" ]]; then
+		echo "jdbc-url = \"${SE_DISTRIBUTOR_EXTERNAL_JDBC_URL}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_JDBC_USER}" ]]; then
+		echo "jdbc-user = \"${SE_DISTRIBUTOR_EXTERNAL_JDBC_USER}\"" >>"$FILENAME"
+	fi
+
+	if [[ -n "${SE_DISTRIBUTOR_EXTERNAL_JDBC_PASSWORD}" ]]; then
+		echo "jdbc-password = \"${SE_DISTRIBUTOR_EXTERNAL_JDBC_PASSWORD}\"" >>"$FILENAME"
+	fi
+fi

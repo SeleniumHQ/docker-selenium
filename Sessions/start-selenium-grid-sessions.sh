@@ -141,7 +141,9 @@ fi
 
 if [ "${SE_SESSIONS_MAP_EXTERNAL_DATASTORE}" = "true" ]; then
   echo "External datastore for sessions map is enabled"
-  EXTERNAL_JARS=$(</external_jars/.classpath_session_map.txt)
+  if [ -f "/external_jars/.classpath_session_map.txt" ]; then
+    EXTERNAL_JARS=$(</external_jars/.classpath_session_map.txt)
+  fi
   if [ -n "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
     EXTRA_LIBS="${EXTRA_LIBS}:${EXTERNAL_JARS}"
   elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
