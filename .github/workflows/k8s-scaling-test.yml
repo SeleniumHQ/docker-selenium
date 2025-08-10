@@ -223,7 +223,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Download results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./.keda
           pattern: 'results_*'
@@ -258,7 +258,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Download results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: ./.keda
           pattern: 'results_*'
