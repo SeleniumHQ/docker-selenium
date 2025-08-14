@@ -65,8 +65,7 @@ chromeNode:
     - name: logs
       persistentVolumeClaim:
         claimName: selenium-grid-pvc-local
-  hpa:
-    overProvisionRatio: 0.1
+  scaledOverProvisionRatio: 1.1
 
 # Configuration for edge nodes
 edgeNode:
@@ -102,8 +101,7 @@ firefoxNode:
     enabled: *livenessProbe
   extraVolumeMounts: *extraVolumeMounts
   extraVolumes: *extraVolumes
-  hpa:
-    overProvisionRatio: 0.2
+  scaledOverProvisionRatio: 1.2
 
 # Configuration for relay nodes
 relayNode:

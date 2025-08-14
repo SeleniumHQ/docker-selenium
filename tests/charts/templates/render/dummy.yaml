@@ -45,6 +45,50 @@ monitoring:
 autoscaling:
   enableWithExistingKEDA: true
   scalingType: deployment
+  scaledObjectOptions:
+    pollingInterval: 30
+    initialCooldownPeriod: 0
+    cooldownPeriod: 300
+    idleReplicaCount: 0
+    minReplicaCount: 1
+    maxReplicaCount: 100
+    fallback:
+      failureThreshold: 3
+      replicas: 6
+    advanced:
+      restoreToOriginalReplicaCount: true
+      horizontalPodAutoscalerConfig:
+        behavior:
+          scaleDown:
+            stabilizationWindowSeconds: 300
+            policies:
+              - type: Percent
+                value: 100
+                periodSeconds: 15
+  scaledJobOptions:
+    jobTargetRef:
+      parallelism: 1
+      completions: 1
+      activeDeadlineSeconds: 600
+      backoffLimit: 6
+      template:
+    pollingInterval: 30
+    successfulJobsHistoryLimit: 5
+    failedJobsHistoryLimit: 5
+    minReplicaCount: 10
+    maxReplicaCount: 100
+    rolloutStrategy: gradual
+    rollout:
+      strategy: gradual
+      propagationPolicy: foreground
+    scalingStrategy:
+      customScalingQueueLengthDeduction: 1
+      customScalingRunningJobPercentage: "0.5"
+      pendingPodConditions:
+        - "Ready"
+        - "PodScheduled"
+        - "AnyOtherCustomPodCondition"
+      multipleScalersCalculation: "max"
 
 basicAuth:
   create: false
@@ -145,8 +189,7 @@ chromeNode:
   terminationGracePeriodSeconds: 7200
   service:
     enabled: true
-  hpa:
-    overProvisionRatio: 0.2
+  scaledOverProvisionRatio: 1.2
 
 firefoxNode:
   nodeMaxSessions: 1
@@ -156,8 +199,7 @@ firefoxNode:
   terminationGracePeriodSeconds: 720
   service:
     enabled: true
-  hpa:
-    overProvisionRatio: 0.2
+  scaledOverProvisionRatio: 1.2
 
 edgeNode:
   annotations:
@@ -167,13 +209,11 @@ edgeNode:
   videoRecorder:
     uploader:
       enabled: false
-  hpa:
-    overProvisionRatio: 0.2
+  scaledOverProvisionRatio: 1.2
 
 relayNode:
   enabled: true
-  hpa:
-    overProvisionRatio: 0.2
+  scaledOverProvisionRatio: 1.2
 
 videoRecorder:
   enabled: true

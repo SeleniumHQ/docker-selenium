@@ -1082,6 +1082,10 @@ autoscaling:
     nodeSelector: {}
     # -- Tolerations for the patch job
     tolerations: []
+  # -- Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA)
+  defaultTriggerType: "selenium-grid"
+  # -- Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec)
+  defaultTriggerName: "seleniumGrid"
   # -- Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject)
   scaledOptions:
     # Don't define `triggers` config here, it will apply the same to all node types. Instead, define it under `scaledOptions` of different node type
@@ -1091,8 +1095,8 @@ autoscaling:
     maxReplicaCount: 24
     # -- Polling interval in seconds
     pollingInterval: 20
-    # List of triggers. Be careful, the default trigger of selenium-grid will be overwritten if you specify this
-    # triggers:
+    # -- List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this
+    triggers: []
   # Options for KEDA ScaledJobs (only used when scalingType is set to "job"). See https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec
   scaledJobOptions:
     scalingStrategy:
@@ -1107,11 +1111,17 @@ autoscaling:
       parallelism: 1
       completions: 1
       backoffLimit: 0
+      # -- Duration in seconds that job may be active before the system tries to terminate it. Default is 0 means never terminate until it completes naturally (reach nodeDrainAfterSessionCount) or is explicitly terminated
+      activeDeadlineSeconds: 0
   # Options for KEDA ScaledObjects (only used when scalingType is set to "deployment"). See https://keda.sh/docs/latest/concepts/scaling-deployments/#scaledobject-spec
   scaledObjectOptions:
+    advanced:
+      restoreToOriginalReplicaCount: true
     scaleTargetRef:
       # -- Target reference for KEDA ScaledObject
       kind: Deployment
+  # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
+  scaledOverProvisionRatio: ""
   # -- Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it
   terminationGracePeriodSeconds: 3600
   # -- Define preStop command to shut down the node gracefully when scalingType is set to "deployment"
@@ -1313,6 +1323,8 @@ chromeNode:
   scaledJobOptions:
   # -- Override the scaledObjectOptions for chrome nodes
   scaledObjectOptions:
+  # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
+  scaledOverProvisionRatio: ""
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "chrome"
@@ -1324,9 +1336,6 @@ chromeNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
-    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
-    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
-    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1514,6 +1523,8 @@ firefoxNode:
   scaledJobOptions:
   # -- Override the scaledObjectOptions for firefox nodes
   scaledObjectOptions:
+  # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
+  scaledOverProvisionRatio: ""
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "firefox"
@@ -1525,9 +1536,6 @@ firefoxNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
-    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
-    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
-    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1715,6 +1723,8 @@ edgeNode:
   scaledJobOptions:
   # -- Override the scaledObjectOptions for edge nodes
   scaledObjectOptions:
+  # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
+  scaledOverProvisionRatio: ""
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: "MicrosoftEdge"
@@ -1726,9 +1736,6 @@ edgeNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
-    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
-    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
-    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -1917,6 +1924,8 @@ relayNode:
   scaledJobOptions:
   # -- Override the scaledObjectOptions for relay nodes
   scaledObjectOptions:
+  # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
+  scaledOverProvisionRatio: ""
   hpa:
     # -- browserName should match with Node stereotype and request capability is scaled by this scaler
     browserName: ""
@@ -1928,9 +1937,6 @@ relayNode:
     platformName: ""
     # -- Skip check SSL when connecting to the Graphql endpoint
     unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'  # Optional
-    # -- The number of overprovisioning ratio to scale more than the actual number of requests.
-    # For example, over over-provisioning ratio `0.2` means 20% more than the actual requests
-    overProvisionRatio: ""
 
   # -- It is used to add initContainers in the same pod of the browser node.
   # It should be set using the --set-json option
@@ -2179,19 +2185,19 @@ videoManager:
 keda:
   # enabled: false
   # -- Specify image for KEDA components
-  image:
-    keda:
-      registry: selenium
-      repository: keda
-      tag: "2.17.2-selenium-grid-20250721"
-    metricsApiServer:
-      registry: selenium
-      repository: keda-metrics-apiserver
-      tag: "2.17.2-selenium-grid-20250721"
-    webhooks:
-      registry: selenium
-      repository: keda-admission-webhooks
-      tag: "2.17.2-selenium-grid-20250721"
+#  image:
+#    keda:
+#      registry: selenium
+#      repository: keda
+#      tag: "2.17.2-selenium-grid-20250721"
+#    metricsApiServer:
+#      registry: selenium
+#      repository: keda-metrics-apiserver
+#      tag: "2.17.2-selenium-grid-20250721"
+#    webhooks:
+#      registry: selenium
+#      repository: keda-admission-webhooks
+#      tag: "2.17.2-selenium-grid-20250721"
   # -- Annotations for KEDA resources
   additionalAnnotations:
   http:

@@ -26,7 +26,7 @@ spec:
   {{- $_ =  set $podScope "node" $nodeConfig -}}
   {{- $_ =  set $podScope "recorder" (mergeOverwrite $.Values.videoRecorder $nodeConfig.videoRecorder) -}}
   {{- $_ =  set $podScope "uploader" (get $.Values.videoRecorder ($podScope.recorder.uploader.name | toString)) -}}
-  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) }}
+  {{- $_ =  set $podScope "podTemplate" (include "seleniumGrid.podTemplate" $podScope | fromYaml) -}}
   {{- include "seleniumGrid.autoscalingTemplate" $podScope | nindent 2 }}
 ---
 {{- end }}

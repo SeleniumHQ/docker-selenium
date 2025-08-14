@@ -214,44 +214,67 @@ based on sum of maxReplicaCount of all enabled Nodes in autoscaling
 {{- end -}}
 
 {{/*
+Apply scaledOverProvisionRatio to scalingModifiers. Link with autoscaling template
+*/}}
+{{- define "seleniumGrid.autoscaling.scaledOverProvisionRatio" -}}
+{{- $scalingModifier := (dict) -}}
+{{- $value := default $.Values.autoscaling.scaledOverProvisionRatio .node.scaledOverProvisionRatio | float64 -}}
+{{- $triggerName := $.Values.autoscaling.defaultTriggerName -}}
+{{- if gt $value (1.0 | float64) -}}
+  {{- $scalingModifier = mergeOverwrite ($scalingModifier) (dict "advanced" (dict "scalingModifiers" (dict "formula" (printf "float(%s * %.2f)" $triggerName $value) "target" "1"))) -}}
+{{- end -}}
+{{- toYaml $scalingModifier -}}
+{{- end -}}
+
+{{/*
 Common autoscaling spec template
 */}}
 {{- define "seleniumGrid.autoscalingTemplate" -}}
-{{- $spec := toYaml (dict) -}}
+{{- $spec := (dict) -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
 {{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- $spec = mergeOverwrite ($spec) . -}}
 {{- end -}}
 {{- with .node.scaledOptions -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+  {{- $spec = mergeOverwrite ($spec) . -}}
 {{- end -}}
 {{- if eq $.Values.autoscaling.scalingType "deployment" -}}
+  {{- $advanced := (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name))) -}}
+  {{- $advanced = mergeOverwrite $advanced (include "seleniumGrid.autoscaling.scaledOverProvisionRatio" . | fromYaml) }}
+  {{- $spec = mergeOverwrite ($spec) $advanced -}}
   {{- with $.Values.autoscaling.scaledObjectOptions -}}
-    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+    {{- $spec = mergeOverwrite ($spec) . -}}
   {{- end -}}
   {{- with .node.scaledObjectOptions -}}
-    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+    {{- $spec = mergeOverwrite ($spec) . -}}
   {{- end -}}
-  {{- $advanced := (dict "scaleTargetRef" (dict "name" .name) "advanced" (dict "horizontalPodAutoscalerConfig" (dict "name" .name) "restoreToOriginalReplicaCount" true)) -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) $advanced | toYaml -}}
 {{- else if eq $.Values.autoscaling.scalingType "job" -}}
+  {{- $spec = mergeOverwrite ($spec) (dict "jobTargetRef" .podTemplate) -}}
   {{- with $.Values.autoscaling.scaledJobOptions -}}
-    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+    {{- $spec = mergeOverwrite ($spec) . -}}
   {{- end -}}
   {{- with .node.scaledJobOptions -}}
-    {{- $spec = mergeOverwrite ($spec | fromYaml) . | toYaml -}}
+    {{- $spec = mergeOverwrite ($spec) . -}}
   {{- end -}}
-  {{- $spec = mergeOverwrite ($spec | fromYaml) (dict "jobTargetRef" .podTemplate) | toYaml -}}
 {{- end -}}
-{{- if and $spec (ne $spec "{}") -}}
-  {{ tpl $spec $ }}
+{{- if and $spec (not (empty $spec)) -}}
+  {{- $cleanSpec := dict -}}
+  {{- range $key, $value := $spec -}}
+    {{- if not (empty $value) -}}
+      {{- $cleanSpec = set $cleanSpec $key $value -}}
+    {{- end -}}
+  {{- end -}}
+  {{- if not (empty $cleanSpec) -}}
+    {{- toYaml $cleanSpec | nindent 0 | trim -}}
+  {{- end -}}
 {{- end -}}
 {{- if not $.Values.autoscaling.scaledOptions.triggers }}
 triggers:
-  - type: selenium-grid
+  - type: {{ $.Values.autoscaling.defaultTriggerType }}
+    name: {{ $.Values.autoscaling.defaultTriggerName }}
     metadata:
     {{- with .node.hpa }}
       {{- range $key, $value := . }}
@@ -276,7 +299,7 @@ triggers:
   {{- if and (eq $.Values.autoscaling.scalingType "deployment") $.Values.autoscaling.metricType }}
     metricType: {{ $.Values.autoscaling.metricType }}
   {{- end }}
-{{- end }}
+{{- end -}}
 {{- end -}}
 
 {{/*

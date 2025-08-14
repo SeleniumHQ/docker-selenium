@@ -412,15 +412,21 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
 | autoscaling.patchObjectFinalizers.nodeSelector | object | `{}` | Node selector for the patch job |
 | autoscaling.patchObjectFinalizers.tolerations | list | `[]` | Tolerations for the patch job |
-| autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
+| autoscaling.defaultTriggerType | string | `"selenium-grid"` | Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA) |
+| autoscaling.defaultTriggerName | string | `"seleniumGrid"` | Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec) |
+| autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20,"triggers":[]}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
 | autoscaling.scaledOptions.minReplicaCount | int | `0` | Minimum number of replicas |
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `20` | Polling interval in seconds |
+| autoscaling.scaledOptions.triggers | list | `[]` | List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this |
 | autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
-| autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
+| autoscaling.scaledJobOptions.jobTargetRef | object | `{"activeDeadlineSeconds":0,"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
+| autoscaling.scaledJobOptions.jobTargetRef.activeDeadlineSeconds | int | `0` | Duration in seconds that job may be active before the system tries to terminate it. Default is 0 means never terminate until it completes naturally (reach nodeDrainAfterSessionCount) or is explicitly terminated |
+| autoscaling.scaledObjectOptions.advanced.restoreToOriginalReplicaCount | bool | `true` |  |
 | autoscaling.scaledObjectOptions.scaleTargetRef.kind | string | `"Deployment"` | Target reference for KEDA ScaledObject |
+| autoscaling.scaledOverProvisionRatio | string | `""` |  |
 | autoscaling.terminationGracePeriodSeconds | int | `3600` | Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it |
 | autoscaling.deregisterLifecycle | string | `nil` | Define preStop command to shut down the node gracefully when scalingType is set to "deployment" |
 | crossBrowsers.chromeNode | list | `[{"nameOverride":null}]` | Additional chrome nodes, array of objects with the same structure as `chromeNode` |
@@ -478,12 +484,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
+| chromeNode.scaledOverProvisionRatio | string | `""` |  |
 | chromeNode.hpa.browserName | string | `"chrome"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.sessionBrowserName | string | `"chrome"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | chromeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | chromeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
-| chromeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | chromeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | chromeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | chromeNode.videoRecorder | object | `{}` | Override specific video recording settings for chrome node |
@@ -538,12 +544,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
+| firefoxNode.scaledOverProvisionRatio | string | `""` |  |
 | firefoxNode.hpa.browserName | string | `"firefox"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.sessionBrowserName | string | `"firefox"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | firefoxNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | firefoxNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
-| firefoxNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | firefoxNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | firefoxNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | firefoxNode.videoRecorder | object | `{}` | Override specific video recording settings for firefox node |
@@ -598,12 +604,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
+| edgeNode.scaledOverProvisionRatio | string | `""` |  |
 | edgeNode.hpa.browserName | string | `"MicrosoftEdge"` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.sessionBrowserName | string | `"msedge"` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | edgeNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | edgeNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
-| edgeNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | edgeNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | edgeNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | edgeNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -659,12 +665,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
 | relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
 | relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |
+| relayNode.scaledOverProvisionRatio | string | `""` |  |
 | relayNode.hpa.browserName | string | `""` | browserName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.sessionBrowserName | string | `""` | sessionBrowserName if the browserName is different from the sessionBrowserName |
 | relayNode.hpa.browserVersion | string | `""` | browserVersion should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.platformName | string | `""` | platformName should match with Node stereotype and request capability is scaled by this scaler |
 | relayNode.hpa.unsafeSsl | string | `"{{ template \"seleniumGrid.graphqlURL.unsafeSsl\" . }}"` | Skip check SSL when connecting to the Graphql endpoint |
-| relayNode.hpa.overProvisionRatio | string | `""` | The number of overprovisioning ratio to scale more than the actual number of requests. For example, over over-provisioning ratio `0.2` means 20% more than the actual requests |
 | relayNode.initContainers | list | `[]` | It is used to add initContainers in the same pod of the browser node. It should be set using the --set-json option |
 | relayNode.sidecars | list | `[]` | It is used to add sidecars proxy in the same pod of the browser node. It means it will add a new container to the deployment itself. It should be set using the --set-json option |
 | relayNode.videoRecorder | object | `{}` | Override specific video recording settings for edge node |
@@ -737,7 +743,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.priorityClassName | string | `""` | Priority class name for router pods |
 | videoManager.extraVolumeMounts | list | `[]` |  |
 | videoManager.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
-| keda.image | object | `{"keda":{"registry":"selenium","repository":"keda","tag":"2.17.2-selenium-grid-20250721"},"metricsApiServer":{"registry":"selenium","repository":"keda-metrics-apiserver","tag":"2.17.2-selenium-grid-20250721"},"webhooks":{"registry":"selenium","repository":"keda-admission-webhooks","tag":"2.17.2-selenium-grid-20250721"}}` | Specify image for KEDA components |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |

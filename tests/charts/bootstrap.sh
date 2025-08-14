@@ -17,6 +17,13 @@ helm package charts/selenium-grid --version 1.0.0-SNAPSHOT -d tests/tests
 RELEASE_NAME="selenium"
 
 helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml \
+  --set autoscaling.scalingType=job \
+  --set-file 'nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
+  --set-file 'recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
+  --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
+  tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_job_template_manifests.yaml
+
+helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml \
   --set-file 'nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
