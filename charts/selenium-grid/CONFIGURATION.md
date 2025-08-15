@@ -422,8 +422,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
-| autoscaling.scaledJobOptions.jobTargetRef | object | `{"activeDeadlineSeconds":0,"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
-| autoscaling.scaledJobOptions.jobTargetRef.activeDeadlineSeconds | int | `0` | Duration in seconds that job may be active before the system tries to terminate it. Default is 0 means never terminate until it completes naturally (reach nodeDrainAfterSessionCount) or is explicitly terminated |
+| autoscaling.scaledJobOptions.jobTargetRef | object | `{"activeDeadlineSeconds":-1,"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
+| autoscaling.scaledJobOptions.jobTargetRef.activeDeadlineSeconds | int | `-1` | Duration in seconds that job may be active before the system tries to terminate it. Default is -1 means never terminate until it completes naturally (reach nodeDrainAfterSessionCount) or is explicitly terminated |
 | autoscaling.scaledObjectOptions.advanced.restoreToOriginalReplicaCount | bool | `true` |  |
 | autoscaling.scaledObjectOptions.scaleTargetRef.kind | string | `"Deployment"` | Target reference for KEDA ScaledObject |
 | autoscaling.scaledOverProvisionRatio | string | `""` |  |

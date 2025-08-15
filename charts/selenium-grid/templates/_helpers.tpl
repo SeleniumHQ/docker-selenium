@@ -268,7 +268,7 @@ Common autoscaling spec template
     {{- end -}}
   {{- end -}}
   {{- if not (empty $cleanSpec) -}}
-    {{- toYaml $cleanSpec | nindent 0 | trim -}}
+    {{ tpl (toYaml $cleanSpec) $ | nindent 0 }}
   {{- end -}}
 {{- end -}}
 {{- if not $.Values.autoscaling.scaledOptions.triggers }}
@@ -299,7 +299,7 @@ triggers:
   {{- if and (eq $.Values.autoscaling.scalingType "deployment") $.Values.autoscaling.metricType }}
     metricType: {{ $.Values.autoscaling.metricType }}
   {{- end }}
-{{- end -}}
+{{- end }}
 {{- end -}}
 
 {{/*
