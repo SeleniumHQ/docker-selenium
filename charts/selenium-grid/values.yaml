@@ -1111,8 +1111,6 @@ autoscaling:
       parallelism: 1
       completions: 1
       backoffLimit: 0
-      # -- Duration in seconds that job may be active before the system tries to terminate it. Default is -1 means never terminate until it completes naturally (reach nodeDrainAfterSessionCount) or is explicitly terminated
-      activeDeadlineSeconds: -1
   # Options for KEDA ScaledObjects (only used when scalingType is set to "deployment"). See https://keda.sh/docs/latest/concepts/scaling-deployments/#scaledobject-spec
   scaledObjectOptions:
     advanced:
