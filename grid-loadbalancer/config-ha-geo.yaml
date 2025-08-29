@@ -1,0 +1,84 @@
+# Configuration for HA GEO (Active/Standby) Load Balancing Strategy
+# This strategy uses geographic regions with active/standby roles
+# Active instances handle traffic, standby instances provide failover
+
+loadbalancer:
+  port: 4444
+  health_check_interval: 30s
+  session_timeout: 300s
+  max_retries: 3
+  retry_interval: 5s
+  enable_metrics: true
+  strategy: "ha_geo"
+
+grid_instances:
+  # US East Region - Active instances
+  - id: "grid-us-east-1"
+    url: "http://us-east-1.example.com:4444"
+    priority: 1              # High priority (active)
+    weight: 100
+    max_sessions: 16
+    region: "us-east"
+    role: "active"           # Active role handles traffic
+    enabled: true
+    username: "admin"
+    password: "secure123"
+    
+  - id: "grid-us-east-2"
+    url: "http://us-east-2.example.com:4444"
+    priority: 1              # High priority (active)
+    weight: 100
+    max_sessions: 16
+    region: "us-east"
+    role: "active"           # Active role handles traffic
+    enabled: true
+    username: "admin"
+    password: "secure123"
+    
+  # US West Region - Standby instances (failover)
+  - id: "grid-us-west-1"
+    url: "http://us-west-1.example.com:4444"
+    priority: 2              # Lower priority (standby)
+    weight: 100
+    max_sessions: 16
+    region: "us-west"
+    role: "standby"          # Standby role for failover
+    enabled: true
+    username: "admin"
+    password: "secure123"
+    
+  - id: "grid-us-west-2"
+    url: "http://us-west-2.example.com:4444"
+    priority: 2              # Lower priority (standby)
+    weight: 100
+    max_sessions: 16
+    region: "us-west"
+    role: "standby"          # Standby role for failover
+    enabled: true
+    username: "admin"
+    password: "secure123"
+    
+  # Europe Region - Standby instances (failover)
+  - id: "grid-eu-central-1"
+    url: "http://eu-central-1.example.com:4444"
+    priority: 3              # Lowest priority (standby)
+    weight: 100
+    max_sessions: 12
+    region: "eu-central"
+    role: "standby"          # Standby role for failover
+    enabled: true
+    username: "admin"
+    password: "secure123"
+
+redis:
+  enabled: true
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  key_ttl: 3600
+
+monitoring:
+  enabled: true
+  port: 8080
+  path: "/metrics"

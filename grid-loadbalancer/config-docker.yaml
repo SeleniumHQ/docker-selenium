@@ -1,0 +1,51 @@
+loadbalancer:
+  port: 4444
+  health_check_interval: 30s
+  session_timeout: 300s
+  max_retries: 3
+  retry_interval: 5s
+  enable_metrics: true
+  strategy: "weighted_round_robin"  # Options: weighted_round_robin, ha_geo, greedy
+
+grid_instances:
+  - id: "selenium-hub-1"
+    url: "http://selenium-hub-1:4444"
+    priority: 1
+    weight: 100              # Weight for weighted_round_robin strategy
+    max_sessions: 16         # Max sessions for greedy strategy
+    region: "us-east"        # Region for ha_geo strategy
+    role: "active"           # Role for ha_geo strategy: active/standby
+    enabled: true
+    # Optional basic authentication for secured Grid instances
+    # username: "admin"
+    # password: "secret123"
+  - id: "selenium-hub-2"
+    url: "http://selenium-hub-2:4444"
+    priority: 1
+    weight: 150              # Higher weight = more sessions
+    max_sessions: 16
+    region: "us-east"
+    role: "active"
+    enabled: true
+    # username: "griduser"
+    # password: "gridpass"
+  - id: "selenium-hub-3"
+    url: "http://selenium-hub-3:4444"
+    priority: 2              # Lower priority (higher number)
+    weight: 50
+    max_sessions: 8
+    region: "us-west"
+    role: "standby"          # Standby instance for failover
+    enabled: true
+
+redis:
+  enabled: true
+  host: "redis"
+  port: 6379
+  password: ""
+  db: 0
+  key_ttl: 3600
+
+monitoring:
+  enabled: true
+  metrics_port: 9090

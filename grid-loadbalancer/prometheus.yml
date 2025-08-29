@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  # Selenium Load Balancer metrics
+  - job_name: 'selenium-load-balancer'
+    static_configs:
+      - targets: ['selenium-load-balancer:9090']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # Selenium Grid Hub instances
+  - job_name: 'selenium-hub-1'
+    static_configs:
+      - targets: ['selenium-hub-1:4444']
+    scrape_interval: 30s
+    metrics_path: /status
+
+  - job_name: 'selenium-hub-2'
+    static_configs:
+      - targets: ['selenium-hub-2:4444']
+    scrape_interval: 30s
+    metrics_path: /status
+
+  - job_name: 'selenium-hub-3'
+    static_configs:
+      - targets: ['selenium-hub-3:4444']
+    scrape_interval: 30s
+    metrics_path: /status
+
+  # Redis metrics (if redis_exporter is used)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s

@@ -1,0 +1,53 @@
+# Configuration for Weighted Round Robin Load Balancing Strategy
+# This strategy distributes new sessions based on instance weights
+# Higher weight = more sessions assigned to that instance
+
+loadbalancer:
+  port: 4444
+  health_check_interval: 30s
+  session_timeout: 300s
+  max_retries: 3
+  retry_interval: 5s
+  enable_metrics: true
+  strategy: "weighted_round_robin"
+
+grid_instances:
+  - id: "grid-high-capacity"
+    url: "http://localhost:4445"
+    priority: 1
+    weight: 200              # High weight = 50% of sessions
+    max_sessions: 20
+    region: "us-east"
+    role: "active"
+    enabled: true
+    
+  - id: "grid-medium-capacity"
+    url: "http://localhost:4446"
+    priority: 1
+    weight: 120              # Medium weight = 30% of sessions
+    max_sessions: 12
+    region: "us-east"
+    role: "active"
+    enabled: true
+    
+  - id: "grid-low-capacity"
+    url: "http://localhost:4447"
+    priority: 1
+    weight: 80               # Low weight = 20% of sessions
+    max_sessions: 8
+    region: "us-east"
+    role: "active"
+    enabled: true
+
+redis:
+  enabled: true
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  key_ttl: 3600
+
+monitoring:
+  enabled: true
+  port: 8080
+  path: "/metrics"

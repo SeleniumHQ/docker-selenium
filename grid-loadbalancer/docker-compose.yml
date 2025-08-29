@@ -1,0 +1,217 @@
+version: '3.8'
+
+services:
+  # Redis for session persistence
+  redis:
+    image: redis:7-alpine
+    container_name: selenium-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Selenium Grid Hub Instance 1
+  selenium-hub-1:
+    image: selenium/hub:4.15.0
+    container_name: selenium-hub-1
+    ports:
+      - "4445:4444"
+    environment:
+      - HUB_HOST=0.0.0.0
+      - GRID_MAX_SESSION=16
+      - GRID_BROWSER_TIMEOUT=300
+      - GRID_TIMEOUT=300
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Selenium Grid Hub Instance 2
+  selenium-hub-2:
+    image: selenium/hub:4.15.0
+    container_name: selenium-hub-2
+    ports:
+      - "4446:4444"
+    environment:
+      - HUB_HOST=0.0.0.0
+      - GRID_MAX_SESSION=16
+      - GRID_BROWSER_TIMEOUT=300
+      - GRID_TIMEOUT=300
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Selenium Grid Hub Instance 3
+  selenium-hub-3:
+    image: selenium/hub:4.15.0
+    container_name: selenium-hub-3
+    ports:
+      - "4447:4444"
+    environment:
+      - HUB_HOST=0.0.0.0
+      - GRID_MAX_SESSION=16
+      - GRID_BROWSER_TIMEOUT=300
+      - GRID_TIMEOUT=300
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Chrome Node for Hub 1
+  chrome-node-1:
+    image: selenium/node-chrome:4.15.0
+    container_name: chrome-node-1
+    depends_on:
+      - selenium-hub-1
+    environment:
+      - HUB_HOST=selenium-hub-1
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Chrome Node for Hub 2
+  chrome-node-2:
+    image: selenium/node-chrome:4.15.0
+    container_name: chrome-node-2
+    depends_on:
+      - selenium-hub-2
+    environment:
+      - HUB_HOST=selenium-hub-2
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Chrome Node for Hub 3
+  chrome-node-3:
+    image: selenium/node-chrome:4.15.0
+    container_name: chrome-node-3
+    depends_on:
+      - selenium-hub-3
+    environment:
+      - HUB_HOST=selenium-hub-3
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Firefox Node for Hub 1
+  firefox-node-1:
+    image: selenium/node-firefox:4.15.0
+    container_name: firefox-node-1
+    depends_on:
+      - selenium-hub-1
+    environment:
+      - HUB_HOST=selenium-hub-1
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5555/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+
+  # Go Load Balancer
+  selenium-load-balancer:
+    build: .
+    container_name: selenium-load-balancer
+    ports:
+      - "4444:4444"  # Main load balancer port
+      - "9090:9090"  # Metrics port
+    depends_on:
+      redis:
+        condition: service_healthy
+      selenium-hub-1:
+        condition: service_healthy
+      selenium-hub-2:
+        condition: service_healthy
+      selenium-hub-3:
+        condition: service_healthy
+    environment:
+      - CONFIG_FILE=/app/config.yaml
+    volumes:
+      - ./config-docker.yaml:/app/config.yaml:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4444/status"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Prometheus for monitoring (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: selenium-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - selenium-load-balancer
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: selenium-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    depends_on:
+      - prometheus
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  default:
+    driver: bridge

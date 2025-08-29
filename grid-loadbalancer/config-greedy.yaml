@@ -1,0 +1,62 @@
+# Configuration for Greedy Load Balancing Strategy
+# This strategy fills instances to their max_sessions limit before moving to next
+# Sessions are assigned to instances until they reach capacity
+
+loadbalancer:
+  port: 4444
+  health_check_interval: 30s
+  session_timeout: 300s
+  max_retries: 3
+  retry_interval: 5s
+  enable_metrics: true
+  strategy: "greedy"
+
+grid_instances:
+  - id: "grid-small"
+    url: "http://localhost:4445"
+    priority: 1              # Highest priority (filled first)
+    weight: 100
+    max_sessions: 5          # Small capacity - fills up first
+    region: "us-east"
+    role: "active"
+    enabled: true
+    
+  - id: "grid-medium"
+    url: "http://localhost:4446"
+    priority: 2              # Medium priority (filled second)
+    weight: 100
+    max_sessions: 10         # Medium capacity - fills after small
+    region: "us-east"
+    role: "active"
+    enabled: true
+    
+  - id: "grid-large"
+    url: "http://localhost:4447"
+    priority: 3              # Lower priority (filled third)
+    weight: 100
+    max_sessions: 20         # Large capacity - fills after medium
+    region: "us-east"
+    role: "active"
+    enabled: true
+    
+  - id: "grid-overflow"
+    url: "http://localhost:4448"
+    priority: 4              # Lowest priority (overflow capacity)
+    weight: 100
+    max_sessions: 50         # Very large capacity for overflow
+    region: "us-west"
+    role: "active"
+    enabled: true
+
+redis:
+  enabled: true
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  key_ttl: 3600
+
+monitoring:
+  enabled: true
+  port: 8080
+  path: "/metrics"

@@ -1,0 +1,52 @@
+loadbalancer:
+  port: 4444
+  health_check_interval: 30s
+  session_timeout: 300s
+  max_retries: 3
+  retry_interval: 5s
+  enable_metrics: true
+  strategy: "weighted_round_robin"  # Options: weighted_round_robin, ha_geo, greedy
+
+grid_instances:
+  - id: "grid-1"
+    url: "http://localhost:4445"
+    priority: 1
+    weight: 100              # Weight for weighted_round_robin strategy
+    max_sessions: 10         # Max sessions for greedy strategy
+    region: "us-east"        # Region for ha_geo strategy
+    role: "active"           # Role for ha_geo strategy: active/standby
+    enabled: true
+    # Optional basic authentication (uncomment if needed)
+    # username: "admin"
+    # password: "secret123"
+  - id: "grid-2"
+    url: "http://localhost:4446"
+    priority: 1
+    weight: 150              # Higher weight = more sessions
+    max_sessions: 15
+    region: "us-east"
+    role: "active"
+    enabled: true
+    # Example with basic auth enabled
+    # username: "griduser"
+    # password: "gridpass"
+  - id: "grid-3"
+    url: "http://localhost:4447"
+    priority: 2              # Lower priority (higher number)
+    weight: 50
+    max_sessions: 5
+    region: "us-west"
+    role: "standby"          # Standby instance for failover
+    enabled: true
+
+redis:
+  enabled: true
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  key_ttl: 3600
+
+monitoring:
+  enabled: true
+  metrics_port: 9090
