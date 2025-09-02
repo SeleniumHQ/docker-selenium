@@ -17,9 +17,6 @@ COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-standalone.sh /opt/bin/start
 #==============================
 COPY selenium.conf /etc/supervisor/conf.d/
 
-# Copying configuration script generator
-COPY --chown="${SEL_UID}:${SEL_GID}" generate_config /opt/bin/generate_config
-
 # In seconds, maps to "--session-request-timeout"
 ENV SE_SESSION_REQUEST_TIMEOUT="300" \
 # In seconds, maps to "--session-retry-interval"

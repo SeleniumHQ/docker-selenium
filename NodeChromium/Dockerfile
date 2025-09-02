@@ -10,7 +10,7 @@ USER root
 # Install Chromium
 ARG CHROMIUM_VERSION="latest"
 ARG CHROMIUM_DEB_SITE="http://deb.debian.org/debian"
-RUN echo "deb ${CHROMIUM_DEB_SITE}/ sid main" >> /etc/apt/sources.list \
+RUN echo "deb ${CHROMIUM_DEB_SITE}/ sid main" >/etc/apt/sources.list.d/debian.list \
   && wget -qO- https://ftp-master.debian.org/keys/archive-key-12.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/debian-archive-keyring.gpg \
   && wget -qO- https://ftp-master.debian.org/keys/archive-key-12-security.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/debian-archive-security-keyring.gpg \
   && apt-get update -qqy \
@@ -24,7 +24,7 @@ RUN echo "deb ${CHROMIUM_DEB_SITE}/ sid main" >> /etc/apt/sources.list \
       && apt-get -qqyf install /tmp/chromium/chromium-common.deb /tmp/chromium/chromium.deb /tmp/chromium/chromium-l10n.deb /tmp/chromium/chromium-driver.deb \
       && rm -rf /tmp/chromium; \
     fi \
-  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/* /etc/apt/sources.list.d/debian.list
 
 #=================================
 # Chromium Launch Script Wrapper
@@ -43,9 +43,10 @@ USER ${SEL_UID}
 #============================================
 # Dumping Browser information for config
 #============================================
-RUN echo "chrome" > /opt/selenium/browser_name
-RUN chromium --version | awk '{print $2}' > /opt/selenium/browser_version
-RUN echo "\"goog:chromeOptions\": {\"binary\": \"/usr/bin/chromium\"}" > /opt/selenium/browser_binary_location
+RUN mkdir -p /opt/selenium/browsers/chrome \
+    && echo "chrome" > /opt/selenium/browsers/chrome/name \
+    && chromium --version | awk '{print $2}' > /opt/selenium/browsers/chrome/version \
+    && echo '{"goog:chromeOptions": {"binary": "/usr/bin/chromium"}}' > /opt/selenium/browsers/chrome/binary_location
 
-ENV SE_OTEL_SERVICE_NAME="selenium-node-chromium" \
+ENV SE_OTEL_SERVICE_NAME="selenium-node-chrome" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

@@ -48,11 +48,13 @@ all: hub \
 	edge \
 	firefox \
 	docker \
+	all_browsers \
 	standalone_chrome \
 	standalone_chromium \
 	standalone_edge \
 	standalone_firefox \
 	standalone_docker \
+	standalone_all_browsers \
 	video
 
 check_dev_env:
@@ -283,6 +285,25 @@ video: base
 ffmpeg:
 	cd ./.ffmpeg && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg FFMPEG_VERSION=$(FFMPEG_VERSION) $(FROM_IMAGE_ARGS) -t $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) .
 
+all_browsers: node_base
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			cd ./NodeFirefox && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+			cd .. ; \
+			cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+			cd .. ; \
+			cd ./NodeEdge && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+      ;; \
+    *) \
+			cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+			cd .. ; \
+			cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+      ;; \
+  esac
+
+standalone_all_browsers: all_browsers
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/standalone-all-browsers:$(TAG_VERSION) .
+
 fetch_grid_scaler_resources:
 	mkdir -p ./.keda/scalers \
 	&& cd ./.keda/scalers \
@@ -324,11 +345,13 @@ count_image_layers:
 	docker history $(NAME)/node-edge:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-firefox:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-docker:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-all-browsers:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-chrome:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-chromium:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-edge:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-firefox:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-docker:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-all-browsers:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) -q | wc -l
 
 chrome_upgrade_version:
@@ -384,9 +407,11 @@ tag_latest:
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:latest
+	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:latest
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
+	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 	case "$(PLATFORMS)" in *linux/amd64*) \
 		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
@@ -418,11 +443,13 @@ release_latest: release_grid_scaler_latest
 	docker push $(NAME)/node-edge:latest
 	docker push $(NAME)/node-firefox:latest
 	docker push $(NAME)/node-docker:latest
+	docker push $(NAME)/node-all-browsers:latest
 	docker push $(NAME)/standalone-chrome:latest
 	docker push $(NAME)/standalone-chromium:latest
 	docker push $(NAME)/standalone-edge:latest
 	docker push $(NAME)/standalone-firefox:latest
 	docker push $(NAME)/standalone-docker:latest
+	docker push $(NAME)/standalone-all-browsers:latest
 	docker push $(NAME)/video:latest
 
 generate_latest_sbom:
@@ -440,9 +467,11 @@ tag_nightly:
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
+	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
+	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
 	case "$(PLATFORMS)" in *linux/amd64*) \
 		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly && \
@@ -469,11 +498,13 @@ release_nightly: release_grid_scaler_nightly
 	docker push $(NAME)/node-edge:nightly
 	docker push $(NAME)/node-firefox:nightly
 	docker push $(NAME)/node-docker:nightly
+	docker push $(NAME)/node-all-browsers:nightly
 	docker push $(NAME)/standalone-chrome:nightly
 	docker push $(NAME)/standalone-chromium:nightly
 	docker push $(NAME)/standalone-edge:nightly
 	docker push $(NAME)/standalone-firefox:nightly
 	docker push $(NAME)/standalone-docker:nightly
+	docker push $(NAME)/standalone-all-browsers:nightly
 	docker push $(NAME)/video:nightly
 
 generate_nightly_sbom:
@@ -493,11 +524,13 @@ tag_major_minor:
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR)
+	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR)
+	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR)
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR).$(MINOR)
@@ -511,11 +544,13 @@ tag_major_minor:
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
@@ -529,11 +564,13 @@ tag_major_minor:
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 
 release: tag_major_minor release_grid_scaler
 	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -549,11 +586,13 @@ release: tag_major_minor release_grid_scaler
 	@if ! docker images $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/standalone-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)/base:$(TAG_VERSION)
 	docker push $(NAME)/hub:$(TAG_VERSION)
 	docker push $(NAME)/distributor:$(TAG_VERSION)
@@ -567,11 +606,13 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-edge:$(TAG_VERSION)
 	docker push $(NAME)/node-firefox:$(TAG_VERSION)
 	docker push $(NAME)/node-docker:$(TAG_VERSION)
+	docker push $(NAME)/node-all-browsers:$(TAG_VERSION)
 	docker push $(NAME)/standalone-chrome:$(TAG_VERSION)
 	docker push $(NAME)/standalone-chromium:$(TAG_VERSION)
 	docker push $(NAME)/standalone-edge:$(TAG_VERSION)
 	docker push $(NAME)/standalone-firefox:$(TAG_VERSION)
 	docker push $(NAME)/standalone-docker:$(TAG_VERSION)
+	docker push $(NAME)/standalone-all-browsers:$(TAG_VERSION)
 	docker push $(NAME)/base:$(MAJOR)
 	docker push $(NAME)/hub:$(MAJOR)
 	docker push $(NAME)/distributor:$(MAJOR)
@@ -585,11 +626,13 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-edge:$(MAJOR)
 	docker push $(NAME)/node-firefox:$(MAJOR)
 	docker push $(NAME)/node-docker:$(MAJOR)
+	docker push $(NAME)/node-all-browsers:$(MAJOR)
 	docker push $(NAME)/standalone-chrome:$(MAJOR)
 	docker push $(NAME)/standalone-chromium:$(MAJOR)
 	docker push $(NAME)/standalone-edge:$(MAJOR)
 	docker push $(NAME)/standalone-firefox:$(MAJOR)
 	docker push $(NAME)/standalone-docker:$(MAJOR)
+	docker push $(NAME)/standalone-all-browsers:$(MAJOR)
 	docker push $(NAME)/base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/hub:$(MAJOR).$(MINOR)
 	docker push $(NAME)/distributor:$(MAJOR).$(MINOR)
@@ -603,11 +646,13 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-edge:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-firefox:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-docker:$(MAJOR).$(MINOR)
+	docker push $(NAME)/node-all-browsers:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-chrome:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-chromium:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-edge:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-docker:$(MAJOR).$(MINOR)
+	docker push $(NAME)/standalone-all-browsers:$(MAJOR).$(MINOR)
 	docker push $(NAME)/base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/hub:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
@@ -621,11 +666,13 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-edge:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-docker:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/node-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-chromium:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-edge:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 test: test_chrome \
@@ -639,7 +686,9 @@ test: test_chrome \
  test_firefox_standalone_java \
  test_edge \
  test_edge_standalone \
- test_edge_standalone_java
+ test_edge_standalone_java \
+ test_node_all_browsers \
+ test_standalone_all_browsers
 
 test_chrome:
 	case "$(PLATFORMS)" in \
@@ -729,6 +778,33 @@ test_chromium_standalone:
 
 test_chromium_standalone_java:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chromium
+
+test_node_all_browsers:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Microsoft Edge is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeAllEdge \
+      ;; \
+    *) \
+       echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeAllChrome
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true \
+	./tests/bootstrap.sh NodeAllFirefox
+
+test_standalone_all_browsers:
+	case "$(PLATFORMS)" in \
+    *linux/amd64*) \
+			echo "Microsoft Edge is only supported on linux/amd64" \
+			&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneAllEdge \
+      ;; \
+    *) \
+       echo "Microsoft Edge doesn't support platform $(PLATFORMS)" ; \
+      ;; \
+  esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneAllFirefox
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneAllChrome
 
 test_parallel: hub chrome firefox edge chromium video
 	sudo rm -rf ./tests/tests

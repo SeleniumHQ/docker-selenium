@@ -154,18 +154,28 @@ From image tag based `4.21.0` onwards, the architectures supported by this proje
 
 The following browsers are available in multi-arch images:
 
-|       Architecture        | Chrome | Chromium | Firefox | Edge  |
-| :-----------------------: | :----: | :------: | :-----: | :---: |
-|    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |   ✅   |
-| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |   ❌   |
-| armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |   ❌   |
+|       Architecture        | Chrome | Chromium | Firefox | Edge |
+|:-------------------------:|:------:|:--------:|:-------:|:----:|
+|    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |  ✅   |
+| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |  ❌   |
+| armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |  ❌   |
+
+
+Accordingly, browsers are available in images `selenium/node-all-browsers` and `selenium/standalone-all-browsers` would be different per architecture.
+
+| Browser / Arch | x86_64 (aka amd64) | aarch64 (aka arm64/armv8) |
+|----------------|--------------------|---------------------------|
+| Chrome         | ✅                  | ❌                         |
+| Edge           | ✅                  | ❌                         |
+| Firefox        | ✅                  | ✅                         |
+| Chromium       | ❌                  | ✅                         |
 
 Note:
 
+- **Running an AMD64 image under emulation on an ARM64 platform is not recommended due to performance and [stability issues](https://github.com/SeleniumHQ/docker-selenium/issues/2298), or browsers could not launch.**
+
 - Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
 Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
-
-- Running an AMD64 image under emulation on an ARM64 platform is not recommended due to performance and [stability issues](https://github.com/SeleniumHQ/docker-selenium/issues/2298).
 
 - For Linux/ARM use the open source Chromium browser. The Chromium (node and standalone) images are available in multi-arch.
 
@@ -175,7 +185,7 @@ $ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selen
 
 - Mozilla Firefox now is available for Linux/ARM64 via APT stable channel from v136+. The Firefox (node and standalone) images are available in multi-arch.
 
-Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.
+~~Multi-arch images are tested on CircleCI with resource class Linux/ARM64. See the status below.~~ (Moved to GitHub Actions)
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/SeleniumHQ/docker-selenium/tree/trunk.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/SeleniumHQ/docker-selenium/tree/trunk)
 
@@ -202,16 +212,20 @@ A single command to enable that feature in Docker Engine:
 make set_containerd_image_store
 ```
 
+Noted: That command is only compatible with Ubuntu. For users use Docker Desktop on macOS, it can be enabled easily via
+
+> `Settings > General > Use containerd for pulling and storing images`
+
 To build all the images for multiplatform at once, run the following command:
 
 ```bash
-PLATFORMS=linux/amd64,linux/arm64 make build
+PLATFORMS=linux/amd64,linux/arm64 make all
 ```
 
 To build the images for a specific platform, run the following command:
 
 ```bash
-PLATFORMS=linux/arm64 make build
+PLATFORMS=linux/arm64 make all
 ```
 
 By default, without specifying the `PLATFORMS` variable, the images are built with current host architecture.
@@ -219,7 +233,7 @@ By default, without specifying the `PLATFORMS` variable, the images are built wi
 Similarly, if you are using host ARM64 architecture, you can build the images for AMD64 architecture by running the following command:
 
 ```bash
-PLATFORMS=linux/amd64 make build
+PLATFORMS=linux/amd64 make all
 ```
 
 ___
@@ -382,19 +396,24 @@ How to update or contribute to list of environment variables? Follow below steps
 
 ### Standalone
 
-![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
+#### ![Firefox](https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_24x24.png) Firefox 
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-firefox:4.35.0-20250808
 ```
 
-![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
+#### ![Chrome](https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_24x24.png) Chrome 
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-chrome:4.35.0-20250808
 ```
 
-![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Edge
+#### ![Edge](https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_24x24.png) Edge
 ```bash
 docker run -d -p 4444:4444 --shm-size="2g" selenium/standalone-edge:4.35.0-20250808
+```
+
+#### All browsers in single container
+```bash
+docker run -d -p 4444:4444 --shm-size="3g" selenium/standalone-all-browsers:4.35.0-20250808
 ```
 
 _Note: Only one Standalone container can run on port_ `4444` _at the same time._
@@ -411,6 +430,8 @@ A Docker [network](https://docs.docker.com/engine/reference/commandline/network_
 
 ##### macOS/Linux
 
+**Hub and multiple browser Node containers**
+
 ```bash
 $ docker network create grid
 $ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.35.0-20250808
@@ -425,7 +446,19 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     selenium/node-firefox:4.35.0-20250808
 ```
 
+**Hub and single Node container with all browsers**
+
+```bash
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.35.0-20250808
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
+    --shm-size="3g" \
+    selenium/node-all-browsers:4.35.0-20250808
+```
+
 ##### Windows PowerShell
+
+**Hub and multiple browser Node containers**
 
 ```powershell
 $ docker network create grid
@@ -439,6 +472,16 @@ $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
 $ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
     selenium/node-firefox:4.35.0-20250808
+```
+
+**Hub and single Node container with all browsers**
+
+```powershell
+$ docker network create grid
+$ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.35.0-20250808
+$ docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
+    --shm-size="3g" `
+    selenium/node-all-browsers:4.35.0-20250808
 ```
 
 When you are done using the Grid, and the containers have exited, the network can be removed with the following command:

@@ -63,13 +63,19 @@ IMAGE_NAME_MAP = {
     'Hub': 'hub',
     # Chrome Images
     'NodeChrome': 'node-chrome',
+    'NodeAllChrome': 'node-all-browsers',
     'StandaloneChrome': 'standalone-chrome',
+    'StandaloneAllChrome': 'standalone-all-browsers',
     # Edge Images
     'NodeEdge': 'node-edge',
+    'NodeAllEdge': 'node-all-browsers',
     'StandaloneEdge': 'standalone-edge',
+    'StandaloneAllEdge': 'standalone-all-browsers',
     # Firefox Images
     'NodeFirefox': 'node-firefox',
+    'NodeAllFirefox': 'node-all-browsers',
     'StandaloneFirefox': 'standalone-firefox',
+    'StandaloneAllFirefox': 'standalone-all-browsers',
     # Chromium Images
     'NodeChromium': 'node-chromium',
     'StandaloneChromium': 'standalone-chromium',
@@ -79,13 +85,19 @@ TEST_NAME_MAP = {
     "Android": "ChromeTests",
     # Chrome Images
     'NodeChrome': 'ChromeTests',
+    'NodeAllChrome': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
+    'StandaloneAllChrome': 'ChromeTests',
     # Edge Images
     'NodeEdge': 'EdgeTests',
+    'NodeAllEdge': 'EdgeTests',
     'StandaloneEdge': 'EdgeTests',
+    'StandaloneAllEdge': 'EdgeTests',
     # Firefox Images
     'NodeFirefox': 'FirefoxTests',
+    'NodeAllFirefox': 'FirefoxTests',
     'StandaloneFirefox': 'FirefoxTests',
+    'StandaloneAllFirefox': 'FirefoxTests',
     # Chromium Images
     'NodeChromium': 'ChromeTests',
     'StandaloneChromium': 'ChromeTests',

@@ -66,9 +66,10 @@ USER ${SEL_UID}
 #============================================
 # Dumping Browser information for config
 #============================================
-RUN echo "MicrosoftEdge" > /opt/selenium/browser_name
-RUN microsoft-edge --version | awk '{print $3}' > /opt/selenium/browser_version
-RUN echo "\"ms:edgeOptions\": {\"binary\": \"/usr/bin/microsoft-edge\"}" > /opt/selenium/browser_binary_location
+RUN mkdir -p /opt/selenium/browsers/edge \
+    && echo "MicrosoftEdge" > /opt/selenium/browsers/edge/name \
+    && microsoft-edge --version | awk '{print $3}' > /opt/selenium/browsers/edge/version \
+    && echo '{"ms:edgeOptions": {"binary": "/usr/bin/microsoft-edge"}}' > /opt/selenium/browsers/edge/binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-edge" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

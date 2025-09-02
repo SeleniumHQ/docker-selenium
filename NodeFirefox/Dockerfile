@@ -85,9 +85,10 @@ USER ${SEL_UID}
 #============================================
 # Dumping Browser information for config
 #============================================
-RUN echo "firefox" > /opt/selenium/browser_name \
-    && firefox --version | awk '{print $3}' > /opt/selenium/browser_version \
-    && echo "\"moz:firefoxOptions\": {\"binary\": \"/usr/bin/firefox\"}" > /opt/selenium/browser_binary_location
+RUN mkdir -p /opt/selenium/browsers/firefox \
+    && echo "firefox" > /opt/selenium/browsers/firefox/name \
+    && firefox --version | awk '{print $3}' > /opt/selenium/browsers/firefox/version \
+    && echo '{"moz:firefoxOptions": {"binary": "/usr/bin/firefox"}}' > /opt/selenium/browsers/firefox/binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-firefox" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

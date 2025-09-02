@@ -8,17 +8,86 @@ function short_version() {
 	echo "${__major}.${__minor:0:1}"
 }
 
+# A global array of environment variable prefixes supports different browser suffixes
+ENV_PREFIXES=(
+	"SE_NODE_STEREOTYPE"
+	"SE_NODE_BROWSER_NAME"
+	"SE_NODE_BROWSER_VERSION"
+	"SE_NODE_PLATFORM_NAME"
+	"SE_BROWSER_BINARY_LOCATION"
+	"SE_NODE_STEREOTYPE_EXTRA"
+	"SE_NODE_MAX_SESSIONS"
+)
+
+function backup_original_env_vars() {
+	echo "Backing up original environment variables..."
+
+	for prefix in "${ENV_PREFIXES[@]}"; do
+		local backup_var="${prefix}_ORIGINAL"
+		local common_var="${prefix}"
+
+		# Backup original value if not already backed up
+		if [[ -z "${!backup_var}" ]] && [[ -n "${!common_var}" ]]; then
+			eval "${backup_var}=\"${!common_var}\""
+			echo "Backed up original ${common_var}=${!common_var} to ${backup_var}"
+		fi
+	done
+}
+
+function restore_original_env_vars() {
+	echo "Restoring original environment variables..."
+
+	for prefix in "${ENV_PREFIXES[@]}"; do
+		local backup_var="${prefix}_ORIGINAL"
+		local common_var="${prefix}"
+
+		# Restore original value if backup exists
+		if [[ -n "${!backup_var}" ]]; then
+			eval "${common_var}=\"${!backup_var}\""
+			echo "Restored original ${backup_var}=${!backup_var} to ${common_var}"
+		else
+			# Clear the variable if no backup exists
+			eval "${common_var}=\"\""
+			echo "Cleared ${common_var} (no original backup)"
+		fi
+	done
+}
+
+function assign_browser_specific_env_vars() {
+	local browser_name=$1
+
+	# Set browser-specific values or inherit original values
+	for prefix in "${ENV_PREFIXES[@]}"; do
+		local browser_specific_var="${prefix}_${browser_name}"
+		local common_var="${prefix}"
+		local backup_var="${prefix}_ORIGINAL"
+
+		# Check if the browser-specific environment variable exists
+		if [[ -n "${!browser_specific_var}" ]]; then
+			# Assign the browser-specific value to the common variable
+			eval "${common_var}=\"${!browser_specific_var}\""
+			echo "Assigned ${browser_specific_var}=${!browser_specific_var} to ${common_var}"
+		elif [[ -n "${!backup_var}" ]]; then
+			# Inherit original value if browser-specific value is not set
+			eval "${common_var}=\"${!backup_var}\""
+			echo "Inherited original ${backup_var}=${!backup_var} to ${common_var}"
+		fi
+	done
+}
+
 if [[ -z "$CONFIG_FILE" ]]; then
 	FILENAME="/opt/selenium/config.toml"
 else
 	FILENAME="$CONFIG_FILE"
 fi
 
+echo -n "" >"$FILENAME"
+
 if [[ -n "${SE_EVENT_BUS_HOST}" ]]; then
 	echo "[events]
     publish = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}\"
     subscribe = \"tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_SUBSCRIBE_PORT}\"
-    " >"$FILENAME"
+    " >>"$FILENAME"
 fi
 
 if [[ -z "${SE_NODE_HOST}" ]] && [[ -z "${SE_NODE_PORT}" ]]; then
@@ -39,6 +108,11 @@ else
 	echo "port = \"${SE_NODE_PORT}\"" >>"$FILENAME"
 fi
 
+if [[ -n "${SE_RELAX_CHECKS}" ]]; then
+	echo "[network]" >>"$FILENAME"
+	echo "relax-checks = ${SE_RELAX_CHECKS}" >>"$FILENAME"
+fi
+
 echo "[node]" >>"$FILENAME"
 # String, Url where the Grid can be reached
 if [[ -z "${SE_NODE_GRID_URL}" ]]; then
@@ -50,44 +124,65 @@ echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"
-echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
-" >>"$FILENAME"
+echo "" >>"$FILENAME"
 
-if [ -f /opt/selenium/browser_name ]; then
-	SE_NODE_BROWSER_NAME=$(cat /opt/selenium/browser_name)
-fi
-if [ -f /opt/selenium/browser_version ] && [ "${SE_NODE_BROWSER_VERSION,,}" = "stable" ]; then
-	SE_NODE_BROWSER_VERSION=$(short_version $(cat /opt/selenium/browser_version))
-fi
-if [ -f /opt/selenium/browser_binary_location ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
-	SE_BROWSER_BINARY_LOCATION=$(cat /opt/selenium/browser_binary_location)
-fi
-SE_NODE_CONTAINER_NAME="${SE_NODE_CONTAINER_NAME:-$(hostname)}"
+# Check if /opt/selenium/browsers directory exists and iterate through browser folders
+if [ -d "/opt/selenium/browsers" ]; then
+	# Backup original environment variables before processing browsers
+	backup_original_env_vars
 
-# 'browserName' is mandatory for default stereotype
-if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]] && ([[ -z "${SE_NODE_RELAY_URL}" ]] || [[ "${SE_NODE_RELAY_ONLY}" = "false" ]]); then
-	SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
-	if [[ -n "${SE_BROWSER_BINARY_LOCATION}" ]]; then
-		SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "{${SE_BROWSER_BINARY_LOCATION}}")"
-	fi
-else
-	SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
-fi
-if [[ -n "${SE_NODE_STEREOTYPE_EXTRA}" ]]; then
-	echo "Merging SE_NODE_STEREOTYPE_EXTRA=${SE_NODE_STEREOTYPE_EXTRA} to main stereotype"
-	SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${SE_NODE_STEREOTYPE_EXTRA}")"
-	if [[ $? -ne 0 ]]; then
-		echo "Failed to merge SE_NODE_STEREOTYPE_EXTRA. Please check the format of the JSON string. Keep using main stereotype."
-	else
-		echo "Merged stereotype: ${SE_NODE_STEREOTYPE}"
-	fi
-fi
+	for browser_dir in /opt/selenium/browsers/*/; do
+		if [ -d "$browser_dir" ]; then
+			browser_name=$(basename "$browser_dir" | tr '[:lower:]' '[:upper:]')
+			echo "===Start generating stereotype for browser: ${browser_name}==="
+			# Assign environment variables with browser suffix to common variables
+			assign_browser_specific_env_vars "$browser_name"
 
-# 'stereotype' setting is mandatory
-if [[ -n "${SE_NODE_STEREOTYPE}" ]]; then
-	echo "[[node.driver-configuration]]" >>"$FILENAME"
-	echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >>"$FILENAME"
-	echo "stereotype = '${SE_NODE_STEREOTYPE}'" >>"$FILENAME"
-	echo "max-sessions = ${SE_NODE_MAX_SESSIONS}
-    " >>"$FILENAME"
+			if [ -f "${browser_dir}name" ]; then
+				SE_NODE_BROWSER_NAME=$(cat "${browser_dir}name")
+			fi
+			if [ -f "${browser_dir}version" ] && [ "${SE_NODE_BROWSER_VERSION,,}" = "stable" ]; then
+				SE_NODE_BROWSER_VERSION=$(short_version "$(cat "${browser_dir}version")")
+			fi
+			if [ -f "${browser_dir}binary_location" ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
+				SE_BROWSER_BINARY_LOCATION=$(cat "${browser_dir}binary_location")
+			fi
+			SE_NODE_CONTAINER_NAME="${SE_NODE_CONTAINER_NAME:-$(hostname)}"
+
+			# 'browserName' is mandatory for default stereotype
+			if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]] && ([[ -z "${SE_NODE_RELAY_URL}" ]] || [[ "${SE_NODE_RELAY_ONLY}" = "false" ]]); then
+				SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
+				if [[ -n "${SE_BROWSER_BINARY_LOCATION}" ]]; then
+					SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${SE_BROWSER_BINARY_LOCATION}")"
+				fi
+			else
+				SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"
+			fi
+			if [[ -n "${SE_NODE_STEREOTYPE_EXTRA}" ]]; then
+				echo "Merging SE_NODE_STEREOTYPE_EXTRA=${SE_NODE_STEREOTYPE_EXTRA} to main stereotype for $browser_name"
+				SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${SE_NODE_STEREOTYPE_EXTRA}")"
+				if [[ $? -ne 0 ]]; then
+					echo "Failed to merge SE_NODE_STEREOTYPE_EXTRA for $browser_name. Please check the format of the JSON string. Keep using main stereotype."
+				else
+					echo "Merged stereotype for $browser_name: ${SE_NODE_STEREOTYPE}"
+				fi
+			fi
+
+			# 'stereotype' setting is mandatory
+			if [[ -n "${SE_NODE_STEREOTYPE}" ]]; then
+				echo "[[node.driver-configuration]]" >>"$FILENAME"
+				echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >>"$FILENAME"
+				echo "stereotype = '${SE_NODE_STEREOTYPE}'" >>"$FILENAME"
+				# Validate SE_NODE_MAX_SESSIONS is a positive integer
+				if [[ "${SE_NODE_MAX_SESSIONS}" =~ ^[0-9]+$ ]] && [[ "${SE_NODE_MAX_SESSIONS}" -gt 0 ]]; then
+					echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
+				fi
+				echo "" >>"$FILENAME"
+			fi
+
+			# Restore original environment variables for next browser iteration
+			restore_original_env_vars
+			echo "===Stop generating stereotype for browser: ${browser_name}==="
+		fi
+	done
 fi

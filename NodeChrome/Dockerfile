@@ -49,9 +49,10 @@ USER ${SEL_UID}
 #============================================
 # Dumping Browser information for config
 #============================================
-RUN echo "chrome" > /opt/selenium/browser_name
-RUN google-chrome --version | awk '{print $3}' > /opt/selenium/browser_version
-RUN echo "\"goog:chromeOptions\": {\"binary\": \"/usr/bin/google-chrome\"}" > /opt/selenium/browser_binary_location
+RUN mkdir -p /opt/selenium/browsers/chrome \
+    && echo "chrome" > /opt/selenium/browsers/chrome/name \
+    && google-chrome --version | awk '{print $3}' > /opt/selenium/browsers/chrome/version \
+    && echo '{"goog:chromeOptions": {"binary": "/usr/bin/google-chrome"}}' > /opt/selenium/browsers/chrome/binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-chrome" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

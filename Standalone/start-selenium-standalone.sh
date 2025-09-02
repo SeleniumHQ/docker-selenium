@@ -136,8 +136,11 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
   append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi
 
-/opt/bin/generate_config
-/opt/bin/generate_relay_config
+if [ "$GENERATE_CONFIG" = true ]; then
+  echo "Generating Selenium Config"
+  /opt/bin/generate_config
+  /opt/bin/generate_relay_config
+fi
 
 echo "Selenium Grid Standalone configuration: "
 cat "${CONFIG_FILE}"

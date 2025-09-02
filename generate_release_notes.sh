@@ -6,7 +6,6 @@ GRID_VERSION=$3
 BUILD_DATE=$4
 NAMESPACE=${NAME:-selenium}
 FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
-RCLONE_TAG_VERSION=$(grep RCLONE_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/p' | head -n 1)
 AUTHORS=${AUTHORS:-"SeleniumHQ"}
 
 TAG_VERSION=${GRID_VERSION}-${BUILD_DATE}
