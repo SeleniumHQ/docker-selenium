@@ -1,5 +1,3 @@
-from collections import OrderedDict
-
 import requests
 import yaml
 
@@ -32,6 +30,8 @@ def merge_dicts(dict1, dict2):
 
 def update_local_yaml(local_data, source_data):
     updated = False
+    local_versions = local_data['matrix']['browser'].keys()
+    local_min_version = str(min(int(v) for v in local_versions)) if local_versions else "0"
     for version, details in source_data['matrix']['browser'].items():
         if version in local_data['matrix']['browser']:
             original_details = local_data['matrix']['browser'][version]
@@ -39,8 +39,27 @@ def update_local_yaml(local_data, source_data):
                 if key in original_details and '_PACKAGE_' not in key:
                     original_details[key] = details[key] if details[key] is not None else ""
                     updated = True
+                elif '_PACKAGE_' not in key:
+                    original_details[key] = details[key] if details[key] is not None else ""
+                    updated = True
             merge_dicts(original_details, details)
+        else:
+            if int(version) > int(local_min_version):
+                local_data['matrix']['browser'][version] = details
+                local_data['matrix']['browser'][version]['FIREFOX_PLATFORMS'] = 'linux/amd64,linux/arm64'
+                updated = True
     return updated
+
+
+def sort_keys(local_data):
+    # Sort local_data by key in matrix.browser
+    list_versions = list(local_data['matrix']['browser'].keys())
+    list_versions.sort(key=lambda x: int(x), reverse=True)
+    sorted_browser_dict = {}
+    for version in list_versions:
+        sorted_browser_dict[version] = local_data['matrix']['browser'][version]
+    local_data['matrix']['browser'] = sorted_browser_dict
+    return local_data
 
 
 def main():
@@ -61,6 +80,7 @@ def main():
     # Save updated local YAML data
     if updated:
         with open(local_file, 'w') as file:
+            sort_keys(local_data)
             yaml.dump(local_data, file, default_flow_style=False, sort_keys=False)
         print("Local YAML file updated.")
     else:

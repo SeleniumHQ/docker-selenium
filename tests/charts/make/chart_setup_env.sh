@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 echo "Set ENV variables"
 CLUSTER=${CLUSTER:-"minikube"}
 DOCKER_VERSION=${DOCKER_VERSION:-""}
@@ -38,8 +40,23 @@ if [ -n "${DOCKER_VERSION}" ]; then
   echo "Installing package docker-ce${DOCKER_VERSION}"
   ALLOW_DOWNGRADE="--allow-downgrades"
 fi
-sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
-sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin gcc-aarch64-linux-gnu qemu-user-static
+echo "Installing Docker CE packages..."
+timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION} || {
+    echo "Docker CE installation timed out or failed, retrying..."
+    sudo apt-get install -yf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
+}
+
+echo "Installing Docker plugins and container runtime..."
+timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin || {
+    echo "Docker plugins installation timed out or failed, retrying..."
+    sudo apt-get install -yf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+echo "Installing cross-compilation tools (may take a while)..."
+timeout 5m sudo apt-get install -yqf gcc-aarch64-linux-gnu qemu-user-static || {
+    echo "Cross-compilation tools installation timed out or failed, retrying without quiet mode..."
+    sudo apt-get install -yf gcc-aarch64-linux-gnu qemu-user-static
+}
 sudo chmod 666 /var/run/docker.sock
 if [ -n "${DOCKER_VERSION_EXPECT}" ]; then
   DOCKER_VERSION_ACTUAL="$(docker version --format '{{.Server.Version}}')"

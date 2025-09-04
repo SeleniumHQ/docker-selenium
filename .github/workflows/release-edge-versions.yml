@@ -61,6 +61,7 @@ jobs:
     permissions: write-all
     strategy:
       fail-fast: false
+      max-parallel: 10
       matrix:
         browser-version: ${{ fromJSON(github.event.inputs.browser-versions)}}
     outputs:
@@ -106,12 +107,6 @@ jobs:
         run: |
           echo ${GRID_VERSION}
           echo "GRID_VERSION=${GRID_VERSION}" >> "$GITHUB_OUTPUT"
-      - name: Fetch latest version
-        run: |
-          python3 -m pip install -r tests/requirements.txt
-          python3 tests/build-backward-compatible/fetch_firefox_version.py
-          python3 tests/build-backward-compatible/fetch_version.py
-          make update_selenium_version_matrix
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
@@ -124,6 +119,7 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
+            make update_browser_versions_matrix
             ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
             cat .env | xargs -I {} echo {} >> $GITHUB_ENV
       - name: Build Hub image for testing
@@ -177,10 +173,7 @@ jobs:
       - name: Create CHANGELOG directory
         run: mkdir -p ./CHANGELOG/${{ env.GRID_VERSION }}
       - name: Fetch latest version
-        run: |
-          python3 -m pip install -r tests/requirements.txt
-          python3 tests/build-backward-compatible/fetch_version.py
-          make update_selenium_version_matrix
+        run: make update_browser_versions_matrix
       - name: Download results
         uses: actions/download-artifact@v5
         with:

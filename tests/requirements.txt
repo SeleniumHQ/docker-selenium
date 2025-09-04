@@ -6,3 +6,5 @@ selenium
 pyyaml
 yamale
 yamllint
+isort
+black

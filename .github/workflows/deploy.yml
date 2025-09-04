@@ -169,6 +169,7 @@ jobs:
         run: |
           make generate_latest_sbom
           make fetch_grid_scaler_resources
+          make update_browser_versions_matrix
       - name: Tag browser images
         if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master

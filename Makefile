@@ -87,6 +87,13 @@ format_shell_scripts:
 	fi ; \
   exit $$EXIT_CODE
 
+install_python_deps:
+	python3 -m pip install -r tests/requirements.txt --break-system-packages
+
+format_python_scripts: install_python_deps
+	python3 -m isort tests/ ; \
+    python3 -m black --line-length=120 --skip-string-normalization tests/
+
 generate_readme_charts:
 	if [ ! -f $$HOME/go/bin/helm-docs ] ; then \
 		echo "helm-docs is not installed. Please install it or run 'make setup_dev_env' once." ; \
@@ -94,12 +101,16 @@ generate_readme_charts:
 		$$HOME/go/bin/helm-docs --chart-search-root charts/selenium-grid --output-file CONFIGURATION.md --sort-values-order file ; \
 	fi
 
-update_list_env_vars:
-	python3 -m pip install -r tests/requirements.txt ; \
+update_list_env_vars: install_python_deps
 	python3 scripts/generate_list_env_vars/extract_env.py
 
-update_selenium_version_matrix:
+update_selenium_version_matrix: install_python_deps
 	python3 tests/build-backward-compatible/add_selenium_version.py $(BASE_VERSION)
+
+update_browser_versions_matrix: update_selenium_version_matrix
+	python3 tests/build-backward-compatible/fetch_firefox_version.py ; \
+	python3 tests/build-backward-compatible/fetch_version.py ; \
+	python3 tests/build-backward-compatible/update_workflow_versions.py
 
 lint_readme_charts: generate_readme_charts
 	git diff --stat --exit-code ; \

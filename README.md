@@ -1507,6 +1507,12 @@ In generic, the script takes the following arguments:
 - `$3` (optional): browser name. If not provided, it will iterate over all the browsers (`chrome`, `edge`, `firefox`)
 - `$4` (optional): Push image to registry. By default, it is `false`. If you want to push the image to the registry, set it to `true` (required Docker login to your namespace done before running the script).
 
+To update the browser versions matrix, you can run the following command:
+
+```bash
+make update_browser_versions_matrix
+```
+
 To set your namespace for the images, you can set the environment variable `NAME` before running the script. For example:
 
 ```bash
