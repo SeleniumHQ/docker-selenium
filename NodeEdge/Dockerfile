@@ -1,7 +1,7 @@
 ARG NAMESPACE=selenium
 ARG VERSION=latest
 ARG BASE=node-base
-FROM ${NAMESPACE}/${BASE}:${VERSION}
+FROM --platform=linux/amd64 ${NAMESPACE}/${BASE}:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
 

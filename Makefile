@@ -286,20 +286,14 @@ ffmpeg:
 	cd ./.ffmpeg && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg FFMPEG_VERSION=$(FFMPEG_VERSION) $(FROM_IMAGE_ARGS) -t $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) .
 
 all_browsers: node_base
-	case "$(PLATFORMS)" in \
-    *linux/amd64*) \
-			cd ./NodeFirefox && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
-			cd .. ; \
-			cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
-			cd .. ; \
-			cd ./NodeEdge && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
-      ;; \
-    *) \
-			cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
-			cd .. ; \
-			cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
-      ;; \
-  esac
+	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd .. ; \
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd .. ; \
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd .. ; \
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd .. ;
 
 standalone_all_browsers: all_browsers
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/standalone-all-browsers:$(TAG_VERSION) .
