@@ -1,21 +1,21 @@
 ```
-./tag_and_push_browser_images.sh 4.35.0 20250808 selenium false chrome true
-Tagging images for browser chrome, version 4.35.0, build date 20250808, namespace selenium
-Selenium Grid version -> 4.35.0-20250808
+./tag_and_push_browser_images.sh 4.35.0 20250828 selenium false chrome true
+Tagging images for browser chrome, version 4.35.0, build date 20250828, namespace selenium
+Selenium Grid version -> 4.35.0-20250828
 Chrome version -> 132.0.6834.159
 Short Chrome version -> 132.0
 ChromeDriver version -> 132.0.6834.159
 Short ChromeDriver version -> 132.0
-Tagged selenium/node-chrome:132.0.6834.159-chromedriver-132.0.6834.159-grid-4.35.0-20250808
-Tagged selenium/standalone-chrome:132.0.6834.159-chromedriver-132.0.6834.159-grid-4.35.0-20250808
-Tagged selenium/node-chrome:132.0.6834.159-chromedriver-132.0.6834.159-20250808
-Tagged selenium/standalone-chrome:132.0.6834.159-chromedriver-132.0.6834.159-20250808
-Tagged selenium/node-chrome:132.0.6834.159-20250808
-Tagged selenium/standalone-chrome:132.0.6834.159-20250808
-Tagged selenium/node-chrome:132.0-chromedriver-132.0-grid-4.35.0-20250808
-Tagged selenium/standalone-chrome:132.0-chromedriver-132.0-grid-4.35.0-20250808
-Tagged selenium/node-chrome:132.0-chromedriver-132.0-20250808
-Tagged selenium/standalone-chrome:132.0-chromedriver-132.0-20250808
-Tagged selenium/node-chrome:132.0-20250808
-Tagged selenium/standalone-chrome:132.0-20250808
+Tagged selenium/node-chrome:132.0.6834.159-chromedriver-132.0.6834.159-grid-4.35.0-20250828
+Tagged selenium/standalone-chrome:132.0.6834.159-chromedriver-132.0.6834.159-grid-4.35.0-20250828
+Tagged selenium/node-chrome:132.0.6834.159-chromedriver-132.0.6834.159-20250828
+Tagged selenium/standalone-chrome:132.0.6834.159-chromedriver-132.0.6834.159-20250828
+Tagged selenium/node-chrome:132.0.6834.159-20250828
+Tagged selenium/standalone-chrome:132.0.6834.159-20250828
+Tagged selenium/node-chrome:132.0-chromedriver-132.0-grid-4.35.0-20250828
+Tagged selenium/standalone-chrome:132.0-chromedriver-132.0-grid-4.35.0-20250828
+Tagged selenium/node-chrome:132.0-chromedriver-132.0-20250828
+Tagged selenium/standalone-chrome:132.0-chromedriver-132.0-20250828
+Tagged selenium/node-chrome:132.0-20250828
+Tagged selenium/standalone-chrome:132.0-20250828
 ```
