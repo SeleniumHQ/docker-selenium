@@ -46,7 +46,7 @@ USER ${SEL_UID}
 RUN mkdir -p /opt/selenium/browsers/chrome \
     && echo "chrome" > /opt/selenium/browsers/chrome/name \
     && chromium --version | awk '{print $2}' > /opt/selenium/browsers/chrome/version \
-    && echo '{"goog:chromeOptions": {"binary": "/usr/bin/chromium"}}' > /opt/selenium/browsers/chrome/binary_location
+    && echo '{"goog:chromeOptions": {"binary": "${SE_BROWSER_BINARY_LOCATION:-/usr/bin/chromium}"}}' > /opt/selenium/browsers/chrome/binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-chrome" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

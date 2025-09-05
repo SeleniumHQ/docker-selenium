@@ -144,16 +144,17 @@ if [ -d "/opt/selenium/browsers" ]; then
 			if [ -f "${browser_dir}version" ] && [ "${SE_NODE_BROWSER_VERSION,,}" = "stable" ]; then
 				SE_NODE_BROWSER_VERSION=$(short_version "$(cat "${browser_dir}version")")
 			fi
-			if [ -f "${browser_dir}binary_location" ] && [ -z "${SE_BROWSER_BINARY_LOCATION}" ]; then
-				SE_BROWSER_BINARY_LOCATION=$(cat "${browser_dir}binary_location")
+			if [ -f "${browser_dir}binary_location" ]; then
+				BINARY_LOCATION=$(cat "${browser_dir}binary_location")
+				BINARY_LOCATION=$(echo "$BINARY_LOCATION" | SE_BROWSER_BINARY_LOCATION=${SE_BROWSER_BINARY_LOCATION} envsubst)
 			fi
 			SE_NODE_CONTAINER_NAME="${SE_NODE_CONTAINER_NAME:-$(hostname)}"
 
 			# 'browserName' is mandatory for default stereotype
 			if [[ -z "${SE_NODE_STEREOTYPE}" ]] && [[ -n "${SE_NODE_BROWSER_NAME}" ]] && ([[ -z "${SE_NODE_RELAY_URL}" ]] || [[ "${SE_NODE_RELAY_ONLY}" = "false" ]]); then
 				SE_NODE_STEREOTYPE="{\"browserName\": \"${SE_NODE_BROWSER_NAME}\", \"browserVersion\": \"${SE_NODE_BROWSER_VERSION}\", \"platformName\": \"${SE_NODE_PLATFORM_NAME}\", \"se:containerName\": \"${SE_NODE_CONTAINER_NAME}\", \"container:hostname\": \"$(hostname)\"}"
-				if [[ -n "${SE_BROWSER_BINARY_LOCATION}" ]]; then
-					SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${SE_BROWSER_BINARY_LOCATION}")"
+				if [[ -n "${BINARY_LOCATION}" ]]; then
+					SE_NODE_STEREOTYPE="$(python3 /opt/bin/json_merge.py "${SE_NODE_STEREOTYPE}" "${BINARY_LOCATION}")"
 				fi
 			else
 				SE_NODE_STEREOTYPE="${SE_NODE_STEREOTYPE}"

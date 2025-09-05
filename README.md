@@ -47,6 +47,7 @@ Talk to us at https://www.selenium.dev/support/
 * [Dev and Beta Channel Browser Images](#dev-and-beta-channel-browser-images)
   * [Dev and Beta Standalone Mode](#dev-and-beta-standalone-mode)
   * [Dev and Beta on the Grid](#dev-and-beta-on-the-grid)
+* [Single Node/Standalone Image With All Browsers](#single-nodestandalone-image-with-all-browsers)
 * [Environment Variables](#environment-variables)
 * [Execution modes](#execution-modes)
   * [Standalone](#standalone)
@@ -159,16 +160,6 @@ The following browsers are available in multi-arch images:
 |    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |  ✅   |
 | aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |  ❌   |
 | armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |  ❌   |
-
-
-Accordingly, browsers are available in images `selenium/node-all-browsers` and `selenium/standalone-all-browsers` would be different per architecture.
-
-| Browser / Arch | x86_64 (aka amd64) | aarch64 (aka arm64/armv8) |
-|----------------|--------------------|---------------------------|
-| Chrome         | ✅                  | ❌                         |
-| Edge           | ✅                  | ❌                         |
-| Firefox        | ✅                  | ✅                         |
-| Chromium       | ❌                  | ✅                         |
 
 Note:
 
@@ -373,6 +364,26 @@ services:
 ```
 
 For more information on the Dev and Beta channel container images, see the blog post on [Dev and Beta Channel Browsers via Docker Selenium](https://www.selenium.dev/blog/2022/dev-and-beta-channel-browsers-via-docker-selenium/).
+
+## Single Node/Standalone Image With All Browsers
+
+From image tag `4.35.0` onwards, a single Node/Standalone image is available with all browsers are pre-installed. Those images are `selenium/standalone-all-browsers` (standalone all in one), `selenium/node-all-browsers` (for Hub-Node mode).
+
+These two images are suitable for users:
+- Prefer a single container with "all-in-one" includes Selenium Grid and popular browsers.
+- Don't care about the image size, prefer the convenience.
+- Lightweight workload, able to figure out for yourself the resource consumption.
+
+According to multi-arch support, browsers are available in images `selenium/node-all-browsers` and `selenium/standalone-all-browsers` would be different per architecture.
+
+| Browser / Arch | x86_64 (aka amd64) | aarch64 (aka arm64/armv8) |
+|----------------|--------------------|---------------------------|
+| Chrome         | ✅                  | ❌                         |
+| Edge           | ✅                  | ❌                         |
+| Firefox        | ✅                  | ✅                         |
+| Chromium       | ✅                  | ✅                         |
+
+Both Chrome and Chromium browser binary are available in image arch `linux/amd64`. However, Chrome browser binary is activated by default. In case you want to switch to Chromium browser binary, you can set environment variable `SE_BROWSER_BINARY_LOCATION_CHROME=/usr/bin/chromium`.
 
 ## Environment Variables
 

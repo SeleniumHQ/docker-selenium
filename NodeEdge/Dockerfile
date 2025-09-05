@@ -69,7 +69,7 @@ USER ${SEL_UID}
 RUN mkdir -p /opt/selenium/browsers/edge \
     && echo "MicrosoftEdge" > /opt/selenium/browsers/edge/name \
     && microsoft-edge --version | awk '{print $3}' > /opt/selenium/browsers/edge/version \
-    && echo '{"ms:edgeOptions": {"binary": "/usr/bin/microsoft-edge"}}' > /opt/selenium/browsers/edge/binary_location
+    && echo '{"ms:edgeOptions": {"binary": "${SE_BROWSER_BINARY_LOCATION:-/usr/bin/microsoft-edge}"}}' > /opt/selenium/browsers/edge/binary_location
 
 ENV SE_OTEL_SERVICE_NAME="selenium-node-edge" \
     SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"

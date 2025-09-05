@@ -110,8 +110,8 @@
 | SE_NODE_MAX_SESSIONS | 1 |  |  |
 | SE_NODE_OVERRIDE_MAX_SESSIONS | false |  |  |
 | SE_OFFLINE | true | Selenium Manager offline mode, use the browser and driver pre-configured in the image |  |
-| SE_NODE_BROWSER_VERSION | stable | Overwrite the default browserVersion in Node stereotype |  |
-| SE_NODE_PLATFORM_NAME | Linux | Overwrite the default platformName in Node stereotype |  |
+| SE_NODE_BROWSER_VERSION | stable | Overwrite the default browserVersion in Node stereotype. By default, it is short version of current browser installed in Node. For example `139.0` |  |
+| SE_NODE_PLATFORM_NAME | Linux | Overwrite the default platformName in Node stereotype. By default, it is `Linux` |  |
 | SE_SUPERVISORD_LOG_LEVEL | info |  |  |
 | SE_SUPERVISORD_CHILD_LOG_DIR | /tmp |  |  |
 | SE_SUPERVISORD_LOG_FILE | /tmp/supervisord.log |  |  |
@@ -119,9 +119,9 @@
 | SE_SUPERVISORD_START_RETRIES | 5 |  |  |
 | SE_RECORD_AUDIO | false | Flag to enable recording the audio source (default is Pulse Audio input) |  |
 | SE_AUDIO_SOURCE | -f pulse -ac 2 -i default | FFmpeg arguments to record the audio source |  |
-| SE_BROWSER_BINARY_LOCATION |  |  |  |
+| SE_BROWSER_BINARY_LOCATION |  | Browser binary location set to Node driver configuration. This helpful in case you customize on top of official Docker image to install another browser in other path and still using GENERATE_CONFIG=true (where enforce detect-drivers = false and controlled by our config logic). By default in corresponding browser, default path would be `/usr/bin/google-chrome`, `/usr/bin/chromium`, `/usr/bin/firefox`, `/usr/bin/microsoft-edge`. Example usage: `SE_BROWSER_BINARY_LOCATION=/opt/google-chrome` |  |
 | SE_NODE_BROWSER_NAME |  |  |  |
-| SE_NODE_CONTAINER_NAME |  |  |  |
+| SE_NODE_CONTAINER_NAME |  | Set a unique name to identify the Node is running in which container (via session capabilities `se:containerName`). This is helpful when deploying Node in Kubernetes cluster, where is able to use metadata pod name set to this env variable. By default, it is the `$(hostname)` (a.k.a container id could be seen via `docker ps`) |  |
 | SE_NODE_HOST |  |  |  |
 | SE_NODE_RELAY_BROWSER_NAME |  |  |  |
 | SE_NODE_RELAY_MAX_SESSIONS |  |  |  |
@@ -131,7 +131,7 @@
 | SE_NODE_RELAY_STATUS_ENDPOINT |  |  |  |
 | SE_NODE_RELAY_URL |  |  |  |
 | SE_NODE_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node stereotype |  |
-| SE_NODE_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node stereotype |  |
+| SE_NODE_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node stereotype. This is helpful when you want to retain the default Node stereotype and append additional capabilities. Example usage `SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}` |  |
 | SE_SESSIONS_MAP_EXTERNAL_HOSTNAME |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD |  |  |  |

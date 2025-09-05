@@ -339,10 +339,12 @@
     in the image
   cli: ''
 - name: SE_NODE_BROWSER_VERSION
-  description: Overwrite the default browserVersion in Node stereotype
+  description: Overwrite the default browserVersion in Node stereotype. By default,
+    it is short version of current browser installed in Node. For example `139.0`
   cli: ''
 - name: SE_NODE_PLATFORM_NAME
-  description: Overwrite the default platformName in Node stereotype
+  description: Overwrite the default platformName in Node stereotype. By default,
+    it is `Linux`
   cli: ''
 - name: SE_SUPERVISORD_LOG_LEVEL
   description: ''
@@ -366,13 +368,22 @@
   description: FFmpeg arguments to record the audio source
   cli: ''
 - name: SE_BROWSER_BINARY_LOCATION
-  description: ''
+  description: 'Browser binary location set to Node driver configuration. This helpful
+    in case you customize on top of official Docker image to install another browser
+    in other path and still using GENERATE_CONFIG=true (where enforce detect-drivers
+    = false and controlled by our config logic). By default in corresponding browser,
+    default path would be `/usr/bin/google-chrome`, `/usr/bin/chromium`, `/usr/bin/firefox`,
+    `/usr/bin/microsoft-edge`. Example usage: `SE_BROWSER_BINARY_LOCATION=/opt/google-chrome`'
   cli: ''
 - name: SE_NODE_BROWSER_NAME
   description: ''
   cli: ''
 - name: SE_NODE_CONTAINER_NAME
-  description: ''
+  description: Set a unique name to identify the Node is running in which container
+    (via session capabilities `se:containerName`). This is helpful when deploying
+    Node in Kubernetes cluster, where is able to use metadata pod name set to this
+    env variable. By default, it is the `$(hostname)` (a.k.a container id could be
+    seen via `docker ps`)
   cli: ''
 - name: SE_NODE_HOST
   description: ''
@@ -403,7 +414,8 @@
   cli: ''
 - name: SE_NODE_STEREOTYPE_EXTRA
   description: Extra capabilities in JSON string that wants to merge to the default
-    Node stereotype
+    Node stereotype. This is helpful when you want to retain the default Node stereotype
+    and append additional capabilities. Example usage `SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}`
   cli: ''
 - name: SE_SESSIONS_MAP_EXTERNAL_HOSTNAME
   description: ''
