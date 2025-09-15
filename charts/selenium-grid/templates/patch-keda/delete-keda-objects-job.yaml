@@ -37,7 +37,7 @@ spec:
           resources: {{ toYaml . | nindent 12 }}
         {{- end }}
         {{- with $.Values.autoscaling.patchObjectFinalizers.tolerations  }}
-          tolerations : {{ toYaml . | nindent 8 }}
+          tolerations : {{ toYaml . | nindent 12 }}
         {{- end }}
       volumes:
         - name: cleanup-script
