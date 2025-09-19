@@ -169,7 +169,7 @@ Is ingress enabled
 {{- end -}}
 
 {{/*
-Is ingress enabled
+Is monitoring enabled
 */}}
 {{- define "seleniumGrid.monitoring.enabled" -}}
 {{- or .Values.monitoring.enabled .Values.monitoring.enabledWithExistingAgent | ternary "true" "" -}}
