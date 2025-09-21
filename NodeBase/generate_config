@@ -122,6 +122,10 @@ else
 fi
 echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
+# Validate SE_NODE_MAX_SESSIONS is a positive integer
+if [[ "${SE_NODE_MAX_SESSIONS}" =~ ^[0-9]+$ ]] && [[ "${SE_NODE_MAX_SESSIONS}" -gt 0 ]]; then
+  echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
+fi
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"
 echo "" >>"$FILENAME"
@@ -174,10 +178,6 @@ if [ -d "/opt/selenium/browsers" ]; then
 				echo "[[node.driver-configuration]]" >>"$FILENAME"
 				echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >>"$FILENAME"
 				echo "stereotype = '${SE_NODE_STEREOTYPE}'" >>"$FILENAME"
-				# Validate SE_NODE_MAX_SESSIONS is a positive integer
-				if [[ "${SE_NODE_MAX_SESSIONS}" =~ ^[0-9]+$ ]] && [[ "${SE_NODE_MAX_SESSIONS}" -gt 0 ]]; then
-					echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
-				fi
 				echo "" >>"$FILENAME"
 			fi
 
