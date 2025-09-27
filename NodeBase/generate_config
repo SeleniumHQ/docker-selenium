@@ -124,7 +124,7 @@ echo "session-timeout = ${SE_NODE_SESSION_TIMEOUT}" >>"$FILENAME"
 echo "override-max-sessions = ${SE_NODE_OVERRIDE_MAX_SESSIONS}" >>"$FILENAME"
 # Validate SE_NODE_MAX_SESSIONS is a positive integer
 if [[ "${SE_NODE_MAX_SESSIONS}" =~ ^[0-9]+$ ]] && [[ "${SE_NODE_MAX_SESSIONS}" -gt 0 ]]; then
-  echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
+	echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
 fi
 echo "detect-drivers = false" >>"$FILENAME"
 echo "drain-after-session-count = ${DRAIN_AFTER_SESSION_COUNT:-$SE_DRAIN_AFTER_SESSION_COUNT}" >>"$FILENAME"
