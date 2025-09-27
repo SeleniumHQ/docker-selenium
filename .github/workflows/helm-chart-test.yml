@@ -62,7 +62,7 @@ jobs:
           - k8s-version: 'v1.34.1'
             cluster: 'minikube'
             helm-version: 'v3.18.6'
-            docker-version: '28.3.3'
+            docker-version: '28.4.0'
             python-version: '3.9'
             test-upgrade: true
             service-mesh: false
@@ -72,7 +72,7 @@ jobs:
           - k8s-version: 'v1.28.15'
             cluster: 'minikube'
             helm-version: 'v3.13.3'
-            docker-version: '26.1.4'
+            docker-version: '27.5.1'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
@@ -102,7 +102,7 @@ jobs:
           - k8s-version: 'v1.31.12'
             cluster: 'minikube'
             helm-version: 'v3.16.4'
-            docker-version: '27.4.1'
+            docker-version: '27.5.1'
             python-version: '3.13'
             test-upgrade: true
             service-mesh: false
@@ -112,7 +112,7 @@ jobs:
           - k8s-version: 'v1.32.9'
             cluster: 'minikube'
             helm-version: 'v3.17.4'
-            docker-version: '26.1.4'
+            docker-version: '27.5.1'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: false
@@ -122,7 +122,7 @@ jobs:
           - k8s-version: 'v1.33.5'
             cluster: 'minikube'
             helm-version: 'v3.18.6'
-            docker-version: '26.1.4'
+            docker-version: '27.5.1'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true
