@@ -168,9 +168,9 @@ COPY supervisord.conf /etc
 #===================================================
 # Add the default self-signed certificate to the bundle CA
 #===================================================
-ARG CERT_TRUST_ATTR=TCu,Cu,Tu
+#ARG CERT_TRUST_ATTR=TCu,Cu,Tu
 COPY --chown="${SEL_UID}:${SEL_GID}" certs/add-cert-helper.sh certs/add-jks-helper.sh /opt/bin/
-COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jks certs/server.pass /opt/selenium/secrets/
+#COPY --chown="${SEL_UID}:${SEL_GID}" certs/tls.crt certs/tls.key certs/server.jks certs/server.pass /opt/selenium/secrets/
 
 #===================================================
 # Add envsubst binary
@@ -194,8 +194,8 @@ RUN python3 -m venv $VENV_PATH \
     && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
     && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
 
-RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
-    && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
+#RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
+#    && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
 #======================================
 # Configure environement
 #======================================

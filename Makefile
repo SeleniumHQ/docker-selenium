@@ -138,8 +138,8 @@ prepare_resources:
 	rm -rf ./Base/configs/node && mkdir -p ./Base/configs/node && cp -r ./charts/selenium-grid/configs/node ./Base/configs
 
 gen_certs:
-	rm -rf ./Base/certs && cp -r ./charts/selenium-grid/certs ./Base
-	./Base/certs/gen-cert-helper.sh -d ./Base/certs
+	rm -rf ./Base/certs && mkdir -p ./Base/certs && cp -r ./charts/selenium-grid/certs/*.sh ./Base/certs
+	# ./Base/certs/gen-cert-helper.sh -d ./Base/certs
 
 base: prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
@@ -297,9 +297,11 @@ all_browsers: node_base
 	cd .. ; \
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
 	cd .. ; \
-	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || true ; \
 	cd .. ; \
-	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || true ; \
+	cd .. ; \
+	cd ./NodeAllBrowsers && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
 	cd .. ;
 
 standalone_all_browsers: all_browsers
