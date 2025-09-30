@@ -13,7 +13,7 @@ global:
     # -- Image tag for browser's video recorder
     videoImageTag: ffmpeg-8.0-20250909
     # -- kubectl image is used to execute kubectl commands in utility jobs
-    kubectlImage: bitnami/kubectl:latest
+    kubectlImage: bitnamilegacy/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
     imagePullSecret: ""
     # -- Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging
@@ -1055,7 +1055,7 @@ autoscaling:
     # -- Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists
     enabled: true
     # -- Deadline (in seconds) for patch job to complete
-    activeDeadlineSeconds: 300
+    activeDeadlineSeconds: 600
     # -- Annotations for patch job
     annotations:
       "helm.sh/hook": post-install,post-upgrade,post-rollback,pre-delete
@@ -2248,6 +2248,8 @@ jaeger:
 postgresql:
   # -- Enable to install PostgreSQL along with Grid
   enabled: false
+  image:
+    repository: bitnamilegacy/postgresql
   # -- Authentication should be aligned with config in session map
   auth:
     username: "seluser"
@@ -2270,6 +2272,8 @@ postgresql:
 redis:
   # -- Enable to install Redis along with Grid
   enabled: false
+  image:
+    repository: bitnamilegacy/redis
   # -- Setup architecture
   architecture: standalone
   auth:

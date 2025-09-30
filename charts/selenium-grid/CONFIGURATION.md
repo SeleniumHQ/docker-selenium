@@ -34,7 +34,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.imageTag | string | `"4.35.0-20250909"` | Image tag for all selenium components |
 | global.seleniumGrid.nodesImageTag | string | `"4.35.0-20250909"` | Image tag for browser's nodes |
 | global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.0-20250909"` | Image tag for browser's video recorder |
-| global.seleniumGrid.kubectlImage | string | `"bitnami/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
+| global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
 | global.seleniumGrid.defaultNodeStartupProbe | string | `"exec"` | Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
@@ -402,7 +402,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback","helm.sh/hook-weight":"1"}` | Annotations for KEDA resources: ScaledObject and ScaledJob |
 | autoscaling.patchObjectFinalizers.nameOverride | string | `nil` | Override the name of the patch job |
 | autoscaling.patchObjectFinalizers.enabled | bool | `true` | Enable patching finalizers for KEDA scaled resources. Workaround for Hook post-upgrade selenium-grid/templates/x-node-hpa.yaml failed: object is being deleted: scaledobjects.keda.sh "x" already exists |
-| autoscaling.patchObjectFinalizers.activeDeadlineSeconds | int | `300` | Deadline (in seconds) for patch job to complete |
+| autoscaling.patchObjectFinalizers.activeDeadlineSeconds | int | `600` | Deadline (in seconds) for patch job to complete |
 | autoscaling.patchObjectFinalizers.annotations | object | `{"helm.sh/hook":"post-install,post-upgrade,post-rollback,pre-delete","helm.sh/hook-delete-policy":"hook-succeeded,before-hook-creation"}` | Annotations for patch job |
 | autoscaling.patchObjectFinalizers.deleteObjectsScript | string | `""` | Define your custom script to replace the default script |
 | autoscaling.patchObjectFinalizers.patchFinalizersScript | string | `""` | Define your custom script to replace the default script |
@@ -749,9 +749,11 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"prometheus":{"prometheusSpec":{"additionalConfig":{"additionalScrapeConfigs":{"key":"{{ template \"seleniumGrid.monitoring.scrape.key\" $ }}","name":"{{ template \"seleniumGrid.monitoring.exporter.fullname\" $ }}"}}}},"prometheusOperator":{"admissionWebhooks":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"agent":{"enabled":false},"allInOne":{"enabled":true,"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"collector":{"enabled":false},"provisionDataStore":{"cassandra":false},"query":{"enabled":false},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
+| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
 | postgresql.primary.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
 | redis.enabled | bool | `false` | Enable to install Redis along with Grid |
+| redis.image.repository | string | `"bitnamilegacy/redis"` |  |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
 
