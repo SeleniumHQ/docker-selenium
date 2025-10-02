@@ -28,7 +28,8 @@ function backup_original_env_vars() {
 
 		# Backup original value if not already backed up
 		if [[ -z "${!backup_var}" ]] && [[ -n "${!common_var}" ]]; then
-			eval "${backup_var}=\"${!common_var}\""
+			# Use printf -v to avoid eval and preserve quotes verbatim
+			printf -v "$backup_var" '%s' "${!common_var}"
 			echo "Backed up original ${common_var}=${!common_var} to ${backup_var}"
 		fi
 	done
@@ -43,11 +44,11 @@ function restore_original_env_vars() {
 
 		# Restore original value if backup exists
 		if [[ -n "${!backup_var}" ]]; then
-			eval "${common_var}=\"${!backup_var}\""
+			printf -v "$common_var" '%s' "${!backup_var}"
 			echo "Restored original ${backup_var}=${!backup_var} to ${common_var}"
 		else
 			# Clear the variable if no backup exists
-			eval "${common_var}=\"\""
+			printf -v "$common_var" '%s' ""
 			echo "Cleared ${common_var} (no original backup)"
 		fi
 	done
@@ -64,12 +65,12 @@ function assign_browser_specific_env_vars() {
 
 		# Check if the browser-specific environment variable exists
 		if [[ -n "${!browser_specific_var}" ]]; then
-			# Assign the browser-specific value to the common variable
-			eval "${common_var}=\"${!browser_specific_var}\""
+			# Assign the browser-specific value to the common variable, preserving quotes
+			printf -v "$common_var" '%s' "${!browser_specific_var}"
 			echo "Assigned ${browser_specific_var}=${!browser_specific_var} to ${common_var}"
 		elif [[ -n "${!backup_var}" ]]; then
 			# Inherit original value if browser-specific value is not set
-			eval "${common_var}=\"${!backup_var}\""
+			printf -v "$common_var" '%s' "${!backup_var}"
 			echo "Inherited original ${backup_var}=${!backup_var} to ${common_var}"
 		fi
 	done
@@ -178,6 +179,10 @@ if [ -d "/opt/selenium/browsers" ]; then
 				echo "[[node.driver-configuration]]" >>"$FILENAME"
 				echo "display-name = \"${SE_NODE_BROWSER_NAME}\"" >>"$FILENAME"
 				echo "stereotype = '${SE_NODE_STEREOTYPE}'" >>"$FILENAME"
+				# Validate SE_NODE_MAX_SESSIONS is a positive integer
+				if [[ "${SE_NODE_MAX_SESSIONS}" =~ ^[0-9]+$ ]] && [[ "${SE_NODE_MAX_SESSIONS}" -gt 0 ]]; then
+					echo "max-sessions = ${SE_NODE_MAX_SESSIONS}" >>"$FILENAME"
+				fi
 				echo "" >>"$FILENAME"
 			fi
 
