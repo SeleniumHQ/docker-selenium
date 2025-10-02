@@ -155,55 +155,12 @@ jobs:
           if-no-files-found: ignore
 
   pr-results:
-    name: Create a PR with changelog
     if: (!failure() && !cancelled() && (github.event.inputs.pr-changelog == 'true'))
-    runs-on: ubuntu-24.04
+    uses: ./.github/workflows/create-changelog-pr.yml
     needs: deploy
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@main
-        with:
-          persist-credentials: false
-          ref: browser-node-changelog
-          fetch-depth: 0
-      - name: Get Grid version
-        run: |
-          echo "GRID_VERSION=${GRID_VERSION}" >> $GITHUB_ENV
-        env:
-          GRID_VERSION: ${{ needs.deploy.outputs.GRID_VERSION }}
-      - name: Create CHANGELOG directory
-        run: mkdir -p ./CHANGELOG/${{ env.GRID_VERSION }}
-      - name: Fetch latest version
-        run: make update_browser_versions_matrix
-      - name: Download results
-        uses: actions/download-artifact@v5
-        with:
-          path: ./CHANGELOG/${{ env.GRID_VERSION }}
-          pattern: 'image_tags_*'
-          merge-multiple: 'true'
-          run-id: ${{ env.RUN_ID }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Commit configs
-        run: |
-          git config --local user.email "selenium-ci@users.noreply.github.com"
-          git config --local user.name "Selenium CI Bot"
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@main
-        with:
-          token: ${{ secrets.SELENIUM_CI_TOKEN }}
-          commit-message: |
-            [ci] Upload CHANGELOG for Node/Standalone ${{ env.BROWSER_NAME }} version with Grid ${{ env.GRID_VERSION }}
-            
-            Browser versions: ${{ github.event.inputs.browser-versions }}
-          title: "[ci] CHANGELOG for Node/Standalone browser versions with Grid ${{ env.GRID_VERSION }}"
-          body: "This PR contains the CHANGELOG for Node/Standalone with backward browser versions"
-          committer: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
-          author: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
-          branch: browser-node-changelog
-          base: trunk
-      - name: Check outputs
-        if: ${{ steps.cpr.outputs.pull-request-number }}
-        run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+    with:
+      grid-version: ${{ needs.deploy.outputs.GRID_VERSION }}
+      browser-name: ${{ github.event.inputs.browser-name }}
+      browser-versions: ${{ github.event.inputs.browser-versions }}
+      run-id: ${{ github.run_id }}
+    secrets: inherit

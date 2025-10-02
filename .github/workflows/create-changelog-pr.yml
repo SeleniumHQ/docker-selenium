@@ -1,0 +1,86 @@
+name: Create changelog PR
+
+on:
+  workflow_call:
+    inputs:
+      grid-version:
+        required: true
+        type: string
+      browser-name:
+        required: true
+        type: string
+      browser-versions:
+        required: true
+        type: string
+      run-id:
+        required: true
+        type: string
+
+jobs:
+  pr-results:
+    name: Create a PR with changelog
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check existing PR
+        id: check-pr
+        run: |
+          PR_NUMBER=$(gh pr list --base trunk --head browser-node-changelog --json number --jq '.[0].number')
+          if [ "$PR_NUMBER" != "null" ] && [ -n "$PR_NUMBER" ]; then
+            echo "pr-exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "pr-exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout PR branch
+        if: steps.check-pr.outputs.pr-exists == 'true'
+        run: |
+          git checkout browser-node-changelog
+      - name: Create CHANGELOG directory
+        run: mkdir -p ./CHANGELOG/${{ inputs.grid-version }}
+      - name: Fetch latest version
+        run: make update_browser_versions_matrix
+      - name: Download results
+        uses: actions/download-artifact@v5
+        with:
+          path: ./CHANGELOG/${{ inputs.grid-version }}
+          pattern: 'image_tags_*'
+          merge-multiple: 'true'
+          run-id: ${{ inputs.run-id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit configs
+        run: |
+          git config --local user.email "selenium-ci@users.noreply.github.com"
+          git config --local user.name "Selenium CI Bot"
+          git add .
+          git commit -m "[ci] Upload CHANGELOG for Node/Standalone ${{ inputs.browser-name }} version with Grid ${{ inputs.grid-version }}" || exit 0
+      - name: Commit & Push changes
+        if: steps.check-pr.outputs.pr-exists == 'true'
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          author_email: "selenium-ci@users.noreply.github.com"
+          author_name: "Selenium CI Bot"
+          message: "[ci] Upload CHANGELOG for Node/Standalone ${{ inputs.browser-name }} version with Grid ${{ inputs.grid-version }}"
+          empty: true
+          rebase: true
+          branch: "browser-node-changelog"
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.pr-exists == 'false'
+        uses: peter-evans/create-pull-request@main
+        with:
+          token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          commit-message: |
+            [ci] Upload CHANGELOG for Node/Standalone ${{ inputs.browser-name }} version with Grid ${{ inputs.grid-version }}
+            
+            Browser versions: ${{ inputs.browser-versions }}
+          title: "[ci] CHANGELOG for Node/Standalone browser versions with Grid ${{ inputs.grid-version }}"
+          body: "This PR contains the CHANGELOG for Node/Standalone with backward browser versions"
+          committer: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          author: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          branch: browser-node-changelog
