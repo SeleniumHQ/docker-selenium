@@ -1,4 +1,4 @@
-FROM ubuntu:noble@sha256:fdb6c9ceb1293dcb0b7eda5df195b15303b01857d7b10f98489e7691d20aa2a1
+FROM ubuntu:noble@sha256:728785b59223d755e3e5c5af178fab1be7031f3522c5ccd7a0b32b80d8248123
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
