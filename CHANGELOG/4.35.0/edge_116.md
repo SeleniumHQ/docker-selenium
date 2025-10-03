@@ -1,21 +1,21 @@
 ```
-./tag_and_push_browser_images.sh 4.35.0 20250828 selenium false edge true
-Tagging images for browser edge, version 4.35.0, build date 20250828, namespace selenium
-Selenium Grid version -> 4.35.0-20250828
+./tag_and_push_browser_images.sh 4.35.0 20250909 selenium false edge true
+Tagging images for browser edge, version 4.35.0, build date 20250909, namespace selenium
+Selenium Grid version -> 4.35.0-20250909
 Edge version -> 116.0.1938.81
 Short Edge version -> 116.0
 EdgeDriver version -> 116.0.1938.81
 Short EdgeDriver version -> 116.0
-Tagged selenium/node-edge:116.0.1938.81-edgedriver-116.0.1938.81-grid-4.35.0-20250828
-Tagged selenium/standalone-edge:116.0.1938.81-edgedriver-116.0.1938.81-grid-4.35.0-20250828
-Tagged selenium/node-edge:116.0.1938.81-edgedriver-116.0.1938.81-20250828
-Tagged selenium/standalone-edge:116.0.1938.81-edgedriver-116.0.1938.81-20250828
-Tagged selenium/node-edge:116.0.1938.81-20250828
-Tagged selenium/standalone-edge:116.0.1938.81-20250828
-Tagged selenium/node-edge:116.0-edgedriver-116.0-grid-4.35.0-20250828
-Tagged selenium/standalone-edge:116.0-edgedriver-116.0-grid-4.35.0-20250828
-Tagged selenium/node-edge:116.0-edgedriver-116.0-20250828
-Tagged selenium/standalone-edge:116.0-edgedriver-116.0-20250828
-Tagged selenium/node-edge:116.0-20250828
-Tagged selenium/standalone-edge:116.0-20250828
+Tagged selenium/node-edge:116.0.1938.81-edgedriver-116.0.1938.81-grid-4.35.0-20250909
+Tagged selenium/standalone-edge:116.0.1938.81-edgedriver-116.0.1938.81-grid-4.35.0-20250909
+Tagged selenium/node-edge:116.0.1938.81-edgedriver-116.0.1938.81-20250909
+Tagged selenium/standalone-edge:116.0.1938.81-edgedriver-116.0.1938.81-20250909
+Tagged selenium/node-edge:116.0.1938.81-20250909
+Tagged selenium/standalone-edge:116.0.1938.81-20250909
+Tagged selenium/node-edge:116.0-edgedriver-116.0-grid-4.35.0-20250909
+Tagged selenium/standalone-edge:116.0-edgedriver-116.0-grid-4.35.0-20250909
+Tagged selenium/node-edge:116.0-edgedriver-116.0-20250909
+Tagged selenium/standalone-edge:116.0-edgedriver-116.0-20250909
+Tagged selenium/node-edge:116.0-20250909
+Tagged selenium/standalone-edge:116.0-20250909
 ```
