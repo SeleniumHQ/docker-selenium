@@ -43,8 +43,6 @@ jobs:
           git checkout browser-node-changelog
       - name: Create CHANGELOG directory
         run: mkdir -p ./CHANGELOG/${{ inputs.grid-version }}
-      - name: Fetch latest version
-        run: make update_browser_versions_matrix
       - name: Download results
         uses: actions/download-artifact@v5
         with:
@@ -53,6 +51,8 @@ jobs:
           merge-multiple: 'true'
           run-id: ${{ inputs.run-id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest version
+        run: make update_browser_versions_matrix
       - name: Commit & Push changes
         if: steps.check-pr.outputs.pr-exists == 'true'
         uses: actions-js/push@master
