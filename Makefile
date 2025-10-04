@@ -106,7 +106,8 @@ update_selenium_version_matrix: install_python_deps
 update_browser_versions_matrix: update_selenium_version_matrix
 	python3 tests/build-backward-compatible/fetch_firefox_version.py ; \
 	python3 tests/build-backward-compatible/fetch_version.py ; \
-	python3 tests/build-backward-compatible/update_workflow_versions.py
+	python3 tests/build-backward-compatible/update_workflow_versions.py ; \
+	python3 CHANGELOG/generate-matrix-readme.py
 
 lint_format_scripts: format_makefile format_shell_scripts format_python_scripts generate_readme_charts
 	git diff --stat --exit-code ; \
