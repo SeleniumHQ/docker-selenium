@@ -25,10 +25,12 @@ apt-get update -qqy
 
 # Install Chrome based on version specification
 if echo "${CHROME_VERSION}" | grep -qE "google-chrome-stable[_|=][0-9]*"; then
+  # This is version specific standard when install from apt repository e.g google-chrome-stable=121.0.6167.120-1
   # Install specific version
+  VERSION_NUMBER=$(echo "$CHROME_VERSION" | cut -d'=' -f2)
   CHROME_VERSION=$(echo "$CHROME_VERSION" | tr '=' '_')
-  echo "Installing specific Chrome version: ${CHROME_VERSION}"
-  wget -qO google-chrome.deb "https://mirror.cs.uchicago.edu/google-chrome/pool/main/g/google-chrome-stable/${CHROME_VERSION}_$(dpkg --print-architecture).deb"
+  echo "Installing specific Chrome version: ${VERSION_NUMBER}"
+  wget -qO google-chrome.deb "https://github.com/NDViet/google-chrome-stable/releases/download/${VERSION_NUMBER}/${CHROME_VERSION}_$(dpkg --print-architecture).deb"
   apt-get -qqy --no-install-recommends install --allow-downgrades ./google-chrome.deb
   rm -rf google-chrome.deb
 else

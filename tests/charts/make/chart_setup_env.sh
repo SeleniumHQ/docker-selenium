@@ -8,6 +8,7 @@ DOCKER_VERSION=${DOCKER_VERSION:-""}
 DOCKER_ENABLE_QEMU=${DOCKER_ENABLE_QEMU:-"true"}
 HELM_VERSION=${HELM_VERSION:-"latest"}
 KUBERNETES_VERSION=${KUBERNETES_VERSION:-$(curl -L -s https://dl.k8s.io/release/stable.txt)}
+INSTALL_DOCKER=${INSTALL_DOCKER:-"true"}
 
 # Function to be executed on command failure
 on_failure() {
@@ -15,6 +16,10 @@ on_failure() {
     echo "There is step failed with exit status $exit_status"
     exit $exit_status
 }
+
+if [[ "${INSTALL_DOCKER}" != "true" ]]; then
+    exit 0
+fi
 
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR

@@ -78,7 +78,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            make setup_dev_env
+            INSTALL_DOCKER=false make setup_dev_env
       - name: Output Docker info
         run: docker info
       - name: Set Selenium base version
