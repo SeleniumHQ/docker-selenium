@@ -171,7 +171,7 @@ node_base: base video
 	cd ./NodeBase && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=video --build-arg VERSION=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) --secret id=SEL_PASSWD -t $(NAME)/node-base:$(TAG_VERSION) .
 
 chrome_only:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Google Chrome is only supported on linux/amd64" \
 		&& cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) . \
@@ -193,7 +193,7 @@ chromium: node_base
 	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
 edge_only:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& cd ./NodeEdge && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-edge:$(TAG_VERSION) . \
@@ -242,7 +242,7 @@ standalone_firefox_beta: firefox_beta
 	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
 
 standalone_chrome_only:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Google Chrome is only supported on linux/amd64" \
 		&& cd ./Standalone && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) . \
@@ -266,7 +266,7 @@ standalone_chromium: chromium
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
 
 standalone_edge_only:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& cd ./Standalone && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-edge -t $(NAME)/standalone-edge:$(TAG_VERSION) . \
@@ -694,7 +694,7 @@ test: test_chrome \
 	test_standalone_all_browsers
 
 test_chrome:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Google Chrome is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome \
@@ -716,7 +716,7 @@ test_chrome_standalone:
 	esac
 
 test_chrome_standalone_java:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Google Chrome is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome \
@@ -727,7 +727,7 @@ test_chrome_standalone_java:
 	esac
 
 test_edge:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeEdge \
@@ -738,7 +738,7 @@ test_edge:
 	esac
 
 test_edge_standalone:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneEdge \
@@ -749,7 +749,7 @@ test_edge_standalone:
 	esac
 
 test_edge_standalone_java:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh edge standalone-edge \
@@ -783,7 +783,7 @@ test_chromium_standalone_java:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chromium
 
 test_node_all_browsers:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeAllEdge \
@@ -797,7 +797,7 @@ test_node_all_browsers:
 	./tests/bootstrap.sh NodeAllFirefox
 
 test_standalone_all_browsers:
-	case "$(PLATFORMS)" in \
+	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
 		echo "Microsoft Edge is only supported on linux/amd64" \
 		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneAllEdge \

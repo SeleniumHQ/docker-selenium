@@ -7,7 +7,7 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.54.0
+ARG OPENTELEMETRY_VERSION=1.54.1
 ARG GRPC_VERSION=1.75.0
 ARG NETTY_VERSION=4.2.6.Final
 ARG CS_VERSION=2.1.25-M18
@@ -143,6 +143,8 @@ RUN --mount=type=secret,id=SEL_PASSWD \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         io.opentelemetry:opentelemetry-exporter-otlp:${OPENTELEMETRY_VERSION} \
         io.grpc:grpc-netty:${GRPC_VERSION} \
+        io.netty:netty-handler-proxy:${NETTY_VERSION} \
+        io.netty:netty-parent:${NETTY_VERSION} \
         io.netty:netty-codec-http:${NETTY_VERSION} \
         io.netty:netty-codec-http2:${NETTY_VERSION} \
         io.netty:netty-codec:${NETTY_VERSION} \

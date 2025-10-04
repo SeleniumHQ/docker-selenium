@@ -78,7 +78,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            make setup_dev_env
+            INSTALL_DOCKER=false make setup_dev_env
       - name: Output Docker info
         run: docker info
       - name: Set Selenium base version
@@ -121,7 +121,9 @@ jobs:
           command: |
             make update_browser_versions_matrix
             ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE}
+            EXIT_CODE=$?
             cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+            exit $EXIT_CODE
       - name: Build Hub image for testing
         if: env.REUSE_BASE == 'false'
         run: make hub
