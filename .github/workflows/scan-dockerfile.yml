@@ -49,7 +49,7 @@ jobs:
           sarif_file: 'source-results.sarif'
       - name: Upload source scan results to GitHub Security tab
         if: github.event_name != 'pull_request'
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'source-results.sarif'
           category: source-results
