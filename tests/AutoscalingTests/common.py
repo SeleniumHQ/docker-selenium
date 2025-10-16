@@ -50,9 +50,11 @@ def get_pod_count():
 def create_session(browser_name):
     options = BROWSER[browser_name]
     options.set_capability("platformName", "Linux")
-    return webdriver.Remote(
+    driver = webdriver.Remote(
         command_executor=CLIENT_CONFIG.remote_server_addr, options=options, client_config=CLIENT_CONFIG
     )
+    print(f"Session created: {driver.session_id} ({browser_name})")
+    return driver
 
 
 def wait_for_count_matches(sessions, timeout=10, interval=5):

@@ -38,6 +38,7 @@ def run_browser_instance(browser, grid_url):
             command_executor=grid_url,
             options=options,
         )
+        print(f"Session created: {driver.session_id} ({browser})")
         driver.get('https://www.google.com/')
         print(driver.title)
         time.sleep(100)

@@ -36,8 +36,8 @@ TEST_MULTIPLE_VERSIONS = os.environ.get('TEST_MULTIPLE_VERSIONS', 'false').lower
 TEST_MULTIPLE_PLATFORMS = os.environ.get('TEST_MULTIPLE_PLATFORMS', 'false').lower() == 'true'
 TEST_MULTIPLE_PLATFORMS_RELAY = os.environ.get('TEST_MULTIPLE_PLATFORMS_RELAY', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICIT', 'true').lower() == 'true'
-LIST_CHROMIUM_VERSIONS = ['137.0', '136.0', '135.0', '134.0', '133.0', '132.0', '131.0']
-LIST_FIREFOX_VERSIONS = ['139.0', '138.0', '137.0', '136.0', '135.0', '134.0', '133.0']
+LIST_CHROMIUM_VERSIONS = ['140.0', '139.0', '138.0', '137.0', '136.0', '135.0', '134.0']
+LIST_FIREFOX_VERSIONS = ['142.0', '141.0', '140.0', '139.0', '138.0', '137.0', '136.0']
 LIST_PLATFORMS = ['Linux', None, 'Windows 11']
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
@@ -194,7 +194,7 @@ class ChromeTests(SeleniumGenericTests):
             )
             end_time = time.time()
             print(
-                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
@@ -243,7 +243,7 @@ class EdgeTests(SeleniumGenericTests):
             )
             end_time = time.time()
             print(
-                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
@@ -297,7 +297,7 @@ class FirefoxTests(SeleniumGenericTests):
             )
             end_time = time.time()
             print(
-                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s)"
+                f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
