@@ -630,10 +630,16 @@ instructions on top of it.
 
 #### Distributor configuration
 
-| Environment variable         | Option                      | Type    | Default value | Description                                                                                                  |
-|------------------------------|-----------------------------|---------|---------------|--------------------------------------------------------------------------------------------------------------|
-| `SE_REJECT_UNSUPPORTED_CAPS` | `--reject-unsupported-caps` | boolean | `false`       | Allow the Distributor to reject a request immediately if the Grid does not support the requested capability. |
-| `SE_HEALTHCHECK_INTERVAL`    | `--healthcheck-interval`    | int     | `120`         | This ensures the server can ping all the Nodes successfully after an interval.                               |
+| Environment variable           | Option                      | Type    | Default value | Description                                                                                                           |
+|--------------------------------|-----------------------------|---------|---------------|-----------------------------------------------------------------------------------------------------------------------|
+| `SE_REJECT_UNSUPPORTED_CAPS`   | `--reject-unsupported-caps` | boolean | `false`       | Allow the Distributor to reject a request immediately if the Grid does not support the requested capability.          |
+| `SE_HEALTHCHECK_INTERVAL`      | `--healthcheck-interval`    | int     | `120`         | This ensures the server can ping all the Nodes successfully after an interval.                                        |
+| `SE_DISTRIBUTOR_SLOT_SELECTOR` | `--slot-selector`           | string  | ``            | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. |
+
+Distributor component comes with two main built-in Slot Selector implementations
+* `org.openqa.selenium.grid.distributor.selector.DefaultSlotSelector`: Grid’s default strategy (used if you don’t configure anything else). It follows the balanced, least-recently-used approach described above. The `DefaultSlotSelector` will choose the Node that has been free for the longest time, ensuring no single node is overused when others are idle. This simple strategy has minimal overhead and works well for most general testing scenarios where an even distribution of sessions is desired.
+
+* `org.openqa.selenium.grid.distributor.selector.GreedySlotSelector`: An alternative built-in provided. The `GreedySlotSelector` aims to maximize node utilization by concentrating sessions on one node before using another. As noted, it will tend to fill up a node’s slots one by one, reducing the number of nodes that are partially utilized at any given time. This strategy is beneficial for resource-intensive or high-concurrency scenarios (for example, load testing or running in an environment where you scale nodes on demand). More insight, let's refer to [#2990](https://github.com/SeleniumHQ/docker-selenium/issues/2990).
 
 ___
 
