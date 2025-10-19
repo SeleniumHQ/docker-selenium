@@ -69,6 +69,10 @@ if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
+if [ ! -z "${SE_EVENT_BUS_HEARTBEAT_PERIOD}" ]; then
+  append_se_opts "--eventbus-heartbeat-period" "${SE_EVENT_BUS_HEARTBEAT_PERIOD}"
+fi
+
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
   # Configure truststore for the server
   if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then

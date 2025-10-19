@@ -40,7 +40,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.defaultNodeStartupProbe | string | `"exec"` | Set default startup probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.defaultNodeReadinessProbe | string | `"exec"` | Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.defaultNodeLivenessProbe | string | `"exec"` | Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
-| global.seleniumGrid.defaultComponentLivenessProbe | string | `"exec"` | Set default liveness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
+| global.seleniumGrid.defaultComponentLivenessProbe | string | `"httpGet"` | Set default liveness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet |
 | global.seleniumGrid.stdoutProbeLog | bool | `false` | Probe logs output can be retrieved using `kubectl logs`. Noted: this will not work if shareProcessNamespace is enabled |
 | global.seleniumGrid.revisionHistoryLimit | int | `10` | Specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background. |
 | global.seleniumGrid.structuredLogs | bool | `false` | Whether to enable structured logging |

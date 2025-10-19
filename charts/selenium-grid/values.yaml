@@ -25,7 +25,7 @@ global:
     # -- Set default readiness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
     defaultNodeLivenessProbe: exec
     # -- Set default liveness probe method for all nodes (supplied values: httpGet, exec). If not set, the default is httpGet
-    defaultComponentLivenessProbe: exec
+    defaultComponentLivenessProbe: httpGet
     # -- Probe logs output can be retrieved using `kubectl logs`. Noted: this will not work if shareProcessNamespace is enabled
     stdoutProbeLog: false
     # -- Specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background.

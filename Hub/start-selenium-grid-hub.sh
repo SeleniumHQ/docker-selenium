@@ -133,6 +133,10 @@ if [ ! -z "${CONFIG_FILE}" ]; then
   append_se_opts "--config" "${CONFIG_FILE}"
 fi
 
+if [ ! -z "${SE_EVENT_BUS_HEARTBEAT_PERIOD}" ]; then
+  append_se_opts "--eventbus-heartbeat-period" "${SE_EVENT_BUS_HEARTBEAT_PERIOD}"
+fi
+
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
