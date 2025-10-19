@@ -239,6 +239,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-143'
+      imageTag: '143.0-20251001'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '143.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-142'
       imageTag: '142.0-20251001'
       hpa:
