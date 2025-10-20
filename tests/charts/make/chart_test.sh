@@ -70,6 +70,7 @@ TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
 TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY:-"false"}
 TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME:-"false"}
 TEST_VIDEO_RECORDER_SIDECAR=${TEST_VIDEO_RECORDER_SIDECAR:-"false"}
+TEST_SITE=${TEST_SITE:-"the-internet:5000"}
 
 wait_for_terminated() {
   # Wait until no pods are in "Terminating" state
@@ -164,8 +165,9 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   sudo chmod -R 777 ${HOST_PATH}
   kubectl create ns ${SELENIUM_NAMESPACE} || true
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
+  kubectl apply -n ${SELENIUM_NAMESPACE} -f "${TEST_VALUES_PATH}/the-internet-deployment.yaml"
   kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=ftp-server
-  kubectl delete pod -n ${SELENIUM_NAMESPACE} -l app=ftp-server --force --grace-period=0
+  kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=the-internet
 fi
 
 if [ "${TEST_NAME_OVERRIDE}" = "true" ]; then
@@ -546,6 +548,7 @@ export TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT}
 export TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS}
 export TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY}
 export TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME}
+export TEST_SITE="${TEST_SITE}"
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
   ./tests/bootstrap.sh NodeFirefox
   if [ "${TEST_PLATFORMS}" = "linux/amd64" ]; then

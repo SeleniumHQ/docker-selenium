@@ -56,6 +56,30 @@ spec:
       containers:
         - name: ftp-server
           image: delfer/alpine-ftp-server:latest
+          ports:
+            - name: ftp
+              containerPort: 21
+          livenessProbe:
+            tcpSocket:
+              port: ftp
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 2
+          readinessProbe:
+            tcpSocket:
+              port: ftp
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+            timeoutSeconds: 2
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
           env:
             - name: USERS
               value: "seluser|selenium.dev"

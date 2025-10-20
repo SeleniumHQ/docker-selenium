@@ -27,6 +27,7 @@ elif [ "$1" = "AutoScalingTestsScaleChaos" ]; then
   python3 -m unittest AutoscalingTests.test_scale_chaos
   ret_code=$?
 else
+  export TEST_SITE="the-internet:5000"
   python3 test.py $1
   ret_code=$?
 fi

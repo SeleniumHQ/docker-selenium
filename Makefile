@@ -679,6 +679,11 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
+start_test_site:
+	@docker rm -f the-internet 2>/dev/null || true
+	@docker run --rm --name the-internet -d -p 5001:5000 ndviet/the-internet:latest
+	@echo "Test site started at http://localhost:5001"
+
 test: test_chrome \
 	test_chrome_standalone \
 	test_chrome_standalone_java \
@@ -839,7 +844,7 @@ test_parallel: hub chrome firefox edge chromium video
 			echo CHART_CERT_PATH=$$(readlink -f ./videos/certs/tls.crt) >> .env ; \
 			export $$(cat .env | xargs) ; \
 			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $(PLATFORMS) -f docker-compose-v3-test-parallel.yml up -d --remove-orphans --no-log-prefix ; \
-			RUN_IN_DOCKER_COMPOSE=true bash ./bootstrap.sh $$node ; \
+			RUN_IN_DOCKER_COMPOSE=true TEST_SITE=the-internet:5000 bash ./bootstrap.sh $$node ; \
 			docker compose -f docker-compose-v3-test-parallel.yml down ; \
 	done
 	make test_video_integrity

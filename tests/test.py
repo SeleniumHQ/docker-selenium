@@ -14,9 +14,18 @@ from docker.errors import NotFound
 def clean_up():
     logger.info("Cleaning up...")
 
+    # Clean up test container
     test_container = client.containers.get(test_container_id)
     test_container.kill()
     test_container.remove()
+
+    # Clean up application container if it exists
+    try:
+        app_container = client.containers.get('the-internet')
+        app_container.kill()
+        logger.info(f'Stopped application container: {app_container.id}')
+    except Exception as e:
+        logger.debug(f'Application container not found or already stopped: {e}')
 
     if standalone:
         logger.info("Standalone Cleaned up")
@@ -122,6 +131,47 @@ def get_platform():
         os_arch = 'linux/arm64'
     logger.info("Current OS platform: %s" % os_arch)
     return os_arch
+
+
+def launch_application(network_name):
+    """
+    Launch the application under test
+    :return: the application container
+    """
+    logger.info("Launching Application...")
+
+    existing_app = None
+
+    try:
+        existing_app = client.containers.get('the-internet')
+    except NotFound:
+        pass
+
+    if existing_app:
+        try:
+            logger.debug("Application container already exists. Removing...")
+            if existing_app.status == 'running':
+                logger.debug("Application is running. Stopping...")
+                existing_app.kill()
+                logger.debug("Application stopped")
+            try:
+                existing_app.remove()
+                logger.debug("Application container removed")
+            except Exception as e:
+                if "removal of container" in str(e) and "is already in progress" in str(e):
+                    logger.debug("Container is already being removed, continuing...")
+                else:
+                    raise e
+        except Exception as e:
+            logger.warning(f"Error while cleaning up existing application container: {e}")
+            logger.debug("Attempting to continue with new container creation...")
+
+    # Start new application container
+    app_container = client.containers.run(
+        'ndviet/the-internet:latest', name='the-internet', network=network_name, detach=True, remove=True
+    )
+    logger.info(f'Started application container: {app_container.name}')
+    return app_container
 
 
 def launch_hub(network_name):
@@ -259,22 +309,27 @@ if __name__ == '__main__':
     hub_id = ''
     if not run_in_docker_compose:
         logger.info('========== Starting %s Container ==========' % image)
+        try:
+            prune_networks()
+            create_network("grid")
+        except Exception as e:
+            logger.debug(f'Network not found or already stopped: {e}')
 
+        # Launch application under test
+        app_container = launch_application("grid")
         if standalone:
             """
             Standalone Configuration
             """
             ports = {'4444': 4444}
             if use_random_user_id:
-                test_container_id = launch_container(image, ports=ports, user=random_user_id)
+                test_container_id = launch_container(image, network='grid', ports=ports, user=random_user_id)
             else:
-                test_container_id = launch_container(image, ports=ports)
+                test_container_id = launch_container(image, network='grid', ports=ports)
         else:
             """
             Hub / Node Configuration
             """
-            prune_networks()
-            create_network("grid")
             hub_id = launch_hub("grid")
             ports = {'5555': 5555, '7900': 7900}
             if use_random_user_id:

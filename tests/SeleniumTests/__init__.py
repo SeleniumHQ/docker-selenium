@@ -39,6 +39,7 @@ TEST_MULTIPLE_VERSIONS_EXPLICIT = os.environ.get('TEST_MULTIPLE_VERSIONS_EXPLICI
 LIST_CHROMIUM_VERSIONS = ['140.0', '139.0', '138.0', '137.0', '136.0', '135.0', '134.0']
 LIST_FIREFOX_VERSIONS = ['142.0', '141.0', '140.0', '139.0', '138.0', '137.0', '136.0']
 LIST_PLATFORMS = ['Linux', None, 'Windows 11']
+TEST_SITE = os.environ.get('TEST_SITE', 'the-internet.herokuapp.com')
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
     LIST_CHROMIUM_VERSIONS.append(None)
@@ -65,7 +66,7 @@ if TEST_NODE_RELAY == 'Android':
 class SeleniumGenericTests(unittest.TestCase):
 
     def test_title(self):
-        self.driver.get('https://the-internet.herokuapp.com')
+        self.driver.get(f'http://{TEST_SITE}')
         wait = WebDriverWait(self.driver, WEB_DRIVER_WAIT_TIMEOUT)
         wait.until(EC.title_is('The Internet'))
         self.assertTrue(self.driver.title == 'The Internet')
@@ -73,7 +74,7 @@ class SeleniumGenericTests(unittest.TestCase):
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/03-work-with-frames/python/frames.py
     def test_with_frames(self):
         driver = self.driver
-        driver.get('http://the-internet.herokuapp.com/nested_frames')
+        driver.get(f'http://{TEST_SITE}/nested_frames')
         wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
         frame_top = wait.until(EC.frame_to_be_available_and_switch_to_it('frame-top'))
         frame_middle = wait.until(EC.frame_to_be_available_and_switch_to_it('frame-middle'))
@@ -82,7 +83,7 @@ class SeleniumGenericTests(unittest.TestCase):
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/05-select-from-a-dropdown/python/dropdown.py
     def test_select_from_a_dropdown(self):
         driver = self.driver
-        driver.get('http://the-internet.herokuapp.com/dropdown')
+        driver.get(f'http://{TEST_SITE}/dropdown')
         dropdown_list = driver.find_element(By.ID, 'dropdown')
         options = dropdown_list.find_elements(By.TAG_NAME, 'option')
         for opt in options:
@@ -98,7 +99,7 @@ class SeleniumGenericTests(unittest.TestCase):
     # https://github.com/tourdedave/elemental-selenium-tips/blob/master/13-work-with-basic-auth/python/basic_auth_1.py
     def test_visit_basic_auth_secured_page(self):
         driver = self.driver
-        driver.get('http://admin:admin@the-internet.herokuapp.com/basic_auth')
+        driver.get(f'http://admin:admin@{TEST_SITE}/basic_auth')
         page_message = driver.find_element(By.CSS_SELECTOR, '.example p').text
         self.assertTrue(page_message == 'Congratulations! You must have the proper credentials.')
 
@@ -116,7 +117,7 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_download_file(self):
         driver = self.driver
-        driver.get('https://the-internet.herokuapp.com/download')
+        driver.get(f'http://{TEST_SITE}/download')
         file_name = 'some-file.txt'
         wait = WebDriverWait(driver, 30)
         file_link = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, file_name)))
@@ -305,7 +306,7 @@ class FirefoxTests(SeleniumGenericTests):
             raise e
 
     def test_title_and_maximize_window(self):
-        self.driver.get('https://the-internet.herokuapp.com')
+        self.driver.get(f'http://{TEST_SITE}')
         self.driver.maximize_window()
         self.assertTrue(self.driver.title == 'The Internet')
 

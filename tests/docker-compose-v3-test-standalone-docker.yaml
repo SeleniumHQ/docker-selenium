@@ -46,6 +46,10 @@ services:
       - ./videos/upload:/ftp/seluser
     stop_grace_period: 30s
 
+  the-internet:
+    image: ndviet/the-internet:latest
+    container_name: the-internet
+
   tests:
     image: docker-selenium-tests:latest
     build:
@@ -53,7 +57,9 @@ services:
       dockerfile: ./Dockerfile
     depends_on:
       - standalone-docker
+      - the-internet
     environment:
+      - TEST_SITE=the-internet:5000
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}

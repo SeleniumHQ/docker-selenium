@@ -127,6 +127,10 @@ services:
       timeout: 30s
       retries: 5
 
+  the-internet:
+    image: ndviet/the-internet:latest
+    container_name: the-internet
+
 #  tests:
 #    image: docker-selenium-tests:latest
 #    build:

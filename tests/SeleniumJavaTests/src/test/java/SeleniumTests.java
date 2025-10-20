@@ -19,6 +19,7 @@ import java.time.Duration;
 
 class SeleniumTests {
     private WebDriver driver;
+    private String TEST_SITE = System.getenv().getOrDefault("TEST_SITE", "the-internet.herokuapp.com");
 
     @BeforeEach
     void setUp() {
@@ -59,7 +60,7 @@ class SeleniumTests {
 
     @Test
     void abTestingLinkOpensCorrectPage() {
-        driver.get("https://the-internet.herokuapp.com/");
+        driver.get(String.format("http://%s", TEST_SITE));
         driver.findElement(By.linkText("A/B Testing")).click();
         String header = driver.findElement(By.tagName("h3")).getText();
         assert header.contains("A/B Test");
@@ -67,7 +68,7 @@ class SeleniumTests {
 
     @Test
     void checkboxesCanBeToggled() {
-        driver.get("https://the-internet.herokuapp.com/checkboxes");
+        driver.get(String.format("http://%s/checkboxes", TEST_SITE));
         WebElement checkbox1 = driver.findElements(By.cssSelector("input[type='checkbox']")).get(0);
         boolean initialState = checkbox1.isSelected();
         checkbox1.click();
@@ -76,7 +77,7 @@ class SeleniumTests {
 
     @Test
     void dropdownSelectionWorks() {
-        driver.get("https://the-internet.herokuapp.com/dropdown");
+        driver.get(String.format("http://%s/dropdown", TEST_SITE));
         WebElement dropdown = driver.findElement(By.id("dropdown"));
         Select select = new Select(dropdown);
         select.selectByVisibleText("Option 2");
