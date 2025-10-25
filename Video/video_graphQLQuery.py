@@ -13,9 +13,9 @@ import urllib.error
 import urllib.request
 from typing import Tuple
 
-
 MAX_TIME_SECONDS = 1
 RETRY_TIME = 3
+
 
 def get_graphql_endpoint() -> str:
     """Derive the GraphQL endpoint from env or helper script.
@@ -102,11 +102,7 @@ def poll_session(endpoint: str, session_id: str, poll_interval: float) -> dict |
             try:
                 response_data = json.loads(body_text)
                 # Break early if capabilities has se:vncEnabled key
-                caps_str = (
-                    response_data.get("data", {})
-                    .get("session", {})
-                    .get("capabilities")
-                )
+                caps_str = response_data.get("data", {}).get("session", {}).get("capabilities")
                 if isinstance(caps_str, str):
                     try:
                         caps_json = json.loads(caps_str)
@@ -139,7 +135,9 @@ def _persist_body(session_id: str, body_text: str) -> None:
         pass  # Non-fatal
 
 
-def extract_capabilities(session_id: str, video_cap_name: str, test_name_cap: str, video_name_cap: str) -> Tuple[str | None, str | None, str | None]:
+def extract_capabilities(
+    session_id: str, video_cap_name: str, test_name_cap: str, video_name_cap: str
+) -> Tuple[str | None, str | None, str | None]:
     """Read persisted JSON file and extract capability values.
 
     Returns (record_video_raw, test_name_raw, video_name_raw) which may be None or 'null'.
