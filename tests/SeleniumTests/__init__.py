@@ -40,6 +40,7 @@ LIST_CHROMIUM_VERSIONS = ['140.0', '139.0', '138.0', '137.0', '136.0', '135.0', 
 LIST_FIREFOX_VERSIONS = ['142.0', '141.0', '140.0', '139.0', '138.0', '137.0', '136.0']
 LIST_PLATFORMS = ['Linux', None, 'Windows 11']
 TEST_SITE = os.environ.get('TEST_SITE', 'the-internet.herokuapp.com')
+RELAY_SELENIUM_VERSION = "4.35.0"
 
 if not TEST_MULTIPLE_VERSIONS_EXPLICIT:
     LIST_CHROMIUM_VERSIONS.append(None)
@@ -186,7 +187,7 @@ class ChromeTests(SeleniumGenericTests):
                         'username': os.environ.get('SAUCE_USERNAME'),
                         'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
                         'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                        'seleniumVersion': '4.29.0',
+                        'seleniumVersion': RELAY_SELENIUM_VERSION,
                     },
                 )
             start_time = time.time()
@@ -235,7 +236,7 @@ class EdgeTests(SeleniumGenericTests):
                         'username': os.environ.get('SAUCE_USERNAME'),
                         'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
                         'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                        'seleniumVersion': '4.29.0',
+                        'seleniumVersion': RELAY_SELENIUM_VERSION,
                     },
                 )
             start_time = time.time()
@@ -289,7 +290,7 @@ class FirefoxTests(SeleniumGenericTests):
                         'username': os.environ.get('SAUCE_USERNAME'),
                         'accessKey': os.environ.get('SAUCE_ACCESS_KEY'),
                         'name': f"{self._testMethodName} ({self.__class__.__name__})",
-                        'seleniumVersion': '4.29.0',
+                        'seleniumVersion': RELAY_SELENIUM_VERSION,
                     },
                 )
             start_time = time.time()

@@ -53,18 +53,19 @@ components:
     subPath: *gridAppRoot
 
 chromeNode:
+  nodeEnableManagedDownloads: &remoteDownload true
   extraEnvironmentVariables: &extraEnvironmentVariablesNodes
     - name: SE_NODE_SESSION_TIMEOUT
       value: "300"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
-    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "true"
 
 firefoxNode:
+  nodeEnableManagedDownloads: *remoteDownload
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes
 
 edgeNode:
+  nodeEnableManagedDownloads: *remoteDownload
   extraEnvironmentVariables: *extraEnvironmentVariablesNodes
 
 videoRecorder:

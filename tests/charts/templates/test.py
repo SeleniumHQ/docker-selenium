@@ -427,7 +427,7 @@ class ChartTemplateTests(unittest.TestCase):
                 if doc['metadata']['name'] == resource_name and doc['kind'] == 'ScaledObject':
                     logger.info(f"Assert nodeMaxSessions parameter is set in scaler triggers")
                     self.assertTrue(
-                        doc['spec']['triggers'][0]['metadata']['nodeMaxSessions']
+                        str(doc['spec']['triggers'][0]['metadata']['nodeMaxSessions'])
                         == str(resources_name[doc['metadata']['name']])
                     )
                 if doc['metadata']['name'] == resource_name and doc['kind'] == 'Deployment':
