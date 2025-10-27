@@ -49,6 +49,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
+| global.seleniumGrid.sessionRequestTimeout | int | `300` | Timeout in seconds. A new incoming session request is added to the queue. Requests sitting in the queue for longer than the configured time will timeout. |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
 | global.seleniumGrid.nodeDrainAfterSessionCount | int | `0` | Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down |
 | global.seleniumGrid.nodeEnableManagedDownloads | bool | `true` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
@@ -300,6 +301,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
+| components.sessionQueue.sessionRequestTimeout | string | `""` | Override global sessionRequestTimeout |
 | components.sessionQueue.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Queue |
 | components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -331,6 +333,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.annotations | object | `{}` | Custom annotations for Selenium Hub pods |
 | hub.labels | object | `{}` | Custom labels for Selenium Hub pods |
 | hub.disableUI | bool | `false` | Disable the Grid UI |
+| hub.sessionRequestTimeout | string | `""` | Override global sessionRequestTimeout |
 | hub.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
 | hub.publishPort | int | `4442` | Port where events are published |
 | hub.publishNodePort | int | `31442` | NodePort exposed where events are published |

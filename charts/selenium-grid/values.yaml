@@ -50,6 +50,8 @@ global:
     #    topologyKey: kubernetes.io/hostname
     #    whenUnsatisfiable: DoNotSchedule
     #    Note: If not define labelSelector, it will be added automatically based on "app" label in each component
+    # -- Timeout in seconds. A new incoming session request is added to the queue. Requests sitting in the queue for longer than the configured time will timeout.
+    sessionRequestTimeout: 300
     # -- Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled)
     nodeMaxSessions: 1
     # Noted: In case of autoscaling enabled, with scaling type `job`, Node will be drained following `nodeMaxSessions` by default
@@ -756,6 +758,8 @@ components:
     imagePullPolicy: IfNotPresent
     # -- Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/)
     imagePullSecret: ""
+    # -- Override global sessionRequestTimeout
+    sessionRequestTimeout: ""
 
     # -- Specify extra environment variables for Session Queue
     extraEnvironmentVariables: []
@@ -849,6 +853,8 @@ hub:
   labels: {}
   # -- Disable the Grid UI
   disableUI: false
+  # -- Override global sessionRequestTimeout
+  sessionRequestTimeout: ""
   # -- Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue
   newSessionThreadPoolSize:
   # -- Port where events are published

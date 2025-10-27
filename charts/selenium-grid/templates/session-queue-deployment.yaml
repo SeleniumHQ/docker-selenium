@@ -51,6 +51,9 @@ spec:
                   fieldPath: status.podIP
             - name: SE_SESSION_QUEUE_PORT
               value: {{ .Values.components.sessionQueue.port | quote }}
+            {{- $sessionRequestTimeout := default $.Values.global.seleniumGrid.sessionRequestTimeout $.Values.components.sessionQueue.sessionRequestTimeout | int64 }}
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: {{ $sessionRequestTimeout | quote }}
           {{- with .Values.components.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}
