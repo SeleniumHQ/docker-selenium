@@ -278,7 +278,9 @@ triggers:
     metadata:
     {{- with .node.hpa }}
       {{- range $key, $value := . }}
+      {{- if not (empty $value) }}
       {{ $key }}: {{ tpl ($value | toString) $ | quote }}
+      {{- end }}
       {{- end }}
       {{- if not .nodeMaxSessions }}
       nodeMaxSessions: {{ $nodeMaxSessions | quote }}
@@ -286,7 +288,7 @@ triggers:
       {{- if not .enableManagedDownloads }}
       enableManagedDownloads: {{ $nodeEnableManagedDownloads | quote }}
       {{- end }}
-      {{- if not .capabilities }}
+      {{- if and (not .capabilities) (not (empty $nodeCustomCapabilities)) }}
       capabilities: {{ $nodeCustomCapabilities | quote }}
       {{- end }}
     {{- end }}

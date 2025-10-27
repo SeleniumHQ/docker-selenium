@@ -2,9 +2,8 @@
 # Configuration for chrome nodes
 chromeNode:
   port: 6666
+  nodeEnableManagedDownloads: &remoteDownload "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-      value: "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
     - name: SE_VNC_NO_PASSWORD
       value: "true"
     - name: SE_SCREEN_WIDTH
@@ -30,6 +29,7 @@ chromeNode:
 # Configuration for edge nodes
 edgeNode:
   port: 8888
+  nodeEnableManagedDownloads: *remoteDownload
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:
     enabled: *readinessProbe
@@ -40,6 +40,7 @@ edgeNode:
 # Configuration for firefox nodes
 firefoxNode:
   port: 7777
+  nodeEnableManagedDownloads: *remoteDownload
   extraEnvironmentVariables: *extraEnvironmentVariables
   readinessProbe:
     enabled: *readinessProbe

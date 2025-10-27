@@ -207,7 +207,7 @@ fi
 
 if [ "${TEST_CUSTOM_SPECIFIC_NAME}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set global.seleniumGrid.nodeCustomCapabilities={'myApp:version':'beta','myApp:publish':'public'} \
+  --set-literal global.seleniumGrid.nodeCustomCapabilities={'myApp:version':'beta','myApp:publish':'public'} \
   "
 fi
 
