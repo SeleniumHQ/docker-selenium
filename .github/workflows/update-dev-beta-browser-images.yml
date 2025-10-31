@@ -32,26 +32,36 @@ jobs:
         include:
           - browser: chrome
             channel: dev
+            platforms: linux/amd64
           - browser: chrome
             channel: beta
+            platforms: linux/amd64
           - browser: firefox
             channel: dev
+            platforms: linux/amd64,linux/arm64
           - browser: firefox
             channel: beta
+            platforms: linux/amd64,linux/arm64
           - browser: edge
             channel: dev
+            platforms: linux/amd64
           - browser: edge
             channel: beta
+            platforms: linux/amd64
           - browser: chrome-for-testing
             channel: dev
+            platforms: linux/amd64
           - browser: chrome-for-testing
             channel: beta
+            platforms: linux/amd64
           - browser: chrome-for-testing
             channel: canary
+            platforms: linux/amd64
     env:
       NAME: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
       BROWSER: ${{ matrix.browser }}
       CHANNEL: ${{ matrix.channel }}
+      PLATFORMS: ${{ matrix.platforms }}
 
     steps:
     - name: Checkout code
@@ -91,8 +101,8 @@ jobs:
         
     - name: Build the Dev/Beta Docker container images
       run: |
-        echo VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
-        VERSION=$SELENIUM_VERSION make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"        
+        echo VERSION=$SELENIUM_VERSION PLATFORMS=$PLATFORMS make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"
+        VERSION=$SELENIUM_VERSION PLATFORMS=$PLATFORMS make "$BROWSER"_"$CHANNEL" standalone_"$BROWSER"_"$CHANNEL"        
 
     - name: Test the Dev/Beta Docker container images
       run: |

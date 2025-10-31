@@ -81,6 +81,8 @@ if [ -f "${INSTALL_DIR}/deb.deps" ]; then
     sed 's/libasound2\b/libasound2t64/g')
   echo "Dependencies: ${DEPS}"
   apt-get install -qqy --no-install-recommends ${DEPS}
+else
+  apt-get install -qqy --no-install-recommends ca-certificates fonts-liberation libasound2t64 libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0 libc6 libcairo2 libcups2 libcurl3-gnutls libdbus-1-3 libdrm2 libexpat1 libgbm1 libglib2.0-0 libgtk-3-0 libnspr4 libnss3 libpango-1.0-0 libvulkan1 libx11-6 libxcb1 libxcomposite1 libxdamage1 libxext6 libxfixes3 libxkbcommon0 libxrandr2 wget xdg-utils
 fi
 
 # Cleanup

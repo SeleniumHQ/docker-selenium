@@ -155,11 +155,11 @@ From image tag based `4.21.0` onwards, the architectures supported by this proje
 
 The following browsers are available in multi-arch images:
 
-|       Architecture        | Chrome | Chromium | Firefox | Edge |
-|:-------------------------:|:------:|:--------:|:-------:|:----:|
-|    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |  ✅   |
-| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |  ❌   |
-| armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |  ❌   |
+|       Architecture        | Chrome | Chromium | Firefox | Edge | CfT |
+|:-------------------------:|:------:|:--------:|:-------:|:----:|-----|
+|    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |  ✅   | ✅   |
+| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |  ❌   | ❌   |
+| armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |  ❌   | ❌   |
 
 Note:
 
@@ -167,6 +167,8 @@ Note:
 
 - Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
 Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
+
+- We also supply Chrome for Testing (CfT), but it is only available for Linux/AMD64.
 
 - For Linux/ARM use the open source Chromium browser. The Chromium (node and standalone) images are available in multi-arch.
 
@@ -250,13 +252,13 @@ Here are the instructions to run them in Standalone mode:
 **Chrome Beta:**
 
 ```bash
-$ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome:beta
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome:beta
 ```
 
 **Chrome Dev:**
 
 ```bash
-$ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome:dev
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome:dev
 ```
 
 **Firefox Beta:**
@@ -274,13 +276,31 @@ $ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalon
 **Edge Beta:**
 
 ```bash
-$ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-edge:beta
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-edge:beta
 ```
 
 **Edge Dev:**
 
 ```bash
-$ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-edge:dev
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-edge:dev
+```
+
+**Chrome for Testing Beta:**
+
+```bash
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome-for-testing:beta
+```
+
+**Chrome for Testing Dev:**
+
+```bash
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome-for-testing:dev
+```
+
+**Chrome for Testing Canary:**
+
+```bash
+$ docker run --platform linux/amd64 --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalone-chrome-for-testing:canary
 ```
 
 ### Dev and Beta on the Grid
@@ -293,6 +313,7 @@ $ docker run --rm -it -p 4444:4444 -p 7900:7900 --shm-size 2g selenium/standalon
 services:
   chrome:
     image: selenium/node-chrome:beta
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -301,6 +322,7 @@ services:
 
   edge:
     image: selenium/node-edge:beta
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -309,6 +331,15 @@ services:
 
   firefox:
     image: selenium/node-firefox:beta
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
+  chrome-for-testing:
+    image: selenium/node-chrome-for-testing:beta
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -332,6 +363,7 @@ services:
 services:
   chrome:
     image: selenium/node-chrome:dev
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -340,6 +372,7 @@ services:
 
   edge:
     image: selenium/node-edge:dev
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -348,6 +381,15 @@ services:
 
   firefox:
     image: selenium/node-firefox:dev
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
+  chrome-for-testing:
+    image: selenium/node-chrome-for-testing:dev
+    platform: linux/amd64
     shm_size: 2gb
     depends_on:
       - selenium-hub
