@@ -46,12 +46,14 @@ all: hub \
 	event_bus \
 	chrome \
 	chromium \
+	chrome-for-testing \
 	edge \
 	firefox \
 	docker \
 	all_browsers \
 	standalone_chrome \
 	standalone_chromium \
+	standalone_chrome-for-testing \
 	standalone_edge \
 	standalone_firefox \
 	standalone_docker \
@@ -108,6 +110,7 @@ update_selenium_version_matrix: install_python_deps
 
 update_browser_versions_matrix: update_selenium_version_matrix
 	python3 tests/build-backward-compatible/fetch_firefox_version.py ; \
+	python3 tests/build-backward-compatible/fetch_chrome_for_testing_version.py ; \
 	python3 tests/build-backward-compatible/fetch_version.py ; \
 	python3 tests/build-backward-compatible/update_workflow_versions.py ; \
 	python3 CHANGELOG/generate-matrix-readme.py
@@ -174,6 +177,32 @@ event_bus: base
 node_base: base video
 	cd ./NodeBase && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=video --build-arg VERSION=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) --secret id=SEL_PASSWD -t $(NAME)/node-base:$(TAG_VERSION) .
 
+chrome-for-testing_only:
+	set -e; case "$(PLATFORMS)" in \
+		*linux/amd64*) \
+		echo "Chrome for Testing is only supported on linux/amd64" \
+		&& cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg INSTALL_CFT=true -t $(NAME)/node-chrome-for-testing:$(TAG_VERSION) . \
+		;; \
+		*) \
+		echo "Chrome for Testing doesn't support platform $(PLATFORMS)" ; \
+		;; \
+	esac
+
+chrome-for-testing: node_base chrome-for-testing_only
+
+standalone_chrome-for-testing_only:
+	set -e; case "$(PLATFORMS)" in \
+		*linux/amd64*) \
+		echo "Chrome for Testing is only supported on linux/amd64" \
+		&& cd ./Standalone && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome-for-testing -t $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) . \
+		;; \
+		*) \
+		echo "Chrome for Testing doesn't support platform $(PLATFORMS)" ; \
+		;; \
+	esac
+
+standalone_chrome-for-testing: chrome-for-testing standalone_chrome-for-testing_only
+
 chrome_only:
 	set -e; case "$(PLATFORMS)" in \
 		*linux/amd64*) \
@@ -192,6 +221,15 @@ chrome_dev:
 
 chrome_beta:
 	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-beta -t $(NAME)/node-chrome:beta .
+
+chrome-for-testing_dev:
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CFT_VERSION=DEV --build-arg INSTALL_CFT=true -t $(NAME)/node-chrome-for-testing:dev .
+
+chrome-for-testing_beta:
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=BETA --build-arg INSTALL_CFT=true -t $(NAME)/node-chrome-for-testing:beta .
+
+chrome-for-testing_canary:
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=CANARY --build-arg INSTALL_CFT=true -t $(NAME)/node-chrome-for-testing:canary .
 
 chromium: node_base
 	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-chromium:$(TAG_VERSION) .
@@ -265,6 +303,18 @@ standalone_chrome_dev: chrome_dev
 standalone_chrome_beta: chrome_beta
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
 	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:beta .
+
+standalone_chrome-for-testing_dev: chrome-for-testing_dev
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=dev --build-arg BASE=node-chrome-for-testing -t $(NAME)/standalone-chrome-for-testing:dev .
+
+standalone_chrome-for-testing_beta: chrome-for-testing_beta
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-chrome-for-testing -t $(NAME)/standalone-chrome-for-testing:beta .
+
+standalone_chrome-for-testing_canary: chrome-for-testing_canary
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --sbom=true --attest type=provenance,mode=max \
+	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=canary --build-arg BASE=node-chrome-for-testing -t $(NAME)/standalone-chrome-for-testing:canary .
 
 standalone_chromium: chromium
 	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chromium -t $(NAME)/standalone-chromium:$(TAG_VERSION) .
@@ -349,12 +399,14 @@ count_image_layers:
 	docker history $(NAME)/node-base:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-chrome:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-chromium:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/node-chrome-for-testing:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-edge:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-firefox:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-docker:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/node-all-browsers:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-chrome:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-chromium:$(TAG_VERSION) -q | wc -l
+	docker history $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-edge:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-firefox:$(TAG_VERSION) -q | wc -l
 	docker history $(NAME)/standalone-docker:$(TAG_VERSION) -q | wc -l
@@ -389,6 +441,9 @@ tag_and_push_browser_images: tag_and_push_chrome_images tag_and_push_chromium_im
 tag_and_push_chrome_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome $(RELEASE_OLD_VERSION)
 
+tag_and_push_chrome-for-testing_images:
+	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chrome-for-testing $(RELEASE_OLD_VERSION)
+
 tag_and_push_chromium_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) chromium $(RELEASE_OLD_VERSION)
 
@@ -422,7 +477,9 @@ tag_latest:
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 	case "$(PLATFORMS)" in *linux/amd64*) \
 		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
+		docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:latest && \
 		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest && \
+		docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:latest && \
 		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest && \
 		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest \
 		;; \
@@ -447,12 +504,14 @@ release_latest: release_grid_scaler_latest
 	docker push $(NAME)/node-base:latest
 	docker push $(NAME)/node-chrome:latest
 	docker push $(NAME)/node-chromium:latest
+	docker push $(NAME)/node-chrome-for-testing:latest
 	docker push $(NAME)/node-edge:latest
 	docker push $(NAME)/node-firefox:latest
 	docker push $(NAME)/node-docker:latest
 	docker push $(NAME)/node-all-browsers:latest
 	docker push $(NAME)/standalone-chrome:latest
 	docker push $(NAME)/standalone-chromium:latest
+	docker push $(NAME)/standalone-chrome-for-testing:latest
 	docker push $(NAME)/standalone-edge:latest
 	docker push $(NAME)/standalone-firefox:latest
 	docker push $(NAME)/standalone-docker:latest
@@ -472,10 +531,12 @@ tag_nightly:
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
+	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
+	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:nightly
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:nightly
@@ -502,12 +563,14 @@ release_nightly: release_grid_scaler_nightly
 	docker push $(NAME)/node-base:nightly
 	docker push $(NAME)/node-chrome:nightly
 	docker push $(NAME)/node-chromium:nightly
+	docker push $(NAME)/node-chrome-for-testing:nightly
 	docker push $(NAME)/node-edge:nightly
 	docker push $(NAME)/node-firefox:nightly
 	docker push $(NAME)/node-docker:nightly
 	docker push $(NAME)/node-all-browsers:nightly
 	docker push $(NAME)/standalone-chrome:nightly
 	docker push $(NAME)/standalone-chromium:nightly
+	docker push $(NAME)/standalone-chrome-for-testing:nightly
 	docker push $(NAME)/standalone-edge:nightly
 	docker push $(NAME)/standalone-firefox:nightly
 	docker push $(NAME)/standalone-docker:nightly
@@ -528,12 +591,14 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR)
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:$(MAJOR)
+	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:$(MAJOR)
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR)
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR)
+	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:$(MAJOR)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR)
@@ -548,12 +613,14 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR).$(MINOR)
@@ -568,12 +635,14 @@ tag_major_minor:
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
@@ -590,12 +659,14 @@ release: tag_major_minor release_grid_scaler
 	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/node-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/node-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images $(NAME)/standalone-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images $(NAME)/standalone-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -610,12 +681,14 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-base:$(TAG_VERSION)
 	docker push $(NAME)/node-chrome:$(TAG_VERSION)
 	docker push $(NAME)/node-chromium:$(TAG_VERSION)
+	docker push $(NAME)/node-chrome-for-testing:$(TAG_VERSION)
 	docker push $(NAME)/node-edge:$(TAG_VERSION)
 	docker push $(NAME)/node-firefox:$(TAG_VERSION)
 	docker push $(NAME)/node-docker:$(TAG_VERSION)
 	docker push $(NAME)/node-all-browsers:$(TAG_VERSION)
 	docker push $(NAME)/standalone-chrome:$(TAG_VERSION)
 	docker push $(NAME)/standalone-chromium:$(TAG_VERSION)
+	docker push $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION)
 	docker push $(NAME)/standalone-edge:$(TAG_VERSION)
 	docker push $(NAME)/standalone-firefox:$(TAG_VERSION)
 	docker push $(NAME)/standalone-docker:$(TAG_VERSION)
@@ -630,12 +703,14 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-base:$(MAJOR)
 	docker push $(NAME)/node-chrome:$(MAJOR)
 	docker push $(NAME)/node-chromium:$(MAJOR)
+	docker push $(NAME)/node-chrome-for-testing:$(MAJOR)
 	docker push $(NAME)/node-edge:$(MAJOR)
 	docker push $(NAME)/node-firefox:$(MAJOR)
 	docker push $(NAME)/node-docker:$(MAJOR)
 	docker push $(NAME)/node-all-browsers:$(MAJOR)
 	docker push $(NAME)/standalone-chrome:$(MAJOR)
 	docker push $(NAME)/standalone-chromium:$(MAJOR)
+	docker push $(NAME)/standalone-chrome-for-testing:$(MAJOR)
 	docker push $(NAME)/standalone-edge:$(MAJOR)
 	docker push $(NAME)/standalone-firefox:$(MAJOR)
 	docker push $(NAME)/standalone-docker:$(MAJOR)
@@ -650,12 +725,14 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chrome:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-chromium:$(MAJOR).$(MINOR)
+	docker push $(NAME)/node-chrome-for-testing:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-edge:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-firefox:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-docker:$(MAJOR).$(MINOR)
 	docker push $(NAME)/node-all-browsers:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-chrome:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-chromium:$(MAJOR).$(MINOR)
+	docker push $(NAME)/standalone-chrome-for-testing:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-edge:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-firefox:$(MAJOR).$(MINOR)
 	docker push $(NAME)/standalone-docker:$(MAJOR).$(MINOR)
@@ -670,12 +747,14 @@ release: tag_major_minor release_grid_scaler
 	docker push $(NAME)/node-base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-chromium:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/node-chrome-for-testing:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-edge:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-docker:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/node-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-chrome:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-chromium:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/standalone-chrome-for-testing:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-edge:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-firefox:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
@@ -693,6 +772,9 @@ test: test_chrome \
 	test_chromium \
 	test_chromium_standalone \
 	test_chromium_standalone_java \
+	test_chrome-for-testing \
+	test_chrome-for-testing_standalone \
+	test_chrome-for-testing_standalone_java \
 	test_firefox \
 	test_firefox_standalone \
 	test_firefox_standalone_java \
@@ -790,6 +872,39 @@ test_chromium_standalone:
 
 test_chromium_standalone_java:
 	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chromium
+
+test_chrome-for-testing:
+	set -e; case "$(PLATFORMS)" in \
+		*linux/amd64*) \
+		echo "Google Chrome is only supported on linux/amd64" \
+		&& PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome-for-testing \
+		;; \
+		*) \
+		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
+		;; \
+	esac
+
+test_chrome-for-testing_standalone:
+	case "$(PLATFORMS)" in \
+		*linux/amd64*) \
+		echo "Google Chrome is only supported on linux/amd64" \
+		&& PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome-for-testing \
+		;; \
+		*) \
+		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
+		;; \
+	esac
+
+test_chrome-for-testing_standalone_java:
+	set -e; case "$(PLATFORMS)" in \
+		*linux/amd64*) \
+		echo "Google Chrome is only supported on linux/amd64" \
+		&& PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome-for-testing \
+		;; \
+		*) \
+		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
+		;; \
+	esac
 
 test_node_all_browsers:
 	set -e; case "$(PLATFORMS)" in \

@@ -29,8 +29,25 @@ jobs:
     strategy: 
       fail-fast: false
       matrix:
-        browser: [chrome,firefox,edge]
-        channel: [dev,beta]
+        include:
+          - browser: chrome
+            channel: dev
+          - browser: chrome
+            channel: beta
+          - browser: firefox
+            channel: dev
+          - browser: firefox
+            channel: beta
+          - browser: edge
+            channel: dev
+          - browser: edge
+            channel: beta
+          - browser: chrome-for-testing
+            channel: dev
+          - browser: chrome-for-testing
+            channel: beta
+          - browser: chrome-for-testing
+            channel: canary
     env:
       NAME: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
       BROWSER: ${{ matrix.browser }}

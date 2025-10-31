@@ -51,6 +51,27 @@ jobs:
               }
             });
 
+  dispatch-chrome-for-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch Chrome for Testing versions
+        uses: actions/github-script@v8
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release-chrome-for-testing-versions.yml',
+              ref: context.ref,
+              inputs: {
+                'stable': '${{ github.event.inputs.stable }}',
+                'reuse-base': '${{ github.event.inputs.reuse-base }}',
+                'grid-version': '${{ github.event.inputs.grid-version }}',
+                'push-image': '${{ github.event.inputs.push-image }}',
+                'pr-changelog': '${{ github.event.inputs.pr-changelog }}'
+              }
+            });
+
   dispatch-edge:
     runs-on: ubuntu-latest
     steps:

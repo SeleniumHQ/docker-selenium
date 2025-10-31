@@ -220,6 +220,56 @@ firefox)
   done
 
   ;;
+chrome-for-testing)
+  echo "Selenium Grid version -> ${TAG_VERSION}"
+  CHROME_VERSION=$(docker run --platform ${PLATFORM} --rm ${NAMESPACE}/node-chrome-for-testing:${TAG_VERSION} google-chrome --version | awk '{print $5}')
+  echo "Chrome for Testing version -> "${CHROME_VERSION}
+  CHROME_SHORT_VERSION="$(short_version ${CHROME_VERSION})"
+  echo "Short Chrome for Testing version -> "${CHROME_SHORT_VERSION}
+
+  CHROMEDRIVER_VERSION=$(docker run --platform ${PLATFORM} --rm ${NAMESPACE}/node-chrome-for-testing:${TAG_VERSION} chromedriver --version | awk '{print $2}')
+  echo "ChromeDriver version -> "${CHROMEDRIVER_VERSION}
+  CHROMEDRIVER_SHORT_VERSION="$(short_version ${CHROMEDRIVER_VERSION})"
+  echo "Short ChromeDriver version -> "${CHROMEDRIVER_SHORT_VERSION}
+
+  CHROME_TAGS=(
+    ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}-${BUILD_DATE}
+    # Browser version and build date
+    ${CHROME_VERSION}-${BUILD_DATE}
+    ## Short versions
+    ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-grid-${TAG_VERSION}
+    # Browser version and browser driver version plus build date
+    ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}-${BUILD_DATE}
+    # Browser version and build date
+    ${CHROME_SHORT_VERSION}-${BUILD_DATE}
+  )
+  if [ "${RELEASE_OLD_VERSION}" = "false" ]; then
+    CHROME_TAGS+=(
+      # Browser version and browser driver version
+      ${CHROME_VERSION}-chromedriver-${CHROMEDRIVER_VERSION}
+      # Browser version
+      ${CHROME_VERSION}
+      # Browser version and browser driver version
+      ${CHROME_SHORT_VERSION}-chromedriver-${CHROMEDRIVER_SHORT_VERSION}
+      # Browser version
+      ${CHROME_SHORT_VERSION}
+    )
+  fi
+
+  for chrome_tag in "${CHROME_TAGS[@]}"; do
+    docker tag ${NAMESPACE}/node-chrome-for-testing:${TAG_VERSION} ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}
+    docker tag ${NAMESPACE}/standalone-chrome-for-testing:${TAG_VERSION} ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}
+    echo "Tagged ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}"
+    echo "Tagged ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}"
+    if [ "${PUSH_IMAGE}" = true ]; then
+      docker push ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}
+      docker push ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}
+    fi
+  done
+
+  ;;
 *)
   echo "Unknown browser!"
   ;;

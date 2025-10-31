@@ -75,6 +75,8 @@ IMAGE_NAME_MAP = {
     'NodeAllChrome': 'node-all-browsers',
     'StandaloneChrome': 'standalone-chrome',
     'StandaloneAllChrome': 'standalone-all-browsers',
+    'NodeChrome-for-testing': 'node-chrome-for-testing',
+    'StandaloneChrome-for-testing': 'standalone-chrome-for-testing',
     # Edge Images
     'NodeEdge': 'node-edge',
     'NodeAllEdge': 'node-all-browsers',
@@ -97,6 +99,8 @@ TEST_NAME_MAP = {
     'NodeAllChrome': 'ChromeTests',
     'StandaloneChrome': 'ChromeTests',
     'StandaloneAllChrome': 'ChromeTests',
+    'NodeChrome-for-testing': 'ChromeTests',
+    'StandaloneChrome-for-testing': 'ChromeTests',
     # Edge Images
     'NodeEdge': 'EdgeTests',
     'NodeAllEdge': 'EdgeTests',

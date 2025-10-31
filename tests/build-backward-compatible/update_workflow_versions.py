@@ -8,9 +8,10 @@ import yaml
 MIN_CHROME_VERSION = 95
 MIN_FIREFOX_VERSION = 98
 MIN_EDGE_VERSION = 114
+MIN_CFT_VERSION = 113
 
 
-def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_edge_version):
+def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_edge_version, min_cft_version):
     """Read the browser matrix YAML file and extract browser versions.
 
     Args:
@@ -18,6 +19,7 @@ def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_
         min_chrome_version: Minimum Chrome version to include
         min_firefox_version: Minimum Firefox version to include
         min_edge_version: Minimum Edge version to include
+        min_cft_version: Minimum Chrome for Testing version to include
     """
     with open(file_path, 'r') as f:
         data = yaml.safe_load(f)
@@ -25,6 +27,7 @@ def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_
     chrome_versions = []
     firefox_versions = []
     edge_versions = []
+    cft_versions = []
 
     browsers = data.get('matrix', {}).get('browser', {})
 
@@ -56,20 +59,28 @@ def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_
         if edge_version and edge_version != 'null' and str(edge_version).strip() and version_int >= min_edge_version:
             edge_versions.append(version_int)
 
+        # Check for Chrome for Testing versions (not null or empty) and above minimum
+        cft_version = details.get('CFT_VERSION')
+        if cft_version and cft_version != 'null' and str(cft_version).strip() and version_int >= min_cft_version:
+            cft_versions.append(version_int)
+
     # Sort versions in ascending order
     chrome_versions.sort()
     firefox_versions.sort()
     edge_versions.sort()
+    cft_versions.sort()
 
     # Exclude the last (newest) version from each list
-    if chrome_versions:
-        chrome_versions = chrome_versions[:-1]
-    if firefox_versions:
-        firefox_versions = firefox_versions[:-1]
-    if edge_versions:
-        edge_versions = edge_versions[:-1]
+    # if chrome_versions:
+    #     chrome_versions = chrome_versions[:-1]
+    # if firefox_versions:
+    #     firefox_versions = firefox_versions[:-1]
+    # if edge_versions:
+    #     edge_versions = edge_versions[:-1]
+    # if cft_versions:
+    #     cft_versions = cft_versions[:-1]
 
-    return chrome_versions, firefox_versions, edge_versions
+    return chrome_versions, firefox_versions, edge_versions, cft_versions
 
 
 def format_version_list(versions):
@@ -117,23 +128,27 @@ def main():
     chrome_workflow_file = Path('.github/workflows/release-chrome-versions.yml')
     firefox_workflow_file = Path('.github/workflows/release-firefox-versions.yml')
     edge_workflow_file = Path('.github/workflows/release-edge-versions.yml')
+    cft_workflow_file = Path('.github/workflows/release-chrome-for-testing-versions.yml')
 
     # Read browser versions with minimum version filtering
-    chrome_versions, firefox_versions, edge_versions = read_browser_matrix(
+    chrome_versions, firefox_versions, edge_versions, cft_versions = read_browser_matrix(
         browser_matrix_file,
         min_chrome_version=MIN_CHROME_VERSION,
         min_firefox_version=MIN_FIREFOX_VERSION,
         min_edge_version=MIN_EDGE_VERSION,
+        min_cft_version=MIN_CFT_VERSION,
     )
 
     # Format version lists
     chrome_list = format_version_list(chrome_versions)
     firefox_list = format_version_list(firefox_versions)
     edge_list = format_version_list(edge_versions)
+    cft_list = format_version_list(cft_versions)
 
     print(f"Chrome versions: {chrome_list}")
     print(f"Firefox versions: {firefox_list}")
     print(f"Edge versions: {edge_list}")
+    print(f"Chrome for Testing versions: {cft_list}")
 
     # Update workflow files
     if chrome_workflow_file.exists():
@@ -147,6 +162,10 @@ def main():
     if edge_workflow_file.exists():
         update_workflow_file(edge_workflow_file, edge_list)
         print(f"Updated {edge_workflow_file}")
+
+    if cft_workflow_file.exists():
+        update_workflow_file(cft_workflow_file, cft_list)
+        print(f"Updated {cft_workflow_file}")
 
 
 if __name__ == '__main__':

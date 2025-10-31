@@ -1,4 +1,4 @@
-name: Deploy specific Firefox version
+name: Deploy specific Chrome for Testing version
 
 on:
   workflow_dispatch:
@@ -24,14 +24,14 @@ on:
         type: string
         default: '20251025'
       browser-name:
-        description: 'Browser name to build. E.g: firefox'
+        description: 'Browser name to build. E.g: chrome-for-testing'
         required: true
         type: string
-        default: 'firefox'
+        default: 'chrome-for-testing'
       browser-versions:
         description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        default: '[98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144]'
+        default: '[113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142]'
       push-image:
         description: 'Push image after testing successfully'
         required: true
@@ -56,7 +56,7 @@ env:
 
 jobs:
   deploy:
-    name: Node/Standalone Firefox
+    name: Node/Standalone Chrome for Testing
     runs-on: ubuntu-24.04
     permissions: write-all
     strategy:
@@ -78,7 +78,7 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: |
-            INSTALL_DOCKER=true make setup_dev_env
+            INSTALL_DOCKER=false make setup_dev_env
       - name: Output Docker info
         run: docker info
       - name: Set Selenium base version
@@ -134,7 +134,7 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
-            TEST_FIREFOX_INSTALL_LANG_PACKAGE=false FIREFOX_VERSION=${FIREFOX_VERSION} make test_firefox
+            make test_chrome
       - name: Test images Standalone with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         uses: nick-invision/retry@master
         with:
@@ -142,8 +142,8 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 60
           command: |
-            FIREFOX_VERSION=${FIREFOX_VERSION} make test_firefox_standalone \
-            && make test_firefox_standalone_java
+            make test_chrome_standalone \
+            && make test_chrome_standalone_java
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         if: env.PUSH_IMAGE == 'true'
         run: |
