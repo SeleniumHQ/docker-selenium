@@ -11,8 +11,9 @@ ARG OPENTELEMETRY_VERSION=1.55.0
 ARG GRPC_VERSION=1.76.0
 ARG NETTY_VERSION=4.2.7.Final
 ARG CS_VERSION=2.1.25-M18
-ARG ENVSUBST_VERSION=1.4.6
+ARG ENVSUBST_VERSION=1.4.7
 ARG CURL_VERSION=8.16.0
+ARG PYTHON_VERSION=3.13
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -68,16 +69,36 @@ RUN apt-get -qqy update \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #========================================
+# Add normal user and group without password sudo
+#========================================
+RUN --mount=type=secret,id=SEL_PASSWD \
+  groupadd ${SEL_GROUP} \
+         --gid ${SEL_GID} \
+  && useradd ${SEL_USER} \
+         --create-home \
+         --gid ${SEL_GID} \
+         --shell /bin/bash \
+         --uid ${SEL_UID} \
+  && usermod -a -G sudo ${SEL_USER} \
+  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
+  && echo "${SEL_USER}:$(cat /run/secrets/SEL_PASSWD)" | chpasswd
+
+#========================================
 # Install Python for utilities
 #========================================
 ENV PATH="$VENV_PATH/bin:$PATH" \
     VIRTUAL_ENV="$VENV_PATH"
 
-RUN apt-get -qqy update \
+RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 \
+    && gpg --export F23C5A6CF475977595C89F51BA6932366A755776 > /usr/share/keyrings/deadsnakes.pgp \
+    && echo "deb [signed-by=/usr/share/keyrings/deadsnakes.pgp] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" | tee /etc/apt/sources.list.d/deadsnakes.list \
+    && apt-get -qqy update \
     && apt-get upgrade -yq \
-    && apt-get -qqy --no-install-recommends install \
-    python3 python3-pip python3-venv \
-    && python3 -m pip install --upgrade setuptools virtualenv --break-system-packages \
+    && apt-get -qqy --no-install-recommends install python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
+    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 \
+    && python3 -m ensurepip --upgrade \
+    && python3 -m pip install --upgrade pip virtualenv --break-system-packages \
     && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
     && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
 
@@ -86,8 +107,7 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64";
     && chmod +x /usr/bin/curl \
     && curl --version
 
-RUN --mount=type=secret,id=SEL_PASSWD \
-    if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
+RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
        export ARCH=armhf ; \
     else \
        export ARCH=$(dpkg --print-architecture) ; \
@@ -100,19 +120,6 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
     dpkg-reconfigure -f noninteractive tzdata && \
     cat /etc/timezone \
-#========================================
-# Add normal user and group without password sudo
-#========================================
-  && groupadd ${SEL_GROUP} \
-         --gid ${SEL_GID} \
-  && useradd ${SEL_USER} \
-         --create-home \
-         --gid ${SEL_GID} \
-         --shell /bin/bash \
-         --uid ${SEL_UID} \
-  && usermod -a -G sudo ${SEL_USER} \
-  && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && echo "${SEL_USER}:$(cat /run/secrets/SEL_PASSWD)" | chpasswd \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
@@ -189,7 +196,7 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 USER ${SEL_UID}:${SEL_GID}
 
 RUN python3 -m venv $VENV_PATH \
-    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools virtualenv psutil requests \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip psutil requests \
     && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
     && unzip /tmp/supervisor.zip -d /tmp \
     && cd /tmp/supervisor-main \
