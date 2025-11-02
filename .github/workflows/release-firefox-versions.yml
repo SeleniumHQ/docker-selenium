@@ -115,7 +115,7 @@ jobs:
       - name: Build images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 20
+          timeout_minutes: 90
           max_attempts: 3
           retry_wait_seconds: 60
           command: |

@@ -13,7 +13,7 @@ ARG NETTY_VERSION=4.2.7.Final
 ARG CS_VERSION=2.1.25-M18
 ARG ENVSUBST_VERSION=1.4.7
 ARG CURL_VERSION=8.16.0
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.14
 
 #Arguments to define the user running Selenium
 ARG SEL_USER=seluser
@@ -40,7 +40,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     VIDEO_FOLDER="/videos" \
     # Path to the Configfile
     CONFIG_FILE="/opt/selenium/config.toml" \
-    VENV_PATH=/opt/venv
+    VENV_PATH=${HOME}/venv
 
 #========================
 # Miscellaneous packages
@@ -95,12 +95,9 @@ RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys F23C5A6CF475977595
     && apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
-    && update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1 \
-    && update-alternatives --install /usr/bin/python python /usr/bin/python${PYTHON_VERSION} 1 \
-    && python3 -m ensurepip --upgrade \
-    && python3 -m pip install --upgrade pip virtualenv --break-system-packages \
-    && rm -rf /var/lib/apt/lists/* /var/cache/apt/* \
-    && echo "source $VENV_PATH/bin/activate" >> /etc/bash.bashrc
+    && dpkg-divert --add --rename --divert /usr/bin/python3.distrib /usr/bin/python3 \
+    && ln -sf /usr/bin/python${PYTHON_VERSION} /usr/bin/python3 \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "arm64" ]; then echo "aarch64"; else echo "$(dpkg --print-architecture)"; fi) \
     && wget -q https://github.com/NDViet/static-curl/releases/download/${CURL_VERSION}/curl-$ARCH -O /usr/bin/curl \
@@ -196,12 +193,14 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 USER ${SEL_UID}:${SEL_GID}
 
 RUN python3 -m venv $VENV_PATH \
-    && $VENV_PATH/bin/python3 -m pip install --upgrade pip setuptools psutil requests \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip psutil requests \
     && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
     && unzip /tmp/supervisor.zip -d /tmp \
     && cd /tmp/supervisor-main \
-    && $VENV_PATH/bin/python3 -m pip install --break-system-packages . \
-    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main
+    && $VENV_PATH/bin/python3 -m pip install . \
+    && rm -rf /tmp/supervisor.zip /tmp/supervisor-main \
+    && python3 --version \
+    && echo "source $VENV_PATH/bin/activate" >> ${HOME}/.bashrc
 
 #RUN /opt/bin/add-jks-helper.sh -d /opt/selenium/secrets \
 #    && /opt/bin/add-cert-helper.sh -d /opt/selenium/secrets ${CERT_TRUST_ATTR}
