@@ -864,7 +864,7 @@ hub:
   # -- Port where to subscribe for events
   subscribePort: 4443
   # -- NodePort exposed where to subscribe for events
-  subscribeNodePort: 31443
+  subscribeNodePort: 32443
   # -- Selenium Hub port
   port: 4444
   # -- Selenium Hub expose NodePort

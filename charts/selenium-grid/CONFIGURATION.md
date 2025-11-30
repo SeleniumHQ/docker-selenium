@@ -338,7 +338,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.publishPort | int | `4442` | Port where events are published |
 | hub.publishNodePort | int | `31442` | NodePort exposed where events are published |
 | hub.subscribePort | int | `4443` | Port where to subscribe for events |
-| hub.subscribeNodePort | int | `31443` | NodePort exposed where to subscribe for events |
+| hub.subscribeNodePort | int | `32443` | NodePort exposed where to subscribe for events |
 | hub.port | int | `4444` | Selenium Hub port |
 | hub.nodePort | int | `31444` | Selenium Hub expose NodePort |
 | hub.startupProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":5,"path":"/readyz","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Startup probe settings |
