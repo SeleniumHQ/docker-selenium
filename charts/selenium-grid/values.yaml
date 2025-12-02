@@ -2185,6 +2185,18 @@ videoManager:
   #   persistentVolumeClaim:
   #     claimName: video-pv-claim
 
+# -- Add network policies to this chart
+# It can be set using the --set-json option
+networkPolicies: {}
+# allow-selenium:
+#   podSelector:
+#     matchLabels:
+#       app.kubernetes.io/name: selenium-node-firefox
+#   policyTypes:
+#     - Egress
+#   egress:
+#     - {}
+
 # Configuration for dependency chart keda
 keda:
   # enabled: false
