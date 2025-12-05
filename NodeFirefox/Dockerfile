@@ -23,7 +23,12 @@ ARG FIREFOX_LANG_VERSION=${FIREFOX_VERSION}
 RUN apt-get update -qqy && \
   FIREFOX_MAJOR_VERSION=${FIREFOX_VERSION%%.*} && \
   ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "aarch64"; fi) && \
-  if [ "$(dpkg --print-architecture)" = "amd64" ] || [ $FIREFOX_VERSION = "latest" ] || [ "${FIREFOX_MAJOR_VERSION}" -ge 136 ]; then \
+  # Check if FIREFOX_MAJOR_VERSION is numeric before comparison \
+  case "$FIREFOX_MAJOR_VERSION" in \
+    ''|*[!0-9]*) IS_NUMERIC=false ;; \
+    *) IS_NUMERIC=true ;; \
+  esac && \
+  if [ "$(dpkg --print-architecture)" = "amd64" ] || [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ] || { [ "$IS_NUMERIC" = "true" ] && [ "${FIREFOX_MAJOR_VERSION}" -ge 136 ]; }; then \
     if [ $FIREFOX_VERSION = "latest" ] || [ $FIREFOX_VERSION = "beta-latest" ] || [ $FIREFOX_VERSION = "nightly-latest" ] || [ $FIREFOX_VERSION = "devedition-latest" ] || [ $FIREFOX_VERSION = "esr-latest" ]; then \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
@@ -39,13 +44,12 @@ RUN apt-get update -qqy && \
       fi ; \
     fi \
   else \
-    if [ ${FIREFOX_VERSION} = "latest" ] && [ ${FIREFOX_DOWNLOAD_URL} = "" ]; then \
-      FIREFOX_VERSION="nightly-latest" ; \
+    if [ ${FIREFOX_VERSION} = "latest" ] || [ ${FIREFOX_VERSION} = "beta-latest" ] || [ ${FIREFOX_VERSION} = "nightly-latest" ] || [ ${FIREFOX_VERSION} = "devedition-latest" ] || [ ${FIREFOX_VERSION} = "esr-latest" ] && [ ${FIREFOX_DOWNLOAD_URL} = "" ]; then \
       /opt/bin/install-firefox-apt.sh \
       && FIREFOX_VERSION=$(echo "-$FIREFOX_VERSION" | sed 's/-latest//') \
       && apt install -y firefox$FIREFOX_VERSION \
       && INSTALL_VIA_APT=true \
-      && if [ $FIREFOX_VERSION = "-nightly" ]; then \
+      && if [ $FIREFOX_VERSION = "-beta" ] || [ $FIREFOX_VERSION = "-nightly" ] || [ $FIREFOX_VERSION = "-devedition" ] || [ $FIREFOX_VERSION = "-esr" ]; then \
         ln -fs $(which firefox$FIREFOX_VERSION) /usr/bin/firefox ; \
       fi ; \
     else \
@@ -57,7 +61,7 @@ RUN apt-get update -qqy && \
   if [ "${INSTALL_VIA_APT}" != "true" ]; then \
     /opt/bin/install-firefox-package.sh "${FIREFOX_DOWNLOAD_URL}" "${FIREFOX_VERSION}" ; \
   fi \
-  # Download the language pack for Firefox
+  # Download the language pack for Firefox \
   && /opt/bin/get_lang_package.sh ${FIREFOX_LANG_VERSION} \
   # Do one more upgrade to fix possible CVEs from Firefox dependencies
   && apt-get update -qqy \

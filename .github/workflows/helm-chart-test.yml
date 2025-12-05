@@ -49,31 +49,31 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.34.1'
+          - k8s-version: 'v1.34.2'
             cluster: 'minikube'
-            helm-version: 'v3.19.0'
-            docker-version: '28.4.0'
-            python-version: '3.9'
+            helm-version: 'v3.19.2'
+            docker-version: '29.1.1'
+            python-version: '3.10'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: disabled
-          - k8s-version: 'v1.34.1'
+          - k8s-version: 'v1.34.2'
             cluster: 'minikube'
             helm-version: 'v3.18.6'
-            docker-version: '28.4.0'
-            python-version: '3.9'
+            docker-version: '29.1.1'
+            python-version: '3.10'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job
-          - k8s-version: 'v1.28.15'
+          - k8s-version: 'v1.34.2'
             cluster: 'minikube'
-            helm-version: 'v3.13.3'
-            docker-version: '27.5.1'
-            python-version: '3.10'
+            helm-version: 'v4.0.1'
+            docker-version: '29.1.1'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: true
             os: ubuntu-22.04
@@ -99,7 +99,7 @@ jobs:
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job_hostname
-          - k8s-version: 'v1.31.12'
+          - k8s-version: 'v1.31.14'
             cluster: 'minikube'
             helm-version: 'v3.16.4'
             docker-version: '27.5.1'
@@ -109,20 +109,20 @@ jobs:
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: deployment_https
-          - k8s-version: 'v1.32.9'
+          - k8s-version: 'v1.32.10'
             cluster: 'minikube'
             helm-version: 'v3.17.4'
-            docker-version: '27.5.1'
+            docker-version: '28.5.2'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: playwright_connect_grid
-          - k8s-version: 'v1.33.5'
+          - k8s-version: 'v1.33.6'
             cluster: 'minikube'
             helm-version: 'v3.18.6'
-            docker-version: '27.5.1'
+            docker-version: '28.5.2'
             python-version: '3.10'
             test-upgrade: true
             service-mesh: true

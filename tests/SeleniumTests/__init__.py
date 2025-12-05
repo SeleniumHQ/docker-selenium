@@ -127,7 +127,9 @@ class SeleniumGenericTests(unittest.TestCase):
         if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
             time.sleep(4)
             return
-        wait.until(lambda d: str(d.get_downloadable_files()[0]).endswith(file_name))
+        wait.until(
+            lambda d: len(d.get_downloadable_files()) > 0 and str(d.get_downloadable_files()[0]).endswith(file_name)
+        )
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
 
     def tearDown(self):

@@ -2,6 +2,7 @@ global:
   seleniumGrid:
     logLevel: INFO
     stdoutProbeLog: true
+    sessionRequestTimeout: 800
 
 serverConfigMap:
   env:
@@ -19,8 +20,6 @@ isolateComponents: true
 
 hub:
   extraEnvironmentVariables: &extraEnvironmentVariables
-    - name: SE_SESSION_REQUEST_TIMEOUT
-      value: "800"
     - name: SE_SESSION_RETRY_INTERVAL
       value: "5"
     - name: SE_HEALTHCHECK_INTERVAL

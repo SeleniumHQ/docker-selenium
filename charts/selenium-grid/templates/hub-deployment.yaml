@@ -134,6 +134,9 @@ spec:
             - name: SE_DISTRIBUTOR_SLOT_SELECTOR
               value: {{ include "seleniumGrid.autoscaling.distributor.slotSelector" $ | quote }}
             {{- end }}
+            {{- $sessionRequestTimeout := default $.Values.global.seleniumGrid.sessionRequestTimeout $.Values.hub.sessionRequestTimeout | int64 }}
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: {{ $sessionRequestTimeout | quote }}
           {{- with .Values.hub.extraEnvironmentVariables }}
             {{- tpl (toYaml .) $ | nindent 12 }}
           {{- end }}

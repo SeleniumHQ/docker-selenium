@@ -16,6 +16,7 @@ git --no-pager log "${LATEST_TAG}...${HEAD_BRANCH}" --pretty=format:"* [\`%h\`](
 
 GRID_REVISION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} java -jar /opt/selenium/selenium-server.jar info --version | awk '{print $5}')
 CHROME_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
+CFT_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome-for-testing:${TAG_VERSION} google-chrome --version | awk '{print $5}')
 EDGE_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} microsoft-edge --version | awk '{print $3}')
 CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 EDGEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
@@ -42,6 +43,7 @@ echo "|:----------:|:--------------:|:---------------------:|" >>release_notes.m
 echo "| Selenium Grid | ${LINK_GRID_DETAILS} | ${LINK_GRID_DETAILS} |" >>release_notes.md
 echo "| Chromium | ${CHROMIUM_VERSION} | ${CHROMIUM_VERSION} |" >>release_notes.md
 echo "| Chrome | ${CHROME_VERSION} | x |" >>release_notes.md
+echo "| Chrome for Testing | ${CFT_VERSION} | x |" >>release_notes.md
 echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | ${CHROMIUMDRIVER_VERSION} |" >>release_notes.md
 echo "| Edge | ${EDGE_VERSION} | x |" >>release_notes.md
 echo "| EdgeDriver | ${EDGEDRIVER_VERSION} | x |" >>release_notes.md

@@ -28,6 +28,15 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
 
+  chrome-for-testing:
+    image: selenium/node-chrome-for-testing:beta
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
   selenium-hub:
     image: selenium/hub:latest
     container_name: selenium-hub

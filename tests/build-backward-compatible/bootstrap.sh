@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e  # Exit immediately if a command exits with a non-zero status
+
 cd tests || true
 
 if [ "${CI:-false}" = "false" ]; then
@@ -27,6 +29,9 @@ mkdir -p CHANGELOG/${SELENIUM_VERSION}
 python3 tests/build-backward-compatible/fetch_firefox_version.py
 python3 tests/build-backward-compatible/fetch_version.py
 
+# Trap errors and exit with the correct error code
+trap 'exit_code=$?; echo "Error: Command failed with exit code $exit_code on line $LINENO"; exit $exit_code' ERR
+
 for CDP_VERSION in "${VERSION_LIST[@]}"; do
   python3 tests/build-backward-compatible/builder.py ${SELENIUM_VERSION} ${CDP_VERSION} ${BROWSER}
   export $(cat .env | xargs)
@@ -35,10 +40,6 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
       BUILD_ARGS="--build-arg FIREFOX_VERSION=${FIREFOX_VERSION} --build-arg FIREFOX_DOWNLOAD_URL=${FIREFOX_DOWNLOAD_URL}"
       if [ "${REUSE_BASE}" = "true" ]; then
         BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make firefox_only
-        if [ $? -ne 0 ]; then
-          echo "Error building Node image"
-          exit 1
-        fi
         BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make standalone_firefox_only
       else
         BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${PLATFORMS} make standalone_firefox
@@ -53,10 +54,6 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
       BUILD_ARGS="--build-arg EDGE_VERSION=${EDGE_VERSION}"
       if [ "${REUSE_BASE}" = "true" ]; then
         BUILD_ARGS="${BUILD_ARGS}" make edge_only
-        if [ $? -ne 0 ]; then
-          echo "Error building Node image"
-          exit 1
-        fi
         BUILD_ARGS="${BUILD_ARGS}" make standalone_edge_only
       else
         BUILD_ARGS="${BUILD_ARGS}" make standalone_edge
@@ -71,16 +68,26 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
       BUILD_ARGS="--build-arg CHROME_VERSION=${CHROME_VERSION}"
       if [ "${REUSE_BASE}" = "true" ]; then
         BUILD_ARGS="${BUILD_ARGS}" make chrome_only
-        if [ $? -ne 0 ]; then
-          echo "Error building Node image"
-          exit 1
-        fi
         BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome_only
       else
         BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome
       fi
     else
       echo "Chrome version not found in matrix for input ${CDP_VERSION}"
+      exit 1
+    fi
+  fi
+  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome-for-testing" ] && [ "${SKIP_BUILD}" = "false" ]; then
+    if [ -n "${CFT_VERSION}" ]; then
+      BUILD_ARGS="--build-arg CFT_VERSION=${CFT_VERSION} --build-arg INSTALL_CFT=true"
+      if [ "${REUSE_BASE}" = "true" ]; then
+        BUILD_ARGS="${BUILD_ARGS}" make chrome-for-testing_only
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome-for-testing_only
+      else
+        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome-for-testing
+      fi
+    else
+      echo "Chrome for Testing version not found in matrix for input ${CDP_VERSION}"
       exit 1
     fi
   fi
@@ -92,6 +99,9 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
   fi
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ]; then
       TAG_LOG_OUTPUT="$(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_chrome_images)"
+  fi
+  if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome-for-testing" ]; then
+      TAG_LOG_OUTPUT="$(PUSH_IMAGE=${PUSH_IMAGE} RELEASE_OLD_VERSION=${RELEASE_OLD_VERSION} make tag_and_push_chrome-for-testing_images)"
   fi
 
   if [ "${PUSH_IMAGE}" = "false" ]; then

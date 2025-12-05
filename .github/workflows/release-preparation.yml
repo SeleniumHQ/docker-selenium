@@ -1,0 +1,72 @@
+name: Release Preparation
+
+on:
+  workflow_call:
+    inputs:
+      grid-version:
+        required: true
+        default: '4.37.0'
+        type: string
+  workflow_dispatch:
+    inputs:
+      grid-version:
+        required: true
+        type: string
+        default: '4.37.0'
+        description: Expected Grid version to update
+
+jobs:
+  pr-results:
+    name: Create a PR with changelog
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check existing PR
+        id: check-pr
+        run: |
+          PR_NUMBER=$(gh pr list --base trunk --head release-preparation --json number --jq '.[0].number')
+          if [ "$PR_NUMBER" != "null" ] && [ -n "$PR_NUMBER" ]; then
+            echo "pr-exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "pr-exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout PR branch
+        if: steps.check-pr.outputs.pr-exists == 'true'
+        run: |
+          git checkout release-preparation
+      - name: Run scripts
+        run: |
+          EXPECTED_BASE_VERSION=${EXPECTED_BASE_VERSION} make update_release_version
+          make update_selenium_version_matrix
+          make update_browser_versions_matrix
+        env:
+          EXPECTED_BASE_VERSION: ${{ inputs.grid-version }}
+      - name: Commit & Push changes
+        if: steps.check-pr.outputs.pr-exists == 'true'
+        uses: actions-js/push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          author_email: "selenium-ci@users.noreply.github.com"
+          author_name: "Selenium CI Bot"
+          message: "[build] Upload Selenium Grid ${{ inputs.grid-version }}"
+          empty: true
+          rebase: true
+          branch: "release-preparation"
+      - name: Create Pull Request
+        if: steps.check-pr.outputs.pr-exists == 'false'
+        uses: peter-evans/create-pull-request@main
+        with:
+          token: ${{ secrets.SELENIUM_CI_TOKEN }}
+          commit-message: |
+            [build] Upload Selenium Grid ${{ inputs.grid-version }}
+          title: "[build] Upload Selenium Grid ${{ inputs.grid-version }}"
+          body: "This PR to update Selenium Grid ${{ inputs.grid-version }} and backward browser versions"
+          committer: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          author: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
+          branch: release-preparation

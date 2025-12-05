@@ -62,3 +62,6 @@ if __name__ == '__main__':
         if browser_name == "chrome" or browser_name == "all":
             CHROME_VERSION = matrix["browser"][browser_version]["CHROME_VERSION"]
             f.write(f"CHROME_VERSION={CHROME_VERSION}")
+        if browser_name == "chrome-for-testing" or browser_name == "all":
+            CFT_VERSION = matrix["browser"][browser_version]["CFT_VERSION"]
+            f.write(f"CFT_VERSION={CFT_VERSION}")

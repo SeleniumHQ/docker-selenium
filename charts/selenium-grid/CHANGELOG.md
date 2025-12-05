@@ -1,3 +1,30 @@
+## :heavy_check_mark: selenium-grid-0.49.1
+
+- Chart is using image tag 4.38.0-20251101
+- Chart is tested on Kubernetes versions: v1.28.15,v1.29.15,v1.30.14,v1.31.12,v1.32.9,v1.33.5,v1.34.1
+- Chart is tested on container runtime Docker versions: 27.5.1,28.4.0
+- Chart is tested on Helm versions: v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.18.0
+
+### Changed
+- [`45cb0b29`](http://github.com/seleniumhq/docker-selenium/commit/45cb0b2918ad1b899cfe246639ce9671bfd6751f) - [ci] Update tag 4.38.0-20251101 in docs and files :: Selenium CI Bot
+- [`386a7f6f`](http://github.com/seleniumhq/docker-selenium/commit/386a7f6f602c54270774e2494b347edecd1a2df7) - [ci] Update chart 0.49.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.49.0
+
+- Chart is using image tag 4.38.0-20251025
+- Chart is tested on Kubernetes versions: v1.28.15,v1.29.15,v1.30.14,v1.31.12,v1.32.9,v1.33.5,v1.34.1
+- Chart is tested on container runtime Docker versions: 27.5.1,28.4.0
+- Chart is tested on Helm versions: v3.13.3,v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.0
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.18.0
+
+### Changed
+- [`323a541b`](http://github.com/seleniumhq/docker-selenium/commit/323a541b96541d58ecac2a5ee3076d6ea71b629e) - [ci] Update tag 4.38.0-20251025 in docs and files :: Selenium CI Bot
+- [`28518121`](http://github.com/seleniumhq/docker-selenium/commit/2851812135adf03b376deab0056b7e8e888173fe) - chore(deps): update helm release kube-prometheus-stack to v79 (#3007) :: renovate[bot]
+- [`4b6d675f`](http://github.com/seleniumhq/docker-selenium/commit/4b6d675fb0ca2b18112d540987b9a04766ad5f20) - K8s: Expose config session request timeout in Helm chart values (#3006) :: Viet Nguyen Duc
+- [`a43e8cdd`](http://github.com/seleniumhq/docker-selenium/commit/a43e8cdd11330c30602eb95d9f9c3e85ec8d33d1) - K8s: Remove triggerMetadata with empty value to prevent Unmatched input property from KEDA checks (#3005) :: Viet Nguyen Duc
+- [`ddf71439`](http://github.com/seleniumhq/docker-selenium/commit/ddf71439c41c68d6f0e60c47201b56b09ce771b7) - [ci] Update chart 0.48.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.48.0
 
 - Chart is using image tag 4.37.0-20251020

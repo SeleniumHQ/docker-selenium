@@ -211,6 +211,12 @@ if [ "${TEST_CUSTOM_SPECIFIC_NAME}" = "true" ]; then
   "
 fi
 
+if [ -n "${SET_SESSION_REQUEST_TIMEOUT}" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set global.seleniumGrid.sessionRequestTimeout=${SET_SESSION_REQUEST_TIMEOUT} \
+  "
+fi
+
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.enabled=false \
