@@ -409,6 +409,14 @@ helm upgrade selenium-grid docker-selenium/selenium-grid --set 'firefoxNode.enab
 
 Note: the parameter used for --set-json is just an example, please refer to [Container Spec](https://www.devspace.sh/component-chart/docs/configuration/containers) for an overview of usable parameters.
 
+If needed, you can add network policies for your selenium-grid by running:
+
+```bash
+helm upgrade selenium-grid docker-selenium/selenium-grid --set 'firefoxNode.enabled=true' --set-json 'networkPolicies={"allow-selenium":{"podSelector":{"matchLabels":{"app.kubernetes.io/name":"selenium-node-firefox"}},"policyTypes":["Egress"],"egress":[{}]}}'
+```
+
+Note: the parameter used for --set-json is just an example, please refer to [Network Policy Spec](https://kubernetes.io/docs/concepts/services-networking/network-policies/) for an overview of usable parameters.
+
 ## Uninstalling Selenium Grid release
 
 To uninstall:

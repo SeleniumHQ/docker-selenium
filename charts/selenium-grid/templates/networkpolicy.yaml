@@ -1,0 +1,10 @@
+{{- range $name, $spec := .Values.networkPolicies }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+{{ toYaml $spec | indent 2 }}
+---
+{{- end }}
