@@ -23,7 +23,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.17 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | ^4 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^79.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^80.0.0 |
 
 ## Values
 
@@ -745,6 +745,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.priorityClassName | string | `""` | Priority class name for router pods |
 | videoManager.extraVolumeMounts | list | `[]` |  |
 | videoManager.extraVolumes | list | `[]` | Extra volumes for video recorder pod |
+| networkPolicies | object | `{}` | Add network policies to this chart It can be set using the --set-json option |
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
