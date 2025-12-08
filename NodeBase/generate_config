@@ -10,6 +10,7 @@ function short_version() {
 
 # A global array of environment variable prefixes supports different browser suffixes
 ENV_PREFIXES=(
+	"SE_NODE_ENABLE_BROWSER"
 	"SE_NODE_STEREOTYPE"
 	"SE_NODE_BROWSER_NAME"
 	"SE_NODE_BROWSER_VERSION"
@@ -142,6 +143,11 @@ if [ -d "/opt/selenium/browsers" ]; then
 			echo "===Start generating stereotype for browser: ${browser_name}==="
 			# Assign environment variables with browser suffix to common variables
 			assign_browser_specific_env_vars "$browser_name"
+			if [ "${SE_NODE_ENABLE_BROWSER}" = "false" ]; then
+				echo "===Skip generating stereotype for browser: ${browser_name}, SE_NODE_ENABLE_BROWSER_${browser_name} is set false==="
+				restore_original_env_vars
+				continue
+			fi
 
 			if [ -f "${browser_dir}name" ]; then
 				SE_NODE_BROWSER_NAME=$(cat "${browser_dir}name")
