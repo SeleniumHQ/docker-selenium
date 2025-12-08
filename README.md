@@ -427,6 +427,24 @@ According to multi-arch support, browsers are available in images `selenium/node
 
 Both Chrome and Chromium browser binary are available in image arch `linux/amd64`. However, Chrome browser binary is activated by default. In case you want to switch to Chromium browser binary, you can set environment variable `SE_BROWSER_BINARY_LOCATION_CHROME=/usr/bin/chromium`.
 
+Via environment variable `SE_NODE_ENABLE_BROWSER_<BROWSER>`, with `<BROWSER>` is the name of browser in uppercase (e.g. `CHROME`, `FIREFOX`, `EDGE`). You can disable a browser to be installed in the Node/Standalone image all browsers.
+
+For example with image linux/amd64 and linux/arm64, you can disable Firefox browser by setting environment variable `SE_NODE_ENABLE_BROWSER_FIREFOX=false`.
+
+For example with image linux/amd64, you can disable Chrome browser by setting environment variable `SE_NODE_ENABLE_BROWSER_CHROME=false`. Similar for Edge browser, set `SE_NODE_ENABLE_BROWSER_EDGE=false`.
+
+Here is list of environment variables which support suffix `_<BROWSER>` in Node/Standalone image all browsers:
+
+```
+SE_NODE_STEREOTYPE
+SE_NODE_BROWSER_NAME
+SE_NODE_BROWSER_VERSION
+SE_NODE_PLATFORM_NAME
+SE_BROWSER_BINARY_LOCATION
+SE_NODE_STEREOTYPE_EXTRA
+SE_NODE_MAX_SESSIONS
+```
+
 ## Environment Variables
 
 **Checkout full list of environment variables [here](ENV_VARIABLES.md).**
