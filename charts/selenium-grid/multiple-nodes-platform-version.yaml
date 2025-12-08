@@ -13,6 +13,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-142'
+      imageTag: '142.0-20251101'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '142.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-141'
       imageTag: '141.0-20251101'
       hpa:
@@ -485,6 +490,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-142'
+      imageTag: '142.0-20251101'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '142.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-141'
       imageTag: '141.0-20251101'
       hpa:
