@@ -8,6 +8,10 @@ UPLOAD_RETAIN_LOCAL_FILE=${SE_UPLOAD_RETAIN_LOCAL_FILE:-"false"}
 UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
+UPLOAD_RETRY_MAX_ATTEMPTS=${SE_UPLOAD_RETRY_MAX_ATTEMPTS:-3}
+UPLOAD_RETRY_DELAY=${SE_UPLOAD_RETRY_DELAY:-5}
+UPLOAD_FILE_READY_WAIT=${SE_UPLOAD_FILE_READY_WAIT:-1}
+UPLOAD_VERIFY_CHECKSUM=${SE_UPLOAD_VERIFY_CHECKSUM:-"true"}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.uploader"
 
@@ -41,6 +45,57 @@ function rename_rclone_env() {
 }
 
 list_rclone_pid=()
+upload_success_count=0
+upload_failed_count=0
+graceful_exit_called=false
+
+function verify_file_ready() {
+  local file=$1
+
+  # Check if file exists
+  if [ ! -f "${file}" ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: File does not exist: ${file}"
+    return 1
+  fi
+
+  # Check if file is readable
+  if [ ! -r "${file}" ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: File is not readable: ${file}"
+    return 1
+  fi
+
+  # Check if file has non-zero size
+  local file_size=$(stat -f%z "${file}" 2>/dev/null || stat -c%s "${file}" 2>/dev/null)
+  if [ -z "${file_size}" ] || [ "${file_size}" -eq 0 ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: File is empty: ${file}"
+    return 1
+  fi
+
+  # Wait for file to be stable (no longer being written)
+  local initial_size=${file_size}
+  sleep ${UPLOAD_FILE_READY_WAIT}
+  local final_size=$(stat -f%z "${file}" 2>/dev/null || stat -c%s "${file}" 2>/dev/null)
+
+  if [ "${initial_size}" != "${final_size}" ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: File is still being written: ${file} (size changed from ${initial_size} to ${final_size})"
+    return 1
+  fi
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - File verified ready for upload: ${file} (size: ${final_size} bytes)"
+  return 0
+}
+
+function calculate_checksum() {
+  local file=$1
+  # Use md5sum for checksum (available on most systems)
+  if command -v md5sum >/dev/null 2>&1; then
+    md5sum "${file}" | awk '{print $1}'
+  elif command -v md5 >/dev/null 2>&1; then
+    md5 -q "${file}"
+  else
+    echo ""
+  fi
+}
 function check_and_clear_background() {
   # Wait for a batch rclone processes to finish
   if [ ${#list_rclone_pid[@]} -eq ${VIDEO_UPLOAD_BATCH_CHECK} ]; then
@@ -52,11 +107,89 @@ function check_and_clear_background() {
 
 }
 
+function rclone_upload_with_retry() {
+  local source=$1
+  local target=$2
+  local attempt=1
+  local source_checksum=""
+
+  # Verify file is ready before attempting upload
+  if ! verify_file_ready "${source}"; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: File verification failed, skipping upload: ${source}"
+    upload_failed_count=$((upload_failed_count + 1))
+    return 1
+  fi
+
+  # Calculate checksum if verification is enabled
+  if [ "${UPLOAD_VERIFY_CHECKSUM}" = "true" ]; then
+    source_checksum=$(calculate_checksum "${source}")
+    if [ -n "${source_checksum}" ]; then
+      echo "$(date -u +"${ts_format}") [${process_name}] - Source file checksum: ${source_checksum}"
+    fi
+  fi
+
+  # Retry loop
+  while [ ${attempt} -le ${UPLOAD_RETRY_MAX_ATTEMPTS} ]; do
+    echo "$(date -u +"${ts_format}") [${process_name}] - Upload attempt ${attempt}/${UPLOAD_RETRY_MAX_ATTEMPTS}: ${source} to ${target}"
+
+    # Execute rclone command
+    if rclone --config ${RCLONE_CONFIG} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}"; then
+      echo "$(date -u +"${ts_format}") [${process_name}] - SUCCESS: Upload completed: ${source} to ${target}"
+
+      # Verify checksum if enabled and using copy command
+      if [ "${UPLOAD_VERIFY_CHECKSUM}" = "true" ] && [ -n "${source_checksum}" ] && [ "${UPLOAD_COMMAND}" = "copy" ]; then
+        # For copy command, verify source file still has same checksum
+        local post_upload_checksum=$(calculate_checksum "${source}")
+        if [ "${source_checksum}" = "${post_upload_checksum}" ]; then
+          echo "$(date -u +"${ts_format}") [${process_name}] - Checksum verification passed: ${source_checksum}"
+        else
+          echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: Checksum mismatch after upload (before: ${source_checksum}, after: ${post_upload_checksum})"
+        fi
+      fi
+
+      # Update statistics file (for cross-process tracking)
+      (
+        flock -x 200
+        local current_success=$(grep -oP 'upload_success_count=\K\d+' /tmp/upload_stats.txt 2>/dev/null || echo 0)
+        echo "upload_success_count=$((current_success + 1))" >/tmp/upload_stats.txt.tmp
+        local current_failed=$(grep -oP 'upload_failed_count=\K\d+' /tmp/upload_stats.txt 2>/dev/null || echo 0)
+        echo "upload_failed_count=${current_failed}" >>/tmp/upload_stats.txt.tmp
+        mv /tmp/upload_stats.txt.tmp /tmp/upload_stats.txt
+      ) 200>/tmp/upload_stats.lock
+
+      return 0
+    else
+      local exit_code=$?
+      echo "$(date -u +"${ts_format}") [${process_name}] - FAILED: Upload attempt ${attempt} failed with exit code ${exit_code}: ${source}"
+
+      if [ ${attempt} -lt ${UPLOAD_RETRY_MAX_ATTEMPTS} ]; then
+        echo "$(date -u +"${ts_format}") [${process_name}] - Retrying in ${UPLOAD_RETRY_DELAY} seconds..."
+        sleep ${UPLOAD_RETRY_DELAY}
+      fi
+
+      attempt=$((attempt + 1))
+    fi
+  done
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: All upload attempts failed for: ${source}"
+
+  # Update statistics file (for cross-process tracking)
+  (
+    flock -x 200
+    local current_success=$(grep -oP 'upload_success_count=\K\d+' /tmp/upload_stats.txt 2>/dev/null || echo 0)
+    echo "upload_success_count=${current_success}" >/tmp/upload_stats.txt.tmp
+    local current_failed=$(grep -oP 'upload_failed_count=\K\d+' /tmp/upload_stats.txt 2>/dev/null || echo 0)
+    echo "upload_failed_count=$((current_failed + 1))" >>/tmp/upload_stats.txt.tmp
+    mv /tmp/upload_stats.txt.tmp /tmp/upload_stats.txt
+  ) 200>/tmp/upload_stats.lock
+
+  return 1
+}
+
 function rclone_upload() {
   local source=$1
   local target=$2
-  echo "$(date -u +"${ts_format}") [${process_name}] - Uploading ${source} to ${target}"
-  rclone --config ${RCLONE_CONFIG} ${UPLOAD_COMMAND} ${UPLOAD_OPTS} "${source}" "${target}" &
+  rclone_upload_with_retry "${source}" "${target}" &
   list_rclone_pid+=($!)
   check_and_clear_background
 }
@@ -99,8 +232,30 @@ function wait_until_pipefile_exists() {
   done
 }
 
+function wait_for_active_uploads() {
+  if [ ${#list_rclone_pid[@]} -gt 0 ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for ${#list_rclone_pid[@]} active upload process(es) to complete"
+    for pid in "${list_rclone_pid[@]}"; do
+      if kill -0 "$pid" 2>/dev/null; then
+        echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for upload process (PID: $pid)"
+        wait "$pid" 2>/dev/null || true
+      fi
+    done
+    echo "$(date -u +"${ts_format}") [${process_name}] - All active upload processes completed"
+    list_rclone_pid=()
+  fi
+}
+
 function graceful_exit() {
+  # Prevent duplicate execution (trap catches both SIGTERM and EXIT)
+  if [ "$graceful_exit_called" = "true" ]; then
+    return 0
+  fi
+  graceful_exit_called=true
+
   echo "$(date -u +"${ts_format}") [${process_name}] - Trapped SIGTERM/SIGINT/x so shutting down uploader"
+
+  # Signal the pipe consumer to stop accepting new files
   if ! check_if_pid_alive "${UPLOAD_PID}"; then
     consume_pipe_file_in_background &
     UPLOAD_PID=$!
@@ -108,7 +263,22 @@ function graceful_exit() {
   echo "exit" >>"${UPLOAD_PIPE_FILE}" &
   wait "${UPLOAD_PID}"
   echo "$(date -u +"${ts_format}") [${process_name}] - Uploader consumed all files in the pipe"
+
+  # Wait for all active background rclone uploads to complete
+  wait_for_active_uploads
+
+  # Log upload statistics from file (written by background processes)
+  if [ -f "/tmp/upload_stats.txt" ]; then
+    source "/tmp/upload_stats.txt" 2>/dev/null || true
+  fi
+  local total_uploads=$((upload_success_count + upload_failed_count))
+  echo "$(date -u +"${ts_format}") [${process_name}] - Upload Statistics:"
+  echo "$(date -u +"${ts_format}") [${process_name}] -   Total uploads attempted: ${total_uploads}"
+  echo "$(date -u +"${ts_format}") [${process_name}] -   Successful uploads: ${upload_success_count}"
+  echo "$(date -u +"${ts_format}") [${process_name}] -   Failed uploads: ${upload_failed_count}"
+
   rm -rf "${FORCE_EXIT_FILE}"
+  rm -rf "/tmp/upload_stats.txt"
   echo "$(date -u +"${ts_format}") [${process_name}] - Uploader is ready to shutdown"
   exit 0
 }
@@ -117,12 +287,28 @@ rename_rclone_env
 trap graceful_exit SIGTERM SIGINT EXIT
 
 while true; do
+  # Exit main loop if graceful shutdown is in progress
+  if [ "$graceful_exit_called" = "true" ]; then
+    break
+  fi
+
   wait_until_pipefile_exists
+
+  # Exit main loop if graceful shutdown is in progress
+  if [ "$graceful_exit_called" = "true" ]; then
+    break
+  fi
+
   if ! check_if_pid_alive "${UPLOAD_PID}"; then
     consume_pipe_file_in_background &
     UPLOAD_PID=$!
   fi
+
   while check_if_pid_alive "${UPLOAD_PID}"; do
+    # Exit main loop if graceful shutdown is in progress
+    if [ "$graceful_exit_called" = "true" ]; then
+      break 2 # Break out of both while loops
+    fi
     sleep 1
   done
 done
