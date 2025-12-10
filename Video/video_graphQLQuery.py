@@ -11,6 +11,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from video_gridUrl import get_grid_url
 from typing import Tuple
 
 MAX_TIME_SECONDS = 1
@@ -25,18 +26,7 @@ def get_graphql_endpoint() -> str:
     """
     endpoint = os.getenv("SE_NODE_GRID_GRAPHQL_URL")
     if not endpoint:
-        # Execute helper script; ignore errors and fall back to empty string.
-        try:
-            completed = subprocess.run(
-                [sys.executable, "/opt/bin/video_gridUrl.py"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                text=True,
-                check=False,
-            )
-            endpoint = completed.stdout.strip()
-        except Exception:
-            endpoint = ""
+      endpoint = get_grid_url()
     if endpoint and not endpoint.endswith("/graphql"):
         endpoint = f"{endpoint}/graphql"
     return endpoint
