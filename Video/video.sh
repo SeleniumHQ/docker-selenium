@@ -19,6 +19,9 @@ max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
 file_ready_max_attempts=${SE_VIDEO_FILE_READY_WAIT_ATTEMPTS:-5}
 wait_uploader_shutdown_max_attempts=${SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS:-5}
 graceful_stop_delay=${SE_VIDEO_GRACEFUL_STOP_DELAY:-5}
+min_recording_duration=${SE_VIDEO_MIN_RECORDING_DURATION:-5}
+video_validation_enabled=${SE_VIDEO_VALIDATION_ENABLED:-"true"}
+video_fix_corrupted=${SE_VIDEO_FIX_CORRUPTED:-"true"}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
@@ -187,12 +190,66 @@ function exit_on_max_session_reach() {
   fi
 }
 
+function validate_mp4_file() {
+  local video_file="$1"
+  local session_id_param="$2"
+
+  if [[ "${video_validation_enabled}" != "true" ]]; then
+    return 0
+  fi
+
+  if [[ ! -f "${video_file}" ]]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file does not exist: ${video_file}"
+    return 1
+  fi
+
+  # Check if file has moov atom using ffmpeg probe
+  if ffmpeg -v error -i "${video_file}" -f null - 2>&1 | grep -q "moov atom not found"; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file missing moov atom: ${video_file}"
+    return 1
+  fi
+
+  # Quick validation: check if ffmpeg can read the file
+  if ! ffmpeg -v error -i "${video_file}" -t 0.1 -f null - 2>/dev/null; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file validation failed: ${video_file}"
+    return 1
+  fi
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file validation passed: ${video_file}"
+  return 0
+}
+
+function attempt_fix_mp4_file() {
+  local video_file="$1"
+  local session_id_param="$2"
+
+  if [[ "${video_fix_corrupted}" != "true" ]]; then
+    return 1
+  fi
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Attempting to fix corrupted MP4 file: ${video_file}"
+
+  local temp_file="${video_file}.temp.mp4"
+
+  # Try to recover the file by remuxing with faststart
+  if ffmpeg -v warning -i "${video_file}" -c copy -movflags +faststart "${temp_file}" 2>/dev/null; then
+    mv "${temp_file}" "${video_file}"
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Successfully fixed MP4 file: ${video_file}"
+    return 0
+  else
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Failed to fix MP4 file: ${video_file}"
+    rm -f "${temp_file}"
+    return 1
+  fi
+}
+
 function stop_ffmpeg() {
   while true; do
     FFMPEG_PID=$(pgrep -f "ffmpeg -hide_banner" | tr '\n' ' ')
     if [ -n "$FFMPEG_PID" ]; then
-      kill -SIGINT $FFMPEG_PID
-      wait $FFMPEG_PID
+      # Single SIGTERM for graceful shutdown - allows FFmpeg to write moov atom
+      kill -SIGTERM $FFMPEG_PID
+      wait $FFMPEG_PID 2>/dev/null
     fi
     if ! pgrep -f "ffmpeg -hide_banner" >/dev/null; then
       break
@@ -210,11 +267,12 @@ function stop_ffmpeg_graceful_async() {
   local session_id_param="$6"
 
   (
-    # Send SIGINT to FFmpeg
+    # Send single SIGTERM to FFmpeg for graceful shutdown
+    # This allows FFmpeg to properly write the moov atom (MP4 metadata)
     FFMPEG_PID=$(pgrep -f "ffmpeg -hide_banner" | tr '\n' ' ')
     if [ -n "$FFMPEG_PID" ]; then
-      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Sending SIGINT to FFmpeg PID: $FFMPEG_PID for file: ${video_file_name_param}"
-      kill -SIGINT $FFMPEG_PID
+      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Sending SIGTERM to FFmpeg PID: $FFMPEG_PID for file: ${video_file_name_param}"
+      kill -SIGTERM $FFMPEG_PID
 
       # Wait for FFmpeg to finish writing
       wait $FFMPEG_PID 2>/dev/null
@@ -223,15 +281,35 @@ function stop_ffmpeg_graceful_async() {
       echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${graceful_stop_delay} seconds for video metadata finalization"
       sleep ${graceful_stop_delay}
 
-      # Verify file integrity after grace period
+      # Verify file exists
       if [[ -f "${video_file_to_finalize}" ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file finalized: ${video_file_to_finalize}"
 
-        # Trigger upload AFTER file is finalized
-        if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
-          upload_destination="${upload_dest_prefix}/${video_file_name_param}"
-          echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading video to ${upload_destination}"
-          echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
+        # Validate MP4 file integrity
+        if validate_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
+          # File is valid, proceed with upload
+          if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
+            upload_destination="${upload_dest_prefix}/${video_file_name_param}"
+            echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading video to ${upload_destination}"
+            echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
+          fi
+        else
+          # Validation failed, attempt to fix
+          echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video validation failed, attempting recovery"
+          if attempt_fix_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
+            # Fixed successfully, re-validate and upload
+            if validate_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
+              if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
+                upload_destination="${upload_dest_prefix}/${video_file_name_param}"
+                echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading recovered video to ${upload_destination}"
+                echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
+              fi
+            else
+              echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file still corrupted after recovery attempt, skipping upload"
+            fi
+          else
+            echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file recovery failed, skipping upload"
+          fi
         fi
       else
         echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: Video file not found after finalization: ${video_file_to_finalize}"
