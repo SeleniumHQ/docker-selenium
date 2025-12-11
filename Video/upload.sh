@@ -10,8 +10,10 @@ VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_UPLOAD_BATCH_CHECK=${SE_VIDEO_UPLOAD_BATCH_CHECK:-"10"}
 UPLOAD_RETRY_MAX_ATTEMPTS=${SE_UPLOAD_RETRY_MAX_ATTEMPTS:-3}
 UPLOAD_RETRY_DELAY=${SE_UPLOAD_RETRY_DELAY:-5}
-UPLOAD_FILE_READY_WAIT=${SE_UPLOAD_FILE_READY_WAIT:-1}
+UPLOAD_FILE_READY_WAIT=${SE_UPLOAD_FILE_READY_WAIT:-3}
+UPLOAD_FILE_STABILITY_RETRIES=${SE_UPLOAD_FILE_STABILITY_RETRIES:-5}
 UPLOAD_VERIFY_CHECKSUM=${SE_UPLOAD_VERIFY_CHECKSUM:-"true"}
+UPLOAD_VALIDATE_MP4=${SE_UPLOAD_VALIDATE_MP4:-"true"}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.uploader"
 
@@ -49,6 +51,36 @@ upload_success_count=0
 upload_failed_count=0
 graceful_exit_called=false
 
+function validate_mp4_moov_atom() {
+  local file=$1
+
+  if [[ "${UPLOAD_VALIDATE_MP4}" != "true" ]]; then
+    return 0
+  fi
+
+  # Only validate MP4/M4V files
+  if [[ ! "${file}" =~ \.(mp4|m4v)$ ]]; then
+    return 0
+  fi
+
+  # Check if file has moov atom using ffmpeg probe
+  local error_output=$(ffmpeg -v error -i "${file}" -f null - 2>&1)
+
+  if echo "${error_output}" | grep -q "moov atom not found"; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: MP4 file missing moov atom: ${file}"
+    return 1
+  fi
+
+  # Quick validation: check if ffmpeg can read the file
+  if ! ffmpeg -v error -i "${file}" -t 0.1 -f null - 2>/dev/null; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - ERROR: MP4 file validation failed: ${file}"
+    return 1
+  fi
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - MP4 validation passed: ${file}"
+  return 0
+}
+
 function verify_file_ready() {
   local file=$1
 
@@ -71,13 +103,44 @@ function verify_file_ready() {
     return 1
   fi
 
-  # Wait for file to be stable (no longer being written)
-  local initial_size=${file_size}
-  sleep ${UPLOAD_FILE_READY_WAIT}
-  local final_size=$(stat -f%z "${file}" 2>/dev/null || stat -c%s "${file}" 2>/dev/null)
+  # Wait for file to be stable (no longer being written) with retries
+  echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for file to stabilize: ${file}"
+  local retry=0
+  local stable=false
 
-  if [ "${initial_size}" != "${final_size}" ]; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: File is still being written: ${file} (size changed from ${initial_size} to ${final_size})"
+  while [ ${retry} -lt ${UPLOAD_FILE_STABILITY_RETRIES} ]; do
+    local initial_size=${file_size}
+    sleep ${UPLOAD_FILE_READY_WAIT}
+    local final_size=$(stat -f%z "${file}" 2>/dev/null || stat -c%s "${file}" 2>/dev/null)
+
+    if [ "${initial_size}" = "${final_size}" ]; then
+      # Size is stable, force filesystem sync and verify again
+      sync
+      sleep 1
+      local verify_size=$(stat -f%z "${file}" 2>/dev/null || stat -c%s "${file}" 2>/dev/null)
+
+      if [ "${final_size}" = "${verify_size}" ]; then
+        stable=true
+        echo "$(date -u +"${ts_format}") [${process_name}] - File size stable at ${final_size} bytes after ${retry} retries"
+        break
+      fi
+    fi
+
+    retry=$((retry + 1))
+    file_size=${final_size}
+
+    if [ ${retry} -lt ${UPLOAD_FILE_STABILITY_RETRIES} ]; then
+      echo "$(date -u +"${ts_format}") [${process_name}] - File size changed (${initial_size} -> ${final_size}), waiting more (retry ${retry}/${UPLOAD_FILE_STABILITY_RETRIES})"
+    fi
+  done
+
+  if [ "${stable}" != "true" ]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: File did not stabilize after ${UPLOAD_FILE_STABILITY_RETRIES} retries: ${file}"
+    return 1
+  fi
+
+  # Validate MP4 moov atom if enabled
+  if ! validate_mp4_moov_atom "${file}"; then
     return 1
   fi
 

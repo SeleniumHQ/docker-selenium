@@ -19,6 +19,8 @@ max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
 file_ready_max_attempts=${SE_VIDEO_FILE_READY_WAIT_ATTEMPTS:-5}
 wait_uploader_shutdown_max_attempts=${SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS:-5}
 graceful_stop_delay=${SE_VIDEO_GRACEFUL_STOP_DELAY:-5}
+ffmpeg_stop_timeout=${SE_VIDEO_FFMPEG_STOP_TIMEOUT:-10}
+file_stability_wait=${SE_VIDEO_FILE_STABILITY_WAIT:-2}
 min_recording_duration=${SE_VIDEO_MIN_RECORDING_DURATION:-5}
 video_validation_enabled=${SE_VIDEO_VALIDATION_ENABLED:-"true"}
 video_fix_corrupted=${SE_VIDEO_FIX_CORRUPTED:-"true"}
@@ -190,6 +192,32 @@ function exit_on_max_session_reach() {
   fi
 }
 
+function wait_for_file_stability() {
+  local video_file="$1"
+  local session_id_param="$2"
+
+  if [[ ! -f "${video_file}" ]]; then
+    return 1
+  fi
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${file_stability_wait}s for file to stabilize: ${video_file}"
+
+  local prev_size=$(stat -f%z "${video_file}" 2>/dev/null || stat -c%s "${video_file}" 2>/dev/null)
+  sleep ${file_stability_wait}
+  local curr_size=$(stat -f%z "${video_file}" 2>/dev/null || stat -c%s "${video_file}" 2>/dev/null)
+
+  if [[ "${prev_size}" != "${curr_size}" ]]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: File size changed during stability check (${prev_size} -> ${curr_size}), waiting longer"
+    sleep ${file_stability_wait}
+  fi
+
+  # Force filesystem sync
+  sync
+
+  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] File stable at size: ${curr_size} bytes"
+  return 0
+}
+
 function validate_mp4_file() {
   local video_file="$1"
   local session_id_param="$2"
@@ -274,16 +302,32 @@ function stop_ffmpeg_graceful_async() {
       echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Sending SIGTERM to FFmpeg PID: $FFMPEG_PID for file: ${video_file_name_param}"
       kill -SIGTERM $FFMPEG_PID
 
-      # Wait for FFmpeg to finish writing
+      # Wait for FFmpeg to finish writing with timeout
+      local wait_count=0
+      while kill -0 $FFMPEG_PID 2>/dev/null && [ $wait_count -lt ${ffmpeg_stop_timeout} ]; do
+        sleep 1
+        wait_count=$((wait_count + 1))
+      done
+
+      if kill -0 $FFMPEG_PID 2>/dev/null; then
+        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: FFmpeg still running after ${ffmpeg_stop_timeout}s, forcing kill"
+        kill -SIGKILL $FFMPEG_PID 2>/dev/null
+      else
+        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] FFmpeg exited gracefully after ${wait_count}s"
+      fi
+
       wait $FFMPEG_PID 2>/dev/null
 
-      # Grace period for metadata finalization
-      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${graceful_stop_delay} seconds for video metadata finalization"
+      # Grace period for metadata finalization and filesystem sync
+      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${graceful_stop_delay}s for video metadata finalization"
       sleep ${graceful_stop_delay}
 
-      # Verify file exists
+      # Verify file exists and wait for stability
       if [[ -f "${video_file_to_finalize}" ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file finalized: ${video_file_to_finalize}"
+
+        # Wait for file to stabilize (no more writes)
+        wait_for_file_stability "${video_file_to_finalize}" "${session_id_param}"
 
         # Validate MP4 file integrity
         if validate_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
@@ -436,8 +480,10 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
     -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
-    -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-    -pix_fmt yuv420p -movflags +faststart "$video_file" &
+    -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
+    -pix_fmt yuv420p -g ${SE_VIDEO_GOP_SIZE:-60} -keyint_min ${SE_VIDEO_KEYINT_MIN:-30} \
+    -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*2)" \
+    -movflags +faststart+frag_keyframe+empty_moov+default_base_moof "$video_file" &
   FFMPEG_PID=$!
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
@@ -474,8 +520,10 @@ else
         ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
           -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
-          -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-          -pix_fmt yuv420p -movflags +faststart "$video_file" &
+          -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
+          -pix_fmt yuv420p -g ${SE_VIDEO_GOP_SIZE:-60} -keyint_min ${SE_VIDEO_KEYINT_MIN:-30} \
+          -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*2)" \
+          -movflags +faststart+frag_keyframe+empty_moov+default_base_moof "$video_file" &
         FFMPEG_PID=$!
         if ps -p $FFMPEG_PID >/dev/null; then
           recording_started="true"
