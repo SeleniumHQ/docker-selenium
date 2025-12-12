@@ -6,7 +6,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chrome:4.38.0-20251101
+    image: selenium/node-chrome:4.39.0-20251202
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -23,7 +23,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-edge:4.38.0-20251101
+    image: selenium/node-edge:4.39.0-20251202
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -40,7 +40,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.38.0-20251101
+    image: selenium/node-firefox:4.39.0-20251202
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -53,7 +53,7 @@ services:
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   selenium-hub:
-    image: selenium/hub:4.38.0-20251101
+    image: selenium/hub:4.39.0-20251202
     container_name: selenium-hub
     ports:
       - "4442:4442"

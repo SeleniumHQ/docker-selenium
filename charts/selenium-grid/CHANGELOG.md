@@ -1,3 +1,21 @@
+## :heavy_check_mark: selenium-grid-0.50.0
+
+- Chart is using image tag 4.39.0-20251202
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.18.0
+
+### Changed
+- [`e52d3355`](http://github.com/seleniumhq/docker-selenium/commit/e52d33555d858a279fe820310cca27cceab80de3) - [ci] Update tag 4.39.0-20251202 in docs and files :: Selenium CI Bot
+- [`98a4923b`](http://github.com/seleniumhq/docker-selenium/commit/98a4923baad389c0e67b116605950c2a3e85f7f5) - [build] Update dependencies version (#3040) :: Viet Nguyen Duc
+- [`85b06699`](http://github.com/seleniumhq/docker-selenium/commit/85b06699365b4776717f2e23f9c0e8229be4fd3c) - Update Helm release kube-prometheus-stack to v80 (#3037) :: renovate[bot]
+- [`c4940518`](http://github.com/seleniumhq/docker-selenium/commit/c49405182c152b351c41283d78c54db4f28d60ba) - Update Helm release jaeger to v4 (#3034) :: renovate[bot]
+- [`4b9fc609`](http://github.com/seleniumhq/docker-selenium/commit/4b9fc60913c62eba4da37620b1a640889d7688ab) - K8s: Add option to inject network policies into chart (#3033) :: Michael Göhler
+- [`4d6f29ef`](http://github.com/seleniumhq/docker-selenium/commit/4d6f29ef243888eb4aa2657230a263bd5389df14) - [ci] Update deps version (#3026) :: Viet Nguyen Duc
+- [`b00cdf54`](http://github.com/seleniumhq/docker-selenium/commit/b00cdf54ef0c2ce63078698d172bc60a5c3de1a5) - Update Helm release redis to v24 (#3029) :: renovate[bot]
+- [`bd2a419e`](http://github.com/seleniumhq/docker-selenium/commit/bd2a419eb0a16f3cd6d87ab3857a8942c16d9ab5) - [ci] Update chart 0.49.1 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.49.1
 
 - Chart is using image tag 4.38.0-20251101
