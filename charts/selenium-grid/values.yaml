@@ -2122,7 +2122,7 @@ videoManager:
     password: ""
     # -- Use the noauth auther when using quick setup
     noauth: true
-  # -- Specify extra environment variables for Router
+  # -- Specify extra environment variables for Router. You can pass any environment variables support by https://filebrowser.org/changelog.html
   extraEnvironmentVariables: []
   # -- Specify extra environment variables from ConfigMap and Secret for Router
   extraEnvFrom: []

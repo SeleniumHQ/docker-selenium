@@ -719,7 +719,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.config.username | string | `""` | Username for the first user when using quick config (default "admin") |
 | videoManager.config.password | string | `""` | Hashed password (bcrypt) for the first user when using quick config (default "admin") |
 | videoManager.config.noauth | bool | `true` | Use the noauth auther when using quick setup |
-| videoManager.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router |
+| videoManager.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router. You can pass any environment variables support by https://filebrowser.org/changelog.html |
 | videoManager.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
 | videoManager.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | videoManager.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
