@@ -23,6 +23,12 @@ helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dum
   --set-file 'uploaderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > ./tests/tests/dummy_job_template_manifests.yaml
 
+python3 tests/charts/templates/test_scaled_job.py "./tests/tests/dummy_job_template_manifests.yaml"
+if [ $? -ne 0 ]; then
+  echo "Failed to validate the chart for ScaledJob"
+  exit 1
+fi
+
 helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dummy.yaml \
   --set-file 'nodeConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
   --set-file 'recorderConfigMap.extraScripts.setFromCommand\.sh=tests/charts/templates/render/dummy_external.sh' \
