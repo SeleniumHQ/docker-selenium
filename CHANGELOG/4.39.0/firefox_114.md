@@ -1,21 +1,21 @@
 ```
-./tag_and_push_browser_images.sh 4.39.0 20251202 selenium false firefox true
-Tagging images for browser firefox, version 4.39.0, build date 20251202, namespace selenium
-Selenium Grid version -> 4.39.0-20251202
+./tag_and_push_browser_images.sh 4.39.0 20251212 selenium false firefox true
+Tagging images for browser firefox, version 4.39.0, build date 20251212, namespace selenium
+Selenium Grid version -> 4.39.0-20251212
 Firefox version -> 114.0.2
 Short Firefox version -> 114.0
 GeckoDriver version -> 0.36.0
 Short GeckoDriver version -> 0.36
-Tagged selenium/node-firefox:114.0.2-geckodriver-0.36.0-grid-4.39.0-20251202
-Tagged selenium/standalone-firefox:114.0.2-geckodriver-0.36.0-grid-4.39.0-20251202
-Tagged selenium/node-firefox:114.0.2-geckodriver-0.36.0-20251202
-Tagged selenium/standalone-firefox:114.0.2-geckodriver-0.36.0-20251202
-Tagged selenium/node-firefox:114.0.2-20251202
-Tagged selenium/standalone-firefox:114.0.2-20251202
-Tagged selenium/node-firefox:114.0-geckodriver-0.36-grid-4.39.0-20251202
-Tagged selenium/standalone-firefox:114.0-geckodriver-0.36-grid-4.39.0-20251202
-Tagged selenium/node-firefox:114.0-geckodriver-0.36-20251202
-Tagged selenium/standalone-firefox:114.0-geckodriver-0.36-20251202
-Tagged selenium/node-firefox:114.0-20251202
-Tagged selenium/standalone-firefox:114.0-20251202
+Tagged selenium/node-firefox:114.0.2-geckodriver-0.36.0-grid-4.39.0-20251212
+Tagged selenium/standalone-firefox:114.0.2-geckodriver-0.36.0-grid-4.39.0-20251212
+Tagged selenium/node-firefox:114.0.2-geckodriver-0.36.0-20251212
+Tagged selenium/standalone-firefox:114.0.2-geckodriver-0.36.0-20251212
+Tagged selenium/node-firefox:114.0.2-20251212
+Tagged selenium/standalone-firefox:114.0.2-20251212
+Tagged selenium/node-firefox:114.0-geckodriver-0.36-grid-4.39.0-20251212
+Tagged selenium/standalone-firefox:114.0-geckodriver-0.36-grid-4.39.0-20251212
+Tagged selenium/node-firefox:114.0-geckodriver-0.36-20251212
+Tagged selenium/standalone-firefox:114.0-geckodriver-0.36-20251212
+Tagged selenium/node-firefox:114.0-20251212
+Tagged selenium/standalone-firefox:114.0-20251212
 ```

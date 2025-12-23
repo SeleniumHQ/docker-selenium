@@ -34,6 +34,8 @@ spec:
           {{- with .Values.videoManager.config.baseurl }}
             - name: FB_BASEURL
               value: {{ . | quote }}
+            - name: FB_BASE_URL
+              value: {{ . | quote }}
           {{- end }}
           {{- with .Values.videoManager.config.username }}
             - name: FB_USERNAME
