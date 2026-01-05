@@ -66,8 +66,8 @@ check_dev_env:
 setup_dev_env:
 	./tests/charts/make/chart_setup_env.sh ; \
 	exit_code=$$? ; \
-  make set_containerd_image_store ; \
-  exit $$exit_code ;
+	make set_containerd_image_store ; \
+	exit $$exit_code ;
 
 set_containerd_image_store:
 	sudo mkdir -p /etc/docker
@@ -85,8 +85,12 @@ format_makefile: install_python_deps
 	python3 -m mbake format Makefile
 	python3 -m mbake validate Makefile
 
-install_python_deps:
+install_python_deps: install_python_venv
 	python3 -m pip install -r tests/requirements.txt --break-system-packages
+
+install_python_venv:
+	python3 -m venv .venv ; \
+	. .venv/bin/activate
 
 format_python_scripts: install_python_deps
 	python3 -m isort . ; \
