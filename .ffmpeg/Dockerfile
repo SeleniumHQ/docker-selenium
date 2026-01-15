@@ -1,6 +1,6 @@
 FROM ubuntu:noble AS builder
-ARG FFMPEG_VERSION="8.0.1"
-ARG RCLONE_VER="v1.72.0"
+ARG FFMPEG_VERSION="8.0"
+ARG RCLONE_VER="v1.72.1"
 ARG GO_VERSION="latest"
 #ARG GO_CRYPTO_VERSION="v0.36.0"
 #ARG GO_OAUTH2_VERSION="v0.27.0"
@@ -62,9 +62,8 @@ RUN cd /usr/local/src \
 # Install FFmpeg from source
 #======================================
 RUN cd /usr/local/src \
-    && git clone https://github.com/FFmpeg/FFmpeg.git --filter=blob:none \
+    && git clone -b release/${FFMPEG_VERSION} --single-branch https://github.com/FFmpeg/FFmpeg.git \
     && cd FFmpeg \
-    && git checkout n${FFMPEG_VERSION} \
     && rm -rf .git \
     && PKG_CONFIG_PATH="/usr/local/lib/pkgconfig" FFMPEG_VERSION=${FFMPEG_VERSION} ./configure \
     --prefix="/usr/local" \
