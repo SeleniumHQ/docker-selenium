@@ -494,3 +494,20 @@
     a slot in a Node once the Node has been matched. Switch to built-in Greedy strategy,
     use class name `org.openqa.selenium.grid.distributor.selector.GreedySlotSelector`
   cli: --slot-selector
+- name: SE_EVENT_BUS_HEARTBEAT_PERIOD
+  description: How often, in seconds, will the EventBus socket send heartbeats
+  cli: --eventbus-heartbeat-period
+- name: SE_NODE_ENABLE_BROWSER
+  description: Checkout usage of SE_NODE_ENABLE_BROWSER_* in below
+  cli: ''
+- name: SE_NODE_ENABLE_BROWSER_
+  description: 'This is used in node/standalone all browsers in one container, append
+    suffix CHROME, FIREFOX or EDGE to disable correspoding browser in Node stereotypes.
+    For example: SE_NODE_ENABLE_BROWSER_CHROME=false'
+  cli: ''
+- name: SE_NODE_DOWN_FAILURE_THRESHOLD
+  description: Maximum number of consecutive session creation failures before the
+    Node is marked as DOWN. This helps detect and isolate unhealthy Nodes that consistently
+    fail to create sessions. A value of 0 (default) disables this feature, allowing
+    unlimited retries. A value higher than zero enables this feature.
+  cli: --node-down-failure-threshold

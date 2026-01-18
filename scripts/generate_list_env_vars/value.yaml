@@ -28,6 +28,8 @@
   default: 'false'
 - name: SE_ENABLE_TRACING
   default: 'true'
+- name: SE_EVENT_BUS_HEARTBEAT_PERIOD
+  default: ''
 - name: SE_EVENT_BUS_HOST
   default: ''
 - name: SE_EVENT_BUS_PORT
@@ -92,18 +94,22 @@
   default: 'true'
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
   default: docker.toml
+- name: SE_NODE_DOWN_FAILURE_THRESHOLD
+  default: '0'
+- name: SE_NODE_ENABLE_BROWSER
+  default: ''
+- name: SE_NODE_ENABLE_BROWSER_
+  default: ''
 - name: SE_NODE_ENABLE_CDP
   default: ''
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
   default: 'true'
 - name: SE_NODE_GRACEFUL_SHUTDOWN
   default: ''
-- name: SE_NODE_GRID_GRAPHQL_URL
-  default: ''
 - name: SE_NODE_GRID_URL
   default: ''
 - name: SE_NODE_HEARTBEAT_PERIOD
-  default: '30'
+  default: '15'
 - name: SE_NODE_HOST
   default: ''
 - name: SE_NODE_MAX_SESSIONS
