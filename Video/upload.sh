@@ -297,14 +297,27 @@ function wait_until_pipefile_exists() {
 
 function wait_for_active_uploads() {
   if [ ${#list_rclone_pid[@]} -gt 0 ]; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for ${#list_rclone_pid[@]} active upload process(es) to complete"
+    local max_wait=${SE_UPLOAD_SHUTDOWN_WAIT:-45}
+    local wait_count=0
+    echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for ${#list_rclone_pid[@]} active upload process(es) to complete (max ${max_wait}s)"
     for pid in "${list_rclone_pid[@]}"; do
       if kill -0 "$pid" 2>/dev/null; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for upload process (PID: $pid)"
-        wait "$pid" 2>/dev/null || true
+        # Wait with timeout per process
+        while kill -0 "$pid" 2>/dev/null && [ ${wait_count} -lt ${max_wait} ]; do
+          sleep 1
+          wait_count=$((wait_count + 1))
+        done
+        if kill -0 "$pid" 2>/dev/null; then
+          echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: Upload process (PID: $pid) still running after ${max_wait}s timeout"
+        fi
       fi
     done
-    echo "$(date -u +"${ts_format}") [${process_name}] - All active upload processes completed"
+    if [ ${wait_count} -ge ${max_wait} ]; then
+      echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: Shutdown timeout reached, some uploads may not complete"
+    else
+      echo "$(date -u +"${ts_format}") [${process_name}] - All active upload processes completed"
+    fi
     list_rclone_pid=()
   fi
 }

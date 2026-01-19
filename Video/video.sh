@@ -109,21 +109,26 @@ function wait_for_api_respond() {
 }
 
 function wait_util_uploader_shutdown() {
-  wait=0
+  local wait=0
+  local max_wait=${wait_uploader_shutdown_max_attempts}
   if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" != "true" ]]; then
-    while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${wait_uploader_shutdown_max_attempts} ]]; do
+    while [[ -f ${FORCE_EXIT_FILE} ]] && [[ ${wait} -lt ${max_wait} ]]; do
       echo "exit" >>${UPLOAD_PIPE_FILE} &
-      echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for force exit file to be consumed by external upload container"
+      echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for force exit file to be consumed by external upload container (${wait}/${max_wait})"
       sleep ${poll_interval}
       wait=$((wait + 1))
     done
   fi
   if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" = "true" ]]; then
-    while [[ $(pgrep rclone | wc -l) -gt 0 ]]; do
+    while [[ $(pgrep rclone | wc -l) -gt 0 ]] && [[ ${wait} -lt ${max_wait} ]]; do
       echo "exit" >>${UPLOAD_PIPE_FILE} &
-      echo "$(date -u +"${ts_format}") [${process_name}] - Recorder is waiting for RCLONE to finish"
+      echo "$(date -u +"${ts_format}") [${process_name}] - Recorder is waiting for RCLONE to finish (${wait}/${max_wait})"
       sleep ${poll_interval}
+      wait=$((wait + 1))
     done
+  fi
+  if [[ ${wait} -ge ${max_wait} ]]; then
+    echo "$(date -u +"${ts_format}") [${process_name}] - WARNING: Uploader shutdown wait timeout reached"
   fi
 }
 
