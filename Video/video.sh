@@ -16,14 +16,9 @@ UPLOAD_PIPE_FILE_NAME=${SE_UPLOAD_PIPE_FILE_NAME:-"uploadpipe"}
 SE_SERVER_PROTOCOL=${SE_SERVER_PROTOCOL:-"http"}
 poll_interval=${SE_VIDEO_POLL_INTERVAL:-2}
 max_attempts=${SE_VIDEO_WAIT_ATTEMPTS:-50}
-file_ready_max_attempts=${SE_VIDEO_FILE_READY_WAIT_ATTEMPTS:-5}
 wait_uploader_shutdown_max_attempts=${SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS:-5}
 graceful_stop_delay=${SE_VIDEO_GRACEFUL_STOP_DELAY:-5}
 ffmpeg_stop_timeout=${SE_VIDEO_FFMPEG_STOP_TIMEOUT:-10}
-file_stability_wait=${SE_VIDEO_FILE_STABILITY_WAIT:-2}
-min_recording_duration=${SE_VIDEO_MIN_RECORDING_DURATION:-5}
-video_validation_enabled=${SE_VIDEO_VALIDATION_ENABLED:-"true"}
-video_fix_corrupted=${SE_VIDEO_FIX_CORRUPTED:-"true"}
 ts_format=${SE_LOG_TIMESTAMP_FORMAT:-"%Y-%m-%d %H:%M:%S,%3N"}
 process_name="video.recorder"
 
@@ -192,85 +187,6 @@ function exit_on_max_session_reach() {
   fi
 }
 
-function wait_for_file_stability() {
-  local video_file="$1"
-  local session_id_param="$2"
-
-  if [[ ! -f "${video_file}" ]]; then
-    return 1
-  fi
-
-  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${file_stability_wait}s for file to stabilize: ${video_file}"
-
-  local prev_size=$(stat -f%z "${video_file}" 2>/dev/null || stat -c%s "${video_file}" 2>/dev/null)
-  sleep ${file_stability_wait}
-  local curr_size=$(stat -f%z "${video_file}" 2>/dev/null || stat -c%s "${video_file}" 2>/dev/null)
-
-  if [[ "${prev_size}" != "${curr_size}" ]]; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: File size changed during stability check (${prev_size} -> ${curr_size}), waiting longer"
-    sleep ${file_stability_wait}
-  fi
-
-  # Force filesystem sync
-  sync
-
-  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] File stable at size: ${curr_size} bytes"
-  return 0
-}
-
-function validate_mp4_file() {
-  local video_file="$1"
-  local session_id_param="$2"
-
-  if [[ "${video_validation_enabled}" != "true" ]]; then
-    return 0
-  fi
-
-  if [[ ! -f "${video_file}" ]]; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file does not exist: ${video_file}"
-    return 1
-  fi
-
-  # Check if file has moov atom using ffmpeg probe
-  if ffmpeg -v error -i "${video_file}" -f null - 2>&1 | grep -q "moov atom not found"; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file missing moov atom: ${video_file}"
-    return 1
-  fi
-
-  # Quick validation: check if ffmpeg can read the file
-  if ! ffmpeg -v error -i "${video_file}" -t 0.1 -f null - 2>/dev/null; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file validation failed: ${video_file}"
-    return 1
-  fi
-
-  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file validation passed: ${video_file}"
-  return 0
-}
-
-function attempt_fix_mp4_file() {
-  local video_file="$1"
-  local session_id_param="$2"
-
-  if [[ "${video_fix_corrupted}" != "true" ]]; then
-    return 1
-  fi
-
-  echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Attempting to fix corrupted MP4 file: ${video_file}"
-
-  local temp_file="${video_file}.temp.mp4"
-
-  # Try to recover the file by remuxing with faststart
-  if ffmpeg -v warning -i "${video_file}" -c copy -movflags +faststart "${temp_file}" 2>/dev/null; then
-    mv "${temp_file}" "${video_file}"
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Successfully fixed MP4 file: ${video_file}"
-    return 0
-  else
-    echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Failed to fix MP4 file: ${video_file}"
-    rm -f "${temp_file}"
-    return 1
-  fi
-}
-
 function stop_ffmpeg() {
   while true; do
     FFMPEG_PID=$(pgrep -f "ffmpeg -hide_banner" | tr '\n' ' ')
@@ -310,7 +226,7 @@ function stop_ffmpeg_graceful_async() {
       done
 
       if kill -0 $FFMPEG_PID 2>/dev/null; then
-        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: FFmpeg still running after ${ffmpeg_stop_timeout}s, forcing kill"
+        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: FFmpeg did not stop gracefully after ${ffmpeg_stop_timeout}s, video may be corrupted"
         kill -SIGKILL $FFMPEG_PID 2>/dev/null
       else
         echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] FFmpeg exited gracefully after ${wait_count}s"
@@ -318,42 +234,20 @@ function stop_ffmpeg_graceful_async() {
 
       wait $FFMPEG_PID 2>/dev/null
 
-      # Grace period for metadata finalization and filesystem sync
-      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${graceful_stop_delay}s for video metadata finalization"
+      # Grace period for filesystem sync
+      echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Waiting ${graceful_stop_delay}s for filesystem sync"
       sleep ${graceful_stop_delay}
+      sync
 
-      # Verify file exists and wait for stability
+      # Verify file exists and queue upload
       if [[ -f "${video_file_to_finalize}" ]]; then
-        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file finalized: ${video_file_to_finalize}"
+        local file_size=$(stat -f%z "${video_file_to_finalize}" 2>/dev/null || stat -c%s "${video_file_to_finalize}" 2>/dev/null)
+        echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video file finalized: ${video_file_to_finalize} (size: ${file_size} bytes)"
 
-        # Wait for file to stabilize (no more writes)
-        wait_for_file_stability "${video_file_to_finalize}" "${session_id_param}"
-
-        # Validate MP4 file integrity
-        if validate_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
-          # File is valid, proceed with upload
-          if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
-            upload_destination="${upload_dest_prefix}/${video_file_name_param}"
-            echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading video to ${upload_destination}"
-            echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
-          fi
-        else
-          # Validation failed, attempt to fix
-          echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Video validation failed, attempting recovery"
-          if attempt_fix_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
-            # Fixed successfully, re-validate and upload
-            if validate_mp4_file "${video_file_to_finalize}" "${session_id_param}"; then
-              if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
-                upload_destination="${upload_dest_prefix}/${video_file_name_param}"
-                echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading recovered video to ${upload_destination}"
-                echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
-              fi
-            else
-              echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file still corrupted after recovery attempt, skipping upload"
-            fi
-          else
-            echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] ERROR: Video file recovery failed, skipping upload"
-          fi
+        if [[ "${should_upload}" = "true" ]] && [[ -n "${upload_dest_prefix}" ]] && [[ -n "${upload_pipe_file}" ]]; then
+          upload_destination="${upload_dest_prefix}/${video_file_name_param}"
+          echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] Add to pipe a signal Uploading video to ${upload_destination}"
+          echo "${video_file_to_finalize} ${upload_dest_prefix}" >>"${upload_pipe_file}"
         fi
       else
         echo "$(date -u +"${ts_format}") [${process_name}] - [Session: ${session_id_param}] WARNING: Video file not found after finalization: ${video_file_to_finalize}"
@@ -405,23 +299,6 @@ function check_if_ffmpeg_running() {
     return 0
   fi
   return 1
-}
-
-function wait_for_file_integrity() {
-  retry=0
-  if [[ ! -f "${video_file}" ]]; then
-    echo "$(date -u +"${ts_format}") [${process_name}] - Video file is not found, might be the recording is not started."
-    return 0
-  fi
-  until ffmpeg -v error -i "${video_file}" -f null -; do
-    echo "$(date -u +"${ts_format}") [${process_name}] - Waiting for video file ${video_file} to be ready."
-    sleep ${poll_interval}
-    retry=$((retry + 1))
-    if [[ $retry -ge ${file_ready_max_attempts} ]]; then
-      echo "$(date -u +"${ts_format}") [${process_name}] - Video file is not ready after ${file_ready_max_attempts} attempts, skipping..."
-      break
-    fi
-  done
 }
 
 function stop_if_recording_inprogress() {
@@ -481,9 +358,9 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
     -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
     -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-    -pix_fmt yuv420p -g ${SE_VIDEO_GOP_SIZE:-60} -keyint_min ${SE_VIDEO_KEYINT_MIN:-30} \
-    -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*2)" \
-    -movflags +faststart+frag_keyframe+empty_moov+default_base_moof "$video_file" &
+    -pix_fmt yuv420p -tune zerolatency -g ${SE_VIDEO_GOP_SIZE:-15} -keyint_min ${SE_VIDEO_KEYINT_MIN:-1} \
+    -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*1)" \
+    -movflags +faststart "$video_file" &
   FFMPEG_PID=$!
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
@@ -521,9 +398,9 @@ else
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
           -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
           -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-          -pix_fmt yuv420p -g ${SE_VIDEO_GOP_SIZE:-60} -keyint_min ${SE_VIDEO_KEYINT_MIN:-30} \
-          -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*2)" \
-          -movflags +faststart+frag_keyframe+empty_moov+default_base_moof "$video_file" &
+          -pix_fmt yuv420p -tune zerolatency -g ${SE_VIDEO_GOP_SIZE:-15} -keyint_min ${SE_VIDEO_KEYINT_MIN:-1} \
+          -sc_threshold 0 -force_key_frames "expr:gte(t,n_forced*1)" \
+          -movflags +faststart "$video_file" &
         FFMPEG_PID=$!
         if ps -p $FFMPEG_PID >/dev/null; then
           recording_started="true"
