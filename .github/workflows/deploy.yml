@@ -152,7 +152,6 @@ jobs:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          continue_on_error: true
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
       - name: Tag images as latest
         if: github.event.inputs.skip-build-push-image != 'true'
@@ -164,7 +163,6 @@ jobs:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          continue_on_error: true
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
       - name: Update package versions
         run: make update_browser_versions_matrix
@@ -177,7 +175,6 @@ jobs:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          continue_on_error: true
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
       - name: Delete previous nightly tag & release if any
         uses: dev-drprasad/delete-tag-and-release@master

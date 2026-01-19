@@ -76,12 +76,12 @@ autoscaling:
       parallelism: 1
       completions: 1
       activeDeadlineSeconds: 600
-      backoffLimit: 6
+      backoffLimit: 0
       template:
     pollingInterval: 30
-    successfulJobsHistoryLimit: 5
+    successfulJobsHistoryLimit: 0
     failedJobsHistoryLimit: 5
-    minReplicaCount: 10
+    minReplicaCount: 0
     maxReplicaCount: 100
     rolloutStrategy: gradual
     rollout:

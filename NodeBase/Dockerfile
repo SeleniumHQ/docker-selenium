@@ -91,6 +91,7 @@ RUN apt-get update -qqy \
     fonts-noto-core \
     fonts-noto-color-emoji \
     fonts-noto-cjk \
+    fonts-thai-tlwg-ttf \
 #==============
 # Xvfb
 #==============

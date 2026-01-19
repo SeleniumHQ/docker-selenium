@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.49.1](https://img.shields.io/badge/Version-0.49.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.38.0-20251101](https://img.shields.io/badge/AppVersion-4.38.0--20251101-informational?style=flat-square)
+![Version: 0.50.1](https://img.shields.io/badge/Version-0.50.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.39.0-20251212](https://img.shields.io/badge/AppVersion-4.39.0--20251212-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -23,7 +23,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.17 |
 | https://kubernetes.github.io/ingress-nginx | ingress-nginx | ^4 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^80.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^81.0.0 |
 
 ## Values
 
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.38.0-20251101"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.38.0-20251101"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.0-20251101"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.39.0-20251212"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.39.0-20251212"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.0-20251212"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -719,7 +719,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.config.username | string | `""` | Username for the first user when using quick config (default "admin") |
 | videoManager.config.password | string | `""` | Hashed password (bcrypt) for the first user when using quick config (default "admin") |
 | videoManager.config.noauth | bool | `true` | Use the noauth auther when using quick setup |
-| videoManager.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router |
+| videoManager.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router. You can pass any environment variables support by https://filebrowser.org/changelog.html |
 | videoManager.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
 | videoManager.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | videoManager.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |

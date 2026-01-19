@@ -263,7 +263,7 @@ Common autoscaling spec template
 {{- if and $spec (not (empty $spec)) -}}
   {{- $cleanSpec := dict -}}
   {{- range $key, $value := $spec -}}
-    {{- if not (empty $value) -}}
+    {{- if or (kindIs "float64" $value) (kindIs "int64" $value) (kindIs "bool" $value) (not (empty $value)) -}}
       {{- $cleanSpec = set $cleanSpec $key $value -}}
     {{- end -}}
   {{- end -}}

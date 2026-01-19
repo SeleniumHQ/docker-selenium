@@ -199,7 +199,7 @@ jobs:
         run: mv ./tests/tests/autoscaling_results.md ./tests/tests/results_${{ matrix.test-strategy }}.md
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: results_${{ matrix.test-strategy }}
           path: ./tests/tests/results_${{ matrix.test-strategy }}.md
@@ -223,7 +223,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Download results
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ./.keda
           pattern: 'results_*'
@@ -258,7 +258,7 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
       - name: Download results
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ./.keda
           pattern: 'results_*'

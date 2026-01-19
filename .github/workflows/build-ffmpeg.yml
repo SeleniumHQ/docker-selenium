@@ -68,6 +68,5 @@ jobs:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          continue_on_error: true
           command: |
             make release_ffmpeg_latest

@@ -66,8 +66,8 @@ check_dev_env:
 setup_dev_env:
 	./tests/charts/make/chart_setup_env.sh ; \
 	exit_code=$$? ; \
-  make set_containerd_image_store ; \
-  exit $$exit_code ;
+	make set_containerd_image_store ; \
+	exit $$exit_code ;
 
 set_containerd_image_store:
 	sudo mkdir -p /etc/docker
@@ -85,8 +85,12 @@ format_makefile: install_python_deps
 	python3 -m mbake format Makefile
 	python3 -m mbake validate Makefile
 
-install_python_deps:
+install_python_deps: install_python_venv
 	python3 -m pip install -r tests/requirements.txt --break-system-packages
+
+install_python_venv:
+	python3 -m venv .venv ; \
+	. .venv/bin/activate
 
 format_python_scripts: install_python_deps
 	python3 -m isort . ; \
@@ -649,28 +653,28 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 
 release: tag_major_minor release_grid_scaler
-	@if ! docker images $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/hub version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/router | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/router version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/sessions | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/sessions version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/session-queue | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/session-queue version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/event-bus | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/event-bus version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/node-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
-	@if ! docker images $(NAME)/standalone-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/hub version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/router | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/router version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/sessions | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/sessions version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/session-queue | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/session-queue version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/event-bus | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/event-bus version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/node-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/node-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-chrome | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-chromium | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chromium version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-chrome-for-testing | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-chrome-for-testing version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-edge | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-edge version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-firefox | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-firefox version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-docker | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-docker version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/standalone-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)/base:$(TAG_VERSION)
 	docker push $(NAME)/hub:$(TAG_VERSION)
 	docker push $(NAME)/distributor:$(TAG_VERSION)
