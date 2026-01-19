@@ -5,6 +5,12 @@ matrix:
       BASE_VERSION: 4.35.0-SNAPSHOT
       VERSION: 4.35.0-SNAPSHOT
       BINDING_VERSION: nightly
+    4.40.0:
+      BASE_RELEASE: selenium-4.40.0
+      BASE_VERSION: 4.40.0
+      VERSION: 4.40.0
+      BINDING_VERSION: 4.40.0
+      browser: []
     4.39.0:
       BASE_RELEASE: selenium-4.39.0
       BASE_VERSION: 4.39.0
