@@ -1,0 +1,842 @@
+#!/usr/bin/env python3
+"""
+Unified event-driven video recording and upload service for Selenium Grid.
+
+This service combines video recording and uploading into a single process with:
+- Shared session state management
+- Internal async queue for upload tasks
+- Direct communication between recorder and uploader
+- No tmp files or named pipes needed for internal coordination
+
+Subscribes to the Grid's ZeroMQ event bus and handles:
+- SessionCreatedEvent: Start video recording
+- SessionClosedEvent: Stop recording, queue upload
+- SessionEvent: Track custom events (e.g., test:failed)
+
+Environment Variables:
+    SE_EVENT_BUS_HOST: Event bus hostname (default: localhost)
+    SE_EVENT_BUS_PUBLISH_PORT: Port to subscribe for events (default: 4442)
+    SE_REGISTRATION_SECRET: Secret for event bus authentication
+    SE_NODE_PORT: Node port for /status endpoint (default: 5555)
+    SE_SERVER_PROTOCOL: Protocol for Node /status endpoint (default: http)
+    SE_UPLOAD_FAILURE_SESSION_ONLY: Only upload videos for failed sessions (default: false)
+    VIDEO_FOLDER: Directory to store video files
+    SE_VIDEO_UPLOAD_ENABLED: Enable video upload (default: false)
+    SE_SCREEN_WIDTH, SE_SCREEN_HEIGHT: Screen dimensions
+    SE_FRAME_RATE: Video frame rate (default: 15)
+"""
+
+import asyncio
+import json
+import logging
+import os
+import re
+import signal
+import subprocess
+import sys
+from contextlib import asynccontextmanager
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum, auto
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+from urllib.error import URLError
+from urllib.request import Request, urlopen
+
+import zmq
+import zmq.asyncio
+
+# Configure logging
+LOG_FORMAT = "%(asctime)s [video.service] - %(message)s"
+LOG_DATEFMT = os.environ.get("SE_LOG_TIMESTAMP_FORMAT", "%Y-%m-%d %H:%M:%S,%f")[:-3]
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATEFMT)
+logger = logging.getLogger(__name__)
+
+
+class SessionClosedReason(Enum):
+    """Reasons why a session was closed."""
+
+    QUIT_COMMAND = "QUIT_COMMAND"
+    TIMEOUT = "TIMEOUT"
+    NODE_REMOVED = "NODE_REMOVED"
+    NODE_RESTARTED = "NODE_RESTARTED"
+
+
+class SessionStatus(Enum):
+    """Session lifecycle status."""
+
+    CREATED = auto()
+    RECORDING = auto()
+    STOPPING = auto()
+    CLOSED = auto()
+
+
+@dataclass
+class UploadTask:
+    """Represents a video upload task."""
+
+    session_id: str
+    video_file: str
+    destination: str
+    should_upload: bool
+    reason: str  # Why upload decision was made
+
+
+@dataclass
+class SessionState:
+    """Complete state for a session."""
+
+    session_id: str
+    status: SessionStatus = SessionStatus.CREATED
+    capabilities: Dict[str, Any] = field(default_factory=dict)
+    video_file: Optional[str] = None
+    ffmpeg_process: Optional[asyncio.subprocess.Process] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    close_reason: Optional[SessionClosedReason] = None
+    record_video: bool = True
+    has_failure_event: bool = False
+    failure_events: List[str] = field(default_factory=list)
+    test_name: str = ""
+
+    @property
+    def is_failed(self) -> bool:
+        """Check if session is considered failed."""
+        if self.has_failure_event:
+            return True
+        if self.close_reason and self.close_reason != SessionClosedReason.QUIT_COMMAND:
+            return True
+        return False
+
+    @property
+    def duration_seconds(self) -> Optional[float]:
+        """Get session duration in seconds."""
+        if self.start_time and self.end_time:
+            return (self.end_time - self.start_time).total_seconds()
+        return None
+
+
+class VideoService:
+    """Unified video recording and upload service."""
+
+    def __init__(self):
+        # Event bus configuration
+        self.event_bus_host = os.environ.get("SE_EVENT_BUS_HOST", "localhost")
+        self.event_bus_port = os.environ.get("SE_EVENT_BUS_PUBLISH_PORT", "4442")
+        self.registration_secret = os.environ.get("SE_REGISTRATION_SECRET", "")
+
+        # Video recording configuration
+        self.video_folder = os.environ.get("VIDEO_FOLDER", "/videos")
+        self.screen_width = os.environ.get("SE_SCREEN_WIDTH", "1920")
+        self.screen_height = os.environ.get("SE_SCREEN_HEIGHT", "1080")
+        self.frame_rate = os.environ.get("SE_FRAME_RATE", "15")
+        self.codec = os.environ.get("SE_CODEC", "libx264")
+        self.preset = os.environ.get("SE_PRESET", "-preset ultrafast")
+        self.crf = os.environ.get("SE_VIDEO_CRF", "28")
+        self.maxrate = os.environ.get("SE_VIDEO_MAXRATE", "1000k")
+        self.bufsize = os.environ.get("SE_VIDEO_BUFSIZE", "2000k")
+        self.ffmpeg_threads = os.environ.get("SE_FFMPEG_THREADS", "1")
+        self.display_num = os.environ.get("DISPLAY_NUM", "99")
+        self.display_container = os.environ.get("DISPLAY_CONTAINER_NAME", "selenium")
+        self.record_audio = os.environ.get("SE_RECORD_AUDIO", "false").lower() == "true"
+        self.audio_source = os.environ.get("SE_AUDIO_SOURCE", "")
+
+        # Upload configuration
+        self.upload_enabled = os.environ.get("SE_VIDEO_UPLOAD_ENABLED", "false").lower() == "true"
+        self.upload_destination = os.environ.get("SE_UPLOAD_DESTINATION_PREFIX", "")
+        self.rclone_config = os.environ.get(
+            "SE_RCLONE_CONFIG", os.environ.get("RCLONE_CONFIG", "/opt/selenium/upload.conf")
+        )
+        self.upload_command = os.environ.get("SE_UPLOAD_COMMAND", "copy")
+        self.upload_opts = os.environ.get("SE_UPLOAD_OPTS", "-P --cutoff-mode SOFT --metadata --inplace")
+        self.retain_local = os.environ.get("SE_UPLOAD_RETAIN_LOCAL_FILE", "false").lower() == "true"
+        self.upload_batch_size = int(os.environ.get("SE_VIDEO_UPLOAD_BATCH_CHECK", "10"))
+        self.upload_failure_only = os.environ.get("SE_UPLOAD_FAILURE_SESSION_ONLY", "false").lower() == "true"
+
+        # Capability names
+        self.video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
+        self.test_name_cap = os.environ.get("TEST_NAME_CAP", "se:name")
+        self.video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
+        self.file_name_trim_regex = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[^a-zA-Z0-9-_]")
+        self.file_name_suffix = os.environ.get("SE_VIDEO_FILE_NAME_SUFFIX", "true").lower() == "true"
+
+        # Node identity for filtering events in distributed (Hub-Nodes) setup.
+        # In distributed mode, ZeroMQ broadcasts ALL session events to ALL subscribers.
+        # Each Node's recorder must filter to only process events for its own Node.
+        # Node ID is resolved from the Node /status endpoint on startup.
+        self.node_id: Optional[str] = None
+        self.node_external_uri: Optional[str] = None
+
+        # Node /status endpoint configuration
+        self.se_server_protocol = os.environ.get("SE_SERVER_PROTOCOL", "http")
+        self.se_node_port = os.environ.get("SE_NODE_PORT", "5555")
+        self.node_poll_interval = int(os.environ.get("SE_VIDEO_POLL_INTERVAL", "2"))
+
+        # Drain configuration
+        self.max_sessions = int(os.environ.get("SE_DRAIN_AFTER_SESSION_COUNT", "0"))
+        self.recorded_count = 0
+
+        # Force move command if not retaining local files
+        if not self.retain_local:
+            self.upload_command = "move"
+
+        # Session state management - single source of truth
+        self.sessions: Dict[str, SessionState] = {}
+        self.sessions_lock = asyncio.Lock()
+
+        # Upload queue - internal communication between recorder and uploader
+        self.upload_queue: asyncio.Queue[UploadTask] = asyncio.Queue()
+
+        # Active upload processes
+        self.active_uploads: List[asyncio.subprocess.Process] = []
+
+        # ZMQ resources
+        self.context: Optional[zmq.asyncio.Context] = None
+        self.subscriber: Optional[zmq.asyncio.Socket] = None
+
+        # Shutdown coordination
+        self.shutdown_event = asyncio.Event()
+        self.recorder_done = asyncio.Event()
+        self.uploader_done = asyncio.Event()
+
+        # Rename SE_RCLONE_* env vars
+        self._rename_rclone_env()
+
+    def _rename_rclone_env(self):
+        """Rename SE_RCLONE_* environment variables to RCLONE_*."""
+        for var in list(os.environ.keys()):
+            if var.startswith("SE_RCLONE_"):
+                suffix = var[len("SE_RCLONE_") :]
+                new_var = f"RCLONE_{suffix}"
+                os.environ[new_var] = os.environ[var]
+
+    @property
+    def display(self) -> str:
+        return f"{self.display_container}:{self.display_num}.0"
+
+    @property
+    def video_size(self) -> str:
+        return f"{self.screen_width}x{self.screen_height}"
+
+    def normalize_filename(self, filename: str) -> str:
+        """Normalize filename by removing disallowed characters."""
+        if not filename:
+            return ""
+        normalized = filename.replace(" ", "_")
+        try:
+            pattern = re.compile(self.file_name_trim_regex)
+        except re.error:
+            pattern = re.compile("[^a-zA-Z0-9-_]")
+        normalized = re.sub(pattern, "", normalized)
+        return normalized[:251]
+
+    def get_video_filename(self, session_id: str, capabilities: dict) -> tuple[bool, str]:
+        """Determine video filename from session capabilities."""
+        record_video = capabilities.get(self.video_cap_name, True)
+        if isinstance(record_video, str):
+            record_video = record_video.lower() != "false"
+
+        video_name = capabilities.get(self.video_name_cap)
+        test_name = capabilities.get(self.test_name_cap)
+
+        if video_name and video_name != "null":
+            name = video_name
+        elif test_name and test_name != "null":
+            name = test_name
+        else:
+            name = ""
+
+        if not name:
+            name = session_id
+        elif self.file_name_suffix:
+            name = f"{name}_{session_id}"
+
+        name = self.normalize_filename(name)
+        return record_video, f"{name}.mp4"
+
+    def is_failure_event_type(self, event_type: str) -> bool:
+        """Check if event type indicates a failure."""
+        event_lower = event_type.lower()
+        return event_lower.endswith(":failed") or event_lower.endswith(":failure")
+
+    def is_own_node_event(self, data: dict) -> bool:
+        """Check if an event belongs to this Node.
+
+        In distributed Hub-Nodes setup, the ZeroMQ event bus broadcasts all
+        session events to all subscribers. Each Node's recorder must filter
+        to only process events for sessions on its own Node.
+
+        Matching is done by comparing the event's nodeId against the Node ID
+        obtained from the Node /status endpoint on startup.
+        """
+        if self.node_id is None:
+            # Node ID not yet resolved, cannot filter
+            logger.warning("Node ID not resolved yet, skipping event")
+            return False
+
+        event_node_id = data.get("nodeId", "")
+        return event_node_id == self.node_id
+
+    async def wait_for_node_ready(self) -> None:
+        """Wait for the Node /status endpoint to be reachable and resolve Node ID.
+
+        Polls the Node /status endpoint until it returns HTTP 200,
+        then extracts nodeId and externalUri from the response.
+        """
+        node_status_url = f"{self.se_server_protocol}://{self.display_container}:{self.se_node_port}/status"
+        headers = {}
+        if self.registration_secret:
+            headers["X-REGISTRATION-SECRET"] = self.registration_secret
+
+        logger.info(f"Waiting for Node /status endpoint: {node_status_url}")
+
+        while not self.shutdown_event.is_set():
+            try:
+                req = Request(node_status_url, headers=headers)
+                with urlopen(req, timeout=5) as resp:
+                    if resp.status == 200:
+                        body = json.loads(resp.read().decode("utf-8"))
+                        node_info = body.get("value", {}).get("node", {})
+                        self.node_id = node_info.get("nodeId")
+                        self.node_external_uri = node_info.get("externalUri")
+
+                        if self.node_id:
+                            logger.info(f"Node is ready. ID: {self.node_id}, URI: {self.node_external_uri}")
+                            return
+                        else:
+                            logger.warning("Node /status responded but nodeId is missing, retrying...")
+            except (URLError, OSError, json.JSONDecodeError, ValueError) as e:
+                logger.debug(f"Node not ready yet: {e}")
+            except Exception as e:
+                logger.warning(f"Unexpected error polling Node /status: {e}")
+
+            await asyncio.sleep(self.node_poll_interval)
+
+    # ==================== Recording Functions ====================
+
+    async def start_recording(self, session: SessionState) -> bool:
+        """Start ffmpeg recording for a session."""
+        if session.ffmpeg_process is not None:
+            logger.warning(f"Recording already in progress for session {session.session_id}")
+            return False
+
+        video_path = f"{self.video_folder}/{session.video_file}"
+        session.start_time = datetime.now()
+        session.status = SessionStatus.RECORDING
+
+        cmd = [
+            "ffmpeg",
+            "-hide_banner",
+            "-loglevel",
+            "warning",
+            "-threads",
+            self.ffmpeg_threads,
+            "-thread_queue_size",
+            "512",
+            "-probesize",
+            "32M",
+            "-analyzeduration",
+            "0",
+            "-y",
+            "-f",
+            "x11grab",
+            "-video_size",
+            self.video_size,
+            "-r",
+            self.frame_rate,
+            "-i",
+            self.display,
+        ]
+
+        if self.record_audio and self.audio_source:
+            cmd.extend(self.audio_source.split())
+
+        cmd.extend(
+            [
+                "-codec:v",
+                self.codec,
+                *self.preset.split(),
+                "-tune",
+                "zerolatency",
+                "-crf",
+                self.crf,
+                "-maxrate",
+                self.maxrate,
+                "-bufsize",
+                self.bufsize,
+                "-pix_fmt",
+                "yuv420p",
+                "-movflags",
+                "+faststart",
+                video_path,
+            ]
+        )
+
+        try:
+            env = os.environ.copy()
+            env["DISPLAY"] = self.display
+            session.ffmpeg_process = await asyncio.create_subprocess_exec(
+                *cmd,
+                env=env,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            logger.info(f"Started recording: session={session.session_id}, file={session.video_file}")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to start recording for {session.session_id}: {e}")
+            session.status = SessionStatus.CREATED
+            return False
+
+    async def stop_recording(self, session: SessionState) -> bool:
+        """Stop ffmpeg recording for a session."""
+        if session.ffmpeg_process is None:
+            logger.warning(f"No recording in progress for session {session.session_id}")
+            return False
+
+        session.status = SessionStatus.STOPPING
+        session.end_time = datetime.now()
+
+        try:
+            session.ffmpeg_process.terminate()
+            try:
+                await asyncio.wait_for(session.ffmpeg_process.wait(), timeout=10.0)
+            except asyncio.TimeoutError:
+                logger.warning(f"ffmpeg did not stop gracefully for {session.session_id}, killing")
+                session.ffmpeg_process.kill()
+                await session.ffmpeg_process.wait()
+
+            session.ffmpeg_process = None
+            self.recorded_count += 1
+
+            duration = session.duration_seconds
+            logger.info(
+                f"Stopped recording: session={session.session_id}, " f"duration={duration:.1f}s"
+                if duration
+                else f"Stopped recording: session={session.session_id}"
+            )
+            return True
+        except Exception as e:
+            logger.error(f"Failed to stop recording for {session.session_id}: {e}")
+            return False
+
+    # ==================== Upload Functions ====================
+
+    async def queue_upload(self, session: SessionState) -> None:
+        """Queue a video for upload based on configuration."""
+        if not self.upload_enabled or not self.upload_destination:
+            return
+
+        video_path = f"{self.video_folder}/{session.video_file}"
+        if not Path(video_path).exists():
+            logger.warning(f"Video file not found: {video_path}")
+            return
+
+        # Determine if we should upload
+        should_upload = True
+        reason = "normal upload"
+
+        if self.upload_failure_only:
+            if session.is_failed:
+                should_upload = True
+                if session.has_failure_event:
+                    reason = f"failure event: {', '.join(session.failure_events)}"
+                else:
+                    reason = f"abnormal close: {session.close_reason.value}"
+            else:
+                should_upload = False
+                reason = "session ended normally (SE_UPLOAD_FAILURE_SESSION_ONLY=true)"
+
+        task = UploadTask(
+            session_id=session.session_id,
+            video_file=video_path,
+            destination=self.upload_destination,
+            should_upload=should_upload,
+            reason=reason,
+        )
+
+        await self.upload_queue.put(task)
+        logger.debug(f"Queued upload task: {session.session_id}, should_upload={should_upload}")
+
+    async def process_upload(self, task: UploadTask) -> None:
+        """Process a single upload task."""
+        if not task.should_upload:
+            logger.info(f"Skipping upload: {task.video_file} - {task.reason}")
+            return
+
+        logger.info(f"Uploading: {task.video_file} -> {task.destination} ({task.reason})")
+
+        cmd = [
+            "rclone",
+            "--config",
+            self.rclone_config,
+            self.upload_command,
+            *self.upload_opts.split(),
+            task.video_file,
+            task.destination,
+        ]
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            self.active_uploads.append(proc)
+
+            stdout, stderr = await proc.communicate()
+
+            self.active_uploads.remove(proc)
+
+            if proc.returncode == 0:
+                logger.info(f"Upload complete: {task.video_file}")
+            else:
+                logger.error(f"Upload failed: {task.video_file}, stderr={stderr.decode()}")
+
+        except Exception as e:
+            logger.error(f"Upload error: {task.video_file}, error={e}")
+
+    async def upload_worker(self) -> None:
+        """Background worker that processes upload queue."""
+        logger.info("Upload worker started")
+        active_tasks: List[asyncio.Task] = []
+
+        try:
+            while not self.shutdown_event.is_set() or not self.upload_queue.empty():
+                try:
+                    # Get task with timeout to check shutdown
+                    try:
+                        task = await asyncio.wait_for(self.upload_queue.get(), timeout=1.0)
+                    except asyncio.TimeoutError:
+                        continue
+
+                    # Process upload (could run multiple in parallel up to batch_size)
+                    upload_task = asyncio.create_task(self.process_upload(task))
+                    active_tasks.append(upload_task)
+
+                    # Clean up completed tasks
+                    active_tasks = [t for t in active_tasks if not t.done()]
+
+                    # Wait if we've hit batch limit
+                    if len(active_tasks) >= self.upload_batch_size:
+                        done, pending = await asyncio.wait(active_tasks, return_when=asyncio.FIRST_COMPLETED)
+                        active_tasks = list(pending)
+
+                except Exception as e:
+                    logger.error(f"Upload worker error: {e}")
+
+            # Wait for remaining uploads
+            if active_tasks:
+                logger.info(f"Waiting for {len(active_tasks)} pending uploads...")
+                await asyncio.gather(*active_tasks, return_exceptions=True)
+
+        finally:
+            self.uploader_done.set()
+            logger.info("Upload worker stopped")
+
+    # ==================== Event Handlers ====================
+
+    async def handle_session_created(self, data: dict) -> None:
+        """Handle session-created event."""
+        session_id = data.get("sessionId")
+        if not session_id:
+            logger.warning("Received session-created without sessionId")
+            return
+
+        # Filter: only process sessions belonging to this Node
+        if not self.is_own_node_event(data):
+            event_node_id = data.get("nodeId", "unknown")
+            return
+
+        capabilities = data.get("capabilities", {})
+        record_video, video_filename = self.get_video_filename(session_id, capabilities)
+
+        async with self.sessions_lock:
+            session = SessionState(
+                session_id=session_id,
+                capabilities=capabilities,
+                video_file=video_filename,
+                record_video=record_video,
+                test_name=capabilities.get(self.test_name_cap, ""),
+            )
+            self.sessions[session_id] = session
+
+        logger.info(f"Session created: {session_id}, record={record_video}, file={video_filename}")
+
+        if record_video:
+            await self.start_recording(session)
+
+    async def handle_session_closed(self, data: dict) -> None:
+        """Handle session-closed event."""
+        session_id = data.get("sessionId")
+        if not session_id:
+            logger.warning("Received session-closed without sessionId")
+            return
+
+        # Filter: only process sessions belonging to this Node
+        if not self.is_own_node_event(data):
+            event_node_id = data.get("nodeId", "unknown")
+            return
+
+        reason_str = data.get("reason", "QUIT_COMMAND")
+        try:
+            reason = SessionClosedReason(reason_str)
+        except ValueError:
+            reason = SessionClosedReason.QUIT_COMMAND
+
+        async with self.sessions_lock:
+            session = self.sessions.get(session_id)
+            if session is None:
+                logger.warning(f"Session-closed for unknown session: {session_id}")
+                return
+
+            session.close_reason = reason
+            session.status = SessionStatus.CLOSED
+
+        logger.info(f"Session closed: {session_id}, reason={reason.value}, is_failed={session.is_failed}")
+
+        # Stop recording if in progress
+        if session.ffmpeg_process is not None:
+            await self.stop_recording(session)
+            # Small delay to ensure file is finalized
+            await asyncio.sleep(0.5)
+            # Queue upload
+            await self.queue_upload(session)
+
+        # Clean up session after a delay (keep for potential late events)
+        asyncio.create_task(self._cleanup_session_delayed(session_id, delay=60))
+
+        # Check drain condition
+        if self.max_sessions > 0 and self.recorded_count >= self.max_sessions:
+            logger.info(f"Max sessions reached ({self.max_sessions}), initiating shutdown")
+            self.shutdown_event.set()
+
+    async def handle_session_event(self, data: dict) -> None:
+        """Handle custom session-event."""
+        session_id = data.get("sessionId")
+        event_type = data.get("eventType", "")
+        payload = data.get("payload", {})
+
+        if not session_id:
+            logger.warning("Received session-event without sessionId")
+            return
+
+        # Filter: only process sessions belonging to this Node
+        if not self.is_own_node_event(data):
+            event_node_id = data.get("nodeId", "unknown")
+            return
+
+        async with self.sessions_lock:
+            session = self.sessions.get(session_id)
+            if session is None:
+                # Create placeholder for late-arriving events
+                session = SessionState(session_id=session_id)
+                self.sessions[session_id] = session
+
+            if self.is_failure_event_type(event_type):
+                session.has_failure_event = True
+                session.failure_events.append(event_type)
+                logger.info(f"Failure event: session={session_id}, type={event_type}")
+            else:
+                logger.debug(f"Session event: session={session_id}, type={event_type}")
+
+    async def _cleanup_session_delayed(self, session_id: str, delay: float) -> None:
+        """Remove session from tracking after delay."""
+        await asyncio.sleep(delay)
+        async with self.sessions_lock:
+            if session_id in self.sessions:
+                session = self.sessions[session_id]
+                if session.status == SessionStatus.CLOSED:
+                    del self.sessions[session_id]
+                    logger.debug(f"Cleaned up session: {session_id}")
+
+    # ==================== Event Bus ====================
+
+    async def subscribe_events(self) -> None:
+        """Subscribe to event bus and process events."""
+        self.context = zmq.asyncio.Context()
+        self.subscriber = self.context.socket(zmq.SUB)
+
+        connection = f"tcp://{self.event_bus_host}:{self.event_bus_port}"
+        logger.info(f"Connecting to event bus: {connection}")
+
+        self.subscriber.connect(connection)
+
+        # Subscribe to session events
+        for event in ["session-created", "session-closed", "session-event"]:
+            self.subscriber.setsockopt_string(zmq.SUBSCRIBE, event)
+
+        handlers = {
+            "session-created": self.handle_session_created,
+            "session-closed": self.handle_session_closed,
+            "session-event": self.handle_session_event,
+        }
+
+        logger.info(f"Subscribed to events: {list(handlers.keys())}")
+
+        try:
+            while not self.shutdown_event.is_set():
+                try:
+                    if await self.subscriber.poll(timeout=1000):
+                        frames = await self.subscriber.recv_multipart()
+
+                        if len(frames) < 4:
+                            continue
+
+                        event_name = frames[0].decode("utf-8")
+                        secret = frames[1].decode("utf-8")
+                        event_id = frames[2].decode("utf-8")
+                        data_json = frames[3].decode("utf-8")
+
+                        # Validate secret
+                        if self.registration_secret:
+                            try:
+                                received = json.loads(secret)
+                                if received != self.registration_secret:
+                                    continue
+                            except json.JSONDecodeError:
+                                continue
+
+                        # Parse and handle event
+                        try:
+                            data = json.loads(data_json)
+                            event_node_id = data.get("nodeId", "N/A")
+                            logger.info(
+                                f"Received event: {event_name}, " f"nodeId={event_node_id}, self.node_id={self.node_id}"
+                            )
+                            handler = handlers.get(event_name)
+                            if handler:
+                                await handler(data)
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Failed to parse event data: {e}")
+
+                except zmq.ZMQError as e:
+                    if e.errno == zmq.ETERM:
+                        break
+                    logger.error(f"ZMQ error: {e}")
+                    await asyncio.sleep(1)
+
+        finally:
+            self.recorder_done.set()
+            if self.subscriber:
+                self.subscriber.close()
+            if self.context:
+                self.context.term()
+
+    # ==================== Lifecycle ====================
+
+    async def wait_for_display(self) -> None:
+        """Wait for X11 display to be available."""
+        env = os.environ.copy()
+        env["DISPLAY"] = self.display
+        logger.info(f"Waiting for display: {self.display}")
+
+        while not self.shutdown_event.is_set():
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "xset",
+                    "b",
+                    "off",
+                    env=env,
+                    stdout=asyncio.subprocess.DEVNULL,
+                    stderr=asyncio.subprocess.DEVNULL,
+                )
+                await proc.wait()
+                if proc.returncode == 0:
+                    logger.info(f"Display ready: {self.display}")
+                    return
+            except Exception:
+                pass
+            await asyncio.sleep(2)
+
+    async def cleanup(self) -> None:
+        """Cleanup all resources."""
+        logger.info("Shutting down...")
+
+        # Stop all active recordings
+        async with self.sessions_lock:
+            for session in self.sessions.values():
+                if session.ffmpeg_process is not None:
+                    logger.info(f"Stopping recording: {session.session_id}")
+                    await self.stop_recording(session)
+                    await self.queue_upload(session)
+
+        # Signal upload worker to finish
+        self.shutdown_event.set()
+
+        # Wait for upload worker
+        try:
+            await asyncio.wait_for(self.uploader_done.wait(), timeout=30)
+        except asyncio.TimeoutError:
+            logger.warning("Upload worker did not finish in time")
+
+        # Kill any remaining uploads
+        for proc in self.active_uploads:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+
+        logger.info("Shutdown complete")
+
+    async def run(self) -> None:
+        """Main entry point."""
+        logger.info("=" * 60)
+        logger.info("Starting unified video recording and upload service")
+        logger.info("=" * 60)
+        logger.info(f"Configuration:")
+        logger.info(f"  Event bus: {self.event_bus_host}:{self.event_bus_port}")
+        logger.info(f"  Video folder: {self.video_folder}")
+        logger.info(f"  Video size: {self.video_size}")
+        logger.info(f"  Upload enabled: {self.upload_enabled}")
+        logger.info(f"  Upload destination: {self.upload_destination}")
+        logger.info(f"  Upload failure only: {self.upload_failure_only}")
+        logger.info(f"  Max sessions (drain): {self.max_sessions if self.max_sessions > 0 else 'unlimited'}")
+
+        # Validate video folder
+        if not Path(self.video_folder).is_dir():
+            logger.error(f"Video folder does not exist: {self.video_folder}")
+            return
+
+        # Wait for display
+        await self.wait_for_display()
+
+        # Wait for Node /status endpoint and resolve Node ID
+        await self.wait_for_node_ready()
+        if self.node_id is None:
+            logger.error("Failed to resolve Node ID from /status endpoint, exiting")
+            return
+
+        # Start workers
+        tasks = [
+            asyncio.create_task(self.subscribe_events(), name="event_subscriber"),
+            asyncio.create_task(self.upload_worker(), name="upload_worker"),
+        ]
+
+        try:
+            await asyncio.gather(*tasks)
+        except asyncio.CancelledError:
+            logger.info("Tasks cancelled")
+        finally:
+            await self.cleanup()
+
+
+async def main():
+    """Main entry point."""
+    service = VideoService()
+
+    loop = asyncio.get_event_loop()
+    for sig in (signal.SIGTERM, signal.SIGINT):
+        loop.add_signal_handler(sig, lambda: service.shutdown_event.set())
+
+    try:
+        await service.run()
+    except KeyboardInterrupt:
+        logger.info("Interrupted")
+    except Exception as e:
+        logger.error(f"Fatal error: {e}", exc_info=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
