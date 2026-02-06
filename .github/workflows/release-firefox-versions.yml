@@ -22,7 +22,7 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: '20260120'
+        default: '20260202'
       browser-name:
         description: 'Browser name to build. E.g: firefox'
         required: true

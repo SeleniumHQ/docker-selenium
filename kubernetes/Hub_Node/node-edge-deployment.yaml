@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: chrome
-          image: selenium/node-edge:4.40.0-20260120
+          image: selenium/node-edge:4.40.0-20260202
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-hub"

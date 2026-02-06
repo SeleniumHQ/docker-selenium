@@ -8,7 +8,7 @@ services:
       - "16686:16686"
       - "4317:4317"
   selenium-event-bus:
-    image: selenium/event-bus:4.40.0-20260120
+    image: selenium/event-bus:4.40.0-20260202
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -21,7 +21,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-sessions:
-    image: selenium/sessions:4.40.0-20260120
+    image: selenium/sessions:4.40.0-20260202
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -33,7 +33,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-session-queue:
-    image: selenium/session-queue:4.40.0-20260120
+    image: selenium/session-queue:4.40.0-20260202
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
@@ -42,7 +42,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-distributor:
-    image: selenium/distributor:4.40.0-20260120
+    image: selenium/distributor:4.40.0-20260202
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -58,7 +58,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   selenium-router:
-    image: selenium/router:4.40.0-20260120
+    image: selenium/router:4.40.0-20260202
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -74,7 +74,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   chrome:
-    image: selenium/node-chrome:4.40.0-20260120
+    image: selenium/node-chrome:4.40.0-20260202
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -85,7 +85,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   edge:
-    image: selenium/node-edge:4.40.0-20260120
+    image: selenium/node-edge:4.40.0-20260202
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -96,7 +96,7 @@ services:
       - SE_OTEL_TRACES_EXPORTER=otlp
       - SE_OTEL_EXPORTER_ENDPOINT=http://jaeger:4317
   firefox:
-    image: selenium/node-firefox:4.40.0-20260120
+    image: selenium/node-firefox:4.40.0-20260202
     shm_size: 2gb
     depends_on:
       - selenium-event-bus

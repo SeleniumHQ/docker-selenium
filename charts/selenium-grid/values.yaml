@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.40.0-20260120
+    imageTag: 4.40.0-20260202
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.40.0-20260120
+    nodesImageTag: 4.40.0-20260202
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-8.0-20260120
+    videoImageTag: ffmpeg-8.0-20260202
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnamilegacy/kubectl:latest
     # -- Pull secret for all components, can be overridden individually

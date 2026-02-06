@@ -1,21 +1,21 @@
 ```
-./tag_and_push_browser_images.sh 4.40.0 20260120 selenium false chrome true
-Tagging images for browser chrome, version 4.40.0, build date 20260120, namespace selenium
-Selenium Grid version -> 4.40.0-20260120
+./tag_and_push_browser_images.sh 4.40.0 20260202 selenium false chrome true
+Tagging images for browser chrome, version 4.40.0, build date 20260202, namespace selenium
+Selenium Grid version -> 4.40.0-20260202
 Chrome version -> 136.0.7103.113
 Short Chrome version -> 136.0
 ChromeDriver version -> 136.0.7103.113
 Short ChromeDriver version -> 136.0
-Tagged selenium/node-chrome:136.0.7103.113-chromedriver-136.0.7103.113-grid-4.40.0-20260120
-Tagged selenium/standalone-chrome:136.0.7103.113-chromedriver-136.0.7103.113-grid-4.40.0-20260120
-Tagged selenium/node-chrome:136.0.7103.113-chromedriver-136.0.7103.113-20260120
-Tagged selenium/standalone-chrome:136.0.7103.113-chromedriver-136.0.7103.113-20260120
-Tagged selenium/node-chrome:136.0.7103.113-20260120
-Tagged selenium/standalone-chrome:136.0.7103.113-20260120
-Tagged selenium/node-chrome:136.0-chromedriver-136.0-grid-4.40.0-20260120
-Tagged selenium/standalone-chrome:136.0-chromedriver-136.0-grid-4.40.0-20260120
-Tagged selenium/node-chrome:136.0-chromedriver-136.0-20260120
-Tagged selenium/standalone-chrome:136.0-chromedriver-136.0-20260120
-Tagged selenium/node-chrome:136.0-20260120
-Tagged selenium/standalone-chrome:136.0-20260120
+Tagged selenium/node-chrome:136.0.7103.113-chromedriver-136.0.7103.113-grid-4.40.0-20260202
+Tagged selenium/standalone-chrome:136.0.7103.113-chromedriver-136.0.7103.113-grid-4.40.0-20260202
+Tagged selenium/node-chrome:136.0.7103.113-chromedriver-136.0.7103.113-20260202
+Tagged selenium/standalone-chrome:136.0.7103.113-chromedriver-136.0.7103.113-20260202
+Tagged selenium/node-chrome:136.0.7103.113-20260202
+Tagged selenium/standalone-chrome:136.0.7103.113-20260202
+Tagged selenium/node-chrome:136.0-chromedriver-136.0-grid-4.40.0-20260202
+Tagged selenium/standalone-chrome:136.0-chromedriver-136.0-grid-4.40.0-20260202
+Tagged selenium/node-chrome:136.0-chromedriver-136.0-20260202
+Tagged selenium/standalone-chrome:136.0-chromedriver-136.0-20260202
+Tagged selenium/node-chrome:136.0-20260202
+Tagged selenium/standalone-chrome:136.0-20260202
 ```
