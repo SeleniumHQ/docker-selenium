@@ -259,6 +259,8 @@ def launch_container(container, **kwargs):
         'SE_EVENT_BUS_PUBLISH_PORT': 4442,
         'SE_EVENT_BUS_SUBSCRIBE_PORT': 4443,
     }
+    if "standalone" in container.lower():
+        environment['SE_EVENT_BUS_HOST'] = '0.0.0.0'
     if container != 'Hub':
         environment['SE_NODE_ENABLE_MANAGED_DOWNLOADS'] = "true"
     container_id = client.containers.run(

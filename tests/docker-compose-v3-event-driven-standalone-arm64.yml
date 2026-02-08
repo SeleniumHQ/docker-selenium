@@ -27,69 +27,31 @@ services:
   chrome:
     deploy:
       mode: replicated
-      replicas: 3
-    image: selenium/node-chromium:4.40.0-20260204
+      replicas: 1
+    image: selenium/standalone-chromium:4.40.0-20260209
     shm_size: 2gb
-    depends_on:
-      - selenium-hub
-    volumes:
-      - /tmp/videos:/videos
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - ./../Video/video_service.py:/opt/bin/video_service.py
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
-      - SE_EVENT_DRIVEN_SERVICES=true
-      - SE_VIDEO_UPLOAD_ENABLED=true
-      # Remote name and destination path to upload
-      - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
-      # All configs required for RCLONE to upload to remote name myftp
-      - RCLONE_CONFIG_MYFTP_TYPE=ftp
-      - RCLONE_CONFIG_MYFTP_HOST=ftp_server
-      - RCLONE_CONFIG_MYFTP_PORT=21
-      - RCLONE_CONFIG_MYFTP_USER=seluser
-      # Password encrypted using command: rclone obscure <your_password>
-      - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
-      - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
-    stop_grace_period: 30s
-
-  firefox:
-    deploy:
-      mode: replicated
-      replicas: 3
-    image: selenium/node-firefox:4.40.0-20260204
-    shm_size: 2gb
-    depends_on:
-      - selenium-hub
-    volumes:
-      - /tmp/videos:/videos
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
-      - ./../Video/video_service.py:/opt/bin/video_service.py
-    environment:
-      - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
-      - SE_EVENT_DRIVEN_SERVICES=true
-      - SE_VIDEO_UPLOAD_ENABLED=true
-      # Remote name and destination path to upload
-      - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
-      # All configs required for RCLONE to upload to remote name myftp
-      - RCLONE_CONFIG_MYFTP_TYPE=ftp
-      - RCLONE_CONFIG_MYFTP_HOST=ftp_server
-      - RCLONE_CONFIG_MYFTP_PORT=21
-      - RCLONE_CONFIG_MYFTP_USER=seluser
-      # Password encrypted using command: rclone obscure <your_password>
-      - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
-      - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
-    stop_grace_period: 30s
-
-  selenium-hub:
-    image: selenium/hub:4.40.0-20260204
-    container_name: selenium-hub
-    volumes:
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     ports:
-      - "4442:4442"
-      - "4443:4443"
       - "4444:4444"
+    volumes:
+      - /tmp/videos:/videos
+      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+      - ./../Video/video_service.py:/opt/bin/video_service.py
+    environment:
+      - SE_VIDEO_RECORD_STANDALONE=true
+      - SE_RECORD_VIDEO=true
+      - SE_VIDEO_FILE_NAME=auto
+      - SE_BIND_BUS=true
+      - SE_EVENT_BUS_HOST=0.0.0.0
+      - SE_EVENT_DRIVEN_SERVICES=true
+      - SE_VIDEO_UPLOAD_ENABLED=true
+      # Remote name and destination path to upload
+      - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
+      # All configs required for RCLONE to upload to remote name myftp
+      - RCLONE_CONFIG_MYFTP_TYPE=ftp
+      - RCLONE_CONFIG_MYFTP_HOST=ftp_server
+      - RCLONE_CONFIG_MYFTP_PORT=21
+      - RCLONE_CONFIG_MYFTP_USER=seluser
+      # Password encrypted using command: rclone obscure <your_password>
+      - RCLONE_CONFIG_MYFTP_PASS=KkK8RsUIba-MMTBUSnuYIdAKvcnFyLl2pdhQig
+      - RCLONE_CONFIG_MYFTP_FTP_CONCURRENCY=10
+    stop_grace_period: 30s

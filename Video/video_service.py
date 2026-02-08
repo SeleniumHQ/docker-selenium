@@ -160,16 +160,21 @@ class VideoService:
         self.file_name_trim_regex = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[^a-zA-Z0-9-_]")
         self.file_name_suffix = os.environ.get("SE_VIDEO_FILE_NAME_SUFFIX", "true").lower() == "true"
 
+        # Standalone mode: single node, no need to filter events by NodeId
+        self.record_standalone = os.environ.get("SE_VIDEO_RECORD_STANDALONE", "false").lower() == "true"
+
         # Node identity for filtering events in distributed (Hub-Nodes) setup.
         # In distributed mode, ZeroMQ broadcasts ALL session events to ALL subscribers.
         # Each Node's recorder must filter to only process events for its own Node.
         # Node ID is resolved from the Node /status endpoint on startup.
+        # In standalone mode, NodeId filtering is skipped since there is only one node.
         self.node_id: Optional[str] = None
         self.node_external_uri: Optional[str] = None
 
         # Node /status endpoint configuration
         self.se_server_protocol = os.environ.get("SE_SERVER_PROTOCOL", "http")
-        self.se_node_port = os.environ.get("SE_NODE_PORT", "5555")
+        default_node_port = "4444" if self.record_standalone else "5555"
+        self.se_node_port = os.environ.get("SE_NODE_PORT", default_node_port)
         self.node_poll_interval = int(os.environ.get("SE_VIDEO_POLL_INTERVAL", "2"))
 
         # Drain configuration
@@ -268,7 +273,12 @@ class VideoService:
 
         Matching is done by comparing the event's nodeId against the Node ID
         obtained from the Node /status endpoint on startup.
+
+        In standalone mode, all events belong to this Node, so filtering is skipped.
         """
+        if self.record_standalone:
+            return True
+
         if self.node_id is None:
             # Node ID not yet resolved, cannot filter
             logger.warning("Node ID not resolved yet, skipping event")
@@ -282,6 +292,10 @@ class VideoService:
 
         Polls the Node /status endpoint until it returns HTTP 200,
         then extracts nodeId and externalUri from the response.
+
+        Response structure differs by mode:
+        - Standalone: $.value.nodes[0].id, $.value.nodes[0].externalUri
+        - Distributed: $.value.node.nodeId, $.value.node.externalUri
         """
         node_status_url = f"{self.se_server_protocol}://{self.display_container}:{self.se_node_port}/status"
         headers = {}
@@ -296,9 +310,17 @@ class VideoService:
                 with urlopen(req, timeout=5) as resp:
                     if resp.status == 200:
                         body = json.loads(resp.read().decode("utf-8"))
-                        node_info = body.get("value", {}).get("node", {})
-                        self.node_id = node_info.get("nodeId")
-                        self.node_external_uri = node_info.get("externalUri")
+
+                        if self.record_standalone:
+                            nodes = body.get("value", {}).get("nodes", [])
+                            if nodes:
+                                node_info = nodes[0]
+                                self.node_id = node_info.get("id")
+                                self.node_external_uri = node_info.get("externalUri")
+                        else:
+                            node_info = body.get("value", {}).get("node", {})
+                            self.node_id = node_info.get("nodeId")
+                            self.node_external_uri = node_info.get("externalUri")
 
                         if self.node_id:
                             logger.info(f"Node is ready. ID: {self.node_id}, URI: {self.node_external_uri}")
@@ -785,6 +807,7 @@ class VideoService:
         logger.info("Starting unified video recording and upload service")
         logger.info("=" * 60)
         logger.info(f"Configuration:")
+        logger.info(f"  Standalone mode: {self.record_standalone}")
         logger.info(f"  Event bus: {self.event_bus_host}:{self.event_bus_port}")
         logger.info(f"  Video folder: {self.video_folder}")
         logger.info(f"  Video size: {self.video_size}")
