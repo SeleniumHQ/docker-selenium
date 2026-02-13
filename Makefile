@@ -1,13 +1,13 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.39.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.39.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.39.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.40.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.40.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.40.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.40.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.39.0)
-MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),4.39.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.41.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.40.0)
+MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),4.40.0)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
@@ -30,11 +30,11 @@ SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
-KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.18.0-selenium-grid)
-KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.18.0)
-KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.18.0-selenium-grid)
-KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),ndviet)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.17.2-selenium-grid-20250721)
+KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.19.0)
+KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.19.0)
+KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.19.0)
+KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),kedacore)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.19.0)
 TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 
@@ -497,7 +497,7 @@ release_ffmpeg_latest:
 	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)
 	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)
 
-release_latest: release_grid_scaler_latest
+release_latest:
 	docker push $(NAME)/base:latest
 	docker push $(NAME)/hub:latest
 	docker push $(NAME)/distributor:latest
@@ -556,7 +556,7 @@ tag_nightly:
 		;; \
 	esac
 
-release_nightly: release_grid_scaler_nightly
+release_nightly:
 	docker push $(NAME)/base:nightly
 	docker push $(NAME)/hub:nightly
 	docker push $(NAME)/distributor:nightly
@@ -652,7 +652,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 
-release: tag_major_minor release_grid_scaler
+release: tag_major_minor
 	@if ! docker images --format table $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/hub version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi

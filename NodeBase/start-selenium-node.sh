@@ -88,6 +88,10 @@ if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
   append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
 fi
 
+if [ ! -z "$SE_NODE_DOWN_FAILURE_THRESHOLD" ]; then
+  append_se_opts "--node-down-failure-threshold" "${SE_NODE_DOWN_FAILURE_THRESHOLD}"
+fi
+
 if [ ! -z "$SE_LOG_LEVEL" ]; then
   append_se_opts "--log-level" "${SE_LOG_LEVEL}"
 fi

@@ -16,22 +16,24 @@ runs:
   steps:
     - name: Get latest upstream
       shell: bash
+      env:
+        AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
       run: |
         sudo apt update
         sudo apt install jq
         AUTH_HEADER="Authorization: token ${{ inputs.gh_cli_token }}"
         if [ "${{ inputs.release }}" = "true" ]; then
           echo "Getting the latest stable release."
-          RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/SeleniumHQ/selenium/releases | jq -r '[.[]? | select(.prerelease == false)] | .[0].tag_name')
+          RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases | jq -r '[.[]? | select(.prerelease == false)] | .[0].tag_name')
         else
           echo "Getting the latest Nightly release."
-          RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/SeleniumHQ/selenium/releases | jq -r '[.[]? | select(.prerelease == true)] | .[0].tag_name' || echo "")
+          RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases | jq -r '[.[]? | select(.prerelease == true)] | .[0].tag_name' || echo "")
           if [ -z "${RELEASE}" ] || [ "${RELEASE}" = "null" ]; then
             echo "Nightly release not found, getting the latest stable release."
-            RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/SeleniumHQ/selenium/releases | jq -r '[.[]? | select(.prerelease == false)] | .[0].tag_name')
+            RELEASE=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases | jq -r '[.[]? | select(.prerelease == false)] | .[0].tag_name')
           fi
         fi
-        jar_file=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/SeleniumHQ/selenium/releases/tags/${RELEASE} | jq -r '.assets[] | select(.name | endswith(".jar")) | .name' | tail -n 1)
+        jar_file=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases/tags/${RELEASE} | jq -r '.assets[] | select(.name | endswith(".jar")) | .name' | tail -n 1)
         echo "Server package: ${jar_file}"
         VERSION=$(echo $jar_file | sed 's/selenium-server-//;s/\.jar//')
         echo "BASE_RELEASE=${RELEASE} | BASE_VERSION=${VERSION} | VERSION=${VERSION}"

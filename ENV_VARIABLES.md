@@ -79,7 +79,7 @@
 | SE_NODE_ENABLE_CDP |  | Enable CDP proxying in Grid. A Grid admin can disable CDP if the network doesnot allow websockets. True by default. | --enable-cdp |
 | SE_NODE_REGISTER_PERIOD | 120 |  | --register-period |
 | SE_NODE_REGISTER_CYCLE | 10 |  | --register-cycle |
-| SE_NODE_HEARTBEAT_PERIOD | 30 |  | --heartbeat-period |
+| SE_NODE_HEARTBEAT_PERIOD | 15 |  | --heartbeat-period |
 | SE_REGISTRATION_SECRET |  |  | --registration-secret |
 | SE_BROWSER_LEFTOVERS_PROCESSES_SECS | 7200 |  |  |
 | SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS | 1 |  |  |
@@ -155,3 +155,7 @@
 | SE_NODE_DELETE_SESSION_ON_UI | true | Enable capability to support deleting session on Grid UI | --delete-session-on-ui |
 | SE_UPDATE_CHROME_COMPONENTS |  | Applicable for node-chrome, standalone-chrome (arch linux/amd64). Update the latest version of Chrome and ChromeDriver at the beginning of the container startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872) |  |
 | SE_DISTRIBUTOR_SLOT_SELECTOR |  | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. Switch to built-in Greedy strategy, use class name `org.openqa.selenium.grid.distributor.selector.GreedySlotSelector` | --slot-selector |
+| SE_EVENT_BUS_HEARTBEAT_PERIOD |  | How often, in seconds, will the EventBus socket send heartbeats | --eventbus-heartbeat-period |
+| SE_NODE_ENABLE_BROWSER |  | Checkout usage of SE_NODE_ENABLE_BROWSER_* in below |  |
+| SE_NODE_ENABLE_BROWSER_ |  | This is used in node/standalone all browsers in one container, append suffix CHROME, FIREFOX or EDGE to disable correspoding browser in Node stereotypes. For example: SE_NODE_ENABLE_BROWSER_CHROME=false |  |
+| SE_NODE_DOWN_FAILURE_THRESHOLD | 0 | Maximum number of consecutive session creation failures before the Node is marked as DOWN. This helps detect and isolate unhealthy Nodes that consistently fail to create sessions. A value of 0 (default) disables this feature, allowing unlimited retries. A value higher than zero enables this feature. | --node-down-failure-threshold |

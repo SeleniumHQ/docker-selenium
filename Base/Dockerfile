@@ -1,4 +1,4 @@
-FROM ubuntu:noble@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+FROM ubuntu:noble@sha256:cd1dba651b3080c3686ecf4e3c4220f026b521fb76978881737d24f200828b2b
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
@@ -7,11 +7,11 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.56.0
-ARG GRPC_VERSION=1.77.0
-ARG NETTY_VERSION=4.2.7.Final
-ARG CS_VERSION=2.1.25-M18
-ARG ENVSUBST_VERSION=1.4.8
+ARG OPENTELEMETRY_VERSION=1.58.0
+ARG GRPC_VERSION=1.78.0
+ARG NETTY_VERSION=4.2.9.Final
+ARG CS_VERSION=2.1.24
+ARG ENVSUBST_VERSION=1.4.9
 ARG CURL_VERSION=8.17.0
 ARG PYTHON_VERSION=3.14
 
