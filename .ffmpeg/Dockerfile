@@ -62,7 +62,7 @@ RUN cd /usr/local/src \
 # Install FFmpeg from source
 #======================================
 RUN cd /usr/local/src \
-    && git clone -b release/${FFMPEG_VERSION} --single-branch https://github.com/FFmpeg/FFmpeg.git \
+    && git clone -b release/${FFMPEG_VERSION} --single-branch --depth 1 https://github.com/FFmpeg/FFmpeg.git \
     && cd FFmpeg \
     && rm -rf .git \
     && PKG_CONFIG_PATH="/usr/local/lib/pkgconfig" FFMPEG_VERSION=${FFMPEG_VERSION} ./configure \
