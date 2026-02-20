@@ -54,7 +54,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           author_email: "selenium-ci@users.noreply.github.com"
           author_name: "Selenium CI Bot"
-          message: "[build] Upload Selenium Grid ${{ inputs.grid-version }}"
+          message: "[build] Update Selenium Grid ${{ inputs.grid-version }}"
           empty: true
           rebase: true
           branch: "release-preparation"
@@ -64,8 +64,8 @@ jobs:
         with:
           token: ${{ secrets.SELENIUM_CI_TOKEN }}
           commit-message: |
-            [build] Upload Selenium Grid ${{ inputs.grid-version }}
-          title: "[build] Upload Selenium Grid ${{ inputs.grid-version }}"
+            [build] Update Selenium Grid ${{ inputs.grid-version }}
+          title: "[build] Update Selenium Grid ${{ inputs.grid-version }}"
           body: "This PR to update Selenium Grid ${{ inputs.grid-version }} and backward browser versions"
           committer: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'
           author: 'Selenium CI Bot <selenium-ci@users.noreply.github.com>'

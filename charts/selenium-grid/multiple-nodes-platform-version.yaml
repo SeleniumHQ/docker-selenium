@@ -13,6 +13,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-144'
+      imageTag: '144.0-20260202'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '144.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-143'
       imageTag: '143.0-20260202'
       hpa:
@@ -254,6 +259,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-147'
+      imageTag: '147.0-20260202'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '147.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-146'
       imageTag: '146.0-20260202'
       hpa:
@@ -505,6 +515,11 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-144'
+      imageTag: '144.0-20260202'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '144.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-143'
       imageTag: '143.0-20260202'
       hpa:
