@@ -198,35 +198,55 @@ rbacRoleBinding:
 ingress:
   # -- Enable to create ingress resource
   enabled: true
-  # -- Enable ingress resource with automatically installing Ingress NGINX Controller
+  # -- Enable ingress resource with automatically installing Traefik Ingress Controller
   enableWithController: false
   # -- Name of ingress class to select which controller will implement ingress resource
   className: ""
-  # Refer to list nginx annotations: https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#annotations
-  nginx:
-    # -- Enable corresponding annotations for NGINX Ingress Controller
-    websocket: true
-    # -- Set timeout to corresponding annotations for NGINX Ingress Controller
-    proxyTimeout: 3600
-    proxyBuffer:
-      # -- Set buffer size to corresponding annotations for NGINX Ingress Controller
-      size: 512M
-    # -- Set buffer number to corresponding annotations for NGINX Ingress Controller
-      number: 4
-    # -- Enable corresponding annotations for NGINX Ingress Controller
-    sslPassthrough: true
-    # -- Specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName" for NGINX Ingress Controller
-    sslSecret: ""
-    # -- Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller
-    useHttp2: false
-    # -- Apply upstream keepalive settings once HTTP/2 is enabled
-    upstreamKeepalive:
-      # -- Set keepalive connections to corresponding annotations for NGINX Ingress Controller
-      connections: 10000
-      # -- Set keepalive timeout to corresponding annotations for NGINX Ingress Controller
-      time: 1h
-      # -- Set keepalive requests to corresponding annotations for NGINX Ingress Controller
-      requests: 10000
+  # Refer to list Traefik ingress annotations:
+  # https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/#annotations
+  traefik:
+    # -- Enable corresponding annotations for Traefik Ingress Controller
+    enabled: true
+    # -- Comma-separated Traefik entrypoints for the ingress router. Empty means auto-select (`web` or `websecure`) based on TLS mode.
+    entryPoints: ""
+    # -- Optional Traefik middlewares in the format `<namespace>-<name>@kubernetescrd`
+    middlewares: ""
+    # -- Optional Traefik router priority value
+    priority: ""
+    # -- Optional Traefik router path matcher (e.g. `PathPrefix`, `Path`, `PathRegexp`)
+    pathMatcher: "PathPrefix"
+    tls:
+      # -- Add `traefik.ingress.kubernetes.io/router.tls: "true"` when ingress TLS is enabled
+      enabled: true
+      # -- Optional Traefik TLS options in the format `<namespace>-<name>@kubernetescrd`
+      options: ""
+      # -- Optional Traefik certificate resolver name
+      certResolver: ""
+    service:
+      # -- Add `traefik.ingress.kubernetes.io/service.serversscheme: "https"` to backend Service when Grid server TLS is enabled
+      useHttpsScheme: true
+      sticky:
+        cookie:
+          # -- Enable Traefik sticky cookie for service load-balancing
+          enabled: false
+    serversTransport:
+      # -- Enable creating a Traefik ServersTransport resource and auto-link it to backend Service annotation `traefik.ingress.kubernetes.io/service.serverstransport`
+      enabled: true
+      # -- Override ServersTransport resource name. Defaults to `<ingress-fullname>-serverstransport`
+      nameOverride: ""
+      # -- Use an existing ServersTransport reference `<namespace>-<name>@kubernetescrd` when `enabled` is false
+      reference: ""
+      # -- Pass all spec support in Traefik ServersTransport
+      spec:
+        insecureSkipVerify: true
+        disableHTTP2: true
+        forwardingTimeouts:
+          # -- Maximum duration Traefik waits when establishing a connection to backend servers
+          dialTimeout: "3600s"
+          # -- Maximum duration Traefik waits for backend response headers
+          responseHeaderTimeout: "3600s"
+          # -- Maximum duration an idle keep-alive backend connection remains open
+          idleConnTimeout: "3600s"
   ports:
     # -- Specify HTTP port is exposed by ingress controller
     http: 80
@@ -236,8 +256,6 @@ ingress:
   annotations: {}
   # -- Default host for the ingress resource
   hostname: ""
-  # -- Default host path for the ingress resource
-  path: /
   # -- Default path type for the ingress resource
   pathType: Prefix
   # -- List of paths for the ingress resource. This will override the default path
@@ -965,7 +983,7 @@ tracing:
   # -- Exporter type for tracing. Recommended `otlp` for wide compatibility with observability backends (e.g. Jaeger, Elastic, etc.)
   exporter: otlp
   # -- Exporter endpoint for pushing trace data
-  exporterEndpoint: "http://{{ .Release.Name }}-jaeger-collector:4317"
+  exporterEndpoint: "http://{{ .Release.Name }}-jaeger:4317"
   # -- Enable global auto-configuration for tracing
   globalAutoConfigure: true
   ingress:
@@ -977,7 +995,7 @@ tracing:
     paths:
       - backend:
           service:
-            name: "{{ .Release.Name }}-jaeger-query"
+            name: "{{ .Release.Name }}-jaeger"
             port:
               number: 16686
         path: &jaegerBasePath "/jaeger"
@@ -2208,12 +2226,19 @@ keda:
   webhooks:
     enabled: false
 
-# -- Configuration for dependency chart ingress-nginx
-ingress-nginx:
+# -- Configuration for dependency chart traefik
+traefik:
   # enabled: false
-  controller:
-    admissionWebhooks:
-      enabled: false
+  ingressClass:
+    enabled: true
+    isDefaultClass: false
+    name: traefik
+#  additionalArguments:
+#    - "--serverstransport.insecureskipverify=true"
+  tlsStore:
+    default:
+      defaultCertificate:
+        # secretName: ""
 
 # -- Configuration for dependency chart kube-prometheus-stack
 kube-prometheus-stack:
@@ -2231,22 +2256,12 @@ kube-prometheus-stack:
 
 # -- Configuration for dependency chart jaeger
 jaeger:
-  # enabled: false
-  provisionDataStore:
-    cassandra: false
-  allInOne:
-    enabled: true
+  jaeger:
     extraEnv:
       - name: QUERY_BASE_PATH
         value: *jaegerBasePath
   storage:
     type: badger
-  agent:
-    enabled: false
-  collector:
-    enabled: false
-  query:
-    enabled: false
 
 # Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/bitnami/postgresql)
 postgresql:

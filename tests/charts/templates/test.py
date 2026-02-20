@@ -45,30 +45,80 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "Not all resources have affinity set")
 
-    def test_ingress_nginx_annotations(self):
+    def test_ingress_traefik_annotations(self):
         resources_name = [f'{RELEASE_NAME}selenium-ingress']
         count = 0
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'Ingress':
                 logger.info(f"Assert ingress ingress annotations")
-                logger.info(f"Config `ingress.nginx.proxyTimeout` is able to be set a different value")
+                logger.info(f"Config `ingress.traefik.entryPoints` can be overwritten by custom `ingress.annotations`")
                 self.assertTrue(
-                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-read-timeout'] == '360'
+                    doc['metadata']['annotations']['traefik.ingress.kubernetes.io/router.entrypoints']
+                    == 'web,websecure'
                 )
-                logger.info(f"Duplicated in `ingress.annotations` take precedence to overwrite the default value")
+                logger.info(f"Custom middleware annotation can be set via `ingress.annotations`")
                 self.assertTrue(
-                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/proxy-connect-timeout'] == '3600'
+                    doc['metadata']['annotations']['traefik.ingress.kubernetes.io/router.middlewares']
+                    == 'selenium-default-chain@kubernetescrd'
                 )
-                logger.info(f"Default annotation is able to be disabled by setting it to null")
+                logger.info(f"Default router TLS annotation is disabled by setting `ingress.traefik.tls.enabled=false`")
+                self.assertTrue(doc['metadata']['annotations'].get('traefik.ingress.kubernetes.io/router.tls') is None)
+                logger.info(f"Service-level Traefik annotations are handled on backend Service, not Ingress")
                 self.assertTrue(
-                    doc['metadata']['annotations'].get('nginx.ingress.kubernetes.io/proxy-buffers-number') is None
+                    doc['metadata']['annotations'].get('traefik.ingress.kubernetes.io/service.serversscheme') is None
                 )
-                logger.info(f"Default annotation is added if no override value")
                 self.assertTrue(
-                    doc['metadata']['annotations']['nginx.ingress.kubernetes.io/client-body-buffer-size'] == '512M'
+                    doc['metadata']['annotations'].get('traefik.ingress.kubernetes.io/service.serverstransport') is None
+                )
+                logger.info(f"Config `ingress.traefik.pathMatcher` sets router path matcher annotation")
+                self.assertTrue(
+                    doc['metadata']['annotations']['traefik.ingress.kubernetes.io/router.pathmatcher'] == 'PathPrefix'
                 )
                 count += 1
         self.assertEqual(count, len(resources_name), "No ingress resources found")
+
+    def test_ingress_traefik_servers_transport(self):
+        ingress_name = f'{RELEASE_NAME}selenium-ingress'
+        servers_transport_name = f'{ingress_name}-serverstransport'
+        service_names = [f'{RELEASE_NAME}selenium-router', f'{RELEASE_NAME}selenium-hub']
+        namespace = "default"
+        ingress_found = False
+        backend_service_found = False
+        servers_transport_found = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['kind'] == 'Ingress' and doc['metadata']['name'] == ingress_name:
+                logger.info(f"Assert ingress does not carry backend Service annotations")
+                self.assertTrue(
+                    doc['metadata']['annotations'].get('traefik.ingress.kubernetes.io/service.serverstransport') is None
+                )
+                self.assertTrue(
+                    doc['metadata']['annotations'].get('traefik.ingress.kubernetes.io/service.serversscheme') is None
+                )
+                ingress_found = True
+            if doc['kind'] == 'Service' and doc['metadata']['name'] in service_names:
+                logger.info(f"Assert backend Service has Traefik transport annotations")
+                expected_ref = f'{namespace}-{servers_transport_name}@kubernetescrd'
+                service_annotations = doc['metadata'].get('annotations', {})
+                self.assertEqual(
+                    service_annotations['traefik.ingress.kubernetes.io/service.serversscheme'],
+                    'https',
+                )
+                self.assertEqual(
+                    service_annotations['traefik.ingress.kubernetes.io/service.serverstransport'],
+                    expected_ref,
+                )
+                backend_service_found = True
+            if doc['kind'] == 'ServersTransport' and doc['metadata']['name'] == servers_transport_name:
+                logger.info(f"Assert Traefik ServersTransport forwarding timeouts are set")
+                self.assertFalse(doc['spec']['insecureSkipVerify'])
+                forwarding_timeouts = doc['spec']['forwardingTimeouts']
+                self.assertEqual(forwarding_timeouts['dialTimeout'], '30s')
+                self.assertEqual(forwarding_timeouts['responseHeaderTimeout'], '360s')
+                self.assertEqual(forwarding_timeouts['idleConnTimeout'], '360s')
+                servers_transport_found = True
+        self.assertTrue(ingress_found, "No ingress resource found")
+        self.assertTrue(backend_service_found, "No backend service found with Traefik transport annotations")
+        self.assertTrue(servers_transport_found, "No Traefik ServersTransport resource found")
 
     def test_sub_path_append_to_node_grid_url_and_basic_auth_should_not_include(self):
         resources_name = [

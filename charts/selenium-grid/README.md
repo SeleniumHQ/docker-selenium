@@ -48,7 +48,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Configuration of Session Map using External Datastore](#configuration-of-session-map-using-external-datastore)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
-    * [Configuration of Ingress NGINX Controller](#configuration-of-ingress-nginx-controller)
+    * [Configuration of Traefik Ingress Controller](#configuration-of-traefik-ingress-controller)
     * [Configuration of Jaeger](#configuration-of-jaeger)
     * [Configuration for Selenium-Hub](#configuration-for-selenium-hub)
     * [Configuration for isolated components](#configuration-for-isolated-components)
@@ -427,72 +427,67 @@ helm uninstall selenium-grid
 
 ## Ingress Configuration
 
-By default, ingress is enabled without annotations set. If NGINX ingress controller is used, you need to set few annotations to override the default timeout values to avoid 504 errors (see [#1808](https://github.com/SeleniumHQ/docker-selenium/issues/1808)). Since in Selenium Grid the default of `SE_NODE_SESSION_TIMEOUT` and `SE_SESSION_REQUEST_TIMEOUT` is `300` seconds.
+By default, ingress is enabled and the chart adds Traefik-focused annotations from `ingress.traefik`.
 
-To make the user experience better, there are few annotations will be set by default if NGINX ingress controller is used. Mostly relates to timeouts and buffer sizes.
-
-If you are not using NGINX ingress controller, you can disable these default annotations by setting `ingress.nginx` to `nil` (aka null) via Helm CLI `--set ingress.nginx=!`) or via an override-values.yaml as below:
+If you are not using Traefik, disable these default annotations with:
 
 ```yaml
 ingress:
-  nginx: !
+  traefik: !
 ```
 
-Similarly, if you want to disable a sub-config of `ingress.nginx`. For example: `--set ingress.nginx.proxyBuffer=null`)
-
-You are also able to combine using both default annotations and your own annotations in `ingress.annotations`. Duplicated keys will be merged strategy overwrite with your own annotations in `ingress.annotations` take precedence.
+You can combine chart defaults with your own `ingress.annotations`. If a key is duplicated, your `ingress.annotations` value takes precedence.
 
 ```yaml
 ingress:
-  nginx:
-    proxyTimeout: 3600
+  traefik:
+    entryPoints: websecure
   annotations:
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "7200" # This key will take 7200 instead of 3600
+    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure" # takes precedence
 ```
 
-List mapping of chart values and default annotation(s)
+List mapping of chart values and default annotation(s):
 
 ```markdown
-# `ingress.nginx.proxyTimeout` pass value to annotation(s)
-nginx.ingress.kubernetes.io/proxy-connect-timeout
-nginx.ingress.kubernetes.io/proxy-send-timeout
-nginx.ingress.kubernetes.io/proxy-read-timeout
-nginx.ingress.kubernetes.io/proxy-stream-timeout
-nginx.ingress.kubernetes.io/upstream-keepalive-timeout
-nginx.ingress.kubernetes.io/ssl-session-timeout
+# `ingress.traefik.entryPoints`
+traefik.ingress.kubernetes.io/router.entrypoints
 
-# `ingress.nginx.proxyBuffer` pass value to to annotation(s)
-nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
-nginx.ingress.kubernetes.io/proxy-buffering: "on"
+# `ingress.traefik.middlewares`
+traefik.ingress.kubernetes.io/router.middlewares
 
-# `ingress.nginx.proxyBuffer.size` pass value to to annotation(s)
-nginx.ingress.kubernetes.io/proxy-buffer-size
-nginx.ingress.kubernetes.io/client-body-buffer-size
+# `ingress.traefik.priority`
+traefik.ingress.kubernetes.io/router.priority
 
-# `ingress.nginx.proxyBuffer.number` pass value to annotation(s)
-nginx.ingress.kubernetes.io/proxy-buffers-number
+# `ingress.traefik.pathMatcher`
+traefik.ingress.kubernetes.io/router.pathmatcher
 
-# `ingress.nginx.websocket` pass boolean value to add backend service has WebSocket request (Hub/Router - noVNC, CDP, etc.)
-nginx.org/websocket-services: "{{ template ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ }}"
+# `ingress.traefik.tls.enabled` (when ingress TLS is enabled)
+traefik.ingress.kubernetes.io/router.tls: "true"
 
-# `ingress.nginx.sslPassthrough` pass boolean value to enable SSL Passthrough (when secure connection is enabled in Grid server backend)
-nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+# `ingress.traefik.tls.options`
+traefik.ingress.kubernetes.io/router.tls.options
 
-# `ingress.nginx.sslSecret` to specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName"
-# By default, it is empty, the chart will use internal TLS secret resource (or the first `secretName` under `ingress.tls` if set)
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ template "seleniumGrid.tls.fullname" $ }}
+# `ingress.traefik.tls.certResolver`
+traefik.ingress.kubernetes.io/router.tls.certresolver
 
-# `ingress.nginx.useHttp2` pass boolean value to enable/disable HTTP/2 in TLS termination in the ingress controller
-nginx.ingress.kubernetes.io/use-http2: "true"
+# `ingress.traefik.service.useHttpsScheme` (when Grid server TLS is enabled, applied on backend Service: Hub/Router)
+traefik.ingress.kubernetes.io/service.serversscheme: "https"
 
-# `ingress.nginx.upstreamKeepalive` pass value to upstream keepalive
-nginx.ingress.kubernetes.io/upstream-keepalive-connections: "10000"
-nginx.ingress.kubernetes.io/upstream-keepalive-time: "1h"
-nginx.ingress.kubernetes.io/upstream-keepalive-request: "10000"
+# `ingress.traefik.service.sticky.cookie.enabled`
+traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+
+# `ingress.traefik.serversTransport.enabled` (applied on backend Service: Hub/Router)
+traefik.ingress.kubernetes.io/service.serverstransport: "<namespace>-<name>@kubernetescrd"
 ```
 
-Refer to [NGINX Ingress Controller Annotations](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md) for more details.
+Refer to [Traefik Ingress annotations](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/ingress/#annotations) for more details.
+
+When `ingress.traefik.serversTransport.enabled=true`, the chart also creates a `ServersTransport` resource. You can set backend transport options via:
+
+- `ingress.traefik.serversTransport.insecureSkipVerify`
+- `ingress.traefik.serversTransport.forwardingTimeouts.dialTimeout`
+- `ingress.traefik.serversTransport.forwardingTimeouts.responseHeaderTimeout`
+- `ingress.traefik.serversTransport.forwardingTimeouts.idleConnTimeout`
 
 Refer to below section [Configuration of Secure Communication] for more details on how to configure secure communication to Ingress proxy.
 
@@ -949,7 +944,7 @@ With `ingress.hostname` is set, the default server TLS secret is also used for h
 tls:
   enabled: true
 
-ingress-ngnix:
+traefik:
   enabled: true
 ```
 
@@ -1022,7 +1017,7 @@ helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
 Grid UI can be accessed via HTTPS address `https://selenium-grid.prod.domain.com`.
 
 Inline config TLS for the Ingress resource is also considered as enable secure connection to the Ingress proxy.
-For example, below is the config with using external TLS Secret for the Ingress resource and enable sub-chart NGINX Ingress Controller:
+For example, below is the config with using external TLS Secret for the Ingress resource and enable sub-chart Traefik Ingress Controller:
 
 ```yaml
 ingress:
@@ -1034,16 +1029,16 @@ ingress:
         - selenium-grid.prod.domain.com
 ```
 
-In case the Ingress resource is configured without `hostname` and `tls`, the incoming traffic access via `global.K8S_PUBLIC_IP`. When sub-chart `ingress-nginx` is enabled (deploy Ingress NGINX Controller together), the default TLS secret can also be assigned via `ingress-nginx.controller.extraArgs.default-ssl-certificate`.
+In case the Ingress resource is configured without `hostname` and `tls`, the incoming traffic access via `global.K8S_PUBLIC_IP`. When sub-chart `traefik` is enabled (deploy Traefik Ingress Controller together), the default TLS secret can be assigned via `traefik.tlsStore.default.defaultCertificate.secretName`.
 For example (replace `$RELEASENAME` and `$NAMESPACE` with your values):
 
 ```bash
 helm upgrade -i $RELEASENAME -n $NAMESPACE docker-selenium/selenium-grid \
   --set global.K8S_PUBLIC_IP=$(hostname -I | cut -d' ' -f1) \
-  --set tls.ingress.enableWithController=true \
+  --set ingress.enableWithController=true \
   --set tls.create=false \
   --set tls.nameOverride=my-external-tls-secret \
-  --set ingress-nginx.controller.extraArgs.default-ssl-certificate=$NAMESPACE/my-external-tls-secret
+  --set traefik.tlsStore.default.defaultCertificate.secretName=my-external-tls-secret
 ```
 
 #### TLS termination in the ingress controller, HTTP/2, and related troubleshooting
@@ -1073,11 +1068,13 @@ driver = RemoteWebDriver.builder().oneOf(new ChromeOptions())
 
 With the workaround set http version via ClientConfig also there was a point mentioned that we can understand something like `HTTP/1.1 header parser received no bytes`, or `GOAWAY` is an IOException thrown by client HTTP/2, and when switching client to HTTP/1.1, it could go to a situation that would continue to get "random" IOExceptions with a different message from the server.
 
-For example, in [this case](https://stackoverflow.com/questions/55087292/how-to-handle-http-2-goaway-with-java-net-httpclient) the issue could be due to HTTP/2 configs on Ingress controller. Refer to usage of [Annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/) [ConfigMap](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/) settings in NGINX Ingress Controller.
+For example, in [this case](https://stackoverflow.com/questions/55087292/how-to-handle-http-2-goaway-with-java-net-httpclient) the issue could be due to ingress-controller HTTP/2 and keepalive settings.
 
-- `use-http2` (default is true) - enable or disable HTTP/2 support in secure connection.
-- `upstream-keepalive-timeout` (default to 60) - timeout during which an idle keepalive connection to an upstream server will stay open.
-- `upstream-keepalive-connections` (default to 320) - maximum number of idle keepalive connections to upstream servers. When this number is exceeded, the least recently used connections are closed
+With Traefik, tune entrypoint transport settings using values under:
+
+- `traefik.ports.websecure.transport.respondingTimeouts.*`
+- `traefik.ports.websecure.transport.keepAliveMaxRequests`
+- `traefik.ports.websecure.transport.keepAliveMaxTime`
 
 The above notes are motivated by [SeleniumHQ/selenium#14258](https://github.com/SeleniumHQ/selenium/issues/14258). Kindly let us know if you have further troubleshooting on this.
 
@@ -1176,10 +1173,10 @@ values with the prefix `keda`. So you can for example set `keda.prometheus.metri
 `true` to enable the metrics server for KEDA.  See
 https://github.com/kedacore/charts/blob/main/keda/README.md for more details.
 
-### Configuration of Ingress NGINX Controller
+### Configuration of Traefik Ingress Controller
 
-If you are setting `ingress-nginx.enabled` to `true`, chart Ingress NGINX Controller is installed and can be configured with
-values with the prefix `ingress-nginx`. See https://github.com/kubernetes/ingress-nginx for more details.
+If you are setting `traefik.enabled` to `true`, chart Traefik Ingress Controller is installed and can be configured with
+values with the prefix `traefik`. See https://github.com/traefik/traefik-helm-chart for more details.
 
 ### Configuration of Jaeger
 

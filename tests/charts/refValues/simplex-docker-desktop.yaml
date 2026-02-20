@@ -1,7 +1,7 @@
 # README: This is a sample values for chart deployment in K8s cluster started by Docker Desktop
-# Chart dependency ingress-nginx is installed together by enabling `ingress.enableWithController`
+# Chart dependency traefik is installed together by enabling `ingress.enableWithController`
 # Chart dependency keda is installed together by enabling `autoscaling.enable`
-# Enabled ingress without hostname, set the subPath `/selenium`. NGINX type LoadBalancer to expose access from `http://localhost/selenium`
+# Enabled ingress without hostname, set the subPath `/selenium`. Traefik type LoadBalancer to expose access from `http://localhost/selenium`
 global:
   seleniumGrid:
     logLevel: INFO
@@ -15,20 +15,8 @@ tracing:
 
 ingress:
   enableWithController: true
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
-  className: nginx
+  className: traefik
   hostname: ""
-  paths:
-    - path: /selenium(/|$)(.*)
-      pathType: ImplementationSpecific
-      backend:
-        service:
-          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
-          port:
-            number: 4444
 
 basicAuth:
   enabled: false
@@ -49,12 +37,12 @@ autoscaling:
       strategy: default
 
 hub:
-  subPath: *gridAppRoot
+  subPath: "/selenium"
   serviceType: NodePort
 
 components:
   router:
-    subPath: *gridAppRoot
+    subPath: "/selenium"
     serviceType: NodePort
 
 crossBrowsers:
@@ -102,7 +90,7 @@ videoRecorder:
       persistentVolumeClaim:
         claimName: local-pv-storage
   uploader:
-    enabled: true
+    enabled: false
     destinationPrefix: "s3://upload-records-repo/batch01" # Replace this with your own S3 bucket name (and subdirectory if any)
     extraEnvFrom:
       - secretRef:
@@ -129,15 +117,23 @@ videoManager:
       persistentVolumeClaim:
         claimName: local-pv-storage
 
-ingress-nginx:
-  controller:
-    hostPort:
-      enabled: true
+traefik:
+  ingressClass:
+    name: traefik
+  deployment:
     kind: DaemonSet
-    service:
-      type: LoadBalancer
+  ports:
+    web:
+      hostPort: 80
+    websecure:
+      hostPort: 443
+  service:
+    type: LoadBalancer
+  tlsStore:
+    default:
+      defaultCertificate:
+        secretName: "selenium-tls-secret"
 
 customLabels:
   organization: "SeleniumHQ"
   environment: "dev"
-

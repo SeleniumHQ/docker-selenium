@@ -1,0 +1,11 @@
+{{- if and (eq (include "seleniumGrid.ingress.enabled" $) "true") .Values.ingress.traefik.enabled .Values.ingress.traefik.serversTransport.enabled }}
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata:
+  name: {{ include "seleniumGrid.ingress.traefik.serversTransport.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+spec:
+  {{- toYaml $.Values.ingress.traefik.serversTransport.spec | nindent 2 }}
+{{- end }}

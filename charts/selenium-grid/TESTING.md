@@ -16,7 +16,7 @@ All related testing to this helm chart will be documented in this file.
 | Ingress                | Ingress is enabled without `hostname`                                | &check;  | Cluster  |
 |                        | Ingress is enabled with `hostname` is set                            | &check;  | Cluster  |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  | Cluster  |
-|                        | `ingress.nginx` configs for NGINX ingress controller annotations     | &check;  | Template |
+|                        | `ingress.traefik` configs for Traefik ingress controller annotations | &check;  | Template |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |
 |                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  | Cluster  |

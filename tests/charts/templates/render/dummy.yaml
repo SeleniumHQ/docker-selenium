@@ -108,17 +108,28 @@ tls:
   generateTLS: false
 
 ingress:
-  nginx:
-    proxyTimeout: 360 # Set different proxy timout
-    proxyBuffer:
-      # size: 512M # Keep using sub-config default
-      number: ! # Disable sub-config
+  className: traefik
+  traefik:
+    entryPoints: websecure
+    pathMatcher: PathPrefix
+    tls:
+      enabled: false
+    service:
+      sticky:
+        cookie:
+          enabled: true
+    serversTransport:
+      enabled: true
+      spec:
+        insecureSkipVerify: false
+        forwardingTimeouts:
+          dialTimeout: 30s
+          responseHeaderTimeout: 360s
+          idleConnTimeout: 360s
   annotations: # Add you own annotations
-    nginx.ingress.kubernetes.io/use-regex: "true" # Add new key
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium/"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600" # Override default key
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600" # Override default key
+    traefik.ingress.kubernetes.io/router.entrypoints: "web,websecure" # Override default key
+    traefik.ingress.kubernetes.io/router.middlewares: "selenium-default-chain@kubernetescrd"
+    traefik.ingress.kubernetes.io/router.priority: "10"
   hostname: ""
   ports:
     http: 8081
@@ -146,7 +157,7 @@ isolateComponents: true
 
 components:
   router:
-    subPath: *gridAppRoot
+    subPath: /selenium
     disableUI: true
     annotations:
       "restartOnUpdate": "true"

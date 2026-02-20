@@ -1,8 +1,8 @@
 # README: This is a sample values for chart deployment in Minikube
-# Chart dependency ingress-nginx is installed together by enabling `ingress-nginx.enabled`
+# Chart dependency traefik is installed together by enabling `traefik.enabled`
 # Chart dependency keda is installed together by enabling `autoscaling.enable`
 # Enabled ingress without hostname, set the subPath `/selenium`. Set K8S_PUBLIC_IP point to the public host IP, where Minikube is running
-# `ingress-nginx.controller.hostNetwork` is set to true to allow access from outside the cluster via http://<K8S_PUBLIC_IP>/selenium
+# `traefik.ports.*.hostPort` is set to expose ports directly on the host for access via http://<K8S_PUBLIC_IP>/selenium
 # Components serviceType is set to NodePort to allow access from outside the cluster via K8S_PUBLIC_IP and NodePort http://<K8S_PUBLIC_IP>:30444/selenium
 # Use this reference values to deploy e.g. `helm upgrade --install test --values tests/charts/refValues/simplex-minikube.yaml docker-selenium/selenium-grid --version <0.26.3_onwards>`
 global:
@@ -11,19 +11,17 @@ global:
 
 tls:
   ingress:
-    enabled: true
+    enabled: false
 
 ingress:
   enableWithController: true
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/app-root: &gridAppRoot "/selenium"
-  className: nginx
+    traefik.ingress.kubernetes.io/router.pathmatcher: "PathPrefix"
+  className: traefik
   hostname: ""
   paths:
-    - path: /selenium(/|$)(.*)
-      pathType: ImplementationSpecific
+    - path: /selenium
+      pathType: Prefix
       backend:
         service:
           name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
@@ -49,12 +47,12 @@ autoscaling:
       strategy: default
 
 hub:
-  subPath: *gridAppRoot
+  subPath: /selenium
   serviceType: NodePort
 
 components:
   router:
-    subPath: *gridAppRoot
+    subPath: /selenium
     serviceType: NodePort
 
 chromeNode:
@@ -71,10 +69,15 @@ edgeNode:
 videoRecorder:
   enabled: false
 
-ingress-nginx:
-  controller:
-    hostPort:
-      enabled: true
+traefik:
+  ingressClass:
+    name: traefik
+  deployment:
     kind: DaemonSet
-    service:
-      type: LoadBalancer
+  ports:
+    web:
+      hostPort: 80
+    websecure:
+      hostPort: 443
+  service:
+    type: LoadBalancer

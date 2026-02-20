@@ -22,8 +22,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | redis | ^25.0.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | 2.19 |
-| https://kubernetes.github.io/ingress-nginx | ingress-nginx | ^4 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^82.0.0 |
+| https://traefik.github.io/charts | traefik | ^39.0.0 |
 
 ## Values
 
@@ -95,24 +95,29 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | rbacRoleBinding.create | bool | `true` | Enable to create RBAC role binding to a service account. If using an external role binding, set to false and provide its name in `nameOverride` below |
 | rbacRoleBinding.nameOverride | string | `nil` | Override resource name or provide an external role binding name |
 | ingress.enabled | bool | `true` | Enable to create ingress resource |
-| ingress.enableWithController | bool | `false` | Enable ingress resource with automatically installing Ingress NGINX Controller |
+| ingress.enableWithController | bool | `false` | Enable ingress resource with automatically installing Traefik Ingress Controller |
 | ingress.className | string | `""` | Name of ingress class to select which controller will implement ingress resource |
-| ingress.nginx.websocket | bool | `true` | Enable corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.proxyTimeout | int | `3600` | Set timeout to corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.proxyBuffer.size | string | `"512M"` | Set buffer size to corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.proxyBuffer.number | int | `4` | Set buffer number to corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.sslPassthrough | bool | `true` | Enable corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.sslSecret | string | `""` | Specify a Secret with the certificate `tls.crt`, key `tls.key`, the name in the form "namespace/secretName" for NGINX Ingress Controller |
-| ingress.nginx.useHttp2 | bool | `false` | Enables or disables HTTP/2 support in secure connections via annotations for NGINX Ingress Controller |
-| ingress.nginx.upstreamKeepalive | object | `{"connections":10000,"requests":10000,"time":"1h"}` | Apply upstream keepalive settings once HTTP/2 is enabled |
-| ingress.nginx.upstreamKeepalive.connections | int | `10000` | Set keepalive connections to corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.upstreamKeepalive.time | string | `"1h"` | Set keepalive timeout to corresponding annotations for NGINX Ingress Controller |
-| ingress.nginx.upstreamKeepalive.requests | int | `10000` | Set keepalive requests to corresponding annotations for NGINX Ingress Controller |
+| ingress.traefik.enabled | bool | `true` | Enable corresponding annotations for Traefik Ingress Controller |
+| ingress.traefik.entryPoints | string | `""` | Comma-separated Traefik entrypoints for the ingress router. Empty means auto-select (`web` or `websecure`) based on TLS mode. |
+| ingress.traefik.middlewares | string | `""` | Optional Traefik middlewares in the format `<namespace>-<name>@kubernetescrd` |
+| ingress.traefik.priority | string | `""` | Optional Traefik router priority value |
+| ingress.traefik.pathMatcher | string | `"PathPrefix"` | Optional Traefik router path matcher (e.g. `PathPrefix`, `Path`, `PathRegexp`) |
+| ingress.traefik.tls.enabled | bool | `true` | Add `traefik.ingress.kubernetes.io/router.tls: "true"` when ingress TLS is enabled |
+| ingress.traefik.tls.options | string | `""` | Optional Traefik TLS options in the format `<namespace>-<name>@kubernetescrd` |
+| ingress.traefik.tls.certResolver | string | `""` | Optional Traefik certificate resolver name |
+| ingress.traefik.service.useHttpsScheme | bool | `true` | Add `traefik.ingress.kubernetes.io/service.serversscheme: "https"` to backend Service when Grid server TLS is enabled |
+| ingress.traefik.service.sticky.cookie.enabled | bool | `false` | Enable Traefik sticky cookie for service load-balancing |
+| ingress.traefik.serversTransport.enabled | bool | `true` | Enable creating a Traefik ServersTransport resource and auto-link it to backend Service annotation `traefik.ingress.kubernetes.io/service.serverstransport` |
+| ingress.traefik.serversTransport.nameOverride | string | `""` | Override ServersTransport resource name. Defaults to `<ingress-fullname>-serverstransport` |
+| ingress.traefik.serversTransport.reference | string | `""` | Use an existing ServersTransport reference `<namespace>-<name>@kubernetescrd` when `enabled` is false |
+| ingress.traefik.serversTransport.spec | object | `{"disableHTTP2":true,"forwardingTimeouts":{"dialTimeout":"3600s","idleConnTimeout":"3600s","responseHeaderTimeout":"3600s"},"insecureSkipVerify":true}` | Pass all spec support in Traefik ServersTransport |
+| ingress.traefik.serversTransport.spec.forwardingTimeouts.dialTimeout | string | `"3600s"` | Maximum duration Traefik waits when establishing a connection to backend servers |
+| ingress.traefik.serversTransport.spec.forwardingTimeouts.responseHeaderTimeout | string | `"3600s"` | Maximum duration Traefik waits for backend response headers |
+| ingress.traefik.serversTransport.spec.forwardingTimeouts.idleConnTimeout | string | `"3600s"` | Maximum duration an idle keep-alive backend connection remains open |
 | ingress.ports.http | int | `80` | Specify HTTP port is exposed by ingress controller |
 | ingress.ports.https | int | `443` | Specify HTTPS port is exposed by ingress controller |
 | ingress.annotations | object | `{}` | Custom annotations for ingress resource |
 | ingress.hostname | string | `""` | Default host for the ingress resource |
-| ingress.path | string | `"/"` | Default host path for the ingress resource |
 | ingress.pathType | string | `"Prefix"` | Default path type for the ingress resource |
 | ingress.paths | list | `[]` | List of paths for the ingress resource. This will override the default path |
 | ingress.tls | list | `[]` | TLS backend configuration for ingress resource |
@@ -366,11 +371,11 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | tracing.enabled | bool | `false` | Enable tracing. Implies installing Jaeger |
 | tracing.enabledWithExistingEndpoint | bool | `false` | Enable tracing without automatically installing Jaeger |
 | tracing.exporter | string | `"otlp"` | Exporter type for tracing. Recommended `otlp` for wide compatibility with observability backends (e.g. Jaeger, Elastic, etc.) |
-| tracing.exporterEndpoint | string | `"http://{{ .Release.Name }}-jaeger-collector:4317"` | Exporter endpoint for pushing trace data |
+| tracing.exporterEndpoint | string | `"http://{{ .Release.Name }}-jaeger:4317"` | Exporter endpoint for pushing trace data |
 | tracing.globalAutoConfigure | bool | `true` | Enable global auto-configuration for tracing |
 | tracing.ingress.enabled | bool | `true` | Enable ingress resource to access the Jaeger |
 | tracing.ingress.annotations | string | `nil` | Annotations for Jaeger ingress resource |
-| tracing.ingress.paths | list | `[{"backend":{"service":{"name":"{{ .Release.Name }}-jaeger-query","port":{"number":16686}}},"path":"/jaeger","pathType":"Prefix"}]` | Configure paths for Jaeger ingress resource |
+| tracing.ingress.paths | list | `[{"backend":{"service":{"name":"{{ .Release.Name }}-jaeger","port":{"number":16686}}},"path":"/jaeger","pathType":"Prefix"}]` | Configure paths for Jaeger ingress resource |
 | monitoring.enabled | bool | `false` |  |
 | monitoring.enabledWithExistingAgent | bool | `false` |  |
 | monitoring.exporter.nameOverride | string | `""` |  |
@@ -749,9 +754,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
-| ingress-nginx | object | `{"controller":{"admissionWebhooks":{"enabled":false}}}` | Configuration for dependency chart ingress-nginx |
+| traefik | object | `{"ingressClass":{"enabled":true,"isDefaultClass":false,"name":"traefik"},"tlsStore":{"default":{"defaultCertificate":null}}}` | Configuration for dependency chart traefik |
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"prometheus":{"prometheusSpec":{"additionalConfig":{"additionalScrapeConfigs":{"key":"{{ template \"seleniumGrid.monitoring.scrape.key\" $ }}","name":"{{ template \"seleniumGrid.monitoring.exporter.fullname\" $ }}"}}}},"prometheusOperator":{"admissionWebhooks":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
-| jaeger | object | `{"agent":{"enabled":false},"allInOne":{"enabled":true,"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"collector":{"enabled":false},"provisionDataStore":{"cassandra":false},"query":{"enabled":false},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
+| jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
 | postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
