@@ -1,0 +1,49 @@
+[kubernetes]
+# Configs have a mapping between the container image to use and the capabilities
+# that need to be matched to start a K8s Job with the given image.
+configs = [
+    "selenium/standalone-firefox:4.40.0-20260202", '{"browserName": "firefox", "platformName": "linux"}',
+    "selenium/standalone-chrome:4.40.0-20260202", '{"browserName": "chrome", "platformName": "linux"}',
+    "selenium/standalone-edge:4.40.0-20260202", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    ]
+
+# ConfigMap template mode: prefix an entry with "configmap:" to load a full K8s Job
+# template from a ConfigMap instead of building one from the image name.
+# The ConfigMap must have a key named "template" containing the Job YAML.
+# The Job must include a container named "browser" with an image set.
+# Format: "configmap:[namespace/]<configmap-name>"
+# configs = [
+#     "configmap:selenium/firefox-job-template", '{"browserName": "firefox", "platformName": "linux"}',
+#     "configmap:chrome-job-template", '{"browserName": "chrome", "platformName": "linux"}'
+#     ]
+
+# Docker image used for video recording sidecar (set to "false" to disable)
+video-image = "selenium/video:ffmpeg-8.0-20260202"
+
+# Session assets path — when the Node Pod has a PVC mounted at this path,
+# browser Jobs automatically share it for video/logs/capabilities persistence
+assets-path = "/opt/selenium/assets"
+
+# Kubernetes API server URL. When set, connects to a remote cluster instead of
+# using in-cluster or kubeconfig auto-discovery. Also enables port-forwarding
+# mode for browser Job connectivity.
+# url = "https://my-k8s-cluster:6443"
+
+# Most K8s manifest fields (tolerations, affinity, imagePullSecrets, dnsPolicy,
+# dnsConfig, securityContext, priorityClassName, nodeSelector, serviceAccountName,
+# resources, imagePullPolicy) are auto-inherited from the Node Pod's own spec
+# when running inside Kubernetes. Override only when needed:
+# namespace = "selenium"
+# service-account = "selenium-node"
+# image-pull-policy = "IfNotPresent"
+# resource-requests = "cpu=500m,memory=512Mi"
+# resource-limits = "cpu=1,memory=1Gi"
+# node-selector = "disktype=ssd"
+# server-start-timeout = 120
+
+# Seconds to wait for containers to shut down gracefully before force-killing them
+# termination-grace-period = 30
+
+# Prefix filter for inheriting labels/annotations from the Node Pod to browser Jobs.
+# Only labels/annotations starting with this prefix are copied. Empty string inherits all.
+# label-inherit-prefix = "se/"

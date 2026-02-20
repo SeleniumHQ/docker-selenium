@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-node-kubernetes
+  labels:
+    app: selenium-node-kubernetes
+    se/component: node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-node-kubernetes
+  template:
+    metadata:
+      labels:
+        app: selenium-node-kubernetes
+        se/component: node
+    spec:
+      serviceAccountName: selenium-node
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: selenium-node-kubernetes
+          image: selenium/node-kubernetes:4.41.0-20260220
+          ports:
+            - containerPort: 5555
+          env:
+            - name: SE_EVENT_BUS_HOST
+              value: "selenium-hub"
+            - name: SE_EVENT_BUS_PUBLISH_PORT
+              value: "4442"
+            - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+              value: "4443"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "600"
+            - name: SE_REGISTRATION_SECRET
+              value: "secret"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 5555
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /readyz
+              port: 5555
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          volumeMounts:
+            - name: selenium-config
+              mountPath: /opt/selenium/kubernetes.toml
+              subPath: kubernetes.toml
+              readOnly: true
+            - name: session-assets
+              mountPath: /opt/selenium/assets
+      volumes:
+        - name: selenium-config
+          configMap:
+            name: selenium-kubernetes-config
+        - name: session-assets
+          persistentVolumeClaim:
+            claimName: selenium-assets

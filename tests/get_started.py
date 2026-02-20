@@ -32,6 +32,8 @@ def run_browser_instance(browser, grid_url):
         options = EdgeOptions()
     options.enable_bidi = True
     options.enable_downloads = False
+    options.set_capability('se:recordVideo', True)
+    options.set_capability('se:name', "Test this test session")
 
     while True:
         driver = webdriver.Remote(

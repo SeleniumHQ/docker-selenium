@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-standalone-kubernetes
+  labels:
+    app: selenium-standalone-kubernetes
+    se/component: standalone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-standalone-kubernetes
+  template:
+    metadata:
+      labels:
+        app: selenium-standalone-kubernetes
+        se/component: standalone
+    spec:
+      serviceAccountName: selenium-node
+      terminationGracePeriodSeconds: 300
+      containers:
+        - name: selenium-standalone-kubernetes
+          image: selenium/standalone-kubernetes:4.41.0-20260220
+          ports:
+            - containerPort: 4444
+          env:
+            - name: SE_SESSION_REQUEST_TIMEOUT
+              value: "600"
+            - name: SE_SESSION_RETRY_INTERVAL
+              value: "15"
+            - name: SE_ROUTER_USERNAME
+              value: "admin"
+            - name: SE_ROUTER_PASSWORD
+              value: "admin"
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: "600"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "0.5"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - curl -G --fail --silent -u ${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD} localhost:4444/status
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 4444
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: selenium-config
+              mountPath: /opt/selenium/kubernetes.toml
+              subPath: kubernetes.toml
+              readOnly: true
+            - name: session-assets
+              mountPath: /opt/selenium/assets
+      volumes:
+        - name: selenium-config
+          configMap:
+            name: selenium-kubernetes-config
+        - name: session-assets
+          persistentVolumeClaim:
+            claimName: selenium-assets
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-standalone-kubernetes
+spec:
+  selector:
+    app: selenium-standalone-kubernetes
+  ports:
+    - name: web
+      port: 4444
+      targetPort: 4444
+      nodePort: 30444
+  type: NodePort
