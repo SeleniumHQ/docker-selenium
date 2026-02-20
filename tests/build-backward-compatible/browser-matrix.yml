@@ -1,7 +1,7 @@
 matrix:
   browser:
     '147':
-      FIREFOX_VERSION: 147.0.3
+      FIREFOX_VERSION: 147.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '146':
       FIREFOX_VERSION: 146.0.1
@@ -9,13 +9,15 @@ matrix:
     '145':
       FIREFOX_VERSION: 145.0.2
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
-      CFT_VERSION: 145.0.7632.26
+      CFT_VERSION: 145.0.7632.77
+      CHROME_VERSION: google-chrome-stable=145.0.7632.109-1
+      EDGE_VERSION: microsoft-edge-stable=145.0.3800.58-1
     '144':
       FIREFOX_VERSION: 144.0.2
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CHROME_VERSION: google-chrome-stable=144.0.7559.132-1
       CFT_VERSION: 144.0.7559.133
-      EDGE_VERSION: microsoft-edge-stable=144.0.3719.104-1
+      EDGE_VERSION: microsoft-edge-stable=144.0.3719.115-1
     '143':
       FIREFOX_VERSION: 143.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
