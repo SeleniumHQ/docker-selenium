@@ -44,6 +44,7 @@ def run_browser_instance(browser, grid_url):
         driver.get('https://www.google.com/')
         print(driver.title)
         time.sleep(15)
+        driver.fire_session_event("test:failed", {"error": "Element not found"})
         driver.quit()
 
 

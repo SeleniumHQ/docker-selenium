@@ -90,7 +90,7 @@ videoRecorder:
       persistentVolumeClaim:
         claimName: local-pv-storage
   uploader:
-    enabled: false
+    enabled: true
     destinationPrefix: "s3://upload-records-repo/batch01" # Replace this with your own S3 bucket name (and subdirectory if any)
     extraEnvFrom:
       - secretRef:

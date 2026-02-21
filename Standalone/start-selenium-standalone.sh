@@ -109,6 +109,8 @@ fi
 
 if [ "${SE_BIND_BUS}" = "true" ]; then
   append_se_opts "--bind-bus" "${SE_BIND_BUS}"
+  append_se_opts "--publish-events" "tcp://*:${SE_EVENT_BUS_PUBLISH_PORT}"
+  append_se_opts "--subscribe-events" "tcp://*:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
   if [ -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
     append_se_opts "--events-implementation" "org.openqa.selenium.events.zeromq.ZeroMqEventBus"
   fi

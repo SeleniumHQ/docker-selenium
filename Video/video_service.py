@@ -16,6 +16,9 @@ Subscribes to the Grid's ZeroMQ event bus and handles:
 Environment Variables:
     SE_EVENT_BUS_HOST: Event bus hostname (default: localhost)
     SE_EVENT_BUS_PUBLISH_PORT: Port to subscribe for events (default: 4442)
+    SE_EVENT_BUS_CONNECT_TIMEOUT_MS: ZMQ connect timeout in ms (default: 5000)
+    SE_EVENT_BUS_RECONNECT_INTERVAL_MS: ZMQ reconnect interval in ms (default: 1000)
+    SE_EVENT_BUS_RECONNECT_INTERVAL_MAX_MS: ZMQ max reconnect interval in ms (default: 5000)
     SE_REGISTRATION_SECRET: Secret for event bus authentication
     SE_NODE_PORT: Node port for /status endpoint (default: 5555)
     SE_SERVER_PROTOCOL: Protocol for Node /status endpoint (default: http)
@@ -32,6 +35,7 @@ import logging
 import os
 import re
 import signal
+import ssl
 import subprocess
 import sys
 from contextlib import asynccontextmanager
@@ -123,6 +127,9 @@ class VideoService:
         # Event bus configuration
         self.event_bus_host = os.environ.get("SE_EVENT_BUS_HOST", "localhost")
         self.event_bus_port = os.environ.get("SE_EVENT_BUS_PUBLISH_PORT", "4442")
+        self.event_bus_connect_timeout_ms = int(os.environ.get("SE_EVENT_BUS_CONNECT_TIMEOUT_MS", "5000"))
+        self.event_bus_reconnect_interval_ms = int(os.environ.get("SE_EVENT_BUS_RECONNECT_INTERVAL_MS", "1000"))
+        self.event_bus_reconnect_interval_max_ms = int(os.environ.get("SE_EVENT_BUS_RECONNECT_INTERVAL_MAX_MS", "5000"))
         self.registration_secret = os.environ.get("SE_REGISTRATION_SECRET", "")
 
         # Video recording configuration
@@ -152,6 +159,12 @@ class VideoService:
         self.retain_local = os.environ.get("SE_UPLOAD_RETAIN_LOCAL_FILE", "false").lower() == "true"
         self.upload_batch_size = int(os.environ.get("SE_VIDEO_UPLOAD_BATCH_CHECK", "10"))
         self.upload_failure_only = os.environ.get("SE_UPLOAD_FAILURE_SESSION_ONLY", "false").lower() == "true"
+        default_failure_events = [":failure", ":failed"]
+        custom_failure_events = os.environ.get("SE_UPLOAD_FAILURE_SESSION_EVENTS", "").lower()
+        custom_failure_events_list = []
+        if custom_failure_events:
+            custom_failure_events_list = [event.strip() for event in custom_failure_events.split(",") if event.strip()]
+        self.upload_failure_events = list(dict.fromkeys(default_failure_events + custom_failure_events_list))
 
         # Capability names
         self.video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
@@ -175,6 +188,7 @@ class VideoService:
         self.se_server_protocol = os.environ.get("SE_SERVER_PROTOCOL", "http")
         default_node_port = "4444" if self.record_standalone else "5555"
         self.se_node_port = os.environ.get("SE_NODE_PORT", default_node_port)
+        self.node_status_verify_ssl = False
         self.node_poll_interval = int(os.environ.get("SE_VIDEO_POLL_INTERVAL", "2"))
 
         # Drain configuration
@@ -262,7 +276,7 @@ class VideoService:
     def is_failure_event_type(self, event_type: str) -> bool:
         """Check if event type indicates a failure."""
         event_lower = event_type.lower()
-        return event_lower.endswith(":failed") or event_lower.endswith(":failure")
+        return any(event in event_lower for event in self.upload_failure_events)
 
     def is_own_node_event(self, data: dict) -> bool:
         """Check if an event belongs to this Node.
@@ -302,12 +316,23 @@ class VideoService:
         if self.registration_secret:
             headers["X-REGISTRATION-SECRET"] = self.registration_secret
 
-        logger.info(f"Waiting for Node /status endpoint: {node_status_url}")
+        ssl_context = None
+        if self.se_server_protocol.lower() == "https" and not self.node_status_verify_ssl:
+            ssl_context = ssl._create_unverified_context()
+
+        logger.info(
+            f"Waiting for Node /status endpoint: {node_status_url} " f"(verify_ssl={self.node_status_verify_ssl})"
+        )
 
         while not self.shutdown_event.is_set():
             try:
                 req = Request(node_status_url, headers=headers)
-                with urlopen(req, timeout=5) as resp:
+                if ssl_context is not None:
+                    resp_ctx = urlopen(req, timeout=5, context=ssl_context)
+                else:
+                    resp_ctx = urlopen(req, timeout=5)
+
+                with resp_ctx as resp:
                     if resp.status == 200:
                         body = json.loads(resp.read().decode("utf-8"))
 
@@ -678,11 +703,35 @@ class VideoService:
         """Subscribe to event bus and process events."""
         self.context = zmq.asyncio.Context()
         self.subscriber = self.context.socket(zmq.SUB)
+        self.subscriber.setsockopt(zmq.LINGER, 0)
+
+        # Configure connection and reconnection timings for better startup resilience.
+        if hasattr(zmq, "CONNECT_TIMEOUT"):
+            self.subscriber.setsockopt(zmq.CONNECT_TIMEOUT, self.event_bus_connect_timeout_ms)
+        if hasattr(zmq, "RECONNECT_IVL"):
+            self.subscriber.setsockopt(zmq.RECONNECT_IVL, self.event_bus_reconnect_interval_ms)
+        if hasattr(zmq, "RECONNECT_IVL_MAX"):
+            self.subscriber.setsockopt(zmq.RECONNECT_IVL_MAX, self.event_bus_reconnect_interval_max_ms)
 
         connection = f"tcp://{self.event_bus_host}:{self.event_bus_port}"
-        logger.info(f"Connecting to event bus: {connection}")
+        logger.info(
+            f"Connecting to event bus: {connection} "
+            f"(connect_timeout_ms={self.event_bus_connect_timeout_ms}, "
+            f"reconnect_ivl_ms={self.event_bus_reconnect_interval_ms}, "
+            f"reconnect_ivl_max_ms={self.event_bus_reconnect_interval_max_ms})"
+        )
 
-        self.subscriber.connect(connection)
+        while not self.shutdown_event.is_set():
+            try:
+                self.subscriber.connect(connection)
+                break
+            except zmq.ZMQError as e:
+                wait_seconds = max(0.1, self.event_bus_reconnect_interval_ms / 1000.0)
+                logger.warning(f"Event bus connect failed: {e}; retrying in {wait_seconds:.1f}s")
+                await asyncio.sleep(wait_seconds)
+
+        if self.shutdown_event.is_set():
+            return
 
         # Subscribe to session events
         for event in ["session-created", "session-closed", "session-event"]:
@@ -723,9 +772,11 @@ class VideoService:
                         try:
                             data = json.loads(data_json)
                             event_node_id = data.get("nodeId", "N/A")
-                            logger.info(
-                                f"Received event: {event_name}, " f"nodeId={event_node_id}, self.node_id={self.node_id}"
-                            )
+                            if self.record_standalone or (self.node_id is not None and event_node_id == self.node_id):
+                                logger.info(
+                                    f"Received event: {event_name}, "
+                                    f"nodeId={event_node_id}, self.node_id={self.node_id}"
+                                )
                             handler = handlers.get(event_name)
                             if handler:
                                 await handler(data)
@@ -814,6 +865,7 @@ class VideoService:
         logger.info(f"  Upload enabled: {self.upload_enabled}")
         logger.info(f"  Upload destination: {self.upload_destination}")
         logger.info(f"  Upload failure only: {self.upload_failure_only}")
+        logger.info(f"  Upload failure events: {self.upload_failure_events}")
         logger.info(f"  Max sessions (drain): {self.max_sessions if self.max_sessions > 0 else 'unlimited'}")
 
         # Validate video folder

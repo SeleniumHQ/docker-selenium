@@ -28,20 +28,20 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chromium:4.40.0-20260204
+    image: selenium/node-chromium:4.41.0-20260222
     shm_size: 2gb
     depends_on:
       - selenium-hub
     volumes:
       - /tmp/videos:/videos
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
-      - SE_EVENT_DRIVEN_SERVICES=true
+      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_UPLOAD_FAILURE_SESSION_ONLY=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -58,20 +58,20 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.40.0-20260204
+    image: selenium/node-firefox:4.41.0-20260222
     shm_size: 2gb
     depends_on:
       - selenium-hub
     volumes:
       - /tmp/videos:/videos
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
-      - SE_EVENT_DRIVEN_SERVICES=true
+      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_UPLOAD_FAILURE_SESSION_ONLY=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -85,10 +85,8 @@ services:
     stop_grace_period: 30s
 
   selenium-hub:
-    image: selenium/hub:4.40.0-20260204
+    image: selenium/hub:4.41.0-20260222
     container_name: selenium-hub
-    volumes:
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
     ports:
       - "4442:4442"
       - "4443:4443"

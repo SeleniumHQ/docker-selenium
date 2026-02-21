@@ -511,3 +511,31 @@
     fail to create sessions. A value of 0 (default) disables this feature, allowing
     unlimited retries. A value higher than zero enables this feature.
   cli: --node-down-failure-threshold
+- name: SE_BIND_BUS
+  description: When true, the Standalone will start the Event Bus and connect itself.
+    Standalone also expose publishing and subscribing port for sidecar service can
+    listen on session events.
+  cli: --bind-bus
+- name: SE_EVENT_BUS_IMPLEMENTATION
+  description: 'Full class name of non-default event bus implementation. For example:
+    org.openqa.selenium.events.zeromq.ZeroMqEventBus'
+  cli: --events-implementation
+- name: SE_NODE_KUBERNETES_CONFIG_FILENAME
+  description: A separate TOML config file name for Dynamic Grid in Kubernetes, which
+    avoid conflict with browser config if shared mouted volume
+  cli: ''
+- name: SE_UPLOAD_FAILURE_SESSION_EVENTS
+  description: By default, a failure session event type contains ":failed" or ":failure"
+    fires that will trigger the upload failure session only. User can define more
+    event types which handled in your test framework, separated by comma.
+  cli: ''
+- name: SE_UPLOAD_FAILURE_SESSION_ONLY
+  description: When true, only recording of sessions that are not exited normally
+    (session timed out, or custom events were fired by the client match with failure
+    events defined)
+  cli: ''
+- name: SE_VIDEO_EVENT_DRIVEN
+  description: Backend of video recorder and uploader will subscribe to Grid Event
+    Bus for session event lifecycle for processing instead of traditional polling
+    Node session capabilities via /status endpoint.
+  cli: ''

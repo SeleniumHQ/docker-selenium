@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Video service entry point that switches between:
-1. Unified event-driven service (SE_EVENT_DRIVEN_SERVICES=true)
-2. Traditional shell-based polling (SE_EVENT_DRIVEN_SERVICES=false or unset)
+1. Unified event-driven service (SE_VIDEO_EVENT_DRIVEN=true)
+2. Traditional shell-based polling (SE_VIDEO_EVENT_DRIVEN=false or unset)
 
 When event-driven mode is enabled, this launches a single unified service
 that handles both recording and uploading with shared state management.
@@ -14,7 +14,7 @@ import sys
 
 
 def main():
-    event_driven = os.environ.get("SE_EVENT_DRIVEN_SERVICES", "false").lower() == "true"
+    event_driven = os.environ.get("SE_VIDEO_EVENT_DRIVEN", "false").lower() == "true"
 
     if event_driven:
         print("Starting unified event-driven video service...")

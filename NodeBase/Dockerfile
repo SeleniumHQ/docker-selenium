@@ -63,6 +63,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
     SE_RECORD_VIDEO=false \
     SE_VIDEO_FILE_NAME=auto \
+    SE_VIDEO_EVENT_DRIVEN="true" \
     DISPLAY_CONTAINER_NAME="localhost" \
     SE_SCREEN_WIDTH="1920" \
     SE_SCREEN_HEIGHT="1080" \

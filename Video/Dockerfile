@@ -43,6 +43,7 @@ ENV DISPLAY_NUM="99" \
     SE_CODEC="libx264" \
     SE_PRESET="-preset ultrafast" \
     VIDEO_FOLDER="/videos" \
+    SE_VIDEO_EVENT_DRIVEN="false" \
     SE_VIDEO_FILE_NAME="video.mp4" \
     SE_VIDEO_FILE_NAME_TRIM_REGEX="[^a-zA-Z0-9-_]" \
     SE_VIDEO_FILE_NAME_SUFFIX="true" \
@@ -50,6 +51,8 @@ ENV DISPLAY_NUM="99" \
     RCLONE_CONFIG="/opt/selenium/upload.conf" \
     SE_VIDEO_UPLOAD_ENABLED="false" \
     SE_VIDEO_INTERNAL_UPLOAD="true" \
-    SE_UPLOAD_DESTINATION_PREFIX=""
+    SE_UPLOAD_DESTINATION_PREFIX="" \
+    SE_UPLOAD_FAILURE_SESSION_ONLY="false" \
+    SE_UPLOAD_FAILURE_SESSION_EVENTS=":failed,:failure"
 
 EXPOSE 9000

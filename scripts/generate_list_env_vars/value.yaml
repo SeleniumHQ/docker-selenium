@@ -1,5 +1,7 @@
 - name: SE_AUDIO_SOURCE
   default: -f pulse -ac 2 -i default
+- name: SE_BIND_BUS
+  default: 'true'
 - name: SE_BIND_HOST
   default: 'false'
 - name: SE_BROWSER_BINARY_LOCATION
@@ -31,6 +33,8 @@
 - name: SE_EVENT_BUS_HEARTBEAT_PERIOD
   default: ''
 - name: SE_EVENT_BUS_HOST
+  default: ''
+- name: SE_EVENT_BUS_IMPLEMENTATION
   default: ''
 - name: SE_EVENT_BUS_PORT
   default: '5557'
@@ -112,6 +116,8 @@
   default: '15'
 - name: SE_NODE_HOST
   default: ''
+- name: SE_NODE_KUBERNETES_CONFIG_FILENAME
+  default: kubernetes.toml
 - name: SE_NODE_MAX_SESSIONS
   default: '1'
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
@@ -266,6 +272,10 @@
   default: ''
 - name: SE_UPLOAD_DESTINATION_PREFIX
   default: ''
+- name: SE_UPLOAD_FAILURE_SESSION_EVENTS
+  default: :failed,:failure
+- name: SE_UPLOAD_FAILURE_SESSION_ONLY
+  default: 'false'
 - name: SE_UPLOAD_OPTS
   default: ''
 - name: SE_UPLOAD_PIPE_FILE_NAME
@@ -278,6 +288,8 @@
   default: ''
 - name: SE_VIDEO_CRF
   default: ''
+- name: SE_VIDEO_EVENT_DRIVEN
+  default: 'true'
 - name: SE_VIDEO_FILE_NAME
   default: video.mp4
 - name: SE_VIDEO_FILE_NAME_SUFFIX

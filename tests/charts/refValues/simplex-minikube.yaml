@@ -11,22 +11,12 @@ global:
 
 tls:
   ingress:
-    enabled: false
+    enabled: true
 
 ingress:
   enableWithController: true
-  annotations:
-    traefik.ingress.kubernetes.io/router.pathmatcher: "PathPrefix"
   className: traefik
   hostname: ""
-  paths:
-    - path: /selenium
-      pathType: Prefix
-      backend:
-        service:
-          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
-          port:
-            number: 4444
 
 basicAuth:
   enabled: false

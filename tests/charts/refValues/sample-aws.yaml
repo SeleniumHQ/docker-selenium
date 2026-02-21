@@ -10,18 +10,8 @@ global:
 
 ingress:
   enabled: true
-  annotations:
-    traefik.ingress.kubernetes.io/router.pathmatcher: "PathPrefix"
   className: traefik
   hostname: "aws.ndviet.org" # Replace with your hostname
-  paths:
-    - path: /selenium
-      pathType: Prefix
-      backend:
-        service:
-          name: '{{ ternary (include "seleniumGrid.router.fullname" $ ) (include "seleniumGrid.hub.fullname" $ ) $.Values.isolateComponents }}'
-          port:
-            number: 4444
 
 basicAuth:
   enabled: false

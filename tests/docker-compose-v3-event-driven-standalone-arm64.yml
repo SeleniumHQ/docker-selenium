@@ -28,21 +28,18 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    image: selenium/standalone-chromium:4.40.0-20260209
+    image: selenium/standalone-chromium:4.41.0-20260222
     shm_size: 2gb
     ports:
       - "4444:4444"
     volumes:
       - /tmp/videos:/videos
-      - ./../selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
       - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_VIDEO_RECORD_STANDALONE=true
       - SE_RECORD_VIDEO=true
       - SE_VIDEO_FILE_NAME=auto
-      - SE_BIND_BUS=true
-      - SE_EVENT_BUS_HOST=0.0.0.0
-      - SE_EVENT_DRIVEN_SERVICES=true
+      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
