@@ -227,6 +227,7 @@ ENV SE_BIND_HOST="false" \
     SE_LOG_LEVEL="INFO" \
     SE_HTTP_LOGS="false" \
     SE_STRUCTURED_LOGS="false" \
+    SE_PLAIN_LOGS="true" \
     SE_ENABLE_TRACING="true" \
     SE_ENABLE_TLS="false" \
     SE_JAVA_OPTS_DEFAULT="" \

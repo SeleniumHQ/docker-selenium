@@ -85,6 +85,10 @@ if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
   append_se_opts "--structured-logs" "${SE_STRUCTURED_LOGS}"
 fi
 
+if [ ! -z "$SE_PLAIN_LOGS" ]; then
+  append_se_opts "--plain-logs" "${SE_PLAIN_LOGS}"
+fi
+
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi

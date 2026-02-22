@@ -44,6 +44,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.stdoutProbeLog | bool | `false` | Probe logs output can be retrieved using `kubectl logs`. Noted: this will not work if shareProcessNamespace is enabled |
 | global.seleniumGrid.revisionHistoryLimit | int | `10` | Specify how many old ReplicaSets for this Deployment you want to retain. The rest will be garbage-collected in the background. |
 | global.seleniumGrid.structuredLogs | bool | `false` | Whether to enable structured logging |
+| global.seleniumGrid.plainLogs | bool | `true` | Whether to enable plain logging (both structured and plain can be enabled at the same time, so disable one if only prefer another) |
 | global.seleniumGrid.httpLogs | bool | `false` | Enable http logging. Tracing should be enabled to log http logs. |
 | global.seleniumGrid.updateStrategy.type | string | `"Recreate"` | Specify update strategy for all components, can be overridden individually |
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |

@@ -539,3 +539,6 @@
     Bus for session event lifecycle for processing instead of traditional polling
     Node session capabilities via /status endpoint.
   cli: ''
+- name: SE_PLAIN_LOGS
+  description: Use plain log lines
+  cli: --plain-logs

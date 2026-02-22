@@ -180,6 +180,8 @@
   default: selenium-router
 - name: SE_OTEL_TRACES_EXPORTER
   default: otlp
+- name: SE_PLAIN_LOGS
+  default: 'true'
 - name: SE_PRESET
   default: -preset ultrafast
 - name: SE_RCLONE_

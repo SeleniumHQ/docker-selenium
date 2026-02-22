@@ -165,3 +165,4 @@
 | SE_UPLOAD_FAILURE_SESSION_EVENTS | :failed,:failure | By default, a failure session event type contains ":failed" or ":failure" fires that will trigger the upload failure session only. User can define more event types which handled in your test framework, separated by comma. |  |
 | SE_UPLOAD_FAILURE_SESSION_ONLY | false | When true, only recording of sessions that are not exited normally (session timed out, or custom events were fired by the client match with failure events defined) |  |
 | SE_VIDEO_EVENT_DRIVEN | true | Backend of video recorder and uploader will subscribe to Grid Event Bus for session event lifecycle for processing instead of traditional polling Node session capabilities via /status endpoint. |  |
+| SE_PLAIN_LOGS | true | Use plain log lines | --plain-logs |
