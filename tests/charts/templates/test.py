@@ -495,6 +495,19 @@ class ChartTemplateTests(unittest.TestCase):
             count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}"
         )
 
+    def test_monitoring_exporter_tolerations(self):
+        resources_name = [f'{RELEASE_NAME}selenium-metrics-exporter']
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert tolerations are set on monitoring exporter deployment")
+                tolerations = doc['spec']['template']['spec']['tolerations']
+                self.assertTrue(len(tolerations) > 0)
+                self.assertEqual(tolerations[0]['key'], 'dedicated')
+                self.assertEqual(tolerations[0]['operator'], 'Exists')
+                count += 1
+        self.assertEqual(count, len(resources_name), "No monitoring exporter deployment found")
+
 
 if __name__ == '__main__':
     failed = False

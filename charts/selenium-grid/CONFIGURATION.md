@@ -395,6 +395,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.exporter.service.externalTrafficPolicy | string | `""` | Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/) |
 | monitoring.exporter.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
 | monitoring.exporter.replicas | int | `1` |  |
+| monitoring.exporter.tolerations | list | `[]` | Tolerations for exporter pods |
 | monitoring.additionalScrapeConfigs.key | string | `""` |  |
 | monitoring.additionalScrapeConfigs.value | string | `""` |  |
 | monitoring.annotations | object | `{}` |  |

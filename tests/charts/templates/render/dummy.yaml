@@ -24,6 +24,10 @@ global:
 
 monitoring:
   enabledWithExistingAgent: true
+  exporter:
+    tolerations:
+      - key: "dedicated"
+        operator: "Exists"
   additionalScrapeConfigs:
     value: |
       - job_name: "selenium-grid-analytics"

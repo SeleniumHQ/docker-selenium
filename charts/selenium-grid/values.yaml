@@ -1033,6 +1033,8 @@ monitoring:
       # -- Set session affinity to None, ClientIP or ClientIPString
       sessionAffinity: ""
     replicas: 1
+    # -- Tolerations for exporter pods
+    tolerations: []
   additionalScrapeConfigs:
     key: ""
     value: ""
