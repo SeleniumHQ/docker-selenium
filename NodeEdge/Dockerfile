@@ -60,6 +60,7 @@ RUN DRIVER_ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "li
 #============================================
 COPY edge-cleanup.sh /opt/bin/edge-cleanup.sh
 COPY edge-cleanup.conf /etc/supervisor/conf.d/edge-cleanup.conf
+COPY fluxbox-menu-browser /etc/X11/fluxbox/
 
 USER ${SEL_UID}
 

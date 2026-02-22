@@ -1,0 +1,6 @@
+[submenu] (Web Browsing) {}
+   [exec] (Google Chrome) {/usr/bin/google-chrome} <>
+   [exec] (Chromium) {/usr/bin/chromium} <>
+   [exec] (Mozilla Firefox) {/usr/bin/firefox} <>
+   [exec] (Microsoft Edge) {/usr/bin/microsoft-edge} <>
+[end]

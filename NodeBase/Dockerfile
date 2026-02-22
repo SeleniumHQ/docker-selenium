@@ -172,6 +172,7 @@ RUN chmod +x /opt/bin/*.sh /opt/bin/*.py /opt/bin/generate_*
 
 # Selenium Grid logo as wallpaper for Fluxbox
 COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
+COPY fluxbox-menu /etc/X11/fluxbox/
 
 # Supervisor configuration file
 COPY selenium.conf /etc/supervisor/conf.d/

@@ -39,6 +39,7 @@ RUN /opt/bin/wrap_chromium_binary \
 #============================================
 COPY chrome-cleanup.sh /opt/bin/chrome-cleanup.sh
 COPY chrome-cleanup.conf /etc/supervisor/conf.d/chrome-cleanup.conf
+COPY fluxbox-menu-browser /etc/X11/fluxbox/
 
 USER ${SEL_UID}
 

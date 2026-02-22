@@ -1,0 +1,3 @@
+[submenu] (Web Browsing) {}
+   [exec] (Chromium) { /usr/bin/chromium } <>
+[end]
