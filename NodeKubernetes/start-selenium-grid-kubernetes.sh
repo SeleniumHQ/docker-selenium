@@ -43,9 +43,38 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [ ! -z "$SE_NODE_GRID_URL" ]; then
-  echo "Appending Grid url: ${SE_NODE_GRID_URL}"
-  SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
+# Specific environment variables name for Node Dynamic only, it will not effect browser container when pass through
+
+if [ ! -z "${SE_DYNAMIC_MAX_SESSIONS}" ]; then
+  append_se_opts "--max-sessions" "${SE_DYNAMIC_MAX_SESSIONS}"
+fi
+
+if [ ! -z "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}" ]; then
+  append_se_opts "--override-max-sessions" "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}"
+fi
+
+if [ ! -z "${SE_NODE_GRID_URL}" ]; then
+  append_se_opts "--grid-url" "${SE_NODE_GRID_URL}"
+fi
+
+if [ ! -z "${SE_NODE_HEARTBEAT_PERIOD}" ]; then
+  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
+if [ ! -z "${SE_NODE_SESSION_TIMEOUT}" ]; then
+  append_se_opts "--session-timeout" "${SE_NODE_SESSION_TIMEOUT}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_CDP}" ]; then
+  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}" ]; then
+  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+fi
+
+if [ ! -z "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}" ]; then
+  append_se_opts "--connection-limit-per-session" "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
@@ -177,4 +206,4 @@ java ${SE_JAVA_OPTS} \
   --bind-host ${SE_BIND_HOST} \
   --detect-drivers false \
   --config ${CONFIG_FILE} \
-  ${SE_GRID_URL} ${SE_OPTS}
+  ${SE_OPTS}

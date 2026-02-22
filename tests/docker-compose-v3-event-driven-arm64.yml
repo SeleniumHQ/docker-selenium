@@ -34,12 +34,9 @@ services:
       - selenium-hub
     volumes:
       - /tmp/videos:/videos
-      - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
-      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_UPLOAD_FAILURE_SESSION_ONLY=true
       # Remote name and destination path to upload
@@ -64,12 +61,9 @@ services:
       - selenium-hub
     volumes:
       - /tmp/videos:/videos
-      - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
-      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_UPLOAD_FAILURE_SESSION_ONLY=true
       # Remote name and destination path to upload

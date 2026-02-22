@@ -33,9 +33,10 @@ else
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
 
+auth_header=()
 if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
   BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
-  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+  auth_header=(-H "Authorization: Basic ${BASIC_AUTH}")
 fi
 
 # Set headers if Node Registration Secret is set
@@ -89,7 +90,7 @@ function wait_for_display() {
 }
 
 function check_if_api_respond() {
-  endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
+  endpoint_checks=$(curl --noproxy "*" "${auth_header[@]}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
     python3 /opt/bin/validate_endpoint.py "${NODE_STATUS_ENDPOINT}"
     return 1
@@ -252,7 +253,7 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -H "${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
+  while curl --noproxy "*" "${auth_header[@]}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
     session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"

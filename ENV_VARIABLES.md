@@ -2,7 +2,7 @@
 |--------------|---------------|-------------|----------------------|
 | SE_SCREEN_WIDTH | 1920 | Use in Node to set the screen width |  |
 | SE_SCREEN_HEIGHT | 1080 | Use in Node to set the screen height |  |
-| SE_VIDEO_FILE_NAME | video.mp4 | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
+| SE_VIDEO_FILE_NAME | auto | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
 | SE_FRAME_RATE | 15 | Set the frame rate for FFmpeg in video recording |  |
 | SE_CODEC | libx264 | Set the codec for FFmpeg in video recording |  |
 | SE_PRESET | -preset ultrafast | Set the preset for FFmpeg in video recording |  |
@@ -107,8 +107,8 @@
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
 | SE_RECORD_VIDEO | true |  |  |
 | SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP | false |  |  |
-| SE_NODE_MAX_SESSIONS | 1 |  |  |
-| SE_NODE_OVERRIDE_MAX_SESSIONS | false |  |  |
+| SE_NODE_MAX_SESSIONS | 1 | Set the number of maximum concurrent sessions per browser Node, by default is 1 | --max-sessions |
+| SE_NODE_OVERRIDE_MAX_SESSIONS | false | By default is false, enable this flag for setting max session take effect in browser Node | --override-max-sessions |
 | SE_OFFLINE | true | Selenium Manager offline mode, use the browser and driver pre-configured in the image |  |
 | SE_NODE_BROWSER_VERSION | stable | Overwrite the default browserVersion in Node stereotype. By default, it is short version of current browser installed in Node. For example `139.0` |  |
 | SE_NODE_PLATFORM_NAME | Linux | Overwrite the default platformName in Node stereotype. By default, it is `Linux` |  |
@@ -166,3 +166,5 @@
 | SE_UPLOAD_FAILURE_SESSION_ONLY | false | When true, only recording of sessions that are not exited normally (session timed out, or custom events were fired by the client match with failure events defined) |  |
 | SE_VIDEO_EVENT_DRIVEN | true | Backend of video recorder and uploader will subscribe to Grid Event Bus for session event lifecycle for processing instead of traditional polling Node session capabilities via /status endpoint. |  |
 | SE_PLAIN_LOGS | true | Use plain log lines | --plain-logs |
+| SE_DYNAMIC_MAX_SESSIONS |  | Set the number of maximum concurrent sessions of Dynamic Node (both Docker and Kubernetes) |  |
+| SE_DYNAMIC_OVERRIDE_MAX_SESSIONS |  | Enable this flag for setting max session take effect in Dynamic Node (both Docker and Kubernetes) |  |

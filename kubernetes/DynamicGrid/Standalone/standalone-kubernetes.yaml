@@ -34,6 +34,10 @@ spec:
               value: "admin"
             - name: SE_NODE_SESSION_TIMEOUT
               value: "600"
+            - name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+              value: "true"
+            - name: SE_DYNAMIC_MAX_SESSIONS
+              value: "10"
           resources:
             requests:
               memory: "512Mi"

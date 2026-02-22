@@ -34,13 +34,12 @@ services:
       - "4444:4444"
     volumes:
       - /tmp/videos:/videos
-      - ./../Video/video_service.py:/opt/bin/video_service.py
     environment:
       - SE_VIDEO_RECORD_STANDALONE=true
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
-      - SE_VIDEO_EVENT_DRIVEN=true
       - SE_VIDEO_UPLOAD_ENABLED=true
+      - SE_DYNAMIC_OVERRIDE_MAX_SESSIONS=true
+      - SE_DYNAMIC_MAX_SESSIONS=4
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp

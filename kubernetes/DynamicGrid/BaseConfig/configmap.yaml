@@ -4,17 +4,11 @@ metadata:
   name: selenium-kubernetes-config
 data:
   kubernetes.toml: |
-    [node]
-    detect-drivers = false
-    enable-managed-downloads = true
-    override-max-sessions = true
-    max-sessions = 10
     [kubernetes]
     configs = [
-        "selenium/standalone-chromium:4.40.0-20260202", '{"browserName": "chrome", "platformName": "linux"}',
-        "selenium/standalone-firefox:4.40.0-20260202", '{"browserName": "firefox", "platformName": "linux"}',
-        "selenium/standalone-edge:4.40.0-20260202", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+        "selenium/standalone-chromium:4.41.0-20260222", '{"browserName": "chrome", "platformName": "linux"}',
+        "selenium/standalone-firefox:4.41.0-20260222", '{"browserName": "firefox", "platformName": "linux"}',
+        "selenium/standalone-edge:4.41.0-20260222", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
     termination-grace-period = 60
-    video-image = "false"
     assets-path = "/opt/selenium/assets"

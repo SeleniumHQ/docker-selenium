@@ -24,6 +24,10 @@
   default: ''
 - name: SE_DRAIN_AFTER_SESSION_COUNT
   default: '0'
+- name: SE_DYNAMIC_MAX_SESSIONS
+  default: ''
+- name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+  default: ''
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP
   default: 'false'
 - name: SE_ENABLE_TLS
@@ -293,7 +297,7 @@
 - name: SE_VIDEO_EVENT_DRIVEN
   default: 'true'
 - name: SE_VIDEO_FILE_NAME
-  default: video.mp4
+  default: auto
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   default: 'true'
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX

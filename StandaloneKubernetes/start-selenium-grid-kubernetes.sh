@@ -28,41 +28,60 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [ ! -z "$SE_NODE_GRID_URL" ]; then
-  echo "Appending Grid url: ${SE_NODE_GRID_URL}"
-  SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
-fi
-
-if [ ! -z "$SE_DISABLE_UI" ]; then
+if [ ! -z "${SE_DISABLE_UI}" ]; then
   append_se_opts "--disable-ui" "${SE_DISABLE_UI}"
 fi
 
-if [ ! -z "$SE_ROUTER_USERNAME" ]; then
+if [ ! -z "${SE_ROUTER_USERNAME}" ]; then
   append_se_opts "--username" "${SE_ROUTER_USERNAME}"
 fi
 
-if [ ! -z "$SE_ROUTER_PASSWORD" ]; then
+if [ ! -z "${SE_ROUTER_PASSWORD}" ]; then
   append_se_opts "--password" "${SE_ROUTER_PASSWORD}" "false"
 fi
 
-if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
-  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+# Specific environment variables name for Node Dynamic only, it will not effect browser container when pass through
+
+if [ ! -z "${SE_DYNAMIC_MAX_SESSIONS}" ]; then
+  append_se_opts "--max-sessions" "${SE_DYNAMIC_MAX_SESSIONS}"
 fi
 
-if [ ! -z "$SE_NODE_ENABLE_CDP" ]; then
-  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
+if [ ! -z "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}" ]; then
+  append_se_opts "--override-max-sessions" "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}"
 fi
 
-if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
+# Environment variables will be passed through to browser container
+
+if [ ! -z "${SE_NODE_GRID_URL}" ]; then
+  append_se_opts "--grid-url" "${SE_NODE_GRID_URL}"
+fi
+
+if [ ! -z "${SE_NODE_HEARTBEAT_PERIOD}" ]; then
+  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
+if [ ! -z "${SE_NODE_REGISTER_PERIOD}" ]; then
   append_se_opts "--register-period" "${SE_NODE_REGISTER_PERIOD}"
 fi
 
-if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
+if [ ! -z "${SE_NODE_REGISTER_CYCLE}" ]; then
   append_se_opts "--register-cycle" "${SE_NODE_REGISTER_CYCLE}"
 fi
 
-if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
-  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
+if [ ! -z "${SE_NODE_SESSION_TIMEOUT}" ]; then
+  append_se_opts "--session-timeout" "${SE_NODE_SESSION_TIMEOUT}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_CDP}" ]; then
+  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}" ]; then
+  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+fi
+
+if [ ! -z "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}" ]; then
+  append_se_opts "--connection-limit-per-session" "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then

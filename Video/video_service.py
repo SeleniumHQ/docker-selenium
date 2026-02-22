@@ -13,7 +13,7 @@ Subscribes to the Grid's ZeroMQ event bus and handles:
 - SessionClosedEvent: Stop recording, queue upload
 - SessionEvent: Track custom events (e.g., test:failed)
 
-Environment Variables:
+    Environment Variables:
     SE_EVENT_BUS_HOST: Event bus hostname (default: localhost)
     SE_EVENT_BUS_PUBLISH_PORT: Port to subscribe for events (default: 4442)
     SE_EVENT_BUS_CONNECT_TIMEOUT_MS: ZMQ connect timeout in ms (default: 5000)
@@ -24,6 +24,7 @@ Environment Variables:
     SE_SERVER_PROTOCOL: Protocol for Node /status endpoint (default: http)
     SE_UPLOAD_FAILURE_SESSION_ONLY: Only upload videos for failed sessions (default: false)
     VIDEO_FOLDER: Directory to store video files
+    SE_VIDEO_FILE_NAME: Fixed video file name ("auto" keeps per-session naming)
     SE_VIDEO_UPLOAD_ENABLED: Enable video upload (default: false)
     SE_SCREEN_WIDTH, SE_SCREEN_HEIGHT: Screen dimensions
     SE_FRAME_RATE: Video frame rate (default: 15)
@@ -172,6 +173,8 @@ class VideoService:
         self.video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
         self.file_name_trim_regex = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[^a-zA-Z0-9-_]")
         self.file_name_suffix = os.environ.get("SE_VIDEO_FILE_NAME_SUFFIX", "true").lower() == "true"
+        configured_video_file_name = os.environ.get("FILE_NAME", os.environ.get("SE_VIDEO_FILE_NAME", "auto")).strip()
+        self.configured_video_file_name = configured_video_file_name if configured_video_file_name else "auto"
 
         # Standalone mode: single node, no need to filter events by NodeId
         self.record_standalone = os.environ.get("SE_VIDEO_RECORD_STANDALONE", "false").lower() == "true"
@@ -254,6 +257,17 @@ class VideoService:
         record_video = capabilities.get(self.video_cap_name, True)
         if isinstance(record_video, str):
             record_video = record_video.lower() != "false"
+
+        if self.configured_video_file_name.lower() != "auto":
+            fixed_name = self.configured_video_file_name
+            fixed_path = Path(self.video_folder) / fixed_name
+            if fixed_path.exists():
+                logger.warning(
+                    "Configured video file %r already exists in %s and may be overwritten",
+                    fixed_name,
+                    self.video_folder,
+                )
+            return record_video, fixed_name
 
         video_name = capabilities.get(self.video_name_cap)
         test_name = capabilities.get(self.test_name_cap)
@@ -861,6 +875,7 @@ class VideoService:
         logger.info(f"  Standalone mode: {self.record_standalone}")
         logger.info(f"  Event bus: {self.event_bus_host}:{self.event_bus_port}")
         logger.info(f"  Video folder: {self.video_folder}")
+        logger.info(f"  Video file name: {self.configured_video_file_name}")
         logger.info(f"  Video size: {self.video_size}")
         logger.info(f"  Upload enabled: {self.upload_enabled}")
         logger.info(f"  Upload destination: {self.upload_destination}")

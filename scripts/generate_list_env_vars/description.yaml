@@ -329,11 +329,13 @@
   description: ''
   cli: ''
 - name: SE_NODE_MAX_SESSIONS
-  description: ''
-  cli: ''
+  description: Set the number of maximum concurrent sessions per browser Node, by
+    default is 1
+  cli: --max-sessions
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
-  description: ''
-  cli: ''
+  description: By default is false, enable this flag for setting max session take
+    effect in browser Node
+  cli: --override-max-sessions
 - name: SE_OFFLINE
   description: Selenium Manager offline mode, use the browser and driver pre-configured
     in the image
@@ -542,3 +544,11 @@
 - name: SE_PLAIN_LOGS
   description: Use plain log lines
   cli: --plain-logs
+- name: SE_DYNAMIC_MAX_SESSIONS
+  description: Set the number of maximum concurrent sessions of Dynamic Node (both
+    Docker and Kubernetes)
+  cli: ''
+- name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+  description: Enable this flag for setting max session take effect in Dynamic Node
+    (both Docker and Kubernetes)
+  cli: ''
