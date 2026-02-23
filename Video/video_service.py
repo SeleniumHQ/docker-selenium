@@ -22,6 +22,7 @@ Subscribes to the Grid's ZeroMQ event bus and handles:
     SE_REGISTRATION_SECRET: Secret for event bus authentication
     SE_NODE_PORT: Node port for /status endpoint (default: 5555)
     SE_SERVER_PROTOCOL: Protocol for Node /status endpoint (default: http)
+    SE_ROUTER_USERNAME, SE_ROUTER_PASSWORD: Optional Basic Auth credentials for Grid endpoints
     SE_UPLOAD_FAILURE_SESSION_ONLY: Only upload videos for failed sessions (default: false)
     VIDEO_FOLDER: Directory to store video files
     SE_VIDEO_FILE_NAME: Fixed video file name ("auto" keeps per-session naming)
@@ -31,6 +32,7 @@ Subscribes to the Grid's ZeroMQ event bus and handles:
 """
 
 import asyncio
+import base64
 import json
 import logging
 import os
@@ -132,6 +134,8 @@ class VideoService:
         self.event_bus_reconnect_interval_ms = int(os.environ.get("SE_EVENT_BUS_RECONNECT_INTERVAL_MS", "1000"))
         self.event_bus_reconnect_interval_max_ms = int(os.environ.get("SE_EVENT_BUS_RECONNECT_INTERVAL_MAX_MS", "5000"))
         self.registration_secret = os.environ.get("SE_REGISTRATION_SECRET", "")
+        self.router_username = os.environ.get("SE_ROUTER_USERNAME", "")
+        self.router_password = os.environ.get("SE_ROUTER_PASSWORD", "")
 
         # Video recording configuration
         self.video_folder = os.environ.get("VIDEO_FOLDER", "/videos")
@@ -329,6 +333,14 @@ class VideoService:
         headers = {}
         if self.registration_secret:
             headers["X-REGISTRATION-SECRET"] = self.registration_secret
+        if self.router_username and self.router_password:
+            auth_token = base64.b64encode(f"{self.router_username}:{self.router_password}".encode("utf-8")).decode(
+                "utf-8"
+            )
+            headers["Authorization"] = f"Basic {auth_token}"
+            logger.info("Using Basic Auth for Node /status endpoint")
+        elif self.router_username or self.router_password:
+            logger.warning("Partial SE_ROUTER credentials provided; skipping Basic Auth for Node /status endpoint")
 
         ssl_context = None
         if self.se_server_protocol.lower() == "https" and not self.node_status_verify_ssl:

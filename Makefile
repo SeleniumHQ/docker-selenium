@@ -1162,14 +1162,22 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo UID=$$(id -u) >> .env ; \
 		echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
-		echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
+		if [ "$$(uname)" != "Darwin" ]; then \
+			echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
+		else \
+			echo HOST_IP=127.0.0.1 >> .env ; \
+		fi; \
 		if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
 			NODE_EDGE=edge ; \
 			NODE_CHROME=chrome ; \
 		else \
 			NODE_EDGE=chromium ; \
 			NODE_CHROME=chromium ; \
+			BASIC_AUTH_USER=admin ; \
+			BASIC_AUTH_PASSWORD=admin ; \
 		fi; \
+			echo BASIC_AUTH_USER=$${BASIC_AUTH_USER} >> .env ; \
+			echo BASIC_AUTH_PASSWORD=$${BASIC_AUTH_PASSWORD} >> .env ; \
 			echo NODE_EDGE=$${NODE_EDGE} >> .env ; \
 			if [ $$node = "NodeChrome" ] ; then \
 				echo NODE_CHROME=$${NODE_CHROME} >> .env ; \
