@@ -44,7 +44,7 @@ jobs:
       - name: Create CHANGELOG directory
         run: mkdir -p ./CHANGELOG/${{ inputs.grid-version }}
       - name: Download results
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: ./CHANGELOG/${{ inputs.grid-version }}
           pattern: 'image_tags_*'
