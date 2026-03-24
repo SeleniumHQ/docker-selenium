@@ -153,7 +153,7 @@ jobs:
           ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE} true true
       - name: Mirror images to GHCR
         if: env.PUSH_IMAGE == 'true'
-        run: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" BROWSER_NAME="${BROWSER_NAME}" make mirror_browser_images_ghcr
+        run: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" BROWSER_NAME="${BROWSER_NAME}" make mirror_browser_images_ghcr
       - name: Upload changelog
         if: always()
         uses: actions/upload-artifact@main

@@ -163,7 +163,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 5
           retry_wait_seconds: 300
-          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr
+          command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr
       - name: Tag images as latest
         if: github.event.inputs.skip-build-push-image != 'true'
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
@@ -182,7 +182,7 @@ jobs:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_latest
+          command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_latest
       - name: Update package versions
         run: make update_browser_versions_matrix
 #          make generate_latest_sbom
@@ -202,7 +202,7 @@ jobs:
           timeout_minutes: 30
           max_attempts: 5
           retry_wait_seconds: 300
-          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_and_push_browser_images_ghcr
+          command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_and_push_browser_images_ghcr
       - name: Delete previous nightly tag & release if any
         uses: dev-drprasad/delete-tag-and-release@master
         with:

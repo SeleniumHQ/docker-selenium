@@ -114,7 +114,7 @@ jobs:
           timeout_minutes: 20
           max_attempts: 3
           retry_wait_seconds: 120
-          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_nightly
+          command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_nightly
 #      - name: Update package versions
 #        run: make generate_nightly_sbom
       - name: Get current latest tag
