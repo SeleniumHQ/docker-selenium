@@ -471,24 +471,24 @@ tag_and_push_firefox_images:
 
 tag_and_push_browser_images_ghcr:
 	for image in node-chrome standalone-chrome \
-	    node-chromium standalone-chromium \
-	    node-chrome-for-testing standalone-chrome-for-testing \
-	    node-edge standalone-edge \
-	    node-firefox standalone-firefox; do \
-	  docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
-	    docker buildx imagetools create \
-	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
-	      docker.io/$(NAME)/$$image:$$tag ; \
-	  done ; \
+		node-chromium standalone-chromium \
+		node-chrome-for-testing standalone-chrome-for-testing \
+		node-edge standalone-edge \
+		node-firefox standalone-firefox; do \
+		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
+		docker buildx imagetools create \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
+		docker.io/$(NAME)/$$image:$$tag ; \
+	done ; \
 	done
 
 mirror_browser_images_ghcr:
 	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
-	  docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
-	    docker buildx imagetools create \
-	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
-	      docker.io/$(NAME)/$$image:$$tag ; \
-	  done ; \
+		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
+		docker buildx imagetools create \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
+		docker.io/$(NAME)/$$image:$$tag ; \
+	done ; \
 	done
 
 tag_ffmpeg_latest:
@@ -562,14 +562,14 @@ release_latest:
 
 release_ghcr_latest:
 	for image in base hub distributor router sessions session-queue event-bus \
-	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
-	    node-firefox node-docker node-kubernetes node-all-browsers \
-	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
-	    standalone-edge standalone-firefox standalone-docker \
-	    standalone-kubernetes standalone-all-browsers video; do \
-	  docker buildx imagetools create \
-	    --tag $(GHCR_NAMESPACE)/$$image:latest \
-	    docker.io/$(NAME)/$$image:latest ; \
+		node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+		node-firefox node-docker node-kubernetes node-all-browsers \
+		standalone-chrome standalone-chromium standalone-chrome-for-testing \
+		standalone-edge standalone-firefox standalone-docker \
+		standalone-kubernetes standalone-all-browsers video; do \
+		docker buildx imagetools create \
+		--tag $(GHCR_NAMESPACE)/$$image:latest \
+		docker.io/$(NAME)/$$image:latest ; \
 	done
 
 generate_latest_sbom:
@@ -637,14 +637,14 @@ release_nightly:
 
 release_ghcr_nightly:
 	for image in base hub distributor router sessions session-queue event-bus \
-	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
-	    node-firefox node-docker node-kubernetes node-all-browsers \
-	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
-	    standalone-edge standalone-firefox standalone-docker \
-	    standalone-kubernetes standalone-all-browsers video; do \
-	  docker buildx imagetools create \
-	    --tag $(GHCR_NAMESPACE)/$$image:nightly \
-	    docker.io/$(NAME)/$$image:nightly ; \
+		node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+		node-firefox node-docker node-kubernetes node-all-browsers \
+		standalone-chrome standalone-chromium standalone-chrome-for-testing \
+		standalone-edge standalone-firefox standalone-docker \
+		standalone-kubernetes standalone-all-browsers video; do \
+		docker buildx imagetools create \
+		--tag $(GHCR_NAMESPACE)/$$image:nightly \
+		docker.io/$(NAME)/$$image:nightly ; \
 	done
 
 generate_nightly_sbom:
@@ -849,16 +849,16 @@ release: tag_major_minor
 
 release_ghcr:
 	for image in base hub distributor router sessions session-queue event-bus \
-	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
-	    node-firefox node-docker node-kubernetes node-all-browsers \
-	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
-	    standalone-edge standalone-firefox standalone-docker \
-	    standalone-kubernetes standalone-all-browsers; do \
-	  for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
-	    docker buildx imagetools create \
-	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
-	      docker.io/$(NAME)/$$image:$$tag ; \
-	  done ; \
+		node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+		node-firefox node-docker node-kubernetes node-all-browsers \
+		standalone-chrome standalone-chromium standalone-chrome-for-testing \
+		standalone-edge standalone-firefox standalone-docker \
+		standalone-kubernetes standalone-all-browsers; do \
+		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			docker buildx imagetools create \
+			--tag $(GHCR_NAMESPACE)/$$image:$$tag \
+			docker.io/$(NAME)/$$image:$$tag ; \
+		done ; \
 	done
 	docker buildx imagetools create \
 	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
