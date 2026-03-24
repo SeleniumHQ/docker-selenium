@@ -37,6 +37,7 @@ KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),kedacore)
 KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.19.0)
 TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
+GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
 
 all: hub \
 	distributor \
@@ -468,6 +469,28 @@ tag_and_push_edge_images:
 tag_and_push_firefox_images:
 	./tag_and_push_browser_images.sh $(VERSION) $(BUILD_DATE) $(NAMESPACE) $(PUSH_IMAGE) firefox $(RELEASE_OLD_VERSION)
 
+tag_and_push_browser_images_ghcr:
+	for image in node-chrome standalone-chrome \
+	    node-chromium standalone-chromium \
+	    node-chrome-for-testing standalone-chrome-for-testing \
+	    node-edge standalone-edge \
+	    node-firefox standalone-firefox; do \
+	  docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
+	    docker buildx imagetools create \
+	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
+	      docker.io/$(NAME)/$$image:$$tag ; \
+	  done ; \
+	done
+
+mirror_browser_images_ghcr:
+	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
+	  docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
+	    docker buildx imagetools create \
+	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
+	      docker.io/$(NAME)/$$image:$$tag ; \
+	  done ; \
+	done
+
 tag_ffmpeg_latest:
 	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:latest
 	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:$(FFMPEG_VERSION)
@@ -537,6 +560,18 @@ release_latest:
 	docker push $(NAME)/standalone-all-browsers:latest
 	docker push $(NAME)/video:latest
 
+release_ghcr_latest:
+	for image in base hub distributor router sessions session-queue event-bus \
+	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+	    node-firefox node-docker node-kubernetes node-all-browsers \
+	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
+	    standalone-edge standalone-firefox standalone-docker \
+	    standalone-kubernetes standalone-all-browsers video; do \
+	  docker buildx imagetools create \
+	    --tag $(GHCR_NAMESPACE)/$$image:latest \
+	    docker.io/$(NAME)/$$image:latest ; \
+	done
+
 generate_latest_sbom:
 	NAME=$(NAME) FILTER_IMAGE_TAG=latest OUTPUT_FILE=$(SBOM_OUTPUT) ./generate_sbom.sh
 
@@ -599,6 +634,18 @@ release_nightly:
 	docker push $(NAME)/standalone-kubernetes:nightly
 	docker push $(NAME)/standalone-all-browsers:nightly
 	docker push $(NAME)/video:nightly
+
+release_ghcr_nightly:
+	for image in base hub distributor router sessions session-queue event-bus \
+	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+	    node-firefox node-docker node-kubernetes node-all-browsers \
+	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
+	    standalone-edge standalone-firefox standalone-docker \
+	    standalone-kubernetes standalone-all-browsers video; do \
+	  docker buildx imagetools create \
+	    --tag $(GHCR_NAMESPACE)/$$image:nightly \
+	    docker.io/$(NAME)/$$image:nightly ; \
+	done
 
 generate_nightly_sbom:
 	NAME=$(NAME) FILTER_IMAGE_TAG=nightly OUTPUT_FILE=$(SBOM_OUTPUT) ./generate_sbom.sh
@@ -799,6 +846,23 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-kubernetes:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/standalone-all-browsers:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
+
+release_ghcr:
+	for image in base hub distributor router sessions session-queue event-bus \
+	    node-base node-chrome node-chromium node-chrome-for-testing node-edge \
+	    node-firefox node-docker node-kubernetes node-all-browsers \
+	    standalone-chrome standalone-chromium standalone-chrome-for-testing \
+	    standalone-edge standalone-firefox standalone-docker \
+	    standalone-kubernetes standalone-all-browsers; do \
+	  for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+	    docker buildx imagetools create \
+	      --tag $(GHCR_NAMESPACE)/$$image:$$tag \
+	      docker.io/$(NAME)/$$image:$$tag ; \
+	  done ; \
+	done
+	docker buildx imagetools create \
+	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
+	  docker.io/$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 start_test_site:
 	@docker rm -f the-internet 2>/dev/null || true

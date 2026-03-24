@@ -145,6 +145,9 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Login GitHub Container Registry
+        if: github.event.inputs.skip-build-push-image != 'true'
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
       - name: Deploy new images
         if: github.event.inputs.skip-build-push-image != 'true'
         uses: nick-invision/retry@master
@@ -153,6 +156,14 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 300
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release
+      - name: Mirror versioned images to GHCR
+        if: github.event.inputs.skip-build-push-image != 'true'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          retry_wait_seconds: 300
+          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr
       - name: Tag images as latest
         if: github.event.inputs.skip-build-push-image != 'true'
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_latest
@@ -164,6 +175,14 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 300
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_latest
+      - name: Mirror latest images to GHCR
+        if: github.event.inputs.skip-build-push-image != 'true'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 5
+          retry_wait_seconds: 300
+          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_latest
       - name: Update package versions
         run: make update_browser_versions_matrix
 #          make generate_latest_sbom
@@ -176,6 +195,14 @@ jobs:
           max_attempts: 5
           retry_wait_seconds: 300
           command: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} PUSH_IMAGE=true make tag_and_push_browser_images
+      - name: Mirror browser images to GHCR
+        if: github.event.inputs.skip-build-push-image != 'true'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 5
+          retry_wait_seconds: 300
+          command: GHCR_NAMESPACE="ghcr.io/${{ github.repository_owner }}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_and_push_browser_images_ghcr
       - name: Delete previous nightly tag & release if any
         uses: dev-drprasad/delete-tag-and-release@master
         with:
