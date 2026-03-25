@@ -98,7 +98,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
       - name: Login GitHub Container Registry
-        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
       - name: Tag images as nightly
         run: VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make tag_nightly
       - name: Deploy nightly tag
