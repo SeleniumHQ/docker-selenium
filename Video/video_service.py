@@ -326,8 +326,9 @@ class VideoService:
         then extracts nodeId and externalUri from the response.
 
         Response structure differs by mode:
-        - Standalone: $.value.nodes[0].id, $.value.nodes[0].externalUri
-        - Distributed: $.value.node.nodeId, $.value.node.externalUri
+        - Standalone (hub): $.value.nodes[0].id, $.value.nodes[0].externalUri
+        - Distributed (node): $.value.node.nodeId, $.value.node.externalUri
+        - Standalone sidecar on dynamic grid node: falls back to $.value.node path
         """
         node_status_url = f"{self.se_server_protocol}://{self.display_container}:{self.se_node_port}/status"
         headers = {}
@@ -367,6 +368,12 @@ class VideoService:
                             if nodes:
                                 node_info = nodes[0]
                                 self.node_id = node_info.get("id")
+                                self.node_external_uri = node_info.get("externalUri")
+                            else:
+                                # Fallback: sidecar connected directly to a node
+                                # (e.g. dynamic grid where /status returns singular "node")
+                                node_info = body.get("value", {}).get("node", {})
+                                self.node_id = node_info.get("nodeId") or node_info.get("id")
                                 self.node_external_uri = node_info.get("externalUri")
                         else:
                             node_info = body.get("value", {}).get("node", {})
@@ -451,9 +458,20 @@ class VideoService:
             session.ffmpeg_process = await asyncio.create_subprocess_exec(
                 *cmd,
                 env=env,
-                stdout=asyncio.subprocess.PIPE,
+                stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.PIPE,
             )
+            # Give ffmpeg a moment to fail fast (bad codec, missing display, etc.)
+            await asyncio.sleep(0.5)
+            if session.ffmpeg_process.returncode is not None:
+                stderr_output = await session.ffmpeg_process.stderr.read()
+                logger.error(
+                    f"ffmpeg exited immediately for {session.session_id} "
+                    f"(rc={session.ffmpeg_process.returncode}): {stderr_output.decode(errors='replace').strip()}"
+                )
+                session.ffmpeg_process = None
+                session.status = SessionStatus.CREATED
+                return False
             logger.info(f"Started recording: session={session.session_id}, file={session.video_file}")
             return True
         except Exception as e:
@@ -473,15 +491,24 @@ class VideoService:
         try:
             session.ffmpeg_process.terminate()
             try:
-                await asyncio.wait_for(session.ffmpeg_process.wait(), timeout=10.0)
+                _, stderr_bytes = await asyncio.wait_for(session.ffmpeg_process.communicate(), timeout=10.0)
             except asyncio.TimeoutError:
                 logger.warning(f"ffmpeg did not stop gracefully for {session.session_id}, killing")
                 session.ffmpeg_process.kill()
-                await session.ffmpeg_process.wait()
+                _, stderr_bytes = await session.ffmpeg_process.communicate()
 
+            rc = session.ffmpeg_process.returncode
+            if stderr_bytes:
+                stderr_text = stderr_bytes.decode(errors="replace").strip()
+                if stderr_text:
+                    logger.warning(f"ffmpeg stderr for {session.session_id}: {stderr_text}")
             session.ffmpeg_process = None
-            self.recorded_count += 1
 
+            if rc not in (0, -signal.SIGTERM, -signal.SIGKILL):
+                logger.error(f"ffmpeg exited with unexpected code {rc} for {session.session_id}")
+                return False
+
+            self.recorded_count += 1
             duration = session.duration_seconds
             logger.info(
                 f"Stopped recording: session={session.session_id}, " f"duration={duration:.1f}s"

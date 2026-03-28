@@ -1125,8 +1125,16 @@ test_node_relay: hub node_base standalone_firefox
 
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
-	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=2 \
+	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
+
+test_standalone_docker_video_sidecar: standalone_docker
+	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_video_sidecar_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
+	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
+	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
+
+test_node_docker_video_sidecar:
+	CONFIG_FILE=config_video_sidecar.toml make test_node_docker
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge standalone_chromium video
 	sudo rm -rf ./tests/tests

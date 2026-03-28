@@ -9,6 +9,7 @@ that handles both recording and uploading with shared state management.
 """
 
 import os
+import signal
 import subprocess
 import sys
 
@@ -29,10 +30,24 @@ def main():
             print(f"Failed to import video service: {e}")
             print("Ensure pyzmq is installed: pip install pyzmq")
             print("Falling back to shell-based recording...")
-            subprocess.run(["/opt/bin/video.sh"], check=True)
+            _run_shell_recorder()
     else:
         print("Starting shell-based video recording...")
-        subprocess.run(["/opt/bin/video.sh"], check=True)
+        _run_shell_recorder()
+
+
+def _run_shell_recorder():
+    proc = subprocess.Popen(["/opt/bin/video.sh"])
+
+    def forward_signal(signum, frame):
+        proc.send_signal(signum)
+        proc.wait()
+
+    signal.signal(signal.SIGTERM, forward_signal)
+    signal.signal(signal.SIGINT, forward_signal)
+    rc = proc.wait()
+    if rc != 0:
+        sys.exit(rc)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
 
 url = "http://127.0.0.1:2375"
 
-video-image = "false"
+video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
 
 [node]
 detect-drivers = false

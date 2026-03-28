@@ -8,14 +8,21 @@ configs = [
     "${NAMESPACE}/standalone-${NODE_EDGE}:${TAG}", '{"browserName": "MicrosoftEdge", "platformName": "linux", "myApp:version": "beta", "myApp:publish": "internal"}'
     ]
 
-host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds"]
-
 url = "http://127.0.0.1:2375"
 
-video-image = "false"
+video-image = "${NAMESPACE}/video:${VIDEO_TAG}"
 
 [node]
 detect-drivers = false
 enable-managed-downloads = "${SELENIUM_ENABLE_MANAGED_DOWNLOADS}"
 override-max-sessions = true
-max-sessions = 3
+max-sessions = 16
+session-timeout = 1000
+enable-cdp = true
+selenium-manager = false
+
+[sessionqueue]
+session-request-timeout = "${REQUEST_TIMEOUT}"
+
+[router]
+disable-ui = false
