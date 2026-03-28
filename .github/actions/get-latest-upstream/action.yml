@@ -10,6 +10,10 @@ inputs:
     description: 'GitHub CLI authentication token'
     required: true
     type: secret
+  authors:
+    description: 'GitHub organization or user to fetch Selenium releases from'
+    required: false
+    default: 'SeleniumHQ'
 
 runs:
   using: "composite"
@@ -17,7 +21,7 @@ runs:
     - name: Get latest upstream
       shell: bash
       env:
-        AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+        AUTHORS: ${{ inputs.authors }}
       run: |
         sudo apt update
         sudo apt install jq

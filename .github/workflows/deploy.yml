@@ -83,6 +83,7 @@ jobs:
         with:
           release: ${{ github.event.inputs.stable || true }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
         run: |
           if [ -z "${BUILD_DATE}" ]; then
@@ -95,7 +96,7 @@ jobs:
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
           BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
       - name: Sets prerelease to false by default
         run: echo "PRERELEASE=false" >> $GITHUB_ENV

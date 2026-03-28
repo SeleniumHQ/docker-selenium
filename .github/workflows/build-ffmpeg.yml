@@ -45,7 +45,7 @@ jobs:
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Build images
         uses: nick-invision/retry@master
         with:
