@@ -40,7 +40,10 @@ def _run_shell_recorder():
     proc = subprocess.Popen(["/opt/bin/video.sh"])
 
     def forward_signal(signum, frame):
-        proc.send_signal(signum)
+        try:
+            proc.send_signal(signum)
+        except ProcessLookupError:
+            pass  # Process already exited before signal was forwarded
         proc.wait()
 
     signal.signal(signal.SIGTERM, forward_signal)
