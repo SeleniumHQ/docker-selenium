@@ -49,7 +49,7 @@ env:
   REUSE_BASE: ${{ github.event.inputs.reuse-base || true }}
   BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
   NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-  AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+  AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
   PUSH_IMAGE: ${{ github.event.inputs.push-image || false }}
   PR_CHANGELOG: ${{ github.event.inputs.pr-changelog || true }}
   RUN_ID: ${{ github.run_id }}
@@ -86,6 +86,7 @@ jobs:
         with:
           release: ${{ github.event.inputs.stable || true }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
         run: |
           if [ -z "${BUILD_DATE}" ]; then

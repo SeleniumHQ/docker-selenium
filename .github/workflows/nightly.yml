@@ -56,6 +56,7 @@ jobs:
         with:
           release: false
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
@@ -68,7 +69,7 @@ jobs:
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Get Grid version
         run: |
           echo ${BASE_VERSION}
