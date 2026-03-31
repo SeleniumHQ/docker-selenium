@@ -163,6 +163,7 @@ class VideoService:
         self.upload_opts = os.environ.get("SE_UPLOAD_OPTS", "-P --cutoff-mode SOFT --metadata --inplace")
         self.retain_local = os.environ.get("SE_UPLOAD_RETAIN_LOCAL_FILE", "false").lower() == "true"
         self.upload_batch_size = int(os.environ.get("SE_VIDEO_UPLOAD_BATCH_CHECK", "10"))
+        self.upload_timeout = int(os.environ.get("SE_VIDEO_UPLOAD_TIMEOUT", "300"))
         self.upload_failure_only = os.environ.get("SE_UPLOAD_FAILURE_SESSION_ONLY", "false").lower() == "true"
         default_failure_events = [":failure", ":failed"]
         custom_failure_events = os.environ.get("SE_UPLOAD_FAILURE_SESSION_EVENTS", "").lower()
@@ -224,6 +225,9 @@ class VideoService:
         self.shutdown_event = asyncio.Event()
         self.recorder_done = asyncio.Event()
         self.uploader_done = asyncio.Event()
+
+        # Tracked delayed-cleanup tasks so they can be cancelled on shutdown
+        self._cleanup_tasks: List[asyncio.Task] = []
 
         # Rename SE_RCLONE_* env vars
         self._rename_rclone_env()
@@ -588,7 +592,13 @@ class VideoService:
             )
             self.active_uploads.append(proc)
             try:
-                stdout, stderr = await proc.communicate()
+                try:
+                    stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=self.upload_timeout)
+                except asyncio.TimeoutError:
+                    logger.warning(f"Upload timed out after {self.upload_timeout}s: {task.video_file}, killing process")
+                    proc.kill()
+                    await proc.communicate()
+                    return
             finally:
                 try:
                     self.active_uploads.remove(proc)
@@ -713,8 +723,11 @@ class VideoService:
             await self.stop_recording(session)
             await self.queue_upload(session)
 
-        # Clean up session after a delay (keep for potential late events)
-        asyncio.create_task(self._cleanup_session_delayed(session_id, delay=60))
+        # Clean up session after a delay (keep for potential late events).
+        # Tracked so cleanup() can cancel these on shutdown instead of waiting 60s.
+        t = asyncio.create_task(self._cleanup_session_delayed(session_id, delay=60))
+        self._cleanup_tasks.append(t)
+        t.add_done_callback(lambda fut: self._cleanup_tasks.remove(fut) if fut in self._cleanup_tasks else None)
 
         # Check drain condition
         if self.max_sessions > 0 and self.recorded_count >= self.max_sessions:
@@ -814,6 +827,10 @@ class VideoService:
                     if await self.subscriber.poll(timeout=1000):
                         frames = await self.subscriber.recv_multipart()
 
+                        # Re-check shutdown before spending time processing the event
+                        if self.shutdown_event.is_set():
+                            break
+
                         if len(frames) < 4:
                             continue
 
@@ -891,6 +908,14 @@ class VideoService:
     async def cleanup(self) -> None:
         """Cleanup all resources."""
         logger.info("Shutting down...")
+
+        # Cancel delayed session-cleanup tasks immediately — they have a 60s
+        # sleep that would keep the event loop alive long after shutdown.
+        for t in list(self._cleanup_tasks):
+            t.cancel()
+        if self._cleanup_tasks:
+            await asyncio.gather(*self._cleanup_tasks, return_exceptions=True)
+        self._cleanup_tasks.clear()
 
         # Snapshot active sessions outside the lock so we don't hold
         # sessions_lock across slow awaits (stop_recording can take up to 10s).
