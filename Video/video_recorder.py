@@ -6,6 +6,12 @@ Video service entry point that switches between:
 
 When event-driven mode is enabled, this launches a single unified service
 that handles both recording and uploading with shared state management.
+
+After the video service exits for any reason (normal drain, session end, or
+supervisord-initiated shutdown), this controller signals supervisord so the
+container shuts down.  Centralising this here means both shell and event-driven
+modes have identical container-lifecycle behaviour without video.sh needing to
+know about supervisord.
 """
 
 import os
@@ -14,12 +20,41 @@ import subprocess
 import sys
 
 
+def _signal_supervisord() -> None:
+    """Signal supervisord to initiate a container-wide shutdown.
+
+    Safe to call even when supervisord is already shutting down — it will
+    simply ignore a repeated SIGTERM if it is already in SHUTDOWN state.
+    """
+    pid_file = os.environ.get("SE_SUPERVISORD_PID_FILE", "")
+    if not pid_file:
+        return
+    try:
+        with open(pid_file) as f:
+            pid = int(f.read().strip())
+        os.kill(pid, signal.SIGTERM)
+        print("[video.recorder] - Signaled supervisord to shut down")
+    except (OSError, ValueError, FileNotFoundError):
+        pass
+
+
 def main():
     event_driven = os.environ.get("SE_VIDEO_EVENT_DRIVEN", "false").lower() == "true"
 
     if event_driven:
         print("Starting unified event-driven video service...")
         print("This service handles both recording and uploading with shared state.")
+
+        # Capture whether shutdown was externally initiated (SIGTERM/SIGINT)
+        # before asyncio.run() replaces the signal handlers via add_signal_handler.
+        _external_shutdown = [False]
+
+        def _mark_external_shutdown(signum, frame):
+            _external_shutdown[0] = True
+
+        signal.signal(signal.SIGTERM, _mark_external_shutdown)
+        signal.signal(signal.SIGINT, _mark_external_shutdown)
+
         try:
             import asyncio
 
@@ -31,6 +66,11 @@ def main():
             print("Ensure pyzmq is installed: pip install pyzmq")
             print("Falling back to shell-based recording...")
             _run_shell_recorder()
+            return
+
+        # Only trigger container shutdown for self-initiated exits (drain).
+        if not _external_shutdown[0]:
+            _signal_supervisord()
     else:
         print("Starting shell-based video recording...")
         _run_shell_recorder()
@@ -38,17 +78,34 @@ def main():
 
 def _run_shell_recorder():
     proc = subprocess.Popen(["/opt/bin/video.sh"])
+    _external_shutdown = False  # True when supervisord (or user) told us to stop
 
     def forward_signal(signum, frame):
-        try:
-            proc.send_signal(signum)
-        except ProcessLookupError:
-            pass  # Process already exited before signal was forwarded
+        nonlocal _external_shutdown
+        # Forward the signal to video.sh at most once.  supervisord uses
+        # killasgroup=true so video.sh already received the signal directly;
+        # re-forwarding on every re-entrant call amplifies the SIGTERM
+        # ping-pong and can keep the process alive for 60 s.
+        if not _external_shutdown:
+            _external_shutdown = True
+            try:
+                proc.send_signal(signum)
+            except ProcessLookupError:
+                pass  # Process already exited before signal was forwarded
         proc.wait()
 
     signal.signal(signal.SIGTERM, forward_signal)
     signal.signal(signal.SIGINT, forward_signal)
     rc = proc.wait()
+
+    # Signal supervisord only for self-initiated exits (drain, node gone).
+    # If the shutdown came FROM supervisord (_external_shutdown=True) it is
+    # already in SHUTDOWN state — signalling it again is a no-op at best and
+    # confusing at worst.  If the recorder crashed (rc != 0) we must not bring
+    # down the Selenium process alongside it.
+    if not _external_shutdown and rc == 0:
+        _signal_supervisord()
+
     if rc != 0:
         sys.exit(rc)
 

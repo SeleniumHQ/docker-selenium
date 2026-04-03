@@ -212,9 +212,15 @@ function graceful_exit() {
   wait_util_uploader_shutdown
 }
 
+_graceful_exit_done=false
 function graceful_exit_force() {
+  if [[ "$_graceful_exit_done" = "true" ]]; then
+    return
+  fi
+  _graceful_exit_done=true
   graceful_exit
-  kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
+  # Supervisord signaling is delegated to the Python controller (video_recorder.py)
+  # which handles it uniformly for both shell and event-driven modes.
   echo "$(date -u +"${ts_format}") [${process_name}] - Ready to shutdown the recorder"
   exit 0
 }
