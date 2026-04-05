@@ -1170,6 +1170,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo UID=$$(id -u) >> .env ; \
 		echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
+		echo VIDEO_EVENT_DRIVEN=$(or $(VIDEO_EVENT_DRIVEN), "true") >> .env ; \
 		if [ "$$(uname)" != "Darwin" ]; then \
 			echo HOST_IP=$$(hostname -I | awk '{print $$1}') >> .env ; \
 		else \
@@ -1238,7 +1239,7 @@ test_video_integrity:
 	fi; \
 	for file in $$list_files; do \
 		echo "Checking video file: $$file"; \
-		docker run -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) ffmpeg -v error -i "$$file" -f null - ; \
+		docker run --rm -u $$(id -u) -v $$(pwd):$$(pwd) -w $$(pwd) --entrypoint="" $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) ffmpeg -v error -i "$$file" -f null - ; \
 		if [ $$? -ne 0 ]; then \
 			echo "Video file $$file is corrupted"; \
 			number_corrupted_files=$$((number_corrupted_files+1)); \

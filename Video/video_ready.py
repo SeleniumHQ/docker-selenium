@@ -28,7 +28,10 @@ class Handler(BaseHTTPRequestHandler):
 
 def graceful_shutdown(signum, frame):
     print("Trapped SIGTERM/SIGINT/x so shutting down video-ready...")
-    httpd.shutdown()
+    # httpd.shutdown() must be called from a different thread than serve_forever()
+    # or it deadlocks.  video-ready has no state to drain, so close the socket
+    # and exit directly — supervisord will see the clean exit immediately.
+    httpd.server_close()
     sys.exit(0)
 
 
