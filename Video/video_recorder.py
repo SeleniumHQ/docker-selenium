@@ -51,6 +51,12 @@ def main():
 
         def _mark_external_shutdown(signum, frame):
             _external_shutdown[0] = True
+            # This handler is only reachable before asyncio.run() installs its
+            # own handlers via loop.add_signal_handler().  Setting the flag and
+            # returning would swallow the signal — nothing would act on it and
+            # the process would hang inside asyncio.run() indefinitely.
+            # Exit immediately so supervisord sees a clean stop.
+            sys.exit(0)
 
         signal.signal(signal.SIGTERM, _mark_external_shutdown)
         signal.signal(signal.SIGINT, _mark_external_shutdown)
