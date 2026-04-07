@@ -240,7 +240,7 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
     -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
     -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-    -pix_fmt yuv420p -movflags +faststart "$video_file" &
+    -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
   FFMPEG_PID=$!
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
@@ -276,7 +276,7 @@ else
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
           -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
           -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-          -pix_fmt yuv420p -movflags +faststart "$video_file" &
+          -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
         FFMPEG_PID=$!
         if ps -p $FFMPEG_PID >/dev/null; then
           recording_started="true"

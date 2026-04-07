@@ -463,7 +463,7 @@ class VideoService:
                 "-pix_fmt",
                 "yuv420p",
                 "-movflags",
-                "+faststart",
+                "frag_keyframe+empty_moov+default_base_moof",
                 video_path,
             ]
         )
@@ -507,7 +507,12 @@ class VideoService:
             return False
         session.ffmpeg_process = None
 
-        session.status = SessionStatus.STOPPING
+        # Only move to STOPPING if we are still in the RECORDING state.
+        # handle_session_closed() sets status to CLOSED before calling us;
+        # overwriting that with STOPPING would prevent _cleanup_session_delayed
+        # from ever cleaning up the session (it checks status == CLOSED).
+        if session.status == SessionStatus.RECORDING:
+            session.status = SessionStatus.STOPPING
         session.end_time = datetime.now()
 
         try:
@@ -528,9 +533,11 @@ class VideoService:
             # 255 is ffmpeg's own graceful-stop exit code (exit_program(255) in its SIGTERM handler).
             if rc not in (0, 255, -signal.SIGTERM, -signal.SIGKILL):
                 logger.error(f"ffmpeg exited with unexpected code {rc} for {session.session_id}")
+                session.status = SessionStatus.CLOSED
                 return False
 
             self.recorded_count += 1
+            session.status = SessionStatus.CLOSED
             duration = session.duration_seconds
             logger.info(
                 f"Stopped recording: session={session.session_id}, " f"duration={duration:.1f}s"
@@ -540,6 +547,7 @@ class VideoService:
             return True
         except Exception as e:
             logger.error(f"Failed to stop recording for {session.session_id}: {e}")
+            session.status = SessionStatus.CLOSED
             return False
 
     # ==================== Upload Functions ====================
@@ -611,7 +619,12 @@ class VideoService:
                 except asyncio.TimeoutError:
                     logger.warning(f"Upload timed out after {self.upload_timeout}s: {task.video_file}, killing process")
                     proc.kill()
-                    await proc.communicate()
+                    _, stderr_bytes = await proc.communicate()
+                    if stderr_bytes:
+                        logger.debug(
+                            f"Upload stderr at timeout for {task.video_file}: "
+                            f"{stderr_bytes.decode(errors='replace').strip()}"
+                        )
                     return
             finally:
                 try:
@@ -641,6 +654,10 @@ class VideoService:
                     logger.warning("Upload worker cancelled, pending uploads may be lost")
                     for t in active_tasks:
                         t.cancel()
+                    # Await cancelled tasks so they are not left as orphaned
+                    # asyncio tasks (which causes "Task destroyed but pending" warnings
+                    # and makes the active_uploads kill loop in run() the sole cleanup).
+                    await asyncio.gather(*active_tasks, return_exceptions=True)
                     raise
 
                 # None is the sentinel pushed by cleanup() to signal no more uploads
