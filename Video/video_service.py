@@ -355,42 +355,51 @@ class VideoService:
             f"Waiting for Node /status endpoint: {node_status_url} " f"(verify_ssl={self.node_status_verify_ssl})"
         )
 
-        while not self.shutdown_event.is_set():
+        def _fetch_status() -> Optional[dict]:
+            """Blocking HTTP fetch run in a thread to avoid blocking the event loop."""
+            req = Request(node_status_url, headers=headers)
             try:
-                req = Request(node_status_url, headers=headers)
                 if ssl_context is not None:
                     resp_ctx = urlopen(req, timeout=5, context=ssl_context)
                 else:
                     resp_ctx = urlopen(req, timeout=5)
-
                 with resp_ctx as resp:
                     if resp.status == 200:
-                        body = json.loads(resp.read().decode("utf-8"))
+                        return json.loads(resp.read().decode("utf-8"))
+            except (URLError, OSError, json.JSONDecodeError, ValueError):
+                pass
+            return None
 
-                        if self.record_standalone:
-                            nodes = body.get("value", {}).get("nodes", [])
-                            if nodes:
-                                node_info = nodes[0]
-                                self.node_id = node_info.get("id")
-                                self.node_external_uri = node_info.get("externalUri")
-                            else:
-                                # Fallback: sidecar connected directly to a node
-                                # (e.g. dynamic grid where /status returns singular "node")
-                                node_info = body.get("value", {}).get("node", {})
-                                self.node_id = node_info.get("nodeId") or node_info.get("id")
-                                self.node_external_uri = node_info.get("externalUri")
-                        else:
-                            node_info = body.get("value", {}).get("node", {})
-                            self.node_id = node_info.get("nodeId")
+        while not self.shutdown_event.is_set():
+            try:
+                # Run blocking urlopen in a thread so SIGTERM can be processed
+                # immediately by the event loop without waiting up to 5s.
+                body = await asyncio.to_thread(_fetch_status)
+                if body is not None:
+                    if self.record_standalone:
+                        nodes = body.get("value", {}).get("nodes", [])
+                        if nodes:
+                            node_info = nodes[0]
+                            self.node_id = node_info.get("id")
                             self.node_external_uri = node_info.get("externalUri")
-
-                        if self.node_id:
-                            logger.info(f"Node is ready. ID: {self.node_id}, URI: {self.node_external_uri}")
-                            return
                         else:
-                            logger.warning("Node /status responded but nodeId is missing, retrying...")
-            except (URLError, OSError, json.JSONDecodeError, ValueError) as e:
-                logger.debug(f"Node not ready yet: {e}")
+                            # Fallback: sidecar connected directly to a node
+                            # (e.g. dynamic grid where /status returns singular "node")
+                            node_info = body.get("value", {}).get("node", {})
+                            self.node_id = node_info.get("nodeId") or node_info.get("id")
+                            self.node_external_uri = node_info.get("externalUri")
+                    else:
+                        node_info = body.get("value", {}).get("node", {})
+                        self.node_id = node_info.get("nodeId")
+                        self.node_external_uri = node_info.get("externalUri")
+
+                    if self.node_id:
+                        logger.info(f"Node is ready. ID: {self.node_id}, URI: {self.node_external_uri}")
+                        return
+                    else:
+                        logger.warning("Node /status responded but nodeId is missing, retrying...")
+                else:
+                    logger.debug(f"Node not ready yet: {node_status_url}")
             except Exception as e:
                 logger.warning(f"Unexpected error polling Node /status: {e}")
 
@@ -488,28 +497,33 @@ class VideoService:
 
     async def stop_recording(self, session: SessionState) -> bool:
         """Stop ffmpeg recording for a session."""
-        if session.ffmpeg_process is None:
-            logger.warning(f"No recording in progress for session {session.session_id}")
+        # Claim the process atomically before the first await.  Asyncio is
+        # cooperative: no other coroutine can run between the check and the
+        # assignment, so a concurrent caller (e.g. cleanup() racing with
+        # handle_session_closed()) will see None here and return early,
+        # preventing double-terminate and double-upload.
+        proc = session.ffmpeg_process
+        if proc is None:
             return False
+        session.ffmpeg_process = None
 
         session.status = SessionStatus.STOPPING
         session.end_time = datetime.now()
 
         try:
-            session.ffmpeg_process.terminate()
+            proc.terminate()
             try:
-                _, stderr_bytes = await asyncio.wait_for(session.ffmpeg_process.communicate(), timeout=10.0)
+                _, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=10.0)
             except asyncio.TimeoutError:
                 logger.warning(f"ffmpeg did not stop gracefully for {session.session_id}, killing")
-                session.ffmpeg_process.kill()
-                _, stderr_bytes = await session.ffmpeg_process.communicate()
+                proc.kill()
+                _, stderr_bytes = await proc.communicate()
 
-            rc = session.ffmpeg_process.returncode
+            rc = proc.returncode
             if stderr_bytes:
                 stderr_text = stderr_bytes.decode(errors="replace").strip()
                 if stderr_text:
                     logger.warning(f"ffmpeg stderr for {session.session_id}: {stderr_text}")
-            session.ffmpeg_process = None
 
             # 255 is ffmpeg's own graceful-stop exit code (exit_program(255) in its SIGTERM handler).
             if rc not in (0, 255, -signal.SIGTERM, -signal.SIGKILL):
@@ -720,8 +734,11 @@ class VideoService:
 
         # Stop recording if in progress
         if session.ffmpeg_process is not None:
-            await self.stop_recording(session)
-            await self.queue_upload(session)
+            stopped = await self.stop_recording(session)
+            if stopped:
+                await self.queue_upload(session)
+            else:
+                logger.warning(f"Recording stop failed for {session_id}, skipping upload")
 
         # Clean up session after a delay (keep for potential late events).
         # Tracked so cleanup() can cancel these on shutdown instead of waiting 60s.
@@ -924,8 +941,11 @@ class VideoService:
 
         for session in active_sessions:
             logger.info(f"Stopping recording: {session.session_id}")
-            await self.stop_recording(session)
-            await self.queue_upload(session)
+            stopped = await self.stop_recording(session)
+            if stopped:
+                await self.queue_upload(session)
+            else:
+                logger.warning(f"Recording stop failed for {session.session_id}, skipping upload")
 
         # Push sentinel so the upload worker exits after draining the queue.
         # run() is responsible for awaiting the upload task with a timeout.
