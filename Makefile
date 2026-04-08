@@ -980,7 +980,7 @@ test_parallel: hub chrome firefox edge chromium video
 		cd ./tests || true ; \
 		echo TAG=$(TAG_VERSION) > .env ; \
 		echo VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) >> .env ; \
-		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
+		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo TEST_DRAIN_AFTER_SESSION_COUNT=$(or $(TEST_DRAIN_AFTER_SESSION_COUNT), 2) >> .env ; \
 		echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "true") >> .env ; \
 		echo TEST_PARALLEL_COUNT=$(or $(TEST_PARALLEL_COUNT), 5) >> .env ; \
@@ -1007,10 +1007,10 @@ test_parallel: hub chrome firefox edge chromium video
 	make test_video_integrity
 
 test_video_standalone: standalone_chrome standalone_chromium standalone_firefox standalone_edge
-	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 make test_video
+	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone.yml TEST_DELAY_AFTER_TEST=0 HUB_CHECKS_INTERVAL=45 make test_video
 
 test_video_dynamic_name:
-	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=2 HUB_CHECKS_INTERVAL=45 TEST_ADD_CAPS_RECORD_VIDEO=false \
+	VIDEO_FILE_NAME=auto TEST_DELAY_AFTER_TEST=0 HUB_CHECKS_INTERVAL=45 TEST_ADD_CAPS_RECORD_VIDEO=false \
 	make test_video
 
 # This should run on its own CI job. There is no need to combine it with the other tests.
@@ -1039,7 +1039,7 @@ test_video: video hub chrome firefox edge chromium
 		echo UID=$$(id -u) >> .env ; \
 		echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
-		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
+		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 45) >> .env ; \
 		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 		echo TEST_FIREFOX_INSTALL_LANG_PACKAGE=$${TEST_FIREFOX_INSTALL_LANG_PACKAGE} >> .env ; \
@@ -1125,7 +1125,7 @@ test_node_relay: hub node_base standalone_firefox
 
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
-	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=2 \
+	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_standalone_docker_video_sidecar: standalone_docker
@@ -1161,7 +1161,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 		echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
-		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 2) >> .env ; \
+		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 		echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
 		echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 20) >> .env ; \
@@ -1276,7 +1276,7 @@ chart_test_autoscaling_deployment:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) AUTOSCALING_COOLDOWN_PERIOD=30 \
 	TRACING_EXPORTER_ENDPOINT=$(TRACING_EXPORTER_ENDPOINT) TEST_CUSTOM_SPECIFIC_NAME=true \
 	SECURE_CONNECTION_SERVER=true SECURE_USE_EXTERNAL_CERT=true SERVICE_TYPE_NODEPORT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -I | cut -d' ' -f1) SELENIUM_GRID_PORT=31444 \
-	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=2 TEST_NODE_DRAIN_AFTER_SESSION_COUNT=3 SELENIUM_GRID_MONITORING=false \
+	SELENIUM_GRID_AUTOSCALING_MIN_REPLICA=1 SET_MAX_REPLICAS=3 TEST_DELAY_AFTER_TEST=0 TEST_NODE_DRAIN_AFTER_SESSION_COUNT=3 SELENIUM_GRID_MONITORING=false \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_prefixSelenium_enableTracing_secureServer_externalCerts_nodePort_autoScaling_scaledObject_existingKEDA_subPath.yaml" \
 	./tests/charts/make/chart_test.sh DeploymentAutoscaling
