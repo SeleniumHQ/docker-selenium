@@ -212,9 +212,15 @@ function graceful_exit() {
   wait_util_uploader_shutdown
 }
 
+_graceful_exit_done=false
 function graceful_exit_force() {
+  if [[ "$_graceful_exit_done" = "true" ]]; then
+    return
+  fi
+  _graceful_exit_done=true
   graceful_exit
-  kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
+  # Supervisord signaling is delegated to the Python controller (video_recorder.py)
+  # which handles it uniformly for both shell and event-driven modes.
   echo "$(date -u +"${ts_format}") [${process_name}] - Ready to shutdown the recorder"
   exit 0
 }
@@ -234,7 +240,7 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
     -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
     -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-    -pix_fmt yuv420p -movflags +faststart "$video_file" &
+    -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
   FFMPEG_PID=$!
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
@@ -270,7 +276,7 @@ else
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
           -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
           -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-          -pix_fmt yuv420p -movflags +faststart "$video_file" &
+          -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
         FFMPEG_PID=$!
         if ps -p $FFMPEG_PID >/dev/null; then
           recording_started="true"

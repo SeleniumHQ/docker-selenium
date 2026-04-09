@@ -1,4 +1,4 @@
-FROM ubuntu:noble@sha256:186072bba1b2f436cbb91ef2567abca677337cfc786c86e107d25b7072feef0c
+FROM ubuntu:noble@sha256:84e77dee7d1bc93fb029a45e3c6cb9d8aa4831ccfcc7103d36e876938d28895b
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
@@ -10,9 +10,9 @@ ARG RELEASE=selenium-${VERSION}
 ARG OPENTELEMETRY_VERSION=latest.release
 ARG GRPC_VERSION=latest.release
 ARG NETTY_VERSION=latest.release
-ARG CS_VERSION=2.1.25-M23
-ARG ENVSUBST_VERSION=1.5.0
-ARG CURL_VERSION=8.18.0
+ARG CS_VERSION=2.1.25-M24
+ARG ENVSUBST_VERSION=1.5.1
+ARG CURL_VERSION=8.19.0
 ARG PYTHON_VERSION=3.14
 
 #Arguments to define the user running Selenium

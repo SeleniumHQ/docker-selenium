@@ -133,14 +133,14 @@ jobs:
             os: ubuntu-24.04-arm
             firefox-install-lang-package: true
             enable-managed-downloads: true
-          - test-strategy: test_node_docker
+          - test-strategy: test_node_docker_video_sidecar
             use-random-user: false
             test-video: true
             build-all: false
             os: ubuntu-24.04-arm
             firefox-install-lang-package: true
             enable-managed-downloads: false
-          - test-strategy: test_standalone_docker
+          - test-strategy: test_standalone_docker_video_sidecar
             use-random-user: false
             test-video: true
             build-all: false

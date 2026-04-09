@@ -21,4 +21,6 @@ ENV SE_SESSION_REQUEST_TIMEOUT="300" \
 # Boolean value, maps "--relax-checks"
     SE_RELAX_CHECKS="true" \
     SE_OTEL_SERVICE_NAME="selenium-standalone-docker" \
-    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true"
+    SE_NODE_ENABLE_MANAGED_DOWNLOADS="true" \
+    SE_BIND_BUS="true" \
+    SE_EVENT_BUS_IMPLEMENTATION=""
