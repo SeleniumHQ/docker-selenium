@@ -1111,6 +1111,7 @@ test_video: video hub chrome firefox edge chromium
 		echo BASIC_AUTH_PASSWORD=$(or $(BASIC_AUTH_PASSWORD), "admin") >> .env ; \
 		echo SUB_PATH=$(or $(SUB_PATH), "/selenium") >> .env ; \
 		echo TEST_ADD_CAPS_RECORD_VIDEO=$(or $(TEST_ADD_CAPS_RECORD_VIDEO), "true") >> .env ; \
+		echo TEST_RETAIN_ON_FAILURE=$(or $(TEST_RETAIN_ON_FAILURE), "false") >> .env ; \
 		if [ $$node = "NodeChrome" ] ; then \
 			echo BROWSER=chrome >> .env ; \
 			echo VIDEO_FILE_NAME=$${VIDEO_FILE_NAME:-"chrome_video.mp4"} >> .env ; \
@@ -1230,6 +1231,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
 		echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 20) >> .env ; \
 		echo TEST_CUSTOM_SPECIFIC_NAME=$(or $(TEST_CUSTOM_SPECIFIC_NAME), "true") >> .env ; \
+		echo TEST_RETAIN_ON_FAILURE=$(or $(TEST_RETAIN_ON_FAILURE), "false") >> .env ; \
 		echo NODE=$$node >> .env ; \
 		echo UID=$$(id -u) >> .env ; \
 		echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \

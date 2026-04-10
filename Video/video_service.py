@@ -23,10 +23,11 @@ Subscribes to the Grid's ZeroMQ event bus and handles:
     SE_NODE_PORT: Node port for /status endpoint (default: 5555)
     SE_SERVER_PROTOCOL: Protocol for Node /status endpoint (default: http)
     SE_ROUTER_USERNAME, SE_ROUTER_PASSWORD: Optional Basic Auth credentials for Grid endpoints
-    SE_UPLOAD_FAILURE_SESSION_ONLY: Only upload videos for failed sessions (default: false)
+    SE_RETAIN_ON_FAILURE: Discard recordings for sessions that pass (default: false)
+    SE_FAILURE_SESSION_EVENTS: Comma-separated event substrings that mark a session as failed
     VIDEO_FOLDER: Directory to store video files
     SE_VIDEO_FILE_NAME: Fixed video file name ("auto" keeps per-session naming)
-    SE_VIDEO_UPLOAD_ENABLED: Enable video upload (default: false)
+    SE_UPLOAD_DESTINATION_PREFIX: Remote upload destination prefix; upload is enabled when non-empty
     SE_SCREEN_WIDTH, SE_SCREEN_HEIGHT: Screen dimensions
     SE_FRAME_RATE: Video frame rate (default: 15)
 """
@@ -39,9 +40,7 @@ import os
 import re
 import signal
 import ssl
-import subprocess
 import sys
-from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
@@ -85,8 +84,6 @@ class UploadTask:
     session_id: str
     video_file: str
     destination: str
-    should_upload: bool
-    reason: str  # Why upload decision was made
 
 
 @dataclass
@@ -105,6 +102,7 @@ class SessionState:
     has_failure_event: bool = False
     failure_events: List[str] = field(default_factory=list)
     test_name: str = ""
+    retain_on_failure: bool = False
 
     @property
     def is_failed(self) -> bool:
@@ -153,9 +151,9 @@ class VideoService:
         self.record_audio = os.environ.get("SE_RECORD_AUDIO", "false").lower() == "true"
         self.audio_source = os.environ.get("SE_AUDIO_SOURCE", "")
 
-        # Upload configuration
-        self.upload_enabled = os.environ.get("SE_VIDEO_UPLOAD_ENABLED", "false").lower() == "true"
-        self.upload_destination = os.environ.get("SE_UPLOAD_DESTINATION_PREFIX", "")
+        # Upload configuration (enabled when destination prefix is configured)
+        self.upload_destination = os.environ.get("SE_UPLOAD_DESTINATION_PREFIX", "").strip()
+        self.upload_enabled = bool(self.upload_destination)
         self.rclone_config = os.environ.get(
             "SE_RCLONE_CONFIG", os.environ.get("RCLONE_CONFIG", "/opt/selenium/upload.conf")
         )
@@ -164,13 +162,13 @@ class VideoService:
         self.retain_local = os.environ.get("SE_UPLOAD_RETAIN_LOCAL_FILE", "false").lower() == "true"
         self.upload_batch_size = int(os.environ.get("SE_VIDEO_UPLOAD_BATCH_CHECK", "10"))
         self.upload_timeout = int(os.environ.get("SE_VIDEO_UPLOAD_TIMEOUT", "300"))
-        self.upload_failure_only = os.environ.get("SE_UPLOAD_FAILURE_SESSION_ONLY", "false").lower() == "true"
-        default_failure_events = [":failure", ":failed"]
-        custom_failure_events = os.environ.get("SE_UPLOAD_FAILURE_SESSION_EVENTS", "").lower()
+        self.retain_on_failure_enabled = os.environ.get("SE_RETAIN_ON_FAILURE", "false").lower() == "true"
+        default_failure_events = [":failure", ":failed", ":error", ":aborted"]
+        custom_failure_events = os.environ.get("SE_FAILURE_SESSION_EVENTS", "").lower()
         custom_failure_events_list = []
         if custom_failure_events:
             custom_failure_events_list = [event.strip() for event in custom_failure_events.split(",") if event.strip()]
-        self.upload_failure_events = list(dict.fromkeys(default_failure_events + custom_failure_events_list))
+        self.failure_events = list(dict.fromkeys(default_failure_events + custom_failure_events_list))
 
         # Capability names
         self.video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
@@ -198,6 +196,7 @@ class VideoService:
         self.se_node_port = os.environ.get("SE_NODE_PORT", default_node_port)
         self.node_status_verify_ssl = False
         self.node_poll_interval = int(os.environ.get("SE_VIDEO_POLL_INTERVAL", "2"))
+        self.file_ready_max_attempts = int(os.environ.get("SE_VIDEO_FILE_READY_WAIT_ATTEMPTS", "10"))
 
         # Drain configuration
         self.max_sessions = int(os.environ.get("SE_DRAIN_AFTER_SESSION_COUNT", "0"))
@@ -298,7 +297,7 @@ class VideoService:
     def is_failure_event_type(self, event_type: str) -> bool:
         """Check if event type indicates a failure."""
         event_lower = event_type.lower()
-        return any(event in event_lower for event in self.upload_failure_events)
+        return any(event in event_lower for event in self.failure_events)
 
     def is_own_node_event(self, data: dict) -> bool:
         """Check if an event belongs to this Node.
@@ -474,6 +473,7 @@ class VideoService:
             session.ffmpeg_process = await asyncio.create_subprocess_exec(
                 *cmd,
                 env=env,
+                stdin=asyncio.subprocess.PIPE,
                 stdout=asyncio.subprocess.DEVNULL,
                 stderr=asyncio.subprocess.PIPE,
             )
@@ -494,6 +494,45 @@ class VideoService:
             logger.error(f"Failed to start recording for {session.session_id}: {e}")
             session.status = SessionStatus.CREATED
             return False
+
+    async def wait_for_file_integrity(self, video_path: Path) -> bool:
+        """Wait for a recorded video to become readable by ffmpeg."""
+        if not video_path.exists():
+            logger.warning(f"Video file not found after recording stopped: {video_path}")
+            return False
+
+        for attempt in range(1, self.file_ready_max_attempts + 1):
+            proc = await asyncio.create_subprocess_exec(
+                "ffmpeg",
+                "-v",
+                "error",
+                "-i",
+                str(video_path),
+                "-f",
+                "null",
+                "-",
+                stdout=asyncio.subprocess.DEVNULL,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            _, stderr_bytes = await proc.communicate()
+            if proc.returncode == 0:
+                return True
+
+            stderr_text = stderr_bytes.decode(errors="replace").strip()
+            if attempt >= self.file_ready_max_attempts:
+                logger.warning(
+                    f"Recorded video is not readable after {attempt} attempts: {video_path}; "
+                    f"ffmpeg probe stderr={stderr_text}"
+                )
+                return False
+
+            logger.info(
+                f"Waiting for recorded video to become readable: {video_path} "
+                f"(attempt {attempt}/{self.file_ready_max_attempts})"
+            )
+            await asyncio.sleep(self.node_poll_interval)
+
+        return False
 
     async def stop_recording(self, session: SessionState) -> bool:
         """Stop ffmpeg recording for a session."""
@@ -516,13 +555,31 @@ class VideoService:
         session.end_time = datetime.now()
 
         try:
-            proc.terminate()
             try:
+                graceful_stop_sent = False
+                if proc.stdin is not None and not proc.stdin.is_closing():
+                    try:
+                        proc.stdin.write(b"q\n")
+                        await proc.stdin.drain()
+                        proc.stdin.close()
+                        graceful_stop_sent = True
+                    except (BrokenPipeError, ConnectionResetError):
+                        pass
+
                 _, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=10.0)
             except asyncio.TimeoutError:
-                logger.warning(f"ffmpeg did not stop gracefully for {session.session_id}, killing")
-                proc.kill()
-                _, stderr_bytes = await proc.communicate()
+                if graceful_stop_sent:
+                    logger.warning(f"ffmpeg did not stop after quit command for {session.session_id}, terminating")
+                else:
+                    logger.warning(f"ffmpeg stdin unavailable for {session.session_id}, terminating")
+
+                proc.terminate()
+                try:
+                    _, stderr_bytes = await asyncio.wait_for(proc.communicate(), timeout=5.0)
+                except asyncio.TimeoutError:
+                    logger.warning(f"ffmpeg did not stop gracefully for {session.session_id}, killing")
+                    proc.kill()
+                    _, stderr_bytes = await proc.communicate()
 
             rc = proc.returncode
             if stderr_bytes:
@@ -535,6 +592,12 @@ class VideoService:
                 logger.error(f"ffmpeg exited with unexpected code {rc} for {session.session_id}")
                 session.status = SessionStatus.CLOSED
                 return False
+
+            if session.video_file:
+                video_path = Path(self.video_folder) / session.video_file
+                if not await self.wait_for_file_integrity(video_path):
+                    session.status = SessionStatus.CLOSED
+                    return False
 
             self.recorded_count += 1
             session.status = SessionStatus.CLOSED
@@ -557,44 +620,26 @@ class VideoService:
         if not self.upload_enabled or not self.upload_destination:
             return
 
+        if not session.video_file:
+            return
+
         video_path = f"{self.video_folder}/{session.video_file}"
         if not Path(video_path).exists():
             logger.warning(f"Video file not found: {video_path}")
             return
 
-        # Determine if we should upload
-        should_upload = True
-        reason = "normal upload"
-
-        if self.upload_failure_only:
-            if session.is_failed:
-                should_upload = True
-                if session.has_failure_event:
-                    reason = f"failure event: {', '.join(session.failure_events)}"
-                else:
-                    reason = f"abnormal close: {session.close_reason.value}"
-            else:
-                should_upload = False
-                reason = "session ended normally (SE_UPLOAD_FAILURE_SESSION_ONLY=true)"
-
         task = UploadTask(
             session_id=session.session_id,
             video_file=video_path,
             destination=self.upload_destination,
-            should_upload=should_upload,
-            reason=reason,
         )
 
         await self.upload_queue.put(task)
-        logger.debug(f"Queued upload task: {session.session_id}, should_upload={should_upload}")
+        logger.debug(f"Queued upload task: {session.session_id}")
 
     async def process_upload(self, task: UploadTask) -> None:
         """Process a single upload task."""
-        if not task.should_upload:
-            logger.info(f"Skipping upload: {task.video_file} - {task.reason}")
-            return
-
-        logger.info(f"Uploading: {task.video_file} -> {task.destination} ({task.reason})")
+        logger.info(f"Uploading: {task.video_file} -> {task.destination}")
 
         cmd = [
             "rclone",
@@ -705,17 +750,27 @@ class VideoService:
         capabilities = data.get("capabilities", {})
         record_video, video_filename = self.get_video_filename(session_id, capabilities)
 
+        retain_on_failure_cap = capabilities.get("se:retainOnFailure", None)
+        if retain_on_failure_cap is None:
+            retain_on_failure = self.retain_on_failure_enabled
+        else:
+            retain_on_failure = str(retain_on_failure_cap).lower() == "true"
+
         async with self.sessions_lock:
             session = SessionState(
                 session_id=session_id,
                 capabilities=capabilities,
                 video_file=video_filename,
                 record_video=record_video,
+                retain_on_failure=retain_on_failure,
                 test_name=capabilities.get(self.test_name_cap, ""),
             )
             self.sessions[session_id] = session
 
-        logger.info(f"Session created: {session_id}, record={record_video}, file={video_filename}")
+        logger.info(
+            f"Session created: {session_id}, record={record_video}, "
+            f"retain_on_failure={retain_on_failure}, file={video_filename}"
+        )
 
         if record_video:
             await self.start_recording(session)
@@ -753,7 +808,18 @@ class VideoService:
         if session.ffmpeg_process is not None:
             stopped = await self.stop_recording(session)
             if stopped:
-                await self.queue_upload(session)
+                discard = session.retain_on_failure and not session.is_failed
+                if discard:
+                    if session.video_file:
+                        video_path = Path(self.video_folder) / session.video_file
+                        if video_path.exists():
+                            try:
+                                video_path.unlink()
+                                logger.info(f"Video discarded for successful session {session_id} (retain-on-failure)")
+                            except Exception as exc:
+                                logger.warning(f"Failed to delete video file {video_path}: {exc}")
+                else:
+                    await self.queue_upload(session)
             else:
                 logger.warning(f"Recording stop failed for {session_id}, skipping upload")
 
@@ -960,7 +1026,9 @@ class VideoService:
             logger.info(f"Stopping recording: {session.session_id}")
             stopped = await self.stop_recording(session)
             if stopped:
-                await self.queue_upload(session)
+                discard = session.retain_on_failure and not session.is_failed
+                if not discard:
+                    await self.queue_upload(session)
             else:
                 logger.warning(f"Recording stop failed for {session.session_id}, skipping upload")
 
@@ -983,8 +1051,8 @@ class VideoService:
         logger.info(f"  Video size: {self.video_size}")
         logger.info(f"  Upload enabled: {self.upload_enabled}")
         logger.info(f"  Upload destination: {self.upload_destination}")
-        logger.info(f"  Upload failure only: {self.upload_failure_only}")
-        logger.info(f"  Upload failure events: {self.upload_failure_events}")
+        logger.info(f"  Retain on failure: {self.retain_on_failure_enabled}")
+        logger.info(f"  Failure events: {self.failure_events}")
         logger.info(f"  Max sessions (drain): {self.max_sessions if self.max_sessions > 0 else 'unlimited'}")
 
         # Validate video folder

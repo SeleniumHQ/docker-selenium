@@ -50,6 +50,8 @@
   default: ''
 - name: SE_EXTRA_LIBS
   default: ''
+- name: SE_FAILURE_SESSION_EVENTS
+  default: :failed,:failure,:error,:aborted
 - name: SE_FFMPEG_THREADS
   default: ''
 - name: SE_FRAME_RATE
@@ -202,6 +204,8 @@
   default: 'false'
 - name: SE_RELAX_CHECKS
   default: 'true'
+- name: SE_RETAIN_ON_FAILURE
+  default: 'false'
 - name: SE_ROUTER_HOST
   default: ''
 - name: SE_ROUTER_PASSWORD
@@ -278,10 +282,6 @@
   default: ''
 - name: SE_UPLOAD_DESTINATION_PREFIX
   default: ''
-- name: SE_UPLOAD_FAILURE_SESSION_EVENTS
-  default: :failed,:failure
-- name: SE_UPLOAD_FAILURE_SESSION_ONLY
-  default: 'false'
 - name: SE_UPLOAD_OPTS
   default: ''
 - name: SE_UPLOAD_PIPE_FILE_NAME
@@ -297,7 +297,7 @@
 - name: SE_VIDEO_EVENT_DRIVEN
   default: 'true'
 - name: SE_VIDEO_FILE_NAME
-  default: auto
+  default: video.mp4
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   default: 'true'
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX

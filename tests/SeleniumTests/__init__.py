@@ -31,6 +31,7 @@ TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/amd64')
 TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PACKAGE', 'false').lower() == 'true'
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
+TEST_RETAIN_ON_FAILURE = os.environ.get('TEST_RETAIN_ON_FAILURE', 'false').lower() == 'true'
 TEST_CUSTOM_SPECIFIC_NAME = os.environ.get('TEST_CUSTOM_SPECIFIC_NAME', 'false').lower() == 'true'
 TEST_MULTIPLE_VERSIONS = os.environ.get('TEST_MULTIPLE_VERSIONS', 'false').lower() == 'true'
 TEST_MULTIPLE_PLATFORMS = os.environ.get('TEST_MULTIPLE_PLATFORMS', 'false').lower() == 'true'
@@ -139,6 +140,11 @@ class SeleniumGenericTests(unittest.TestCase):
         try:
             if TEST_DELAY_AFTER_TEST:
                 time.sleep(TEST_DELAY_AFTER_TEST)
+            if TEST_RETAIN_ON_FAILURE:
+                self.driver.fire_session_event(
+                    "test:failed",
+                    {"test": f"{self._testMethodName} ({self.__class__.__name__})"},
+                )
             self.driver.quit()
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
@@ -155,6 +161,8 @@ class ChromeTests(SeleniumGenericTests):
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_RETAIN_ON_FAILURE:
+                options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:
                 options.set_capability('myApp:version', 'beta')
                 options.set_capability('myApp:publish', 'internal')
@@ -215,6 +223,8 @@ class EdgeTests(SeleniumGenericTests):
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_RETAIN_ON_FAILURE:
+                options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:
                 options.set_capability('myApp:version', 'beta')
                 options.set_capability('myApp:publish', 'internal')
@@ -269,6 +279,8 @@ class FirefoxTests(SeleniumGenericTests):
             options.profile = profile
             if TEST_ADD_CAPS_RECORD_VIDEO:
                 options.set_capability('se:recordVideo', True)
+            if TEST_RETAIN_ON_FAILURE:
+                options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:
                 options.set_capability('myApp:version', 'beta')
                 options.set_capability('myApp:publish', 'internal')

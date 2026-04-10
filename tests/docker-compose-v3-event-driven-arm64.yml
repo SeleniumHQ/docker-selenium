@@ -37,8 +37,7 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_UPLOAD_FAILURE_SESSION_ONLY=true
+      - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp
@@ -64,8 +63,7 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_UPLOAD_ENABLED=true
-      - SE_UPLOAD_FAILURE_SESSION_ONLY=true
+      - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
       # All configs required for RCLONE to upload to remote name myftp

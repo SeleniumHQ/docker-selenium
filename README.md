@@ -813,7 +813,7 @@ services:
 `SE_VIDEO_FILE_NAME=auto` will use the session id as the video file name. This ensures that the video file name is unique to upload.
 Video file name construction automatically works based on Node endpoint `/status` (and optional GraphQL endpoint) to get session ID, capabilities.
 
-`SE_VIDEO_UPLOAD_ENABLED=true` (`false` by default) will enable the video upload feature. In the background, it will create a pipefile with file and destination for uploader to consume and proceed.
+`SE_VIDEO_UPLOAD_ENABLED=true` enables upload in the legacy shell-based mode (`SE_VIDEO_EVENT_DRIVEN=false`). In event-driven mode (the default), this variable is **deprecated** — upload is enabled automatically when `SE_UPLOAD_DESTINATION_PREFIX` is set to a non-empty value.
 
 `SE_VIDEO_INTERNAL_UPLOAD=true` (by default) will use RCLONE installed in the container for upload. If you want to use another sidecar container for upload, set it to `false`.
 
@@ -845,6 +845,70 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 | `SE_UPLOAD_OPTS`              | `-P --cutoff-mode SOFT --metadata --inplace` | Other options belong to RCLONE command can be set.                                        |
 | `SE_UPLOAD_CONFIG_FILE_NAME`  | `upload.conf`                                | Config file for remote host instead of set via env variable prefix SE_RCLONE_*            |
 | `SE_UPLOAD_CONFIG_DIRECTORY`  | `/opt/bin`                                   | Directory of config file (change it when conf file in another directory is mounted)       |
+
+### Retain recordings for failed sessions only
+
+In event-driven mode (`SE_VIDEO_EVENT_DRIVEN=true`, the default), the video service subscribes to the Grid's ZeroMQ event bus and reacts to session lifecycle events in real time. This enables a **retain-on-failure** strategy: record every session, but automatically discard the video when the session passes and only keep (and upload) recordings from sessions that fail.
+
+Enable it globally with the environment variable:
+
+```yaml
+SE_RETAIN_ON_FAILURE=true
+```
+
+A session is treated as **failed** when either of the following is true:
+
+1. The test code fires a session event whose `eventType` contains a substring from `SE_FAILURE_SESSION_EVENTS` (default: `:failed,:failure,:error,:aborted`).
+2. The session closes with an abnormal reason — `TIMEOUT`, `NODE_REMOVED`, or `NODE_RESTARTED` — instead of the normal `QUIT_COMMAND`.
+
+| Environment variable      | Default                          | Description                                                                                                                         |
+|---------------------------|----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `SE_RETAIN_ON_FAILURE`    | `false`                          | Discard recordings of sessions that pass. Only recordings from failed sessions are retained on disk and queued for upload.          |
+| `SE_FAILURE_SESSION_EVENTS` | `:failed,:failure,:error,:aborted` | Comma-separated substrings. Any session event whose `eventType` contains one of these (case-insensitive) marks the session as failed. |
+
+The `se:retainOnFailure` session **capability** overrides the global container env var for a specific session. For example, to retain the recording of a single session regardless of the global setting:
+
+```python
+options.set_capability('se:retainOnFailure', True)
+```
+
+| `se:retainOnFailure` cap | `SE_RETAIN_ON_FAILURE` env | Effective behaviour              |
+|--------------------------|----------------------------|----------------------------------|
+| `true`                   | `false` (default)          | Retain on failure for this session |
+| `false`                  | `true`                     | Always retain for this session   |
+| absent                   | `true`                     | Retain on failure (global default) |
+| absent                   | `false` (default)          | Always retain (global default)   |
+
+#### Firing session events from test code
+
+The [Session Event API](https://www.selenium.dev/blog/2026/selenium-grid-4-41-deep-dive/) lets test code push named events directly to the Grid. The video service listens for these events on the ZeroMQ bus and uses them to determine session failure.
+
+Call `driver.fire_session_event(eventType, payload)` from your test. Any `eventType` that contains a configured failure substring (e.g. `"test:failed"` contains `":failed"`) marks the session as failed.
+
+```python
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium import webdriver
+
+options = ChromeOptions()
+options.set_capability('se:name', 'checkout_flow')
+options.set_capability('se:retainOnFailure', True)   # discard video if this session passes
+
+driver = webdriver.Remote(options=options, command_executor="http://localhost:4444")
+
+try:
+    driver.get("https://selenium.dev")
+    # ... test steps ...
+except Exception as exc:
+    # "test:failed" contains ":failed" — matches the default SE_FAILURE_SESSION_EVENTS
+    driver.fire_session_event("test:failed", {"error": str(exc)})
+    raise
+finally:
+    driver.quit()
+```
+
+> **Note:** If the test catches an exception and still calls `driver.quit()` normally, the session close reason is `QUIT_COMMAND` (not abnormal). In that case, firing a failure event **before** `quit()` is the only way to mark the session as failed and prevent the recording from being discarded.
+
+So, you can control the **retain-on-failure** strategy fully from test code via session capabilities and fire session event.
 
 ## Video recordings manager
 

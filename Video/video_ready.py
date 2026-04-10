@@ -12,13 +12,25 @@ video_ready_port = int(environ.get('VIDEO_READY_PORT', 9000))
 class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-        if (
-            environ.get('SE_VIDEO_UPLOAD_ENABLED', 'false').lower() != 'true'
-            and environ.get('SE_VIDEO_FILE_NAME', 'video.mp4').lower() != 'auto'
-        ):
-            video_ready = "ffmpeg" in (p.name().lower() for p in psutil.process_iter())
-        else:
+        event_driven = environ.get('SE_VIDEO_EVENT_DRIVEN', 'false').lower() == 'true'
+        record_video_enabled = environ.get('SE_RECORD_VIDEO', 'true').lower() == 'true'
+
+        # Legacy shell mode compatibility:
+        # when global recording is disabled, report ready immediately.
+        if not event_driven and not record_video_enabled:
             video_ready = True
+        else:
+            # Event-driven mode enables upload by non-empty destination.
+            # Legacy shell mode keeps original SE_VIDEO_UPLOAD_ENABLED behaviour.
+            if event_driven:
+                upload_enabled = bool(environ.get('SE_UPLOAD_DESTINATION_PREFIX', '').strip())
+            else:
+                upload_enabled = environ.get('SE_VIDEO_UPLOAD_ENABLED', 'false').lower() == 'true'
+
+            if not upload_enabled and environ.get('SE_VIDEO_FILE_NAME', 'video.mp4').lower() != 'auto':
+                video_ready = "ffmpeg" in (p.name().lower() for p in psutil.process_iter())
+            else:
+                video_ready = True
         response_code = 200 if video_ready else 404
         response_text = "ready" if video_ready else "not ready"
         self.send_response(response_code)

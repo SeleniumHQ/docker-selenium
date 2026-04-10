@@ -2,11 +2,11 @@
 |--------------|---------------|-------------|----------------------|
 | SE_SCREEN_WIDTH | 1920 | Use in Node to set the screen width |  |
 | SE_SCREEN_HEIGHT | 1080 | Use in Node to set the screen height |  |
-| SE_VIDEO_FILE_NAME | auto | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
+| SE_VIDEO_FILE_NAME | video.mp4 | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
 | SE_FRAME_RATE | 15 | Set the frame rate for FFmpeg in video recording |  |
 | SE_CODEC | libx264 | Set the codec for FFmpeg in video recording |  |
 | SE_PRESET | -preset ultrafast | Set the preset for FFmpeg in video recording |  |
-| SE_VIDEO_UPLOAD_ENABLED | false | Enable video upload |  |
+| SE_VIDEO_UPLOAD_ENABLED | false | Deprecated in event-driven mode (`video_service.py`); upload enablement is now derived from non-empty `SE_UPLOAD_DESTINATION_PREFIX` |  |
 | SE_VIDEO_INTERNAL_UPLOAD | true | Enable video upload using Rclone in the same recorder container |  |
 | SE_UPLOAD_DESTINATION_PREFIX |  | Remote name and destination path to upload |  |
 | SE_UPLOAD_PIPE_FILE_NAME |  | Set the pipe file name for video upload to consume |  |
@@ -162,9 +162,9 @@
 | SE_BIND_BUS | true | When true, the Standalone will start the Event Bus and connect itself. Standalone also expose publishing and subscribing port for sidecar service can listen on session events. | --bind-bus |
 | SE_EVENT_BUS_IMPLEMENTATION |  | Full class name of non-default event bus implementation. For example: org.openqa.selenium.events.zeromq.ZeroMqEventBus | --events-implementation |
 | SE_NODE_KUBERNETES_CONFIG_FILENAME | kubernetes.toml | A separate TOML config file name for Dynamic Grid in Kubernetes, which avoid conflict with browser config if shared mouted volume |  |
-| SE_UPLOAD_FAILURE_SESSION_EVENTS | :failed,:failure | By default, a failure session event type contains ":failed" or ":failure" fires that will trigger the upload failure session only. User can define more event types which handled in your test framework, separated by comma. |  |
-| SE_UPLOAD_FAILURE_SESSION_ONLY | false | When true, only recording of sessions that are not exited normally (session timed out, or custom events were fired by the client match with failure events defined) |  |
 | SE_VIDEO_EVENT_DRIVEN | true | Backend of video recorder and uploader will subscribe to Grid Event Bus for session event lifecycle for processing instead of traditional polling Node session capabilities via /status endpoint. |  |
 | SE_PLAIN_LOGS | true | Use plain log lines | --plain-logs |
 | SE_DYNAMIC_MAX_SESSIONS |  | Set the number of maximum concurrent sessions of Dynamic Node (both Docker and Kubernetes) |  |
 | SE_DYNAMIC_OVERRIDE_MAX_SESSIONS |  | Enable this flag for setting max session take effect in Dynamic Node (both Docker and Kubernetes) |  |
+| SE_FAILURE_SESSION_EVENTS | :failed,:failure,:error,:aborted | By default, a failure session event type contains ":failed", ":failure", ":error" or ":aborted" substrings that trigger the retain-on-failure sub-sequence. User can define more event types which handled in your test framework, separated by comma. |  |
+| SE_RETAIN_ON_FAILURE | false | When true, recordings for sessions that pass are discarded immediately. Only sessions that fail (via failure events or abnormal close) retain their recordings and are queued for upload. |  |
