@@ -5,14 +5,14 @@ on:
     inputs:
       grid-version:
         required: true
-        default: '4.37.0'
+        default: '4.41.0'
         type: string
   workflow_dispatch:
     inputs:
       grid-version:
         required: true
         type: string
-        default: '4.37.0'
+        default: '4.41.0'
         description: Expected Grid version to update
 
 jobs:

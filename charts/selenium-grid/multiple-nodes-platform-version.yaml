@@ -13,6 +13,16 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-146'
+      imageTag: '146.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '146.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-145'
+      imageTag: '145.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '145.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-144'
       imageTag: '144.0-20260222'
       hpa:
@@ -259,6 +269,16 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-149'
+      imageTag: '149.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '149.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-148'
+      imageTag: '148.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '148.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-147'
       imageTag: '147.0-20260222'
       hpa:
@@ -515,6 +535,16 @@ crossBrowsers:
       hpa:
         platformName: 'Linux'
         browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-146'
+      imageTag: '146.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '146.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-145'
+      imageTag: '145.0-20260222'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '145.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-144'
       imageTag: '144.0-20260222'
       hpa:

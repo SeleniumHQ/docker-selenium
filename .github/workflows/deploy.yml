@@ -8,6 +8,10 @@ on:
         required: true
         type: string
         default: 'true'
+      version:
+        description: 'Specific Selenium version or release tag to use, e.g 4.42.1'
+        required: false
+        default: ''
       release:
         description: 'Deploy a new release'
         required: false
@@ -82,6 +86,7 @@ jobs:
         uses: ./.github/actions/get-latest-upstream
         with:
           release: ${{ github.event.inputs.stable || true }}
+          version: ${{ github.event.inputs.version || '' }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
           authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
