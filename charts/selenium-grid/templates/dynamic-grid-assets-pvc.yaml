@@ -1,0 +1,22 @@
+{{- if and .Values.dynamicGrid.enabled .Values.dynamicGrid.assets.enabled (not .Values.dynamicGrid.assets.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "seleniumGrid.dynamicGrid.assets.pvc.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with .Values.dynamicGrid.assets.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.dynamicGrid.assets.accessModes | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.dynamicGrid.assets.size }}
+  {{- with .Values.dynamicGrid.assets.storageClassName }}
+  storageClassName: {{ . | quote }}
+  {{- end }}
+{{- end }}

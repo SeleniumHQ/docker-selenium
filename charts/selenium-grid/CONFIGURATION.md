@@ -438,6 +438,111 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOverProvisionRatio | string | `""` |  |
 | autoscaling.terminationGracePeriodSeconds | int | `3600` | Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it |
 | autoscaling.deregisterLifecycle | string | `nil` | Define preStop command to shut down the node gracefully when scalingType is set to "deployment" |
+| dynamicGrid.enabled | bool | `false` | Enable Dynamic Grid controller nodes backed by `selenium/node-kubernetes` |
+| dynamicGrid.serviceAccount.create | bool | `true` | Create a dedicated service account for Dynamic Grid controller nodes. If using an external service account, set to false and provide its name in `nameOverride` |
+| dynamicGrid.serviceAccount.nameOverride | string | `nil` | Override the service account name or provide an external service account name |
+| dynamicGrid.serviceAccount.annotations | object | `{}` | Annotations for the Dynamic Grid service account |
+| dynamicGrid.rbac.create | bool | `true` | Create RBAC resources required by Dynamic Grid controller nodes to manage browser Jobs |
+| dynamicGrid.rbac.role.nameOverride | string | `nil` | Override the Dynamic Grid role name or provide an external role name |
+| dynamicGrid.rbac.role.annotations | object | `{}` |  |
+| dynamicGrid.rbac.role.rules[0].apiGroups[0] | string | `"batch"` |  |
+| dynamicGrid.rbac.role.rules[0].resources[0] | string | `"jobs"` |  |
+| dynamicGrid.rbac.role.rules[0].verbs[0] | string | `"create"` |  |
+| dynamicGrid.rbac.role.rules[0].verbs[1] | string | `"delete"` |  |
+| dynamicGrid.rbac.role.rules[0].verbs[2] | string | `"get"` |  |
+| dynamicGrid.rbac.role.rules[0].verbs[3] | string | `"list"` |  |
+| dynamicGrid.rbac.role.rules[0].verbs[4] | string | `"watch"` |  |
+| dynamicGrid.rbac.role.rules[1].apiGroups[0] | string | `""` |  |
+| dynamicGrid.rbac.role.rules[1].resources[0] | string | `"pods"` |  |
+| dynamicGrid.rbac.role.rules[1].verbs[0] | string | `"get"` |  |
+| dynamicGrid.rbac.role.rules[1].verbs[1] | string | `"list"` |  |
+| dynamicGrid.rbac.role.rules[1].verbs[2] | string | `"watch"` |  |
+| dynamicGrid.rbac.role.rules[2].apiGroups[0] | string | `""` |  |
+| dynamicGrid.rbac.role.rules[2].resources[0] | string | `"pods/log"` |  |
+| dynamicGrid.rbac.role.rules[2].verbs[0] | string | `"get"` |  |
+| dynamicGrid.rbac.roleBinding.nameOverride | string | `nil` | Override the Dynamic Grid role binding name or provide an external role binding name |
+| dynamicGrid.rbac.roleBinding.annotations | object | `{}` |  |
+| dynamicGrid.assets.enabled | bool | `true` | Create a shared PVC for Dynamic Grid browser job assets. If using an existing PVC, set `existingClaim` |
+| dynamicGrid.assets.existingClaim | string | `""` | Use an existing PVC instead of creating one |
+| dynamicGrid.assets.nameOverride | string | `nil` | Override the assets PVC name when `enabled` is true |
+| dynamicGrid.assets.annotations | object | `{}` |  |
+| dynamicGrid.assets.accessModes[0] | string | `"ReadWriteMany"` |  |
+| dynamicGrid.assets.size | string | `"5Gi"` |  |
+| dynamicGrid.assets.storageClassName | string | `""` |  |
+| dynamicGrid.defaults.imageRegistry | string | `nil` |  |
+| dynamicGrid.defaults.imageName | string | `"node-kubernetes"` |  |
+| dynamicGrid.defaults.imageTag | string | `nil` |  |
+| dynamicGrid.defaults.imagePullPolicy | string | `"IfNotPresent"` |  |
+| dynamicGrid.defaults.imagePullSecret | string | `""` |  |
+| dynamicGrid.defaults.replicas | int | `1` |  |
+| dynamicGrid.defaults.annotations | object | `{}` |  |
+| dynamicGrid.defaults.labels | object | `{}` |  |
+| dynamicGrid.defaults.nodeSelector | object | `{}` |  |
+| dynamicGrid.defaults.tolerations | list | `[]` |  |
+| dynamicGrid.defaults.affinity | object | `{}` |  |
+| dynamicGrid.defaults.topologySpreadConstraints | list | `[]` |  |
+| dynamicGrid.defaults.priorityClassName | string | `""` |  |
+| dynamicGrid.defaults.resources.requests.cpu | string | `"0.5"` |  |
+| dynamicGrid.defaults.resources.requests.memory | string | `"512Mi"` |  |
+| dynamicGrid.defaults.resources.limits.cpu | string | `"1"` |  |
+| dynamicGrid.defaults.resources.limits.memory | string | `"2Gi"` |  |
+| dynamicGrid.defaults.extraEnvironmentVariables | list | `[]` |  |
+| dynamicGrid.defaults.extraEnvFrom | list | `[]` |  |
+| dynamicGrid.defaults.extraVolumes | list | `[]` |  |
+| dynamicGrid.defaults.extraVolumeMounts | list | `[]` |  |
+| dynamicGrid.defaults.terminationGracePeriodSeconds | int | `300` |  |
+| dynamicGrid.defaults.startupProbe.enabled | bool | `false` |  |
+| dynamicGrid.defaults.startupProbe.path | string | `"/readyz"` |  |
+| dynamicGrid.defaults.startupProbe.port | int | `5555` |  |
+| dynamicGrid.defaults.startupProbe.initialDelaySeconds | int | `5` |  |
+| dynamicGrid.defaults.startupProbe.periodSeconds | int | `10` |  |
+| dynamicGrid.defaults.startupProbe.timeoutSeconds | int | `10` |  |
+| dynamicGrid.defaults.startupProbe.failureThreshold | int | `12` |  |
+| dynamicGrid.defaults.startupProbe.successThreshold | int | `1` |  |
+| dynamicGrid.defaults.readinessProbe.enabled | bool | `true` |  |
+| dynamicGrid.defaults.readinessProbe.path | string | `"/readyz"` |  |
+| dynamicGrid.defaults.readinessProbe.port | int | `5555` |  |
+| dynamicGrid.defaults.readinessProbe.initialDelaySeconds | int | `10` |  |
+| dynamicGrid.defaults.readinessProbe.periodSeconds | int | `5` |  |
+| dynamicGrid.defaults.readinessProbe.timeoutSeconds | int | `10` |  |
+| dynamicGrid.defaults.readinessProbe.failureThreshold | int | `10` |  |
+| dynamicGrid.defaults.readinessProbe.successThreshold | int | `1` |  |
+| dynamicGrid.defaults.livenessProbe.enabled | bool | `true` |  |
+| dynamicGrid.defaults.livenessProbe.path | string | `"/readyz"` |  |
+| dynamicGrid.defaults.livenessProbe.port | int | `5555` |  |
+| dynamicGrid.defaults.livenessProbe.initialDelaySeconds | int | `15` |  |
+| dynamicGrid.defaults.livenessProbe.periodSeconds | int | `10` |  |
+| dynamicGrid.defaults.livenessProbe.timeoutSeconds | int | `10` |  |
+| dynamicGrid.defaults.livenessProbe.failureThreshold | int | `10` |  |
+| dynamicGrid.defaults.livenessProbe.successThreshold | int | `1` |  |
+| dynamicGrid.defaults.env.dynamicMaxSessions | string | `""` |  |
+| dynamicGrid.defaults.env.dynamicOverrideMaxSessions | string | `""` |  |
+| dynamicGrid.defaults.env.nodeSessionTimeout | string | `""` |  |
+| dynamicGrid.defaults.env.nodeHeartbeatPeriod | string | `""` |  |
+| dynamicGrid.defaults.env.nodeConnectionLimitPerSession | string | `""` |  |
+| dynamicGrid.defaults.env.nodeEnableManagedDownloads | bool | `true` |  |
+| dynamicGrid.defaults.env.externalUrl | string | `""` |  |
+| dynamicGrid.defaults.config.fileName | string | `"kubernetes.toml"` |  |
+| dynamicGrid.defaults.config.rawToml | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.url | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.namespace | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.serviceAccount | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.imagePullPolicy | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.serverStartTimeout | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.terminationGracePeriod | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.labelInheritPrefix | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.assetsPath | string | `"/opt/selenium/assets"` |  |
+| dynamicGrid.defaults.config.kubernetes.videoImage | string | `""` |  |
+| dynamicGrid.defaults.config.kubernetes.configs | list | `[]` |  |
+| dynamicGrid.defaults.config.kubernetes.extraToml | string | `""` |  |
+| dynamicGrid.defaults.service.enabled | bool | `false` |  |
+| dynamicGrid.defaults.service.type | string | `"ClusterIP"` |  |
+| dynamicGrid.defaults.service.port | int | `5555` |  |
+| dynamicGrid.defaults.service.annotations | object | `{}` |  |
+| dynamicGrid.defaults.service.externalTrafficPolicy | string | `""` |  |
+| dynamicGrid.defaults.service.sessionAffinity | string | `""` |  |
+| dynamicGrid.jobTemplates | object | `{}` | Optional chart-managed ConfigMaps used by Dynamic Grid `configmap:` template mode. The map key is the logical template name and the value is the full Job YAML stored under ConfigMap key `template` |
+| dynamicGrid.nodes | list | `[]` | Dynamic Grid controller nodes. Each entry inherits from `dynamicGrid.defaults` and must define a unique `name` |
 | crossBrowsers.chromeNode | list | `[{"nameOverride":null}]` | Additional chrome nodes, array of objects with the same structure as `chromeNode` |
 | crossBrowsers.firefoxNode | list | `[{"nameOverride":null}]` | Additional firefox nodes, array of objects with the same structure as `firefoxNode` |
 | crossBrowsers.edgeNode | list | `[{"nameOverride":null}]` | Additional edge nodes, array of objects with the same structure as `edgeNode` |

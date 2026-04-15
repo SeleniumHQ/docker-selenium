@@ -19,6 +19,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Define multiple scalers with different trigger parameters.](#define-multiple-scalers-with-different-trigger-parameters)
     * [Settings fixed-sized thread pool for the Distributor to create new sessions](#settings-fixed-sized-thread-pool-for-the-distributor-to-create-new-sessions)
     * [Troubleshooting](#troubleshooting)
+  * [Enable Selenium Dynamic Grid](#enable-selenium-dynamic-grid)
   * [Updating Selenium-Grid release](#updating-selenium-grid-release)
   * [Uninstalling Selenium Grid release](#uninstalling-selenium-grid-release)
   * [Ingress Configuration](#ingress-configuration)
@@ -392,6 +393,83 @@ Use `kubectl logs` to see `keda-operator` pod logs, if you see the error message
 
 It probably is the DNS issue. You need to check the GraphQL endpoint provided in the trigger metadata is accessible from the KEDA core namespace. In case different namespaces, and using svc name, you might need to use <service-name>.<namespace-name> as the domain name.
 At cluster level, you might need to configure network policies to allow traffic between namespaces properly.
+
+## Enable Selenium Dynamic Grid
+
+Dynamic Grid support is available through the top-level `dynamicGrid` values tree. This mode deploys one or more `selenium/node-kubernetes` controller Deployments, each backed by its own `kubernetes.toml` ConfigMap and optional shared assets PVC.
+
+This mode is separate from KEDA-based autoscaling:
+
+- Use `autoscaling.*` when you want the chart to manage KEDA `ScaledObject` or `ScaledJob` resources for the built-in browser node Deployments.
+- Use `dynamicGrid.*` when you want `selenium/node-kubernetes` to create browser Jobs dynamically from one or more TOML controller configs.
+- Do not enable both at the same time. The chart rejects `dynamicGrid.enabled=true` together with `autoscaling.enabled=true` or `autoscaling.enableWithExistingKEDA=true`.
+
+Each entry in `dynamicGrid.nodes` is an independent Dynamic Grid controller. This allows you to define multiple pools with different routing rules, Kubernetes template sources, and per-pool controller settings.
+
+- `dynamicGrid.defaults` provides shared controller settings such as image, probes, resources, environment, and default TOML settings.
+- `dynamicGrid.nodes[]` lets each pool define its own `name`, pod scheduling settings, and TOML config.
+- `dynamicGrid.jobTemplates` lets the chart manage ConfigMaps that can be referenced from TOML via `configmap:<name>`.
+
+Each node can define its TOML in either of these ways:
+
+- Structured mode with `config.kubernetes.configs`, where the chart renders `kubernetes.toml` from image and capability mappings.
+- Raw mode with `config.rawToml`, where you provide the TOML content directly.
+
+Example:
+
+```yaml
+dynamicGrid:
+  enabled: true
+  defaults:
+    imageTag: 4.42.0-20260303
+    env:
+      dynamicMaxSessions: "10"
+      dynamicOverrideMaxSessions: "true"
+      nodeSessionTimeout: "600"
+    config:
+      kubernetes:
+        assetsPath: /opt/selenium/assets
+        terminationGracePeriod: "60"
+  jobTemplates:
+    chrome-dev-template: |
+      apiVersion: batch/v1
+      kind: Job
+      spec:
+        template:
+          spec:
+            restartPolicy: Never
+            containers:
+              - name: browser
+                image: selenium/standalone-chrome:dev
+  nodes:
+    - name: linux-stable
+      enabled: true
+      config:
+        kubernetes:
+          configs:
+            - image: selenium/standalone-chromium:4.42.0-20260303
+              capabilities:
+                browserName: chrome
+                platformName: linux
+            - image: selenium/standalone-firefox:4.42.0-20260303
+              capabilities:
+                browserName: firefox
+                platformName: linux
+    - name: chrome-dev
+      enabled: true
+      nodeSelector:
+        workload-type: browser
+      config:
+        kubernetes:
+          configs:
+            - templateConfigMap: chrome-dev-template
+              capabilities:
+                browserName: chrome
+                browserVersion: dev
+                platformName: linux
+```
+
+For a complete example values file, see [dynamic-grid-values.yaml](./dynamic-grid-values.yaml). For the full value reference, see [CONFIGURATION.md](./CONFIGURATION.md).
 
 ## Updating Selenium-Grid release
 

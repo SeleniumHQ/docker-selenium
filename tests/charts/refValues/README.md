@@ -11,6 +11,7 @@
       * [Verify Grid installation](#verify-grid-installation)
       * [Browser Nodes in autoscaling from zero mode.](#browser-nodes-in-autoscaling-from-zero-mode)
       * [Run a test in Grid](#run-a-test-in-grid)
+* [Dynamic Grid](#dynamic-grid)
 <!-- TOC -->
 
 # Introduction
@@ -110,3 +111,9 @@ Refer to [get_started.py](../../get_started.py) for a simple test using Python a
 - Check the Grid UI to see the test running.
 - Check the Recordings manager to see the video recording of the test.
 - Check if the test passed or failed.
+
+# Dynamic Grid
+
+Dynamic Grid is now charted through the top-level `dynamicGrid` values tree. A chart-level example is available at [charts/selenium-grid/dynamic-grid-values.yaml](../../../charts/selenium-grid/dynamic-grid-values.yaml).
+
+Use that example when you want to start from `selenium/node-kubernetes` controller pools with per-pool `kubernetes.toml` instead of the existing KEDA-based `autoscaling` flow.

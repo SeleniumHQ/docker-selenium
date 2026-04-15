@@ -1,0 +1,35 @@
+{{- if and .Values.dynamicGrid.enabled .Values.dynamicGrid.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "seleniumGrid.dynamicGrid.rbac.role.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with .Values.dynamicGrid.rbac.role.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  {{- toYaml .Values.dynamicGrid.rbac.role.rules | nindent 2 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "seleniumGrid.dynamicGrid.rbac.roleBinding.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with .Values.dynamicGrid.rbac.roleBinding.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "seleniumGrid.dynamicGrid.serviceAccount.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "seleniumGrid.dynamicGrid.rbac.role.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -238,6 +238,49 @@ Service Account fullname
 {{- end -}}
 
 {{/*
+Dynamic Grid Service Account fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.serviceAccount.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-dynamic-grid" $)) .Values.dynamicGrid.serviceAccount.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid assets PVC fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.assets.pvc.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-dynamic-assets" $)) .Values.dynamicGrid.assets.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid node fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.node.fullname" -}}
+{{- $component := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- $defaultName := printf "%s-%s" (include "seleniumGrid.component.name" (list "selenium-dynamic-node" $root)) $component.name -}}
+{{- tpl (default $defaultName $component.nameOverride) $root | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid node ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.node.configmap.fullname" -}}
+{{- $component := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- $name := printf "%s-config" (include "seleniumGrid.dynamicGrid.node.fullname" (list $component $root)) -}}
+{{- $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid job template ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.jobTemplate.fullname" -}}
+{{- $name := index . 0 -}}
+{{- $root := index . 1 -}}
+{{- printf "%s-%s" (include "seleniumGrid.component.name" (list "selenium-dynamic-job-template" $root)) $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Distributor ConfigMap fullname
 */}}
 {{- define "seleniumGrid.distributor.configmap.fullname" -}}
@@ -319,4 +362,18 @@ RBAC Role fullname
 */}}
 {{- define "seleniumGrid.rbac.role.fullname" -}}
 {{- tpl (default (include "seleniumGrid.component.name" (list "selenium-role" $)) .Values.rbacRole.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid RBAC RoleBinding fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.rbac.roleBinding.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-dynamic-grid-rolebinding" $)) .Values.dynamicGrid.rbac.roleBinding.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid RBAC Role fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.rbac.role.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-dynamic-grid-role" $)) .Values.dynamicGrid.rbac.role.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}

@@ -1,0 +1,225 @@
+{{- if .Values.dynamicGrid.enabled }}
+{{- range $index, $pool := .Values.dynamicGrid.nodes }}
+{{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool }}
+{{- if $node.enabled }}
+{{- $name := include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+{{- $configMapName := include "seleniumGrid.dynamicGrid.node.configmap.fullname" (list $node $) }}
+{{- $configFileName := default "kubernetes.toml" $node.config.fileName }}
+{{- $nodeImageRegistry := default $.Values.global.seleniumGrid.imageRegistry $node.imageRegistry }}
+{{- $nodeImageTag := default $.Values.global.seleniumGrid.nodesImageTag $node.imageTag }}
+{{- $imagePullSecret := default $.Values.global.seleniumGrid.imagePullSecret $node.imagePullSecret }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $name }}
+    app.kubernetes.io/name: {{ $name }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- with $node.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ $node.replicas }}
+  revisionHistoryLimit: {{ $.Values.global.seleniumGrid.revisionHistoryLimit }}
+  strategy:
+    {{- template "seleniumGrid.updateStrategy" (list $node $.Values.global.seleniumGrid) }}
+  selector:
+    matchLabels:
+      app: {{ $name }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        app.kubernetes.io/name: {{ $name }}
+        {{- include "seleniumGrid.commonLabels" $ | nindent 8 }}
+        {{- with $node.labels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") $ | sha256sum }}
+        checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") $ | sha256sum }}
+        checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") $ | sha256sum }}
+        checksum/dynamic-node-config: {{ include "seleniumGrid.dynamicGrid.kubernetesToml" (dict "root" $ "node" $node) | sha256sum }}
+        {{- if $.Values.secrets.create }}
+        checksum/common-secrets: {{ include (print $.Template.BasePath "/secrets.yaml") $ | sha256sum }}
+        {{- end }}
+        {{- if $.Values.basicAuth.enabled }}
+        checksum/basic-auth-secrets: {{ include (print $.Template.BasePath "/basic-auth-secret.yaml") $ | sha256sum }}
+        {{- end }}
+        {{- with $node.annotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "seleniumGrid.dynamicGrid.serviceAccount.fullname" $ }}
+      {{- if $imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ $imagePullSecret }}
+      {{- end }}
+      {{- with $node.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if or $.Values.global.seleniumGrid.affinity $node.affinity }}
+      affinity:
+        {{- toYaml (default $.Values.global.seleniumGrid.affinity $node.affinity) | nindent 8 }}
+      {{- end }}
+      {{- if or $.Values.global.seleniumGrid.topologySpreadConstraints $node.topologySpreadConstraints }}
+      {{- $topologySpreadConstraints := default $.Values.global.seleniumGrid.topologySpreadConstraints $node.topologySpreadConstraints }}
+      topologySpreadConstraints:
+      {{- range $constraint := $topologySpreadConstraints }}
+        - {{ toYaml $constraint | nindent 10 | trim }}
+          {{- if not $constraint.labelSelector }}
+          labelSelector:
+            matchLabels:
+              app: {{ $name }}
+          {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with $node.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $node.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ $node.terminationGracePeriodSeconds }}
+      containers:
+        - name: {{ $name }}
+          image: {{ printf "%s/%s:%s" $nodeImageRegistry $node.imageName $nodeImageTag }}
+          imagePullPolicy: {{ $node.imagePullPolicy }}
+          env:
+            - name: SE_NODE_KUBERNETES_CONFIG_FILENAME
+              value: {{ $configFileName | quote }}
+            - name: SE_OTEL_SERVICE_NAME
+              value: {{ $name | quote }}
+            - name: SE_OTEL_RESOURCE_ATTRIBUTES
+              value: {{ include "seleniumGrid.tracing.attributes" $ | quote }}
+            - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+              value: {{ $node.env.nodeEnableManagedDownloads | quote }}
+          {{- with $node.env.dynamicMaxSessions }}
+            - name: SE_DYNAMIC_MAX_SESSIONS
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with $node.env.dynamicOverrideMaxSessions }}
+            - name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with $node.env.nodeSessionTimeout }}
+            - name: SE_NODE_SESSION_TIMEOUT
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with $node.env.nodeHeartbeatPeriod }}
+            - name: SE_NODE_HEARTBEAT_PERIOD
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with $node.env.nodeConnectionLimitPerSession }}
+            - name: SE_NODE_CONNECTION_LIMIT_PER_SESSION
+              value: {{ . | quote }}
+          {{- end }}
+          {{- with $node.env.externalUrl }}
+            - name: SE_EXTERNAL_URL
+              value: {{ tpl (. | toString) $ | quote }}
+          {{- end }}
+          {{- with $node.extraEnvironmentVariables }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ template "seleniumGrid.eventBus.configmap.fullname" $ }}
+            - configMapRef:
+                name: {{ template "seleniumGrid.logging.configmap.fullname" $ }}
+            - configMapRef:
+                name: {{ template "seleniumGrid.server.configmap.fullname" $ }}
+            - secretRef:
+                name: {{ template "seleniumGrid.common.secrets.fullname" $ }}
+          {{- if $.Values.basicAuth.enabled }}
+            - secretRef:
+                name: {{ template "seleniumGrid.basicAuth.secrets.fullname" $ }}
+          {{- end }}
+          {{- with $node.extraEnvFrom }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ $node.service.port }}
+              protocol: TCP
+          volumeMounts:
+            - name: dynamic-grid-config
+              mountPath: {{ printf "/opt/selenium/%s" $configFileName }}
+              subPath: {{ $configFileName }}
+              readOnly: true
+          {{- if or $.Values.dynamicGrid.assets.existingClaim $.Values.dynamicGrid.assets.enabled }}
+            - name: dynamic-grid-assets
+              mountPath: {{ default "/opt/selenium/assets" $node.config.kubernetes.assetsPath }}
+          {{- end }}
+          {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+            - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+              mountPath: {{ $.Values.tls.certVolumeMountPath }}
+              readOnly: true
+          {{- end }}
+          {{- with $node.extraVolumeMounts }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+          {{- end }}
+          {{- with $node.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if $node.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ $node.startupProbe.path }}
+              port: {{ default $node.service.port $node.startupProbe.port }}
+              scheme: {{ include "seleniumGrid.probe.httpGet.schema" $ }}
+            initialDelaySeconds: {{ $node.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ $node.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ $node.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ $node.startupProbe.failureThreshold }}
+            successThreshold: {{ $node.startupProbe.successThreshold }}
+          {{- end }}
+          {{- if $node.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ $node.readinessProbe.path }}
+              port: {{ default $node.service.port $node.readinessProbe.port }}
+              scheme: {{ include "seleniumGrid.probe.httpGet.schema" $ }}
+            initialDelaySeconds: {{ $node.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $node.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $node.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ $node.readinessProbe.failureThreshold }}
+            successThreshold: {{ $node.readinessProbe.successThreshold }}
+          {{- end }}
+          {{- if $node.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ $node.livenessProbe.path }}
+              port: {{ default $node.service.port $node.livenessProbe.port }}
+              scheme: {{ include "seleniumGrid.probe.httpGet.schema" $ }}
+            initialDelaySeconds: {{ $node.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $node.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ $node.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ $node.livenessProbe.failureThreshold }}
+            successThreshold: {{ $node.livenessProbe.successThreshold }}
+          {{- end }}
+      volumes:
+        - name: dynamic-grid-config
+          configMap:
+            name: {{ $configMapName }}
+        {{- if or $.Values.dynamicGrid.assets.existingClaim $.Values.dynamicGrid.assets.enabled }}
+        - name: dynamic-grid-assets
+          persistentVolumeClaim:
+            claimName: {{ include "seleniumGrid.dynamicGrid.assets.claimName" $ }}
+        {{- end }}
+        {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
+        - name: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+          secret:
+            secretName: {{ include "seleniumGrid.tls.fullname" $ | quote }}
+        {{- end }}
+        {{- with $node.extraVolumes }}
+          {{- tpl (toYaml .) $ | nindent 8 }}
+        {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

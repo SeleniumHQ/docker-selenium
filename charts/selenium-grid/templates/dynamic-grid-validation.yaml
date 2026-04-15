@@ -1,0 +1,30 @@
+{{- if .Values.dynamicGrid.enabled -}}
+  {{- if eq (include "seleniumGrid.useKEDA" $) "true" -}}
+    {{- fail "dynamicGrid.enabled cannot be used together with autoscaling.enabled or autoscaling.enableWithExistingKEDA" -}}
+  {{- end -}}
+  {{- if eq (len .Values.dynamicGrid.nodes) 0 -}}
+    {{- fail "dynamicGrid.enabled requires at least one entry in dynamicGrid.nodes" -}}
+  {{- end -}}
+  {{- $seenNames := dict -}}
+  {{- range $index, $pool := .Values.dynamicGrid.nodes -}}
+    {{- $name := required (printf "dynamicGrid.nodes[%d].name is required" $index) $pool.name -}}
+    {{- if hasKey $seenNames $name -}}
+      {{- fail (printf "dynamicGrid.nodes contains duplicate name %q" $name) -}}
+    {{- end -}}
+    {{- $_ := set $seenNames $name true -}}
+    {{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool -}}
+    {{- if and $node.enabled (empty $node.config.rawToml) (eq (len (default (list) $node.config.kubernetes.configs)) 0) -}}
+      {{- fail (printf "dynamicGrid.nodes[%d] (%s) requires either config.rawToml or config.kubernetes.configs" $index $name) -}}
+    {{- end -}}
+    {{- range $cfgIndex, $cfg := default (list) $node.config.kubernetes.configs -}}
+      {{- $hasImage := not (empty $cfg.image) -}}
+      {{- $hasTemplate := not (empty $cfg.templateConfigMap) -}}
+      {{- if and $hasImage $hasTemplate -}}
+        {{- fail (printf "dynamicGrid.nodes[%d].config.kubernetes.configs[%d] cannot define both image and templateConfigMap" $index $cfgIndex) -}}
+      {{- end -}}
+      {{- if and (not $hasImage) (not $hasTemplate) -}}
+        {{- fail (printf "dynamicGrid.nodes[%d].config.kubernetes.configs[%d] must define either image or templateConfigMap" $index $cfgIndex) -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}

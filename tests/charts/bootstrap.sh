@@ -41,6 +41,22 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dynamic_grid.yaml \
+  tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > ./tests/tests/dynamic_grid_template_manifests.yaml
+
+python3 tests/charts/templates/test_dynamic_grid.py "./tests/tests/dynamic_grid_template_manifests.yaml" ${RELEASE_NAME}
+if [ $? -ne 0 ]; then
+  echo "Failed to validate the chart for Dynamic Grid"
+  exit 1
+fi
+
+if helm template --debug ${RELEASE_NAME} --values tests/charts/templates/render/dynamic_grid.yaml \
+  --set autoscaling.enableWithExistingKEDA=true \
+  tests/tests/selenium-grid-1.0.0-SNAPSHOT.tgz > /tmp/dynamic_grid_invalid_template_manifests.yaml 2>&1; then
+  echo "Dynamic Grid validation did not reject autoscaling.enableWithExistingKEDA=true"
+  exit 1
+fi
+
 rm -rf tests/charts/umbrella-charts/Chart.lock tests/charts/umbrella-charts/charts
 helm dependency update tests/charts/umbrella-charts
 helm dependency build tests/charts/umbrella-charts

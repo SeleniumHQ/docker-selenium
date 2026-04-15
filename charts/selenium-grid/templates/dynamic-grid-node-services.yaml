@@ -1,0 +1,37 @@
+{{- if .Values.dynamicGrid.enabled }}
+{{- range $index, $pool := .Values.dynamicGrid.nodes }}
+{{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool }}
+{{- if and $node.enabled $node.service.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app.kubernetes.io/name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+  {{- with $node.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ $node.service.type }}
+  selector:
+    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  ports:
+    - name: web
+      port: {{ $node.service.port }}
+      targetPort: {{ $node.service.port }}
+      protocol: TCP
+  {{- with $node.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with $node.service.sessionAffinity }}
+  sessionAffinity: {{ . }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

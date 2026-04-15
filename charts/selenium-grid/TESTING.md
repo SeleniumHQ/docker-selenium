@@ -17,6 +17,11 @@ All related testing to this helm chart will be documented in this file.
 |                        | Ingress is enabled with `hostname` is set                            | &check;  | Cluster  |
 |                        | Hub `sub-path` is set with Ingress `ImplementationSpecific` paths    | &check;  | Cluster  |
 |                        | `ingress.traefik` configs for Traefik ingress controller annotations | &check;  | Template |
+| Dynamic Grid           | `dynamicGrid.enabled` renders dedicated controller ServiceAccount    | &check;  | Template |
+|                        | `dynamicGrid.enabled` renders dedicated controller RBAC and assets PVC | &check;  | Template |
+|                        | Multiple `dynamicGrid.nodes` render independent controller Deployments and TOML ConfigMaps | &check; | Template |
+|                        | `dynamicGrid.jobTemplates` can be referenced via `configmap:` in TOML | &check; | Template |
+|                        | Dynamic Grid validation rejects KEDA autoscaling being enabled simultaneously | &check; | Template |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |
 |                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |
 | Browser Nodes          | Node `nameOverride` is set                                           | &check;  | Cluster  |
@@ -57,6 +62,7 @@ We have a CI pipeline to test the Helm chart with the following test cases.
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.
 - Templates are rendered and the output as a YAML manifest file. The manifest file is then asserted with [pyyaml](https://pyyaml.org/wiki/PyYAMLDocumentation).
 - Set of values are used to render the templates located in [tests/charts/templates/render](../../tests/charts/templates/render).
+- Dynamic Grid template coverage uses [dynamic_grid.yaml](../../tests/charts/templates/render/dynamic_grid.yaml) with assertions in [test_dynamic_grid.py](../../tests/charts/templates/test_dynamic_grid.py).
 
 ```bash
 # Back to root directory

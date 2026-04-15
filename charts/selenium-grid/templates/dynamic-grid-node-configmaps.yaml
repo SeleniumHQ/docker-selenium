@@ -1,0 +1,23 @@
+{{- if .Values.dynamicGrid.enabled }}
+{{- range $index, $pool := .Values.dynamicGrid.nodes }}
+{{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool }}
+{{- if $node.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "seleniumGrid.dynamicGrid.node.configmap.fullname" (list $node $) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app.kubernetes.io/name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+    {{- with $node.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+data:
+  {{ default "kubernetes.toml" $node.config.fileName }}: |
+{{ include "seleniumGrid.dynamicGrid.kubernetesToml" (dict "root" $ "node" $node) | indent 4 }}
+---
+{{- end }}
+{{- end }}
+{{- end }}

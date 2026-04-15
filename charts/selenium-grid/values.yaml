@@ -1156,6 +1156,144 @@ autoscaling:
   #    exec:
   #      command: [ "bash", "-c", "/opt/bin/nodePreStop.sh" ]
 
+# Configuration for Selenium Dynamic Grid based on selenium/node-kubernetes
+dynamicGrid:
+  # -- Enable Dynamic Grid controller nodes backed by `selenium/node-kubernetes`
+  enabled: false
+  serviceAccount:
+    # -- Create a dedicated service account for Dynamic Grid controller nodes. If using an external service account, set to false and provide its name in `nameOverride`
+    create: true
+    # -- Override the service account name or provide an external service account name
+    nameOverride:
+    # -- Annotations for the Dynamic Grid service account
+    annotations: {}
+  rbac:
+    # -- Create RBAC resources required by Dynamic Grid controller nodes to manage browser Jobs
+    create: true
+    role:
+      # -- Override the Dynamic Grid role name or provide an external role name
+      nameOverride:
+      annotations: {}
+      rules:
+        - apiGroups:
+            - batch
+          resources:
+            - jobs
+          verbs: [create, delete, get, list, watch]
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs: [get, list, watch]
+        - apiGroups:
+            - ""
+          resources:
+            - pods/log
+          verbs: [get]
+    roleBinding:
+      # -- Override the Dynamic Grid role binding name or provide an external role binding name
+      nameOverride:
+      annotations: {}
+  assets:
+    # -- Create a shared PVC for Dynamic Grid browser job assets. If using an existing PVC, set `existingClaim`
+    enabled: true
+    # -- Use an existing PVC instead of creating one
+    existingClaim: ""
+    # -- Override the assets PVC name when `enabled` is true
+    nameOverride:
+    annotations: {}
+    accessModes:
+      - ReadWriteMany
+    size: 5Gi
+    storageClassName: ""
+  defaults:
+    imageRegistry:
+    imageName: node-kubernetes
+    imageTag:
+    imagePullPolicy: IfNotPresent
+    imagePullSecret: ""
+    replicas: 1
+    annotations: {}
+    labels: {}
+    nodeSelector: {}
+    tolerations: []
+    affinity: {}
+    topologySpreadConstraints: []
+    priorityClassName: ""
+    resources:
+      requests:
+        cpu: "0.5"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "2Gi"
+    extraEnvironmentVariables: []
+    extraEnvFrom: []
+    extraVolumes: []
+    extraVolumeMounts: []
+    terminationGracePeriodSeconds: 300
+    startupProbe:
+      enabled: false
+      path: /readyz
+      port: 5555
+      initialDelaySeconds: 5
+      periodSeconds: 10
+      timeoutSeconds: 10
+      failureThreshold: 12
+      successThreshold: 1
+    readinessProbe:
+      enabled: true
+      path: /readyz
+      port: 5555
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      timeoutSeconds: 10
+      failureThreshold: 10
+      successThreshold: 1
+    livenessProbe:
+      enabled: true
+      path: /readyz
+      port: 5555
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      timeoutSeconds: 10
+      failureThreshold: 10
+      successThreshold: 1
+    env:
+      dynamicMaxSessions: ""
+      dynamicOverrideMaxSessions: ""
+      nodeSessionTimeout: ""
+      nodeHeartbeatPeriod: ""
+      nodeConnectionLimitPerSession: ""
+      nodeEnableManagedDownloads: true
+      externalUrl: ""
+    config:
+      fileName: kubernetes.toml
+      rawToml: ""
+      kubernetes:
+        url: ""
+        namespace: ""
+        serviceAccount: ""
+        imagePullPolicy: ""
+        serverStartTimeout: ""
+        terminationGracePeriod: ""
+        labelInheritPrefix: ""
+        assetsPath: /opt/selenium/assets
+        videoImage: ""
+        configs: []
+        extraToml: ""
+    service:
+      enabled: false
+      type: ClusterIP
+      port: 5555
+      annotations: {}
+      externalTrafficPolicy: ""
+      sessionAffinity: ""
+  # -- Optional chart-managed ConfigMaps used by Dynamic Grid `configmap:` template mode. The map key is the logical template name and the value is the full Job YAML stored under ConfigMap key `template`
+  jobTemplates: {}
+  # -- Dynamic Grid controller nodes. Each entry inherits from `dynamicGrid.defaults` and must define a unique `name`
+  nodes: []
+
 # Configuration additional nodes with different versions, capabilities, etc.
 crossBrowsers:
   # -- Additional chrome nodes, array of objects with the same structure as `chromeNode`

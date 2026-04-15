@@ -169,6 +169,92 @@ Is autoscaling using KEDA enabled
 {{- end -}}
 
 {{/*
+Dynamic Grid assets claim name
+*/}}
+{{- define "seleniumGrid.dynamicGrid.assets.claimName" -}}
+{{- if .Values.dynamicGrid.assets.existingClaim -}}
+  {{- .Values.dynamicGrid.assets.existingClaim -}}
+{{- else -}}
+  {{- include "seleniumGrid.dynamicGrid.assets.pvc.fullname" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid config identifier for one configs[] item
+*/}}
+{{- define "seleniumGrid.dynamicGrid.config.identifier" -}}
+{{- $root := .root -}}
+{{- $config := .config -}}
+{{- if $config.image -}}
+  {{- tpl ($config.image | toString) $root -}}
+{{- else -}}
+  {{- $configMapName := $config.templateConfigMap | toString -}}
+  {{- if hasKey $root.Values.dynamicGrid.jobTemplates $configMapName -}}
+    {{- $configMapName = include "seleniumGrid.dynamicGrid.jobTemplate.fullname" (list $configMapName $root) -}}
+  {{- end -}}
+  {{- if $config.templateConfigMapNamespace -}}
+    {{- printf "configmap:%s/%s" (tpl ($config.templateConfigMapNamespace | toString) $root) $configMapName -}}
+  {{- else -}}
+    {{- printf "configmap:%s" $configMapName -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Render kubernetes.toml for a Dynamic Grid node
+*/}}
+{{- define "seleniumGrid.dynamicGrid.kubernetesToml" -}}
+{{- $root := .root -}}
+{{- $node := .node -}}
+{{- if $node.config.rawToml -}}
+{{ tpl ($node.config.rawToml | toString) $root }}
+{{- else -}}
+[kubernetes]
+{{- $configs := default (list) $node.config.kubernetes.configs }}
+{{- if not (empty $configs) }}
+configs = [
+{{- $configCount := len $configs }}
+{{ range $index, $config := $configs }}
+  {{- $identifier := include "seleniumGrid.dynamicGrid.config.identifier" (dict "root" $root "config" $config) -}}
+  {{- $capabilities := toJson (default (dict) $config.capabilities) -}}
+  {{ printf "%q, '%s'%s" $identifier $capabilities (ternary "," "" (lt (add1 $index) $configCount)) }}
+{{ end }}
+]
+{{- end }}
+{{- with $node.config.kubernetes.url }}
+url = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.namespace }}
+namespace = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.serviceAccount }}
+service-account = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.imagePullPolicy }}
+image-pull-policy = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.serverStartTimeout }}
+server-start-timeout = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.terminationGracePeriod }}
+termination-grace-period = {{ tpl (. | toString) $root }}
+{{- end }}
+{{- with $node.config.kubernetes.labelInheritPrefix }}
+label-inherit-prefix = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.assetsPath }}
+assets-path = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.videoImage }}
+video-image = {{ tpl (. | toString) $root | quote }}
+{{- end }}
+{{- with $node.config.kubernetes.extraToml }}
+{{ tpl (. | toString) $root }}
+{{- end }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Is ingress enabled
 */}}
 {{- define "seleniumGrid.ingress.enabled" -}}
