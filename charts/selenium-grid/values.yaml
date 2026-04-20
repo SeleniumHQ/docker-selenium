@@ -1041,6 +1041,46 @@ monitoring:
     key: ""
     value: ""
   annotations: {}
+  # -- ServiceMonitor configuration for Prometheus Operator
+  serviceMonitor:
+    # -- Enable ServiceMonitor resource
+    enabled: false
+    # -- Namespace to deploy the ServiceMonitor into (defaults to release namespace)
+    namespace: ""
+    # -- Additional labels for the ServiceMonitor
+    labels: {}
+    # -- Additional annotations for the ServiceMonitor
+    annotations: {}
+    # -- Metrics scrape path
+    path: /metrics
+    # -- Scrape interval
+    interval: 30s
+    # -- Scrape timeout
+    scrapeTimeout: 10s
+    # -- RelabelConfigs to apply to samples before scraping
+    relabelings: []
+    # -- MetricRelabelConfigs to apply to samples before ingestion
+    metricRelabelings: []
+  # -- PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor)
+  podMonitor:
+    # -- Enable PodMonitor resource
+    enabled: false
+    # -- Namespace to deploy the PodMonitor into (defaults to release namespace)
+    namespace: ""
+    # -- Additional labels for the PodMonitor
+    labels: {}
+    # -- Additional annotations for the PodMonitor
+    annotations: {}
+    # -- Metrics scrape path
+    path: /metrics
+    # -- Scrape interval
+    interval: 30s
+    # -- Scrape timeout
+    scrapeTimeout: 10s
+    # -- RelabelConfigs to apply to samples before scraping
+    relabelings: []
+    # -- MetricRelabelConfigs to apply to samples before ingestion
+    metricRelabelings: []
 
 # Keda scaled object configuration
 autoscaling:

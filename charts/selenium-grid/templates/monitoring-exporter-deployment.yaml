@@ -31,7 +31,8 @@ spec:
           {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.monitoring.exporter.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.monitoring.exporter.imageName .Values.monitoring.exporter.imageTag | quote }}
           ports:
-            - containerPort: {{ .Values.monitoring.exporter.port }}
+            - name: metrics
+              containerPort: {{ .Values.monitoring.exporter.port }}
     {{- with .Values.monitoring.exporter.tolerations }}
       tolerations: {{ toYaml . | nindent 6 }}
     {{- end }}

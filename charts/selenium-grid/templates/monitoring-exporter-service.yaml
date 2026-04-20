@@ -26,7 +26,7 @@ spec:
     - name: http-port
       protocol: TCP
       port: {{ .Values.monitoring.exporter.port }}
-      targetPort: {{ .Values.monitoring.exporter.port }}
+      targetPort: metrics
     {{- if and (eq .Values.monitoring.exporter.service.type "NodePort") .Values.monitoring.exporter.service.nodePort }}
       nodePort: {{ .Values.monitoring.exporter.service.nodePort }}
     {{- end }}
