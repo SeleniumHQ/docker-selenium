@@ -117,6 +117,9 @@ jobs:
         DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
         DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}  
 
+    - name: Login GitHub Container Registry
+      run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
+
     - name: Deploy Dev/Beta Docker container images  
       run: |
         docker push $NAME/node-$BROWSER:$CHANNEL
@@ -136,6 +139,9 @@ jobs:
         docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$BROWSER_VERSION_COMMAND"
         echo "$BROWSER_CAPS $CHANNEL_CAPS WebDriver version:"
         docker run --rm $NAME/standalone-$BROWSER:$CHANNEL bash -c "$DRIVER_VERSION_COMMAND"
+
+    - name: Mirror images to GHCR
+      run: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" BROWSER_NAME="${BROWSER}" BROWSER_TAG="${CHANNEL}" make mirror_browser_channel_image_ghcr
 
 
   rerun-workflow-when-failure:

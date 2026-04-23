@@ -42,10 +42,11 @@ ENV LANG_WHICH=${LANG_WHICH} \
     SE_EVENT_BUS_SUBSCRIBE_PORT="4443" \
     # Drain the Node after N sessions (a value higher than zero enables the feature)
     SE_DRAIN_AFTER_SESSION_COUNT="0" \
+    SE_NODE_DOWN_FAILURE_THRESHOLD="0" \
     SE_NODE_MAX_SESSIONS="1" \
     SE_NODE_SESSION_TIMEOUT="300" \
     SE_NODE_OVERRIDE_MAX_SESSIONS="false" \
-    SE_NODE_HEARTBEAT_PERIOD="30" \
+    SE_NODE_HEARTBEAT_PERIOD="15" \
     SE_NODE_REGISTER_PERIOD="120" \
     SE_NODE_REGISTER_CYCLE="10" \
     SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE="true" \
@@ -62,6 +63,7 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
     SE_RECORD_VIDEO=false \
     SE_VIDEO_FILE_NAME=auto \
+    SE_VIDEO_EVENT_DRIVEN="true" \
     DISPLAY_CONTAINER_NAME="localhost" \
     SE_SCREEN_WIDTH="1920" \
     SE_SCREEN_HEIGHT="1080" \
@@ -170,6 +172,7 @@ RUN chmod +x /opt/bin/*.sh /opt/bin/*.py /opt/bin/generate_*
 
 # Selenium Grid logo as wallpaper for Fluxbox
 COPY selenium_grid_logo.png /usr/share/images/fluxbox/ubuntu-light.png
+COPY fluxbox-menu /etc/X11/fluxbox/
 
 # Supervisor configuration file
 COPY selenium.conf /etc/supervisor/conf.d/

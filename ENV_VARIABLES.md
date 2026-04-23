@@ -6,7 +6,7 @@
 | SE_FRAME_RATE | 15 | Set the frame rate for FFmpeg in video recording |  |
 | SE_CODEC | libx264 | Set the codec for FFmpeg in video recording |  |
 | SE_PRESET | -preset ultrafast | Set the preset for FFmpeg in video recording |  |
-| SE_VIDEO_UPLOAD_ENABLED | false | Enable video upload |  |
+| SE_VIDEO_UPLOAD_ENABLED | false | Deprecated in event-driven mode (`video_service.py`); upload enablement is now derived from non-empty `SE_UPLOAD_DESTINATION_PREFIX` |  |
 | SE_VIDEO_INTERNAL_UPLOAD | true | Enable video upload using Rclone in the same recorder container |  |
 | SE_UPLOAD_DESTINATION_PREFIX |  | Remote name and destination path to upload |  |
 | SE_UPLOAD_PIPE_FILE_NAME |  | Set the pipe file name for video upload to consume |  |
@@ -79,7 +79,7 @@
 | SE_NODE_ENABLE_CDP |  | Enable CDP proxying in Grid. A Grid admin can disable CDP if the network doesnot allow websockets. True by default. | --enable-cdp |
 | SE_NODE_REGISTER_PERIOD | 120 |  | --register-period |
 | SE_NODE_REGISTER_CYCLE | 10 |  | --register-cycle |
-| SE_NODE_HEARTBEAT_PERIOD | 30 |  | --heartbeat-period |
+| SE_NODE_HEARTBEAT_PERIOD | 15 |  | --heartbeat-period |
 | SE_REGISTRATION_SECRET |  |  | --registration-secret |
 | SE_BROWSER_LEFTOVERS_PROCESSES_SECS | 7200 |  |  |
 | SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS | 1 |  |  |
@@ -107,8 +107,8 @@
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
 | SE_RECORD_VIDEO | true |  |  |
 | SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP | false |  |  |
-| SE_NODE_MAX_SESSIONS | 1 |  |  |
-| SE_NODE_OVERRIDE_MAX_SESSIONS | false |  |  |
+| SE_NODE_MAX_SESSIONS | 1 | Set the number of maximum concurrent sessions per browser Node, by default is 1 | --max-sessions |
+| SE_NODE_OVERRIDE_MAX_SESSIONS | false | By default is false, enable this flag for setting max session take effect in browser Node | --override-max-sessions |
 | SE_OFFLINE | true | Selenium Manager offline mode, use the browser and driver pre-configured in the image |  |
 | SE_NODE_BROWSER_VERSION | stable | Overwrite the default browserVersion in Node stereotype. By default, it is short version of current browser installed in Node. For example `139.0` |  |
 | SE_NODE_PLATFORM_NAME | Linux | Overwrite the default platformName in Node stereotype. By default, it is `Linux` |  |
@@ -155,3 +155,16 @@
 | SE_NODE_DELETE_SESSION_ON_UI | true | Enable capability to support deleting session on Grid UI | --delete-session-on-ui |
 | SE_UPDATE_CHROME_COMPONENTS |  | Applicable for node-chrome, standalone-chrome (arch linux/amd64). Update the latest version of Chrome and ChromeDriver at the beginning of the container startup. Read more: [#2872](https://github.com/SeleniumHQ/docker-selenium/pull/2872) |  |
 | SE_DISTRIBUTOR_SLOT_SELECTOR |  | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched. Switch to built-in Greedy strategy, use class name `org.openqa.selenium.grid.distributor.selector.GreedySlotSelector` | --slot-selector |
+| SE_EVENT_BUS_HEARTBEAT_PERIOD |  | How often, in seconds, will the EventBus socket send heartbeats | --eventbus-heartbeat-period |
+| SE_NODE_ENABLE_BROWSER |  | Checkout usage of SE_NODE_ENABLE_BROWSER_* in below |  |
+| SE_NODE_ENABLE_BROWSER_ |  | This is used in node/standalone all browsers in one container, append suffix CHROME, FIREFOX or EDGE to disable correspoding browser in Node stereotypes. For example: SE_NODE_ENABLE_BROWSER_CHROME=false |  |
+| SE_NODE_DOWN_FAILURE_THRESHOLD | 0 | Maximum number of consecutive session creation failures before the Node is marked as DOWN. This helps detect and isolate unhealthy Nodes that consistently fail to create sessions. A value of 0 (default) disables this feature, allowing unlimited retries. A value higher than zero enables this feature. | --node-down-failure-threshold |
+| SE_BIND_BUS | true | When true, the Standalone will start the Event Bus and connect itself. Standalone also expose publishing and subscribing port for sidecar service can listen on session events. | --bind-bus |
+| SE_EVENT_BUS_IMPLEMENTATION |  | Full class name of non-default event bus implementation. For example: org.openqa.selenium.events.zeromq.ZeroMqEventBus | --events-implementation |
+| SE_NODE_KUBERNETES_CONFIG_FILENAME | kubernetes.toml | A separate TOML config file name for Dynamic Grid in Kubernetes, which avoid conflict with browser config if shared mouted volume |  |
+| SE_VIDEO_EVENT_DRIVEN | true | Backend of video recorder and uploader will subscribe to Grid Event Bus for session event lifecycle for processing instead of traditional polling Node session capabilities via /status endpoint. |  |
+| SE_PLAIN_LOGS | true | Use plain log lines | --plain-logs |
+| SE_DYNAMIC_MAX_SESSIONS |  | Set the number of maximum concurrent sessions of Dynamic Node (both Docker and Kubernetes) |  |
+| SE_DYNAMIC_OVERRIDE_MAX_SESSIONS |  | Enable this flag for setting max session take effect in Dynamic Node (both Docker and Kubernetes) |  |
+| SE_FAILURE_SESSION_EVENTS | :failed,:failure,:error,:aborted | By default, a failure session event type contains ":failed", ":failure", ":error" or ":aborted" substrings that trigger the retain-on-failure sub-sequence. User can define more event types which handled in your test framework, separated by comma. |  |
+| SE_RETAIN_ON_FAILURE | false | When true, recordings for sessions that pass are discarded immediately. Only sessions that fail (via failure events or abnormal close) retain their recordings and are queued for upload. |  |

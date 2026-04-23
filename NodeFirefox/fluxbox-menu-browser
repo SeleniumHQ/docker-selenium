@@ -1,0 +1,3 @@
+[submenu] (Web Browsing) {}
+   [exec] (Mozilla Firefox) { /usr/bin/firefox } <>
+[end]

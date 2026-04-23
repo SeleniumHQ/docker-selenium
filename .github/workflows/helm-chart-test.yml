@@ -181,12 +181,13 @@ jobs:
         with:
           release: ${{ inputs.release || false }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Build Helm charts
         run: |
           BUILD_DATE=${BUILD_DATE} make chart_build

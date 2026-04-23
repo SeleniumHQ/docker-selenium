@@ -193,6 +193,15 @@ Ingress fullname
 {{- tpl (default (include "seleniumGrid.component.name" (list "selenium-ingress" $)) .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "seleniumGrid.ingress.traefik.serversTransport.name" -}}
+{{- $name := default (include "seleniumGrid.component.name" (list "selenium-ingress-serverstransport" $)) .Values.ingress.traefik.serversTransport.nameOverride -}}
+{{- tpl $name $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "seleniumGrid.ingress.traefik.serversTransport.ref" -}}
+{{- printf "%s-%s@kubernetescrd" .Release.Namespace (include "seleniumGrid.ingress.traefik.serversTransport.name" $) -}}
+{{- end -}}
+
 {{/*
 Common secrets cross components
 */}}

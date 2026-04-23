@@ -1,0 +1,3 @@
+[submenu] (Web Browsing) {}
+   [exec] (Microsoft Edge) { /usr/bin/microsoft-edge } <>
+[end]

@@ -12,6 +12,7 @@ USER root
 #============================================
 COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.sh get_lang_package.sh install-firefox-apt.sh install-firefox-package.sh /opt/bin/
 COPY --chown="${SEL_UID}:${SEL_GID}" firefox-cleanup.conf /etc/supervisor/conf.d/firefox-cleanup.conf
+COPY fluxbox-menu-browser /etc/X11/fluxbox/
 RUN chmod +x /opt/bin/firefox-cleanup.sh /opt/bin/get_lang_package.sh /opt/bin/install-firefox-apt.sh /opt/bin/install-firefox-package.sh
 
 #=========

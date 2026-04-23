@@ -1,3 +1,74 @@
+## :heavy_check_mark: selenium-grid-0.54.0
+
+- Chart is using image tag 4.43.0-20260404
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.19.0
+
+### Changed
+- [`29e7a46e`](http://github.com/seleniumhq/docker-selenium/commit/29e7a46e44cda1821b1fa505c5fb782a560a88c0) - [ci] Update tag 4.43.0-20260404 in docs and files :: Selenium CI Bot
+- [`7edee1f1`](http://github.com/seleniumhq/docker-selenium/commit/7edee1f19899a3e4e1df742856d895da36792763) - [ci] Update chart 0.53.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.53.0
+
+- Chart is using image tag 4.42.0-20260303
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.19.0
+
+### Changed
+- [`8942aa00`](http://github.com/seleniumhq/docker-selenium/commit/8942aa00a9ea63eb2c7e16b65e307aef4538bc51) - [ci] Update tag 4.42.0-20260303 in docs and files :: Selenium CI Bot
+- [`3bccc5be`](http://github.com/seleniumhq/docker-selenium/commit/3bccc5bed262f012f2138f0e454065ea874f8f08) - [ci] Workflow input to release a specific version (#3114) :: Viet Nguyen Duc
+- [`4f94c025`](http://github.com/seleniumhq/docker-selenium/commit/4f94c025cb71a55bb964e6c1a4ec55d4611a97b7) - Update Helm release kube-prometheus-stack to v83 (#3107) :: renovate[bot]
+- [`3d0ac800`](http://github.com/seleniumhq/docker-selenium/commit/3d0ac80010bd3d05421816164894bf4d545add9e) - [ci] Update chart 0.52.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.52.0
+
+- Chart is using image tag 4.41.0-20260222
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.19.0
+
+### Changed
+- [`aafc9ed8`](http://github.com/seleniumhq/docker-selenium/commit/aafc9ed8027613b8d0936a11bde501b84253afec) - [ci] Update tag 4.41.0-20260222 in docs and files :: Selenium CI Bot
+- [`f90d1eed`](http://github.com/seleniumhq/docker-selenium/commit/f90d1eed07bfb6409577035f7f06528d0272ce6c) - Unified configs for Dynamic Grid Docker and Kubernetes (#3088) :: Viet Nguyen Duc
+- [`ccd697ce`](http://github.com/seleniumhq/docker-selenium/commit/ccd697cef2b13904c628b5d968447df1e7c30ed4) - K8s: Add config to disable plain logs while enabling structured logs (#3087) :: Viet Nguyen Duc
+- [`56e0192c`](http://github.com/seleniumhq/docker-selenium/commit/56e0192cd54ba7658288ef20c40e1b07305ef315) - K8s: Missing tolerations for monitoring exporter deployment (#3086) :: Viet Nguyen Duc
+- [`f4132db9`](http://github.com/seleniumhq/docker-selenium/commit/f4132db97b170d89f3c93eb3523257dec6262c7a) - K8s: Replace Ingress NGINX with Traefik for default ingress controller (#3083) :: Viet Nguyen Duc
+- [`6ada994e`](http://github.com/seleniumhq/docker-selenium/commit/6ada994e6af1f46fae1e51324d827e3dd1bcb269) - [build] Update Selenium Grid 4.41.0 (#3080) :: Selenium CI Bot
+- [`61765ef7`](http://github.com/seleniumhq/docker-selenium/commit/61765ef7f9607b242b2aa5d3857c6061d577a726) - Update Helm release kube-prometheus-stack to v82 (#3073) :: renovate[bot]
+- [`5f8bbcbe`](http://github.com/seleniumhq/docker-selenium/commit/5f8bbcbebcd909e1091eee70f5f36aef706ad8cc) - Update Helm release redis to v25 (#3074) :: renovate[bot]
+- [`e2b6ea20`](http://github.com/seleniumhq/docker-selenium/commit/e2b6ea20c9b0f76c020086ca69b4927673076b99) - [ci] Update chart 0.51.1 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.51.1
+
+- Chart is using image tag 4.40.0-20260202
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.19.0
+
+### Changed
+- [`17f771ef`](http://github.com/seleniumhq/docker-selenium/commit/17f771efeafbd61fb4f743054c32e18fdbb5036a) - [ci] Update tag 4.40.0-20260202 in docs and files :: Selenium CI Bot
+- [`a3b675bb`](http://github.com/seleniumhq/docker-selenium/commit/a3b675bbc38630e84fa01bd00fcdc7cedc823a01) - K8s: Update KEDA 2.19.0 in chart (#3068) :: Viet Nguyen Duc
+- [`1d9672ec`](http://github.com/seleniumhq/docker-selenium/commit/1d9672ecf5a219ebadaf4ee31b78bd70977ea0f5) - [ci] Update chart 0.51.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.51.0
+
+- Chart is using image tag 4.40.0-20260120
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.33.6,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.18.0
+
+### Changed
+- [`1b610420`](http://github.com/seleniumhq/docker-selenium/commit/1b61042084559c4c47e3c7c74df46cd52d2ab1db) - [ci] Update tag 4.40.0-20260120 in docs and files :: Selenium CI Bot
+- [`a6ca3ce4`](http://github.com/seleniumhq/docker-selenium/commit/a6ca3ce48f5d9151d419cfa2049425d82efc6ee8) - Update Helm release kube-prometheus-stack to v81 (#3060) :: renovate[bot]
+- [`8c14caa8`](http://github.com/seleniumhq/docker-selenium/commit/8c14caa8f2b576a90d0cdb63c06b89a0691e4473) - [ci] Update chart 0.50.1 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.50.1
 
 - Chart is using image tag 4.39.0-20251212

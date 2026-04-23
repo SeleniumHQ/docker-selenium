@@ -22,7 +22,7 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: '20251212'
+        default: '20260404'
       browser-name:
         description: 'Browser name to build. E.g: firefox'
         required: true
@@ -31,7 +31,7 @@ on:
       browser-versions:
         description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        default: '[98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146]'
+        default: '[98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149]'
       push-image:
         description: 'Push image after testing successfully'
         required: true
@@ -49,7 +49,7 @@ env:
   REUSE_BASE: ${{ github.event.inputs.reuse-base || true }}
   BUILD_DATE: ${{ github.event.inputs.build-date || '' }}
   NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-  AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+  AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
   PUSH_IMAGE: ${{ github.event.inputs.push-image || false }}
   PR_CHANGELOG: ${{ github.event.inputs.pr-changelog || true }}
   RUN_ID: ${{ github.run_id }}
@@ -86,6 +86,7 @@ jobs:
         with:
           release: ${{ github.event.inputs.stable || true }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Sets build date
         run: |
           if [ -z "${BUILD_DATE}" ]; then
@@ -112,6 +113,9 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Login GitHub Container Registry
+        if: env.PUSH_IMAGE == 'true'
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
       - name: Build images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
         uses: nick-invision/retry@master
         with:
@@ -148,6 +152,9 @@ jobs:
         if: env.PUSH_IMAGE == 'true'
         run: |
           ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE} true true
+      - name: Mirror images to GHCR
+        if: env.PUSH_IMAGE == 'true'
+        run: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" BROWSER_NAME="${BROWSER_NAME}" make mirror_browser_images_ghcr
       - name: Upload changelog
         if: always()
         uses: actions/upload-artifact@main

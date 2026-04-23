@@ -1,5 +1,7 @@
 - name: SE_AUDIO_SOURCE
   default: -f pulse -ac 2 -i default
+- name: SE_BIND_BUS
+  default: 'true'
 - name: SE_BIND_HOST
   default: 'false'
 - name: SE_BROWSER_BINARY_LOCATION
@@ -22,13 +24,21 @@
   default: ''
 - name: SE_DRAIN_AFTER_SESSION_COUNT
   default: '0'
+- name: SE_DYNAMIC_MAX_SESSIONS
+  default: ''
+- name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+  default: ''
 - name: SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP
   default: 'false'
 - name: SE_ENABLE_TLS
   default: 'false'
 - name: SE_ENABLE_TRACING
   default: 'true'
+- name: SE_EVENT_BUS_HEARTBEAT_PERIOD
+  default: ''
 - name: SE_EVENT_BUS_HOST
+  default: ''
+- name: SE_EVENT_BUS_IMPLEMENTATION
   default: ''
 - name: SE_EVENT_BUS_PORT
   default: '5557'
@@ -40,6 +50,8 @@
   default: ''
 - name: SE_EXTRA_LIBS
   default: ''
+- name: SE_FAILURE_SESSION_EVENTS
+  default: :failed,:failure,:error,:aborted
 - name: SE_FFMPEG_THREADS
   default: ''
 - name: SE_FRAME_RATE
@@ -92,20 +104,26 @@
   default: 'true'
 - name: SE_NODE_DOCKER_CONFIG_FILENAME
   default: docker.toml
+- name: SE_NODE_DOWN_FAILURE_THRESHOLD
+  default: '0'
+- name: SE_NODE_ENABLE_BROWSER
+  default: ''
+- name: SE_NODE_ENABLE_BROWSER_
+  default: ''
 - name: SE_NODE_ENABLE_CDP
   default: ''
 - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
   default: 'true'
 - name: SE_NODE_GRACEFUL_SHUTDOWN
   default: ''
-- name: SE_NODE_GRID_GRAPHQL_URL
-  default: ''
 - name: SE_NODE_GRID_URL
   default: ''
 - name: SE_NODE_HEARTBEAT_PERIOD
-  default: '30'
+  default: '15'
 - name: SE_NODE_HOST
   default: ''
+- name: SE_NODE_KUBERNETES_CONFIG_FILENAME
+  default: kubernetes.toml
 - name: SE_NODE_MAX_SESSIONS
   default: '1'
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
@@ -168,6 +186,8 @@
   default: selenium-router
 - name: SE_OTEL_TRACES_EXPORTER
   default: otlp
+- name: SE_PLAIN_LOGS
+  default: 'true'
 - name: SE_PRESET
   default: -preset ultrafast
 - name: SE_RCLONE_
@@ -184,6 +204,8 @@
   default: 'false'
 - name: SE_RELAX_CHECKS
   default: 'true'
+- name: SE_RETAIN_ON_FAILURE
+  default: 'false'
 - name: SE_ROUTER_HOST
   default: ''
 - name: SE_ROUTER_PASSWORD
@@ -272,6 +294,8 @@
   default: ''
 - name: SE_VIDEO_CRF
   default: ''
+- name: SE_VIDEO_EVENT_DRIVEN
+  default: 'true'
 - name: SE_VIDEO_FILE_NAME
   default: video.mp4
 - name: SE_VIDEO_FILE_NAME_SUFFIX

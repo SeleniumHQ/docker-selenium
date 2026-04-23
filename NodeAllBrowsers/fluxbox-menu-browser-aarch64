@@ -1,0 +1,4 @@
+[submenu] (Web Browsing) {}
+   [exec] (Chromium) {/usr/bin/chromium} <>
+   [exec] (Mozilla Firefox) {/usr/bin/firefox} <>
+[end]

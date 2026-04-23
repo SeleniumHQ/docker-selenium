@@ -45,7 +45,7 @@ jobs:
           cat .env | xargs -I {} echo {} >> $GITHUB_ENV
         env:
           NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || 'SeleniumHQ' }}
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
       - name: Build images
         uses: nick-invision/retry@master
         with:
@@ -61,6 +61,9 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Login GitHub Container Registry
+        if: ${{ github.event.inputs.release == 'true' }}
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
       - name: Deploy new images
         if: ${{ github.event.inputs.release == 'true' }}
         uses: nick-invision/retry@master
@@ -70,3 +73,12 @@ jobs:
           retry_wait_seconds: 300
           command: |
             make release_ffmpeg_latest
+      - name: Mirror images to GHCR
+        if: ${{ github.event.inputs.release == 'true' }}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 5
+          retry_wait_seconds: 300
+          command: |
+            GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" make release_ffmpeg_ghcr_latest

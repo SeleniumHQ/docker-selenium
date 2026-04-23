@@ -7,9 +7,18 @@ metadata:
   labels:
     app: {{ template "seleniumGrid.router.fullname" . }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-{{- with .Values.components.router.serviceAnnotations }}
-  annotations: {{- toYaml . | nindent 4 }}
-{{- end }}
+  {{- $serviceAnnotations := dict -}}
+  {{- $defaultServiceAnnotations := (include "seleniumGrid.service.traefik.annotations.default" . | toString | fromYaml) }}
+  {{- if not (empty $defaultServiceAnnotations) }}
+    {{- $serviceAnnotations = mergeOverwrite $serviceAnnotations $defaultServiceAnnotations }}
+  {{- end }}
+  {{- with .Values.components.router.serviceAnnotations }}
+    {{- $serviceAnnotations = mergeOverwrite $serviceAnnotations . }}
+  {{- end }}
+  {{- if not (empty $serviceAnnotations) }}
+  annotations:
+    {{- $serviceAnnotations | toYaml | nindent 4 }}
+  {{- end }}
 spec:
   selector:
     app: {{ template "seleniumGrid.router.fullname" . }}

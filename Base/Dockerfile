@@ -1,4 +1,4 @@
-FROM ubuntu:noble@sha256:c35e29c9450151419d9448b0fd75374fec4fff364a27f176fb458d472dfc9e54
+FROM ubuntu:noble@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
@@ -7,12 +7,12 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
-ARG OPENTELEMETRY_VERSION=1.56.0
-ARG GRPC_VERSION=1.77.0
-ARG NETTY_VERSION=4.2.7.Final
-ARG CS_VERSION=2.1.25-M18
-ARG ENVSUBST_VERSION=1.4.8
-ARG CURL_VERSION=8.17.0
+ARG OPENTELEMETRY_VERSION=1.60.1
+ARG GRPC_VERSION=1.80.0
+ARG NETTY_VERSION=4.2.12.Final
+ARG CS_VERSION=2.1.25-M24
+ARG ENVSUBST_VERSION=1.5.2
+ARG CURL_VERSION=8.19.0
 ARG PYTHON_VERSION=3.14
 
 #Arguments to define the user running Selenium
@@ -66,6 +66,7 @@ RUN apt-get -qqy update \
     libnss3-tools \
     openjdk-${JRE_VERSION}-jdk-headless \
     ca-certificates \
+    xterm \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #========================================
@@ -193,7 +194,7 @@ RUN ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; 
 USER ${SEL_UID}:${SEL_GID}
 
 RUN python3 -m venv $VENV_PATH \
-    && $VENV_PATH/bin/python3 -m pip install --upgrade pip psutil requests \
+    && $VENV_PATH/bin/python3 -m pip install --upgrade pip psutil requests pyzmq \
     && wget -q https://github.com/Supervisor/supervisor/archive/refs/heads/main.zip -O /tmp/supervisor.zip \
     && unzip /tmp/supervisor.zip -d /tmp \
     && cd /tmp/supervisor-main \
@@ -226,6 +227,7 @@ ENV SE_BIND_HOST="false" \
     SE_LOG_LEVEL="INFO" \
     SE_HTTP_LOGS="false" \
     SE_STRUCTURED_LOGS="false" \
+    SE_PLAIN_LOGS="true" \
     SE_ENABLE_TRACING="true" \
     SE_ENABLE_TLS="false" \
     SE_JAVA_OPTS_DEFAULT="" \

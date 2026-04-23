@@ -10,7 +10,7 @@ serverConfigMap:
 
 ingress:
   enableWithController: true
-  className: nginx
+  className: traefik
   hostname: ""
 
 basicAuth:
@@ -48,10 +48,15 @@ keda:
   webhooks:
     enabled: true
 
-ingress-nginx:
-  controller:
-    hostPort:
-      enabled: true
+traefik:
+  ingressClass:
+    name: traefik
+  deployment:
     kind: DaemonSet
-    service:
-      type: LoadBalancer
+  ports:
+    web:
+      hostPort: 80
+    websecure:
+      hostPort: 443
+  service:
+    type: LoadBalancer

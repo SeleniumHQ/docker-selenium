@@ -17,7 +17,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-  {{- $ingressAnnotations := (include "seleniumGrid.ingress.nginx.annotations.default" . | toString | fromYaml ) }}
+  {{- $ingressAnnotations := dict -}}
+  {{ if (eq .Values.ingress.className "traefik") }}
+    {{- $ingressAnnotations = (include "seleniumGrid.ingress.traefik.annotations.default" . | toString | fromYaml ) }}
+  {{- end }}
   {{- with .Values.ingress.annotations -}}
     {{- $ingressAnnotations = mergeOverwrite $ingressAnnotations . }}
   {{- end }}
@@ -54,7 +57,7 @@ spec:
       {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.Version }}
         paths:
         {{- if empty (.Values.ingress.paths) }}
-          - path: {{ $.Values.ingress.path | default "/" }}
+          - path: {{ default (include "seleniumGrid.url.subPath" $) "/" }}
             pathType: {{ $.Values.ingress.pathType | default "Prefix" }}
             backend:
               service:
@@ -72,7 +75,7 @@ spec:
         {{- end }}
       {{- else }}
         paths:
-          - path: /
+          - path: {{ default (include "seleniumGrid.url.subPath" $) "/" }}
             backend:
               {{- if $.Values.isolateComponents }}
               serviceName: {{ template "seleniumGrid.router.fullname" $ }}

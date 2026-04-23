@@ -99,56 +99,63 @@ Get default certificate file name in chart
 {{- $content -}}
 {{- end -}}
 
-{{- define "seleniumGrid.ingress.nginx.annotations.default" -}}
-{{- with .Values.ingress.nginx }}
-  {{- with .proxyTimeout }}
-nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/proxy-send-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/proxy-read-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/proxy-stream-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/upstream-keepalive-timeout: {{ . | quote }}
-nginx.ingress.kubernetes.io/ssl-session-timeout: {{ . | quote }}
+{{- define "seleniumGrid.ingress.traefik.annotations.default" -}}
+{{- with .Values.ingress.traefik }}
+  {{- if .enabled }}
+    {{- if .entryPoints }}
+traefik.ingress.kubernetes.io/router.entrypoints: {{ .entryPoints | quote }}
+    {{- else }}
+      {{- if eq (include "seleniumGrid.ingress.secureConnection" $) "true" }}
+traefik.ingress.kubernetes.io/router.entrypoints: "websecure"
+      {{- else }}
+traefik.ingress.kubernetes.io/router.entrypoints: "web"
+      {{- end }}
+    {{- end }}
+    {{- with .middlewares }}
+traefik.ingress.kubernetes.io/router.middlewares: {{ . | quote }}
+    {{- end }}
+    {{- with .priority }}
+traefik.ingress.kubernetes.io/router.priority: {{ . | quote }}
+    {{- end }}
+    {{- with .pathMatcher }}
+traefik.ingress.kubernetes.io/router.pathmatcher: {{ . | quote }}
+    {{- end }}
+    {{- if eq (include "seleniumGrid.ingress.secureConnection" $) "true" }}
+      {{- with .tls }}
+        {{- if .enabled }}
+traefik.ingress.kubernetes.io/router.tls: "true"
+          {{- with .options }}
+traefik.ingress.kubernetes.io/router.tls.options: {{ . | quote }}
+          {{- end }}
+          {{- with .certResolver }}
+traefik.ingress.kubernetes.io/router.tls.certresolver: {{ . | quote }}
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- with .service }}
+      {{- with .sticky }}
+        {{- with .cookie }}
+          {{- if .enabled }}
+traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+          {{- end }}
+        {{- end }}
+      {{- end }}
+    {{- end }}
   {{- end }}
-  {{- with .proxyBuffer }}
-nginx.ingress.kubernetes.io/proxy-request-buffering: "on"
-nginx.ingress.kubernetes.io/proxy-buffering: "on"
-    {{- with .size }}
-nginx.ingress.kubernetes.io/proxy-buffer-size: {{ . | quote }}
-nginx.ingress.kubernetes.io/proxy-busy-buffers-size: {{ . | quote }}
-nginx.ingress.kubernetes.io/client-body-buffer-size: {{ . | quote }}
-    {{- end }}
-    {{- with .number }}
-nginx.ingress.kubernetes.io/proxy-buffers-number: {{ . | quote }}
-    {{- end }}
+{{- end }}
+{{- end -}}
+
+{{- define "seleniumGrid.service.traefik.annotations.default" -}}
+{{- if and (eq (include "seleniumGrid.ingress.enabled" $) "true") (eq .Values.ingress.className "traefik") .Values.ingress.traefik.enabled }}
+  {{- if and (eq (include "seleniumGrid.server.secureConnection" $) "true") .Values.ingress.traefik.service.useHttpsScheme }}
+traefik.ingress.kubernetes.io/service.serversscheme: "https"
   {{- end }}
-  {{- if .websocket }}
-nginx.org/websocket-services: {{ include ($.Values.isolateComponents | ternary "seleniumGrid.router.fullname" "seleniumGrid.hub.fullname") $ | quote }}
-  {{- end }}
-  {{- if eq (include "seleniumGrid.server.secureConnection" $) "true" }}
-    {{- if .sslPassthrough }}
-nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
-    {{- end }}
-  {{- end }}
-  {{- if eq (include "seleniumGrid.ingress.secureConnection" $) "true" }}
-nginx.ingress.kubernetes.io/use-http2: {{ .useHttp2 | quote }}
-    {{- if not (empty .sslSecret) }}
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl .sslSecret $ | quote }}
-    {{- else if (empty $.Values.ingress.tls) }}
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (include "seleniumGrid.tls.fullname" $)) $ | quote }}
-    {{- else if (index $.Values.ingress.tls 0).secretName }}
-nginx.ingress.kubernetes.io/proxy-ssl-secret: {{ tpl (printf "%s/%s" $.Release.Namespace (index $.Values.ingress.tls 0).secretName) $ | quote }}
-    {{- end }}
-  {{- end }}
-  {{- with .upstreamKeepalive }}
-    {{- with .connections }}
-nginx.ingress.kubernetes.io/upstream-keepalive-connections: {{ . | quote }}
-    {{- end }}
-    {{- with .requests }}
-nginx.ingress.kubernetes.io/upstream-keepalive-request: {{ . | quote }}
-    {{- end }}
-    {{- with .time }}
-nginx.ingress.kubernetes.io/upstream-keepalive-time: {{ . | quote }}
+  {{- with .Values.ingress.traefik.serversTransport }}
+    {{- if .enabled }}
+traefik.ingress.kubernetes.io/service.serverstransport: {{ include "seleniumGrid.ingress.traefik.serversTransport.ref" $ | quote }}
+    {{- else if .reference }}
+traefik.ingress.kubernetes.io/service.serverstransport: {{ tpl .reference $ | quote }}
     {{- end }}
   {{- end }}
 {{- end }}

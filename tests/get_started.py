@@ -31,7 +31,9 @@ def run_browser_instance(browser, grid_url):
     elif browser == "edge":
         options = EdgeOptions()
     options.enable_bidi = True
-    options.enable_downloads = False
+    options.enable_downloads = True
+    options.set_capability('se:recordVideo', True)
+    options.set_capability('se:name', "Test this test session")
 
     while True:
         driver = webdriver.Remote(
@@ -41,7 +43,8 @@ def run_browser_instance(browser, grid_url):
         print(f"Session created: {driver.session_id} ({browser})")
         driver.get('https://www.google.com/')
         print(driver.title)
-        time.sleep(100)
+        time.sleep(15)
+        driver.fire_session_event("test:failed", {"error": "Element not found"})
         driver.quit()
 
 

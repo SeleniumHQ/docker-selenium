@@ -8,7 +8,7 @@ CLUSTER_NAME=${CLUSTER_NAME:-"chart-testing"}
 RELEASE_NAME=${RELEASE_NAME:-"test"}
 SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE:-"selenium"}
 KEDA_NAMESPACE=${KEDA_NAMESPACE:-"keda"}
-INGRESS_NAMESPACE=${INGRESS_NAMESPACE:-"ingress-nginx"}
+INGRESS_NAMESPACE=${INGRESS_NAMESPACE:-"traefik"}
 SUB_PATH=${SUB_PATH:-"/selenium"}
 CHART_PATH=${CHART_PATH:-"charts/selenium-grid"}
 TEST_VALUES_PATH=${TEST_VALUES_PATH:-"tests/charts/ci"}
@@ -127,7 +127,7 @@ on_failure() {
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-if [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
+if [[ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]] && [[ "$(uname)" != "Darwin" ]]; then
   rm -rf tests/tests/*
   touch tests/tests/describe_all_resources_${MATRIX_BROWSER}.txt
 fi
@@ -142,6 +142,7 @@ if [ -f .env ]
 then
     export "$(cat .env | xargs)"
 fi
+mkdir -p ./tests/videos
 export RELEASE_NAME=${RELEASE_NAME}
 export SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE}
 export TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME}
@@ -270,20 +271,27 @@ if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${CLEAR_POD_HISTORY}" = "tr
   "
 fi
 
+if [[ "$(uname)" != "Darwin" ]]  && [[ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]]; then
+    HOSTNAME_ADDRESS_IP="$(hostname -I | cut -d' ' -f1)"
+else
+    HOSTNAME_ADDRESS_IP="127.0.0.1"
+fi
 if [ "${CHART_ENABLE_INGRESS_HOSTNAME}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != "true" ]; then
   if [[ ! $(cat /etc/hosts) == *"${HOSTNAME_ADDRESS}"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -I | cut -d' ' -f1) ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+    sudo -- sh -c -e "echo \"${HOSTNAME_ADDRESS_IP} ${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi
   if [[ ! $(cat /etc/hosts) == *"alertmanager.${HOSTNAME_ADDRESS}"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -I | cut -d' ' -f1) alertmanager.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+    sudo -- sh -c -e "echo \"${HOSTNAME_ADDRESS_IP} alertmanager.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi
   if [[ ! $(cat /etc/hosts) == *"grafana.${HOSTNAME_ADDRESS}"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -I | cut -d' ' -f1) grafana.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+    sudo -- sh -c -e "echo \"${HOSTNAME_ADDRESS_IP} grafana.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi
   if [[ ! $(cat /etc/hosts) == *"pts.${HOSTNAME_ADDRESS}"* ]]; then
-    sudo -- sh -c -e "echo \"$(hostname -I | cut -d' ' -f1) pts.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
+    sudo -- sh -c -e "echo \"${HOSTNAME_ADDRESS_IP} pts.${HOSTNAME_ADDRESS}\" >> /etc/hosts"
   fi
-  ping -c 2 ${HOSTNAME_ADDRESS}
+  if [[ "$(uname)" != "Darwin" ]]; then
+    ping -c 2 ${HOSTNAME_ADDRESS}
+  fi
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set ingress.hostname=${HOSTNAME_ADDRESS} \
   "
@@ -331,7 +339,7 @@ if [ "${SECURE_INGRESS_ONLY_GENERATE}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_O
   --set tls.ingress.generateTLS=true \
   --set tls.ingress.defaultCN=${SELENIUM_GRID_HOST} \
   --set tls.ingress.defaultSANList[0]=${SELENIUM_GRID_HOST} \
-  --set tls.ingress.defaultIPList[0]=$(hostname -I | cut -d' ' -f1) \
+  --set tls.ingress.defaultIPList[0]=${HOSTNAME_ADDRESS_IP} \
   "
 fi
 
@@ -343,11 +351,11 @@ fi
 
 if [ "${INGRESS_DISABLE_USE_HTTP2}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set ingress.nginx.useHttp2=false \
+  --set ingress.traefik.serversTransport.spec.disableHTTP2=true \
   "
 else
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set ingress.nginx.useHttp2=true \
+  --set ingress.traefik.serversTransport.spec.disableHTTP2=false \
   "
 fi
 
@@ -361,18 +369,20 @@ if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set tls.create=false
   --set tls.nameOverride=${EXTERNAL_TLS_SECRET_NAME} \
-  --set ingress.nginx.sslSecret="${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME}" \
+  --set traefik.tlsStore.default.defaultCertificate.secretName="${EXTERNAL_TLS_SECRET_NAME}" \
   "
   cert_dir="./tests/tests"
-  if [ ! -f "./tests/tests/tls.crt" ]; then
+  if [[ ! -f "./tests/tests/tls.crt" ]] && [[ "$(uname)" != "Darwin" ]]; then
     ADD_IP_ADDRESS=hostname ./${CHART_PATH}/certs/gen-cert-helper.sh -d ${cert_dir}
-    kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} \
+  else
+    cp -rf ./charts/selenium-grid/certs/* ./tests/tests/
+  fi
+  kubectl create secret generic -n ${SELENIUM_NAMESPACE} ${EXTERNAL_TLS_SECRET_NAME} \
     --from-file=tls.crt=${cert_dir}/tls.crt \
     --from-file=tls.key=${cert_dir}/tls.key \
     --from-file=server.jks=${cert_dir}/server.jks \
     --from-file=server.pass=${cert_dir}/server.pass \
     --dry-run=client -o yaml | kubectl apply -n ${SELENIUM_NAMESPACE} -f -
-  fi
   CHART_CERT_PATH="./tests/tests/tls.crt"
 fi
 
@@ -398,11 +408,11 @@ fi
 if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ] && [ "${CHART_ENABLE_INGRESS_HOSTNAME}" != "true" ]; then
   if [ "${SECURE_USE_EXTERNAL_CERT}" = "true" ]; then
     HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${EXTERNAL_TLS_SECRET_NAME} \
+    --set traefik.tlsStore.default.defaultCertificate.secretName=${EXTERNAL_TLS_SECRET_NAME} \
     "
   else
     HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-    --set ingress-nginx.controller.extraArgs.default-ssl-certificate=${SELENIUM_NAMESPACE}/${SELENIUM_TLS_SECRET_NAME} \
+    --set traefik.tlsStore.default.defaultCertificate.secretName=${SELENIUM_TLS_SECRET_NAME} \
     "
   fi
 fi

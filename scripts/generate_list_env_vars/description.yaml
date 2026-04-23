@@ -18,7 +18,8 @@
   description: Set the preset for FFmpeg in video recording
   cli: ''
 - name: SE_VIDEO_UPLOAD_ENABLED
-  description: Enable video upload
+  description: Deprecated in event-driven mode (`video_service.py`); upload enablement
+    is now derived from non-empty `SE_UPLOAD_DESTINATION_PREFIX`
   cli: ''
 - name: SE_VIDEO_INTERNAL_UPLOAD
   description: Enable video upload using Rclone in the same recorder container
@@ -329,11 +330,13 @@
   description: ''
   cli: ''
 - name: SE_NODE_MAX_SESSIONS
-  description: ''
-  cli: ''
+  description: Set the number of maximum concurrent sessions per browser Node, by
+    default is 1
+  cli: --max-sessions
 - name: SE_NODE_OVERRIDE_MAX_SESSIONS
-  description: ''
-  cli: ''
+  description: By default is false, enable this flag for setting max session take
+    effect in browser Node
+  cli: --override-max-sessions
 - name: SE_OFFLINE
   description: Selenium Manager offline mode, use the browser and driver pre-configured
     in the image
@@ -494,3 +497,60 @@
     a slot in a Node once the Node has been matched. Switch to built-in Greedy strategy,
     use class name `org.openqa.selenium.grid.distributor.selector.GreedySlotSelector`
   cli: --slot-selector
+- name: SE_EVENT_BUS_HEARTBEAT_PERIOD
+  description: How often, in seconds, will the EventBus socket send heartbeats
+  cli: --eventbus-heartbeat-period
+- name: SE_NODE_ENABLE_BROWSER
+  description: Checkout usage of SE_NODE_ENABLE_BROWSER_* in below
+  cli: ''
+- name: SE_NODE_ENABLE_BROWSER_
+  description: 'This is used in node/standalone all browsers in one container, append
+    suffix CHROME, FIREFOX or EDGE to disable correspoding browser in Node stereotypes.
+    For example: SE_NODE_ENABLE_BROWSER_CHROME=false'
+  cli: ''
+- name: SE_NODE_DOWN_FAILURE_THRESHOLD
+  description: Maximum number of consecutive session creation failures before the
+    Node is marked as DOWN. This helps detect and isolate unhealthy Nodes that consistently
+    fail to create sessions. A value of 0 (default) disables this feature, allowing
+    unlimited retries. A value higher than zero enables this feature.
+  cli: --node-down-failure-threshold
+- name: SE_BIND_BUS
+  description: When true, the Standalone will start the Event Bus and connect itself.
+    Standalone also expose publishing and subscribing port for sidecar service can
+    listen on session events.
+  cli: --bind-bus
+- name: SE_EVENT_BUS_IMPLEMENTATION
+  description: 'Full class name of non-default event bus implementation. For example:
+    org.openqa.selenium.events.zeromq.ZeroMqEventBus'
+  cli: --events-implementation
+- name: SE_NODE_KUBERNETES_CONFIG_FILENAME
+  description: A separate TOML config file name for Dynamic Grid in Kubernetes, which
+    avoid conflict with browser config if shared mouted volume
+  cli: ''
+- name: SE_VIDEO_EVENT_DRIVEN
+  description: Backend of video recorder and uploader will subscribe to Grid Event
+    Bus for session event lifecycle for processing instead of traditional polling
+    Node session capabilities via /status endpoint.
+  cli: ''
+- name: SE_PLAIN_LOGS
+  description: Use plain log lines
+  cli: --plain-logs
+- name: SE_DYNAMIC_MAX_SESSIONS
+  description: Set the number of maximum concurrent sessions of Dynamic Node (both
+    Docker and Kubernetes)
+  cli: ''
+- name: SE_DYNAMIC_OVERRIDE_MAX_SESSIONS
+  description: Enable this flag for setting max session take effect in Dynamic Node
+    (both Docker and Kubernetes)
+  cli: ''
+- name: SE_FAILURE_SESSION_EVENTS
+  description: By default, a failure session event type contains ":failed", ":failure",
+    ":error" or ":aborted" substrings that trigger the retain-on-failure sub-sequence.
+    User can define more event types which handled in your test framework, separated
+    by comma.
+  cli: ''
+- name: SE_RETAIN_ON_FAILURE
+  description: When true, recordings for sessions that pass are discarded immediately.
+    Only sessions that fail (via failure events or abnormal close) retain their recordings
+    and are queued for upload.
+  cli: ''

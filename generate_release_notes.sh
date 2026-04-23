@@ -66,5 +66,17 @@ echo "" >>release_notes.md
 echo "</details>" >>release_notes.md
 
 echo "" >>release_notes.md
+
+echo "### Published Docker images on [GitHub Container Registry](https://github.com/orgs/SeleniumHQ/packages?repo_name=docker-selenium)" >>release_notes.md
+echo "<details>" >>release_notes.md
+echo "<summary>Click to see published Docker images</summary>" >>release_notes.md
+echo "" >>release_notes.md
+echo '```' >>release_notes.md
+docker images --filter=reference=ghcr.io/seleniumhq'/*:'${FILTER_IMAGE_TAG:-"*"} --format "table {{.ID}}\t{{.Repository}}\t{{.Tag}}\t{{.Size}}" >>release_notes.md
+echo '```' >>release_notes.md
+echo "" >>release_notes.md
+echo "</details>" >>release_notes.md
+
+echo "" >>release_notes.md
 chart_version=$(find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 cat | grep ^version | cut -d ':' -f 2 | tr -d '[:space:]')
 echo "### Published Helm chart version [selenium-grid-${chart_version}](https://github.com/${AUTHORS}/docker-selenium/releases/tag/selenium-grid-${chart_version})" >>release_notes.md

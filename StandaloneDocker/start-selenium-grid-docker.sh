@@ -28,29 +28,60 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [ ! -z "$SE_NODE_GRID_URL" ]; then
-  echo "Appending Grid url: ${SE_NODE_GRID_URL}"
-  SE_GRID_URL="--grid-url ${SE_NODE_GRID_URL}"
+if [ ! -z "${SE_DISABLE_UI}" ]; then
+  append_se_opts "--disable-ui" "${SE_DISABLE_UI}"
 fi
 
-if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
-  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+if [ ! -z "${SE_ROUTER_USERNAME}" ]; then
+  append_se_opts "--username" "${SE_ROUTER_USERNAME}"
 fi
 
-if [ ! -z "$SE_NODE_ENABLE_CDP" ]; then
-  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
+if [ ! -z "${SE_ROUTER_PASSWORD}" ]; then
+  append_se_opts "--password" "${SE_ROUTER_PASSWORD}" "false"
 fi
 
-if [ ! -z "$SE_NODE_REGISTER_PERIOD" ]; then
+# Specific environment variables name for Node Dynamic only, it will not effect browser container when pass through
+
+if [ ! -z "${SE_DYNAMIC_MAX_SESSIONS}" ]; then
+  append_se_opts "--max-sessions" "${SE_DYNAMIC_MAX_SESSIONS}"
+fi
+
+if [ ! -z "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}" ]; then
+  append_se_opts "--override-max-sessions" "${SE_DYNAMIC_OVERRIDE_MAX_SESSIONS}"
+fi
+
+# Environment variables will be passed through to browser container
+
+if [ ! -z "${SE_NODE_GRID_URL}" ]; then
+  append_se_opts "--grid-url" "${SE_NODE_GRID_URL}"
+fi
+
+if [ ! -z "${SE_NODE_HEARTBEAT_PERIOD}" ]; then
+  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
+fi
+
+if [ ! -z "${SE_NODE_REGISTER_PERIOD}" ]; then
   append_se_opts "--register-period" "${SE_NODE_REGISTER_PERIOD}"
 fi
 
-if [ ! -z "$SE_NODE_REGISTER_CYCLE" ]; then
+if [ ! -z "${SE_NODE_REGISTER_CYCLE}" ]; then
   append_se_opts "--register-cycle" "${SE_NODE_REGISTER_CYCLE}"
 fi
 
-if [ ! -z "$SE_NODE_HEARTBEAT_PERIOD" ]; then
-  append_se_opts "--heartbeat-period" "${SE_NODE_HEARTBEAT_PERIOD}"
+if [ ! -z "${SE_NODE_SESSION_TIMEOUT}" ]; then
+  append_se_opts "--session-timeout" "${SE_NODE_SESSION_TIMEOUT}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_CDP}" ]; then
+  append_se_opts "--enable-cdp" "${SE_NODE_ENABLE_CDP}"
+fi
+
+if [ ! -z "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}" ]; then
+  append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
+fi
+
+if [ ! -z "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}" ]; then
+  append_se_opts "--connection-limit-per-session" "${SE_NODE_CONNECTION_LIMIT_PER_SESSION}"
 fi
 
 if [ ! -z "$SE_LOG_LEVEL" ]; then
@@ -65,12 +96,29 @@ if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
   append_se_opts "--structured-logs" "${SE_STRUCTURED_LOGS}"
 fi
 
+if [ ! -z "$SE_PLAIN_LOGS" ]; then
+  append_se_opts "--plain-logs" "${SE_PLAIN_LOGS}"
+fi
+
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
 if [ ! -z "${SE_EVENT_BUS_HEARTBEAT_PERIOD}" ]; then
   append_se_opts "--eventbus-heartbeat-period" "${SE_EVENT_BUS_HEARTBEAT_PERIOD}"
+fi
+
+if [ ! -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
+  append_se_opts "--events-implementation" "${SE_EVENT_BUS_IMPLEMENTATION}"
+fi
+
+if [ "${SE_BIND_BUS}" = "true" ]; then
+  append_se_opts "--bind-bus" "${SE_BIND_BUS}"
+  append_se_opts "--publish-events" "tcp://*:${SE_EVENT_BUS_PUBLISH_PORT}"
+  append_se_opts "--subscribe-events" "tcp://*:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
+  if [ -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
+    append_se_opts "--events-implementation" "org.openqa.selenium.events.zeromq.ZeroMqEventBus"
+  fi
 fi
 
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
@@ -174,4 +222,4 @@ java ${SE_JAVA_OPTS} \
   --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
   --config ${CONFIG_FILE} \
-  ${SE_GRID_URL} ${SE_OPTS}
+  ${SE_OPTS}

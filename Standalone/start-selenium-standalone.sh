@@ -95,12 +95,29 @@ if [ ! -z "$SE_STRUCTURED_LOGS" ]; then
   append_se_opts "--structured-logs" "${SE_STRUCTURED_LOGS}"
 fi
 
+if [ ! -z "$SE_PLAIN_LOGS" ]; then
+  append_se_opts "--plain-logs" "${SE_PLAIN_LOGS}"
+fi
+
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
 if [ ! -z "${SE_EVENT_BUS_HEARTBEAT_PERIOD}" ]; then
   append_se_opts "--eventbus-heartbeat-period" "${SE_EVENT_BUS_HEARTBEAT_PERIOD}"
+fi
+
+if [ ! -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
+  append_se_opts "--events-implementation" "${SE_EVENT_BUS_IMPLEMENTATION}"
+fi
+
+if [ "${SE_BIND_BUS}" = "true" ]; then
+  append_se_opts "--bind-bus" "${SE_BIND_BUS}"
+  append_se_opts "--publish-events" "tcp://*:${SE_EVENT_BUS_PUBLISH_PORT}"
+  append_se_opts "--subscribe-events" "tcp://*:${SE_EVENT_BUS_SUBSCRIBE_PORT}"
+  if [ -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
+    append_se_opts "--events-implementation" "org.openqa.selenium.events.zeromq.ZeroMqEventBus"
+  fi
 fi
 
 if [ "${SE_ENABLE_TLS}" = "true" ]; then

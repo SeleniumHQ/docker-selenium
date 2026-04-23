@@ -3,8 +3,8 @@ ARG VERSION=latest
 FROM ${NAMESPACE}/base:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
-ARG MVN_SELENIUM_VERSION
-ARG POSTGRESQL_VERSION=42.7.7
+ARG MVN_SELENIUM_VERSION=latest.release
+ARG POSTGRESQL_VERSION=latest.release
 
 #========================
 # Selenium SessionMap Configuration

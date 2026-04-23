@@ -33,9 +33,10 @@ else
   NODE_STATUS_ENDPOINT="${SE_SERVER_PROTOCOL}://${DISPLAY_CONTAINER_NAME}:${SE_NODE_PORT}/status"
 fi
 
+auth_header=()
 if [ -n "${SE_ROUTER_USERNAME}" ] && [ -n "${SE_ROUTER_PASSWORD}" ]; then
   BASIC_AUTH="$(echo -en "${SE_ROUTER_USERNAME}:${SE_ROUTER_PASSWORD}" | base64 -w0)"
-  BASIC_AUTH="Authorization: Basic ${BASIC_AUTH}"
+  auth_header=(-H "Authorization: Basic ${BASIC_AUTH}")
 fi
 
 # Set headers if Node Registration Secret is set
@@ -89,7 +90,7 @@ function wait_for_display() {
 }
 
 function check_if_api_respond() {
-  endpoint_checks=$(curl --noproxy "*" -H "${BASIC_AUTH}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
+  endpoint_checks=$(curl --noproxy "*" "${auth_header[@]}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}")
   if [[ "${endpoint_checks}" != "200" ]]; then
     python3 /opt/bin/validate_endpoint.py "${NODE_STATUS_ENDPOINT}"
     return 1
@@ -211,9 +212,15 @@ function graceful_exit() {
   wait_util_uploader_shutdown
 }
 
+_graceful_exit_done=false
 function graceful_exit_force() {
+  if [[ "$_graceful_exit_done" = "true" ]]; then
+    return
+  fi
+  _graceful_exit_done=true
   graceful_exit
-  kill -SIGTERM "$(cat ${SE_SUPERVISORD_PID_FILE})" 2>/dev/null
+  # Supervisord signaling is delegated to the Python controller (video_recorder.py)
+  # which handles it uniformly for both shell and event-driven modes.
   echo "$(date -u +"${ts_format}") [${process_name}] - Ready to shutdown the recorder"
   exit 0
 }
@@ -233,7 +240,7 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
     -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
     -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-    -pix_fmt yuv420p -movflags +faststart "$video_file" &
+    -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
   FFMPEG_PID=$!
   if ps -p $FFMPEG_PID >/dev/null; then
     wait $FFMPEG_PID
@@ -252,7 +259,7 @@ else
   recorded_count=0
 
   wait_for_api_respond
-  while curl --noproxy "*" -H "${BASIC_AUTH}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
+  while curl --noproxy "*" "${auth_header[@]}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
     session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
@@ -269,7 +276,7 @@ else
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
           -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
           -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
-          -pix_fmt yuv420p -movflags +faststart "$video_file" &
+          -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
         FFMPEG_PID=$!
         if ps -p $FFMPEG_PID >/dev/null; then
           recording_started="true"
