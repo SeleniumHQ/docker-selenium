@@ -22,7 +22,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | redis | ^25.0.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | 2.19 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^83.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^84.0.0 |
 | https://traefik.github.io/charts | traefik | ^39.0.0 |
 
 ## Values
@@ -400,6 +400,26 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.additionalScrapeConfigs.key | string | `""` |  |
 | monitoring.additionalScrapeConfigs.value | string | `""` |  |
 | monitoring.annotations | object | `{}` |  |
+| monitoring.serviceMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | ServiceMonitor configuration for Prometheus Operator |
+| monitoring.serviceMonitor.enabled | bool | `false` | Enable ServiceMonitor resource |
+| monitoring.serviceMonitor.namespace | string | `""` | Namespace to deploy the ServiceMonitor into (defaults to release namespace) |
+| monitoring.serviceMonitor.labels | object | `{}` | Additional labels for the ServiceMonitor |
+| monitoring.serviceMonitor.annotations | object | `{}` | Additional annotations for the ServiceMonitor |
+| monitoring.serviceMonitor.path | string | `"/metrics"` | Metrics scrape path |
+| monitoring.serviceMonitor.interval | string | `"30s"` | Scrape interval |
+| monitoring.serviceMonitor.scrapeTimeout | string | `"10s"` | Scrape timeout |
+| monitoring.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
+| monitoring.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
+| monitoring.podMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor) |
+| monitoring.podMonitor.enabled | bool | `false` | Enable PodMonitor resource |
+| monitoring.podMonitor.namespace | string | `""` | Namespace to deploy the PodMonitor into (defaults to release namespace) |
+| monitoring.podMonitor.labels | object | `{}` | Additional labels for the PodMonitor |
+| monitoring.podMonitor.annotations | object | `{}` | Additional annotations for the PodMonitor |
+| monitoring.podMonitor.path | string | `"/metrics"` | Metrics scrape path |
+| monitoring.podMonitor.interval | string | `"30s"` | Scrape interval |
+| monitoring.podMonitor.scrapeTimeout | string | `"10s"` | Scrape timeout |
+| monitoring.podMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
+| monitoring.podMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
