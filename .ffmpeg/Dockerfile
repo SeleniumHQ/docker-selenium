@@ -1,4 +1,4 @@
-FROM ubuntu:noble AS builder
+FROM ubuntu:resolute AS builder
 ARG FFMPEG_VERSION="8.1"
 ARG RCLONE_VER="v1.73-stable"
 ARG GO_VERSION="latest"
@@ -80,7 +80,7 @@ RUN cd /usr/local/src \
     && make install
 
 # Final stage
-FROM ubuntu:noble
+FROM ubuntu:resolute
 
 USER root
 
