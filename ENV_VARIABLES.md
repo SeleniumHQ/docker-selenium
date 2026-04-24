@@ -132,13 +132,14 @@
 | SE_NODE_RELAY_URL |  |  |  |
 | SE_NODE_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node stereotype |  |
 | SE_NODE_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node stereotype. This is helpful when you want to retain the default Node stereotype and append additional capabilities. Example usage `SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}` |  |
-| SE_SESSIONS_MAP_EXTERNAL_HOSTNAME |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI |  | Backend datastore URI for the external SessionMap implementation. Use this for Redis-backed SessionMap. |  |
+| SE_SESSIONS_MAP_EXTERNAL_HOSTNAME |  | Deprecated legacy part of Redis SessionMap connection. Prefer SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI. |  |
 | SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_JDBC_URL |  |  |  |
 | SE_SESSIONS_MAP_EXTERNAL_JDBC_USER |  |  |  |
-| SE_SESSIONS_MAP_EXTERNAL_PORT |  |  |  |
-| SE_SESSIONS_MAP_EXTERNAL_SCHEME |  |  |  |
+| SE_SESSIONS_MAP_EXTERNAL_PORT |  | Deprecated legacy part of Redis SessionMap connection. Prefer SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI. |  |
+| SE_SESSIONS_MAP_EXTERNAL_SCHEME |  | Deprecated legacy part of Redis SessionMap connection. Prefer SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI. |  |
 | SE_NODE_RELAY_STEREOTYPE |  | Capabilities in JSON string to overwrite the default Node relay stereotype |  |
 | SE_NODE_RELAY_STEREOTYPE_EXTRA |  | Extra capabilities in JSON string that wants to merge to the default Node relay stereotype |  |
 | SE_NODE_REGISTER_SHUTDOWN_ON_FAILURE | true | If this flag is enabled, the Node will shut down after the register period is completed. This is useful for container environments to restart and register again. If restarted multiple times, the Node container status will be CrashLoopBackOff | --register-shutdown-on-failure |
@@ -160,7 +161,20 @@
 | SE_NODE_ENABLE_BROWSER_ |  | This is used in node/standalone all browsers in one container, append suffix CHROME, FIREFOX or EDGE to disable correspoding browser in Node stereotypes. For example: SE_NODE_ENABLE_BROWSER_CHROME=false |  |
 | SE_NODE_DOWN_FAILURE_THRESHOLD | 0 | Maximum number of consecutive session creation failures before the Node is marked as DOWN. This helps detect and isolate unhealthy Nodes that consistently fail to create sessions. A value of 0 (default) disables this feature, allowing unlimited retries. A value higher than zero enables this feature. | --node-down-failure-threshold |
 | SE_BIND_BUS | true | When true, the Standalone will start the Event Bus and connect itself. Standalone also expose publishing and subscribing port for sidecar service can listen on session events. | --bind-bus |
-| SE_EVENT_BUS_IMPLEMENTATION |  | Full class name of non-default event bus implementation. For example: org.openqa.selenium.events.zeromq.ZeroMqEventBus | --events-implementation |
+| SE_EVENT_BUS_IMPLEMENTATION |  | Full class name of non-default event bus implementation. Opt-in only; when unset, the classic ZeroMQ host/publish/subscribe path remains unchanged. Example: org.openqa.selenium.events.nats.NatsEventBus | --events-implementation |
+| SE_EVENT_BUS_URL |  | Connection string for brokered event bus implementations such as NATS. Persistent mode only. Example: nats://nats:4222 | --events-url |
+| SE_EVENT_BUS_STREAM |  | JetStream stream name used by brokered event bus implementations. Persistent mode only. | --events-stream |
+| SE_EVENT_BUS_SUBJECT_PREFIX |  | Subject prefix used by brokered event bus implementations. Persistent mode only. | --events-subject-prefix |
+| SE_EVENT_BUS_COMPONENT |  | Logical component name announced by brokered event bus implementations. Persistent mode only. | --events-component-name |
+| SE_EVENT_BUS_INSTANCE_ID |  | Optional stable instance id announced by brokered event bus implementations. Persistent mode only. Defaults to `<component>-<hostname>` when omitted. | --events-instance-id |
+| SE_SESSION_QUEUE_IMPLEMENTATION |  | Full class name of non-default session queue implementation. Persistent mode only. Applied through a generated `[sessionqueue]` TOML config because Selenium has no direct `--sessionqueue-implementation` CLI flag. | --config (generated) |
+| SE_SESSION_QUEUE_BACKEND_URI |  | Backend datastore URI for the distributed session queue implementation. Persistent mode only. | --sessionqueue-backend-uri |
+| SE_SESSION_QUEUE_REDIS_URI |  | Deprecated alias for SE_SESSION_QUEUE_BACKEND_URI. Persistent mode only. | --sessionqueue-backend-uri |
+| SE_SESSION_QUEUE_RESULT_POLL_INTERVAL |  | Poll interval in milliseconds for distributed session queue results. Persistent mode only. | --sessionqueue-result-poll-interval |
+| SE_SESSION_QUEUE_CLAIM_TIMEOUT |  | Claim timeout in seconds for distributed session queue requests. Persistent mode only. | --sessionqueue-claim-timeout |
+| SE_DISTRIBUTOR_IMPLEMENTATION |  | Full class name of non-default distributor implementation. Persistent mode only. | --distributor-implementation |
+| SE_DISTRIBUTOR_BACKEND_URI |  | Backend datastore URI for the distributed distributor implementation. Persistent mode only. | --distributor-backend-uri |
+| SE_DISTRIBUTOR_REDIS_URI |  | Deprecated alias for SE_DISTRIBUTOR_BACKEND_URI. Persistent mode only. | --distributor-backend-uri |
 | SE_NODE_KUBERNETES_CONFIG_FILENAME | kubernetes.toml | A separate TOML config file name for Dynamic Grid in Kubernetes, which avoid conflict with browser config if shared mouted volume |  |
 | SE_VIDEO_EVENT_DRIVEN | true | Backend of video recorder and uploader will subscribe to Grid Event Bus for session event lifecycle for processing instead of traditional polling Node session capabilities via /status endpoint. |  |
 | SE_PLAIN_LOGS | true | Use plain log lines | --plain-logs |

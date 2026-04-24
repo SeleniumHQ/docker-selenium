@@ -58,6 +58,21 @@ if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
 fi
 
+if [ ! -z "$SE_SESSION_QUEUE_BACKEND_URI" ]; then
+  append_se_opts "--sessionqueue-backend-uri" "${SE_SESSION_QUEUE_BACKEND_URI}"
+elif [ ! -z "$SE_SESSION_QUEUE_REDIS_URI" ]; then
+  echo "SE_SESSION_QUEUE_REDIS_URI is deprecated. Use SE_SESSION_QUEUE_BACKEND_URI instead."
+  append_se_opts "--sessionqueue-backend-uri" "${SE_SESSION_QUEUE_REDIS_URI}"
+fi
+
+if [ ! -z "$SE_SESSION_QUEUE_RESULT_POLL_INTERVAL" ]; then
+  append_se_opts "--sessionqueue-result-poll-interval" "${SE_SESSION_QUEUE_RESULT_POLL_INTERVAL}"
+fi
+
+if [ ! -z "$SE_SESSION_QUEUE_CLAIM_TIMEOUT" ]; then
+  append_se_opts "--sessionqueue-claim-timeout" "${SE_SESSION_QUEUE_CLAIM_TIMEOUT}"
+fi
+
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
   # Configure truststore for the server
   if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
@@ -123,6 +138,16 @@ fi
 
 if [ -n "${EXTRA_LIBS}" ]; then
   echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
+fi
+
+if [ ! -z "$SE_SESSION_QUEUE_IMPLEMENTATION" ]; then
+  SESSION_QUEUE_CONFIG_FILE="/tmp/selenium-session-queue.toml"
+  echo "Generating session queue config at ${SESSION_QUEUE_CONFIG_FILE}"
+  cat >"${SESSION_QUEUE_CONFIG_FILE}" <<EOF
+[sessionqueue]
+implementation = "${SE_SESSION_QUEUE_IMPLEMENTATION}"
+EOF
+  append_se_opts "--config" "${SESSION_QUEUE_CONFIG_FILE}"
 fi
 
 if [ -n "${SE_JAVA_HTTPCLIENT_VERSION}" ]; then

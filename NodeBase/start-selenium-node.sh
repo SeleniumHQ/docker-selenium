@@ -45,20 +45,19 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
-  echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
-  exit 1
-fi
+function resolve_event_bus_instance_id() {
+  if [[ -n "${SE_EVENT_BUS_INSTANCE_ID}" ]]; then
+    echo "${SE_EVENT_BUS_INSTANCE_ID}"
+    return
+  fi
 
-if [[ -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
-  echo "SE_EVENT_BUS_PUBLISH_PORT not set, exiting!" 1>&2
-  exit 1
-fi
-
-if [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
-  echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
-  exit 1
-fi
+  local component="${SE_EVENT_BUS_COMPONENT:-grid}"
+  if [[ -n "${HOSTNAME}" ]]; then
+    echo "${component}-${HOSTNAME}"
+  else
+    echo "${component}-$$"
+  fi
+}
 
 if [ ! -z "$SE_NODE_ENABLE_MANAGED_DOWNLOADS" ]; then
   append_se_opts "--enable-managed-downloads" "${SE_NODE_ENABLE_MANAGED_DOWNLOADS}"
@@ -110,6 +109,33 @@ fi
 
 if [ ! -z "$SE_EXTERNAL_URL" ]; then
   append_se_opts "--external-url" "${SE_EXTERNAL_URL}"
+fi
+
+if [ ! -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]; then
+  append_se_opts "--events-implementation" "${SE_EVENT_BUS_IMPLEMENTATION}"
+  if [[ ! -z "${SE_EVENT_BUS_URL}" ]]; then
+    append_se_opts "--events-url" "${SE_EVENT_BUS_URL}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_STREAM}" ]]; then
+    append_se_opts "--events-stream" "${SE_EVENT_BUS_STREAM}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_SUBJECT_PREFIX}" ]]; then
+    append_se_opts "--events-subject-prefix" "${SE_EVENT_BUS_SUBJECT_PREFIX}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_COMPONENT}" ]]; then
+    append_se_opts "--events-component-name" "${SE_EVENT_BUS_COMPONENT}"
+  fi
+  resolved_event_bus_instance_id="$(resolve_event_bus_instance_id)"
+  append_se_opts "--events-instance-id" "${resolved_event_bus_instance_id}"
+elif [[ -z "${SE_EVENT_BUS_HOST}" ]]; then
+  echo "Either SE_EVENT_BUS_IMPLEMENTATION or SE_EVENT_BUS_HOST must be set, exiting!" 1>&2
+  exit 1
+elif [[ -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
+  echo "SE_EVENT_BUS_PUBLISH_PORT not set, exiting!" 1>&2
+  exit 1
+elif [[ -z "${SE_EVENT_BUS_SUBSCRIBE_PORT}" ]]; then
+  echo "SE_EVENT_BUS_SUBSCRIBE_PORT not set, exiting!" 1>&2
+  exit 1
 fi
 
 if [ "${SE_ENABLE_TLS}" = "true" ]; then

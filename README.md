@@ -689,6 +689,9 @@ instructions on top of it.
 
 [`docker-compose-v3-full-grid.yml`](docker-compose-v3-full-grid.yml)
 
+For the experimental opt-in persistent adaptation of this topology using external `Redis` state and `NATS JetStream`,
+see [`PERSISTENT_GRID.md`](PERSISTENT_GRID.md). This does not change the classic ZeroMQ-based fully distributed topology or its existing env-var usage.
+
 #### Distributor configuration
 
 | Environment variable           | Option                      | Type    | Default value | Description                                                                                                           |

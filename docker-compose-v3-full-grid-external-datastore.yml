@@ -25,10 +25,8 @@ services:
       - SE_SESSIONS_MAP_EXTERNAL_JDBC_USER=seluser
       - SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD=seluser
 # Uncomment the following lines to use Redis as the external datastore
-#      - SE_SESSIONS_MAP_EXTERNAL_SCHEME=redis
 #      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
-#      - SE_SESSIONS_MAP_EXTERNAL_HOSTNAME=redis
-#      - SE_SESSIONS_MAP_EXTERNAL_PORT=6379
+#      - SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI=redis://redis:6379
 
   postgresql:
     image: postgres:latest

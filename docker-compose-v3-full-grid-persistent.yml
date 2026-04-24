@@ -1,0 +1,137 @@
+# Experimental persistent Grid example for a small-scale smoke test.
+# Prerequisites:
+# 1. Optionally prepare a local selenium-server.jar override from the Selenium repo:
+#      ./prepare_persistent_grid_extensions.sh
+# 2. Use images built from this docker-selenium checkout or adjust image tags below.
+# 3. This example is intentionally small: HAProxy on host port 4444, a scalable Router pool,
+#    one Distributor, one SessionQueue, one SessionMap service, one browser Node,
+#    plus local Redis and NATS services.
+services:
+  nats:
+    image: nats:2.11-alpine
+    container_name: selenium-nats
+    command:
+      - "--jetstream"
+      - "--store_dir=/data"
+    ports:
+      - "4222:4222"
+
+  redis:
+    image: redis:7-alpine
+    container_name: selenium-redis
+    ports:
+      - "6379:6379"
+
+  selenium-sessions:
+    image: selenium/sessions:4.42.0-20260404
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy '*' -fsS http://localhost:5556/readyz || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      - SE_EVENT_BUS_IMPLEMENTATION=org.openqa.selenium.events.nats.NatsEventBus
+      - SE_EVENT_BUS_URL=nats://nats:4222
+      - SE_EVENT_BUS_STREAM=selenium-grid-events
+      - SE_EVENT_BUS_SUBJECT_PREFIX=grid
+      - SE_SESSIONS_MAP_EXTERNAL_DATASTORE=true
+      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
+      - SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI=redis://redis:6379
+
+  selenium-session-queue:
+    image: selenium/session-queue:4.42.0-20260404
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy '*' -fsS http://localhost:5559/readyz || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      - SE_SESSION_QUEUE_IMPLEMENTATION=org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue
+      - SE_SESSION_QUEUE_BACKEND_URI=redis://redis:6379
+      - SE_SESSION_QUEUE_RESULT_POLL_INTERVAL=200
+      - SE_SESSION_QUEUE_CLAIM_TIMEOUT=30
+
+  selenium-distributor:
+    image: selenium/distributor:4.42.0-20260404
+    depends_on:
+      nats:
+        condition: service_started
+      redis:
+        condition: service_started
+      selenium-sessions:
+        condition: service_healthy
+      selenium-session-queue:
+        condition: service_healthy
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy '*' -fsS http://localhost:5553/readyz || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      - SE_EVENT_BUS_IMPLEMENTATION=org.openqa.selenium.events.nats.NatsEventBus
+      - SE_EVENT_BUS_URL=nats://nats:4222
+      - SE_EVENT_BUS_STREAM=selenium-grid-events
+      - SE_EVENT_BUS_SUBJECT_PREFIX=grid
+      - SE_DISTRIBUTOR_IMPLEMENTATION=org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor
+      - SE_DISTRIBUTOR_BACKEND_URI=redis://redis:6379
+      - SE_SESSIONS_MAP_HOST=selenium-sessions
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+
+  selenium-router:
+    image: selenium/router:4.42.0-20260404
+    expose:
+      - "4444"
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    depends_on:
+      selenium-distributor:
+        condition: service_healthy
+      selenium-sessions:
+        condition: service_healthy
+      selenium-session-queue:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl --noproxy '*' -fsS http://localhost:4444/readyz || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    environment:
+      - SE_DISTRIBUTOR_HOST=selenium-distributor
+      - SE_SESSIONS_MAP_HOST=selenium-sessions
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+
+  haproxy:
+    image: haproxy:3.0-alpine
+    depends_on:
+      selenium-router:
+        condition: service_healthy
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./router-lb-haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+
+  chrome:
+    image: selenium/node-chromium:4.42.0-20260404
+    shm_size: 2gb
+    depends_on:
+      nats:
+        condition: service_started
+      selenium-distributor:
+        condition: service_healthy
+    volumes:
+      - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
+    environment:
+      - SE_EVENT_BUS_IMPLEMENTATION=org.openqa.selenium.events.nats.NatsEventBus
+      - SE_EVENT_BUS_URL=nats://nats:4222
+      - SE_EVENT_BUS_STREAM=selenium-grid-events
+      - SE_EVENT_BUS_SUBJECT_PREFIX=grid

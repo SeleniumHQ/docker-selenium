@@ -14,17 +14,13 @@ data:
   SE_SESSIONS_MAP_EXTERNAL_DATASTORE: "true"
 {{- $backend := .Values.components.sessionMap.externalDatastore.backend -}}
 {{- with (get .Values.components.sessionMap.externalDatastore $backend) }}
-{{- with .scheme }}
-  SE_SESSIONS_MAP_EXTERNAL_SCHEME: {{ tpl . $ | quote }}
-{{- end }}
 {{- with .implementation }}
   SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION: {{ tpl . $ | quote }}
 {{- end }}
-{{- with .hostname }}
-  SE_SESSIONS_MAP_EXTERNAL_HOSTNAME: {{ tpl . $ | quote }}
-{{- end }}
-{{- with .port }}
-  SE_SESSIONS_MAP_EXTERNAL_PORT: {{ tpl . $ | quote }}
+{{- with .backendUri }}
+  SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI: {{ tpl . $ | quote }}
+{{- else if and .scheme .hostname .port }}
+  SE_SESSIONS_MAP_EXTERNAL_BACKEND_URI: {{ printf "%s://%s:%s" .scheme (tpl .hostname $) (tpl .port $) | quote }}
 {{- end }}
 {{- with .jdbcUrl }}
   SE_SESSIONS_MAP_EXTERNAL_JDBC_URL: {{ tpl . $ | quote }}

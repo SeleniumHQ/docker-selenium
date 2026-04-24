@@ -760,10 +760,8 @@ components:
         jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions"
       # -- Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map)
       redis:
-        scheme: "redis"
         implementation: "org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap"
-        hostname: "{{ $.Release.Name }}-redis-master"
-        port: "6379"
+        backendUri: "redis://{{ $.Release.Name }}-redis-master:6379"
 
   # Configuration for Session Queue component
   sessionQueue:

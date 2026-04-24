@@ -28,7 +28,37 @@ if [ ! -z "$SE_OPTS" ]; then
   echo "Appending Selenium options: ${SE_OPTS}"
 fi
 
-if [[ ! -z "${SE_EVENT_BUS_HOST}" ]]; then
+function resolve_event_bus_instance_id() {
+  if [[ -n "${SE_EVENT_BUS_INSTANCE_ID}" ]]; then
+    echo "${SE_EVENT_BUS_INSTANCE_ID}"
+    return
+  fi
+
+  local component="${SE_EVENT_BUS_COMPONENT:-grid}"
+  if [[ -n "${HOSTNAME}" ]]; then
+    echo "${component}-${HOSTNAME}"
+  else
+    echo "${component}-$$"
+  fi
+}
+
+if [[ ! -z "${SE_EVENT_BUS_IMPLEMENTATION}" ]]; then
+  append_se_opts "--events-implementation" "${SE_EVENT_BUS_IMPLEMENTATION}"
+  if [[ ! -z "${SE_EVENT_BUS_URL}" ]]; then
+    append_se_opts "--events-url" "${SE_EVENT_BUS_URL}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_STREAM}" ]]; then
+    append_se_opts "--events-stream" "${SE_EVENT_BUS_STREAM}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_SUBJECT_PREFIX}" ]]; then
+    append_se_opts "--events-subject-prefix" "${SE_EVENT_BUS_SUBJECT_PREFIX}"
+  fi
+  if [[ ! -z "${SE_EVENT_BUS_COMPONENT}" ]]; then
+    append_se_opts "--events-component-name" "${SE_EVENT_BUS_COMPONENT}"
+  fi
+  resolved_event_bus_instance_id="$(resolve_event_bus_instance_id)"
+  append_se_opts "--events-instance-id" "${resolved_event_bus_instance_id}"
+elif [[ ! -z "${SE_EVENT_BUS_HOST}" ]]; then
   if [[ ! -z "${SE_EVENT_BUS_PUBLISH_PORT}" ]]; then
     append_se_opts "--publish-events" "tcp://${SE_EVENT_BUS_HOST}:${SE_EVENT_BUS_PUBLISH_PORT}"
   else
@@ -42,7 +72,7 @@ if [[ ! -z "${SE_EVENT_BUS_HOST}" ]]; then
     exit 1
   fi
 else
-  echo "SE_EVENT_BUS_HOST not set, exiting!" 1>&2
+  echo "Either SE_EVENT_BUS_IMPLEMENTATION or SE_EVENT_BUS_HOST must be set, exiting!" 1>&2
   exit 1
 fi
 
@@ -147,6 +177,17 @@ fi
 
 if [ ! -z "$SE_REJECT_UNSUPPORTED_CAPS" ]; then
   append_se_opts "--reject-unsupported-caps" "${SE_REJECT_UNSUPPORTED_CAPS}"
+fi
+
+if [ ! -z "$SE_DISTRIBUTOR_IMPLEMENTATION" ]; then
+  append_se_opts "--distributor-implementation" "${SE_DISTRIBUTOR_IMPLEMENTATION}"
+fi
+
+if [ ! -z "$SE_DISTRIBUTOR_BACKEND_URI" ]; then
+  append_se_opts "--distributor-backend-uri" "${SE_DISTRIBUTOR_BACKEND_URI}"
+elif [ ! -z "$SE_DISTRIBUTOR_REDIS_URI" ]; then
+  echo "SE_DISTRIBUTOR_REDIS_URI is deprecated. Use SE_DISTRIBUTOR_BACKEND_URI instead."
+  append_se_opts "--distributor-backend-uri" "${SE_DISTRIBUTOR_REDIS_URI}"
 fi
 
 if [ ! -z "$SE_DISTRIBUTOR_SLOT_SELECTOR" ]; then

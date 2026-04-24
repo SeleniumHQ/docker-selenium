@@ -301,7 +301,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.externalDatastore.enabled | bool | `false` | Enable external datastore for Session Map |
 | components.sessionMap.externalDatastore.backend | string | `"postgresql"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
 | components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
-| components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis-master","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
+| components.sessionMap.externalDatastore.redis | object | `{"backendUri":"redis://{{ $.Release.Name }}-redis-master:6379","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
 | components.sessionQueue.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | components.sessionQueue.imageName | string | `"session-queue"` | Session Queue image name |
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
@@ -767,4 +767,3 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | redis.image.repository | string | `"bitnamilegacy/redis"` |  |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
-
