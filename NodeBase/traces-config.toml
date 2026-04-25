@@ -1,0 +1,4 @@
+[playwright-trace]
+output-dir = "/traces"
+screenshots = true
+snapshots = true

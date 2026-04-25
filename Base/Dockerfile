@@ -38,6 +38,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     TZ=${TZ} \
     SEL_DOWNLOAD_DIR=${HOME}/Downloads \
     VIDEO_FOLDER="/videos" \
+    TRACE_FOLDER="/traces" \
     # Path to the Configfile
     CONFIG_FILE="/opt/selenium/config.toml" \
     VENV_PATH=${HOME}/venv
@@ -122,18 +123,18 @@ RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
   && mkdir -p /opt/selenium /opt/selenium/assets /opt/selenium/secrets /opt/selenium/logs /var/run/supervisor /var/log/supervisor ${SEL_DOWNLOAD_DIR} \
-    ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb ${VIDEO_FOLDER} \
+    ${HOME}/.mozilla ${HOME}/.vnc ${HOME}/.pki/nssdb ${VIDEO_FOLDER} ${TRACE_FOLDER} \
   # NSSDB initialization with an empty password
   && certutil -d sql:${HOME}/.pki/nssdb -N --empty-password \
   && touch ${CONFIG_FILE} \
-  && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} \
-  && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} \
+  && chown -R ${SEL_USER}:${SEL_GROUP} /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} \
+  && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} \
   && wget --no-verbose https://github.com/${AUTHORS}/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
-  && chgrp -R 0 /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && chmod -R g=u /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && setfacl -Rm u:${SEL_USER}:rwx /opt /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
-  && setfacl -Rm g:${SEL_GROUP}:rwx /opt /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && chgrp -R 0 /opt/selenium ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && chmod -R g=u /opt/selenium ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm u:${SEL_USER}:rwx /opt /opt/selenium ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
+  && setfacl -Rm g:${SEL_GROUP}:rwx /opt /opt/selenium ${HOME} ${VIDEO_FOLDER} ${TRACE_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
 #=====
 # Download observability related OpenTelemetry jars and make them available in a separate directory
 # so that the container can skip downloading them everytime it comes up

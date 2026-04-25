@@ -181,7 +181,7 @@ sessionqueue: base
 event_bus: base
 	cd ./EventBus && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/event-bus:$(TAG_VERSION) .
 
-node_base: base video
+node_base:
 	cd ./NodeBase && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=video --build-arg VERSION=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) --secret id=SEL_PASSWD -t $(NAME)/node-base:$(TAG_VERSION) .
 
 chrome-for-testing_only:
@@ -221,7 +221,7 @@ chrome_only:
 		;; \
 	esac
 
-chrome: node_base chrome_only
+chrome: chrome_only
 
 chrome_dev:
 	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=google-chrome-unstable -t $(NAME)/node-chrome:dev .
@@ -238,7 +238,7 @@ chrome-for-testing_beta:
 chrome-for-testing_canary:
 	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROME_VERSION=CANARY --build-arg INSTALL_CFT=true -t $(NAME)/node-chrome-for-testing:canary .
 
-chromium: node_base
+chromium:
 	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-chromium:$(TAG_VERSION) .
 
 edge_only:
@@ -263,7 +263,7 @@ edge_beta:
 firefox_only:
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-firefox:$(TAG_VERSION) .
 
-firefox: node_base firefox_only
+firefox: firefox_only
 
 firefox_dev:
 	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg FIREFOX_VERSION=devedition-latest -t $(NAME)/node-firefox:dev .

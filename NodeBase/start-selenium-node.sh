@@ -148,8 +148,13 @@ if [ "$GENERATE_CONFIG" = true ]; then
 fi
 
 EXTRA_LIBS=""
+if [[ -f "/external_jars/.classpath_node_traces.txt" ]]; then
+  EXTERNAL_JARS=$(</external_jars/.classpath_node_traces.txt)
+  EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+fi
+
 if [ -n "${SE_EXTRA_LIBS}" ]; then
-  EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
+  EXTRA_LIBS="${EXTRA_LIBS}:${SE_EXTRA_LIBS}"
 fi
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
@@ -196,6 +201,11 @@ fi
 echo "Selenium Grid Node configuration: "
 cat "$CONFIG_FILE"
 echo "Starting Selenium Grid Node..."
+
+if [ -f "/opt/bin/traces-config.toml" ]; then
+  append_se_opts "--config" "/opt/bin/traces-config.toml"
+  cat "/opt/bin/traces-config.toml"
+fi
 
 CHROME_DRIVER_PATH_PROPERTY=-Dwebdriver.chrome.driver=/usr/bin/chromedriver
 EDGE_DRIVER_PATH_PROPERTY=-Dwebdriver.edge.driver=/usr/bin/msedgedriver

@@ -163,13 +163,14 @@ if [ "$GENERATE_CONFIG" = true ]; then
   /opt/bin/generate_relay_config
 fi
 
-echo "Selenium Grid Standalone configuration: "
-cat "${CONFIG_FILE}"
-echo "Starting Selenium Grid Standalone..."
-
 EXTRA_LIBS=""
+if [[ -f "/external_jars/.classpath_node_traces.txt" ]]; then
+  EXTERNAL_JARS=$(</external_jars/.classpath_node_traces.txt)
+  EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
+fi
+
 if [ -n "${SE_EXTRA_LIBS}" ]; then
-  EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
+  EXTRA_LIBS="${EXTRA_LIBS}:${SE_EXTRA_LIBS}"
 fi
 
 if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ]; then
@@ -203,6 +204,19 @@ fi
 
 if [ -n "${EXTRA_LIBS}" ]; then
   echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
+fi
+
+if [ ! -z "${CONFIG_FILE}" ]; then
+  append_se_opts "--config" "${CONFIG_FILE}"
+fi
+
+echo "Selenium Grid Standalone configuration: "
+cat "${CONFIG_FILE}"
+echo "Starting Selenium Grid Standalone..."
+
+if [ -f "/opt/bin/traces-config.toml" ]; then
+  append_se_opts "--config" "/opt/bin/traces-config.toml"
+  cat "/opt/bin/traces-config.toml"
 fi
 
 CHROME_DRIVER_PATH_PROPERTY=-Dwebdriver.chrome.driver=/usr/bin/chromedriver
@@ -243,6 +257,5 @@ java ${SE_JAVA_OPTS} \
   --relax-checks ${SE_RELAX_CHECKS} \
   --detect-drivers false \
   --bind-host ${SE_BIND_HOST} \
-  --config ${CONFIG_FILE} \
   ${SUB_PATH_CONFIG} \
   ${SE_OPTS}

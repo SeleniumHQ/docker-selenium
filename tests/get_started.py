@@ -33,6 +33,7 @@ def run_browser_instance(browser, grid_url):
     options.enable_bidi = True
     options.enable_downloads = True
     options.set_capability('se:recordVideo', True)
+    options.set_capability('se:recordTrace', True)
     options.set_capability('se:name', "Test this test session")
 
     while True:

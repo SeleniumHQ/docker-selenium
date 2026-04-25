@@ -162,11 +162,30 @@ RUN --mount=type=secret,id=SEL_PASSWD \
   && chgrp -R 0 ${HOME} /tmp/.X11-unix \
   && chmod -R g=u ${HOME} /tmp/.X11-unix
 
+#=====
+# Download external jars for traces
+#=====
+RUN if [ -f "/tmp/cs" ]; then \
+        PLATFORM=$(case "$(uname -s)/$(uname -m)" in \
+            Linux/x86_64)  echo linux       ;; \
+            Linux/aarch64) echo linux-arm64 ;; \
+            Darwin/x86_64) echo mac         ;; \
+            Darwin/arm64)  echo mac-arm64   ;; \
+            MINGW*|MSYS*)  echo win32_x64   ;; \
+            esac) ; \
+        java -jar /tmp/cs fetch --classpath --cache /external_jars --ttl 0 \
+        -r https://central.sonatype.com/repository/maven-snapshots/ \
+        org.ndviet:selenium-grid-playwright-trace:4.43.0-SNAPSHOT,classifier=$PLATFORM \
+        > /external_jars/.classpath_node_traces.txt \
+        && chmod 664 /external_jars/.classpath_node_traces.txt ; \
+     fi
+
 # Copying configuration script generator
 COPY --chown="${SEL_UID}:${SEL_GID}" start-selenium-node.sh \
       start-xvfb.sh \
       start-vnc.sh \
       start-novnc.sh \
+      traces-config.toml \
       generate_config generate_relay_config json_merge.py /opt/bin/
 RUN chmod +x /opt/bin/*.sh /opt/bin/*.py /opt/bin/generate_*
 
