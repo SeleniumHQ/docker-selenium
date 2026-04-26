@@ -99,6 +99,13 @@ spec:
       {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.sessionQueue.affinity }}
       affinity: {{- toYaml $affinityYaml | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsPolicy .Values.components.sessionQueue.dnsPolicy }}
+      dnsPolicy: {{ default .Values.global.seleniumGrid.dnsPolicy .Values.components.sessionQueue.dnsPolicy }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsConfig .Values.components.sessionQueue.dnsConfig }}
+      {{- $dnsConfigYaml := default .Values.global.seleniumGrid.dnsConfig .Values.components.sessionQueue.dnsConfig }}
+      dnsConfig: {{- toYaml $dnsConfigYaml | nindent 8 }}
+    {{- end }}
     {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.sessionQueue.topologySpreadConstraints }}
       {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.sessionQueue.topologySpreadConstraints }}
       topologySpreadConstraints:
