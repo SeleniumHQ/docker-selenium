@@ -811,3 +811,4 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | redis.image.repository | string | `"bitnamilegacy/redis"` |  |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
+
