@@ -10,8 +10,8 @@ cleanup_stuck_chrome_processes() {
 }
 
 cleanup_tmp_chrome_files() {
-  echo -n "Deleting all Chrome files in /tmp... "
-  find /tmp -name ".com.google.Chrome.*" -type d -mtime +${SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS} -exec rm -rf "{}" +
+  echo -n "Deleting all Chromium files in /tmp... "
+  find /tmp -name "*org.chromium.Chromium.*" -type d -mtime +${SE_BROWSER_LEFTOVERS_TEMPFILES_DAYS} -exec rm -rf "{}" +
   echo "DONE."
 }
 

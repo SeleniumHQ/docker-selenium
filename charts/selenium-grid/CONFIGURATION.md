@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.53.0](https://img.shields.io/badge/Version-0.53.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.42.0-20260303](https://img.shields.io/badge/AppVersion-4.42.0--20260303-informational?style=flat-square)
+![Version: 0.54.0](https://img.shields.io/badge/Version-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.43.0-20260404](https://img.shields.io/badge/AppVersion-4.43.0--20260404-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -22,7 +22,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://charts.bitnami.com/bitnami | redis | ^25.0.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | 2.19 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^83.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^84.0.0 |
 | https://traefik.github.io/charts | traefik | ^39.0.0 |
 
 ## Values
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.42.0-20260303"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.42.0-20260303"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260303"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.43.0-20260404"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.43.0-20260404"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260404"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -49,6 +49,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.updateStrategy.type | string | `"Recreate"` | Specify update strategy for all components, can be overridden individually |
 | global.seleniumGrid.updateStrategy.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Specify for strategy RollingUpdate |
 | global.seleniumGrid.affinity | object | `{}` | Specify affinity for all components, can be overridden individually |
+| global.seleniumGrid.dnsPolicy | string | `""` | Specify dnsPolicy for all components, can be overridden individually |
+| global.seleniumGrid.dnsConfig | object | `{}` | Specify dnsConfig for all components, can be overridden individually |
 | global.seleniumGrid.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for all components, can be overridden individually |
 | global.seleniumGrid.sessionRequestTimeout | int | `300` | Timeout in seconds. A new incoming session request is added to the queue. Requests sitting in the queue for longer than the configured time will timeout. |
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
@@ -202,6 +204,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
 | components.router.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.router.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| components.router.dnsPolicy | string | `""` | Specify dnsPolicy for router pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| components.router.dnsConfig | object | `{}` | Specify dnsConfig for router pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | components.router.annotations | object | `{}` | Custom annotations for router pods |
 | components.router.port | int | `4444` | Router container port |
 | components.router.nodePort | int | `30444` | Router expose NodePort |
@@ -232,6 +236,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.distributor.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| components.distributor.dnsPolicy | string | `""` | Specify dnsPolicy for Distributor pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| components.distributor.dnsConfig | object | `{}` | Specify dnsConfig for Distributor pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | components.distributor.annotations | object | `{}` | Custom annotations for Distributor pods |
 | components.distributor.port | int | `5553` | Distributor container port |
 | components.distributor.nodePort | int | `30553` | Distributor expose NodePort |
@@ -257,6 +263,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.eventBus.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Event Bus |
 | components.eventBus.affinity | object | `{}` | Specify affinity for Event Bus pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.eventBus.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| components.eventBus.dnsPolicy | string | `""` | Specify dnsPolicy for Event Bus pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| components.eventBus.dnsConfig | object | `{}` | Specify dnsConfig for Event Bus pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | components.eventBus.annotations | object | `{}` | Custom annotations for Event Bus pods |
 | components.eventBus.port | int | `5557` | Event Bus container port |
 | components.eventBus.nodePort | int | `30557` | Event Bus expose NodePort |
@@ -286,6 +294,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Map |
 | components.sessionMap.affinity | object | `{}` | Specify affinity for Session Map pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.sessionMap.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| components.sessionMap.dnsPolicy | string | `""` | Specify dnsPolicy for Session Map pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| components.sessionMap.dnsConfig | object | `{}` | Specify dnsConfig for Session Map pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | components.sessionMap.annotations | object | `{}` | Custom annotations for Session Map pods |
 | components.sessionMap.port | int | `5556` | Session Map container port |
 | components.sessionMap.resources | object | `{"limits":{"cpu":"1","memory":"1Gi"},"requests":{"cpu":"0.5","memory":"512Mi"}}` | Resources for Session Map container |
@@ -312,6 +322,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.sessionQueue.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| components.sessionQueue.dnsPolicy | string | `""` | Specify dnsPolicy for Session Queue pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| components.sessionQueue.dnsConfig | object | `{}` | Specify dnsConfig for Session Queue pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | components.sessionQueue.annotations | object | `{}` | Custom annotations for Session Queue pods |
 | components.sessionQueue.port | int | `5559` | Session Queue container port |
 | components.sessionQueue.nodePort | int | `30559` | Session Queue expose NodePort |
@@ -336,6 +348,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | hub.affinity | object | `{}` | Specify affinity for Selenium Hub pods, this overwrites global.seleniumGrid.affinity parameter |
 | hub.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Hub pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| hub.dnsPolicy | string | `""` | Specify dnsPolicy for Hub pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| hub.dnsConfig | object | `{}` | Specify dnsConfig for Hub pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | hub.annotations | object | `{}` | Custom annotations for Selenium Hub pods |
 | hub.labels | object | `{}` | Custom labels for Selenium Hub pods |
 | hub.disableUI | bool | `false` | Disable the Grid UI |
@@ -400,6 +414,26 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.additionalScrapeConfigs.key | string | `""` |  |
 | monitoring.additionalScrapeConfigs.value | string | `""` |  |
 | monitoring.annotations | object | `{}` |  |
+| monitoring.serviceMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | ServiceMonitor configuration for Prometheus Operator |
+| monitoring.serviceMonitor.enabled | bool | `false` | Enable ServiceMonitor resource |
+| monitoring.serviceMonitor.namespace | string | `""` | Namespace to deploy the ServiceMonitor into (defaults to release namespace) |
+| monitoring.serviceMonitor.labels | object | `{}` | Additional labels for the ServiceMonitor |
+| monitoring.serviceMonitor.annotations | object | `{}` | Additional annotations for the ServiceMonitor |
+| monitoring.serviceMonitor.path | string | `"/metrics"` | Metrics scrape path |
+| monitoring.serviceMonitor.interval | string | `"30s"` | Scrape interval |
+| monitoring.serviceMonitor.scrapeTimeout | string | `"10s"` | Scrape timeout |
+| monitoring.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
+| monitoring.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
+| monitoring.podMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor) |
+| monitoring.podMonitor.enabled | bool | `false` | Enable PodMonitor resource |
+| monitoring.podMonitor.namespace | string | `""` | Namespace to deploy the PodMonitor into (defaults to release namespace) |
+| monitoring.podMonitor.labels | object | `{}` | Additional labels for the PodMonitor |
+| monitoring.podMonitor.annotations | object | `{}` | Additional annotations for the PodMonitor |
+| monitoring.podMonitor.path | string | `"/metrics"` | Metrics scrape path |
+| monitoring.podMonitor.interval | string | `"30s"` | Scrape interval |
+| monitoring.podMonitor.scrapeTimeout | string | `"10s"` | Scrape timeout |
+| monitoring.podMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
+| monitoring.podMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
 | autoscaling.enabled | bool | `false` | Enable autoscaling. Implies installing KEDA |
 | autoscaling.enableWithExistingKEDA | bool | `false` | Enable autoscaling without automatically installing KEDA |
 | autoscaling.scalingType | string | `"job"` | Which type of KEDA scaling to use: job or deployment |
@@ -561,6 +595,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.nodePort | string | `nil` | Node component expose NodePort |
 | chromeNode.affinity | object | `{}` | Specify affinity for chrome-node pods, this overwrites global.seleniumGrid.affinity parameter |
 | chromeNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for chrome-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| chromeNode.dnsPolicy | string | `""` | Specify dnsPolicy for chrome-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| chromeNode.dnsConfig | object | `{}` | Specify dnsConfig for chrome-node pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | chromeNode.annotations | object | `{}` | Annotations for chrome-node pods |
 | chromeNode.labels | object | `{}` | Labels for chrome-node pods |
 | chromeNode.shareProcessNamespace | bool | `true` | Shared process namespace for chrome-node pods |
@@ -621,6 +657,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.nodePort | string | `nil` | Node component expose NodePort |
 | firefoxNode.affinity | object | `{}` | Specify affinity for firefox-node pods, this overwrites global.seleniumGrid.affinity parameter |
 | firefoxNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for firefox-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| firefoxNode.dnsPolicy | string | `""` | Specify dnsPolicy for firefox-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| firefoxNode.dnsConfig | object | `{}` | Specify dnsConfig for firefox-node pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | firefoxNode.annotations | object | `{}` | Annotations for firefox-node pods |
 | firefoxNode.labels | object | `{}` | Labels for firefox-node pods |
 | firefoxNode.tolerations | list | `[]` | Tolerations for firefox-node pods |
@@ -681,6 +719,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.nodePort | string | `nil` | Node component expose NodePort |
 | edgeNode.affinity | object | `{}` | Specify affinity for edge-node pods, this overwrites global.seleniumGrid.affinity parameter |
 | edgeNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for edge-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| edgeNode.dnsPolicy | string | `""` | Specify dnsPolicy for edge-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| edgeNode.dnsConfig | object | `{}` | Specify dnsConfig for edge-node pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | edgeNode.annotations | object | `{}` | Annotations for edge-node pods |
 | edgeNode.labels | object | `{}` | Labels for edge-node pods |
 | edgeNode.tolerations | list | `[]` | Tolerations for edge-node pods |
@@ -742,6 +782,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.nodePort | string | `nil` | Node component expose NodePort |
 | relayNode.affinity | object | `{}` | Specify affinity for relay-node pods, this overwrites global.seleniumGrid.affinity parameter |
 | relayNode.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for relay-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| relayNode.dnsPolicy | string | `""` | Specify dnsPolicy for relay-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| relayNode.dnsConfig | object | `{}` | Specify dnsConfig for relay-node pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | relayNode.annotations | object | `{}` | Annotations for relay-node pods |
 | relayNode.labels | object | `{}` | Labels for relay-node pods |
 | relayNode.shareProcessNamespace | bool | `true` | Shared process namespace for relay-node pods |
@@ -835,6 +877,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | videoManager.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
 | videoManager.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | videoManager.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
+| videoManager.dnsPolicy | string | `""` | Specify dnsPolicy for file-browser pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
+| videoManager.dnsConfig | object | `{}` | Specify dnsConfig for file-browser pods, this overwrites global.seleniumGrid.dnsConfig parameter |
 | videoManager.annotations | object | `{}` | Custom annotations for router pods |
 | videoManager.port | int | `80` | Router container port |
 | videoManager.nodePort | int | `30080` | Router expose NodePort |

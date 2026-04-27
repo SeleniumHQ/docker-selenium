@@ -3,7 +3,7 @@
 # To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-node-all-browsers.yml down`
 services:
   selenium-hub:
-    image: selenium/hub:4.42.0-20260303
+    image: selenium/hub:4.43.0-20260404
     container_name: selenium-hub
     ports:
       - "4442:4442"
@@ -11,7 +11,7 @@ services:
       - "4444:4444"
 
   all-browsers:
-    image: selenium/node-all-browsers:4.42.0-20260303
+    image: selenium/node-all-browsers:4.43.0-20260404
     shm_size: 3gb
     depends_on:
       - selenium-hub

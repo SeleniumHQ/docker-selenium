@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: chrome
-          image: selenium/node-firefox:4.42.0-20260303
+          image: selenium/node-firefox:4.43.0-20260404
           env:
             - name: SE_EVENT_BUS_HOST
               value: "selenium-hub"

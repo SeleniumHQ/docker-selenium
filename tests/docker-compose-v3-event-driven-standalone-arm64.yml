@@ -28,7 +28,7 @@ services:
     deploy:
       mode: replicated
       replicas: 1
-    image: selenium/standalone-chromium:4.42.0-20260303
+    image: selenium/standalone-chromium:4.43.0-20260404
     shm_size: 2gb
     ports:
       - "4444:4444"

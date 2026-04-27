@@ -88,6 +88,13 @@ spec:
       {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.videoManager.affinity }}
       affinity: {{- toYaml $affinityYaml | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsPolicy .Values.videoManager.dnsPolicy }}
+      dnsPolicy: {{ default .Values.global.seleniumGrid.dnsPolicy .Values.videoManager.dnsPolicy }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsConfig .Values.videoManager.dnsConfig }}
+      {{- $dnsConfigYaml := default .Values.global.seleniumGrid.dnsConfig .Values.videoManager.dnsConfig }}
+      dnsConfig: {{- toYaml $dnsConfigYaml | nindent 8 }}
+    {{- end }}
     {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.videoManager.topologySpreadConstraints }}
       {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.videoManager.topologySpreadConstraints }}
       topologySpreadConstraints:

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: chrome
-          image: selenium/standalone-chrome:4.42.0-20260303
+          image: selenium/standalone-chrome:4.43.0-20260404
           ports:
             - containerPort: 4444
             - containerPort: 7900

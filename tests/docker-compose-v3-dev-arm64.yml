@@ -6,7 +6,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chromium:4.42.0-20260303
+    image: selenium/node-chromium:4.43.0-20260404
     platform: linux/arm64
     shm_size: 2gb
     volumes:
@@ -23,7 +23,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.42.0-20260303
+    image: selenium/node-firefox:4.43.0-20260404
     shm_size: 2gb
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
@@ -36,7 +36,7 @@ services:
       - SE_RECORD_VIDEO=true
 
   selenium-hub:
-    image: selenium/hub:4.42.0-20260303
+    image: selenium/hub:4.43.0-20260404
     container_name: selenium-hub
     volumes:
       - ./selenium_server_deploy.jar:/opt/selenium/selenium-server.jar
