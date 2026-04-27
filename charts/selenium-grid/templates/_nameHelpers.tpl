@@ -272,12 +272,21 @@ Dynamic Grid node ConfigMap fullname
 {{- end -}}
 
 {{/*
-Dynamic Grid job template ConfigMap fullname
+Dynamic Grid browser node fullname
 */}}
-{{- define "seleniumGrid.dynamicGrid.jobTemplate.fullname" -}}
-{{- $name := index . 0 -}}
-{{- $root := index . 1 -}}
-{{- printf "%s-%s" (include "seleniumGrid.component.name" (list "selenium-dynamic-job-template" $root)) $name | trunc 63 | trimSuffix "-" -}}
+{{- define "seleniumGrid.dynamicGrid.browserNode.fullname" -}}
+{{- $browser := .browser -}}
+{{- $node := .node -}}
+{{- $root := .root -}}
+{{- include (printf "seleniumGrid.%sNode.fullname" $browser) (list $node $root) -}}
+{{- end -}}
+
+{{/*
+Dynamic Grid browser node ConfigMap fullname
+*/}}
+{{- define "seleniumGrid.dynamicGrid.browserNode.configmap.fullname" -}}
+{{- $name := include "seleniumGrid.dynamicGrid.browserNode.fullname" . -}}
+{{- printf "%s-config" $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

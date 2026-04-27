@@ -1,37 +1,44 @@
 {{- if .Values.dynamicGrid.enabled }}
-{{- range $index, $pool := .Values.dynamicGrid.nodes }}
-{{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool }}
-{{- if and $node.enabled $node.service.enabled }}
+{{- range $browser := list "chrome" "firefox" "edge" }}
+{{- $baseNode := get $.Values (printf "%sNode" $browser) }}
+{{- range $i, $newNode := get $.Values.crossBrowsers (printf "%sNode" $browser) }}
+{{- $nodeConfig := merge $newNode $baseNode -}}
+{{- if and $nodeConfig.enabled $nodeConfig.service.enabled }}
+{{- $name := include "seleniumGrid.dynamicGrid.browserNode.fullname" (dict "browser" $browser "node" $nodeConfig "root" $) }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+  name: {{ $name }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
-    app.kubernetes.io/name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app: {{ $name }}
+    app.kubernetes.io/name: {{ $name }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-  {{- with $node.service.annotations }}
+  {{- with $nodeConfig.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ $node.service.type }}
+  type: {{ $nodeConfig.service.type }}
   selector:
-    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app: {{ $name }}
     app.kubernetes.io/instance: {{ $.Release.Name }}
+  {{- if and (eq $nodeConfig.service.type "LoadBalancer") ($nodeConfig.service.loadBalancerIP) }}
+  loadBalancerIP: {{ $nodeConfig.service.loadBalancerIP }}
+  {{- end }}
   ports:
     - name: web
-      port: {{ $node.service.port }}
-      targetPort: {{ $node.service.port }}
+      port: {{ $nodeConfig.port }}
+      targetPort: {{ $nodeConfig.port }}
       protocol: TCP
-  {{- with $node.service.externalTrafficPolicy }}
+  {{- with $nodeConfig.service.externalTrafficPolicy }}
   externalTrafficPolicy: {{ . }}
   {{- end }}
-  {{- with $node.service.sessionAffinity }}
+  {{- with $nodeConfig.service.sessionAffinity }}
   sessionAffinity: {{ . }}
   {{- end }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

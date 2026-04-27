@@ -1,6 +1,6 @@
 {{- range $i, $newNode := .Values.crossBrowsers.chromeNode }}
 {{- $nodeConfig := merge $newNode $.Values.chromeNode -}}
-{{- if and $nodeConfig.enabled ((eq (include "seleniumGrid.useKEDA" $) "true") | ternary (eq $.Values.autoscaling.scalingType "deployment") $nodeConfig.deploymentEnabled) }}
+{{- if and (not $.Values.dynamicGrid.enabled) $nodeConfig.enabled ((eq (include "seleniumGrid.useKEDA" $) "true") | ternary (eq $.Values.autoscaling.scalingType "deployment") $nodeConfig.deploymentEnabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

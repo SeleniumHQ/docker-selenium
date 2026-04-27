@@ -1,23 +1,27 @@
 {{- if .Values.dynamicGrid.enabled }}
-{{- range $index, $pool := .Values.dynamicGrid.nodes }}
-{{- $node := mergeOverwrite (deepCopy $.Values.dynamicGrid.defaults) $pool }}
-{{- if $node.enabled }}
+{{- range $browser := list "chrome" "firefox" "edge" }}
+{{- $baseNode := get $.Values (printf "%sNode" $browser) }}
+{{- range $i, $newNode := get $.Values.crossBrowsers (printf "%sNode" $browser) }}
+{{- $nodeConfig := merge $newNode $baseNode -}}
+{{- if $nodeConfig.enabled }}
+{{- $name := include "seleniumGrid.dynamicGrid.browserNode.fullname" (dict "browser" $browser "node" $nodeConfig "root" $) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "seleniumGrid.dynamicGrid.node.configmap.fullname" (list $node $) }}
+  name: {{ include "seleniumGrid.dynamicGrid.browserNode.configmap.fullname" (dict "browser" $browser "node" $nodeConfig "root" $) }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    app: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
-    app.kubernetes.io/name: {{ include "seleniumGrid.dynamicGrid.node.fullname" (list $node $) }}
+    app: {{ $name }}
+    app.kubernetes.io/name: {{ $name }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
-    {{- with $node.labels }}
+    {{- with $nodeConfig.labels }}
       {{- toYaml . | nindent 4 }}
     {{- end }}
 data:
-  {{ default "kubernetes.toml" $node.config.fileName }}: |
-{{ include "seleniumGrid.dynamicGrid.kubernetesToml" (dict "root" $ "node" $node) | indent 4 }}
+  kubernetes.toml: |
+{{ include "seleniumGrid.dynamicGrid.browser.kubernetesToml" (dict "root" $ "node" $nodeConfig) | indent 4 }}
 ---
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

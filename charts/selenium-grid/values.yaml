@@ -67,12 +67,14 @@ global:
     nodeDrainAfterSessionCount: 0
     # -- This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid)
     nodeEnableManagedDownloads: true
-    # -- Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes). If set via Helm CLI, consider use `--set-literal` to prevent Helm from interpreting the JSON string
-    nodeCustomCapabilities: ""
+    # -- Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes). Can be a map or a JSON/YAML string. If set as a string via Helm CLI, consider use `--set-literal` to prevent Helm from interpreting the JSON string
+    nodeCustomCapabilities:
     # -- How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again.
     nodeRegisterPeriod: 120
     # -- How often, in seconds, the Node will try to register itself for the first time to the Distributor.
     nodeRegisterCycle: 5
+    # -- Let X be the session-timeout in seconds. The Node will automatically kill a session that has not had any activity in the last X seconds. This will release the slot for other tests.
+    nodeSessionTimeout: "300"
 
 tls:
   # -- Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below
@@ -1275,92 +1277,40 @@ dynamicGrid:
     size: 5Gi
     storageClassName: ""
   defaults:
+    # -- Registry for the Dynamic Grid controller image. Browser job images are derived from chromeNode/firefoxNode/edgeNode image settings.
     imageRegistry:
+    # -- Dynamic Grid controller image name
     imageName: node-kubernetes
+    # -- Dynamic Grid controller image tag. If unset, each browser node imageTag/global nodesImageTag is used.
     imageTag:
-    imagePullPolicy: IfNotPresent
-    imagePullSecret: ""
-    replicas: 1
-    annotations: {}
-    labels: {}
-    nodeSelector: {}
-    tolerations: []
-    affinity: {}
-    topologySpreadConstraints: []
-    priorityClassName: ""
-    resources:
-      requests:
-        cpu: "0.5"
-        memory: "512Mi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
-    extraEnvironmentVariables: []
-    extraEnvFrom: []
-    extraVolumes: []
-    extraVolumeMounts: []
-    terminationGracePeriodSeconds: 300
-    startupProbe:
-      enabled: false
-      path: /readyz
-      port: 5555
-      initialDelaySeconds: 5
-      periodSeconds: 10
-      timeoutSeconds: 10
-      failureThreshold: 12
-      successThreshold: 1
-    readinessProbe:
-      enabled: true
-      path: /readyz
-      port: 5555
-      initialDelaySeconds: 10
-      periodSeconds: 5
-      timeoutSeconds: 10
-      failureThreshold: 10
-      successThreshold: 1
-    livenessProbe:
-      enabled: true
-      path: /readyz
-      port: 5555
-      initialDelaySeconds: 15
-      periodSeconds: 10
-      timeoutSeconds: 10
-      failureThreshold: 10
-      successThreshold: 1
-    env:
-      dynamicMaxSessions: ""
-      dynamicOverrideMaxSessions: ""
-      nodeSessionTimeout: ""
-      nodeHeartbeatPeriod: ""
-      nodeConnectionLimitPerSession: ""
-      nodeEnableManagedDownloads: true
-      externalUrl: ""
+    # -- Override node session timeout for Dynamic Grid controller nodes
+    nodeSessionTimeout: ""
+    # -- Override node heartbeat period for Dynamic Grid controller nodes
+    nodeHeartbeatPeriod: ""
+    # -- Override connection limit per session for Dynamic Grid controller nodes
+    nodeConnectionLimitPerSession: ""
+    # -- External URL for Dynamic Grid controller nodes
+    externalUrl: ""
     config:
-      fileName: kubernetes.toml
-      rawToml: ""
       kubernetes:
+        # -- Kubernetes API URL for node-kubernetes
         url: ""
+        # -- Namespace where node-kubernetes creates browser Jobs
         namespace: ""
+        # -- Service account used by browser Jobs
         serviceAccount: ""
-        imagePullPolicy: ""
+        # -- Browser Job server start timeout
         serverStartTimeout: ""
+        # -- Browser Job termination grace period
         terminationGracePeriod: ""
+        # -- Label prefix inherited by browser Jobs
         labelInheritPrefix: ""
+        # -- Shared assets path mounted into Dynamic Grid controller nodes
         assetsPath: /opt/selenium/assets
+        # -- Video image configured in node-kubernetes TOML
         videoImage: ""
-        configs: []
+        # -- Extra raw TOML appended under [kubernetes]
         extraToml: ""
-    service:
-      enabled: false
-      type: ClusterIP
-      port: 5555
-      annotations: {}
-      externalTrafficPolicy: ""
-      sessionAffinity: ""
-  # -- Optional chart-managed ConfigMaps used by Dynamic Grid `configmap:` template mode. The map key is the logical template name and the value is the full Job YAML stored under ConfigMap key `template`
-  jobTemplates: {}
-  # -- Dynamic Grid controller nodes. Each entry inherits from `dynamicGrid.defaults` and must define a unique `name`
-  nodes: []
 
 # Configuration additional nodes with different versions, capabilities, etc.
 crossBrowsers:
@@ -1547,12 +1497,14 @@ chromeNode:
   nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
-  # -- Override the same config at the global level
-  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level. Can be a map or a JSON/YAML string
+  nodeCustomCapabilities:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
   nodeRegisterCycle:
+  # -- Override the session timeout in seconds at the global level
+  nodeSessionTimeout: ""
   # -- Override the scaled options for chrome nodes
   scaledOptions:
   # -- Override the scaledJobOptions for chrome nodes
@@ -1751,12 +1703,14 @@ firefoxNode:
   nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
-  # -- Override the same config at the global level
-  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level. Can be a map or a JSON/YAML string
+  nodeCustomCapabilities:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
   nodeRegisterCycle:
+  # -- Override the session timeout in seconds at the global level
+  nodeSessionTimeout:
   # -- Override the scaled options for firefox nodes
   scaledOptions:
   # -- Override the scaledJobOptions for firefox nodes
@@ -1955,12 +1909,14 @@ edgeNode:
   nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
-  # -- Override the same config at the global level
-  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level. Can be a map or a JSON/YAML string
+  nodeCustomCapabilities:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
   nodeRegisterCycle:
+  # -- Override the session timeout in seconds at the global level
+  nodeSessionTimeout:
   # -- Override the scaled options for edge nodes
   scaledOptions:
   # -- Override the scaledJobOptions for edge nodes
@@ -2160,12 +2116,14 @@ relayNode:
   nodeDrainAfterSessionCount:
   # -- Override the managed downloads in node
   nodeEnableManagedDownloads:
-  # -- Override the same config at the global level
-  nodeCustomCapabilities: ""
+  # -- Override the same config at the global level. Can be a map or a JSON/YAML string
+  nodeCustomCapabilities:
   # -- Override the same config at the global level
   nodeRegisterPeriod:
   # -- Override the same config at the global level
   nodeRegisterCycle:
+  # -- Override the session timeout in seconds at the global level
+  nodeSessionTimeout:
   # -- Override the scaled options for relay nodes
   scaledOptions:
   # -- Override the scaledJobOptions for relay nodes

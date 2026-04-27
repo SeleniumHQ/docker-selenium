@@ -56,9 +56,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | global.seleniumGrid.nodeMaxSessions | int | `1` | Specify number of max sessions per node. Can be overridden by individual component (this is also set to scaler trigger parameter `nodeMaxSessions` if `autoscaling` is enabled) |
 | global.seleniumGrid.nodeDrainAfterSessionCount | int | `0` | Set number of sessions will be executed in a Node before detaching it from Hub and shutting it down |
 | global.seleniumGrid.nodeEnableManagedDownloads | bool | `true` | This causes the Node to auto manage files downloaded for a given session on the Node (https://www.selenium.dev/documentation/webdriver/drivers/remote_webdriver/#enable-downloads-in-the-grid) |
-| global.seleniumGrid.nodeCustomCapabilities | string | `""` | Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes). If set via Helm CLI, consider use `--set-literal` to prevent Helm from interpreting the JSON string |
+| global.seleniumGrid.nodeCustomCapabilities | string | `nil` | Setting custom capabilities for matching specific Nodes (https://www.selenium.dev/documentation/grid/configuration/toml_options/#setting-custom-capabilities-for-matching-specific-nodes). Can be a map or a JSON/YAML string. If set as a string via Helm CLI, consider use `--set-literal` to prevent Helm from interpreting the JSON string |
 | global.seleniumGrid.nodeRegisterPeriod | int | `120` | How long, in seconds, will the Node try to register to the Distributor for the first time. After this period is completed, the Node will not attempt to register again. |
 | global.seleniumGrid.nodeRegisterCycle | int | `5` | How often, in seconds, the Node will try to register itself for the first time to the Distributor. |
+| global.seleniumGrid.nodeSessionTimeout | string | `"300"` | Let X be the session-timeout in seconds. The Node will automatically kill a session that has not had any activity in the last X seconds. This will release the slot for other tests. |
 | tls.create | bool | `true` | Create a Secret resource for TLS certificate and key. If using an external secret set to false and provide its name in `nameOverride` below |
 | tls.nameOverride | string | `nil` | Name of external secret containing the TLS certificate and key |
 | tls.enabled | bool | `false` | Enable or disable TLS for the server components (and ingress proxy) |
@@ -503,80 +504,22 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | dynamicGrid.assets.accessModes[0] | string | `"ReadWriteMany"` |  |
 | dynamicGrid.assets.size | string | `"5Gi"` |  |
 | dynamicGrid.assets.storageClassName | string | `""` |  |
-| dynamicGrid.defaults.imageRegistry | string | `nil` |  |
-| dynamicGrid.defaults.imageName | string | `"node-kubernetes"` |  |
-| dynamicGrid.defaults.imageTag | string | `nil` |  |
-| dynamicGrid.defaults.imagePullPolicy | string | `"IfNotPresent"` |  |
-| dynamicGrid.defaults.imagePullSecret | string | `""` |  |
-| dynamicGrid.defaults.replicas | int | `1` |  |
-| dynamicGrid.defaults.annotations | object | `{}` |  |
-| dynamicGrid.defaults.labels | object | `{}` |  |
-| dynamicGrid.defaults.nodeSelector | object | `{}` |  |
-| dynamicGrid.defaults.tolerations | list | `[]` |  |
-| dynamicGrid.defaults.affinity | object | `{}` |  |
-| dynamicGrid.defaults.topologySpreadConstraints | list | `[]` |  |
-| dynamicGrid.defaults.priorityClassName | string | `""` |  |
-| dynamicGrid.defaults.resources.requests.cpu | string | `"0.5"` |  |
-| dynamicGrid.defaults.resources.requests.memory | string | `"512Mi"` |  |
-| dynamicGrid.defaults.resources.limits.cpu | string | `"1"` |  |
-| dynamicGrid.defaults.resources.limits.memory | string | `"2Gi"` |  |
-| dynamicGrid.defaults.extraEnvironmentVariables | list | `[]` |  |
-| dynamicGrid.defaults.extraEnvFrom | list | `[]` |  |
-| dynamicGrid.defaults.extraVolumes | list | `[]` |  |
-| dynamicGrid.defaults.extraVolumeMounts | list | `[]` |  |
-| dynamicGrid.defaults.terminationGracePeriodSeconds | int | `300` |  |
-| dynamicGrid.defaults.startupProbe.enabled | bool | `false` |  |
-| dynamicGrid.defaults.startupProbe.path | string | `"/readyz"` |  |
-| dynamicGrid.defaults.startupProbe.port | int | `5555` |  |
-| dynamicGrid.defaults.startupProbe.initialDelaySeconds | int | `5` |  |
-| dynamicGrid.defaults.startupProbe.periodSeconds | int | `10` |  |
-| dynamicGrid.defaults.startupProbe.timeoutSeconds | int | `10` |  |
-| dynamicGrid.defaults.startupProbe.failureThreshold | int | `12` |  |
-| dynamicGrid.defaults.startupProbe.successThreshold | int | `1` |  |
-| dynamicGrid.defaults.readinessProbe.enabled | bool | `true` |  |
-| dynamicGrid.defaults.readinessProbe.path | string | `"/readyz"` |  |
-| dynamicGrid.defaults.readinessProbe.port | int | `5555` |  |
-| dynamicGrid.defaults.readinessProbe.initialDelaySeconds | int | `10` |  |
-| dynamicGrid.defaults.readinessProbe.periodSeconds | int | `5` |  |
-| dynamicGrid.defaults.readinessProbe.timeoutSeconds | int | `10` |  |
-| dynamicGrid.defaults.readinessProbe.failureThreshold | int | `10` |  |
-| dynamicGrid.defaults.readinessProbe.successThreshold | int | `1` |  |
-| dynamicGrid.defaults.livenessProbe.enabled | bool | `true` |  |
-| dynamicGrid.defaults.livenessProbe.path | string | `"/readyz"` |  |
-| dynamicGrid.defaults.livenessProbe.port | int | `5555` |  |
-| dynamicGrid.defaults.livenessProbe.initialDelaySeconds | int | `15` |  |
-| dynamicGrid.defaults.livenessProbe.periodSeconds | int | `10` |  |
-| dynamicGrid.defaults.livenessProbe.timeoutSeconds | int | `10` |  |
-| dynamicGrid.defaults.livenessProbe.failureThreshold | int | `10` |  |
-| dynamicGrid.defaults.livenessProbe.successThreshold | int | `1` |  |
-| dynamicGrid.defaults.env.dynamicMaxSessions | string | `""` |  |
-| dynamicGrid.defaults.env.dynamicOverrideMaxSessions | string | `""` |  |
-| dynamicGrid.defaults.env.nodeSessionTimeout | string | `""` |  |
-| dynamicGrid.defaults.env.nodeHeartbeatPeriod | string | `""` |  |
-| dynamicGrid.defaults.env.nodeConnectionLimitPerSession | string | `""` |  |
-| dynamicGrid.defaults.env.nodeEnableManagedDownloads | bool | `true` |  |
-| dynamicGrid.defaults.env.externalUrl | string | `""` |  |
-| dynamicGrid.defaults.config.fileName | string | `"kubernetes.toml"` |  |
-| dynamicGrid.defaults.config.rawToml | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.url | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.namespace | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.serviceAccount | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.imagePullPolicy | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.serverStartTimeout | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.terminationGracePeriod | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.labelInheritPrefix | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.assetsPath | string | `"/opt/selenium/assets"` |  |
-| dynamicGrid.defaults.config.kubernetes.videoImage | string | `""` |  |
-| dynamicGrid.defaults.config.kubernetes.configs | list | `[]` |  |
-| dynamicGrid.defaults.config.kubernetes.extraToml | string | `""` |  |
-| dynamicGrid.defaults.service.enabled | bool | `false` |  |
-| dynamicGrid.defaults.service.type | string | `"ClusterIP"` |  |
-| dynamicGrid.defaults.service.port | int | `5555` |  |
-| dynamicGrid.defaults.service.annotations | object | `{}` |  |
-| dynamicGrid.defaults.service.externalTrafficPolicy | string | `""` |  |
-| dynamicGrid.defaults.service.sessionAffinity | string | `""` |  |
-| dynamicGrid.jobTemplates | object | `{}` | Optional chart-managed ConfigMaps used by Dynamic Grid `configmap:` template mode. The map key is the logical template name and the value is the full Job YAML stored under ConfigMap key `template` |
-| dynamicGrid.nodes | list | `[]` | Dynamic Grid controller nodes. Each entry inherits from `dynamicGrid.defaults` and must define a unique `name` |
+| dynamicGrid.defaults.imageRegistry | string | `nil` | Registry for the Dynamic Grid controller image. Browser job images are derived from chromeNode/firefoxNode/edgeNode image settings. |
+| dynamicGrid.defaults.imageName | string | `"node-kubernetes"` | Dynamic Grid controller image name |
+| dynamicGrid.defaults.imageTag | string | `nil` | Dynamic Grid controller image tag. If unset, each browser node imageTag/global nodesImageTag is used. |
+| dynamicGrid.defaults.nodeSessionTimeout | string | `""` | Override node session timeout for Dynamic Grid controller nodes |
+| dynamicGrid.defaults.nodeHeartbeatPeriod | string | `""` | Override node heartbeat period for Dynamic Grid controller nodes |
+| dynamicGrid.defaults.nodeConnectionLimitPerSession | string | `""` | Override connection limit per session for Dynamic Grid controller nodes |
+| dynamicGrid.defaults.externalUrl | string | `""` | External URL for Dynamic Grid controller nodes |
+| dynamicGrid.defaults.config.kubernetes.url | string | `""` | Kubernetes API URL for node-kubernetes |
+| dynamicGrid.defaults.config.kubernetes.namespace | string | `""` | Namespace where node-kubernetes creates browser Jobs |
+| dynamicGrid.defaults.config.kubernetes.serviceAccount | string | `""` | Service account used by browser Jobs |
+| dynamicGrid.defaults.config.kubernetes.serverStartTimeout | string | `""` | Browser Job server start timeout |
+| dynamicGrid.defaults.config.kubernetes.terminationGracePeriod | string | `""` | Browser Job termination grace period |
+| dynamicGrid.defaults.config.kubernetes.labelInheritPrefix | string | `""` | Label prefix inherited by browser Jobs |
+| dynamicGrid.defaults.config.kubernetes.assetsPath | string | `"/opt/selenium/assets"` | Shared assets path mounted into Dynamic Grid controller nodes |
+| dynamicGrid.defaults.config.kubernetes.videoImage | string | `""` | Video image configured in node-kubernetes TOML |
+| dynamicGrid.defaults.config.kubernetes.extraToml | string | `""` | Extra raw TOML appended under [kubernetes] |
 | crossBrowsers.chromeNode | list | `[{"nameOverride":null}]` | Additional chrome nodes, array of objects with the same structure as `chromeNode` |
 | crossBrowsers.firefoxNode | list | `[{"nameOverride":null}]` | Additional firefox nodes, array of objects with the same structure as `firefoxNode` |
 | crossBrowsers.edgeNode | list | `[{"nameOverride":null}]` | Additional edge nodes, array of objects with the same structure as `edgeNode` |
@@ -628,9 +571,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | chromeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | chromeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
-| chromeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
+| chromeNode.nodeCustomCapabilities | string | `nil` | Override the same config at the global level. Can be a map or a JSON/YAML string |
 | chromeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | chromeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
+| chromeNode.nodeSessionTimeout | string | `""` | Override the session timeout in seconds at the global level |
 | chromeNode.scaledOptions | string | `nil` | Override the scaled options for chrome nodes |
 | chromeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for chrome nodes |
 | chromeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for chrome nodes |
@@ -690,9 +634,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | firefoxNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | firefoxNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
-| firefoxNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
+| firefoxNode.nodeCustomCapabilities | string | `nil` | Override the same config at the global level. Can be a map or a JSON/YAML string |
 | firefoxNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | firefoxNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
+| firefoxNode.nodeSessionTimeout | string | `nil` | Override the session timeout in seconds at the global level |
 | firefoxNode.scaledOptions | string | `nil` | Override the scaled options for firefox nodes |
 | firefoxNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for firefox nodes |
 | firefoxNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for firefox nodes |
@@ -752,9 +697,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | edgeNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | edgeNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
-| edgeNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
+| edgeNode.nodeCustomCapabilities | string | `nil` | Override the same config at the global level. Can be a map or a JSON/YAML string |
 | edgeNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | edgeNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
+| edgeNode.nodeSessionTimeout | string | `nil` | Override the session timeout in seconds at the global level |
 | edgeNode.scaledOptions | string | `nil` | Override the scaled options for edge nodes |
 | edgeNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for edge nodes |
 | edgeNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for edge nodes |
@@ -815,9 +761,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.nodeMaxSessions | string | `nil` | Override the number of max sessions per node |
 | relayNode.nodeDrainAfterSessionCount | string | `nil` | Override the number of sessions to run before draining the node |
 | relayNode.nodeEnableManagedDownloads | string | `nil` | Override the managed downloads in node |
-| relayNode.nodeCustomCapabilities | string | `""` | Override the same config at the global level |
+| relayNode.nodeCustomCapabilities | string | `nil` | Override the same config at the global level. Can be a map or a JSON/YAML string |
 | relayNode.nodeRegisterPeriod | string | `nil` | Override the same config at the global level |
 | relayNode.nodeRegisterCycle | string | `nil` | Override the same config at the global level |
+| relayNode.nodeSessionTimeout | string | `nil` | Override the session timeout in seconds at the global level |
 | relayNode.scaledOptions | string | `nil` | Override the scaled options for relay nodes |
 | relayNode.scaledJobOptions | string | `nil` | Override the scaledJobOptions for relay nodes |
 | relayNode.scaledObjectOptions | string | `nil` | Override the scaledObjectOptions for relay nodes |

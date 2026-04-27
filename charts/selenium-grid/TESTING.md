@@ -19,8 +19,8 @@ All related testing to this helm chart will be documented in this file.
 |                        | `ingress.traefik` configs for Traefik ingress controller annotations | &check;  | Template |
 | Dynamic Grid           | `dynamicGrid.enabled` renders dedicated controller ServiceAccount    | &check;  | Template |
 |                        | `dynamicGrid.enabled` renders dedicated controller RBAC and assets PVC | &check;  | Template |
-|                        | Multiple `dynamicGrid.nodes` render independent controller Deployments and TOML ConfigMaps | &check; | Template |
-|                        | `dynamicGrid.jobTemplates` can be referenced via `configmap:` in TOML | &check; | Template |
+|                        | Enabled `chromeNode`/`firefoxNode` entries render Dynamic Grid controller Deployments and TOML ConfigMaps | &check; | Template |
+|                        | Node `hpa`, `nodeCustomCapabilities`, and `nodeMaxSessions` feed generated Dynamic Grid TOML/env | &check; | Template |
 |                        | Dynamic Grid validation rejects KEDA autoscaling being enabled simultaneously | &check; | Template |
 | Distributed components | `isolateComponents` is enabled                                       | &check;  | Cluster  |
 |                        | `isolateComponents` is disabled                                      | &check;  | Cluster  |

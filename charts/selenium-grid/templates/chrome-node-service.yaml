@@ -1,6 +1,6 @@
 {{- range $i, $newNode := .Values.crossBrowsers.chromeNode }}
 {{- $nodeConfig := merge $newNode $.Values.chromeNode -}}
-{{- if and $nodeConfig.enabled $nodeConfig.service.enabled }}
+{{- if and (not $.Values.dynamicGrid.enabled) $nodeConfig.enabled $nodeConfig.service.enabled }}
 apiVersion: v1
 kind: Service
 metadata:

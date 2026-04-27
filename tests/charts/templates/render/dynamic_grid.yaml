@@ -3,79 +3,62 @@ ingress:
   enabled: false
   enableWithController: false
 
-chromeNode:
-  enabled: false
-
-firefoxNode:
-  enabled: false
-
-edgeNode:
-  enabled: false
-
 relayNode:
   enabled: false
 
 dynamicGrid:
   enabled: true
-
   defaults:
     imageTag: 4.42.0-20260303
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "512Mi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
-    env:
-      dynamicMaxSessions: "10"
-      dynamicOverrideMaxSessions: "true"
-      nodeSessionTimeout: "600"
+    nodeSessionTimeout: "600"
     config:
       kubernetes:
         assetsPath: /opt/selenium/assets
         terminationGracePeriod: "60"
 
-  jobTemplates:
-    chrome-dev-template: |
-      apiVersion: batch/v1
-      kind: Job
-      spec:
-        template:
-          spec:
-            restartPolicy: Never
-            containers:
-              - name: browser
-                image: selenium/standalone-chrome:dev
+chromeNode:
+  enabled: true
+  replicas: 2
+  labels:
+    tier: dynamic
+  imageTag: 4.42.0-20260303
+  nodeMaxSessions: 10
+  nodeCustomCapabilities:
+    myApp:version: beta
+    myApp:publish: public
+  hpa:
+    browserName: chrome
+    sessionBrowserName: chrome
+    browserVersion: "stable"
+    platformName: linux
+    unsafeSsl: "true"
 
-  nodes:
-    - name: linux-stable
-      enabled: true
-      labels:
-        tier: dynamic
-      config:
-        kubernetes:
-          configs:
-            - image: selenium/standalone-chromium:4.42.0-20260303
-              capabilities:
-                browserName: chrome
-                platformName: linux
-            - templateConfigMap: chrome-dev-template
-              capabilities:
-                browserName: chrome
-                browserVersion: dev
-                platformName: linux
+firefoxNode:
+  enabled: true
+  imageTag: 4.42.0-20260303
+  nodeMaxSessions: 3
+  service:
+    enabled: true
+  hpa:
+    browserName: firefox
+    browserVersion: beta
+    platformName: linux
+    unsafeSsl: "true"
 
-    - name: firefox-beta
-      enabled: true
-      service:
-        enabled: true
-      config:
-        fileName: firefox-beta.toml
-        rawToml: |
-          [kubernetes]
-          configs = [
-            "selenium/standalone-firefox:4.42.0-20260303", '{"browserName":"firefox","browserVersion":"beta","platformName":"linux"}'
-          ]
-          termination-grace-period = 90
-          assets-path = "/opt/selenium/assets"
+crossBrowsers:
+  chromeNode:
+    - nameOverride:
+    - nameOverride: '{{ .Release.Name }}-node-chrome-beta'
+      nodeMaxSessions: 2
+      hpa:
+        browserName: chrome
+        browserVersion: beta
+        platformName: linux
+        unsafeSsl: "true"
+  firefoxNode:
+    - nameOverride:
+  edgeNode:
+    - nameOverride:
+
+edgeNode:
+  enabled: false

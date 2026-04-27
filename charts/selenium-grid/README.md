@@ -396,24 +396,21 @@ At cluster level, you might need to configure network policies to allow traffic 
 
 ## Enable Selenium Dynamic Grid
 
-Dynamic Grid support is available through the top-level `dynamicGrid` values tree. This mode deploys one or more `selenium/node-kubernetes` controller Deployments, each backed by its own `kubernetes.toml` ConfigMap and optional shared assets PVC.
+Dynamic Grid support is enabled through the top-level `dynamicGrid` values tree. This mode deploys `selenium/node-kubernetes` controller Deployments for the enabled `chromeNode`, `firefoxNode`, and `edgeNode` entries, including additional entries from `crossBrowsers`.
 
 This mode is separate from KEDA-based autoscaling:
 
 - Use `autoscaling.*` when you want the chart to manage KEDA `ScaledObject` or `ScaledJob` resources for the built-in browser node Deployments.
-- Use `dynamicGrid.*` when you want `selenium/node-kubernetes` to create browser Jobs dynamically from one or more TOML controller configs.
+- Use `dynamicGrid.*` when you want `selenium/node-kubernetes` to create browser Jobs dynamically from the existing browser node values.
 - Do not enable both at the same time. The chart rejects `dynamicGrid.enabled=true` together with `autoscaling.enabled=true` or `autoscaling.enableWithExistingKEDA=true`.
 
-Each entry in `dynamicGrid.nodes` is an independent Dynamic Grid controller. This allows you to define multiple pools with different routing rules, Kubernetes template sources, and per-pool controller settings.
+Dynamic Grid reuses the same browser node and `crossBrowsers` structure used by static nodes:
 
-- `dynamicGrid.defaults` provides shared controller settings such as image, probes, resources, environment, and default TOML settings.
-- `dynamicGrid.nodes[]` lets each pool define its own `name`, pod scheduling settings, and TOML config.
-- `dynamicGrid.jobTemplates` lets the chart manage ConfigMaps that can be referenced from TOML via `configmap:<name>`.
-
-Each node can define its TOML in either of these ways:
-
-- Structured mode with `config.kubernetes.configs`, where the chart renders `kubernetes.toml` from image and capability mappings.
-- Raw mode with `config.rawToml`, where you provide the TOML content directly.
+- `chromeNode`, `firefoxNode`, and `edgeNode` control whether a Dynamic Grid controller is rendered.
+- `crossBrowsers.chromeNode`, `crossBrowsers.firefoxNode`, and `crossBrowsers.edgeNode` add more Dynamic Grid controllers with the same merge behavior as the existing node templates.
+- The browser Job image is derived from each node image setting by replacing the default `node-*` image name with `standalone-*` and using that node's image tag/registry.
+- Capabilities are built from each node's `hpa` values, excluding `unsafeSsl`; map-style `nodeCustomCapabilities` values are merged into the generated capabilities.
+- `nodeMaxSessions` sets `SE_DYNAMIC_MAX_SESSIONS` for the Dynamic Grid controller.
 
 Example:
 
@@ -421,52 +418,32 @@ Example:
 dynamicGrid:
   enabled: true
   defaults:
-    imageTag: 4.42.0-20260303
-    env:
-      dynamicMaxSessions: "10"
-      dynamicOverrideMaxSessions: "true"
-      nodeSessionTimeout: "600"
+    imageTag: 4.43.0-20260404
+    nodeSessionTimeout: "600"
     config:
       kubernetes:
         assetsPath: /opt/selenium/assets
         terminationGracePeriod: "60"
-  jobTemplates:
-    chrome-dev-template: |
-      apiVersion: batch/v1
-      kind: Job
-      spec:
-        template:
-          spec:
-            restartPolicy: Never
-            containers:
-              - name: browser
-                image: selenium/standalone-chrome:dev
-  nodes:
-    - name: linux-stable
-      enabled: true
-      config:
-        kubernetes:
-          configs:
-            - image: selenium/standalone-chromium:4.42.0-20260303
-              capabilities:
-                browserName: chrome
-                platformName: linux
-            - image: selenium/standalone-firefox:4.42.0-20260303
-              capabilities:
-                browserName: firefox
-                platformName: linux
-    - name: chrome-dev
-      enabled: true
-      nodeSelector:
-        workload-type: browser
-      config:
-        kubernetes:
-          configs:
-            - templateConfigMap: chrome-dev-template
-              capabilities:
-                browserName: chrome
-                browserVersion: dev
-                platformName: linux
+
+chromeNode:
+  imageTag: 4.43.0-20260404
+  nodeMaxSessions: 10
+  hpa:
+    browserName: chrome
+    browserVersion: ""
+    platformName: linux
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'
+  nodeCustomCapabilities:
+    se:name: chrome-dynamic
+
+firefoxNode:
+  imageTag: 4.43.0-20260404
+  nodeMaxSessions: 5
+  hpa:
+    browserName: firefox
+    browserVersion: ""
+    platformName: linux
+    unsafeSsl: '{{ template "seleniumGrid.graphqlURL.unsafeSsl" . }}'
 ```
 
 For a complete example values file, see [dynamic-grid-values.yaml](./dynamic-grid-values.yaml). For the full value reference, see [CONFIGURATION.md](./CONFIGURATION.md).

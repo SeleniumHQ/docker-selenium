@@ -19,6 +19,7 @@ global:
         whenUnsatisfiable: DoNotSchedule
     nodeMaxSessions: 3
     nodeDrainAfterSessionCount: 30
+    nodeSessionTimeout: 600
     nodeEnableManagedDownloads: true
     nodeCustomCapabilities: "{'myApp:version':'beta','myApp:publish':'public'}"
 
@@ -205,6 +206,7 @@ components:
 chromeNode:
   nodeMaxSessions: 2
   nodeDrainAfterSessionCount: 10
+  nodeSessionTimeout: 120
   annotations:
     "restartOnUpdate": "true"
   terminationGracePeriodSeconds: 7200

@@ -471,7 +471,13 @@ class ChartTemplateTests(unittest.TestCase):
             f'{RELEASE_NAME}selenium-node-edge': 3,
             f'{RELEASE_NAME}selenium-node-firefox': 1,
         }
+        node_session_timeouts = {
+            f'{RELEASE_NAME}selenium-node-chrome': 120,
+            f'{RELEASE_NAME}selenium-node-edge': 600,
+            f'{RELEASE_NAME}selenium-node-firefox': 600,
+        }
         count = 0
+        session_timeout_count = 0
         for resource_name in resources_name.keys():
             for doc in LIST_OF_DOCUMENTS:
                 if doc['metadata']['name'] == resource_name and doc['kind'] == 'ScaledObject':
@@ -486,6 +492,12 @@ class ChartTemplateTests(unittest.TestCase):
                             self.assertTrue(
                                 env['value'] == str(resources_name[doc['metadata']['name']]), "Value is not matched"
                             )
+                        if env['name'] == 'SE_NODE_SESSION_TIMEOUT':
+                            self.assertTrue(
+                                env['value'] == str(node_session_timeouts[doc['metadata']['name']]),
+                                "Node session timeout is not matched",
+                            )
+                            session_timeout_count += 1
                         if env['name'] == 'SE_NODE_PLATFORM_NAME':
                             self.assertTrue(env['value'] == "", "Platform name is not matched")
                         if env['name'] == 'SE_NODE_BROWSER_VERSION':
@@ -493,6 +505,11 @@ class ChartTemplateTests(unittest.TestCase):
                             count += 1
         self.assertEqual(
             count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}"
+        )
+        self.assertEqual(
+            session_timeout_count,
+            len(resources_name.keys()),
+            f"Expected {len(resources_name.keys())} node session timeout env vars but found {session_timeout_count}",
         )
 
     def test_monitoring_exporter_tolerations(self):

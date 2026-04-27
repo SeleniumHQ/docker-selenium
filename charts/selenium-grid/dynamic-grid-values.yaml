@@ -1,65 +1,22 @@
-isolateComponents: true
-
 ingress:
   enabled: false
 
 dynamicGrid:
   enabled: true
-
   defaults:
-    imageTag: 4.42.0-20260303
-    resources:
-      requests:
-        cpu: "500m"
-        memory: "512Mi"
-      limits:
-        cpu: "1"
-        memory: "2Gi"
-    env:
-      dynamicMaxSessions: "10"
-      dynamicOverrideMaxSessions: "true"
-      nodeSessionTimeout: "600"
+    imageTag: 4.43.0-20260404
+    nodeSessionTimeout: "600"
     config:
       kubernetes:
         assetsPath: /opt/selenium/assets
-        terminationGracePeriod: "60"
+        terminationGracePeriod: "30"
 
-  jobTemplates:
-    chrome-dev-template: |
-      apiVersion: batch/v1
-      kind: Job
-      spec:
-        template:
-          spec:
-            restartPolicy: Never
-            containers:
-              - name: browser
-                image: selenium/standalone-chrome:dev
+chromeNode:
+  imageName: node-chromium
+  nodeMaxSessions: 20
 
-  nodes:
-    - name: linux-stable
-      enabled: true
-      config:
-        kubernetes:
-          configs:
-            - image: selenium/standalone-chromium:4.42.0-20260303
-              capabilities:
-                browserName: chrome
-                platformName: linux
-            - image: selenium/standalone-firefox:4.42.0-20260303
-              capabilities:
-                browserName: firefox
-                platformName: linux
+firefoxNode:
+  nodeMaxSessions: 20
 
-    - name: chrome-dev
-      enabled: true
-      nodeSelector:
-        workload-type: browser
-      config:
-        kubernetes:
-          configs:
-            - templateConfigMap: chrome-dev-template
-              capabilities:
-                browserName: chrome
-                browserVersion: dev
-                platformName: linux
+edgeNode:
+  enabled: false

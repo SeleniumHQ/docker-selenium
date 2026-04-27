@@ -180,78 +180,103 @@ Dynamic Grid assets claim name
 {{- end -}}
 
 {{/*
-Dynamic Grid config identifier for one configs[] item
+Dynamic Grid browser image from the existing node image settings
 */}}
-{{- define "seleniumGrid.dynamicGrid.config.identifier" -}}
+{{- define "seleniumGrid.dynamicGrid.browser.image" -}}
 {{- $root := .root -}}
-{{- $config := .config -}}
-{{- if $config.image -}}
-  {{- tpl ($config.image | toString) $root -}}
-{{- else -}}
-  {{- $configMapName := $config.templateConfigMap | toString -}}
-  {{- if hasKey $root.Values.dynamicGrid.jobTemplates $configMapName -}}
-    {{- $configMapName = include "seleniumGrid.dynamicGrid.jobTemplate.fullname" (list $configMapName $root) -}}
-  {{- end -}}
-  {{- if $config.templateConfigMapNamespace -}}
-    {{- printf "configmap:%s/%s" (tpl ($config.templateConfigMapNamespace | toString) $root) $configMapName -}}
+{{- $node := .node -}}
+{{- $nodeImageRegistry := default $root.Values.global.seleniumGrid.imageRegistry $node.imageRegistry -}}
+{{- $nodeImageTag := default $root.Values.global.seleniumGrid.nodesImageTag $node.imageTag -}}
+{{- $nodeImageName := regexReplaceAll "^node-" $node.imageName "standalone-" -}}
+{{- printf "%s/%s:%s" $nodeImageRegistry $nodeImageName $nodeImageTag -}}
+{{- end -}}
+
+{{/*
+Render custom node capabilities as a JSON/string value for env and scaler metadata
+*/}}
+{{- define "seleniumGrid.nodeCustomCapabilities" -}}
+{{- $root := .root -}}
+{{- $node := .node -}}
+{{- $nodeCustomCapabilities := default $root.Values.global.seleniumGrid.nodeCustomCapabilities $node.nodeCustomCapabilities -}}
+{{- if not (empty $nodeCustomCapabilities) -}}
+  {{- if kindIs "map" $nodeCustomCapabilities -}}
+    {{- toJson $nodeCustomCapabilities -}}
   {{- else -}}
-    {{- printf "configmap:%s" $configMapName -}}
+    {{- tpl ($nodeCustomCapabilities | toString) $root -}}
   {{- end -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Render kubernetes.toml for a Dynamic Grid node
+Dynamic Grid capabilities derived from the existing node HPA metadata plus custom capabilities
 */}}
-{{- define "seleniumGrid.dynamicGrid.kubernetesToml" -}}
+{{- define "seleniumGrid.dynamicGrid.browser.capabilities" -}}
 {{- $root := .root -}}
 {{- $node := .node -}}
-{{- if $node.config.rawToml -}}
-{{ tpl ($node.config.rawToml | toString) $root }}
-{{- else -}}
+{{- $capabilities := dict -}}
+{{- with $node.hpa -}}
+  {{- range $key, $value := . -}}
+    {{- if and (ne $key "unsafeSsl") (not (empty $value)) -}}
+      {{- $_ := set $capabilities $key (tpl ($value | toString) $root) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $nodeCustomCapabilities := default $root.Values.global.seleniumGrid.nodeCustomCapabilities $node.nodeCustomCapabilities -}}
+{{- if not (empty $nodeCustomCapabilities) -}}
+  {{- if kindIs "map" $nodeCustomCapabilities -}}
+    {{- $capabilities = mergeOverwrite $capabilities $nodeCustomCapabilities -}}
+  {{- else -}}
+    {{- $customCapabilities := fromYaml (tpl ($nodeCustomCapabilities | toString) $root) -}}
+    {{- if kindIs "map" $customCapabilities -}}
+      {{- $capabilities = mergeOverwrite $capabilities $customCapabilities -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- toJson $capabilities -}}
+{{- end -}}
+
+{{/*
+Render kubernetes.toml for a Dynamic Grid controller derived from a browser node
+*/}}
+{{- define "seleniumGrid.dynamicGrid.browser.kubernetesToml" -}}
+{{- $root := .root -}}
+{{- $node := .node -}}
+{{- $identifier := include "seleniumGrid.dynamicGrid.browser.image" (dict "root" $root "node" $node) -}}
+{{- $capabilities := include "seleniumGrid.dynamicGrid.browser.capabilities" (dict "root" $root "node" $node) -}}
 [kubernetes]
-{{- $configs := default (list) $node.config.kubernetes.configs }}
-{{- if not (empty $configs) }}
 configs = [
-{{- $configCount := len $configs }}
-{{ range $index, $config := $configs }}
-  {{- $identifier := include "seleniumGrid.dynamicGrid.config.identifier" (dict "root" $root "config" $config) -}}
-  {{- $capabilities := toJson (default (dict) $config.capabilities) -}}
-  {{ printf "%q, '%s'%s" $identifier $capabilities (ternary "," "" (lt (add1 $index) $configCount)) }}
-{{ end }}
+  {{ printf "%q, '%s'" $identifier $capabilities }}
 ]
-{{- end }}
-{{- with $node.config.kubernetes.url }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.url }}
 url = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.namespace }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.namespace }}
 namespace = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.serviceAccount }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.serviceAccount }}
 service-account = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.imagePullPolicy }}
+{{- with $node.imagePullPolicy }}
 image-pull-policy = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.serverStartTimeout }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.serverStartTimeout }}
 server-start-timeout = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.terminationGracePeriod }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.terminationGracePeriod }}
 termination-grace-period = {{ tpl (. | toString) $root }}
 {{- end }}
-{{- with $node.config.kubernetes.labelInheritPrefix }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.labelInheritPrefix }}
 label-inherit-prefix = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.assetsPath }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.assetsPath }}
 assets-path = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.videoImage }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.videoImage }}
 video-image = {{ tpl (. | toString) $root | quote }}
 {{- end }}
-{{- with $node.config.kubernetes.extraToml }}
+{{- with $root.Values.dynamicGrid.defaults.config.kubernetes.extraToml }}
 {{ tpl (. | toString) $root }}
 {{- end }}
-{{- end -}}
 {{- end -}}
 
 {{/*
@@ -326,7 +351,7 @@ Common autoscaling spec template
 {{- $spec := (dict) -}}
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
-{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
+{{- $nodeCustomCapabilities := include "seleniumGrid.nodeCustomCapabilities" (dict "root" $ "node" .node) -}}
 {{/* Merge with precedence from right to left */}}
 {{- with $.Values.autoscaling.scaledOptions -}}
   {{- $spec = mergeOverwrite ($spec) . -}}
@@ -428,9 +453,10 @@ Common pod template
 {{- $nodeMaxSessions := default $.Values.global.seleniumGrid.nodeMaxSessions .node.nodeMaxSessions | int64 -}}
 {{- $nodeDrainAfterSessionCount := default $.Values.global.seleniumGrid.nodeDrainAfterSessionCount .node.nodeDrainAfterSessionCount | int64 -}}
 {{- $nodeEnableManagedDownloads := default $.Values.global.seleniumGrid.nodeEnableManagedDownloads .node.nodeEnableManagedDownloads -}}
-{{- $nodeCustomCapabilities := default $.Values.global.seleniumGrid.nodeCustomCapabilities .node.nodeCustomCapabilities -}}
+{{- $nodeCustomCapabilities := include "seleniumGrid.nodeCustomCapabilities" (dict "root" $ "node" .node) -}}
 {{- $nodeRegisterPeriod := default $.Values.global.seleniumGrid.nodeRegisterPeriod .node.nodeRegisterPeriod | int64 -}}
 {{- $nodeRegisterCycle := default $.Values.global.seleniumGrid.nodeRegisterCycle .node.nodeRegisterCycle | int64 -}}
+{{- $nodeSessionTimeout := default $.Values.global.seleniumGrid.nodeSessionTimeout .node.nodeSessionTimeout -}}
 template:
   metadata:
     labels:
@@ -539,6 +565,10 @@ template:
             value: {{ $nodeRegisterPeriod | quote }}
           - name: SE_NODE_REGISTER_CYCLE
             value: {{ $nodeRegisterCycle | quote }}
+        {{- with $nodeSessionTimeout }}
+          - name: SE_NODE_SESSION_TIMEOUT
+            value: {{ . | quote }}
+        {{- end }}
         {{- if (and .recorder.enabled (not .recorder.sidecarContainer)) }}
           - name: SE_RECORD_VIDEO
             value: "true"

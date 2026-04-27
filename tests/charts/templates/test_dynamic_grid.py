@@ -88,23 +88,23 @@ class DynamicGridTemplateTests(unittest.TestCase):
         self.assertEqual(pvc["spec"]["accessModes"], ["ReadWriteMany"])
         self.assertEqual(pvc["spec"]["resources"]["requests"]["storage"], "5Gi")
 
-        job_template = find_doc("ConfigMap", f"{RELEASE_NAME}-dynamic-job-template-chrome-dev-template")
-        self.assertIn("image: selenium/standalone-chrome:dev", job_template["data"]["template"])
-
-    def test_dynamic_grid_structured_toml_node(self):
-        logger.info("Assert structured Dynamic Grid pool renders ConfigMap and Deployment correctly")
-        configmap = find_doc("ConfigMap", f"{RELEASE_NAME}-dynamic-node-linux-stable-config")
+    def test_dynamic_grid_chrome_node_from_existing_values(self):
+        logger.info("Assert Dynamic Grid chrome node is derived from existing node values")
+        configmap = find_doc("ConfigMap", f"{RELEASE_NAME}-node-chrome-config")
         toml = configmap["data"]["kubernetes.toml"]
-        self.assertIn("selenium/standalone-chromium:4.42.0-20260303", toml)
-        self.assertIn(
-            f'configmap:{RELEASE_NAME}-dynamic-job-template-chrome-dev-template',
-            toml,
-        )
-        self.assertIn('"browserVersion":"dev"', toml)
+        self.assertIn("selenium/standalone-chrome:4.42.0-20260303", toml)
+        self.assertIn('"browserName":"chrome"', toml)
+        self.assertIn('"sessionBrowserName":"chrome"', toml)
+        self.assertIn('"browserVersion":"stable"', toml)
+        self.assertIn('"platformName":"linux"', toml)
+        self.assertIn('"myApp:version":"beta"', toml)
+        self.assertIn('"myApp:publish":"public"', toml)
+        self.assertNotIn("unsafeSsl", toml)
 
-        deployment = find_doc("Deployment", f"{RELEASE_NAME}-dynamic-node-linux-stable")
+        deployment = find_doc("Deployment", f"{RELEASE_NAME}-node-chrome")
         self.assertEqual(deployment["spec"]["template"]["spec"]["serviceAccountName"], f"{RELEASE_NAME}-dynamic-grid")
         self.assertEqual(deployment["metadata"]["labels"]["tier"], "dynamic")
+        self.assertEqual(deployment["spec"]["replicas"], 2)
 
         container = get_container(deployment)
         self.assertEqual(container["image"], "selenium/node-kubernetes:4.42.0-20260303")
@@ -128,29 +128,44 @@ class DynamicGridTemplateTests(unittest.TestCase):
         self.assertEqual(assets_mount["mountPath"], "/opt/selenium/assets")
 
         config_volume = get_volume(deployment, "dynamic-grid-config")
-        self.assertEqual(config_volume["configMap"]["name"], f"{RELEASE_NAME}-dynamic-node-linux-stable-config")
+        self.assertEqual(config_volume["configMap"]["name"], f"{RELEASE_NAME}-node-chrome-config")
         assets_volume = get_volume(deployment, "dynamic-grid-assets")
         self.assertEqual(assets_volume["persistentVolumeClaim"]["claimName"], f"{RELEASE_NAME}-dynamic-assets")
 
-    def test_dynamic_grid_raw_toml_node_and_service(self):
-        logger.info("Assert raw TOML node supports custom filename and optional Service")
-        configmap = find_doc("ConfigMap", f"{RELEASE_NAME}-dynamic-node-firefox-beta-config")
-        toml = configmap["data"]["firefox-beta.toml"]
+    def test_dynamic_grid_firefox_node_and_service(self):
+        logger.info("Assert Dynamic Grid firefox node supports existing service and HPA settings")
+        configmap = find_doc("ConfigMap", f"{RELEASE_NAME}-node-firefox-config")
+        toml = configmap["data"]["kubernetes.toml"]
         self.assertIn('"browserVersion":"beta"', toml)
-        self.assertIn('termination-grace-period = 90', toml)
+        self.assertIn('termination-grace-period = 60', toml)
+        self.assertNotIn("unsafeSsl", toml)
 
-        deployment = find_doc("Deployment", f"{RELEASE_NAME}-dynamic-node-firefox-beta")
+        deployment = find_doc("Deployment", f"{RELEASE_NAME}-node-firefox")
         container = get_container(deployment)
         env_map = get_env_map(container)
-        self.assertEqual(env_map["SE_NODE_KUBERNETES_CONFIG_FILENAME"], "firefox-beta.toml")
+        self.assertEqual(env_map["SE_NODE_KUBERNETES_CONFIG_FILENAME"], "kubernetes.toml")
+        self.assertEqual(env_map["SE_DYNAMIC_MAX_SESSIONS"], "3")
+        self.assertEqual(env_map["SE_DYNAMIC_OVERRIDE_MAX_SESSIONS"], "true")
 
         config_mount = get_volume_mount(container, "dynamic-grid-config")
-        self.assertEqual(config_mount["mountPath"], "/opt/selenium/firefox-beta.toml")
-        self.assertEqual(config_mount["subPath"], "firefox-beta.toml")
+        self.assertEqual(config_mount["mountPath"], "/opt/selenium/kubernetes.toml")
+        self.assertEqual(config_mount["subPath"], "kubernetes.toml")
 
-        service = find_doc("Service", f"{RELEASE_NAME}-dynamic-node-firefox-beta")
+        service = find_doc("Service", f"{RELEASE_NAME}-node-firefox")
         self.assertEqual(service["spec"]["ports"][0]["port"], 5555)
-        self.assertEqual(service["spec"]["selector"]["app"], f"{RELEASE_NAME}-dynamic-node-firefox-beta")
+        self.assertEqual(service["spec"]["selector"]["app"], f"{RELEASE_NAME}-node-firefox")
+
+    def test_dynamic_grid_cross_browser_node(self):
+        logger.info("Assert Dynamic Grid renders additional crossBrowsers entries")
+        configmap = find_doc("ConfigMap", f"{RELEASE_NAME}-node-chrome-beta-config")
+        toml = configmap["data"]["kubernetes.toml"]
+        self.assertIn('"browserVersion":"beta"', toml)
+        self.assertNotIn("unsafeSsl", toml)
+
+        deployment = find_doc("Deployment", f"{RELEASE_NAME}-node-chrome-beta")
+        env_map = get_env_map(get_container(deployment))
+        self.assertEqual(env_map["SE_DYNAMIC_MAX_SESSIONS"], "2")
+        self.assertEqual(env_map["SE_DYNAMIC_OVERRIDE_MAX_SESSIONS"], "true")
 
 
 if __name__ == "__main__":
