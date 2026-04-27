@@ -173,6 +173,13 @@ spec:
       {{- $affinityYaml := default .Values.global.seleniumGrid.affinity .Values.components.router.affinity }}
       affinity: {{- toYaml $affinityYaml | nindent 8 }}
     {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsPolicy .Values.components.router.dnsPolicy }}
+      dnsPolicy: {{ default .Values.global.seleniumGrid.dnsPolicy .Values.components.router.dnsPolicy }}
+    {{- end }}
+    {{- if or .Values.global.seleniumGrid.dnsConfig .Values.components.router.dnsConfig }}
+      {{- $dnsConfigYaml := default .Values.global.seleniumGrid.dnsConfig .Values.components.router.dnsConfig }}
+      dnsConfig: {{- toYaml $dnsConfigYaml | nindent 8 }}
+    {{- end }}
     {{- if or .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.router.topologySpreadConstraints }}
       {{- $topologySpreadConstraints := default .Values.global.seleniumGrid.topologySpreadConstraints .Values.components.router.topologySpreadConstraints }}
       topologySpreadConstraints:

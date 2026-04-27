@@ -723,6 +723,13 @@ template:
     {{- $affinityYaml := default $.Values.global.seleniumGrid.affinity .node.affinity }}
     affinity: {{- toYaml $affinityYaml | nindent 6 }}
   {{- end }}
+  {{- if or $.Values.global.seleniumGrid.dnsPolicy .node.dnsPolicy }}
+    dnsPolicy: {{ default $.Values.global.seleniumGrid.dnsPolicy .node.dnsPolicy }}
+  {{- end }}
+  {{- if or $.Values.global.seleniumGrid.dnsConfig .node.dnsConfig }}
+    {{- $dnsConfigYaml := default $.Values.global.seleniumGrid.dnsConfig .node.dnsConfig }}
+    dnsConfig: {{- toYaml $dnsConfigYaml | nindent 6 }}
+  {{- end }}
   {{- if or $.Values.global.seleniumGrid.topologySpreadConstraints .node.topologySpreadConstraints }}
     {{- $topologySpreadConstraints := default $.Values.global.seleniumGrid.topologySpreadConstraints .node.topologySpreadConstraints }}
     {{- $appName := .name }}

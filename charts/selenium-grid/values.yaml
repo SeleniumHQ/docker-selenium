@@ -46,6 +46,10 @@ global:
         maxUnavailable: 0
     # -- Specify affinity for all components, can be overridden individually
     affinity: {}
+    # -- Specify dnsPolicy for all components, can be overridden individually
+    dnsPolicy: ""
+    # -- Specify dnsConfig for all components, can be overridden individually
+    dnsConfig: {}
     # -- Specify topologySpreadConstraints for all components, can be overridden individually
     topologySpreadConstraints: []
     #  - maxSkew: 4
@@ -474,6 +478,10 @@ components:
     affinity: {}
     # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
     topologySpreadConstraints: []
+    # -- Specify dnsPolicy for router pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+    dnsPolicy: ""
+    # -- Specify dnsConfig for router pods, this overwrites global.seleniumGrid.dnsConfig parameter
+    dnsConfig: {}
     # -- Custom annotations for router pods
     annotations: {}
     # -- Router container port
@@ -566,6 +574,10 @@ components:
     affinity: {}
     # -- Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
     topologySpreadConstraints: []
+    # -- Specify dnsPolicy for Distributor pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+    dnsPolicy: ""
+    # -- Specify dnsConfig for Distributor pods, this overwrites global.seleniumGrid.dnsConfig parameter
+    dnsConfig: {}
     # -- Custom annotations for Distributor pods
     annotations: {}
     # -- Distributor container port
@@ -648,6 +660,10 @@ components:
     affinity: {}
     # -- Specify topologySpreadConstraints for Event Bus pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
     topologySpreadConstraints: []
+    # -- Specify dnsPolicy for Event Bus pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+    dnsPolicy: ""
+    # -- Specify dnsConfig for Event Bus pods, this overwrites global.seleniumGrid.dnsConfig parameter
+    dnsConfig: {}
     # -- Custom annotations for Event Bus pods
     annotations: {}
     # -- Event Bus container port
@@ -717,6 +733,10 @@ components:
     affinity: {}
     # -- Specify topologySpreadConstraints for Session Map pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
     topologySpreadConstraints: []
+    # -- Specify dnsPolicy for Session Map pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+    dnsPolicy: ""
+    # -- Specify dnsConfig for Session Map pods, this overwrites global.seleniumGrid.dnsConfig parameter
+    dnsConfig: {}
     # -- Custom annotations for Session Map pods
     annotations: {}
     # -- Session Map container port
@@ -789,6 +809,10 @@ components:
     affinity: {}
     # -- Specify topologySpreadConstraints for Session Queue pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
     topologySpreadConstraints: []
+    # -- Specify dnsPolicy for Session Queue pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+    dnsPolicy: ""
+    # -- Specify dnsConfig for Session Queue pods, this overwrites global.seleniumGrid.dnsConfig parameter
+    dnsConfig: {}
     # -- Custom annotations for Session Queue pods
     annotations: {}
     # -- Session Queue container port
@@ -867,6 +891,10 @@ hub:
   affinity: {}
   # -- Specify topologySpreadConstraints for Hub pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for Hub pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for Hub pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Custom annotations for Selenium Hub pods
   annotations: {}
   # -- Custom labels for Selenium Hub pods
@@ -1252,6 +1280,10 @@ chromeNode:
   affinity: {}
   # -- Specify topologySpreadConstraints for chrome-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for chrome-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for chrome-node pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Annotations for chrome-node pods
   annotations: {}
   # -- Labels for chrome-node pods
@@ -1452,6 +1484,10 @@ firefoxNode:
   affinity: {}
   # -- Specify topologySpreadConstraints for firefox-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for firefox-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for firefox-node pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Annotations for firefox-node pods
   annotations: {}
   # -- Labels for firefox-node pods
@@ -1652,6 +1688,10 @@ edgeNode:
   affinity: {}
   # -- Specify topologySpreadConstraints for edge-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for edge-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for edge-node pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Annotations for edge-node pods
   annotations: {}
   # -- Labels for edge-node pods
@@ -1853,6 +1893,10 @@ relayNode:
   affinity: {}
   # -- Specify topologySpreadConstraints for relay-node pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for relay-node pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for relay-node pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Annotations for relay-node pods
   annotations: {}
   # -- Labels for relay-node pods
@@ -2192,6 +2236,10 @@ videoManager:
   affinity: {}
   # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
   topologySpreadConstraints: []
+  # -- Specify dnsPolicy for file-browser pods, this overwrites global.seleniumGrid.dnsPolicy parameter
+  dnsPolicy: ""
+  # -- Specify dnsConfig for file-browser pods, this overwrites global.seleniumGrid.dnsConfig parameter
+  dnsConfig: {}
   # -- Custom annotations for router pods
   annotations: {}
   # -- Router container port
