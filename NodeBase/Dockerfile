@@ -61,8 +61,8 @@ ENV LANG_WHICH=${LANG_WHICH} \
 #============================
 # Some configuration options
 #============================
-    SE_RECORD_VIDEO=false \
-    SE_VIDEO_FILE_NAME=auto \
+    SE_RECORD_VIDEO="false" \
+    SE_VIDEO_FILE_NAME="auto" \
     SE_VIDEO_EVENT_DRIVEN="true" \
     DISPLAY_CONTAINER_NAME="localhost" \
     SE_SCREEN_WIDTH="1920" \

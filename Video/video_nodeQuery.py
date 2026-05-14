@@ -25,6 +25,7 @@ def main() -> None:
 
     # Environment variables with defaults
     video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
+    default_record_video = os.environ.get("SE_RECORD_VIDEO", "true").lower() != "false"
     test_name_cap = os.environ.get("TEST_NAME_CAP", "se:name")
     video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
     video_file_name_trim = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", default_trim_pattern)
@@ -46,8 +47,10 @@ def main() -> None:
             # If JSON parsing fails, continue with None values
             pass
 
-    # Check if enabling to record video
-    if (isinstance(record_video, str) and record_video.lower() == "false") or record_video is False:
+    # Check if enabling to record video; fall back to SE_RECORD_VIDEO when capability is absent
+    if record_video is None:
+        record_video = "true" if default_record_video else "false"
+    elif (isinstance(record_video, str) and record_video.lower() == "false") or record_video is False:
         record_video = "false"
     else:
         record_video = "true"
