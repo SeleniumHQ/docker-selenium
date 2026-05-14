@@ -232,7 +232,7 @@ else
 fi
 
 if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto" ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
-  trap graceful_exit SIGTERM SIGINT EXIT
+  trap graceful_exit_force SIGTERM SIGINT EXIT
   wait_for_display
   video_file="$VIDEO_FOLDER/$VIDEO_FILE_NAME"
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal

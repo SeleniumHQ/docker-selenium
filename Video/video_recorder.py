@@ -18,6 +18,7 @@ import os
 import signal
 import subprocess
 import sys
+import time
 
 
 def _signal_supervisord() -> None:
@@ -83,22 +84,32 @@ def main():
 
 
 def _run_shell_recorder():
+    record_video = os.environ.get("SE_RECORD_VIDEO", "true").lower() == "true"
+    per_session_mode = os.environ.get("SE_VIDEO_FILE_NAME", "") == "auto"
+
+    if not record_video and not per_session_mode:
+        print("[video.recorder] - SE_RECORD_VIDEO is disabled and SE_VIDEO_FILE_NAME is not 'auto', idling.")
+        try:
+            while True:
+                time.sleep(60)
+        except KeyboardInterrupt:
+            pass
+        return
+
     proc = subprocess.Popen(["/opt/bin/video.sh"])
     _external_shutdown = False  # True when supervisord (or user) told us to stop
 
     def forward_signal(signum, frame):
         nonlocal _external_shutdown
-        # Forward the signal to video.sh at most once.  supervisord uses
-        # killasgroup=true so video.sh already received the signal directly;
-        # re-forwarding on every re-entrant call amplifies the SIGTERM
-        # ping-pong and can keep the process alive for 60 s.
         if not _external_shutdown:
             _external_shutdown = True
             try:
                 proc.send_signal(signum)
             except ProcessLookupError:
-                pass  # Process already exited before signal was forwarded
-        proc.wait()
+                pass
+        # Do NOT call proc.wait() here — blocking inside a signal handler
+        # interferes with bash's deferred-signal queue.  The main-flow
+        # proc.wait() below resumes automatically after this returns (PEP 475).
 
     signal.signal(signal.SIGTERM, forward_signal)
     signal.signal(signal.SIGINT, forward_signal)
