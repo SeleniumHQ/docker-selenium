@@ -37,6 +37,14 @@ spec:
           {{- $imageRegistry := default .Values.global.seleniumGrid.imageRegistry .Values.components.router.imageRegistry }}
           image: {{ printf "%s/%s:%s" $imageRegistry .Values.components.router.imageName $imageTag }}
           imagePullPolicy: {{ .Values.components.router.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.components.router.port }}
+              protocol: TCP
+            {{- if eq (include "seleniumGrid.monitoring.enabled" $) "true" }}
+            - name: tcp-metrics
+              containerPort: {{ .Values.monitoring.exporter.port }}
+              protocol: TCP
+            {{- end }}
           env:
             - name: KUBERNETES_NODE_HOST_IP
               valueFrom:

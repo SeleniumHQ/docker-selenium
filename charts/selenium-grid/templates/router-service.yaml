@@ -41,6 +41,12 @@ spec:
       {{- if and (eq $.Values.components.router.serviceType "NodePort") $.Values.components.router.nodePort }}
       nodePort: {{ $.Values.components.router.nodePort }}
       {{- end }}
+    {{- if eq (include "seleniumGrid.monitoring.enabled" $) "true" }}
+    - name: tcp-metrics
+      protocol: TCP
+      port: {{ .Values.monitoring.exporter.port }}
+      targetPort: tcp-metrics
+    {{- end }}
   {{- with .Values.components.router.serviceExternalTrafficPolicy }}
   externalTrafficPolicy: {{ . }}
   {{- end }}

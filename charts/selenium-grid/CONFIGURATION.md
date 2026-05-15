@@ -394,28 +394,11 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.enabled | bool | `false` |  |
 | monitoring.enabledWithExistingAgent | bool | `false` |  |
 | monitoring.exporter.nameOverride | string | `""` |  |
-| monitoring.exporter.imageRegistry | string | `"ricardbejarano"` |  |
-| monitoring.exporter.imageName | string | `"graphql_exporter"` |  |
-| monitoring.exporter.imageTag | string | `"latest"` |  |
-| monitoring.exporter.imagePullSecret | string | `""` | Custom pull secret for container in patch job |
-| monitoring.exporter.annotations | object | `{}` |  |
-| monitoring.exporter.port | int | `9199` |  |
-| monitoring.exporter.service.enabled | bool | `true` | Create a service for exporter |
-| monitoring.exporter.service.type | string | `"ClusterIP"` | Service type |
-| monitoring.exporter.service.clusterIP | string | `""` | Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip) |
-| monitoring.exporter.service.externalName | string | `""` | Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname) |
-| monitoring.exporter.service.loadBalancerIP | string | `""` | Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer) |
-| monitoring.exporter.service.nodePort | int | `30199` | Node port for service |
-| monitoring.exporter.service.annotations | object | `{}` | Annotations for exporter service |
-| monitoring.exporter.service.externalTrafficPolicy | string | `""` | Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/) |
-| monitoring.exporter.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
-| monitoring.exporter.replicas | int | `1` |  |
-| monitoring.exporter.tolerations | list | `[]` | Tolerations for exporter pods |
-| monitoring.additionalScrapeConfigs.key | string | `""` |  |
-| monitoring.additionalScrapeConfigs.value | string | `""` |  |
+| monitoring.exporter.port | int | `9615` | Port the built-in Prometheus exporter listens on inside the Hub/Router container |
+| monitoring.grafana.dashboards | object | `{"enabled":true}` | When true, provision a ConfigMap with Grafana dashboards (requires Grafana sidecar with grafana_dashboard label) |
 | monitoring.annotations | object | `{}` |  |
-| monitoring.serviceMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | ServiceMonitor configuration for Prometheus Operator |
-| monitoring.serviceMonitor.enabled | bool | `false` | Enable ServiceMonitor resource |
+| monitoring.serviceMonitor | object | `{"annotations":{},"enabled":true,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | ServiceMonitor configuration for Prometheus Operator |
+| monitoring.serviceMonitor.enabled | bool | `true` | Enable ServiceMonitor resource |
 | monitoring.serviceMonitor.namespace | string | `""` | Namespace to deploy the ServiceMonitor into (defaults to release namespace) |
 | monitoring.serviceMonitor.labels | object | `{}` | Additional labels for the ServiceMonitor |
 | monitoring.serviceMonitor.annotations | object | `{}` | Additional annotations for the ServiceMonitor |
@@ -424,8 +407,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | monitoring.serviceMonitor.scrapeTimeout | string | `"10s"` | Scrape timeout |
 | monitoring.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping |
 | monitoring.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion |
-| monitoring.podMonitor | object | `{"annotations":{},"enabled":false,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor) |
-| monitoring.podMonitor.enabled | bool | `false` | Enable PodMonitor resource |
+| monitoring.podMonitor | object | `{"annotations":{},"enabled":true,"interval":"30s","labels":{},"metricRelabelings":[],"namespace":"","path":"/metrics","relabelings":[],"scrapeTimeout":"10s"}` | PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor) |
+| monitoring.podMonitor.enabled | bool | `true` | Enable PodMonitor resource |
 | monitoring.podMonitor.namespace | string | `""` | Namespace to deploy the PodMonitor into (defaults to release namespace) |
 | monitoring.podMonitor.labels | object | `{}` | Additional labels for the PodMonitor |
 | monitoring.podMonitor.annotations | object | `{}` | Additional annotations for the PodMonitor |
@@ -800,8 +783,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
-| traefik | object | `{"ingressClass":{"enabled":true,"isDefaultClass":false,"name":"traefik"},"tlsStore":{"default":{"defaultCertificate":null}}}` | Configuration for dependency chart traefik |
-| kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"prometheus":{"prometheusSpec":{"additionalConfig":{"additionalScrapeConfigs":{"key":"{{ template \"seleniumGrid.monitoring.scrape.key\" $ }}","name":"{{ template \"seleniumGrid.monitoring.exporter.fullname\" $ }}"}}}},"prometheusOperator":{"admissionWebhooks":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
+| traefik | object | `{"ingressClass":{"enabled":true,"isDefaultClass":false,"name":"traefik"},"service":{"annotations":null},"tlsStore":{"default":{"defaultCertificate":null}}}` | Configuration for dependency chart traefik |
+| kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"grafana":{"adminPassword":"admin","adminUser":"admin"},"nodeExporter":{"enabled":false},"prometheusOperator":{"admissionWebhooks":{"enabled":false,"patch":{"enabled":false}},"tls":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
 | postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |

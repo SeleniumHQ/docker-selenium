@@ -1,0 +1,68 @@
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-monitoring.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-monitoring.yml down`
+services:
+  chrome:
+    image: selenium/node-chrome:4.43.0-20260404
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
+  edge:
+    image: selenium/node-edge:4.43.0-20260404
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
+  firefox:
+    image: selenium/node-firefox:4.43.0-20260404
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+
+  selenium-hub:
+    image: selenium/hub:4.43.0-20260404
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./.monitoring/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+    depends_on:
+      - selenium-hub
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./.monitoring/config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./.monitoring/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+volumes:
+  grafana-storage:

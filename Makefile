@@ -143,6 +143,12 @@ set_build_multiarch:
 build_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
+build_exporter:
+	cd .monitoring/exporter && go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
+
+copy_dashboards:
+	mkdir -p charts/selenium-grid/files/dashboards && cp -r .monitoring/dashboards/*.json charts/selenium-grid/files/dashboards/
+
 build: check_dev_env all
 	docker images | grep $(NAME)
 
@@ -163,13 +169,17 @@ base_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make base
 
 hub: base
-	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/hub:$(TAG_VERSION) .
+	cd ./Hub && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+		--build-context exporter-src=../.monitoring/exporter \
+		-t $(NAME)/hub:$(TAG_VERSION) .
 
 distributor: base
 	cd ./Distributor && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/distributor:$(TAG_VERSION) .
 
 router: base
-	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/router:$(TAG_VERSION) .
+	cd ./Router && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+		--build-context exporter-src=../.monitoring/exporter \
+		-t $(NAME)/router:$(TAG_VERSION) .
 
 sessions: base
 	cd ./Sessions && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
@@ -1298,10 +1308,10 @@ chart_cluster_setup:
 chart_cluster_cleanup:
 	./tests/charts/make/chart_cluster_cleanup.sh
 
-chart_build_nightly:
+chart_build_nightly: copy_dashboards
 	VERSION=$(CHART_VERSION_NIGHTLY) ./tests/charts/make/chart_build.sh
 
-chart_build:
+chart_build: copy_dashboards
 	VERSION=$(TAG_VERSION) ./tests/charts/make/chart_build.sh
 
 chart_release:
@@ -1335,7 +1345,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_render_template:
-	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay
+	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay chart_test_autoscaling_playwright_connect_grid_hub
 
 chart_test_autoscaling_disabled:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) TEST_CUSTOM_SPECIFIC_NAME=true SELENIUM_GRID_MONITORING=false \
@@ -1408,6 +1418,14 @@ chart_test_autoscaling_playwright_connect_grid:
 	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling_patchKEDA.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
+chart_test_autoscaling_playwright_connect_grid_hub:
+	PLATFORMS=$(PLATFORMS) CHART_FULL_DISTRIBUTED_MODE=false MATRIX_TESTS=CDPTests TEST_MULTIPLE_VERSIONS=false SELENIUM_GRID_MONITORING=false \
+	CHART_ENABLE_BASIC_AUTH=true BASIC_AUTH_USERNAME=docker-selenium BASIC_AUTH_PASSWORD=2NMI4jdBi6k7bENoeUfV25295VvzwAE9chM24a+2VL95uOHozo \
+	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SELENIUM_GRID_PROTOCOL=https CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PORT=443 \
+	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_secureIngress_disableHttp2_autoScaling_deployment.yaml" \
+	./tests/charts/make/chart_test.sh DeploymentAutoscaling
+
 test_k8s_autoscaling_job_count_strategy_default_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \
 	make test_k8s_autoscaling_job_count_strategy_default
@@ -1447,6 +1465,7 @@ chart_test_delete:
 	all \
 	base \
 	build \
+	build_exporter \
 	ci \
 	chrome \
 	chromium \

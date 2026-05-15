@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: selenium_grid
+    static_configs:
+      - targets:
+          - "selenium-hub:9615"
+          - "selenium-router:9615"
+    # Uncomment if the Grid is protected by Basic Auth:
+    # basic_auth:
+    #   username: admin
+    #   password: secret

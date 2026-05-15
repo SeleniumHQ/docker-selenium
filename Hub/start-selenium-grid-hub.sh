@@ -141,6 +141,10 @@ if [ ! -z "${SE_EVENT_BUS_HEARTBEAT_PERIOD}" ]; then
   append_se_opts "--eventbus-heartbeat-period" "${SE_EVENT_BUS_HEARTBEAT_PERIOD}"
 fi
 
+if [ ! -z "${SE_TCP_TUNNEL}" ]; then
+  append_se_opts "--tcp-tunnel" "${SE_TCP_TUNNEL}"
+fi
+
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"
@@ -200,6 +204,8 @@ if [ -n "${JAVA_OPTS}" ]; then
 fi
 
 echo "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+
+/opt/bin/selenium-grid-exporter &
 
 java ${SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \

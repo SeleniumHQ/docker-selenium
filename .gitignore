@@ -154,4 +154,5 @@ ENV/
 /charts/*/**.lock
 /charts/*.tgz
 /charts/*/RELEASE_NOTES.md
+charts/selenium-grid/files/dashboards
 Base/certs
