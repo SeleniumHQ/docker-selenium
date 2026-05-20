@@ -119,7 +119,7 @@ jobs:
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: playwright_connect_grid
-          - k8s-version: 'v1.33.6'
+          - k8s-version: 'v1.32.10'
             cluster: 'minikube'
             helm-version: 'v3.18.6'
             docker-version: '28.5.2'

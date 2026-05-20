@@ -31,8 +31,6 @@ services:
       - SE_DRAIN_AFTER_SESSION_COUNT=4
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
       - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
@@ -65,8 +63,6 @@ services:
       - SE_DRAIN_AFTER_SESSION_COUNT=2
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
       - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
@@ -97,8 +93,6 @@ services:
       - SE_DRAIN_AFTER_SESSION_COUNT=3
       - SE_ENABLE_TLS=true
       - SE_JAVA_OPTS=-Dwebdriver.httpclient.readTimeout=${REQUEST_TIMEOUT}
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_SERVER_PROTOCOL=https
       - SE_NODE_GRID_URL=https://selenium-hub:4444
       - SE_NODE_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}

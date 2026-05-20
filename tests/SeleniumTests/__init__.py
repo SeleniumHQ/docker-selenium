@@ -159,8 +159,7 @@ class ChromeTests(SeleniumGenericTests):
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
-            if TEST_ADD_CAPS_RECORD_VIDEO:
-                options.set_capability('se:recordVideo', True)
+            options.set_capability('se:recordVideo', True)
             if TEST_RETAIN_ON_FAILURE:
                 options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:
@@ -221,8 +220,7 @@ class EdgeTests(SeleniumGenericTests):
             options.enable_downloads = SELENIUM_ENABLE_MANAGED_DOWNLOADS
             if not SELENIUM_ENABLE_MANAGED_DOWNLOADS:
                 options.add_argument('disable-features=DownloadBubble,DownloadBubbleV2')
-            if TEST_ADD_CAPS_RECORD_VIDEO:
-                options.set_capability('se:recordVideo', True)
+            options.set_capability('se:recordVideo', True)
             if TEST_RETAIN_ON_FAILURE:
                 options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:
@@ -277,8 +275,7 @@ class FirefoxTests(SeleniumGenericTests):
             profile.set_preference('intl.accept_languages', 'vi-VN,vi')
             profile.set_preference('intl.locale.requested', 'vi-VN,vi')
             options.profile = profile
-            if TEST_ADD_CAPS_RECORD_VIDEO:
-                options.set_capability('se:recordVideo', True)
+            options.set_capability('se:recordVideo', True)
             if TEST_RETAIN_ON_FAILURE:
                 options.set_capability('se:retainOnFailure', True)
             if TEST_CUSTOM_SPECIFIC_NAME:

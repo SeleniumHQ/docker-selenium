@@ -36,7 +36,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
       - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
@@ -62,7 +61,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
       - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser

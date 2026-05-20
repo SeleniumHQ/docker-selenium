@@ -36,7 +36,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_VIDEO_RECORD_STANDALONE=true
-      - SE_RECORD_VIDEO=true
       - SE_VIDEO_UPLOAD_ENABLED=true
       - SE_DYNAMIC_OVERRIDE_MAX_SESSIONS=true
       - SE_DYNAMIC_MAX_SESSIONS=4
