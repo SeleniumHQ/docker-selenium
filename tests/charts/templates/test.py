@@ -495,18 +495,53 @@ class ChartTemplateTests(unittest.TestCase):
             count, len(resources_name.keys()), f"Expected {len(resources_name.keys())} resources but found {count}"
         )
 
-    def test_monitoring_exporter_tolerations(self):
-        resources_name = [f'{RELEASE_NAME}selenium-metrics-exporter']
+    def test_monitoring_service_monitor(self):
+        resource_name = f'{RELEASE_NAME}selenium-metrics-exporter'
+        found = False
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] == resource_name and doc['kind'] == 'ServiceMonitor':
+                logger.info(f"Assert ServiceMonitor selects Hub/Router and scrapes tcp-metrics port")
+                selector = doc['spec']['selector']['matchLabels']
+                self.assertIn('app', selector, "ServiceMonitor selector missing app label")
+                endpoints = doc['spec']['endpoints']
+                self.assertEqual(len(endpoints), 1)
+                self.assertEqual(endpoints[0]['port'], 'tcp-metrics')
+                self.assertEqual(endpoints[0]['path'], '/metrics')
+                found = True
+        self.assertTrue(found, "No ServiceMonitor found")
+
+    def test_monitoring_grafana_dashboards(self):
+        expected_dashboards = [
+            'selenium-cross-browser',
+            'selenium-grid-overview',
+            'selenium-node-health',
+            'selenium-queue-capacity',
+            'selenium-sessions',
+        ]
+        expected_names = {f'{RELEASE_NAME}{d}' for d in expected_dashboards}
+        found_names = set()
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['kind'] == 'ConfigMap' and doc['metadata'].get('labels', {}).get('grafana_dashboard') == '1':
+                name = doc['metadata']['name']
+                found_names.add(name)
+                logger.info(f"Found Grafana dashboard ConfigMap: {name}")
+                self.assertIn(name, expected_names, f"Unexpected dashboard ConfigMap: {name}")
+                self.assertTrue(doc['data'], "Dashboard ConfigMap has no data")
+        self.assertEqual(found_names, expected_names, f"Dashboard ConfigMaps mismatch: found {found_names}")
+
+    def test_monitoring_metrics_port(self):
+        # dummy.yaml uses isolateComponents=true so the entry point is the Router service
+        resources_name = [f'{RELEASE_NAME}selenium-router']
         count = 0
         for doc in LIST_OF_DOCUMENTS:
-            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
-                logger.info(f"Assert tolerations are set on monitoring exporter deployment")
-                tolerations = doc['spec']['template']['spec']['tolerations']
-                self.assertTrue(len(tolerations) > 0)
-                self.assertEqual(tolerations[0]['key'], 'dedicated')
-                self.assertEqual(tolerations[0]['operator'], 'Exists')
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Service':
+                logger.info(f"Assert tcp-metrics port is exposed on router service when monitoring is enabled")
+                ports = doc['spec']['ports']
+                metrics_ports = [p for p in ports if p.get('name') == 'tcp-metrics']
+                self.assertEqual(len(metrics_ports), 1, "tcp-metrics port not found on router service")
+                self.assertEqual(metrics_ports[0]['port'], 9615)
                 count += 1
-        self.assertEqual(count, len(resources_name), "No monitoring exporter deployment found")
+        self.assertEqual(count, len(resources_name), "No router service found")
 
 
 if __name__ == '__main__':

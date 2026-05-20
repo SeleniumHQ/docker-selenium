@@ -49,6 +49,11 @@ spec:
               protocol: TCP
             - containerPort: {{ .Values.hub.subscribePort }}
               protocol: TCP
+            {{- if eq (include "seleniumGrid.monitoring.enabled" $) "true" }}
+            - name: tcp-metrics
+              containerPort: {{ .Values.monitoring.exporter.port }}
+              protocol: TCP
+            {{- end }}
         {{- if .Values.hub.startupProbe.enabled }}
           {{- with .Values.hub.startupProbe }}
           startupProbe:

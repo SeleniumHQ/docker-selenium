@@ -1036,43 +1036,17 @@ monitoring:
   enabledWithExistingAgent: false
   exporter:
     nameOverride: ""
-    imageRegistry: "ricardbejarano"
-    imageName: "graphql_exporter"
-    imageTag: "latest"
-    # -- Custom pull secret for container in patch job
-    imagePullSecret: ""
-    annotations: {}
-    port: 9199
-    service:
-      # -- Create a service for exporter
+    # -- Port the built-in Prometheus exporter listens on inside the Hub/Router container
+    port: 9615
+  grafana:
+    # -- When true, provision a ConfigMap with Grafana dashboards (requires Grafana sidecar with grafana_dashboard label)
+    dashboards:
       enabled: true
-      # -- Service type
-      type: ClusterIP
-      # -- Set specific clusterIP when serviceType is ClusterIP (see https://kubernetes.io/docs/concepts/services-networking/service/#type-clusterip)
-      clusterIP: ""
-      # -- Set specific externalName when serviceType is ExternalName (see https://kubernetes.io/docs/concepts/services-networking/service/#type-externalname)
-      externalName: ""
-      # -- Set specific loadBalancerIP when serviceType is LoadBalancer (see https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer)
-      loadBalancerIP: ""
-      # -- Node port for service
-      nodePort: 30199
-      # -- Annotations for exporter service
-      annotations: {}
-      # -- Set externalTrafficPolicy to Local or Cluster (see https://kubernetes.io/docs/concepts/services-networking/service-traffic-policy/)
-      externalTrafficPolicy: ""
-      # -- Set session affinity to None, ClientIP or ClientIPString
-      sessionAffinity: ""
-    replicas: 1
-    # -- Tolerations for exporter pods
-    tolerations: []
-  additionalScrapeConfigs:
-    key: ""
-    value: ""
   annotations: {}
   # -- ServiceMonitor configuration for Prometheus Operator
   serviceMonitor:
     # -- Enable ServiceMonitor resource
-    enabled: false
+    enabled: true
     # -- Namespace to deploy the ServiceMonitor into (defaults to release namespace)
     namespace: ""
     # -- Additional labels for the ServiceMonitor
@@ -1092,7 +1066,7 @@ monitoring:
   # -- PodMonitor configuration for Prometheus Operator (alternative to ServiceMonitor)
   podMonitor:
     # -- Enable PodMonitor resource
-    enabled: false
+    enabled: true
     # -- Namespace to deploy the PodMonitor into (defaults to release namespace)
     namespace: ""
     # -- Additional labels for the PodMonitor
@@ -2331,20 +2305,26 @@ traefik:
     default:
       defaultCertificate:
         # secretName: ""
+  service:
+    annotations:
+#      service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
 
 # -- Configuration for dependency chart kube-prometheus-stack
 kube-prometheus-stack:
   # enabled: false
   cleanPrometheusOperatorObjectNames: true
-  prometheus:
-    prometheusSpec:
-      additionalConfig:
-        additionalScrapeConfigs:
-          name: '{{ template "seleniumGrid.monitoring.exporter.fullname" $ }}'
-          key: '{{ template "seleniumGrid.monitoring.scrape.key" $ }}'
+  nodeExporter:
+    enabled: false
   prometheusOperator:
+    tls:
+      enabled: false
     admissionWebhooks:
       enabled: false
+      patch:
+        enabled: false
+  grafana:
+    adminUser: "admin"
+    adminPassword: "admin"
 
 # -- Configuration for dependency chart jaeger
 jaeger:

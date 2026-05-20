@@ -9,6 +9,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   labels:
+    release: {{ .Release.Name }}
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
     {{- with .Values.monitoring.serviceMonitor.labels }}
     {{- toYaml . | nindent 4 }}
@@ -16,9 +17,14 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ template "seleniumGrid.monitoring.exporter.fullname" $ }}
+      {{- if $.Values.isolateComponents }}
+      app: {{ template "seleniumGrid.router.fullname" $ }}
+      {{- else }}
+      app: {{ template "seleniumGrid.hub.fullname" $ }}
+      {{- end }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   endpoints:
-    - port: http-port
+    - port: tcp-metrics
       path: {{ .Values.monitoring.serviceMonitor.path }}
       interval: {{ .Values.monitoring.serviceMonitor.interval }}
       scrapeTimeout: {{ .Values.monitoring.serviceMonitor.scrapeTimeout }}

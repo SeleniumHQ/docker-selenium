@@ -125,10 +125,10 @@ jobs:
             docker-version: '28.5.2'
             python-version: '3.10'
             test-upgrade: true
-            service-mesh: true
+            service-mesh: false
             os: ubuntu-22.04
             check-records-output: false
-            test-strategy: job_relay
+            test-strategy: playwright_connect_grid_hub
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}

@@ -134,6 +134,10 @@ if [ ! -z "$SE_ROUTER_PASSWORD" ]; then
   append_se_opts "--password" "${SE_ROUTER_PASSWORD}" "false"
 fi
 
+if [ ! -z "${SE_TCP_TUNNEL}" ]; then
+  append_se_opts "--tcp-tunnel" "${SE_TCP_TUNNEL}"
+fi
+
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"

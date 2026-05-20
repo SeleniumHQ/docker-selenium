@@ -1,0 +1,18 @@
+{{- if and (eq (include "seleniumGrid.monitoring.enabled" $) "true") .Values.monitoring.grafana.dashboards.enabled }}
+{{- range $path, $content := .Files.Glob "files/dashboards/*.json" }}
+{{- $filename := base $path }}
+{{- $name := trimSuffix ".json" $filename }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "seleniumGrid.component.name" (list $name $) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+    {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
+data:
+  {{ $filename }}: |-
+    {{ $content | toString | nindent 4 | trim }}
+{{- end }}
+{{- end }}
