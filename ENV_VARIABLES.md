@@ -2,7 +2,7 @@
 |--------------|---------------|-------------|----------------------|
 | SE_SCREEN_WIDTH | 1920 | Use in Node to set the screen width |  |
 | SE_SCREEN_HEIGHT | 1080 | Use in Node to set the screen height |  |
-| SE_VIDEO_FILE_NAME | video.mp4 | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
+| SE_VIDEO_FILE_NAME | auto | Use in function video recording to set the output file name. Set `auto` for dynamic file name relying on test metadata |  |
 | SE_FRAME_RATE | 15 | Set the frame rate for FFmpeg in video recording |  |
 | SE_CODEC | libx264 | Set the codec for FFmpeg in video recording |  |
 | SE_PRESET | -preset ultrafast | Set the preset for FFmpeg in video recording |  |
@@ -105,7 +105,7 @@
 | SE_NODE_DOCKER_CONFIG_FILENAME | docker.toml |  |  |
 | SE_NODE_GRACEFUL_SHUTDOWN |  |  |  |
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
-| SE_RECORD_VIDEO | true |  |  |
+| SE_RECORD_VIDEO | false |  |  |
 | SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP | false |  |  |
 | SE_NODE_MAX_SESSIONS | 1 | Set the number of maximum concurrent sessions per browser Node, by default is 1 | --max-sessions |
 | SE_NODE_OVERRIDE_MAX_SESSIONS | false | By default is false, enable this flag for setting max session take effect in browser Node | --override-max-sessions |
@@ -168,3 +168,6 @@
 | SE_DYNAMIC_OVERRIDE_MAX_SESSIONS |  | Enable this flag for setting max session take effect in Dynamic Node (both Docker and Kubernetes) |  |
 | SE_FAILURE_SESSION_EVENTS | :failed,:failure,:error,:aborted | By default, a failure session event type contains ":failed", ":failure", ":error" or ":aborted" substrings that trigger the retain-on-failure sub-sequence. User can define more event types which handled in your test framework, separated by comma. |  |
 | SE_RETAIN_ON_FAILURE | false | When true, recordings for sessions that pass are discarded immediately. Only sessions that fail (via failure events or abnormal close) retain their recordings and are queued for upload. |  |
+| SE_DISTRIBUTOR_BACKEND_URL |  | Redis URL for Distributor connection when using RedisBackedDistributor implementation, e.g. redis://redis:6379 | --distributor-backend-url |
+| SE_DISTRIBUTOR_IMPLEMENTATION |  | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination) | --distributor-implementation |
+| SE_TCP_TUNNEL | false |  | --tcp-tunnel |

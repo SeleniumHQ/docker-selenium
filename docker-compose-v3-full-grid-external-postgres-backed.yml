@@ -1,6 +1,6 @@
-# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid-external-postgres-backed.yml.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-external-postgres-backed.yml.yml down`
 services:
   selenium-event-bus:
     image: selenium/event-bus:4.43.0-20260404
@@ -24,11 +24,6 @@ services:
       - SE_SESSIONS_MAP_EXTERNAL_JDBC_URL=jdbc:postgresql://postgresql:5432/selenium_sessions
       - SE_SESSIONS_MAP_EXTERNAL_JDBC_USER=seluser
       - SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD=seluser
-# Uncomment the following lines to use Redis as the external datastore
-#      - SE_SESSIONS_MAP_EXTERNAL_SCHEME=redis
-#      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
-#      - SE_SESSIONS_MAP_EXTERNAL_HOSTNAME=redis
-#      - SE_SESSIONS_MAP_EXTERNAL_PORT=6379
 
   postgresql:
     image: postgres:latest
@@ -41,12 +36,6 @@ services:
       - "5432:5432"
     volumes:
       - ./Sessions/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
 
   selenium-session-queue:
     image: selenium/session-queue:4.43.0-20260404

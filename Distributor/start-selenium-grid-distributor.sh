@@ -153,6 +153,14 @@ if [ ! -z "$SE_DISTRIBUTOR_SLOT_SELECTOR" ]; then
   append_se_opts "--slot-selector" "${SE_DISTRIBUTOR_SLOT_SELECTOR}"
 fi
 
+if [ ! -z "$SE_DISTRIBUTOR_IMPLEMENTATION" ]; then
+  append_se_opts "--distributor-implementation" "${SE_DISTRIBUTOR_IMPLEMENTATION}"
+fi
+
+if [ ! -z "$SE_DISTRIBUTOR_BACKEND_URL" ]; then
+  append_se_opts "--distributor-backend-url" "${SE_DISTRIBUTOR_BACKEND_URL}"
+fi
+
 if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
   append_se_opts "--newsession-threadpool-size" "${SE_NEW_SESSION_THREAD_POOL_SIZE}"
 fi

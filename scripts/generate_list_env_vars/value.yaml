@@ -16,7 +16,11 @@
   default: libx264
 - name: SE_DISABLE_UI
   default: ''
+- name: SE_DISTRIBUTOR_BACKEND_URL
+  default: ''
 - name: SE_DISTRIBUTOR_HOST
+  default: ''
+- name: SE_DISTRIBUTOR_IMPLEMENTATION
   default: ''
 - name: SE_DISTRIBUTOR_PORT
   default: '5553'
@@ -197,7 +201,7 @@
 - name: SE_RECORD_AUDIO
   default: 'false'
 - name: SE_RECORD_VIDEO
-  default: 'true'
+  default: 'false'
 - name: SE_REGISTRATION_SECRET
   default: ''
 - name: SE_REJECT_UNSUPPORTED_CAPS
@@ -276,6 +280,8 @@
   default: '5'
 - name: SE_SUPERVISORD_UNIX_SERVER_PASSWORD
   default: secret
+- name: SE_TCP_TUNNEL
+  default: 'false'
 - name: SE_UPDATE_CHROME_COMPONENTS
   default: ''
 - name: SE_UPLOAD_COMMAND
@@ -297,7 +303,7 @@
 - name: SE_VIDEO_EVENT_DRIVEN
   default: 'true'
 - name: SE_VIDEO_FILE_NAME
-  default: video.mp4
+  default: auto
 - name: SE_VIDEO_FILE_NAME_SUFFIX
   default: 'true'
 - name: SE_VIDEO_FILE_NAME_TRIM_REGEX

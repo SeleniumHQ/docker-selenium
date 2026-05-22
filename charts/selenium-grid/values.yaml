@@ -566,6 +566,18 @@ components:
     newSessionThreadPoolSize:
     # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
     slotSelectorStrategy: ""
+    # -- Configure external datastore for Distributor. When enabled, all replicas share state
+    # through the backend (node registrations, slot reservations, health-check coordination),
+    # allowing zero-downtime rolling restarts.
+    externalDatastore:
+      # -- Enable external datastore for Distributor
+      enabled: false
+      # -- Backend for external datastore (supported: redis)
+      backend: redis
+      # -- Configure Redis backed Distributor
+      redis:
+        implementation: "org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor"
+        url: "redis://{{ $.Release.Name }}-redis-master:6379"
     # -- Specify extra environment variables for Distributor
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
@@ -771,7 +783,7 @@ components:
       # -- Enable external datastore for Session Map
       enabled: false
       # -- Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key
-      backend: postgresql
+      backend: redis
       # -- Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map)
       postgresql:
         implementation: "org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap"

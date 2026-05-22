@@ -554,3 +554,15 @@
     Only sessions that fail (via failure events or abnormal close) retain their recordings
     and are queued for upload.
   cli: ''
+- name: SE_DISTRIBUTOR_BACKEND_URL
+  description: Redis URL for Distributor connection when using RedisBackedDistributor
+    implementation, e.g. redis://redis:6379
+  cli: --distributor-backend-url
+- name: SE_DISTRIBUTOR_IMPLEMENTATION
+  description: Configure external datastore for Distributor. When enabled, all replicas
+    share state through the backend (node registrations, slot reservations, health-check
+    coordination)
+  cli: --distributor-implementation
+- name: SE_TCP_TUNNEL
+  description: ''
+  cli: --tcp-tunnel

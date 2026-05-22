@@ -232,6 +232,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
 | components.distributor.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
+| components.distributor.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis-master:6379"}}` | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination), allowing zero-downtime rolling restarts. |
+| components.distributor.externalDatastore.enabled | bool | `false` | Enable external datastore for Distributor |
+| components.distributor.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
+| components.distributor.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis-master:6379"}` | Configure Redis backed Distributor |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -309,7 +313,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.nodeSelector | object | `{}` | Node selector for Session Map pods |
 | components.sessionMap.priorityClassName | string | `""` | Priority class name for Session Map pods |
 | components.sessionMap.externalDatastore.enabled | bool | `false` | Enable external datastore for Session Map |
-| components.sessionMap.externalDatastore.backend | string | `"postgresql"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
+| components.sessionMap.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
 | components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
 | components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis-master","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
 | components.sessionQueue.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
