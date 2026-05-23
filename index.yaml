@@ -27,6 +27,48 @@ entries:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/nightly/selenium-grid-1.0.0-nightly.tgz
     version: 1.0.0-nightly
   - apiVersion: v2
+    appVersion: 4.44.0-20260505
+    created: "2026-05-23T08:42:56.29982386Z"
+    dependencies:
+    - condition: autoscaling.enabled, keda.enabled
+      name: keda
+      repository: https://kedacore.github.io/charts
+      version: "2.19"
+    - condition: ingress.enableWithController, traefik.enabled
+      name: traefik
+      repository: https://traefik.github.io/charts
+      version: ^40.0.0
+    - condition: tracing.enabled, jaeger.enabled
+      name: jaeger
+      repository: https://jaegertracing.github.io/helm-charts
+      version: ^4.0.0
+    - condition: monitoring.enabled, kube-prometheus-stack.enabled
+      name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: ^85.0.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ^18.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ^25.0.0
+    description: A Helm chart for creating a Selenium Grid Server in Kubernetes
+    digest: 0737e294ef4bf86668305ce7279ed12d14b483310db8e2d970260af2df70bb9b
+    icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
+    maintainers:
+    - email: docker-selenium@seleniumhq.org
+      name: SeleniumHQ
+      url: https://github.com/SeleniumHQ
+    name: selenium-grid
+    sources:
+    - https://github.com/SeleniumHQ/docker-selenium
+    type: application
+    urls:
+    - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.55.0/selenium-grid-0.55.0.tgz
+    version: 0.55.0
+  - apiVersion: v2
     appVersion: 4.43.0-20260404
     created: "2026-04-13T09:18:18.634649491Z"
     dependencies:
@@ -3348,4 +3390,4 @@ entries:
     urls:
     - https://github.com/SeleniumHQ/docker-selenium/releases/download/selenium-grid-0.3.0/selenium-grid-0.3.0.tgz
     version: 0.3.0
-generated: "2026-04-13T09:18:18.635028597Z"
+generated: "2026-05-23T08:42:56.300089651Z"
