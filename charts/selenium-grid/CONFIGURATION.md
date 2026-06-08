@@ -19,9 +19,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | Repository | Name | Version |
 |------------|------|---------|
 | https://charts.bitnami.com/bitnami | postgresql | ^18.0.0 |
-| https://charts.bitnami.com/bitnami | redis | ^25.0.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.30.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
-| https://kedacore.github.io/charts | keda | 2.19 |
+| https://kedacore.github.io/charts | keda | ^2.20.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^86.0.0 |
 | https://traefik.github.io/charts | traefik | ^40.0.0 |
 
@@ -232,10 +232,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
 | components.distributor.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
-| components.distributor.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis-master:6379"}}` | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination), allowing zero-downtime rolling restarts. |
+| components.distributor.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis:6379"}}` | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination), allowing zero-downtime rolling restarts. |
 | components.distributor.externalDatastore.enabled | bool | `false` | Enable external datastore for Distributor |
 | components.distributor.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
-| components.distributor.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis-master:6379"}` | Configure Redis backed Distributor |
+| components.distributor.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed Distributor |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -315,7 +315,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.externalDatastore.enabled | bool | `false` | Enable external datastore for Session Map |
 | components.sessionMap.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
 | components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
-| components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis-master","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
+| components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
 | components.sessionQueue.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | components.sessionQueue.imageName | string | `"session-queue"` | Session Queue image name |
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
@@ -795,7 +795,6 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
 | postgresql.primary.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
 | redis.enabled | bool | `false` | Enable to install Redis along with Grid |
-| redis.image.repository | string | `"bitnamilegacy/redis"` |  |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
 

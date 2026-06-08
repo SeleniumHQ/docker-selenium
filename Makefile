@@ -31,10 +31,10 @@ CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
 KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.19.0)
-KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.19.0)
-KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.19.0)
+KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.20.1)
+KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.20.1)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),kedacore)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.19.0)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.20.1)
 TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
@@ -487,8 +487,7 @@ tag_and_push_browser_images_ghcr:
 		node-firefox standalone-firefox; do \
 		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-		docker.io/$(NAME)/$$image:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 	done ; \
 	done
 
@@ -496,16 +495,14 @@ mirror_browser_images_ghcr:
 	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
 		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-		docker.io/$(NAME)/$$image:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 	done ; \
 	done
 
 mirror_browser_channel_image_ghcr:
 	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$(BROWSER_TAG) \
-		docker.io/$(NAME)/$$image:$(BROWSER_TAG) ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$(BROWSER_TAG) docker.io/$(NAME)/$$image:$(BROWSER_TAG) ; \
 	done
 
 tag_ffmpeg_latest:
@@ -553,8 +550,7 @@ release_ffmpeg_latest:
 release_ffmpeg_ghcr_latest:
 	for tag in latest $(FFMPEG_VERSION) $(FFMPEG_VERSION)-$(BUILD_DATE); do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/ffmpeg:$$tag \
-		docker.io/$(NAME)/ffmpeg:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/ffmpeg:$$tag docker.io/$(NAME)/ffmpeg:$$tag ; \
 	done
 
 release_latest:
@@ -592,8 +588,7 @@ release_ghcr_latest:
 		standalone-edge standalone-firefox standalone-docker \
 		standalone-kubernetes standalone-all-browsers video; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:latest \
-		docker.io/$(NAME)/$$image:latest ; \
+		--tag $(GHCR_NAMESPACE)/$$image:latest docker.io/$(NAME)/$$image:latest ; \
 	done
 
 generate_latest_sbom:
@@ -667,8 +662,7 @@ release_ghcr_nightly:
 		standalone-edge standalone-firefox standalone-docker \
 		standalone-kubernetes standalone-all-browsers video; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:nightly \
-		docker.io/$(NAME)/$$image:nightly ; \
+		--tag $(GHCR_NAMESPACE)/$$image:nightly docker.io/$(NAME)/$$image:nightly ; \
 	done
 
 generate_nightly_sbom:
@@ -880,13 +874,11 @@ release_ghcr:
 		standalone-kubernetes standalone-all-browsers; do \
 		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
 			docker buildx imagetools create \
-			--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-			docker.io/$(NAME)/$$image:$$tag ; \
+			--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 		done ; \
 	done
 	docker buildx imagetools create \
-	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
-	  docker.io/$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
+	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) docker.io/$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 start_test_site:
 	@docker rm -f the-internet 2>/dev/null || true

@@ -7,7 +7,7 @@ appVersion: 4.44.0-20260505
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: 2.19
+  version: ^2.20.0
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://traefik.github.io/charts
@@ -26,8 +26,8 @@ dependencies:
   version: ^18.0.0
   name: postgresql
   condition: postgresql.enabled
-- repository: https://charts.bitnami.com/bitnami
-  version: ^25.0.0
+- repository: https://cloudpirates-io.github.io/helm-charts
+  version: ^0.30.0
   name: redis
   condition: redis.enabled
 maintainers:

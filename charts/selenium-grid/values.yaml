@@ -577,7 +577,7 @@ components:
       # -- Configure Redis backed Distributor
       redis:
         implementation: "org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor"
-        url: "redis://{{ $.Release.Name }}-redis-master:6379"
+        url: "redis://{{ $.Release.Name }}-redis:6379"
     # -- Specify extra environment variables for Distributor
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
@@ -794,7 +794,7 @@ components:
       redis:
         scheme: "redis"
         implementation: "org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap"
-        hostname: "{{ $.Release.Name }}-redis-master"
+        hostname: "{{ $.Release.Name }}-redis"
         port: "6379"
 
   # Configuration for Session Queue component
@@ -2371,12 +2371,10 @@ postgresql:
             session_start varchar(256)
           );
 
-# Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/bitnami/redis)
+# Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/cloudpirates/redis)
 redis:
   # -- Enable to install Redis along with Grid
   enabled: false
-  image:
-    repository: bitnamilegacy/redis
   # -- Setup architecture
   architecture: standalone
   auth:
