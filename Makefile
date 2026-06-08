@@ -144,7 +144,8 @@ build_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
 build_exporter:
-	cd .monitoring/exporter && go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
+	cd .monitoring/exporter && go mod edit -go=$$(go env GOVERSION | sed 's/go//') && go mod tidy \
+	&& go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
 
 copy_dashboards:
 	mkdir -p charts/selenium-grid/files/dashboards && cp -r .monitoring/dashboards/*.json charts/selenium-grid/files/dashboards/
