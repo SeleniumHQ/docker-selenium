@@ -450,7 +450,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `20` | Polling interval in seconds |
 | autoscaling.scaledOptions.triggers | list | `[]` | List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |

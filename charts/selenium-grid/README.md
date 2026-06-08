@@ -229,7 +229,7 @@ autoscaling:
 
 Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
 
-Expected that with default configuration in KEDA resource, autoscaling behavior should be correct. Hence, in chart values, we keep the config key `autoscaling.scaledJobOptions.scalingStrategy.strategy` is `default`.
+Expected that with default configuration in KEDA resource, autoscaling behavior should be correct. Hence, in chart values, we keep the config key `autoscaling.scaledJobOptions.scalingStrategy.strategy` is `accurate`.
 
 ### Scaler trigger configuration
 
