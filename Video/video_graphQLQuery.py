@@ -231,13 +231,16 @@ def main(argv: list[str]) -> int:
         session_id, video_cap_name, test_name_cap, video_name_cap
     )
 
-    # Determine RECORD_VIDEO value
-    record_video = True
-    if isinstance(record_video_raw, str):
-        if record_video_raw.lower() == "false":
-            record_video = False
-    elif record_video_raw is False:
-        record_video = False
+    # Determine RECORD_VIDEO value. When the se:recordVideo capability is absent
+    # (record_video_raw is None), fall back to the SE_RECORD_VIDEO env default so
+    # SE_RECORD_VIDEO=false is honored, consistent with video_nodeQuery.py.
+    default_record_video = os.getenv("SE_RECORD_VIDEO", "true").lower() != "false"
+    if record_video_raw is None:
+        record_video = default_record_video
+    elif isinstance(record_video_raw, str):
+        record_video = record_video_raw.lower() != "false"
+    else:
+        record_video = bool(record_video_raw)
 
     # Decide TEST_NAME referencing precedence (video_name first, then test_name)
     chosen_name: str = ""

@@ -773,15 +773,29 @@ File name will be trimmed to 255 characters to avoid long file names. Moreover, 
 
 The trim regex is able to be customized by setting `SE_VIDEO_FILE_NAME_TRIM_REGEX` environment variable. The default value is `[^a-zA-Z0-9-_]`. The regex should be compatible with Python `re.compile()` function.
 
-At deployment level, the recorder container is up always. In addition, you can disable video recording process via session capability `se:recordVideo`. For example in Python binding:
+At deployment level, the recorder container is always up and stays in standby, watching for sessions. Whether a given session is recorded is controlled per session by the `se:recordVideo` capability, which overrides the `SE_RECORD_VIDEO` environment variable used as the default when the capability is not present:
+
+- `se:recordVideo` capability **present** on the session: its value wins for that session (`true` records, `false` skips), regardless of `SE_RECORD_VIDEO`.
+- `se:recordVideo` capability **absent**: the recorder falls back to `SE_RECORD_VIDEO` (default `true` for the standalone video image, `false` for the Node images).
+
+This means you can keep recording disabled by default and opt in per test. For example, with `SE_RECORD_VIDEO=false`, the recorder stays in standby and only records sessions that explicitly request it:
+
+```python
+# Recorded only because the session opts in, even when SE_RECORD_VIDEO=false
+options.set_capability('se:recordVideo', True)
+```
+
+Conversely, with recording enabled by default (`SE_RECORD_VIDEO=true`) you can disable it for a specific session:
 
 ```python
 options.set_capability('se:recordVideo', False)
 ```
 
-In recorder container will perform query GraphQL in Hub based on Node SessionId and extract the value of `se:recordVideo` in capabilities before deciding to start video recording process or not.
+This per-session control applies to both recording modes:
+- **Event-driven mode** (`SE_VIDEO_EVENT_DRIVEN=true`, default in the Node images): the recorder subscribes to the Grid event bus and reads `se:recordVideo` from each session's capabilities on the `SessionCreated` event.
+- **Shell/polling mode** (`SE_VIDEO_EVENT_DRIVEN=false`): the recorder queries the Node `/status` endpoint (or the Hub GraphQL endpoint) based on the Node SessionId and extracts `se:recordVideo` from the capabilities before deciding whether to start recording.
 
-Notes: To reach the GraphQL endpoint, the recorder container needs to know the Hub URL. The Hub URL can be passed via environment variable `SE_NODE_GRID_URL`. For example `SE_NODE_GRID_URL` is `http://selenium-hub:4444`.
+Notes: For the shell/polling mode to reach the GraphQL endpoint, the recorder container needs to know the Hub URL. The Hub URL can be passed via environment variable `SE_NODE_GRID_URL`. For example `SE_NODE_GRID_URL` is `http://selenium-hub:4444`.
 
 ## Video recording and uploading
 

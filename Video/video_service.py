@@ -172,6 +172,10 @@ class VideoService:
 
         # Capability names
         self.video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
+        # Default recording state used when the se:recordVideo capability is absent
+        # on a session. Mirrors the fallback in the shell-mode helper (video_nodeQuery.py)
+        # so SE_RECORD_VIDEO=false is honored across both recording modes.
+        self.default_record_video = os.environ.get("SE_RECORD_VIDEO", "true").lower() != "false"
         self.test_name_cap = os.environ.get("TEST_NAME_CAP", "se:name")
         self.video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
         self.file_name_trim_regex = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[^a-zA-Z0-9-_]")
@@ -260,10 +264,20 @@ class VideoService:
         return normalized[:251]
 
     def get_video_filename(self, session_id: str, capabilities: dict) -> tuple[bool, str]:
-        """Determine video filename from session capabilities."""
-        record_video = capabilities.get(self.video_cap_name, True)
-        if isinstance(record_video, str):
+        """Determine video filename from session capabilities.
+
+        Recording is gated by the se:recordVideo capability when it is present on
+        the session; when the capability is absent, it falls back to the
+        SE_RECORD_VIDEO environment default. This keeps the event-driven service
+        consistent with the shell-mode helper (video_nodeQuery.py).
+        """
+        record_video = capabilities.get(self.video_cap_name)
+        if record_video is None:
+            record_video = self.default_record_video
+        elif isinstance(record_video, str):
             record_video = record_video.lower() != "false"
+        else:
+            record_video = bool(record_video)
 
         if self.configured_video_file_name.lower() != "auto":
             fixed_name = self.configured_video_file_name
