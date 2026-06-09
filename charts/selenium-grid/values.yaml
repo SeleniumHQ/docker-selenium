@@ -789,7 +789,7 @@ components:
         implementation: "org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap"
         jdbcUser: "seluser"
         jdbcPassword: "seluser"
-        jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions"
+        jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgres:5432/selenium_sessions"
       # -- Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map)
       redis:
         scheme: "redis"
@@ -2347,29 +2347,26 @@ jaeger:
   storage:
     type: badger
 
-# Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/bitnami/postgresql)
+# Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/cloudpirates/postgres)
 postgresql:
   # -- Enable to install PostgreSQL along with Grid
   enabled: false
-  image:
-    repository: bitnamilegacy/postgresql
   # -- Authentication should be aligned with config in session map
   auth:
     username: "seluser"
     password: "seluser"
     database: "selenium_sessions"
-  primary:
-    initdb:
-      # -- Initdb scripts for PostgreSQL to create sessions_map table
-      scripts:
-        init.sql: |
-          CREATE TABLE IF NOT EXISTS sessions_map(
-            session_ids varchar(256),
-            session_caps text,
-            session_uri varchar(256),
-            session_stereotype text,
-            session_start varchar(256)
-          );
+  initdb:
+    # -- Initdb scripts for PostgreSQL to create sessions_map table
+    scripts:
+      init.sql: |
+        CREATE TABLE IF NOT EXISTS sessions_map(
+          session_ids varchar(256),
+          session_caps text,
+          session_uri varchar(256),
+          session_stereotype text,
+          session_start varchar(256)
+        );
 
 # Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/cloudpirates/redis)
 redis:

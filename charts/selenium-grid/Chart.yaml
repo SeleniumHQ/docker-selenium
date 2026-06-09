@@ -22,9 +22,9 @@ dependencies:
   version: ^86.0.0
   name: kube-prometheus-stack
   condition: monitoring.enabled, kube-prometheus-stack.enabled
-- repository: https://charts.bitnami.com/bitnami
-  version: ^18.0.0
-  name: postgresql
+- repository: https://cloudpirates-io.github.io/helm-charts
+  version: ^0.19.0
+  name: postgres
   condition: postgresql.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
   version: ^0.30.0

@@ -18,7 +18,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | ^18.0.0 |
+| https://cloudpirates-io.github.io/helm-charts | postgres | ^0.19.0 |
 | https://cloudpirates-io.github.io/helm-charts | redis | ^0.30.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
@@ -314,7 +314,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.priorityClassName | string | `""` | Priority class name for Session Map pods |
 | components.sessionMap.externalDatastore.enabled | bool | `false` | Enable external datastore for Session Map |
 | components.sessionMap.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
-| components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
+| components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgres:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
 | components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
 | components.sessionQueue.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | components.sessionQueue.imageName | string | `"session-queue"` | Session Queue image name |
@@ -791,9 +791,8 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"grafana":{"adminPassword":"admin","adminUser":"admin"},"nodeExporter":{"enabled":false},"prometheusOperator":{"admissionWebhooks":{"enabled":false,"patch":{"enabled":false}},"tls":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
-| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
-| postgresql.primary.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
+| postgresql.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
 | redis.enabled | bool | `false` | Enable to install Redis along with Grid |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
