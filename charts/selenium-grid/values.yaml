@@ -2351,6 +2351,9 @@ jaeger:
 postgresql:
   # -- Enable to install PostgreSQL along with Grid
   enabled: false
+  # -- Enable persistence using Persistent Volume Claims
+  persistence:
+    enabled: false
   # -- Authentication should be aligned with config in session map
   auth:
     username: "seluser"
