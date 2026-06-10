@@ -18,7 +18,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://cloudpirates-io.github.io/helm-charts | postgres | ^0.19.0 |
+| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.19.0 |
 | https://cloudpirates-io.github.io/helm-charts | redis | ^0.30.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
@@ -791,6 +791,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"grafana":{"adminPassword":"admin","adminUser":"admin"},"nodeExporter":{"enabled":false},"prometheusOperator":{"admissionWebhooks":{"enabled":false,"patch":{"enabled":false}},"tls":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
+| postgresql.persistence | object | `{"enabled":false}` | Enable persistence using Persistent Volume Claims |
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
 | postgresql.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
 | redis.enabled | bool | `false` | Enable to install Redis along with Grid |
