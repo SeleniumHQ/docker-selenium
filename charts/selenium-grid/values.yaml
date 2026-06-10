@@ -789,7 +789,7 @@ components:
         implementation: "org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap"
         jdbcUser: "seluser"
         jdbcPassword: "seluser"
-        jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgres:5432/selenium_sessions"
+        jdbcUrl: "jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions"
       # -- Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map)
       redis:
         scheme: "redis"
