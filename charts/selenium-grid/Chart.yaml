@@ -25,6 +25,7 @@ dependencies:
 - repository: https://cloudpirates-io.github.io/helm-charts
   version: ^0.19.0
   name: postgres
+  alias: postgresql
   condition: postgresql.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
   version: ^0.30.0
