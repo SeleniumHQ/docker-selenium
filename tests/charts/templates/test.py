@@ -543,6 +543,22 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No router service found")
 
+    def test_monitoring_metrics_container_port(self):
+        # The router Deployment must render a single container `ports` list that keeps the
+        # tcp-metrics port. A duplicate `ports` block silently drops it once applied (issue #3152).
+        resources_name = [f'{RELEASE_NAME}selenium-router']
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert tcp-metrics container port is exposed on router deployment")
+                container = doc['spec']['template']['spec']['containers'][0]
+                ports = container['ports']
+                metrics_ports = [p for p in ports if p.get('name') == 'tcp-metrics']
+                self.assertEqual(len(metrics_ports), 1, "tcp-metrics container port not found on router deployment")
+                self.assertEqual(metrics_ports[0]['containerPort'], 9615)
+                count += 1
+        self.assertEqual(count, len(resources_name), "No router deployment found")
+
 
 if __name__ == '__main__':
     failed = False
