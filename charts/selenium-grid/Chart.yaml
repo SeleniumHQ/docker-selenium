@@ -11,7 +11,7 @@ dependencies:
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://traefik.github.io/charts
-  version: ^40.0.0
+  version: ^41.0.0
   name: traefik
   condition: ingress.enableWithController, traefik.enabled
 - repository: https://jaegertracing.github.io/helm-charts
