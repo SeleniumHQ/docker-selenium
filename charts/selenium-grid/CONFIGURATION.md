@@ -23,7 +23,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^86.0.0 |
-| https://traefik.github.io/charts | traefik | ^40.0.0 |
+| https://traefik.github.io/charts | traefik | ^41.0.0 |
 
 ## Values
 
