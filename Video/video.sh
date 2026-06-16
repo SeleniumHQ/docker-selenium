@@ -8,6 +8,7 @@ FRAME_RATE=${FRAME_RATE:-$SE_FRAME_RATE}
 CODEC=${CODEC:-$SE_CODEC}
 PRESET=${PRESET:-$SE_PRESET}
 VIDEO_FOLDER=${VIDEO_FOLDER}
+SE_VIDEO_SESSION_SUBFOLDER=${SE_VIDEO_SESSION_SUBFOLDER:-"false"}
 VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-$SE_VIDEO_UPLOAD_ENABLED}
 VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
@@ -270,7 +271,14 @@ else
       if [[ "$caps_se_video_record" = "true" ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
         log_node_response
-        video_file="${VIDEO_FOLDER}/$video_file_name"
+        if [[ "${SE_VIDEO_SESSION_SUBFOLDER}" = "true" ]]; then
+          video_dir="${VIDEO_FOLDER}/${session_id}"
+          mkdir -p "${video_dir}"
+          echo "$(date -u +"${ts_format}") [${process_name}] - Created session subfolder: ${video_dir}"
+        else
+          video_dir="${VIDEO_FOLDER}"
+        fi
+        video_file="${video_dir}/$video_file_name"
         echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
         ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \

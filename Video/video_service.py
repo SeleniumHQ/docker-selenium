@@ -186,6 +186,9 @@ class VideoService:
         # Standalone mode: single node, no need to filter events by NodeId
         self.record_standalone = os.environ.get("SE_VIDEO_RECORD_STANDALONE", "false").lower() == "true"
 
+        # Subfolder mode: save each session's video inside VIDEO_FOLDER/{session_id}/
+        self.session_subfolder = os.environ.get("SE_VIDEO_SESSION_SUBFOLDER", "false").lower() == "true"
+
         # Node identity for filtering events in distributed (Hub-Nodes) setup.
         # In distributed mode, ZeroMQ broadcasts ALL session events to ALL subscribers.
         # Each Node's recorder must filter to only process events for its own Node.
@@ -764,6 +767,12 @@ class VideoService:
         capabilities = data.get("capabilities", {})
         record_video, video_filename = self.get_video_filename(session_id, capabilities)
 
+        if record_video and self.session_subfolder:
+            session_subdir = Path(self.video_folder) / session_id
+            session_subdir.mkdir(parents=True, exist_ok=True)
+            video_filename = f"{session_id}/{video_filename}"
+            logger.info(f"Created session subfolder: {session_subdir}")
+
         retain_on_failure_cap = capabilities.get("se:retainOnFailure", None)
         if retain_on_failure_cap is None:
             retain_on_failure = self.retain_on_failure_enabled
@@ -1061,6 +1070,7 @@ class VideoService:
         logger.info(f"  Standalone mode: {self.record_standalone}")
         logger.info(f"  Event bus: {self.event_bus_host}:{self.event_bus_port}")
         logger.info(f"  Video folder: {self.video_folder}")
+        logger.info(f"  Session subfolder: {self.session_subfolder}")
         logger.info(f"  Video file name: {self.configured_video_file_name}")
         logger.info(f"  Video size: {self.video_size}")
         logger.info(f"  Upload enabled: {self.upload_enabled}")
