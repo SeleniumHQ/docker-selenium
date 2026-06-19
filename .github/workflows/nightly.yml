@@ -159,7 +159,7 @@ jobs:
           command: make chart_release
       - name: Create Nightly Release
         id: create_release
-        uses: softprops/action-gh-release@v3.0.0
+        uses: softprops/action-gh-release@v3.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.BASE_RELEASE }}
