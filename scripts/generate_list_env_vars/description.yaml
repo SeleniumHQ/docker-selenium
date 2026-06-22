@@ -566,3 +566,12 @@
 - name: SE_TCP_TUNNEL
   description: ''
   cli: --tcp-tunnel
+- name: SE_SESSION_QUEUE_BACKEND_URL
+  description: ''
+  cli: ''
+- name: SE_SESSION_QUEUE_IMPLEMENTATION
+  description: ''
+  cli: ''
+- name: SE_VIDEO_SESSION_SUBFOLDER
+  description: ''
+  cli: ''

@@ -813,6 +813,19 @@ components:
     # -- Override global sessionRequestTimeout
     sessionRequestTimeout: ""
 
+    # -- Configure external datastore for SessionQueue. When enabled, all replicas share the queue
+    # state in Redis, allowing the tier to scale out horizontally behind a load balancer or
+    # Kubernetes Service.
+    externalDatastore:
+      # -- Enable external datastore for SessionQueue
+      enabled: false
+      # -- Backend for external datastore (supported: redis)
+      backend: redis
+      # -- Configure Redis backed SessionQueue
+      redis:
+        implementation: "org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue"
+        url: "redis://{{ $.Release.Name }}-redis:6379"
+
     # -- Specify extra environment variables for Session Queue
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Session Queue

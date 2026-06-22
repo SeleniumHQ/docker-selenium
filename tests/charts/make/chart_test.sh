@@ -248,6 +248,10 @@ elif [ "${TEST_EXTERNAL_DATASTORE}" = "redis" ]; then
   --set components.distributor.externalDatastore.enabled=true \
   --set components.distributor.externalDatastore.backend=redis \
   "
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set components.sessionQueue.externalDatastore.enabled=true \
+  --set components.sessionQueue.externalDatastore.backend=redis \
+  "
 fi
 
 if [ "${SELENIUM_GRID_MONITORING}" = "true" ] && [ "${TEST_EXISTING_PTS}" = "true" ]; then

@@ -34,6 +34,9 @@ services:
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
+    environment:
+      - SE_SESSION_QUEUE_IMPLEMENTATION=org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue
+      - SE_SESSION_QUEUE_BACKEND_URL=redis://redis:6379
 
   selenium-distributor:
     image: selenium/distributor:4.44.0-20260505

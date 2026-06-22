@@ -248,7 +248,11 @@
   default: ''
 - name: SE_SESSIONS_MAP_PORT
   default: '5556'
+- name: SE_SESSION_QUEUE_BACKEND_URL
+  default: ''
 - name: SE_SESSION_QUEUE_HOST
+  default: ''
+- name: SE_SESSION_QUEUE_IMPLEMENTATION
   default: ''
 - name: SE_SESSION_QUEUE_PORT
   default: '5559'
@@ -320,6 +324,8 @@
   default: '1'
 - name: SE_VIDEO_RECORD_STANDALONE
   default: ''
+- name: SE_VIDEO_SESSION_SUBFOLDER
+  default: 'false'
 - name: SE_VIDEO_UPLOAD_BATCH_CHECK
   default: ''
 - name: SE_VIDEO_UPLOAD_ENABLED

@@ -171,3 +171,6 @@
 | SE_DISTRIBUTOR_BACKEND_URL |  | Redis URL for Distributor connection when using RedisBackedDistributor implementation, e.g. redis://redis:6379 | --distributor-backend-url |
 | SE_DISTRIBUTOR_IMPLEMENTATION |  | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination) | --distributor-implementation |
 | SE_TCP_TUNNEL | false |  | --tcp-tunnel |
+| SE_SESSION_QUEUE_BACKEND_URL |  |  |  |
+| SE_SESSION_QUEUE_IMPLEMENTATION |  |  |  |
+| SE_VIDEO_SESSION_SUBFOLDER | false |  |  |

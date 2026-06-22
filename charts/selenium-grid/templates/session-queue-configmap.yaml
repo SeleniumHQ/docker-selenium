@@ -10,6 +10,17 @@ metadata:
   labels:
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 data:
+{{- if .Values.components.sessionQueue.externalDatastore.enabled }}
+{{- $backend := .Values.components.sessionQueue.externalDatastore.backend -}}
+{{- with (get .Values.components.sessionQueue.externalDatastore $backend) }}
+{{- with .implementation }}
+  SE_SESSION_QUEUE_IMPLEMENTATION: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .url }}
+  SE_SESSION_QUEUE_BACKEND_URL: {{ tpl . $ | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- range $key, $value := $.Values.sessionQueueConfigMap.data }}
   {{ $key }}: {{ tpl $value $ | quote }}
 {{- end }}
