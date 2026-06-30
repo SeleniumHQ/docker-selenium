@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-standalone-kubernetes
-          image: selenium/standalone-kubernetes:4.44.0-20260505
+          image: selenium/standalone-kubernetes:4.45.0-20260606
           ports:
             - containerPort: 4444
           env:

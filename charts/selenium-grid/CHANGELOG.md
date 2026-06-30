@@ -1,3 +1,22 @@
+## :heavy_check_mark: selenium-grid-0.56.0
+
+- Chart is using image tag 4.45.0-20260606
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`6f110dd8`](http://github.com/seleniumhq/docker-selenium/commit/6f110dd87305c3c47fb11b4cce6244d848dcae9a) - [ci] Update tag 4.45.0-20260606 in docs and files :: Selenium CI Bot
+- [`1c4e0696`](http://github.com/seleniumhq/docker-selenium/commit/1c4e0696d0d38db57949652358d8e4d8410c82d5) - chore(deps): update helm release kube-prometheus-stack to v87 (#3161) :: renovate[bot]
+- [`85038245`](http://github.com/seleniumhq/docker-selenium/commit/85038245742a1a546ab441bc9f2a0912396e9eb4) - chore(deps): update helm release traefik to v41 (#3157) :: renovate[bot]
+- [`9e3a32a3`](http://github.com/seleniumhq/docker-selenium/commit/9e3a32a3ab471455d8f0b898f1cc87359543cd02) - K8s: Fix duplicated port in Router deployment template (#3155) :: Viet Nguyen Duc
+- [`44fcf855`](http://github.com/seleniumhq/docker-selenium/commit/44fcf85554137693e94b0f5f8d7cb8b0092f8278) - K8s: Migrate subchart Postgres to cloudpirates/postgres from bitnami/postgresql (#3150) :: Viet Nguyen Duc
+- [`9cc943b1`](http://github.com/seleniumhq/docker-selenium/commit/9cc943b180199112c1b06a8061e0a8d833874bcf) - K8s: KEDA 2.20.1+ unsupported job scale strategy "default" (#3149) :: Viet Nguyen Duc
+- [`ea4d5d1a`](http://github.com/seleniumhq/docker-selenium/commit/ea4d5d1a71077b93ad7fcb6a2ea3ca1a01dafddc) - K8s: Migrate subchart Redis to cloudpirates/redis from bitnami/redis (#3148) :: Viet Nguyen Duc
+- [`43d70d68`](http://github.com/seleniumhq/docker-selenium/commit/43d70d68f8259e1c209af84e87e8076e444974d6) - chore(deps): update helm release kube-prometheus-stack to v86 (#3143) :: renovate[bot]
+- [`d7fd6328`](http://github.com/seleniumhq/docker-selenium/commit/d7fd6328ca9544a78fc0e80636d44ea4ef16aa0d) - [ci] Update chart 0.55.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.55.0
 
 - Chart is using image tag 4.44.0-20260505

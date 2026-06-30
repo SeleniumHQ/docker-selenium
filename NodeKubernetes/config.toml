@@ -2,9 +2,9 @@
 # Configs have a mapping between the container image to use and the capabilities
 # that need to be matched to start a K8s Job with the given image.
 configs = [
-    "selenium/standalone-firefox:4.44.0-20260505", '{"browserName": "firefox", "platformName": "linux"}',
-    "selenium/standalone-chromium:4.44.0-20260505", '{"browserName": "chrome", "platformName": "linux"}',
-    "selenium/standalone-edge:4.44.0-20260505", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+    "selenium/standalone-firefox:4.45.0-20260606", '{"browserName": "firefox", "platformName": "linux"}',
+    "selenium/standalone-chromium:4.45.0-20260606", '{"browserName": "chrome", "platformName": "linux"}',
+    "selenium/standalone-edge:4.45.0-20260606", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 
 # ConfigMap template mode: prefix an entry with "configmap:" to load a full K8s Job
@@ -19,7 +19,7 @@ configs = [
 
 # Docker image used for video recording (set to "false" to disable. Recommend to use new browser
 # image tag which has video recorder/uploader inline).
-# video-image = "selenium/video:ffmpeg-8.1-20260505"
+# video-image = "selenium/video:ffmpeg-8.1-20260606"
 
 # Session assets path — when the Node Pod has a PVC mounted at this path,
 # browser Jobs automatically share it for video/logs/capabilities persistence
