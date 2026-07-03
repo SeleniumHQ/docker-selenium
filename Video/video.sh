@@ -255,6 +255,7 @@ else
   video_file_name=""
   video_file=""
   prev_session_id=""
+  skipped_session_id=""
   attempts=0
   max_recorded_count=${SE_DRAIN_AFTER_SESSION_COUNT:-0}
   recorded_count=0
@@ -262,7 +263,7 @@ else
   wait_for_api_respond
   while curl --noproxy "*" "${auth_header[@]}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
     session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
-    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
+    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$session_id" != "$skipped_session_id" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
       session_capabilities="$(jq -r "${JQ_SESSION_CAPABILITIES_QUERY}" "/tmp/status.json")"
       return_list=($(python3 "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.py" "${session_id}" "${session_capabilities}"))
@@ -291,8 +292,11 @@ else
           prev_session_id=$session_id
         fi
         echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
-        sleep ${poll_interval}
+      else
+        echo "$(date -u +"${ts_format}") [${process_name}] - Recording skipped for session: $session_id (se:recordVideo=false)"
+        skipped_session_id="$session_id"
       fi
+      sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then
