@@ -322,6 +322,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.sessionQueue.sessionRequestTimeout | string | `""` | Override global sessionRequestTimeout |
+| components.sessionQueue.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}}` | Configure external datastore for SessionQueue. When enabled, all replicas share the queue state in Redis, allowing the tier to scale out horizontally behind a load balancer or Kubernetes Service. |
+| components.sessionQueue.externalDatastore.enabled | bool | `false` | Enable external datastore for SessionQueue |
+| components.sessionQueue.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
+| components.sessionQueue.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed SessionQueue |
 | components.sessionQueue.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Queue |
 | components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -450,7 +454,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `20` | Polling interval in seconds |
 | autoscaling.scaledOptions.triggers | list | `[]` | List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `""` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
