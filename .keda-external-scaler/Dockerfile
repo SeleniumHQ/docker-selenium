@@ -26,5 +26,7 @@ LABEL authors=${AUTHORS}
 LABEL version=${VERSION}
 COPY --from=build /out/selenium-grid-scaler /usr/local/bin/selenium-grid-scaler
 EXPOSE 8080
-USER nonroot:nonroot
+# Numeric uid/gid (distroless "nonroot" = 65532) so Kubernetes runAsNonRoot can
+# verify the user without a non-numeric-user CreateContainerConfigError.
+USER 65532:65532
 ENTRYPOINT ["/usr/local/bin/selenium-grid-scaler"]
