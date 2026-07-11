@@ -1,0 +1,82 @@
+# Reference Deployment + Service for the Selenium Grid KEDA external scaler.
+#
+# The scaler reads Grid URL and (optional) credentials from its own environment
+# as a fallback, because KEDA does not forward TriggerAuthentication authParams
+# to external scalers. Point SE_GRID_URL at the Grid's GraphQL endpoint. Grid
+# credentials, if any, come from a Secret (see the commented block below).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-grid-scaler
+  namespace: selenium
+  labels:
+    app: selenium-grid-scaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selenium-grid-scaler
+  template:
+    metadata:
+      labels:
+        app: selenium-grid-scaler
+    spec:
+      containers:
+        - name: scaler
+          image: selenium/keda-external-scaler:latest
+          args: ["--listen-address=:8080"]
+          ports:
+            - name: grpc
+              containerPort: 8080
+          env:
+            - name: SE_GRID_URL
+              value: http://selenium-hub.selenium.svc:4444/graphql
+            # Uncomment to supply Grid basic-auth credentials from a Secret:
+            # - name: SE_USERNAME
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: selenium-basic-auth
+            #       key: SE_ROUTER_USERNAME
+            # - name: SE_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: selenium-basic-auth
+            #       key: SE_ROUTER_PASSWORD
+          readinessProbe:
+            grpc:
+              port: 8080
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            grpc:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: selenium-grid-scaler
+  namespace: selenium
+  labels:
+    app: selenium-grid-scaler
+spec:
+  selector:
+    app: selenium-grid-scaler
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: grpc

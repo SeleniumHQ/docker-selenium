@@ -1177,6 +1177,45 @@ autoscaling:
     nodeSelector: {}
     # -- Tolerations for the patch job
     tolerations: []
+  # Use the standalone Selenium Grid KEDA external scaler instead of KEDA's built-in `selenium-grid` scaler.
+  # When enabled, the chart deploys the external scaler (Deployment + Service) and switches node triggers to
+  # `type: external` pointing at it. Grid URL and basic-auth credentials are mounted into the scaler from the
+  # existing chart Secrets (KEDA does not forward TriggerAuthentication authParams to external scalers).
+  externalScaler:
+    # -- Enable the external scaler instead of the built-in `selenium-grid` trigger
+    enabled: false
+    # -- Override the generated external scaler resource name
+    nameOverride: ""
+    # -- Container image registry for the external scaler (defaults to global registry)
+    imageRegistry: ""
+    # -- Container image name for the external scaler
+    imageName: keda-external-scaler
+    # -- Container image tag for the external scaler (defaults to global.seleniumGrid.imageTag, like other grid images)
+    imageTag: ""
+    # -- Image pull policy
+    imagePullPolicy: IfNotPresent
+    # -- gRPC port the external scaler listens on
+    port: 8080
+    # -- Number of external scaler replicas
+    replicas: 1
+    # -- Per-request timeout for the scaler's Grid GraphQL queries
+    gridHttpTimeout: "3s"
+    # -- Annotations for the external scaler Deployment/Service
+    annotations: {}
+    # -- Extra environment variables for the external scaler container
+    extraEnv: []
+    # -- Node selector for the external scaler
+    nodeSelector: {}
+    # -- Tolerations for the external scaler
+    tolerations: []
+    # -- Resources for the external scaler container
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
   # -- Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA)
   defaultTriggerType: "selenium-grid"
   # -- Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec)

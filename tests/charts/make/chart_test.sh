@@ -42,6 +42,7 @@ BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 INGRESS_DISABLE_USE_HTTP2=${INGRESS_DISABLE_USE_HTTP2:-false}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"false"}
+TEST_EXTERNAL_SCALER=${TEST_EXTERNAL_SCALER:-"false"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 RENDER_HELM_TEMPLATE_ONLY=${RENDER_HELM_TEMPLATE_ONLY:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
@@ -229,6 +230,12 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   --set autoscaling.enabled=true \
   --set autoscaling.enableWithExistingKEDA=false \
   --set autoscaling.scaledJobOptions.scalingStrategy.strategy=${SCALING_STRATEGY} \
+  "
+fi
+
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXTERNAL_SCALER}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set autoscaling.externalScaler.enabled=true \
   "
 fi
 
