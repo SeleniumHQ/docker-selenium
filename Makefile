@@ -1358,7 +1358,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_render_template:
-	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay chart_test_autoscaling_playwright_connect_grid_hub
+	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_job_externalScaler chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay chart_test_autoscaling_playwright_connect_grid_hub
 
 chart_test_autoscaling_disabled:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) TEST_CUSTOM_SPECIFIC_NAME=true SELENIUM_GRID_MONITORING=false \
@@ -1432,7 +1432,7 @@ chart_test_autoscaling_playwright_connect_grid:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job_externalScaler:
-	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=false CHART_FULL_DISTRIBUTED_MODE=false SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) SCALING_STRATEGY=accurate \
+	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_EXTERNAL_SCALER=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=false CHART_FULL_DISTRIBUTED_MODE=false SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) SCALING_STRATEGY=accurate \
 	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "false") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "false") \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \

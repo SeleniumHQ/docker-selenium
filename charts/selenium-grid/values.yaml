@@ -1183,7 +1183,7 @@ autoscaling:
   # existing chart Secrets (KEDA does not forward TriggerAuthentication authParams to external scalers).
   externalScaler:
     # -- Enable the external scaler instead of the built-in `selenium-grid` trigger
-    enabled: false
+    enabled: true
     # -- Override the generated external scaler resource name
     nameOverride: ""
     # -- Container image registry for the external scaler (defaults to global registry)
@@ -1235,7 +1235,7 @@ autoscaling:
   scaledJobOptions:
     scalingStrategy:
       # -- Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy
-      strategy: "default"
+      strategy: "accurate"
     # -- Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # -- Number of Failed jobs should be kept (for troubleshooting purposes)

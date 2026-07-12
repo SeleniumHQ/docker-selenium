@@ -447,7 +447,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
 | autoscaling.patchObjectFinalizers.nodeSelector | object | `{}` | Node selector for the patch job |
 | autoscaling.patchObjectFinalizers.tolerations | list | `[]` | Tolerations for the patch job |
-| autoscaling.externalScaler.enabled | bool | `false` | Enable the external scaler instead of the built-in `selenium-grid` trigger |
+| autoscaling.externalScaler.enabled | bool | `true` | Enable the external scaler instead of the built-in `selenium-grid` trigger |
 | autoscaling.externalScaler.nameOverride | string | `""` | Override the generated external scaler resource name |
 | autoscaling.externalScaler.imageRegistry | string | `""` | Container image registry for the external scaler (defaults to global registry) |
 | autoscaling.externalScaler.imageName | string | `"keda-external-scaler"` | Container image name for the external scaler |
@@ -468,7 +468,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `20` | Polling interval in seconds |
 | autoscaling.scaledOptions.triggers | list | `[]` | List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |

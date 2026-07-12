@@ -25,7 +25,7 @@ WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL:-20}
 AUTOSCALING_COOLDOWN_PERIOD=${AUTOSCALING_COOLDOWN_PERIOD:-"1800"}
 ENABLE_VIDEO_RECORDER=${ENABLE_VIDEO_RECORDER:-"true"}
-SCALING_STRATEGY=${SCALING_STRATEGY:-"default"}
+SCALING_STRATEGY=${SCALING_STRATEGY:-"accurate"}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"true"} # For debugging purposes, retain the cluster after the test run
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/tls.crt"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
@@ -233,9 +233,11 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   "
 fi
 
-if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXTERNAL_SCALER}" = "true" ]; then
+# Deterministically pin the scaler mode per test (the chart default is external);
+# built-in strategies keep TEST_EXTERNAL_SCALER=false so they still cover selenium-grid.
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
-  --set autoscaling.externalScaler.enabled=true \
+  --set autoscaling.externalScaler.enabled=${TEST_EXTERNAL_SCALER} \
   "
 fi
 
