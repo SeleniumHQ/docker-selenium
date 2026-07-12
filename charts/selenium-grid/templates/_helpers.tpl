@@ -287,6 +287,9 @@ triggers:
     {{- if $useExternalScaler }}
       scalerAddress: {{ include "seleniumGrid.externalScaler.address" $ | quote }}
     {{- end }}
+    {{- if and (eq $.Values.autoscaling.scalingType "job") (not (hasKey (default dict .node.hpa) "jobScalingStrategy")) }}
+      jobScalingStrategy: {{ dig "scalingStrategy" "strategy" "default" $spec | quote }}
+    {{- end }}
     {{- with .node.hpa }}
       {{- range $key, $value := . }}
       {{- if not (empty $value) }}

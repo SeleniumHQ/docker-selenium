@@ -128,7 +128,7 @@ jobs:
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: false
-            test-strategy: job
+            test-strategy: job_externalScaler
             external-scaler: true
     env:
       CLUSTER: ${{ matrix.cluster }}

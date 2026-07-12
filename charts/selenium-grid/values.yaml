@@ -1235,7 +1235,7 @@ autoscaling:
   scaledJobOptions:
     scalingStrategy:
       # -- Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy
-      strategy: "accurate"
+      strategy: "default"
     # -- Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # -- Number of Failed jobs should be kept (for troubleshooting purposes)

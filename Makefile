@@ -1410,14 +1410,14 @@ chart_test_autoscaling_job_relay:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job_multiple_versions_without_explicit:
-	TEST_MULTIPLE_VERSIONS=true TEST_MULTIPLE_VERSIONS_EXPLICIT=false make chart_test_autoscaling_job
+	TEST_MULTIPLE_VERSIONS=false TEST_MULTIPLE_VERSIONS_EXPLICIT=false make chart_test_autoscaling_job
 
 chart_test_autoscaling_job_without_multiple_versions:
 	TEST_MULTIPLE_VERSIONS=false make chart_test_autoscaling_job
 
 chart_test_autoscaling_job:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) \
-	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "true") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "true") \
+	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "false") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "false") \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_existingKEDA_prefixSelenium_nodeChromium_enableTracing.yaml" \
@@ -1431,13 +1431,13 @@ chart_test_autoscaling_playwright_connect_grid:
 	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling_patchKEDA.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
-chart_test_autoscaling_playwright_connect_grid_hub:
-	PLATFORMS=$(PLATFORMS) CHART_FULL_DISTRIBUTED_MODE=false MATRIX_TESTS=CDPTests TEST_MULTIPLE_VERSIONS=false SELENIUM_GRID_MONITORING=false \
-	CHART_ENABLE_BASIC_AUTH=true BASIC_AUTH_USERNAME=docker-selenium BASIC_AUTH_PASSWORD=2NMI4jdBi6k7bENoeUfV25295VvzwAE9chM24a+2VL95uOHozo \
-	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -I | cut -d' ' -f1) SELENIUM_GRID_PORT=443 \
+chart_test_autoscaling_job_externalScaler:
+	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=false CHART_FULL_DISTRIBUTED_MODE=false SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) SCALING_STRATEGY=accurate \
+	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "false") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "false") \
+	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
-	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_secureIngress_disableHttp2_autoScaling_deployment.yaml" \
-	./tests/charts/make/chart_test.sh DeploymentAutoscaling
+	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_externalScaler_prefixSelenium_nodeChromium.yaml" \
+	./tests/charts/make/chart_test.sh JobAutoscaling
 
 test_k8s_autoscaling_job_count_strategy_default_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \
@@ -1448,7 +1448,7 @@ test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions:
 	make test_k8s_autoscaling_job_count_strategy_default
 
 test_k8s_autoscaling_job_count_strategy_default:
-	MATRIX_TESTS=$(or $(MATRIX_TESTS), "AutoscalingTestsScaleUp") SCALING_STRATEGY=$(or $(SCALING_STRATEGY), "accurate") TEST_MULTIPLE_PLATFORMS=true \
+	MATRIX_TESTS=$(or $(MATRIX_TESTS), "AutoscalingTestsScaleUp") SCALING_STRATEGY=$(or $(SCALING_STRATEGY), "default") TEST_MULTIPLE_PLATFORMS=true \
 	PLATFORMS=$(PLATFORMS) RELEASE_NAME=selenium TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) SELENIUM_GRID_PROTOCOL=http SELENIUM_GRID_HOST=localhost SELENIUM_GRID_PORT=80 \
 	SELENIUM_GRID_MONITORING=false CLEAR_POD_HISTORY=true SET_MAX_REPLICAS=100 ENABLE_VIDEO_RECORDER=false \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
