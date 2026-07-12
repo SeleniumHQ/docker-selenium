@@ -452,18 +452,28 @@ class ChartTemplateTests(unittest.TestCase):
                             is_present = True
         self.assertTrue(is_present, "ENV variable from secretRef name is not set to external secret")
 
-    def test_scaler_triggers_authenticationRef_name_is_added(self):
+    def test_scaler_triggers_auth_wiring(self):
         resources_name = [
             f'{RELEASE_NAME}selenium-node-chrome',
             f'{RELEASE_NAME}selenium-node-edge',
             f'{RELEASE_NAME}selenium-node-firefox',
         ]
-        is_present = False
         for doc in LIST_OF_DOCUMENTS:
             if doc['metadata']['name'] in resources_name and doc['kind'] == 'ScaledObject':
-                logger.info(f"Assert authenticationRef name is added to scaler triggers")
-                name = doc['spec']['triggers'][0]['authenticationRef']['name']
-                self.assertTrue(name, f'{RELEASE_NAME}selenium-scaler-trigger-auth')
+                trigger = doc['spec']['triggers'][0]
+                if trigger['type'] == 'external':
+                    logger.info(f"Assert external scaler trigger has scalerAddress and no authenticationRef")
+                    self.assertIn(
+                        'scalerAddress',
+                        trigger['metadata'],
+                        'scalerAddress must be set for the external scaler trigger',
+                    )
+                    self.assertNotIn(
+                        'authenticationRef', trigger, 'authenticationRef must not be set in external scaler mode'
+                    )
+                else:
+                    logger.info(f"Assert authenticationRef name is added to selenium-grid scaler triggers")
+                    self.assertTrue(trigger['authenticationRef']['name'], f'{RELEASE_NAME}selenium-scaler-trigger-auth')
 
     def test_scaler_triggers_parameter_nodeMaxSessions_global_and_individual_value(self):
         resources_name = {
