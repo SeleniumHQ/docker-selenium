@@ -128,11 +128,13 @@ jobs:
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: false
-            test-strategy: playwright_connect_grid_hub
+            test-strategy: job_externalScaler
+            external-scaler: true
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
-      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}"
+      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}${{ matrix.external-scaler && '-external-scaler' || '' }}"
+      TEST_EXTERNAL_SCALER: ${{ matrix.external-scaler }}
       HELM_VERSION: ${{ matrix.helm-version }}
       DOCKER_VERSION: ${{ matrix.docker-version }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}

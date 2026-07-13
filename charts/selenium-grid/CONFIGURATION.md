@@ -322,6 +322,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.sessionQueue.sessionRequestTimeout | string | `""` | Override global sessionRequestTimeout |
+| components.sessionQueue.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}}` | Configure external datastore for SessionQueue. When enabled, all replicas share the queue state in Redis, allowing the tier to scale out horizontally behind a load balancer or Kubernetes Service. |
+| components.sessionQueue.externalDatastore.enabled | bool | `false` | Enable external datastore for SessionQueue |
+| components.sessionQueue.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
+| components.sessionQueue.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed SessionQueue |
 | components.sessionQueue.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Queue |
 | components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -443,6 +447,20 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
 | autoscaling.patchObjectFinalizers.nodeSelector | object | `{}` | Node selector for the patch job |
 | autoscaling.patchObjectFinalizers.tolerations | list | `[]` | Tolerations for the patch job |
+| autoscaling.externalScaler.enabled | bool | `true` | Enable the external scaler instead of the built-in `selenium-grid` trigger |
+| autoscaling.externalScaler.nameOverride | string | `""` | Override the generated external scaler resource name |
+| autoscaling.externalScaler.imageRegistry | string | `""` | Container image registry for the external scaler (defaults to global registry) |
+| autoscaling.externalScaler.imageName | string | `"keda-external-scaler"` | Container image name for the external scaler |
+| autoscaling.externalScaler.imageTag | string | `""` | Container image tag for the external scaler (defaults to global.seleniumGrid.imageTag, like other grid images) |
+| autoscaling.externalScaler.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| autoscaling.externalScaler.port | int | `8080` | gRPC port the external scaler listens on |
+| autoscaling.externalScaler.replicas | int | `1` | Number of external scaler replicas |
+| autoscaling.externalScaler.gridHttpTimeout | string | `"3s"` | Per-request timeout for the scaler's Grid GraphQL queries |
+| autoscaling.externalScaler.annotations | object | `{}` | Annotations for the external scaler Deployment/Service |
+| autoscaling.externalScaler.extraEnv | list | `[]` | Extra environment variables for the external scaler container |
+| autoscaling.externalScaler.nodeSelector | object | `{}` | Node selector for the external scaler |
+| autoscaling.externalScaler.tolerations | list | `[]` | Tolerations for the external scaler |
+| autoscaling.externalScaler.resources | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the external scaler container |
 | autoscaling.defaultTriggerType | string | `"selenium-grid"` | Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA) |
 | autoscaling.defaultTriggerName | string | `"seleniumGrid"` | Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec) |
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20,"triggers":[]}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |

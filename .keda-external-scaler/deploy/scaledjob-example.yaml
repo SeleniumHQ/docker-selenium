@@ -1,0 +1,49 @@
+# Example ScaledJob using the Selenium Grid external scaler.
+#
+# The trigger type is `external`, and `scalerAddress` points at the scaler
+# Service (see deployment.yaml). All other metadata mirrors the built-in
+# `selenium-grid` scaler, so migrating from it is a mechanical change of `type`
+# plus adding `scalerAddress`.
+#
+# jobScalingStrategy MUST match spec.scalingStrategy.strategy below so the
+# emitted metric matches how KEDA computes effective max scale for Jobs.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: selenium-chrome-node
+  namespace: selenium
+spec:
+  jobTargetRef:
+    template:
+      spec:
+        restartPolicy: Never
+        containers:
+          - name: chrome-node
+            image: selenium/node-chrome:latest
+            env:
+              - name: SE_EVENT_BUS_HOST
+                value: selenium-hub.selenium.svc
+              - name: SE_EVENT_BUS_PUBLISH_PORT
+                value: "4442"
+              - name: SE_EVENT_BUS_SUBSCRIBE_PORT
+                value: "4443"
+  pollingInterval: 20
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 3
+  scalingStrategy:
+    strategy: default
+  triggers:
+    - type: external
+      metadata:
+        scalerAddress: selenium-grid-scaler.selenium.svc:8080
+        # url is optional here — omit it to use the scaler's SE_GRID_URL env.
+        url: http://selenium-hub.selenium.svc:4444/graphql
+        browserName: chrome
+        nodeMaxSessions: "1"
+        jobScalingStrategy: default
+        activationThreshold: "0"
+        # For basic-auth Grids, resolve credentials from the Job's own env:
+        # usernameFromEnv: SE_ROUTER_USERNAME
+        # passwordFromEnv: SE_ROUTER_PASSWORD

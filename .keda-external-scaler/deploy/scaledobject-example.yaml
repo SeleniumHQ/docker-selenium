@@ -1,0 +1,24 @@
+# Example ScaledObject (Deployment-based scaling) using the external scaler.
+#
+# ScaledObjects always use the "total desired" convention, so jobScalingStrategy
+# is left at its default. The scaler reports queued requests plus on-going
+# sessions, which the HPA divides by the target value (1) to get replicas.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: selenium-chrome-node
+  namespace: selenium
+spec:
+  scaleTargetRef:
+    name: selenium-chrome-node
+  pollingInterval: 20
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  triggers:
+    - type: external
+      metadata:
+        scalerAddress: selenium-grid-scaler.selenium.svc:8080
+        url: http://selenium-hub.selenium.svc:4444/graphql
+        browserName: chrome
+        nodeMaxSessions: "1"
+        activationThreshold: "0"

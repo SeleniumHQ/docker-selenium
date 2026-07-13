@@ -1,4 +1,4 @@
-{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") (not $.Values.autoscaling.authenticationRef.name) }}
+{{- if and (eq (include "seleniumGrid.useKEDA" $) "true") (not $.Values.autoscaling.authenticationRef.name) (not $.Values.autoscaling.externalScaler.enabled) }}
 apiVersion: keda.sh/v1alpha1
 kind: TriggerAuthentication
 metadata:
