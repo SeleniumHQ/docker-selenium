@@ -341,6 +341,22 @@ Component update strategy template
 {{- end -}}
 
 {{/*
+Replica count for a distributed component (Distributor, SessionQueue, SessionMap).
+The value from `.replicas` is honored only when the component's external datastore is
+enabled, since replicas share state through it. Without an external datastore, running
+multiple replicas would break the grid (no shared state), so the count is forced to 1.
+Pass the component config, e.g. `.Values.components.distributor`.
+*/}}
+{{- define "seleniumGrid.component.replicaCount" -}}
+{{- $component := . -}}
+{{- if (dig "externalDatastore" "enabled" false $component) -}}
+{{- max 1 ($component.replicas | int) -}}
+{{- else -}}
+1
+{{- end -}}
+{{- end -}}
+
+{{/*
 Common pod template
 */}}
 {{- define "seleniumGrid.podTemplate" -}}
