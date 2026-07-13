@@ -3,6 +3,10 @@
   "extends": [
     "config:recommended"
   ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths"
+  ],
   "packageRules": [
     {
       "packageNames": ["selenium/standalone-firefox"],
@@ -11,6 +15,12 @@
     {
       "packageNames": ["selenium/node-firefox"],
       "enabled": false
+    },
+    {
+      "description": "Keep the Go toolchain (go.mod go directive and golang base image) on the latest release",
+      "matchDatasources": ["golang-version", "docker"],
+      "matchPackageNames": ["go", "golang"],
+      "rangeStrategy": "bump"
     }
   ],
   "branchName": "renovate/{{packageName}}-update"
