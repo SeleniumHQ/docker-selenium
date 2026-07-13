@@ -150,7 +150,7 @@ build_exporter:
 
 # Container image providing the Go toolchain used by `update_go`. Defaults to the
 # latest stable Go so no host Go install is needed and updates always track upstream.
-GO_IMAGE ?= golang:latest
+GO_IMAGE ?= 'latest'
 GO_MODULES ?= .monitoring/exporter .keda-external-scaler
 
 # Update the in-repo Go modules to the latest Go toolchain and dependencies using the
@@ -159,15 +159,15 @@ GO_MODULES ?= .monitoring/exporter .keda-external-scaler
 # `go get -u ./...` + `go mod tidy`, and aligns the external scaler Dockerfile base
 # image to the same Go minor so the container build stays in sync.
 update_go:
-	docker pull $(GO_IMAGE)
-	@GO_VERSION="$$(docker run --rm $(GO_IMAGE) go env GOVERSION | sed 's/go//')"; \
+	docker pull golang:$(GO_IMAGE)
+	@GO_VERSION="$$(docker run --rm golang:$(GO_IMAGE) go env GOVERSION | sed 's/go//')"; \
 	GO_MM="$$(echo $$GO_VERSION | sed -E 's/([0-9]+\.[0-9]+).*/\1/')"; \
-	echo "==> Using Go $$GO_VERSION from $(GO_IMAGE)"; \
+	echo "==> Using Go $$GO_VERSION from golang:$(GO_IMAGE)"; \
 	for dir in $(GO_MODULES); do \
 		echo "==> Updating Go module in $$dir"; \
 		docker run --rm -v "$(PWD)":/src -w "/src/$$dir" \
-			--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e GOFLAGS=-mod=mod \
-			$(GO_IMAGE) sh -c "go mod edit -go=$$GO_VERSION && go get -u ./... && go mod tidy"; \
+		--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e GOFLAGS=-mod=mod \
+		golang:$(GO_IMAGE) sh -c "go mod edit -go=$$GO_VERSION && go get -u ./... && go mod tidy"; \
 	done; \
 	echo "==> Aligning .keda-external-scaler Dockerfile base to golang:$$GO_MM"; \
 	sed -i.bak -E "s#(golang:)[0-9]+\.[0-9]+#\1$$GO_MM#g" .keda-external-scaler/Dockerfile && rm -f .keda-external-scaler/Dockerfile.bak
@@ -187,7 +187,7 @@ gen_certs:
 	rm -rf ./Base/certs && mkdir -p ./Base/certs && cp -r ./charts/selenium-grid/certs/*.sh ./Base/certs
 	# ./Base/certs/gen-cert-helper.sh -d ./Base/certs
 
-base: prepare_resources gen_certs
+base: update_go prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
 	--secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
