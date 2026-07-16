@@ -1,3 +1,19 @@
+## :heavy_check_mark: selenium-grid-0.57.0
+
+- Chart is using image tag 4.46.0-20260707
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`90f4f23a`](http://github.com/seleniumhq/docker-selenium/commit/90f4f23a9d4d221de5ede841d6e37b6e97d2e808) - [ci] Update tag 4.46.0-20260707 in docs and files :: Selenium CI Bot
+- [`5ba0bd74`](http://github.com/seleniumhq/docker-selenium/commit/5ba0bd748594b66c79ba23acb56a9dc40fd82e52) - chore(deps): update helm release redis to ^0.32.0 (#3176) :: renovate[bot]
+- [`a5a34f5f`](http://github.com/seleniumhq/docker-selenium/commit/a5a34f5f6e0329bb50815be4b78381285a278ba8) - K8s: Gate distributed component replicas on external datastore (#3175) :: Viet Nguyen Duc
+- [`d267e2ad`](http://github.com/seleniumhq/docker-selenium/commit/d267e2add4b16fae030a92178c8a0461c5cb00c9) - K8s: Implement KEDA external scaler and use it as default (#3169) :: Viet Nguyen Duc
+- [`aafe4d61`](http://github.com/seleniumhq/docker-selenium/commit/aafe4d6136f3bb5afcd9b7cb691c624516d06e1b) - Docker: Add Redis external datastore support for SessionQueue configuration (#3160) :: Viet Nguyen Duc
+- [`350f7863`](http://github.com/seleniumhq/docker-selenium/commit/350f7863965c1aeb77141285b82bc0bc34867f64) - [ci] Update chart 0.56.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.56.0
 
 - Chart is using image tag 4.45.0-20260606
