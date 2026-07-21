@@ -3,7 +3,7 @@ module github.com/SeleniumHQ/docker-selenium/keda-external-scaler
 go 1.26.5
 
 require (
-	github.com/go-logr/logr v1.4.3
+	github.com/go-logr/logr v1.4.4
 	google.golang.org/grpc v1.82.1
 	google.golang.org/protobuf v1.36.11
 )
