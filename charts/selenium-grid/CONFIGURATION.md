@@ -19,7 +19,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | Repository | Name | Version |
 |------------|------|---------|
 | https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.19.0 |
-| https://cloudpirates-io.github.io/helm-charts | redis | ^0.32.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.33.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^87.0.0 |
