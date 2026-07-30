@@ -4,7 +4,7 @@ go 1.26.5
 
 require (
 	github.com/go-logr/logr v1.4.4
-	google.golang.org/grpc v1.82.1
+	google.golang.org/grpc v1.83.0
 	google.golang.org/protobuf v1.36.11
 )
 
