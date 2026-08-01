@@ -34,8 +34,11 @@ RUN if [ "${GO_VERSION}" = "latest" ]; then \
 
 RUN cd /usr/local/src \
     && if [ "${RCLONE_VER}" = "latest" ]; then \
-        RCLONE_VER=$(git ls-remote --tags --refs https://github.com/rclone/rclone.git \
-        | sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1); \
+        RCLONE_VER=$(curl -sk https://api.github.com/repos/rclone/rclone/releases/latest | jq -r '.tag_name // empty'); \
+        if [ -z "${RCLONE_VER}" ]; then \
+            RCLONE_VER=$(git ls-remote --tags --refs https://github.com/rclone/rclone.git \
+            | sed 's#.*refs/tags/##' | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1); \
+        fi; \
     fi \
     && echo "Building rclone ${RCLONE_VER}" \
     && git clone -b ${RCLONE_VER} --single-branch --depth 1 https://github.com/rclone/rclone.git \
