@@ -1,18 +1,24 @@
 matrix:
   browser:
+    '153':
+      FIREFOX_VERSION: 153.0.1
+      FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '152':
       FIREFOX_VERSION: 152.0.6
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '151':
       FIREFOX_VERSION: 151.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
-      CFT_VERSION: 151.0.7922.34
+      CFT_VERSION: 151.0.7922.71
+      CHROME_VERSION: google-chrome-stable=151.0.7922.71-1
+      CHROME_PLATFORMS: linux/amd64,linux/arm64
     '150':
       FIREFOX_VERSION: 150.0.3
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 150.0.7871.124
-      CHROME_VERSION: google-chrome-stable=150.0.7871.124-1
-      EDGE_VERSION: microsoft-edge-stable=150.0.4078.65-1
+      CHROME_VERSION: google-chrome-stable=150.0.7871.186-1
+      CHROME_PLATFORMS: linux/amd64,linux/arm64
+      EDGE_VERSION: microsoft-edge-stable=150.0.4078.105-1
     '149':
       FIREFOX_VERSION: 149.0.2
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
