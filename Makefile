@@ -152,12 +152,15 @@ build_exporter:
 # latest stable Go so no host Go install is needed and updates always track upstream.
 GO_IMAGE ?= 'latest'
 GO_MODULES ?= .monitoring/exporter .keda-external-scaler
+# Dockerfiles with a `golang:` builder stage to keep in sync with the module Go version.
+# Hub and Router build the .monitoring/exporter module in their exporter-builder stage.
+GO_DOCKERFILES ?= .keda-external-scaler/Dockerfile Hub/Dockerfile Router/Dockerfile
 
 # Update the in-repo Go modules to the latest Go toolchain and dependencies using the
 # official Go container (override with GO_IMAGE=golang:1.27 to target a specific line).
 # For each module it bumps the `go` directive to the container's Go version, runs
-# `go get -u ./...` + `go mod tidy`, and aligns the external scaler Dockerfile base
-# image to the same Go minor so the container build stays in sync.
+# `go get -u ./...` + `go mod tidy`, and aligns the `golang:` builder base image in the
+# Dockerfiles building those modules to the same Go minor so container builds stay in sync.
 update_go:
 	docker pull golang:$(GO_IMAGE)
 	@GO_VERSION="$$(docker run --rm golang:$(GO_IMAGE) go env GOVERSION | sed 's/go//')"; \
@@ -169,8 +172,10 @@ update_go:
 		--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e GOFLAGS=-mod=mod \
 		golang:$(GO_IMAGE) sh -c "go mod edit -go=$$GO_VERSION && go get -u ./... && go mod tidy"; \
 	done; \
-	echo "==> Aligning .keda-external-scaler Dockerfile base to golang:$$GO_MM"; \
-	sed -i.bak -E "s#(golang:)[0-9]+\.[0-9]+#\1$$GO_MM#g" .keda-external-scaler/Dockerfile && rm -f .keda-external-scaler/Dockerfile.bak
+	for file in $(GO_DOCKERFILES); do \
+		echo "==> Aligning $$file base image to golang:$$GO_MM"; \
+		sed -i.bak -E "s#(golang:)(latest|[0-9]+\.[0-9]+)#\1$$GO_MM#g" $$file && rm -f $$file.bak; \
+	done
 
 copy_dashboards:
 	mkdir -p charts/selenium-grid/files/dashboards && cp -r .monitoring/dashboards/*.json charts/selenium-grid/files/dashboards/
