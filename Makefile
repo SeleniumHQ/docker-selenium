@@ -247,15 +247,7 @@ standalone_chrome-for-testing_only:
 standalone_chrome-for-testing: chrome-for-testing standalone_chrome-for-testing_only
 
 chrome_only:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) . \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
 chrome: node_base chrome_only
 
@@ -334,15 +326,7 @@ standalone_firefox_beta: firefox_beta
 	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
 
 standalone_chrome_only:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& cd ./Standalone && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) . \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 
 standalone_chrome: chrome standalone_chrome_only
 
@@ -551,11 +535,13 @@ tag_latest:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:latest
 	docker tag $(NAME)/node-kubernetes:$(TAG_VERSION) $(NAME)/node-kubernetes:latest
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:latest
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
@@ -564,15 +550,13 @@ tag_latest:
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
 	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:latest
 	case "$(PLATFORMS)" in *linux/amd64*) \
-		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
 		docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:latest && \
-		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest && \
 		docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:latest && \
 		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest && \
 		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest \
 		;; \
 		*) \
-		echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+		echo "Tagged other images, except Chrome for Testing and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
 		;; \
 	esac
 
@@ -639,12 +623,14 @@ tag_nightly:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
 	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
 	docker tag $(NAME)/node-kubernetes:$(TAG_VERSION) $(NAME)/node-kubernetes:nightly
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:nightly
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
 	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
@@ -653,13 +639,11 @@ tag_nightly:
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
 	case "$(PLATFORMS)" in *linux/amd64*) \
-		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly && \
-		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly && \
 		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly && \
 		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly \
 		;; \
 		*) \
-		echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+		echo "Tagged other images, except Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
 		;; \
 	esac
 
@@ -949,37 +933,13 @@ test: test_chrome \
 	test_standalone_all_browsers
 
 test_chrome:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome
 
 test_chrome_standalone:
-	case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome
 
 test_chrome_standalone_java:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome
 
 test_edge:
 	set -e; case "$(PLATFORMS)" in \

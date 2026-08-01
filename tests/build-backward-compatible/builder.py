@@ -61,7 +61,12 @@ if __name__ == '__main__':
             f.write(f"EDGE_VERSION={EDGE_VERSION}\n")
         if browser_name == "chrome" or browser_name == "all":
             CHROME_VERSION = matrix["browser"][browser_version]["CHROME_VERSION"]
-            f.write(f"CHROME_VERSION={CHROME_VERSION}")
+            f.write(f"CHROME_VERSION={CHROME_VERSION}\n")
+            if "CHROME_PLATFORMS" in matrix["browser"][browser_version]:
+                CHROME_PLATFORMS = matrix["browser"][browser_version]["CHROME_PLATFORMS"]
+                f.write(f"CHROME_PLATFORMS={CHROME_PLATFORMS}\n")
+            else:
+                f.write(f"CHROME_PLATFORMS=linux/amd64\n")
         if browser_name == "chrome-for-testing" or browser_name == "all":
             CFT_VERSION = matrix["browser"][browser_version]["CFT_VERSION"]
-            f.write(f"CFT_VERSION={CFT_VERSION}")
+            f.write(f"CFT_VERSION={CFT_VERSION}\n")

@@ -32,10 +32,10 @@ jobs:
         include:
           - browser: chrome
             channel: dev
-            platforms: linux/amd64
+            platforms: linux/amd64,linux/arm64
           - browser: chrome
             channel: beta
-            platforms: linux/amd64
+            platforms: linux/amd64,linux/arm64
           - browser: firefox
             channel: dev
             platforms: linux/amd64,linux/arm64

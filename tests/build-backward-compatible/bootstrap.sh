@@ -66,11 +66,12 @@ for CDP_VERSION in "${VERSION_LIST[@]}"; do
   if [ "${BROWSER}" = "all" ] || [ "${BROWSER}" = "chrome" ] && [ "${SKIP_BUILD}" = "false" ]; then
     if [ -n "${CHROME_VERSION}" ]; then
       BUILD_ARGS="--build-arg CHROME_VERSION=${CHROME_VERSION}"
+      CHROME_PLATFORMS=${CHROME_PLATFORMS:-linux/amd64}
       if [ "${REUSE_BASE}" = "true" ]; then
-        BUILD_ARGS="${BUILD_ARGS}" make chrome_only
-        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome_only
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${CHROME_PLATFORMS} make chrome_only
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${CHROME_PLATFORMS} make standalone_chrome_only
       else
-        BUILD_ARGS="${BUILD_ARGS}" make standalone_chrome
+        BUILD_ARGS="${BUILD_ARGS}" PLATFORMS=${CHROME_PLATFORMS} make standalone_chrome
       fi
     else
       echo "Chrome version not found in matrix for input ${CDP_VERSION}"

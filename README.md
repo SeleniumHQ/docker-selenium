@@ -159,19 +159,19 @@ The following browsers are available in multi-arch images:
 |       Architecture        | Chrome | Chromium | Firefox | Edge | CfT |
 |:-------------------------:|:------:|:--------:|:-------:|:----:|-----|
 |    x86_64 (aka amd64)     |   ✅    |    ✅     |    ✅    |  ✅   | ✅   |
-| aarch64 (aka arm64/armv8) |   ❌    |    ✅     |    ✅    |  ❌   | ❌   |
+| aarch64 (aka arm64/armv8) |   ✅    |    ✅     |    ✅    |  ❌   | ❌   |
 | armhf (aka arm32/armv7l)  |   ❌    |    ❌     |    ❌    |  ❌   | ❌   |
 
 Note:
 
 - **Running an AMD64 image under emulation on an ARM64 platform is not recommended due to performance and [stability issues](https://github.com/SeleniumHQ/docker-selenium/issues/2298), or browsers could not launch.**
 
-- Google does not build Chrome (`google-chrome`) for Linux/ARM platforms. Hence, the Chrome (node and standalone) images are only available for AMD64.
-Similarly, Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms.
+- Google Chrome (`google-chrome`) now is available for Linux/ARM64 via APT stable channel from v150+. The Chrome (node and standalone) images are available in multi-arch. Older Chrome versions remain AMD64 only; the supported platforms per version are tracked in the [browser matrix](tests/build-backward-compatible/browser-matrix.yml) via the `CHROME_PLATFORMS` key.
+Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms, hence the Edge (node and standalone) images are only available for AMD64.
 
 - We also supply Chrome for Testing (CfT), but it is only available for Linux/AMD64.
 
-- For Linux/ARM use the open source Chromium browser. The Chromium (node and standalone) images are available in multi-arch.
+- For older Linux/ARM setups you can also use the open source Chromium browser. The Chromium (node and standalone) images are available in multi-arch.
 
 ```bash
 $ docker run --rm -it -p 4444:4444 -p 5900:5900 -p 7900:7900 --shm-size 2g selenium/standalone-chromium:latest
@@ -421,7 +421,7 @@ According to multi-arch support, browsers are available in images `selenium/node
 
 | Browser / Arch | x86_64 (aka amd64) | aarch64 (aka arm64/armv8) |
 |----------------|--------------------|---------------------------|
-| Chrome         | ✅                  | ❌                         |
+| Chrome         | ✅                  | ✅                         |
 | Edge           | ✅                  | ❌                         |
 | Firefox        | ✅                  | ✅                         |
 | Chromium       | ✅                  | ✅                         |
