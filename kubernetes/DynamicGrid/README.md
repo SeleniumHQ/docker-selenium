@@ -35,7 +35,7 @@ Deploy only one mode at a time because both modes expose NodePort `30444`.
 ### Option A: Standalone
 
 ```bash
-kubectl apply -n selenium -f Standalone/standalone-kubernetes.yaml
+kubectl apply -n selenium -f Standalone/
 ```
 
 Access:
@@ -44,7 +44,7 @@ Access:
 ### Option B: Hub + Node
 
 ```bash
-kubectl apply -n selenium -f Hub_Node/hub-node-kubernetes.yaml
+kubectl apply -n selenium -f Hub_Node/
 ```
 
 Access:
@@ -88,21 +88,21 @@ driver.quit()
 If you want to change from one mode to another:
 
 ```bash
-kubectl delete -n selenium -f Standalone/standalone-kubernetes.yaml
-kubectl apply -n selenium -f Hub_Node/hub-node-kubernetes.yaml
+kubectl delete -n selenium -f Standalone/
+kubectl apply -n selenium -f Hub_Node/
 ```
 
 Or the reverse:
 
 ```bash
-kubectl delete -n selenium -f Hub_Node/hub-node-kubernetes.yaml
-kubectl apply -n selenium -f Standalone/standalone-kubernetes.yaml
+kubectl delete -n selenium -f Hub_Node/
+kubectl apply -n selenium -f Standalone/
 ```
 
 ## 7. Cleanup
 
 ```bash
-kubectl delete -n selenium -f Standalone/standalone-kubernetes.yaml --ignore-not-found
-kubectl delete -n selenium -f Hub_Node/hub-node-kubernetes.yaml --ignore-not-found
+kubectl delete -n selenium -f Standalone/ --ignore-not-found
+kubectl delete -n selenium -f Hub_Node/ --ignore-not-found
 kubectl delete -n selenium -f BaseConfig/
 ```

@@ -87,11 +87,21 @@ jobs:
       release: ${{ inputs.release == 'true' }}
       test-patched-keda: ${{ github.event.inputs.test-patched-keda }}
 
+  k8s-dynamic-grid-test:
+    needs: [lint-format]
+    if: contains(toJson(github.event.commits), '[skip test]') == false
+    name: Test Dynamic Grid on Kubernetes
+    uses: ./.github/workflows/k8s-dynamic-grid-test.yml
+    secrets: inherit
+    with:
+      release: ${{ inputs.release == 'true' }}
+
   rerun-workflow-when-failure:
     name: Rerun workflow when failure
     needs:
       - docker-test
       - helm-chart-test
+      - k8s-dynamic-grid-test
     if: failure() && ( github.run_attempt < 3 )
     runs-on: ubuntu-24.04
     steps:

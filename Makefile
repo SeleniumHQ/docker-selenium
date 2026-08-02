@@ -11,7 +11,7 @@ MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),lat
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
 NAMESPACE := $(or $(NAMESPACE),$(NAMESPACE),$(NAME))
-AUTHORS := $(or $(AUTHORS),$(AUTHORS),SeleniumHQ)
+AUTHORS := $(or $(AUTHORS),$(AUTHORS),NDViet)
 PUSH_IMAGE := $(or $(PUSH_IMAGE),$(PUSH_IMAGE),false)
 RELEASE_OLD_VERSION := $(or $(RELEASE_OLD_VERSION),$(RELEASE_OLD_VERSION),false)
 FROM_IMAGE_ARGS := --build-arg NAMESPACE=$(NAMESPACE) --build-arg VERSION=$(TAG_VERSION) --build-arg AUTHORS=$(AUTHORS) --sbom=true --attest type=provenance,mode=max
@@ -1462,6 +1462,18 @@ chart_test_delete:
 	helm del test -n selenium || true
 	helm del selenium -n selenium || true
 	helm del keda -n keda || true
+
+# Dynamic Grid on Kubernetes, deploys kubernetes/DynamicGrid manifests with the images built locally.
+# Requires a cluster with those images available, see `make chart_cluster_setup`.
+test_k8s_dynamic_grid: test_k8s_dynamic_grid_standalone test_k8s_dynamic_grid_hub_node
+
+test_k8s_dynamic_grid_standalone:
+	PLATFORMS=$(PLATFORMS) NAMESPACE=$(NAMESPACE) VERSION=$(TAG_VERSION) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/k8s/make/dynamic_grid_test.sh Standalone
+
+test_k8s_dynamic_grid_hub_node:
+	PLATFORMS=$(PLATFORMS) NAMESPACE=$(NAMESPACE) VERSION=$(TAG_VERSION) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/k8s/make/dynamic_grid_test.sh HubNode
 
 .PHONY: \
 	all \

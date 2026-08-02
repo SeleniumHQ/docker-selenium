@@ -1,0 +1,128 @@
+name: Test Dynamic Grid on Kubernetes
+
+on:
+  workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: false
+      DOCKER_PASSWORD:
+        required: false
+    inputs:
+      release:
+        description: 'Test a new release process'
+        required: false
+        type: string
+        default: 'false'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Test Dynamic Grid K8s
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - k8s-version: 'v1.34.2'
+            cluster: 'minikube'
+            docker-version: '29.1.1'
+            python-version: '3.10'
+            os: ubuntu-22.04
+            mode: standalone
+          - k8s-version: 'v1.34.2'
+            cluster: 'minikube'
+            docker-version: '29.1.1'
+            python-version: '3.10'
+            os: ubuntu-22.04
+            mode: hub_node
+    env:
+      CLUSTER: ${{ matrix.cluster }}
+      KUBERNETES_VERSION: ${{ matrix.k8s-version }}
+      DOCKER_VERSION: ${{ matrix.docker-version }}
+      ARTIFACT_NAME: "${{ matrix.k8s-version }}-dynamic-grid-${{ matrix.mode }}"
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          large-packages: false
+      - name: Checkout code
+        uses: actions/checkout@main
+      - name: Set up containerd image store feature
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            make setup_dev_env
+      - name: Output Docker info
+        run: docker info
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: ${{ matrix.python-version }}
+          check-latest: true
+      - name: Get branch name (only for push to branch)
+        if: github.event_name == 'push'
+        run: echo "BRANCH=$(echo ${PUSH_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          PUSH_BRANCH: ${{ github.ref }}
+      - name: Get target branch name (only for PRs)
+        if: github.event_name == 'pull_request'
+        run: echo "BRANCH=$(echo ${TARGET_BRANCH##*/})" >> $GITHUB_ENV
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+      - name: Output branch name
+        run: echo ${BRANCH}
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ inputs.release || false }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
+      - name: Sets build date
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
+        env:
+          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
+      - name: Build Docker images
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 90
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make build
+      - name: Login Docker Hub
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" || true
+        env:
+          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      - name: Setup Kubernetes cluster
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: CLUSTER=${CLUSTER} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      - name: Test Dynamic Grid ${{ matrix.mode }} on Kubernetes ${{ matrix.k8s-version }}
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_k8s_dynamic_grid_${{ matrix.mode }}
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-artifacts
+          path: ./tests/tests/
+          if-no-files-found: ignore
+      - name: Cleanup Kubernetes cluster
+        if: always()
+        run: CLUSTER=${CLUSTER} make chart_cluster_cleanup
+      - name: Clean up Docker
+        if: always()
+        run: docker system prune -af
