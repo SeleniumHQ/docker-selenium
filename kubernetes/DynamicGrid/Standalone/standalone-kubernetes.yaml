@@ -38,6 +38,8 @@ spec:
               value: "true"
             - name: SE_DYNAMIC_MAX_SESSIONS
               value: "10"
+            - name: SE_RECORD_VIDEO
+              value: "true"
           resources:
             requests:
               memory: "512Mi"

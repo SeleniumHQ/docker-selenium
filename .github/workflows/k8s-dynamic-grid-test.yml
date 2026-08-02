@@ -120,6 +120,13 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}-artifacts
           path: ./tests/tests/
           if-no-files-found: ignore
+      - name: Upload test video artifacts
+        if: always()
+        uses: actions/upload-artifact@main
+        with:
+          name: ${{ env.ARTIFACT_NAME }}-videos
+          path: ./tests/videos/
+          if-no-files-found: ignore
       - name: Cleanup Kubernetes cluster
         if: always()
         run: CLUSTER=${CLUSTER} make chart_cluster_cleanup

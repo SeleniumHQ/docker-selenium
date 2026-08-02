@@ -22,6 +22,7 @@ GRID_USERNAME=${GRID_USERNAME:-"admin"}
 GRID_PASSWORD=${GRID_PASSWORD:-"admin"}
 GRID_LOCAL_PORT=${GRID_LOCAL_PORT:-"4444"}
 CLUSTER=${CLUSTER:-"minikube"}
+BUILD_DATE=${BUILD_DATE:-$(date '+%Y%m%d')}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-"300s"}
 GRID_READY_ATTEMPTS=${GRID_READY_ATTEMPTS:-"60"}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the deployment after the test run
@@ -239,5 +240,13 @@ fi
 
 echo "Browser Jobs created during the run"
 kubectl get jobs -n ${SELENIUM_NAMESPACE} >>tests/tests/describe_dynamic_grid_${MODE}.txt || true
+
+echo "Collect video files from the session assets PVC and verify integrity"
+mkdir -p ./tests/videos
+if [ "${CLUSTER}" = "minikube" ]; then
+  # With --vm-driver=none the PVC hostPath is on the runner directly
+  find "${ASSETS_HOST_PATH}" -name "*.mp4" -exec cp {} ./tests/videos/ \; 2>/dev/null || true
+fi
+NAME=${NAMESPACE} BUILD_DATE=${BUILD_DATE} make test_video_integrity
 
 cleanup
