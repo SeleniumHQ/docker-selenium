@@ -148,6 +148,16 @@ echo "Prepare the host path backing the session assets PersistentVolume"
 sudo -n mkdir -p ${ASSETS_HOST_PATH} 2>/dev/null || mkdir -p ${ASSETS_HOST_PATH}
 sudo -n chmod -R 777 ${ASSETS_HOST_PATH} 2>/dev/null || chmod -R 777 ${ASSETS_HOST_PATH}
 
+echo "Wait for Kubernetes API server to be fully available"
+for attempt in $(seq 1 30); do
+  if kubectl get nodes >/dev/null 2>&1; then
+    echo "API server is ready"
+    break
+  fi
+  echo "API server not yet reachable (attempt ${attempt}/30), retrying in 5s..."
+  sleep 5
+done
+
 echo "Deploy the test site and the Dynamic Grid ${MODE}"
 kubectl create ns ${SELENIUM_NAMESPACE} || true
 kubectl apply -n ${SELENIUM_NAMESPACE} -f "${TEST_VALUES_PATH}/the-internet-deployment.yaml"
