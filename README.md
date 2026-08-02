@@ -169,7 +169,7 @@ Note:
 - Google Chrome (`google-chrome`) now is available for Linux/ARM64 via APT stable channel from v150+. The Chrome (node and standalone) images are available in multi-arch. Older Chrome versions remain AMD64 only; the supported platforms per version are tracked in the [browser matrix](tests/build-backward-compatible/browser-matrix.yml) via the `CHROME_PLATFORMS` key.
 Microsoft does not build Edge (`microsoft-edge`) for Linux/ARM platforms, hence the Edge (node and standalone) images are only available for AMD64.
 
-- Google does not publish a ChromeDriver build for Linux/ARM64 (Chrome for Testing only ships `linux64`). On ARM64 the Chrome images use the Chromium driver of the same major version instead, taken from the Debian `chromium-driver` package archived at [NDViet/chromium-stable](https://github.com/NDViet/chromium-stable).
+- Google does not publish a ChromeDriver build for Linux/ARM64 (Chrome for Testing only ships `linux64`). On ARM64 the Chrome images use the Chromium driver of the same major version instead, taken from the Debian `chromium-driver` package archived at [NDViet/chromium-stable](https://github.com/NDViet/chromium-stable). Those packages follow the stable channel, hence the Chrome `dev` and `beta` images are only available for AMD64.
 
 - We also supply Chrome for Testing (CfT), but it is only available for Linux/AMD64.
 
