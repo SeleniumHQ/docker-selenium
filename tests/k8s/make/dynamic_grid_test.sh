@@ -21,6 +21,7 @@ ASSETS_HOST_PATH=${ASSETS_HOST_PATH:-"/tmp/selenium/assets"}
 GRID_USERNAME=${GRID_USERNAME:-"admin"}
 GRID_PASSWORD=${GRID_PASSWORD:-"admin"}
 GRID_LOCAL_PORT=${GRID_LOCAL_PORT:-"4444"}
+CLUSTER=${CLUSTER:-"minikube"}
 WAIT_TIMEOUT=${WAIT_TIMEOUT:-"300s"}
 GRID_READY_ATTEMPTS=${GRID_READY_ATTEMPTS:-"60"}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"false"} # For debugging purposes, retain the deployment after the test run
@@ -189,13 +190,22 @@ done
 kubectl wait --for=condition=ready pod -l app=the-internet -n ${SELENIUM_NAMESPACE} --timeout ${WAIT_TIMEOUT}
 kubectl get pods,svc,pvc -n ${SELENIUM_NAMESPACE}
 
-echo "Forward the Grid endpoint, NodePort mapping differs between kind and minikube"
-kubectl port-forward -n ${SELENIUM_NAMESPACE} svc/${GRID_SERVICE} ${GRID_LOCAL_PORT}:4444 &
-PORT_FORWARD_PID=$!
+echo "Resolve the Grid endpoint"
+if [ "${CLUSTER}" = "minikube" ]; then
+  # With --vm-driver=none the minikube node IS the host, so the NodePort is directly reachable.
+  # kubectl port-forward requires socat inside the node, which is not installed; skip it.
+  GRID_HOST=$(minikube ip 2>/dev/null || echo "localhost")
+  GRID_LOCAL_PORT=$(kubectl get svc/${GRID_SERVICE} -n ${SELENIUM_NAMESPACE} \
+    -o jsonpath='{.spec.ports[?(@.port==4444)].nodePort}')
+else
+  GRID_HOST="localhost"
+  kubectl port-forward -n ${SELENIUM_NAMESPACE} svc/${GRID_SERVICE} ${GRID_LOCAL_PORT}:4444 &
+  PORT_FORWARD_PID=$!
+fi
 
 GRID_READY="false"
 for attempt in $(seq 1 ${GRID_READY_ATTEMPTS}); do
-  if curl -sSf -u ${GRID_USERNAME}:${GRID_PASSWORD} "http://localhost:${GRID_LOCAL_PORT}/status" | grep -q '"ready": *true'; then
+  if curl -sSf -u ${GRID_USERNAME}:${GRID_PASSWORD} "http://${GRID_HOST}:${GRID_LOCAL_PORT}/status" | grep -q '"ready": *true'; then
     GRID_READY="true"
     break
   fi
@@ -209,7 +219,7 @@ fi
 echo "Run Tests"
 export RUN_IN_DOCKER_COMPOSE=true
 export SELENIUM_GRID_PROTOCOL="http"
-export SELENIUM_GRID_HOST="localhost"
+export SELENIUM_GRID_HOST="${GRID_HOST}"
 export SELENIUM_GRID_PORT=${GRID_LOCAL_PORT}
 export SELENIUM_GRID_USERNAME=${GRID_USERNAME}
 export SELENIUM_GRID_PASSWORD=${GRID_PASSWORD}
