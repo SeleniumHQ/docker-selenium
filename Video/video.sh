@@ -108,6 +108,22 @@ function wait_for_api_respond() {
   return 0
 }
 
+# Probe the Node status endpoint within a bounded number of attempts. Reachable (HTTP 200) means a
+# session source is available, so recording can be session-aware; otherwise the caller falls back to
+# a flat standalone recording. This is what makes per-session naming automatic without relying on
+# the SE_VIDEO_FILE_NAME=auto sentinel.
+function is_session_source_reachable() {
+  local attempt=0
+  while [ ${attempt} -lt ${max_attempts} ]; do
+    if [ "$(curl --noproxy "*" "${auth_header[@]}" -sk -o /dev/null -w "%{http_code}" "${NODE_STATUS_ENDPOINT}" 2>/dev/null)" = "200" ]; then
+      return 0
+    fi
+    attempt=$((attempt + 1))
+    sleep ${poll_interval}
+  done
+  return 1
+}
+
 function wait_util_uploader_shutdown() {
   wait=0
   if [[ "${VIDEO_UPLOAD_ENABLED}" = "true" ]] && [[ -n "${UPLOAD_DESTINATION_PREFIX}" ]] && [[ "${VIDEO_INTERNAL_UPLOAD}" != "true" ]]; then
@@ -232,10 +248,20 @@ else
   SE_AUDIO_SOURCE=""
 fi
 
-if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto" ]] && [[ -n "${VIDEO_FILE_NAME}" ]]; then
-  trap graceful_exit_force SIGTERM SIGINT EXIT
-  wait_for_display
-  video_file="$VIDEO_FOLDER/$VIDEO_FILE_NAME"
+trap graceful_exit_force SIGTERM SIGINT EXIT
+wait_for_display
+
+# Automatically choose the recording mode by reachability of the Node status endpoint, instead of
+# the old "fixed name => flat file" coupling / SE_VIDEO_FILE_NAME=auto trigger:
+#  - reachable  -> session-aware recording (unified per-session naming + subfolder toggle)
+#  - unreachable within the bound -> flat standalone recording to the configured/default name
+if ! is_session_source_reachable; then
+  echo "$(date -u +"${ts_format}") [${process_name}] - Node status not reachable after ${max_attempts} attempts, recording to a flat file"
+  video_file_name="${VIDEO_FILE_NAME}"
+  if [ "${video_file_name}" = "auto" ] || [ -z "${video_file_name}" ]; then
+    video_file_name="video.mp4"
+  fi
+  video_file="${VIDEO_FOLDER}/${video_file_name}"
   # exec replaces the video.sh process with ffmpeg, this makes easier to pass the process termination signal
   ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
     -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
@@ -248,9 +274,8 @@ if [[ "${VIDEO_UPLOAD_ENABLED}" != "true" ]] && [[ "${VIDEO_FILE_NAME}" != "auto
   fi
 
 else
-  trap graceful_exit_force SIGTERM SIGINT EXIT
+  echo "$(date -u +"${ts_format}") [${process_name}] - Node status is reachable, recording session-aware"
   create_named_pipe
-  wait_for_display
   recording_started="false"
   video_file_name=""
   video_file=""
@@ -260,7 +285,6 @@ else
   max_recorded_count=${SE_DRAIN_AFTER_SESSION_COUNT:-0}
   recorded_count=0
 
-  wait_for_api_respond
   while curl --noproxy "*" "${auth_header[@]}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
     session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
     if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$session_id" != "$skipped_session_id" ]]; then

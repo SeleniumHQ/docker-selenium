@@ -30,6 +30,8 @@ def main() -> None:
     video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
     video_file_name_trim = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", default_trim_pattern)
     video_file_name_suffix = os.environ.get("SE_VIDEO_FILE_NAME_SUFFIX", "true")
+    # A fixed output name; the literal "auto" (and empty) means "unset" -> derive from caps.
+    configured_file_name = os.environ.get("FILE_NAME", os.environ.get("SE_VIDEO_FILE_NAME", "")).strip()
 
     # Initialize variables
     record_video = None
@@ -55,22 +57,30 @@ def main() -> None:
     else:
         record_video = "true"
 
-    # Check if video file name is set via capabilities
-    if video_name and video_name != "null":
-        test_name = video_name
-    elif test_name and test_name != "null":
-        test_name = test_name
+    # Resolve the output file name (without extension). A fixed SE_VIDEO_FILE_NAME wins over
+    # caps-derived naming; "auto"/empty is treated as unset and falls back to dynamic naming.
+    if configured_file_name and configured_file_name.lower() != "auto":
+        # Strip a trailing .mp4 so the consumer appends the extension uniformly.
+        if configured_file_name.lower().endswith(".mp4"):
+            configured_file_name = configured_file_name[:-4]
+        test_name = normalize_filename(configured_file_name, video_file_name_trim)
     else:
-        test_name = ""
+        # Check if video file name is set via capabilities
+        if video_name and video_name != "null":
+            test_name = video_name
+        elif test_name and test_name != "null":
+            test_name = test_name
+        else:
+            test_name = ""
 
-    # Check if append session ID to the video file name suffix
-    if not test_name:
-        test_name = session_id
-    elif video_file_name_suffix.lower() == "true":
-        test_name = f"{test_name}_{session_id}"
+        # Check if append session ID to the video file name suffix
+        if not test_name:
+            test_name = session_id
+        elif video_file_name_suffix.lower() == "true":
+            test_name = f"{test_name}_{session_id}"
 
-    # Normalize the video file name
-    test_name = normalize_filename(test_name, video_file_name_trim)
+        # Normalize the video file name
+        test_name = normalize_filename(test_name, video_file_name_trim)
 
     # Output the values for other scripts consuming
     print(f"{record_video} {test_name}")
