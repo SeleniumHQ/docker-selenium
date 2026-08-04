@@ -35,12 +35,14 @@ Standalone)
   GRID_SERVICE="selenium-standalone-kubernetes"
   DEPLOYMENTS="selenium-standalone-kubernetes"
   GRID_IMAGES="standalone-kubernetes"
+  ASSETS_DEPLOYMENT="selenium-standalone-kubernetes"
   ;;
 HubNode)
   MODE_PATH="Hub_Node"
   GRID_SERVICE="selenium-hub"
   DEPLOYMENTS="selenium-hub selenium-node-kubernetes"
   GRID_IMAGES="hub node-kubernetes"
+  ASSETS_DEPLOYMENT="selenium-node-kubernetes"
   ;;
 *)
   echo "Unknown mode ${MODE}, expected Standalone or HubNode"
@@ -253,9 +255,57 @@ kubectl get jobs -n ${SELENIUM_NAMESPACE} >>tests/tests/describe_dynamic_grid_${
 
 echo "Collect video files from the session assets PVC and verify integrity"
 mkdir -p ./tests/videos
+ASSETS_MOUNT="/opt/selenium/assets"
+
 if [ "${CLUSTER}" = "minikube" ]; then
-  # With --vm-driver=none the PVC hostPath is on the runner directly
-  find "${ASSETS_HOST_PATH}" -name "*.mp4" -exec cp {} ./tests/videos/ \; 2>/dev/null || true
+  # With --vm-driver=none the PVC hostPath is on the runner directly.
+  base="${ASSETS_HOST_PATH%/}"
+  video_files=$(find "${base}" -type f -name "*.mp4")
+  # Copy while preserving the per-session subfolder layout so same-named recordings from
+  # different sessions do not collide.
+  for file in ${video_files}; do
+    rel="${file#${base}/}"
+    mkdir -p "./tests/videos/$(dirname "${rel}")"
+    cp "${file}" "./tests/videos/${rel}"
+  done
+else
+  # On any other cluster the PVC hostPath lives inside the node/VM, so read the assets from the
+  # pod that mounts them instead of the host filesystem.
+  base="${ASSETS_MOUNT}"
+  assets_pod=$(kubectl get pod -n ${SELENIUM_NAMESPACE} -l app=${ASSETS_DEPLOYMENT} \
+    -o jsonpath='{.items[0].metadata.name}')
+  echo "Collect videos from pod ${assets_pod}:${ASSETS_MOUNT}"
+  video_files=$(kubectl exec -n ${SELENIUM_NAMESPACE} ${assets_pod} -- \
+    find ${ASSETS_MOUNT} -type f -name '*.mp4')
+  for file in ${video_files}; do
+    rel="${file#${base}/}"
+    mkdir -p "./tests/videos/$(dirname "${rel}")"
+    kubectl cp "${SELENIUM_NAMESPACE}/${assets_pod}:${file}" "./tests/videos/${rel}"
+  done
+fi
+
+# Dynamic Grid on Kubernetes organizes inline recordings per session automatically: the Node
+# relocates each recording into an <assets>/<sessionId>/ subfolder (or, when the recorder manages
+# the file name, writes it there directly). Assert every video landed in such a subfolder, never
+# flat in the assets root where same-named recordings would collide.
+echo "Verify inline recording stored videos in per-session subfolders"
+if [ -z "${video_files}" ]; then
+  echo "No video files were produced under ${base}"
+  false
+fi
+flat_videos=0
+for file in ${video_files}; do
+  parent=$(dirname "${file}")
+  if [ "${parent}" = "${base}" ]; then
+    echo "Video ${file} is in the assets root, expected a per-session subfolder"
+    flat_videos=$((flat_videos + 1))
+  else
+    echo "Video ${file} is stored under per-session subfolder $(basename "${parent}")"
+  fi
+done
+if [ ${flat_videos} -gt 0 ]; then
+  echo "${flat_videos} video file(s) not stored in a per-session subfolder; SE_VIDEO_SESSION_SUBFOLDER not honored"
+  false
 fi
 NAME=${NAMESPACE} BUILD_DATE=${BUILD_DATE} make test_video_integrity
 
