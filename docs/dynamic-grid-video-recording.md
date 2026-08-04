@@ -111,8 +111,17 @@ configs = [ /* … */ ]
 video-image = "selenium/video:ffmpeg-<ver>"
 ```
 
-A `selenium/video` container is started per session and binds the assets root; it
-honors the same `SE_VIDEO_SESSION_SUBFOLDER` toggle.
+A `selenium/video` container is started per session and binds the assets root. Because
+it is created **after** the session, the Grid hands it the session id via
+`SE_VIDEO_SESSION_ID`, and the recorder uses that directly for the per-session subfolder
+— so this path is deterministic and does **not** depend on the recorder reaching the
+session source (no risk of a colliding flat fallback). It still honors the
+`SE_VIDEO_SESSION_SUBFOLDER` toggle for the layout.
+
+> This Grid-provided-session-id path is unique to the **Docker external** video
+> container. All other cases (Docker inline, Kubernetes inline/external) discover the
+> session themselves and rely on the `SE_VIDEO_SESSION_SUBFOLDER` toggle; if their
+> session source is unreachable they fall back to a flat recording.
 
 ## Kubernetes Dynamic Grid
 
@@ -182,6 +191,7 @@ fall back to a flat standalone recording when no session source is reachable.
 | `SE_VIDEO_FILE_NAME` | *(unset)* | recorder | Fixed output name; `auto`/unset ⇒ derive from capabilities. |
 | `SE_VIDEO_FILE_NAME_SUFFIX` | `true` | recorder | Append a session-id suffix to caps-derived names. |
 | `SE_VIDEO_SESSION_SUBFOLDER` | `false` | recorder | Write into `<assets>/<sessionId>/`. Honored directly by the recorder. |
+| `SE_VIDEO_SESSION_ID` | *(unset)* | recorder | Session id handed over by the Grid (Docker external). Set automatically; when present the recorder skips session discovery and records that session deterministically. |
 | `SE_VIDEO_WAIT_ATTEMPTS` | `50` | recorder | Bounded attempts to reach the session source before the flat fallback. |
 | `SE_VIDEO_UPLOAD_ENABLED` / `SE_UPLOAD_DESTINATION_PREFIX` | — | recorder | Enable and target video upload. |
 | `SE_UPLOAD_RETAIN_LOCAL_FILE` | `false` | recorder | Keep the local file after upload (copy vs move). |

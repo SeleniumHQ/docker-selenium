@@ -251,11 +251,44 @@ fi
 trap graceful_exit_force SIGTERM SIGINT EXIT
 wait_for_display
 
-# Automatically choose the recording mode by reachability of the Node status endpoint, instead of
-# the old "fixed name => flat file" coupling / SE_VIDEO_FILE_NAME=auto trigger:
-#  - reachable  -> session-aware recording (unified per-session naming + subfolder toggle)
+# Choose the recording mode:
+#  - SE_VIDEO_SESSION_ID handed over by the Grid (Docker external video container, started AFTER the
+#    session is created) -> record that session deterministically into its per-session location, no
+#    status discovery needed and no risk of a colliding flat fallback.
+#  - otherwise, Node status reachable -> session-aware recording (discover the session; subfolder toggle)
 #  - unreachable within the bound -> flat standalone recording to the configured/default name
-if ! is_session_source_reachable; then
+if [ -n "${SE_VIDEO_SESSION_ID}" ]; then
+  echo "$(date -u +"${ts_format}") [${process_name}] - Recording session ${SE_VIDEO_SESSION_ID} handed over by the Grid"
+  create_named_pipe
+  recording_started="true"
+  session_id="${SE_VIDEO_SESSION_ID}"
+  # Best-effort read of the session capabilities for a friendly file name; the subfolder always uses
+  # the Grid-provided session id, so it is correct even if the status endpoint is unreachable.
+  session_capabilities=""
+  if curl --noproxy "*" "${auth_header[@]}" -sk --request GET "${NODE_STATUS_ENDPOINT}" >"/tmp/status.json" 2>/dev/null; then
+    session_capabilities="$(jq -r "${JQ_SESSION_CAPABILITIES_QUERY}" "/tmp/status.json" 2>/dev/null)"
+  fi
+  return_list=($(python3 "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.py" "${session_id}" "${session_capabilities}"))
+  video_file_name="${return_list[1]}.mp4"
+  if [[ "${SE_VIDEO_SESSION_SUBFOLDER}" = "true" ]]; then
+    video_dir="${VIDEO_FOLDER}/${session_id}"
+    mkdir -p "${video_dir}"
+    echo "$(date -u +"${ts_format}") [${process_name}] - Created session subfolder: ${video_dir}"
+  else
+    video_dir="${VIDEO_FOLDER}"
+  fi
+  video_file="${video_dir}/${video_file_name}"
+  ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
+    -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
+    -i ${DISPLAY} ${SE_AUDIO_SOURCE} -codec:v ${CODEC} ${PRESET:-"-preset veryfast"} \
+    -tune zerolatency -crf ${SE_VIDEO_CRF:-28} -maxrate ${SE_VIDEO_MAXRATE:-1000k} -bufsize ${SE_VIDEO_BUFSIZE:-2000k} \
+    -pix_fmt yuv420p -movflags frag_keyframe+empty_moov+default_base_moof "$video_file" &
+  FFMPEG_PID=$!
+  if ps -p $FFMPEG_PID >/dev/null; then
+    wait $FFMPEG_PID
+  fi
+
+elif ! is_session_source_reachable; then
   echo "$(date -u +"${ts_format}") [${process_name}] - Node status not reachable after ${max_attempts} attempts, recording to a flat file"
   video_file_name="${VIDEO_FILE_NAME}"
   if [ "${video_file_name}" = "auto" ] || [ -z "${video_file_name}" ]; then

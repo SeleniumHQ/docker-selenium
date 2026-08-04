@@ -206,6 +206,9 @@ class VideoService:
         # Bounded attempts to reach the Node /status before falling back to a flat standalone
         # recording. Reachable -> session-aware; unreachable -> flat file (non-Grid use).
         self.node_ready_max_attempts = int(os.environ.get("SE_VIDEO_WAIT_ATTEMPTS", "50"))
+        # Session id handed over by the Grid (Docker external video container, started after the
+        # session is created). When set, record that session deterministically without discovery.
+        self.provided_session_id = os.environ.get("SE_VIDEO_SESSION_ID", "").strip()
         self.file_ready_max_attempts = int(os.environ.get("SE_VIDEO_FILE_READY_WAIT_ATTEMPTS", "10"))
 
         # Drain configuration
@@ -495,21 +498,8 @@ class VideoService:
         )
         return cmd
 
-    async def record_flat_fallback(self) -> None:
-        """Record the whole display to a single flat file when no session source is reachable.
-
-        Standalone (non-Grid) use: there is no session id, so the video goes to the configured
-        SE_VIDEO_FILE_NAME (or 'video.mp4' when unset/'auto'), flat, no subfolder. Records until
-        shutdown is requested.
-        """
-        name = self.configured_video_file_name
-        if not name or name.lower() == "auto":
-            name = "video.mp4"
-        elif not name.lower().endswith(".mp4"):
-            name = f"{name}.mp4"
-        video_path = f"{self.video_folder}/{name}"
-        logger.info(f"No session source reachable; recording to a flat file: {video_path}")
-
+    async def _record_until_shutdown(self, video_path: str) -> None:
+        """Record the display to video_path until shutdown is requested (single continuous file)."""
         env = os.environ.copy()
         env["DISPLAY"] = self.display
         proc = await asyncio.create_subprocess_exec(
@@ -529,7 +519,7 @@ class VideoService:
             return
 
         await self.shutdown_event.wait()
-        logger.info("Shutdown requested, stopping flat recording")
+        logger.info(f"Shutdown requested, stopping recording: {video_path}")
         try:
             if proc.stdin:
                 proc.stdin.write(b"q")
@@ -541,7 +531,39 @@ class VideoService:
                 await asyncio.wait_for(proc.wait(), timeout=5)
             except Exception:
                 proc.kill()
-        logger.info(f"Flat recording stopped: {video_path}")
+        logger.info(f"Recording stopped: {video_path}")
+
+    async def record_flat_fallback(self) -> None:
+        """Record the whole display to a single flat file when no session source is reachable.
+
+        Standalone (non-Grid) use: there is no session id, so the video goes to the configured
+        SE_VIDEO_FILE_NAME (or 'video.mp4' when unset/'auto'), flat, no subfolder.
+        """
+        name = self.configured_video_file_name
+        if not name or name.lower() == "auto":
+            name = "video.mp4"
+        elif not name.lower().endswith(".mp4"):
+            name = f"{name}.mp4"
+        video_path = f"{self.video_folder}/{name}"
+        logger.info(f"No session source reachable; recording to a flat file: {video_path}")
+        await self._record_until_shutdown(video_path)
+
+    async def record_provided_session(self, session_id: str) -> None:
+        """Record a session whose id was handed over by the Grid (SE_VIDEO_SESSION_ID).
+
+        The external video container is started AFTER the session is created (Docker external), so
+        the Grid provides the session id. The recording goes to its per-session location
+        deterministically — no discovery, and correct even if the status endpoint is unreachable.
+        """
+        _, video_filename = self.get_video_filename(session_id, {})
+        if self.session_subfolder:
+            session_subdir = Path(self.video_folder) / session_id
+            session_subdir.mkdir(parents=True, exist_ok=True)
+            video_filename = f"{session_id}/{video_filename}"
+            logger.info(f"Created session subfolder: {session_subdir}")
+        video_path = f"{self.video_folder}/{video_filename}"
+        logger.info(f"Recording Grid-provided session {session_id}: {video_path}")
+        await self._record_until_shutdown(video_path)
 
     async def start_recording(self, session: SessionState) -> bool:
         """Start ffmpeg recording for a session."""
@@ -1157,6 +1179,12 @@ class VideoService:
 
         # Wait for display
         await self.wait_for_display()
+
+        # The Grid handed over a session id (Docker external): record that session deterministically,
+        # no event/status discovery required.
+        if self.provided_session_id:
+            await self.record_provided_session(self.provided_session_id)
+            return
 
         # Wait for Node /status endpoint and resolve Node ID
         await self.wait_for_node_ready()
