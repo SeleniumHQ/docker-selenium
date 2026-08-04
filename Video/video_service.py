@@ -203,6 +203,9 @@ class VideoService:
         self.se_node_port = os.environ.get("SE_NODE_PORT", default_node_port)
         self.node_status_verify_ssl = False
         self.node_poll_interval = int(os.environ.get("SE_VIDEO_POLL_INTERVAL", "2"))
+        # Bounded attempts to reach the Node /status before falling back to a flat standalone
+        # recording. Reachable -> session-aware; unreachable -> flat file (non-Grid use).
+        self.node_ready_max_attempts = int(os.environ.get("SE_VIDEO_WAIT_ATTEMPTS", "50"))
         self.file_ready_max_attempts = int(os.environ.get("SE_VIDEO_FILE_READY_WAIT_ATTEMPTS", "10"))
 
         # Drain configuration
@@ -283,7 +286,12 @@ class VideoService:
             record_video = bool(record_video)
 
         if self.configured_video_file_name.lower() != "auto":
-            fixed_name = self.configured_video_file_name
+            # Match the shell backend (video_nodeQuery.py): strip a trailing .mp4, normalize, re-add
+            # .mp4 — so a fixed name resolves identically in both recorder backends.
+            base = self.configured_video_file_name
+            if base.lower().endswith(".mp4"):
+                base = base[:-4]
+            fixed_name = f"{self.normalize_filename(base)}.mp4"
             fixed_path = Path(self.video_folder) / fixed_name
             if fixed_path.exists():
                 logger.warning(
@@ -386,7 +394,15 @@ class VideoService:
                 pass
             return None
 
+        attempt = 0
         while not self.shutdown_event.is_set():
+            if attempt >= self.node_ready_max_attempts:
+                logger.warning(
+                    f"Node /status not reachable after {self.node_ready_max_attempts} attempts; "
+                    "will fall back to a flat standalone recording"
+                )
+                return
+            attempt += 1
             try:
                 # Run blocking urlopen in a thread so SIGTERM can be processed
                 # immediately by the event loop without waiting up to 5s.
@@ -426,16 +442,12 @@ class VideoService:
 
     # ==================== Recording Functions ====================
 
-    async def start_recording(self, session: SessionState) -> bool:
-        """Start ffmpeg recording for a session."""
-        if session.ffmpeg_process is not None:
-            logger.warning(f"Recording already in progress for session {session.session_id}")
-            return False
+    def _build_ffmpeg_cmd(self, video_path: str) -> list:
+        """Build the ffmpeg x11grab command line writing to video_path.
 
-        video_path = f"{self.video_folder}/{session.video_file}"
-        session.start_time = datetime.now()
-        session.status = SessionStatus.RECORDING
-
+        Shared by per-session recording and the flat standalone fallback so both produce
+        byte-identical encoding settings.
+        """
         cmd = [
             "ffmpeg",
             "-hide_banner",
@@ -459,10 +471,8 @@ class VideoService:
             "-i",
             self.display,
         ]
-
         if self.record_audio and self.audio_source:
             cmd.extend(self.audio_source.split())
-
         cmd.extend(
             [
                 "-codec:v",
@@ -483,6 +493,67 @@ class VideoService:
                 video_path,
             ]
         )
+        return cmd
+
+    async def record_flat_fallback(self) -> None:
+        """Record the whole display to a single flat file when no session source is reachable.
+
+        Standalone (non-Grid) use: there is no session id, so the video goes to the configured
+        SE_VIDEO_FILE_NAME (or 'video.mp4' when unset/'auto'), flat, no subfolder. Records until
+        shutdown is requested.
+        """
+        name = self.configured_video_file_name
+        if not name or name.lower() == "auto":
+            name = "video.mp4"
+        elif not name.lower().endswith(".mp4"):
+            name = f"{name}.mp4"
+        video_path = f"{self.video_folder}/{name}"
+        logger.info(f"No session source reachable; recording to a flat file: {video_path}")
+
+        env = os.environ.copy()
+        env["DISPLAY"] = self.display
+        proc = await asyncio.create_subprocess_exec(
+            *self._build_ffmpeg_cmd(video_path),
+            env=env,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.DEVNULL,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        await asyncio.sleep(0.5)
+        if proc.returncode is not None:
+            stderr_output = await proc.stderr.read()
+            logger.error(
+                f"ffmpeg exited immediately (rc={proc.returncode}): "
+                f"{stderr_output.decode(errors='replace').strip()}"
+            )
+            return
+
+        await self.shutdown_event.wait()
+        logger.info("Shutdown requested, stopping flat recording")
+        try:
+            if proc.stdin:
+                proc.stdin.write(b"q")
+                await proc.stdin.drain()
+            await asyncio.wait_for(proc.wait(), timeout=10)
+        except Exception:
+            try:
+                proc.terminate()
+                await asyncio.wait_for(proc.wait(), timeout=5)
+            except Exception:
+                proc.kill()
+        logger.info(f"Flat recording stopped: {video_path}")
+
+    async def start_recording(self, session: SessionState) -> bool:
+        """Start ffmpeg recording for a session."""
+        if session.ffmpeg_process is not None:
+            logger.warning(f"Recording already in progress for session {session.session_id}")
+            return False
+
+        video_path = f"{self.video_folder}/{session.video_file}"
+        session.start_time = datetime.now()
+        session.status = SessionStatus.RECORDING
+
+        cmd = self._build_ffmpeg_cmd(video_path)
 
         try:
             env = os.environ.copy()
@@ -1090,7 +1161,8 @@ class VideoService:
         # Wait for Node /status endpoint and resolve Node ID
         await self.wait_for_node_ready()
         if self.node_id is None:
-            logger.error("Failed to resolve Node ID from /status endpoint, exiting")
+            # No session source reachable within the bound -> flat standalone recording fallback.
+            await self.record_flat_fallback()
             return
 
         # Upload worker runs independently — it exits only when cleanup() pushes
