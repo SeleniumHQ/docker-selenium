@@ -40,6 +40,10 @@ spec:
               value: "10"
             - name: SE_RECORD_VIDEO
               value: "true"
+            # Store each session's recording under <assets>/<sessionId>/. The recorder honors this
+            # toggle directly; the Grid no longer forces it, so set it here to opt in.
+            - name: SE_VIDEO_SESSION_SUBFOLDER
+              value: "true"
           resources:
             requests:
               memory: "512Mi"
