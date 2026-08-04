@@ -1217,15 +1217,17 @@ test_node_relay: hub node_base standalone_firefox
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
 	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
+	SE_VIDEO_SESSION_SUBFOLDER=true SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_standalone_docker_video_sidecar: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_video_sidecar_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
 	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
+	SE_VIDEO_SESSION_SUBFOLDER=true SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_node_docker_video_sidecar:
-	CONFIG_FILE=config_video_sidecar.toml make test_node_docker
+	CONFIG_FILE=config_video_sidecar.toml SE_VIDEO_SESSION_SUBFOLDER=true SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true make test_node_docker
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge standalone_chromium video
 	sudo rm -rf ./tests/tests
@@ -1254,6 +1256,8 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
+		echo SE_VIDEO_SESSION_SUBFOLDER=$(or $(SE_VIDEO_SESSION_SUBFOLDER), "false") >> .env ; \
+		echo SE_UPLOAD_RETAIN_LOCAL_FILE=$(or $(SE_UPLOAD_RETAIN_LOCAL_FILE), "false") >> .env ; \
 		echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
 		echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 20) >> .env ; \
 		echo TEST_CUSTOM_SPECIFIC_NAME=$(or $(TEST_CUSTOM_SPECIFIC_NAME), "true") >> .env ; \
@@ -1298,6 +1302,17 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 					exit 1 ; \
 				fi ; \
 	done
+	if [ "$(CHECK_VIDEO_SESSION_LAYOUT)" = "true" ]; then \
+		echo "Verify each recording is stored once per session under ./tests/videos/<sessionId>/" ; \
+		echo "(inline must not scatter into the assets root; the external video sidecar must not double-nest)" ; \
+		flat=$$(find ./tests/videos -maxdepth 1 -type f -name '*.mp4') ; \
+		if [ -n "$$flat" ]; then echo "Recordings found flat in the assets root:" ; echo "$$flat" ; exit 1 ; fi ; \
+			nested=$$(find ./tests/videos -mindepth 3 -type f -name '*.mp4' ! -path './tests/videos/upload/*' ! -path './tests/videos/Downloads/*') ; \
+			if [ -n "$$nested" ]; then echo "Recordings nested below the per-session folder (double-nested <sessionId>/<sessionId>/):" ; echo "$$nested" ; exit 1 ; fi ; \
+				session_videos=$$(find ./tests/videos -mindepth 2 -maxdepth 2 -type f -name '*.mp4' ! -path './tests/videos/upload/*' ! -path './tests/videos/Downloads/*') ; \
+				if [ -z "$$session_videos" ]; then echo "No recordings found in per-session subfolders under ./tests/videos" ; exit 1 ; fi ; \
+					echo "Recordings stored one per session:" ; echo "$$session_videos" ; \
+				fi
 	make test_video_integrity
 
 test_custom_ca_cert:
