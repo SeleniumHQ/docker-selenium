@@ -290,6 +290,8 @@ if [ -n "${SE_VIDEO_SESSION_ID}" ]; then
 
 elif ! is_session_source_reachable; then
   echo "$(date -u +"${ts_format}") [${process_name}] - Node status not reachable after ${max_attempts} attempts, recording to a flat file"
+  create_named_pipe
+  recording_started="true"
   video_file_name="${VIDEO_FILE_NAME}"
   if [ "${video_file_name}" = "auto" ] || [ -z "${video_file_name}" ]; then
     video_file_name="video.mp4"

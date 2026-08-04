@@ -533,6 +533,18 @@ class VideoService:
                 proc.kill()
         logger.info(f"Recording stopped: {video_path}")
 
+    async def _queue_upload_if_enabled(self, session_id: str, video_path: str) -> None:
+        """Queue the recorded file for upload when upload is configured (used by the non-event paths)."""
+        if not self.upload_enabled or not self.upload_destination:
+            return
+        if not Path(video_path).exists():
+            logger.warning(f"Video file not found, skipping upload: {video_path}")
+            return
+        await self.upload_queue.put(
+            UploadTask(session_id=session_id, video_file=video_path, destination=self.upload_destination)
+        )
+        logger.info(f"Queued upload: {video_path} -> {self.upload_destination}")
+
     async def record_flat_fallback(self) -> None:
         """Record the whole display to a single flat file when no session source is reachable.
 
@@ -547,6 +559,7 @@ class VideoService:
         video_path = f"{self.video_folder}/{name}"
         logger.info(f"No session source reachable; recording to a flat file: {video_path}")
         await self._record_until_shutdown(video_path)
+        await self._queue_upload_if_enabled("standalone", video_path)
 
     async def record_provided_session(self, session_id: str) -> None:
         """Record a session whose id was handed over by the Grid (SE_VIDEO_SESSION_ID).
@@ -564,6 +577,7 @@ class VideoService:
         video_path = f"{self.video_folder}/{video_filename}"
         logger.info(f"Recording Grid-provided session {session_id}: {video_path}")
         await self._record_until_shutdown(video_path)
+        await self._queue_upload_if_enabled(session_id, video_path)
 
     async def start_recording(self, session: SessionState) -> bool:
         """Start ffmpeg recording for a session."""
@@ -1180,27 +1194,25 @@ class VideoService:
         # Wait for display
         await self.wait_for_display()
 
-        # The Grid handed over a session id (Docker external): record that session deterministically,
-        # no event/status discovery required.
-        if self.provided_session_id:
-            await self.record_provided_session(self.provided_session_id)
-            return
-
-        # Wait for Node /status endpoint and resolve Node ID
-        await self.wait_for_node_ready()
-        if self.node_id is None:
-            # No session source reachable within the bound -> flat standalone recording fallback.
-            await self.record_flat_fallback()
-            return
-
-        # Upload worker runs independently — it exits only when cleanup() pushes
-        # a None sentinel, so it is NOT included in the gather below.
+        # The upload worker runs independently for EVERY recording path (event-driven, Grid-provided
+        # session, or flat fallback); it exits only when cleanup() pushes the None sentinel.
         upload_task = asyncio.create_task(self.upload_worker(), name="upload_worker")
 
         try:
-            await asyncio.gather(
-                asyncio.create_task(self.subscribe_events(), name="event_subscriber"),
-            )
+            if self.provided_session_id:
+                # The Grid handed over a session id (Docker external): record that session
+                # deterministically, no event/status discovery required.
+                await self.record_provided_session(self.provided_session_id)
+            else:
+                # Discover the session via the Node /status endpoint / EventBus.
+                await self.wait_for_node_ready()
+                if self.node_id is None:
+                    # No session source reachable within the bound -> flat standalone fallback.
+                    await self.record_flat_fallback()
+                else:
+                    await asyncio.gather(
+                        asyncio.create_task(self.subscribe_events(), name="event_subscriber"),
+                    )
         except asyncio.CancelledError:
             logger.info("Tasks cancelled")
         finally:
