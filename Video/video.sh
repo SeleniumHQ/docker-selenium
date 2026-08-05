@@ -273,9 +273,19 @@ else
         echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
         log_node_response
         if [[ "${SE_VIDEO_SESSION_SUBFOLDER}" = "true" ]]; then
-          video_dir="${VIDEO_FOLDER}/${session_id}"
-          mkdir -p "${video_dir}"
-          echo "$(date -u +"${ts_format}") [${process_name}] - Created session subfolder: ${video_dir}"
+          # Group each recording under its session id. If the session id is empty for any reason,
+          # fall back to the Node container/Pod name so the video still lands in a unique subfolder.
+          subfolder_key="${session_id}"
+          if [ -z "${subfolder_key}" ] || [ "${subfolder_key}" = "null" ]; then
+            subfolder_key="${SE_NODE_CONTAINER_NAME}"
+          fi
+          if [ -n "${subfolder_key}" ]; then
+            video_dir="${VIDEO_FOLDER}/${subfolder_key}"
+            mkdir -p "${video_dir}"
+            echo "$(date -u +"${ts_format}") [${process_name}] - Created session subfolder: ${video_dir}"
+          else
+            video_dir="${VIDEO_FOLDER}"
+          fi
         else
           video_dir="${VIDEO_FOLDER}"
         fi
