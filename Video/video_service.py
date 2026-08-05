@@ -768,10 +768,15 @@ class VideoService:
         record_video, video_filename = self.get_video_filename(session_id, capabilities)
 
         if record_video and self.session_subfolder:
-            session_subdir = Path(self.video_folder) / session_id
-            session_subdir.mkdir(parents=True, exist_ok=True)
-            video_filename = f"{session_id}/{video_filename}"
-            logger.info(f"Created session subfolder: {session_subdir}")
+            # Group each recording under its session id. If the session id is empty for any reason,
+            # fall back to the Node container/Pod name so the video still lands in a unique subfolder
+            # (important on Kubernetes where the assets volume is shared across Pods).
+            subfolder_key = session_id or os.environ.get("SE_NODE_CONTAINER_NAME", "").strip()
+            if subfolder_key:
+                session_subdir = Path(self.video_folder) / subfolder_key
+                session_subdir.mkdir(parents=True, exist_ok=True)
+                video_filename = f"{subfolder_key}/{video_filename}"
+                logger.info(f"Created session subfolder: {session_subdir}")
 
         retain_on_failure_cap = capabilities.get("se:retainOnFailure", None)
         if retain_on_failure_cap is None:
