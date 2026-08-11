@@ -18,6 +18,13 @@ on_failure() {
 }
 
 if [[ "${INSTALL_DOCKER}" != "true" ]]; then
+    # Docker is already present on the runner, so its installation is skipped.
+    # Still register QEMU/binfmt so multi-arch (e.g. linux/arm64) image builds can
+    # run under emulation; otherwise cross-arch RUN steps fail with
+    # "exec /bin/sh: exec format error".
+    if [ "${DOCKER_ENABLE_QEMU}" = "true" ]; then
+        docker run --privileged --rm tonistiigi/binfmt --install all
+    fi
     exit 0
 fi
 
