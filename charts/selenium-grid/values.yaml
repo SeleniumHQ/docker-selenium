@@ -1216,6 +1216,17 @@ autoscaling:
       limits:
         cpu: 200m
         memory: 128Mi
+    # -- SecurityContext for the external scaler container. Defaults comply with Pod Security Admission `restricted` and Kyverno seccomp policies; override to customize.
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65532
+      runAsGroup: 65532
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
   # -- Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA)
   defaultTriggerType: "selenium-grid"
   # -- Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec)

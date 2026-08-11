@@ -461,6 +461,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.externalScaler.nodeSelector | object | `{}` | Node selector for the external scaler |
 | autoscaling.externalScaler.tolerations | list | `[]` | Tolerations for the external scaler |
 | autoscaling.externalScaler.resources | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the external scaler container |
+| autoscaling.externalScaler.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext for the external scaler container. Defaults comply with Pod Security Admission `restricted` and Kyverno seccomp policies; override to customize. |
 | autoscaling.defaultTriggerType | string | `"selenium-grid"` | Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA) |
 | autoscaling.defaultTriggerName | string | `"seleniumGrid"` | Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec) |
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20,"triggers":[]}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
