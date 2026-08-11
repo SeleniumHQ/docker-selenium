@@ -172,6 +172,10 @@ class VideoService:
 
         # Capability names
         self.video_cap_name = os.environ.get("VIDEO_CAP_NAME", "se:recordVideo")
+        # Default recording state used when the se:recordVideo capability is absent
+        # on a session. Mirrors the fallback in the shell-mode helper (video_nodeQuery.py)
+        # so SE_RECORD_VIDEO=false is honored across both recording modes.
+        self.default_record_video = os.environ.get("SE_RECORD_VIDEO", "true").lower() != "false"
         self.test_name_cap = os.environ.get("TEST_NAME_CAP", "se:name")
         self.video_name_cap = os.environ.get("VIDEO_NAME_CAP", "se:videoName")
         self.file_name_trim_regex = os.environ.get("SE_VIDEO_FILE_NAME_TRIM_REGEX", "[^a-zA-Z0-9-_]")
@@ -181,6 +185,9 @@ class VideoService:
 
         # Standalone mode: single node, no need to filter events by NodeId
         self.record_standalone = os.environ.get("SE_VIDEO_RECORD_STANDALONE", "false").lower() == "true"
+
+        # Subfolder mode: save each session's video inside VIDEO_FOLDER/{session_id}/
+        self.session_subfolder = os.environ.get("SE_VIDEO_SESSION_SUBFOLDER", "false").lower() == "true"
 
         # Node identity for filtering events in distributed (Hub-Nodes) setup.
         # In distributed mode, ZeroMQ broadcasts ALL session events to ALL subscribers.
@@ -260,10 +267,20 @@ class VideoService:
         return normalized[:251]
 
     def get_video_filename(self, session_id: str, capabilities: dict) -> tuple[bool, str]:
-        """Determine video filename from session capabilities."""
-        record_video = capabilities.get(self.video_cap_name, True)
-        if isinstance(record_video, str):
+        """Determine video filename from session capabilities.
+
+        Recording is gated by the se:recordVideo capability when it is present on
+        the session; when the capability is absent, it falls back to the
+        SE_RECORD_VIDEO environment default. This keeps the event-driven service
+        consistent with the shell-mode helper (video_nodeQuery.py).
+        """
+        record_video = capabilities.get(self.video_cap_name)
+        if record_video is None:
+            record_video = self.default_record_video
+        elif isinstance(record_video, str):
             record_video = record_video.lower() != "false"
+        else:
+            record_video = bool(record_video)
 
         if self.configured_video_file_name.lower() != "auto":
             fixed_name = self.configured_video_file_name
@@ -750,6 +767,17 @@ class VideoService:
         capabilities = data.get("capabilities", {})
         record_video, video_filename = self.get_video_filename(session_id, capabilities)
 
+        if record_video and self.session_subfolder:
+            # Group each recording under its session id. If the session id is empty for any reason,
+            # fall back to the Node container/Pod name so the video still lands in a unique subfolder
+            # (important on Kubernetes where the assets volume is shared across Pods).
+            subfolder_key = session_id or os.environ.get("SE_NODE_CONTAINER_NAME", "").strip()
+            if subfolder_key:
+                session_subdir = Path(self.video_folder) / subfolder_key
+                session_subdir.mkdir(parents=True, exist_ok=True)
+                video_filename = f"{subfolder_key}/{video_filename}"
+                logger.info(f"Created session subfolder: {session_subdir}")
+
         retain_on_failure_cap = capabilities.get("se:retainOnFailure", None)
         if retain_on_failure_cap is None:
             retain_on_failure = self.retain_on_failure_enabled
@@ -1047,6 +1075,7 @@ class VideoService:
         logger.info(f"  Standalone mode: {self.record_standalone}")
         logger.info(f"  Event bus: {self.event_bus_host}:{self.event_bus_port}")
         logger.info(f"  Video folder: {self.video_folder}")
+        logger.info(f"  Session subfolder: {self.session_subfolder}")
         logger.info(f"  Video file name: {self.configured_video_file_name}")
         logger.info(f"  Video size: {self.video_size}")
         logger.info(f"  Upload enabled: {self.upload_enabled}")

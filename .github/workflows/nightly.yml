@@ -79,7 +79,7 @@ jobs:
           echo ${GRID_VERSION}
           echo "BASE_RELEASE=nightly" >> $GITHUB_ENV
       - name: Update tag nightly
-        uses: richardsimko/update-tag@v1.1.6
+        uses: richardsimko/update-tag@v3.0.0
         with:
           tag_name: ${{ env.BASE_RELEASE }}
         env:
@@ -159,7 +159,7 @@ jobs:
           command: make chart_release
       - name: Create Nightly Release
         id: create_release
-        uses: softprops/action-gh-release@v3.0.0
+        uses: softprops/action-gh-release@v3.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ env.BASE_RELEASE }}

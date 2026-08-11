@@ -15,7 +15,9 @@ ENV SE_SESSION_REQUEST_TIMEOUT="300" \
 # In seconds, maps to "--session-retry-interval"
     SE_SESSION_RETRY_INTERVAL="15" \
     SE_SESSION_QUEUE_PORT="5559" \
-    SE_OTEL_SERVICE_NAME="selenium-session-queue"
+    SE_OTEL_SERVICE_NAME="selenium-session-queue" \
+    SE_SESSION_QUEUE_IMPLEMENTATION="" \
+    SE_SESSION_QUEUE_BACKEND_URL=""
 
 EXPOSE 5559
 

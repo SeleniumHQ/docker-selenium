@@ -114,9 +114,6 @@ spec:
               mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
           {{- end }}
-          ports:
-            - containerPort: {{ .Values.components.router.port }}
-              protocol: TCP
         {{- if .Values.components.router.startupProbe.enabled }}
           {{- with .Values.components.router.startupProbe }}
           startupProbe:

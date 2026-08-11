@@ -14,8 +14,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   firefox:
@@ -30,8 +28,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   selenium-hub:

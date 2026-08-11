@@ -27,8 +27,9 @@ RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG
 JRE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} java --version | grep -oP '\b\d+\.\d+\.\d+\b' | head -1)
 OS_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f 2)
 FIREFOX_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
+CHROME_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node-chrome:${TAG_VERSION} google-chrome --version | awk '{print $3}')
+CHROMEDRIVER_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node-chrome:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 CHROMIUM_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromium --version | awk '{print $2}')
-CHROMIUMDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chromium:${TAG_VERSION} chromedriver --version | awk '{print $2}')
 if [[ "${GRID_VERSION}" == *"SNAPSHOT"* ]]; then
   GRID_RELEASE_TAG="nightly"
 else
@@ -42,9 +43,9 @@ echo "| Components | x86_64 (amd64) | aarch64 (arm64/armv8) |" >>release_notes.m
 echo "|:----------:|:--------------:|:---------------------:|" >>release_notes.md
 echo "| Selenium Grid | ${LINK_GRID_DETAILS} | ${LINK_GRID_DETAILS} |" >>release_notes.md
 echo "| Chromium | ${CHROMIUM_VERSION} | ${CHROMIUM_VERSION} |" >>release_notes.md
-echo "| Chrome | ${CHROME_VERSION} | x |" >>release_notes.md
+echo "| Chrome | ${CHROME_VERSION} | ${CHROME_ARM64_VERSION} |" >>release_notes.md
 echo "| Chrome for Testing | ${CFT_VERSION} | x |" >>release_notes.md
-echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | ${CHROMIUMDRIVER_VERSION} |" >>release_notes.md
+echo "| ChromeDriver | ${CHROMEDRIVER_VERSION} | ${CHROMEDRIVER_ARM64_VERSION} |" >>release_notes.md
 echo "| Edge | ${EDGE_VERSION} | x |" >>release_notes.md
 echo "| EdgeDriver | ${EDGEDRIVER_VERSION} | x |" >>release_notes.md
 echo "| Firefox | ${FIREFOX_VERSION} | ${FIREFOX_ARM64_VERSION} |" >>release_notes.md

@@ -45,6 +45,7 @@ jobs:
           EXPECTED_BASE_VERSION=${EXPECTED_BASE_VERSION} make update_release_version
           make update_selenium_version_matrix
           make update_browser_versions_matrix
+          make update_go
         env:
           EXPECTED_BASE_VERSION: ${{ inputs.grid-version }}
       - name: Commit & Push changes

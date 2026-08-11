@@ -1,3 +1,57 @@
+## :heavy_check_mark: selenium-grid-0.57.0
+
+- Chart is using image tag 4.46.0-20260707
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`90f4f23a`](http://github.com/seleniumhq/docker-selenium/commit/90f4f23a9d4d221de5ede841d6e37b6e97d2e808) - [ci] Update tag 4.46.0-20260707 in docs and files :: Selenium CI Bot
+- [`5ba0bd74`](http://github.com/seleniumhq/docker-selenium/commit/5ba0bd748594b66c79ba23acb56a9dc40fd82e52) - chore(deps): update helm release redis to ^0.32.0 (#3176) :: renovate[bot]
+- [`a5a34f5f`](http://github.com/seleniumhq/docker-selenium/commit/a5a34f5f6e0329bb50815be4b78381285a278ba8) - K8s: Gate distributed component replicas on external datastore (#3175) :: Viet Nguyen Duc
+- [`d267e2ad`](http://github.com/seleniumhq/docker-selenium/commit/d267e2add4b16fae030a92178c8a0461c5cb00c9) - K8s: Implement KEDA external scaler and use it as default (#3169) :: Viet Nguyen Duc
+- [`aafe4d61`](http://github.com/seleniumhq/docker-selenium/commit/aafe4d6136f3bb5afcd9b7cb691c624516d06e1b) - Docker: Add Redis external datastore support for SessionQueue configuration (#3160) :: Viet Nguyen Duc
+- [`350f7863`](http://github.com/seleniumhq/docker-selenium/commit/350f7863965c1aeb77141285b82bc0bc34867f64) - [ci] Update chart 0.56.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.56.0
+
+- Chart is using image tag 4.45.0-20260606
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`6f110dd8`](http://github.com/seleniumhq/docker-selenium/commit/6f110dd87305c3c47fb11b4cce6244d848dcae9a) - [ci] Update tag 4.45.0-20260606 in docs and files :: Selenium CI Bot
+- [`1c4e0696`](http://github.com/seleniumhq/docker-selenium/commit/1c4e0696d0d38db57949652358d8e4d8410c82d5) - chore(deps): update helm release kube-prometheus-stack to v87 (#3161) :: renovate[bot]
+- [`85038245`](http://github.com/seleniumhq/docker-selenium/commit/85038245742a1a546ab441bc9f2a0912396e9eb4) - chore(deps): update helm release traefik to v41 (#3157) :: renovate[bot]
+- [`9e3a32a3`](http://github.com/seleniumhq/docker-selenium/commit/9e3a32a3ab471455d8f0b898f1cc87359543cd02) - K8s: Fix duplicated port in Router deployment template (#3155) :: Viet Nguyen Duc
+- [`44fcf855`](http://github.com/seleniumhq/docker-selenium/commit/44fcf85554137693e94b0f5f8d7cb8b0092f8278) - K8s: Migrate subchart Postgres to cloudpirates/postgres from bitnami/postgresql (#3150) :: Viet Nguyen Duc
+- [`9cc943b1`](http://github.com/seleniumhq/docker-selenium/commit/9cc943b180199112c1b06a8061e0a8d833874bcf) - K8s: KEDA 2.20.1+ unsupported job scale strategy "default" (#3149) :: Viet Nguyen Duc
+- [`ea4d5d1a`](http://github.com/seleniumhq/docker-selenium/commit/ea4d5d1a71077b93ad7fcb6a2ea3ca1a01dafddc) - K8s: Migrate subchart Redis to cloudpirates/redis from bitnami/redis (#3148) :: Viet Nguyen Duc
+- [`43d70d68`](http://github.com/seleniumhq/docker-selenium/commit/43d70d68f8259e1c209af84e87e8076e444974d6) - chore(deps): update helm release kube-prometheus-stack to v86 (#3143) :: renovate[bot]
+- [`d7fd6328`](http://github.com/seleniumhq/docker-selenium/commit/d7fd6328ca9544a78fc0e80636d44ea4ef16aa0d) - [ci] Update chart 0.55.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.55.0
+
+- Chart is using image tag 4.44.0-20260505
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.19.0
+
+### Changed
+- [`afa75cd7`](http://github.com/seleniumhq/docker-selenium/commit/afa75cd715d23dcc10aae9e9de6d493bd9bb8ce2) - [ci] Update tag 4.44.0-20260505 in docs and files :: Selenium CI Bot
+- [`8d10f621`](http://github.com/seleniumhq/docker-selenium/commit/8d10f621fdbe9c1543ca52e8955fad6e07c3ae83) - Docker: Add Redis external datastore support for Distributor configuration (#3137) :: Viet Nguyen Duc
+- [`e13a4095`](http://github.com/seleniumhq/docker-selenium/commit/e13a40950bc11d4f06dbe943b49c415661d3f954) - Docker: Grid endpoint /metrics for exporter or K8s ServiceMonitor (#3135) :: Viet Nguyen Duc
+- [`6a51dc1a`](http://github.com/seleniumhq/docker-selenium/commit/6a51dc1a0cb5bd6be6df5f984db847560b4f7829) - Update Helm release traefik to v40 (#3130) :: renovate[bot]
+- [`44b85beb`](http://github.com/seleniumhq/docker-selenium/commit/44b85bebac18e29dd29a30f22b923d9e30f854fa) - Update Helm release kube-prometheus-stack to v85 (#3132) :: renovate[bot]
+- [`312af177`](http://github.com/seleniumhq/docker-selenium/commit/312af17764931dfe6d167ee5adc06aab7f49119d) - chart(feature): add dnsPolicy and dnsConfig support (#3126) :: Ilia Lazebnik
+- [`6b39a64a`](http://github.com/seleniumhq/docker-selenium/commit/6b39a64aafee054c31a88fe443312a29db862cea) - Update Helm release kube-prometheus-stack to v84 (#3124) :: renovate[bot]
+- [`a2aefd8e`](http://github.com/seleniumhq/docker-selenium/commit/a2aefd8e4316d8cd931d3f90a37dc2bf4c2c1200) - chart(selenium-grid): add ServiceMonitor and PodMonitor support for Prometheus Operator (#3121) :: Ilia Lazebnik
+- [`4b79f58b`](http://github.com/seleniumhq/docker-selenium/commit/4b79f58bda699b762cd7bd6bb72c6b3c0892dc32) - [ci] Update chart 0.54.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.54.0
 
 - Chart is using image tag 4.43.0-20260404

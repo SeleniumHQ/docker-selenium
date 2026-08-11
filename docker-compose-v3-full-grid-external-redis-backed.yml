@@ -1,9 +1,9 @@
-# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid.yml up`
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid-external-redis-backed.yml up`
 # Add the `-d` flag at the end for detached execution
-# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid.yml down`
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-external-redis-backed.yml down`
 services:
   selenium-event-bus:
-    image: selenium/event-bus:4.43.0-20260404
+    image: selenium/event-bus:4.46.0-20260707
     container_name: selenium-event-bus
     ports:
       - "4442:4442"
@@ -11,7 +11,7 @@ services:
       - "5557:5557"
 
   selenium-sessions:
-    image: selenium/sessions:4.43.0-20260404
+    image: selenium/sessions:4.46.0-20260707
     container_name: selenium-sessions
     ports:
       - "5556:5556"
@@ -20,42 +20,26 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_SESSIONS_MAP_EXTERNAL_DATASTORE=true
-      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap
-      - SE_SESSIONS_MAP_EXTERNAL_JDBC_URL=jdbc:postgresql://postgresql:5432/selenium_sessions
-      - SE_SESSIONS_MAP_EXTERNAL_JDBC_USER=seluser
-      - SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD=seluser
-# Uncomment the following lines to use Redis as the external datastore
-#      - SE_SESSIONS_MAP_EXTERNAL_SCHEME=redis
-#      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
-#      - SE_SESSIONS_MAP_EXTERNAL_HOSTNAME=redis
-#      - SE_SESSIONS_MAP_EXTERNAL_PORT=6379
-
-  postgresql:
-    image: postgres:latest
-    restart: always
-    environment:
-      - POSTGRES_USER=seluser
-      - POSTGRES_PASSWORD=seluser
-      - POSTGRES_DB=selenium_sessions
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./Sessions/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - SE_SESSIONS_MAP_EXTERNAL_SCHEME=redis
+      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap
+      - SE_SESSIONS_MAP_EXTERNAL_HOSTNAME=redis
+      - SE_SESSIONS_MAP_EXTERNAL_PORT=6379
 
   redis:
     image: redis:latest
     restart: always
-    ports:
-      - "6379:6379"
 
   selenium-session-queue:
-    image: selenium/session-queue:4.43.0-20260404
+    image: selenium/session-queue:4.46.0-20260707
     container_name: selenium-session-queue
     ports:
       - "5559:5559"
+    environment:
+      - SE_SESSION_QUEUE_IMPLEMENTATION=org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue
+      - SE_SESSION_QUEUE_BACKEND_URL=redis://redis:6379
 
   selenium-distributor:
-    image: selenium/distributor:4.43.0-20260404
+    image: selenium/distributor:4.46.0-20260707
     container_name: selenium-distributor
     ports:
       - "5553:5553"
@@ -67,9 +51,11 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
       - SE_SESSIONS_MAP_HOST=selenium-sessions
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
+      - SE_DISTRIBUTOR_IMPLEMENTATION=org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor
+      - SE_DISTRIBUTOR_BACKEND_URL=redis://redis:6379
 
   selenium-router:
-    image: selenium/router:4.43.0-20260404
+    image: selenium/router:4.46.0-20260707
     container_name: selenium-router
     ports:
       - "4444:4444"
@@ -83,7 +69,7 @@ services:
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
 
   chrome:
-    image: selenium/node-chrome:4.43.0-20260404
+    image: selenium/node-chrome:4.46.0-20260707
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -92,7 +78,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
 
   edge:
-    image: selenium/node-edge:4.43.0-20260404
+    image: selenium/node-edge:4.46.0-20260707
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -101,7 +87,7 @@ services:
       - SE_EVENT_BUS_HOST=selenium-event-bus
 
   firefox:
-    image: selenium/node-firefox:4.43.0-20260404
+    image: selenium/node-firefox:4.46.0-20260707
     shm_size: 2gb
     depends_on:
       - selenium-event-bus

@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-node-kubernetes
-          image: selenium/node-kubernetes:4.43.0-20260404
+          image: selenium/node-kubernetes:4.46.0-20260707
           ports:
             - containerPort: 5555
           env:
@@ -38,6 +38,8 @@ spec:
               value: "true"
             - name: SE_DYNAMIC_MAX_SESSIONS
               value: "10"
+            - name: SE_RECORD_VIDEO
+              value: "true"
           resources:
             requests:
               memory: "512Mi"

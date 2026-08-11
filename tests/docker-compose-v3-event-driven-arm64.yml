@@ -28,7 +28,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chromium:4.43.0-20260404
+    image: selenium/node-chromium:4.46.0-20260707
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -36,7 +36,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
       - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
@@ -54,7 +53,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.43.0-20260404
+    image: selenium/node-firefox:4.46.0-20260707
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -62,7 +61,6 @@ services:
       - /tmp/videos:/videos
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
-      - SE_RECORD_VIDEO=true
       - SE_RETAIN_ON_FAILURE=true
       # Remote name and destination path to upload
       - SE_UPLOAD_DESTINATION_PREFIX=myftp://ftp/seluser
@@ -77,7 +75,7 @@ services:
     stop_grace_period: 30s
 
   selenium-hub:
-    image: selenium/hub:4.43.0-20260404
+    image: selenium/hub:4.46.0-20260707
     container_name: selenium-hub
     ports:
       - "4442:4442"

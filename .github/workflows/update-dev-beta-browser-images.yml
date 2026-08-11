@@ -30,6 +30,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Chrome dev/beta are ahead of the Chromium driver packages, which follow the
+          # stable channel, so there is no matching driver for those majors on arm64
           - browser: chrome
             channel: dev
             platforms: linux/amd64

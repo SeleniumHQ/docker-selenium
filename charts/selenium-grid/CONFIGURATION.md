@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.54.0](https://img.shields.io/badge/Version-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.43.0-20260404](https://img.shields.io/badge/AppVersion-4.43.0--20260404-informational?style=flat-square)
+![Version: 0.57.0](https://img.shields.io/badge/Version-0.57.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.46.0-20260707](https://img.shields.io/badge/AppVersion-4.46.0--20260707-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -18,12 +18,12 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | ^18.0.0 |
-| https://charts.bitnami.com/bitnami | redis | ^25.0.0 |
+| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.19.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.34.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
-| https://kedacore.github.io/charts | keda | 2.19 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^85.0.0 |
-| https://traefik.github.io/charts | traefik | ^40.0.0 |
+| https://kedacore.github.io/charts | keda | ^2.20.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^88.0.0 |
+| https://traefik.github.io/charts | traefik | ^41.0.0 |
 
 ## Values
 
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.43.0-20260404"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.43.0-20260404"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260404"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.46.0-20260707"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.46.0-20260707"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260707"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -232,6 +232,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.distributor.newSessionThreadPoolSize | string | `nil` | Configure fixed-sized thread pool for the Distributor to create new sessions as it consumes new session requests from the queue |
 | components.distributor.slotSelectorStrategy | string | `""` | Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched |
+| components.distributor.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis:6379"}}` | Configure external datastore for Distributor. When enabled, all replicas share state through the backend (node registrations, slot reservations, health-check coordination), allowing zero-downtime rolling restarts. |
+| components.distributor.externalDatastore.enabled | bool | `false` | Enable external datastore for Distributor |
+| components.distributor.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
+| components.distributor.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed Distributor |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -309,15 +313,19 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.sessionMap.nodeSelector | object | `{}` | Node selector for Session Map pods |
 | components.sessionMap.priorityClassName | string | `""` | Priority class name for Session Map pods |
 | components.sessionMap.externalDatastore.enabled | bool | `false` | Enable external datastore for Session Map |
-| components.sessionMap.externalDatastore.backend | string | `"postgresql"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
+| components.sessionMap.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key |
 | components.sessionMap.externalDatastore.postgresql | object | `{"implementation":"org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap","jdbcPassword":"seluser","jdbcUrl":"jdbc:postgresql://{{ $.Release.Name }}-postgresql:5432/selenium_sessions","jdbcUser":"seluser"}` | Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map) |
-| components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis-master","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
+| components.sessionMap.externalDatastore.redis | object | `{"hostname":"{{ $.Release.Name }}-redis","implementation":"org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap","port":"6379","scheme":"redis"}` | Configure Redis backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#redis-backed-session-map) |
 | components.sessionQueue.imageRegistry | string | `nil` | Registry to pull the image (this overwrites global.seleniumGrid.imageRegistry parameter) |
 | components.sessionQueue.imageName | string | `"session-queue"` | Session Queue image name |
 | components.sessionQueue.imageTag | string | `nil` | Session Queue image tag (this overwrites global.seleniumGrid.imageTag parameter) |
 | components.sessionQueue.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy (see https://kubernetes.io/docs/concepts/containers/images/#updating-images) |
 | components.sessionQueue.imagePullSecret | string | `""` | Image pull secret (see https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) |
 | components.sessionQueue.sessionRequestTimeout | string | `""` | Override global sessionRequestTimeout |
+| components.sessionQueue.externalDatastore | object | `{"backend":"redis","enabled":false,"redis":{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}}` | Configure external datastore for SessionQueue. When enabled, all replicas share the queue state in Redis, allowing the tier to scale out horizontally behind a load balancer or Kubernetes Service. |
+| components.sessionQueue.externalDatastore.enabled | bool | `false` | Enable external datastore for SessionQueue |
+| components.sessionQueue.externalDatastore.backend | string | `"redis"` | Backend for external datastore (supported: redis) |
+| components.sessionQueue.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed SessionQueue |
 | components.sessionQueue.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Session Queue |
 | components.sessionQueue.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Session Queue |
 | components.sessionQueue.affinity | object | `{}` | Specify affinity for Session Queue pods, this overwrites global.seleniumGrid.affinity parameter |
@@ -439,6 +447,21 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.patchObjectFinalizers.resources | object | `{"limits":{"cpu":"200m","memory":"500Mi"},"requests":{"cpu":"100m","memory":"200Mi"}}` | Define resources for container in patch job |
 | autoscaling.patchObjectFinalizers.nodeSelector | object | `{}` | Node selector for the patch job |
 | autoscaling.patchObjectFinalizers.tolerations | list | `[]` | Tolerations for the patch job |
+| autoscaling.externalScaler.enabled | bool | `true` | Enable the external scaler instead of the built-in `selenium-grid` trigger |
+| autoscaling.externalScaler.nameOverride | string | `""` | Override the generated external scaler resource name |
+| autoscaling.externalScaler.imageRegistry | string | `""` | Container image registry for the external scaler (defaults to global registry) |
+| autoscaling.externalScaler.imageName | string | `"keda-external-scaler"` | Container image name for the external scaler |
+| autoscaling.externalScaler.imageTag | string | `""` | Container image tag for the external scaler (defaults to global.seleniumGrid.imageTag, like other grid images) |
+| autoscaling.externalScaler.imagePullPolicy | string | `"IfNotPresent"` | Image pull policy |
+| autoscaling.externalScaler.port | int | `8080` | gRPC port the external scaler listens on |
+| autoscaling.externalScaler.replicas | int | `1` | Number of external scaler replicas |
+| autoscaling.externalScaler.gridHttpTimeout | string | `"3s"` | Per-request timeout for the scaler's Grid GraphQL queries |
+| autoscaling.externalScaler.annotations | object | `{}` | Annotations for the external scaler Deployment/Service |
+| autoscaling.externalScaler.extraEnv | list | `[]` | Extra environment variables for the external scaler container |
+| autoscaling.externalScaler.nodeSelector | object | `{}` | Node selector for the external scaler |
+| autoscaling.externalScaler.tolerations | list | `[]` | Tolerations for the external scaler |
+| autoscaling.externalScaler.resources | object | `{"limits":{"cpu":"200m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"32Mi"}}` | Resources for the external scaler container |
+| autoscaling.externalScaler.securityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532,"seccompProfile":{"type":"RuntimeDefault"}}` | SecurityContext for the external scaler container. Defaults comply with Pod Security Admission `restricted` and Kyverno seccomp policies; override to customize. |
 | autoscaling.defaultTriggerType | string | `"selenium-grid"` | Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA) |
 | autoscaling.defaultTriggerName | string | `"seleniumGrid"` | Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec) |
 | autoscaling.scaledOptions | object | `{"maxReplicaCount":24,"minReplicaCount":0,"pollingInterval":20,"triggers":[]}` | Options for KEDA scaled resources (keep only common options used for both ScaledJob and ScaledObject) |
@@ -446,7 +469,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledOptions.maxReplicaCount | int | `24` | Maximum number of replicas |
 | autoscaling.scaledOptions.pollingInterval | int | `20` | Polling interval in seconds |
 | autoscaling.scaledOptions.triggers | list | `[]` | List of triggers. Be careful, the default trigger of `selenium-grid` will be overwritten if you specify this |
-| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"default"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
+| autoscaling.scaledJobOptions.scalingStrategy.strategy | string | `"accurate"` | Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy |
 | autoscaling.scaledJobOptions.successfulJobsHistoryLimit | int | `0` | Number of Completed jobs should be kept |
 | autoscaling.scaledJobOptions.failedJobsHistoryLimit | int | `0` | Number of Failed jobs should be kept (for troubleshooting purposes) |
 | autoscaling.scaledJobOptions.jobTargetRef | object | `{"backoffLimit":0,"completions":1,"parallelism":1}` | Specify job target ref for KEDA ScaledJob |
@@ -787,11 +810,10 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"grafana":{"adminPassword":"admin","adminUser":"admin"},"nodeExporter":{"enabled":false},"prometheusOperator":{"admissionWebhooks":{"enabled":false,"patch":{"enabled":false}},"tls":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
-| postgresql.image.repository | string | `"bitnamilegacy/postgresql"` |  |
+| postgresql.persistence | object | `{"enabled":false}` | Enable persistence using Persistent Volume Claims |
 | postgresql.auth | object | `{"database":"selenium_sessions","password":"seluser","username":"seluser"}` | Authentication should be aligned with config in session map |
-| postgresql.primary.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
+| postgresql.initdb.scripts | object | `{"init.sql":"CREATE TABLE IF NOT EXISTS sessions_map(\n  session_ids varchar(256),\n  session_caps text,\n  session_uri varchar(256),\n  session_stereotype text,\n  session_start varchar(256)\n);\n"}` | Initdb scripts for PostgreSQL to create sessions_map table |
 | redis.enabled | bool | `false` | Enable to install Redis along with Grid |
-| redis.image.repository | string | `"bitnamilegacy/redis"` |  |
 | redis.architecture | string | `"standalone"` | Setup architecture |
 | redis.auth.enabled | bool | `false` | Disable authentication due to implementation still not supporting it |
 

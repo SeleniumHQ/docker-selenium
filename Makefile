@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.44.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.44.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.44.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.47.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.47.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.47.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.45.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.44.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.48.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.47.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
@@ -30,11 +30,11 @@ SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
 SBOM_OUTPUT := $(or $(SBOM_OUTPUT),$(SBOM_OUTPUT),package_versions.txt)
-KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.19.0)
-KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.19.0)
-KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.19.0)
+KEDA_TAG_PREV_VERSION := $(or $(KEDA_TAG_PREV_VERSION),$(KEDA_TAG_PREV_VERSION),2.20.1)
+KEDA_CORE_VERSION := $(or $(KEDA_CORE_VERSION),$(KEDA_CORE_VERSION),2.20.1)
+KEDA_TAG_VERSION := $(or $(KEDA_TAG_VERSION),$(KEDA_TAG_VERSION),2.20.1)
 KEDA_BASED_NAME := $(or $(KEDA_BASED_NAME),$(KEDA_BASED_NAME),kedacore)
-KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.19.0)
+KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.20.1)
 TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
@@ -61,7 +61,8 @@ all: hub \
 	standalone_docker \
 	standalone_kubernetes \
 	standalone_all_browsers \
-	video
+	video \
+	keda_external_scaler
 
 check_dev_env:
 	./tests/charts/make/chart_check_env.sh
@@ -144,7 +145,50 @@ build_nightly:
 	BASE_VERSION=$(BASE_VERSION_NIGHTLY) BASE_RELEASE=$(BASE_RELEASE_NIGHTLY) make build
 
 build_exporter:
-	cd .monitoring/exporter && go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
+	cd .monitoring/exporter && go mod edit -go=$$(go env GOVERSION | sed 's/go//') && go mod tidy \
+	&& go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
+
+# Unit-test the Grid monitoring exporter. Run this after a Go toolchain or
+# dependency bump (e.g. `make update_go`) to catch regressions before release.
+test_exporter:
+	cd .monitoring/exporter && go vet ./... && go test ./... -race -covermode=atomic -cover
+
+# Unit-test the KEDA external scaler module.
+test_scaler:
+	cd .keda-external-scaler && go vet ./... && go test ./... -race -covermode=atomic -cover
+
+# Test every in-repo Go module. Mirrors the go-test.yml CI workflow; run after
+# `make update_go` to validate a toolchain/dependency bump locally.
+test_go_modules: test_exporter test_scaler
+
+# Container image providing the Go toolchain used by `update_go`. Defaults to the
+# latest stable Go so no host Go install is needed and updates always track upstream.
+GO_IMAGE ?= 'latest'
+GO_MODULES ?= .monitoring/exporter .keda-external-scaler
+# Dockerfiles with a `golang:` builder stage to keep in sync with the module Go version.
+# Hub and Router build the .monitoring/exporter module in their exporter-builder stage.
+GO_DOCKERFILES ?= .keda-external-scaler/Dockerfile Hub/Dockerfile Router/Dockerfile
+
+# Update the in-repo Go modules to the latest Go toolchain and dependencies using the
+# official Go container (override with GO_IMAGE=golang:1.27 to target a specific line).
+# For each module it bumps the `go` directive to the container's Go version, runs
+# `go get -u ./...` + `go mod tidy`, and aligns the `golang:` builder base image in the
+# Dockerfiles building those modules to the same Go minor so container builds stay in sync.
+update_go:
+	docker pull golang:$(GO_IMAGE)
+	@GO_VERSION="$$(docker run --rm golang:$(GO_IMAGE) go env GOVERSION | sed 's/go//')"; \
+	GO_MM="$$(echo $$GO_VERSION | sed -E 's/([0-9]+\.[0-9]+).*/\1/')"; \
+	echo "==> Using Go $$GO_VERSION from golang:$(GO_IMAGE)"; \
+	for dir in $(GO_MODULES); do \
+		echo "==> Updating Go module in $$dir"; \
+		docker run --rm -v "$(PWD)":/src -w "/src/$$dir" \
+		--user "$$(id -u):$$(id -g)" -e HOME=/tmp -e GOFLAGS=-mod=mod \
+		golang:$(GO_IMAGE) sh -c "go mod edit -go=$$GO_VERSION && go get -u ./... && go mod tidy"; \
+	done; \
+	for file in $(GO_DOCKERFILES); do \
+		echo "==> Aligning $$file base image to golang:$$GO_MM"; \
+		sed -i.bak -E "s#(golang:)(latest|[0-9]+\.[0-9]+)#\1$$GO_MM#g" $$file && rm -f $$file.bak; \
+	done
 
 copy_dashboards:
 	mkdir -p charts/selenium-grid/files/dashboards && cp -r .monitoring/dashboards/*.json charts/selenium-grid/files/dashboards/
@@ -161,7 +205,7 @@ gen_certs:
 	rm -rf ./Base/certs && mkdir -p ./Base/certs && cp -r ./charts/selenium-grid/certs/*.sh ./Base/certs
 	# ./Base/certs/gen-cert-helper.sh -d ./Base/certs
 
-base: prepare_resources gen_certs
+base: update_go prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
 	--secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
@@ -221,15 +265,7 @@ standalone_chrome-for-testing_only:
 standalone_chrome-for-testing: chrome-for-testing standalone_chrome-for-testing_only
 
 chrome_only:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& cd ./NodeChrome && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) . \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) -t $(NAME)/node-chrome:$(TAG_VERSION) .
 
 chrome: node_base chrome_only
 
@@ -308,15 +344,7 @@ standalone_firefox_beta: firefox_beta
 	--build-arg NAMESPACE=$(NAME) --build-arg VERSION=beta --build-arg BASE=node-firefox -t $(NAME)/standalone-firefox:beta .
 
 standalone_chrome_only:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& cd ./Standalone && docker buildx build --platform linux/amd64 $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) . \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	cd ./Standalone && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-chrome -t $(NAME)/standalone-chrome:$(TAG_VERSION) .
 
 standalone_chrome: chrome standalone_chrome_only
 
@@ -396,6 +424,13 @@ fetch_grid_scaler_images:
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda:$(KEDA_BASED_TAG)
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda-metrics-apiserver:$(KEDA_BASED_TAG)
 	docker pull --platform linux/amd64 --platform linux/arm64 $(KEDA_BASED_NAME)/keda-admission-webhooks:$(KEDA_BASED_TAG)
+
+# Build the standalone Selenium Grid KEDA external scaler image, following the same
+# build/tag/release convention as the other grid components (e.g. Hub). Tagged with the
+# Selenium Grid version ($(TAG_VERSION)) and released via the standard release* targets.
+keda_external_scaler:
+	cd ./.keda-external-scaler && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) \
+		-t $(NAME)/keda-external-scaler:$(TAG_VERSION) .
 
 release_grid_scaler: fetch_grid_scaler_images
 	docker buildx imagetools create -t $(NAME)/keda:$(KEDA_TAG_VERSION)-$(BUILD_DATE) $(KEDA_BASED_NAME)/keda:$(KEDA_BASED_TAG)
@@ -487,8 +522,7 @@ tag_and_push_browser_images_ghcr:
 		node-firefox standalone-firefox; do \
 		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-		docker.io/$(NAME)/$$image:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 	done ; \
 	done
 
@@ -496,16 +530,14 @@ mirror_browser_images_ghcr:
 	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
 		docker images --format "{{.Tag}}" "$(NAME)/$$image" | grep -v "^<none>$$" | while IFS= read -r tag; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-		docker.io/$(NAME)/$$image:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 	done ; \
 	done
 
 mirror_browser_channel_image_ghcr:
 	for image in node-$(BROWSER_NAME) standalone-$(BROWSER_NAME); do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:$(BROWSER_TAG) \
-		docker.io/$(NAME)/$$image:$(BROWSER_TAG) ; \
+		--tag $(GHCR_NAMESPACE)/$$image:$(BROWSER_TAG) docker.io/$(NAME)/$$image:$(BROWSER_TAG) ; \
 	done
 
 tag_ffmpeg_latest:
@@ -521,27 +553,28 @@ tag_latest:
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:latest
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:latest
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:latest
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:latest
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:latest
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:latest
 	docker tag $(NAME)/node-kubernetes:$(TAG_VERSION) $(NAME)/node-kubernetes:latest
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:latest
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:latest
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:latest
 	docker tag $(NAME)/standalone-docker:$(TAG_VERSION) $(NAME)/standalone-docker:latest
 	docker tag $(NAME)/standalone-kubernetes:$(TAG_VERSION) $(NAME)/standalone-kubernetes:latest
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:latest
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:latest
+	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:latest
 	case "$(PLATFORMS)" in *linux/amd64*) \
-		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:latest && \
 		docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:latest && \
-		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:latest && \
 		docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:latest && \
 		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:latest && \
 		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:latest \
 		;; \
 		*) \
-		echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+		echo "Tagged other images, except Chrome for Testing and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
 		;; \
 	esac
 
@@ -553,13 +586,13 @@ release_ffmpeg_latest:
 release_ffmpeg_ghcr_latest:
 	for tag in latest $(FFMPEG_VERSION) $(FFMPEG_VERSION)-$(BUILD_DATE); do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/ffmpeg:$$tag \
-		docker.io/$(NAME)/ffmpeg:$$tag ; \
+		--tag $(GHCR_NAMESPACE)/ffmpeg:$$tag docker.io/$(NAME)/ffmpeg:$$tag ; \
 	done
 
 release_latest:
 	docker push $(NAME)/base:latest
 	docker push $(NAME)/hub:latest
+	docker push $(NAME)/keda-external-scaler:latest
 	docker push $(NAME)/distributor:latest
 	docker push $(NAME)/router:latest
 	docker push $(NAME)/sessions:latest
@@ -590,10 +623,9 @@ release_ghcr_latest:
 		node-firefox node-docker node-kubernetes node-all-browsers \
 		standalone-chrome standalone-chromium standalone-chrome-for-testing \
 		standalone-edge standalone-firefox standalone-docker \
-		standalone-kubernetes standalone-all-browsers video; do \
+		standalone-kubernetes standalone-all-browsers keda-external-scaler video; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:latest \
-		docker.io/$(NAME)/$$image:latest ; \
+		--tag $(GHCR_NAMESPACE)/$$image:latest docker.io/$(NAME)/$$image:latest ; \
 	done
 
 generate_latest_sbom:
@@ -602,18 +634,21 @@ generate_latest_sbom:
 tag_nightly:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:nightly
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:nightly
+	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:nightly
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:nightly
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:nightly
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:nightly
 	docker tag $(NAME)/session-queue:$(TAG_VERSION) $(NAME)/session-queue:nightly
 	docker tag $(NAME)/event-bus:$(TAG_VERSION) $(NAME)/event-bus:nightly
 	docker tag $(NAME)/node-base:$(TAG_VERSION) $(NAME)/node-base:nightly
+	docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly
 	docker tag $(NAME)/node-chromium:$(TAG_VERSION) $(NAME)/node-chromium:nightly
 	docker tag $(NAME)/node-chrome-for-testing:$(TAG_VERSION) $(NAME)/node-chrome-for-testing:nightly
 	docker tag $(NAME)/node-firefox:$(TAG_VERSION) $(NAME)/node-firefox:nightly
 	docker tag $(NAME)/node-docker:$(TAG_VERSION) $(NAME)/node-docker:nightly
 	docker tag $(NAME)/node-kubernetes:$(TAG_VERSION) $(NAME)/node-kubernetes:nightly
 	docker tag $(NAME)/node-all-browsers:$(TAG_VERSION) $(NAME)/node-all-browsers:nightly
+	docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly
 	docker tag $(NAME)/standalone-chromium:$(TAG_VERSION) $(NAME)/standalone-chromium:nightly
 	docker tag $(NAME)/standalone-chrome-for-testing:$(TAG_VERSION) $(NAME)/standalone-chrome-for-testing:nightly
 	docker tag $(NAME)/standalone-firefox:$(TAG_VERSION) $(NAME)/standalone-firefox:nightly
@@ -622,19 +657,18 @@ tag_nightly:
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:nightly
 	docker tag $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) $(NAME)/video:nightly
 	case "$(PLATFORMS)" in *linux/amd64*) \
-		docker tag $(NAME)/node-chrome:$(TAG_VERSION) $(NAME)/node-chrome:nightly && \
-		docker tag $(NAME)/standalone-chrome:$(TAG_VERSION) $(NAME)/standalone-chrome:nightly && \
 		docker tag $(NAME)/node-edge:$(TAG_VERSION) $(NAME)/node-edge:nightly && \
 		docker tag $(NAME)/standalone-edge:$(TAG_VERSION) $(NAME)/standalone-edge:nightly \
 		;; \
 		*) \
-		echo "Tagged other images, except Chrome and Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
+		echo "Tagged other images, except Edge Node/Standalone don't support platform $(PLATFORMS)" ; \
 		;; \
 	esac
 
 release_nightly:
 	docker push $(NAME)/base:nightly
 	docker push $(NAME)/hub:nightly
+	docker push $(NAME)/keda-external-scaler:nightly
 	docker push $(NAME)/distributor:nightly
 	docker push $(NAME)/router:nightly
 	docker push $(NAME)/sessions:nightly
@@ -665,10 +699,9 @@ release_ghcr_nightly:
 		node-firefox node-docker node-kubernetes node-all-browsers \
 		standalone-chrome standalone-chromium standalone-chrome-for-testing \
 		standalone-edge standalone-firefox standalone-docker \
-		standalone-kubernetes standalone-all-browsers video; do \
+		standalone-kubernetes standalone-all-browsers keda-external-scaler video; do \
 		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/$$image:nightly \
-		docker.io/$(NAME)/$$image:nightly ; \
+		--tag $(GHCR_NAMESPACE)/$$image:nightly docker.io/$(NAME)/$$image:nightly ; \
 	done
 
 generate_nightly_sbom:
@@ -677,6 +710,7 @@ generate_nightly_sbom:
 tag_major_minor:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR)
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:$(MAJOR)
+	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:$(MAJOR)
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR)
@@ -701,6 +735,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR)
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:$(MAJOR).$(MINOR)
+	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR).$(MINOR)
@@ -725,6 +760,7 @@ tag_major_minor:
 	docker tag $(NAME)/standalone-all-browsers:$(TAG_VERSION) $(NAME)/standalone-all-browsers:$(MAJOR).$(MINOR)
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:$(MAJOR_MINOR_PATCH)
+	docker tag $(NAME)/keda-external-scaler:$(TAG_VERSION) $(NAME)/keda-external-scaler:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/distributor:$(TAG_VERSION) $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/router:$(TAG_VERSION) $(NAME)/router:$(MAJOR_MINOR_PATCH)
 	docker tag $(NAME)/sessions:$(TAG_VERSION) $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
@@ -751,6 +787,7 @@ tag_major_minor:
 release: tag_major_minor
 	@if ! docker images --format table $(NAME)/base | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/base version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/hub | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/hub version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
+	@if ! docker images --format table $(NAME)/keda-external-scaler | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/keda-external-scaler version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/distributor | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/distributor version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/router | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/router version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	@if ! docker images --format table $(NAME)/sessions | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/sessions version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
@@ -775,6 +812,7 @@ release: tag_major_minor
 	@if ! docker images --format table $(NAME)/standalone-all-browsers | awk '{ print $$2 }' | grep -q -F $(TAG_VERSION); then echo "$(NAME)/standalone-all-browsers version $(TAG_VERSION) is not yet built. Please run 'make build'"; false; fi
 	docker push $(NAME)/base:$(TAG_VERSION)
 	docker push $(NAME)/hub:$(TAG_VERSION)
+	docker push $(NAME)/keda-external-scaler:$(TAG_VERSION)
 	docker push $(NAME)/distributor:$(TAG_VERSION)
 	docker push $(NAME)/router:$(TAG_VERSION)
 	docker push $(NAME)/sessions:$(TAG_VERSION)
@@ -799,6 +837,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-all-browsers:$(TAG_VERSION)
 	docker push $(NAME)/base:$(MAJOR)
 	docker push $(NAME)/hub:$(MAJOR)
+	docker push $(NAME)/keda-external-scaler:$(MAJOR)
 	docker push $(NAME)/distributor:$(MAJOR)
 	docker push $(NAME)/router:$(MAJOR)
 	docker push $(NAME)/sessions:$(MAJOR)
@@ -823,6 +862,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-all-browsers:$(MAJOR)
 	docker push $(NAME)/base:$(MAJOR).$(MINOR)
 	docker push $(NAME)/hub:$(MAJOR).$(MINOR)
+	docker push $(NAME)/keda-external-scaler:$(MAJOR).$(MINOR)
 	docker push $(NAME)/distributor:$(MAJOR).$(MINOR)
 	docker push $(NAME)/router:$(MAJOR).$(MINOR)
 	docker push $(NAME)/sessions:$(MAJOR).$(MINOR)
@@ -847,6 +887,7 @@ release: tag_major_minor
 	docker push $(NAME)/standalone-all-browsers:$(MAJOR).$(MINOR)
 	docker push $(NAME)/base:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/hub:$(MAJOR_MINOR_PATCH)
+	docker push $(NAME)/keda-external-scaler:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/distributor:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/router:$(MAJOR_MINOR_PATCH)
 	docker push $(NAME)/sessions:$(MAJOR_MINOR_PATCH)
@@ -877,16 +918,14 @@ release_ghcr:
 		node-firefox node-docker node-kubernetes node-all-browsers \
 		standalone-chrome standalone-chromium standalone-chrome-for-testing \
 		standalone-edge standalone-firefox standalone-docker \
-		standalone-kubernetes standalone-all-browsers; do \
+		standalone-kubernetes standalone-all-browsers keda-external-scaler; do \
 		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
 			docker buildx imagetools create \
-			--tag $(GHCR_NAMESPACE)/$$image:$$tag \
-			docker.io/$(NAME)/$$image:$$tag ; \
+			--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
 		done ; \
 	done
 	docker buildx imagetools create \
-	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
-	  docker.io/$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
+	  --tag $(GHCR_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) docker.io/$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)
 
 start_test_site:
 	@docker rm -f the-internet 2>/dev/null || true
@@ -912,37 +951,13 @@ test: test_chrome \
 	test_standalone_all_browsers
 
 test_chrome:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh NodeChrome
 
 test_chrome_standalone:
-	case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/bootstrap.sh StandaloneChrome
 
 test_chrome_standalone_java:
-	set -e; case "$(PLATFORMS)" in \
-		*linux/amd64*) \
-		echo "Google Chrome is only supported on linux/amd64" \
-		&& PLATFORMS=linux/amd64 VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome \
-		;; \
-		*) \
-		echo "Google Chrome doesn't support platform $(PLATFORMS)" ; \
-		;; \
-	esac
+	PLATFORMS=$(PLATFORMS) VERSION=$(TAG_VERSION) NAMESPACE=$(NAMESPACE) BASE_RELEASE=$(BASE_RELEASE) BASE_VERSION=$(BASE_VERSION) BINDING_VERSION=$(BINDING_VERSION) SKIP_BUILD=true ./tests/SeleniumJavaTests/bootstrap_java.sh chrome standalone-chrome
 
 test_edge:
 	set -e; case "$(PLATFORMS)" in \
@@ -1215,15 +1230,17 @@ test_node_relay: hub node_base standalone_firefox
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
 	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
+	SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_standalone_docker_video_sidecar: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_video_sidecar_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
 	RECORD_STANDALONE=true GRID_URL=http://0.0.0.0:4444 LIST_OF_TESTS_AMD64="DeploymentAutoscaling" TEST_PARALLEL_HARDENING=true TEST_DELAY_AFTER_TEST=0 \
+	SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true \
 	SELENIUM_ENABLE_MANAGED_DOWNLOADS=true LOG_LEVEL=SEVERE SKIP_CHECK_DOWNLOADS_VOLUME=true make test_node_docker
 
 test_node_docker_video_sidecar:
-	CONFIG_FILE=config_video_sidecar.toml make test_node_docker
+	CONFIG_FILE=config_video_sidecar.toml SE_UPLOAD_RETAIN_LOCAL_FILE=true CHECK_VIDEO_SESSION_LAYOUT=true make test_node_docker
 
 test_node_docker: hub standalone_docker standalone_chrome standalone_firefox standalone_edge standalone_chromium video
 	sudo rm -rf ./tests/tests
@@ -1252,6 +1269,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
+		echo SE_UPLOAD_RETAIN_LOCAL_FILE=$(or $(SE_UPLOAD_RETAIN_LOCAL_FILE), "false") >> .env ; \
 		echo GRID_URL=$(or $(GRID_URL), "") >> .env ; \
 		echo HUB_CHECKS_INTERVAL=$(or $(HUB_CHECKS_INTERVAL), 20) >> .env ; \
 		echo TEST_CUSTOM_SPECIFIC_NAME=$(or $(TEST_CUSTOM_SPECIFIC_NAME), "true") >> .env ; \
@@ -1296,6 +1314,17 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 					exit 1 ; \
 				fi ; \
 	done
+	if [ "$(CHECK_VIDEO_SESSION_LAYOUT)" = "true" ]; then \
+		echo "Verify each recording is stored once per session under ./tests/videos/<sessionId>/" ; \
+		echo "(inline must not scatter into the assets root; the external video sidecar must not double-nest)" ; \
+		flat=$$(find ./tests/videos -maxdepth 1 -type f -name '*.mp4') ; \
+		if [ -n "$$flat" ]; then echo "Recordings found flat in the assets root:" ; echo "$$flat" ; exit 1 ; fi ; \
+			nested=$$(find ./tests/videos -mindepth 3 -type f -name '*.mp4' ! -path './tests/videos/upload/*' ! -path './tests/videos/Downloads/*') ; \
+			if [ -n "$$nested" ]; then echo "Recordings nested below the per-session folder (double-nested <sessionId>/<sessionId>/):" ; echo "$$nested" ; exit 1 ; fi ; \
+				session_videos=$$(find ./tests/videos -mindepth 2 -maxdepth 2 -type f -name '*.mp4' ! -path './tests/videos/upload/*' ! -path './tests/videos/Downloads/*') ; \
+				if [ -z "$$session_videos" ]; then echo "No recordings found in per-session subfolders under ./tests/videos" ; exit 1 ; fi ; \
+					echo "Recordings stored one per session:" ; echo "$$session_videos" ; \
+				fi
 	make test_video_integrity
 
 test_custom_ca_cert:
@@ -1345,7 +1374,7 @@ chart_test_template:
 	./tests/charts/bootstrap.sh
 
 chart_render_template:
-	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay chart_test_autoscaling_playwright_connect_grid_hub
+	RENDER_HELM_TEMPLATE_ONLY=true NAMESPACE=$(NAME) KEDA_TAG_VERSION=$(KEDA_TAG_VERSION) BUILD_DATE=$(BUILD_DATE) make chart_test_autoscaling_disabled chart_test_autoscaling_deployment_https chart_test_autoscaling_deployment chart_test_autoscaling_job_https chart_test_autoscaling_job_hostname chart_test_autoscaling_job chart_test_autoscaling_job_externalScaler chart_test_autoscaling_playwright_connect_grid chart_test_autoscaling_job_relay
 
 chart_test_autoscaling_disabled:
 	PLATFORMS=$(PLATFORMS) TEST_CHROMIUM=true RELEASE_NAME=selenium SELENIUM_GRID_AUTOSCALING=false CHART_ENABLE_TRACING=true TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) TEST_CUSTOM_SPECIFIC_NAME=true SELENIUM_GRID_MONITORING=false \
@@ -1397,14 +1426,14 @@ chart_test_autoscaling_job_relay:
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
 chart_test_autoscaling_job_multiple_versions_without_explicit:
-	TEST_MULTIPLE_VERSIONS=true TEST_MULTIPLE_VERSIONS_EXPLICIT=false make chart_test_autoscaling_job
+	TEST_MULTIPLE_VERSIONS=false TEST_MULTIPLE_VERSIONS_EXPLICIT=false make chart_test_autoscaling_job
 
 chart_test_autoscaling_job_without_multiple_versions:
 	TEST_MULTIPLE_VERSIONS=false make chart_test_autoscaling_job
 
 chart_test_autoscaling_job:
 	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=true CHART_FULL_DISTRIBUTED_MODE=true SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) \
-	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "true") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "true") \
+	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "false") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "false") \
 	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_existingKEDA_prefixSelenium_nodeChromium_enableTracing.yaml" \
@@ -1418,13 +1447,13 @@ chart_test_autoscaling_playwright_connect_grid:
 	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_basicAuth_secureIngress_ingressPublicIP_autoScaling_patchKEDA.yaml" \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
-chart_test_autoscaling_playwright_connect_grid_hub:
-	PLATFORMS=$(PLATFORMS) CHART_FULL_DISTRIBUTED_MODE=false MATRIX_TESTS=CDPTests TEST_MULTIPLE_VERSIONS=false SELENIUM_GRID_MONITORING=false \
-	CHART_ENABLE_BASIC_AUTH=true BASIC_AUTH_USERNAME=docker-selenium BASIC_AUTH_PASSWORD=2NMI4jdBi6k7bENoeUfV25295VvzwAE9chM24a+2VL95uOHozo \
-	SECURE_INGRESS_ONLY_DEFAULT=true INGRESS_DISABLE_USE_HTTP2=true SECURE_USE_EXTERNAL_CERT=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=$$(hostname -I | cut -d' ' -f1) SELENIUM_GRID_PORT=443 \
+chart_test_autoscaling_job_externalScaler:
+	PLATFORMS=$(PLATFORMS) TEST_EXISTING_KEDA=true TEST_EXTERNAL_SCALER=true RELEASE_NAME=selenium CHART_ENABLE_TRACING=false CHART_FULL_DISTRIBUTED_MODE=false SELENIUM_GRID_MONITORING=false TEST_PATCHED_KEDA=$(TEST_PATCHED_KEDA) SCALING_STRATEGY=accurate \
+	CLEAR_POD_HISTORY=true TEST_MULTIPLE_VERSIONS=$(or $(TEST_MULTIPLE_VERSIONS), "false") TEST_MULTIPLE_VERSIONS_EXPLICIT=$(or $(TEST_MULTIPLE_VERSIONS_EXPLICIT), "false") \
+	SECURE_INGRESS_ONLY_CONFIG_INLINE=true SECURE_USE_EXTERNAL_CERT=true CHART_ENABLE_INGRESS_HOSTNAME=true SELENIUM_GRID_PROTOCOL=https SELENIUM_GRID_HOST=selenium-grid.prod SUB_PATH=/ SELENIUM_GRID_PORT=443 \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
-	TEMPLATE_OUTPUT_FILENAME="k8s_playwright_connect_grid_secureIngress_disableHttp2_autoScaling_deployment.yaml" \
-	./tests/charts/make/chart_test.sh DeploymentAutoscaling
+	TEMPLATE_OUTPUT_FILENAME="k8s_fullDistributed_secureIngress_externalCerts_ingressHostName_ingressTLSInline_autoScaling_scaledJob_externalScaler_prefixSelenium_nodeChromium.yaml" \
+	./tests/charts/make/chart_test.sh JobAutoscaling
 
 test_k8s_autoscaling_job_count_strategy_default_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \
@@ -1461,11 +1490,27 @@ chart_test_delete:
 	helm del selenium -n selenium || true
 	helm del keda -n keda || true
 
+# Dynamic Grid on Kubernetes, deploys kubernetes/DynamicGrid manifests with the images built locally.
+# Requires a cluster with those images available, see `make chart_cluster_setup`.
+test_k8s_dynamic_grid: test_k8s_dynamic_grid_standalone test_k8s_dynamic_grid_hub_node
+
+test_k8s_dynamic_grid_standalone:
+	PLATFORMS=$(PLATFORMS) NAMESPACE=$(NAMESPACE) VERSION=$(TAG_VERSION) BUILD_DATE=$(BUILD_DATE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/k8s/make/dynamic_grid_test.sh Standalone
+
+test_k8s_dynamic_grid_hub_node:
+	PLATFORMS=$(PLATFORMS) NAMESPACE=$(NAMESPACE) VERSION=$(TAG_VERSION) BUILD_DATE=$(BUILD_DATE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
+	./tests/k8s/make/dynamic_grid_test.sh HubNode
+
 .PHONY: \
 	all \
 	base \
 	build \
 	build_exporter \
+	test_exporter \
+	test_scaler \
+	test_go_modules \
+	update_go \
 	ci \
 	chrome \
 	chromium \

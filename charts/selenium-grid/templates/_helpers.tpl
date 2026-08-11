@@ -279,10 +279,17 @@ Common autoscaling spec template
   {{- end -}}
 {{- end -}}
 {{- if not $.Values.autoscaling.scaledOptions.triggers }}
+{{- $useExternalScaler := $.Values.autoscaling.externalScaler.enabled }}
 triggers:
-  - type: {{ $.Values.autoscaling.defaultTriggerType }}
+  - type: {{ $useExternalScaler | ternary "external" $.Values.autoscaling.defaultTriggerType }}
     name: {{ $.Values.autoscaling.defaultTriggerName }}
     metadata:
+    {{- if $useExternalScaler }}
+      scalerAddress: {{ include "seleniumGrid.externalScaler.address" $ | quote }}
+    {{- end }}
+    {{- if and (eq $.Values.autoscaling.scalingType "job") (not (hasKey (default dict .node.hpa) "jobScalingStrategy")) }}
+      jobScalingStrategy: {{ dig "scalingStrategy" "strategy" "default" $spec | quote }}
+    {{- end }}
     {{- with .node.hpa }}
       {{- range $key, $value := . }}
       {{- if not (empty $value) }}
@@ -299,8 +306,10 @@ triggers:
       capabilities: {{ $nodeCustomCapabilities | quote }}
       {{- end }}
     {{- end }}
+    {{- if not $useExternalScaler }}
     authenticationRef:
       name: {{ template "seleniumGrid.autoscaling.authenticationRef.fullname" $ }}
+    {{- end }}
     useCachedMetrics: {{ $.Values.autoscaling.useCachedMetrics }}
   {{- if $.Values.autoscaling.triggerName }}
     name: {{ $.Values.autoscaling.triggerName | quote }}
@@ -329,6 +338,22 @@ Component update strategy template
 {{- $spec = toYaml (dict "type" "Recreate") -}}
 {{- end -}}
 {{ $spec | nindent 4 }}
+{{- end -}}
+
+{{/*
+Replica count for a distributed component (Distributor, SessionQueue, SessionMap).
+The value from `.replicas` is honored only when the component's external datastore is
+enabled, since replicas share state through it. Without an external datastore, running
+multiple replicas would break the grid (no shared state), so the count is forced to 1.
+Pass the component config, e.g. `.Values.components.distributor`.
+*/}}
+{{- define "seleniumGrid.component.replicaCount" -}}
+{{- $component := . -}}
+{{- if (dig "externalDatastore" "enabled" false $component) -}}
+{{- max 1 ($component.replicas | int) -}}
+{{- else -}}
+1
+{{- end -}}
 {{- end -}}
 
 {{/*

@@ -87,6 +87,14 @@ if [ ! -z "$SE_REGISTRATION_SECRET" ]; then
   append_se_opts "--registration-secret" "${SE_REGISTRATION_SECRET}" "false"
 fi
 
+if [ ! -z "$SE_SESSION_QUEUE_IMPLEMENTATION" ]; then
+  append_se_opts "--sessionqueue-implementation" "${SE_SESSION_QUEUE_IMPLEMENTATION}"
+fi
+
+if [ ! -z "$SE_SESSION_QUEUE_BACKEND_URL" ]; then
+  append_se_opts "--sessionqueue-backend-url" "${SE_SESSION_QUEUE_BACKEND_URL}"
+fi
+
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
   EXTRA_LIBS="--ext ${SE_EXTRA_LIBS}"

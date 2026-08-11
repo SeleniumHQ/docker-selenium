@@ -7,11 +7,11 @@ global:
     # -- Image registry for all selenium components
     imageRegistry: selenium
     # -- Image tag for all selenium components
-    imageTag: 4.43.0-20260404
+    imageTag: 4.46.0-20260707
     # -- Image tag for browser's nodes
-    nodesImageTag: 4.43.0-20260404
+    nodesImageTag: 4.46.0-20260707
     # -- Image tag for browser's video recorder
-    videoImageTag: ffmpeg-8.1-20260404
+    videoImageTag: ffmpeg-8.1-20260707
     # -- kubectl image is used to execute kubectl commands in utility jobs
     kubectlImage: bitnamilegacy/kubectl:latest
     # -- Pull secret for all components, can be overridden individually
@@ -566,6 +566,18 @@ components:
     newSessionThreadPoolSize:
     # -- Full class name of non-default slot selector. This is used to select a slot in a Node once the Node has been matched
     slotSelectorStrategy: ""
+    # -- Configure external datastore for Distributor. When enabled, all replicas share state
+    # through the backend (node registrations, slot reservations, health-check coordination),
+    # allowing zero-downtime rolling restarts.
+    externalDatastore:
+      # -- Enable external datastore for Distributor
+      enabled: false
+      # -- Backend for external datastore (supported: redis)
+      backend: redis
+      # -- Configure Redis backed Distributor
+      redis:
+        implementation: "org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor"
+        url: "redis://{{ $.Release.Name }}-redis:6379"
     # -- Specify extra environment variables for Distributor
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
@@ -771,7 +783,7 @@ components:
       # -- Enable external datastore for Session Map
       enabled: false
       # -- Backend for external datastore (supported: postgresql, redis). Details for each backend are described below config key
-      backend: postgresql
+      backend: redis
       # -- Configure database backed Session Map (https://www.selenium.dev/documentation/grid/advanced_features/external_datastore/#database-backed-session-map)
       postgresql:
         implementation: "org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap"
@@ -782,7 +794,7 @@ components:
       redis:
         scheme: "redis"
         implementation: "org.openqa.selenium.grid.sessionmap.redis.RedisBackedSessionMap"
-        hostname: "{{ $.Release.Name }}-redis-master"
+        hostname: "{{ $.Release.Name }}-redis"
         port: "6379"
 
   # Configuration for Session Queue component
@@ -800,6 +812,19 @@ components:
     imagePullSecret: ""
     # -- Override global sessionRequestTimeout
     sessionRequestTimeout: ""
+
+    # -- Configure external datastore for SessionQueue. When enabled, all replicas share the queue
+    # state in Redis, allowing the tier to scale out horizontally behind a load balancer or
+    # Kubernetes Service.
+    externalDatastore:
+      # -- Enable external datastore for SessionQueue
+      enabled: false
+      # -- Backend for external datastore (supported: redis)
+      backend: redis
+      # -- Configure Redis backed SessionQueue
+      redis:
+        implementation: "org.openqa.selenium.grid.sessionqueue.redis.RedisBackedNewSessionQueue"
+        url: "redis://{{ $.Release.Name }}-redis:6379"
 
     # -- Specify extra environment variables for Session Queue
     extraEnvironmentVariables: []
@@ -1152,6 +1177,56 @@ autoscaling:
     nodeSelector: {}
     # -- Tolerations for the patch job
     tolerations: []
+  # Use the standalone Selenium Grid KEDA external scaler instead of KEDA's built-in `selenium-grid` scaler.
+  # When enabled, the chart deploys the external scaler (Deployment + Service) and switches node triggers to
+  # `type: external` pointing at it. Grid URL and basic-auth credentials are mounted into the scaler from the
+  # existing chart Secrets (KEDA does not forward TriggerAuthentication authParams to external scalers).
+  externalScaler:
+    # -- Enable the external scaler instead of the built-in `selenium-grid` trigger
+    enabled: true
+    # -- Override the generated external scaler resource name
+    nameOverride: ""
+    # -- Container image registry for the external scaler (defaults to global registry)
+    imageRegistry: ""
+    # -- Container image name for the external scaler
+    imageName: keda-external-scaler
+    # -- Container image tag for the external scaler (defaults to global.seleniumGrid.imageTag, like other grid images)
+    imageTag: ""
+    # -- Image pull policy
+    imagePullPolicy: IfNotPresent
+    # -- gRPC port the external scaler listens on
+    port: 8080
+    # -- Number of external scaler replicas
+    replicas: 1
+    # -- Per-request timeout for the scaler's Grid GraphQL queries
+    gridHttpTimeout: "3s"
+    # -- Annotations for the external scaler Deployment/Service
+    annotations: {}
+    # -- Extra environment variables for the external scaler container
+    extraEnv: []
+    # -- Node selector for the external scaler
+    nodeSelector: {}
+    # -- Tolerations for the external scaler
+    tolerations: []
+    # -- Resources for the external scaler container
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+    # -- SecurityContext for the external scaler container. Defaults comply with Pod Security Admission `restricted` and Kyverno seccomp policies; override to customize.
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65532
+      runAsGroup: 65532
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop: ["ALL"]
   # -- Default type of trigger to use (`selenium-grid` is build-in scaler in KEDA)
   defaultTriggerType: "selenium-grid"
   # -- Default alias name of trigger type (which is used in formula if you want to add scalingModifiers to advanced spec)
@@ -1171,7 +1246,7 @@ autoscaling:
   scaledJobOptions:
     scalingStrategy:
       # -- Scaling strategy for KEDA ScaledJob - https://keda.sh/docs/latest/reference/scaledjob-spec/#scalingstrategy
-      strategy: default
+      strategy: "accurate"
     # -- Number of Completed jobs should be kept
     successfulJobsHistoryLimit: 0
     # -- Number of Failed jobs should be kept (for troubleshooting purposes)
@@ -2335,36 +2410,34 @@ jaeger:
   storage:
     type: badger
 
-# Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/bitnami/postgresql)
+# Configuration for dependency chart PostgreSQL (README: https://artifacthub.io/packages/helm/cloudpirates/postgres)
 postgresql:
   # -- Enable to install PostgreSQL along with Grid
   enabled: false
-  image:
-    repository: bitnamilegacy/postgresql
+  # -- Enable persistence using Persistent Volume Claims
+  persistence:
+    enabled: false
   # -- Authentication should be aligned with config in session map
   auth:
     username: "seluser"
     password: "seluser"
     database: "selenium_sessions"
-  primary:
-    initdb:
-      # -- Initdb scripts for PostgreSQL to create sessions_map table
-      scripts:
-        init.sql: |
-          CREATE TABLE IF NOT EXISTS sessions_map(
-            session_ids varchar(256),
-            session_caps text,
-            session_uri varchar(256),
-            session_stereotype text,
-            session_start varchar(256)
-          );
+  initdb:
+    # -- Initdb scripts for PostgreSQL to create sessions_map table
+    scripts:
+      init.sql: |
+        CREATE TABLE IF NOT EXISTS sessions_map(
+          session_ids varchar(256),
+          session_caps text,
+          session_uri varchar(256),
+          session_stereotype text,
+          session_start varchar(256)
+        );
 
-# Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/bitnami/redis)
+# Configuration for dependency chart Redis (README: https://artifacthub.io/packages/helm/cloudpirates/redis)
 redis:
   # -- Enable to install Redis along with Grid
   enabled: false
-  image:
-    repository: bitnamilegacy/redis
   # -- Setup architecture
   architecture: standalone
   auth:

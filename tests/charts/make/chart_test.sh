@@ -25,7 +25,7 @@ WEB_DRIVER_WAIT_TIMEOUT=${WEB_DRIVER_WAIT_TIMEOUT:-120}
 AUTOSCALING_POLL_INTERVAL=${AUTOSCALING_POLL_INTERVAL:-20}
 AUTOSCALING_COOLDOWN_PERIOD=${AUTOSCALING_COOLDOWN_PERIOD:-"1800"}
 ENABLE_VIDEO_RECORDER=${ENABLE_VIDEO_RECORDER:-"true"}
-SCALING_STRATEGY=${SCALING_STRATEGY:-"default"}
+SCALING_STRATEGY=${SCALING_STRATEGY:-"accurate"}
 SKIP_CLEANUP=${SKIP_CLEANUP:-"true"} # For debugging purposes, retain the cluster after the test run
 CHART_CERT_PATH=${CHART_CERT_PATH:-"${CHART_PATH}/certs/tls.crt"}
 SSL_CERT_DIR=${SSL_CERT_DIR:-"/etc/ssl/certs"}
@@ -42,6 +42,7 @@ BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 INGRESS_DISABLE_USE_HTTP2=${INGRESS_DISABLE_USE_HTTP2:-false}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"false"}
+TEST_EXTERNAL_SCALER=${TEST_EXTERNAL_SCALER:-"false"}
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 RENDER_HELM_TEMPLATE_ONLY=${RENDER_HELM_TEMPLATE_ONLY:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
@@ -65,7 +66,7 @@ BASIC_AUTH_EMBEDDED_URL=${BASIC_AUTH_EMBEDDED_URL:-"false"}
 SELENIUM_GRID_MONITORING=${SELENIUM_GRID_MONITORING:-"true"}
 TEST_EXISTING_PTS=${TEST_EXISTING_PTS:-"false"}
 TEST_MULTIPLE_VERSIONS=${TEST_MULTIPLE_VERSIONS:-"false"}
-TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"true"}
+TEST_MULTIPLE_VERSIONS_EXPLICIT=${TEST_MULTIPLE_VERSIONS_EXPLICIT:-"false"}
 TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS:-"false"}
 TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY:-"false"}
 TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME:-"false"}
@@ -232,6 +233,14 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   "
 fi
 
+# Deterministically pin the scaler mode per test (the chart default is external);
+# built-in strategies keep TEST_EXTERNAL_SCALER=false so they still cover selenium-grid.
+if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set autoscaling.externalScaler.enabled=${TEST_EXTERNAL_SCALER} \
+  "
+fi
+
 if [ "${TEST_EXTERNAL_DATASTORE}" = "postgresql" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set components.sessionMap.externalDatastore.enabled=true \
@@ -243,6 +252,14 @@ elif [ "${TEST_EXTERNAL_DATASTORE}" = "redis" ]; then
   --set components.sessionMap.externalDatastore.enabled=true \
   --set components.sessionMap.externalDatastore.backend=redis \
   --set redis.enabled=true \
+  "
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set components.distributor.externalDatastore.enabled=true \
+  --set components.distributor.externalDatastore.backend=redis \
+  "
+  HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
+  --set components.sessionQueue.externalDatastore.enabled=true \
+  --set components.sessionQueue.externalDatastore.backend=redis \
   "
 fi
 

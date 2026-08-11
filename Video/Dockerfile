@@ -47,6 +47,7 @@ ENV DISPLAY_NUM="99" \
     SE_VIDEO_FILE_NAME="video.mp4" \
     SE_VIDEO_FILE_NAME_TRIM_REGEX="[^a-zA-Z0-9-_]" \
     SE_VIDEO_FILE_NAME_SUFFIX="true" \
+    SE_VIDEO_SESSION_SUBFOLDER="false" \
     # Environment variables for the uploader
     RCLONE_CONFIG="/opt/selenium/upload.conf" \
     SE_VIDEO_UPLOAD_ENABLED="false" \

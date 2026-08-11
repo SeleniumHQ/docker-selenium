@@ -224,6 +224,20 @@ KEDA TriggerAuthentication resource fullname
 {{- end -}}
 
 {{/*
+Selenium Grid KEDA external scaler fullname
+*/}}
+{{- define "seleniumGrid.externalScaler.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-keda-external-scaler" $)) .Values.autoscaling.externalScaler.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Selenium Grid KEDA external scaler address (host:port) used as trigger scalerAddress
+*/}}
+{{- define "seleniumGrid.externalScaler.address" -}}
+{{- printf "%s.%s.svc:%v" (include "seleniumGrid.externalScaler.fullname" $) .Release.Namespace .Values.autoscaling.externalScaler.port -}}
+{{- end -}}
+
+{{/*
 Secret TLS fullname
 */}}
 {{- define "seleniumGrid.tls.fullname" -}}

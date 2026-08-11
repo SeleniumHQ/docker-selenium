@@ -6,7 +6,7 @@ services:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-chrome:4.43.0-20260404
+    image: selenium/node-chrome:4.46.0-20260707
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -16,14 +16,13 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   edge:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-edge:4.43.0-20260404
+    image: selenium/node-edge:4.46.0-20260707
     platform: linux/amd64
     shm_size: 2gb
     depends_on:
@@ -33,14 +32,13 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   firefox:
     deploy:
       mode: replicated
       replicas: 3
-    image: selenium/node-firefox:4.43.0-20260404
+    image: selenium/node-firefox:4.46.0-20260707
     shm_size: 2gb
     depends_on:
       - selenium-hub
@@ -49,11 +47,10 @@ services:
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_RECORD_VIDEO=true
-      - SE_VIDEO_FILE_NAME=auto
       - SE_NODE_GRID_URL=http://selenium-hub:4444
 
   selenium-hub:
-    image: selenium/hub:4.43.0-20260404
+    image: selenium/hub:4.46.0-20260707
     container_name: selenium-hub
     ports:
       - "4442:4442"

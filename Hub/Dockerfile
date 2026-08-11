@@ -3,11 +3,10 @@ ARG VERSION=latest
 #========================
 # Exporter build stage
 #========================
-FROM golang:latest AS exporter-builder
+FROM golang:1.26 AS exporter-builder
 WORKDIR /src
-COPY --from=exporter-src go.mod go.sum ./
-RUN go mod download
 COPY --from=exporter-src . .
+RUN go mod edit -go=$(go env GOVERSION | sed 's/go//') && go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /selenium-grid-exporter .
 
 #========================

@@ -1,0 +1,98 @@
+# To execute this docker compose yml file use `docker compose -f docker-compose-v3-full-grid-external-postgres-backed.yml.yml up`
+# Add the `-d` flag at the end for detached execution
+# To stop the execution, hit Ctrl+C, and then `docker compose -f docker-compose-v3-full-grid-external-postgres-backed.yml.yml down`
+services:
+  selenium-event-bus:
+    image: selenium/event-bus:4.46.0-20260707
+    container_name: selenium-event-bus
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "5557:5557"
+
+  selenium-sessions:
+    image: selenium/sessions:4.46.0-20260707
+    container_name: selenium-sessions
+    ports:
+      - "5556:5556"
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+      - SE_SESSIONS_MAP_EXTERNAL_DATASTORE=true
+      - SE_SESSIONS_MAP_EXTERNAL_IMPLEMENTATION=org.openqa.selenium.grid.sessionmap.jdbc.JdbcBackedSessionMap
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_URL=jdbc:postgresql://postgresql:5432/selenium_sessions
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_USER=seluser
+      - SE_SESSIONS_MAP_EXTERNAL_JDBC_PASSWORD=seluser
+
+  postgresql:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_USER=seluser
+      - POSTGRES_PASSWORD=seluser
+      - POSTGRES_DB=selenium_sessions
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./Sessions/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  selenium-session-queue:
+    image: selenium/session-queue:4.46.0-20260707
+    container_name: selenium-session-queue
+    ports:
+      - "5559:5559"
+
+  selenium-distributor:
+    image: selenium/distributor:4.46.0-20260707
+    container_name: selenium-distributor
+    ports:
+      - "5553:5553"
+    depends_on:
+      - selenium-event-bus
+      - selenium-sessions
+      - selenium-session-queue
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+      - SE_SESSIONS_MAP_HOST=selenium-sessions
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+
+  selenium-router:
+    image: selenium/router:4.46.0-20260707
+    container_name: selenium-router
+    ports:
+      - "4444:4444"
+    depends_on:
+      - selenium-distributor
+      - selenium-sessions
+      - selenium-session-queue
+    environment:
+      - SE_DISTRIBUTOR_HOST=selenium-distributor
+      - SE_SESSIONS_MAP_HOST=selenium-sessions
+      - SE_SESSION_QUEUE_HOST=selenium-session-queue
+
+  chrome:
+    image: selenium/node-chrome:4.46.0-20260707
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+
+  edge:
+    image: selenium/node-edge:4.46.0-20260707
+    platform: linux/amd64
+    shm_size: 2gb
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus
+
+  firefox:
+    image: selenium/node-firefox:4.46.0-20260707
+    shm_size: 2gb
+    depends_on:
+      - selenium-event-bus
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-event-bus

@@ -152,6 +152,52 @@ job (default) or deployment.
 
 Refer to [README](../../.keda/README.md)
 
+### Use the standalone Selenium Grid external scaler
+
+By default the chart uses KEDA's built-in `selenium-grid` scaler, which is released
+on KEDA's cadence. The chart can instead deploy the standalone
+[Selenium Grid KEDA external scaler](../../.keda-external-scaler/README.md), a gRPC
+scaler owned by this project, so scaling fixes ship with docker-selenium releases.
+Scaling behaviour is identical; only the trigger wiring changes.
+
+Enable it with:
+
+```yaml
+autoscaling:
+  enabled: true
+  externalScaler:
+    enabled: true
+    # imageRegistry: ""            # defaults to global.seleniumGrid.imageRegistry
+    imageName: keda-external-scaler
+    imageTag: latest
+```
+
+When enabled, the chart:
+
+- deploys the external scaler as a `Deployment` + `Service` (one gRPC endpoint,
+  shared by all node triggers);
+- switches each node trigger from `type: selenium-grid` to `type: external` and
+  adds `scalerAddress` pointing at the scaler Service;
+- **does not** create the `TriggerAuthentication` — it is unused in this mode.
+
+**Authentication difference.** KEDA does not forward `TriggerAuthentication`
+authParams to external scalers, so the Grid URL and basic-auth credentials cannot
+travel through the trigger's `authenticationRef`. Instead the chart mounts them
+into the scaler container from the existing chart Secrets:
+
+| Scaler env | Sourced from |
+|---|---|
+| `SE_GRID_URL` | common secret key `SE_NODE_GRID_GRAPHQL_URL` |
+| `SE_USERNAME` | basic-auth secret key `SE_ROUTER_USERNAME` (when `basicAuth.enabled`) |
+| `SE_PASSWORD` | basic-auth secret key `SE_ROUTER_PASSWORD` (when `basicAuth.enabled`) |
+
+No secret values are placed in the ScaledObject/ScaledJob.
+
+**Migration** from the built-in scaler is a values-only change — set
+`autoscaling.externalScaler.enabled: true`. The generated metric names
+(`selenium-grid[-browser][-version][-platform]`) are preserved, so HPA identity is
+retained. To roll back, set it to `false`.
+
 ### Settings common for both `job` and `deployment` scalingType
 
 There are few settings that are common for both scaling types. These are grouped under `autoscaling.scaledOptions`.
@@ -229,7 +275,7 @@ autoscaling:
 
 Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
 
-Expected that with default configuration in KEDA resource, autoscaling behavior should be correct. Hence, in chart values, we keep the config key `autoscaling.scaledJobOptions.scalingStrategy.strategy` is `default`.
+Expected that with default configuration in KEDA resource, autoscaling behavior should be correct. Hence, in chart values, we keep the config key `autoscaling.scaledJobOptions.scalingStrategy.strategy` is `accurate`.
 
 ### Scaler trigger configuration
 

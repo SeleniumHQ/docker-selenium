@@ -9,6 +9,17 @@ metadata:
   labels:
     {{- include "seleniumGrid.commonLabels" $ | nindent 4 }}
 data:
+{{- if .Values.components.distributor.externalDatastore.enabled }}
+{{- $backend := .Values.components.distributor.externalDatastore.backend -}}
+{{- with (get .Values.components.distributor.externalDatastore $backend) }}
+{{- with .implementation }}
+  SE_DISTRIBUTOR_IMPLEMENTATION: {{ tpl . $ | quote }}
+{{- end }}
+{{- with .url }}
+  SE_DISTRIBUTOR_BACKEND_URL: {{ tpl . $ | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- $fileProceeded := list -}}
 {{- range $path, $_ :=  .Files.Glob $.Values.distributorConfigMap.extraScriptsImportFrom }}
   {{- $fileName := base $path -}}

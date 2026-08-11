@@ -8,6 +8,7 @@ FRAME_RATE=${FRAME_RATE:-$SE_FRAME_RATE}
 CODEC=${CODEC:-$SE_CODEC}
 PRESET=${PRESET:-$SE_PRESET}
 VIDEO_FOLDER=${VIDEO_FOLDER}
+SE_VIDEO_SESSION_SUBFOLDER=${SE_VIDEO_SESSION_SUBFOLDER:-"false"}
 VIDEO_UPLOAD_ENABLED=${VIDEO_UPLOAD_ENABLED:-$SE_VIDEO_UPLOAD_ENABLED}
 VIDEO_INTERNAL_UPLOAD=${VIDEO_INTERNAL_UPLOAD:-$SE_VIDEO_INTERNAL_UPLOAD}
 VIDEO_CONFIG_DIRECTORY=${VIDEO_CONFIG_DIRECTORY:-"/opt/bin"}
@@ -254,6 +255,7 @@ else
   video_file_name=""
   video_file=""
   prev_session_id=""
+  skipped_session_id=""
   attempts=0
   max_recorded_count=${SE_DRAIN_AFTER_SESSION_COUNT:-0}
   recorded_count=0
@@ -261,7 +263,7 @@ else
   wait_for_api_respond
   while curl --noproxy "*" "${auth_header[@]}" -sk --request GET ${NODE_STATUS_ENDPOINT} >"/tmp/status.json"; do
     session_id="$(jq -r "${JQ_SESSION_ID_QUERY}" "/tmp/status.json")"
-    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" ]]; then
+    if [[ "$session_id" != "null" && "$session_id" != "" && "$session_id" != "reserved" && "$recording_started" = "false" && "$session_id" != "$skipped_session_id" ]]; then
       echo "$(date -u +"${ts_format}") [${process_name}] - Session: $session_id is created"
       session_capabilities="$(jq -r "${JQ_SESSION_CAPABILITIES_QUERY}" "/tmp/status.json")"
       return_list=($(python3 "${VIDEO_CONFIG_DIRECTORY}/video_nodeQuery.py" "${session_id}" "${session_capabilities}"))
@@ -270,7 +272,24 @@ else
       if [[ "$caps_se_video_record" = "true" ]]; then
         echo "$(date -u +"${ts_format}") [${process_name}] - Start recording: $caps_se_video_record, video file name: $video_file_name"
         log_node_response
-        video_file="${VIDEO_FOLDER}/$video_file_name"
+        if [[ "${SE_VIDEO_SESSION_SUBFOLDER}" = "true" ]]; then
+          # Group each recording under its session id. If the session id is empty for any reason,
+          # fall back to the Node container/Pod name so the video still lands in a unique subfolder.
+          subfolder_key="${session_id}"
+          if [ -z "${subfolder_key}" ] || [ "${subfolder_key}" = "null" ]; then
+            subfolder_key="${SE_NODE_CONTAINER_NAME}"
+          fi
+          if [ -n "${subfolder_key}" ]; then
+            video_dir="${VIDEO_FOLDER}/${subfolder_key}"
+            mkdir -p "${video_dir}"
+            echo "$(date -u +"${ts_format}") [${process_name}] - Created session subfolder: ${video_dir}"
+          else
+            video_dir="${VIDEO_FOLDER}"
+          fi
+        else
+          video_dir="${VIDEO_FOLDER}"
+        fi
+        video_file="${video_dir}/$video_file_name"
         echo "$(date -u +"${ts_format}") [${process_name}] - Starting to record video"
         ffmpeg -hide_banner -loglevel warning -threads ${SE_FFMPEG_THREADS:-1} -thread_queue_size 512 \
           -probesize 32M -analyzeduration 0 -y -f x11grab -video_size ${VIDEO_SIZE} -r ${FRAME_RATE} \
@@ -283,8 +302,11 @@ else
           prev_session_id=$session_id
         fi
         echo "$(date -u +"${ts_format}") [${process_name}] - Video recording started"
-        sleep ${poll_interval}
+      else
+        echo "$(date -u +"${ts_format}") [${process_name}] - Recording skipped for session: $session_id (se:recordVideo=false)"
+        skipped_session_id="$session_id"
       fi
+      sleep ${poll_interval}
     elif [[ "$session_id" != "$prev_session_id" && "$recording_started" = "true" ]]; then
       stop_recording
       if [[ $max_recorded_count -gt 0 ]] && [[ $recorded_count -ge $max_recorded_count ]]; then

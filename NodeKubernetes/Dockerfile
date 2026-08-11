@@ -3,13 +3,16 @@ ARG VERSION=latest
 FROM ${NAMESPACE}/base:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
-ARG MVN_SELENIUM_VERSION=latest.release
+ARG MVN_FABRIC_VERSION=latest.release
 
 USER root
 
 RUN if [ -f "/tmp/cs" ]; then \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
-        org.seleniumhq.selenium:selenium-node-kubernetes:${MVN_SELENIUM_VERSION} \
+        io.fabric8:kubernetes-client:${MVN_FABRIC_VERSION} \
+        io.fabric8:kubernetes-client-api:${MVN_FABRIC_VERSION} \
+        io.fabric8:kubernetes-model-batch:${MVN_FABRIC_VERSION} \
+        io.fabric8:kubernetes-model-core:${MVN_FABRIC_VERSION} \
         > /external_jars/.classpath_node_kubernetes.txt \
         && chmod 664 /external_jars/.classpath_node_kubernetes.txt ; \
      fi \

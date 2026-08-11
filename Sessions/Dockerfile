@@ -3,7 +3,7 @@ ARG VERSION=latest
 FROM ${NAMESPACE}/base:${VERSION}
 ARG AUTHORS
 LABEL authors=${AUTHORS}
-ARG MVN_SELENIUM_VERSION=latest.release
+ARG MVN_SELENIUM_VERSION
 ARG POSTGRESQL_VERSION=latest.release
 
 #========================
@@ -16,7 +16,6 @@ RUN if [ -f "/tmp/cs" ]; then \
         java -jar /tmp/cs fetch --classpath --cache /external_jars \
         org.seleniumhq.selenium:selenium-session-map-jdbc:${MVN_SELENIUM_VERSION} \
         org.postgresql:postgresql:${POSTGRESQL_VERSION} \
-        org.seleniumhq.selenium:selenium-session-map-redis:${MVN_SELENIUM_VERSION} \
         # Patch specific version for CVEs in the dependencies
         > /external_jars/.classpath_session_map.txt \
         && chmod 664 /external_jars/.classpath_session_map.txt ; \
