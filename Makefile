@@ -148,6 +148,19 @@ build_exporter:
 	cd .monitoring/exporter && go mod edit -go=$$(go env GOVERSION | sed 's/go//') && go mod tidy \
 	&& go build -ldflags="-s -w" -o ../../bin/selenium-grid-exporter .
 
+# Unit-test the Grid monitoring exporter. Run this after a Go toolchain or
+# dependency bump (e.g. `make update_go`) to catch regressions before release.
+test_exporter:
+	cd .monitoring/exporter && go vet ./... && go test ./... -race -covermode=atomic -cover
+
+# Unit-test the KEDA external scaler module.
+test_scaler:
+	cd .keda-external-scaler && go vet ./... && go test ./... -race -covermode=atomic -cover
+
+# Test every in-repo Go module. Mirrors the go-test.yml CI workflow; run after
+# `make update_go` to validate a toolchain/dependency bump locally.
+test_go_modules: test_exporter test_scaler
+
 # Container image providing the Go toolchain used by `update_go`. Defaults to the
 # latest stable Go so no host Go install is needed and updates always track upstream.
 GO_IMAGE ?= 'latest'
@@ -1494,6 +1507,9 @@ test_k8s_dynamic_grid_hub_node:
 	base \
 	build \
 	build_exporter \
+	test_exporter \
+	test_scaler \
+	test_go_modules \
 	update_go \
 	ci \
 	chrome \

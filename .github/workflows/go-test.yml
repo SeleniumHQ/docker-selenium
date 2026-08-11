@@ -1,0 +1,85 @@
+name: Go Unit Tests
+
+# Guards the in-repo Go modules against regressions introduced by Go toolchain
+# bumps or dependency updates. The job runs on every PR/push that touches either
+# module — including the `make update_go` and Renovate PRs that rewrite
+# go.mod/go.sum — and picks its Go version from each module's go.mod, so a
+# toolchain bump is exercised on the exact version it lands.
+
+on:
+  push:
+    branches:
+      - trunk
+    paths:
+      - '.monitoring/exporter/**'
+      - '.keda-external-scaler/**'
+      - '.github/workflows/go-test.yml'
+  pull_request:
+    paths:
+      - '.monitoring/exporter/**'
+      - '.keda-external-scaler/**'
+      - '.github/workflows/go-test.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: selenium-grid-exporter
+            module: .monitoring/exporter
+          - name: keda-external-scaler
+            module: .keda-external-scaler
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      - name: Set up Go
+        uses: actions/setup-go@main
+        with:
+          # Track the Go version pinned in the module so update_go/Renovate bumps
+          # are validated on the version they introduce.
+          go-version-file: ${{ matrix.module }}/go.mod
+          check-latest: true
+
+      - name: Go version
+        run: go version
+
+      - name: Verify module dependencies
+        run: go mod verify
+
+      - name: Ensure go.mod/go.sum are tidy
+        # Catches dependency updates that forgot to run `go mod tidy`.
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test (race + coverage)
+        run: go test ./... -race -covermode=atomic -coverprofile=cover.out
+
+      - name: Enforce coverage threshold
+        # Business logic must stay >=90% covered so a Go/deps bump can't silently
+        # erode test quality. Generated protobuf stubs (*.pb.go) are excluded.
+        run: |
+          grep -v '\.pb\.go:' cover.out > cover.filtered || cp cover.out cover.filtered
+          go tool cover -func=cover.filtered | tail -n 30
+          total=$(go tool cover -func=cover.filtered | awk '/^total:/ {print $3}' | tr -d '%')
+          echo "Coverage (excluding generated code): ${total}%"
+          awk -v t="$total" 'BEGIN { if (t+0 < 90.0) { printf "FAIL: coverage %.1f%% is below the 90%% threshold\n", t; exit 1 } }'
