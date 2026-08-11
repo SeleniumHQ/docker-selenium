@@ -1,3 +1,21 @@
+## :heavy_check_mark: selenium-grid-0.58.0
+
+- Chart is using image tag 4.47.0-20260808
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Fixed
+- [`5fa7e163`](http://github.com/seleniumhq/docker-selenium/commit/5fa7e163d68fd792eb808441f9d258e851df786c) - fix(chart): expose external scaler securityContext with seccompProfile (#3196) (#3199) :: Viet Nguyen Duc
+
+### Changed
+- [`88bad408`](http://github.com/seleniumhq/docker-selenium/commit/88bad4087e7df1a7c15f51343845740608c4e259) - [ci] Update tag 4.47.0-20260808 in docs and files :: Selenium CI Bot
+- [`65ed9ce8`](http://github.com/seleniumhq/docker-selenium/commit/65ed9ce8a1ee4cc58fbc9e84ee6da711f2b99bda) - chore(deps): update helm release redis to ^0.34.0 (#3193) :: renovate[bot]
+- [`5ed1e1e0`](http://github.com/seleniumhq/docker-selenium/commit/5ed1e1e0b68944ec13efae4b0b758d2a1e7e1faf) - chore(deps): update helm release kube-prometheus-stack to v88 (#3186) :: renovate[bot]
+- [`19787e6e`](http://github.com/seleniumhq/docker-selenium/commit/19787e6efd7a775ee3f524f33bf182f23fd8d227) - chore(deps): update helm release redis to ^0.33.0 - abandoned (#3183) :: renovate[bot]
+- [`31e1cf95`](http://github.com/seleniumhq/docker-selenium/commit/31e1cf953a06a87fc3634d03fddeaefdac8fbc27) - [ci] Update chart 0.57.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.57.0
 
 - Chart is using image tag 4.46.0-20260707
