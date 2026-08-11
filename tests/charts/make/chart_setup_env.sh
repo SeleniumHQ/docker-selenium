@@ -31,38 +31,47 @@ fi
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-echo "Installing Docker for AMD64 / ARM64"
-sudo apt-get update -qq || true
-sudo apt-get install -yq ca-certificates curl wget jq
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update -qq || true
-if [ -n "${DOCKER_VERSION}" ]; then
-  DOCKER_VERSION_EXPECT=$DOCKER_VERSION
-  if [[ "${DOCKER_VERSION}" == "20.10"* ]]; then
-    DOCKER_VERSION="=5:${DOCKER_VERSION}~3-0~$(. /etc/os-release; echo "$ID")-$(. /etc/os-release; echo "$VERSION_CODENAME")"
-  else
-    DOCKER_VERSION="=5:${DOCKER_VERSION}-1~$(. /etc/os-release; echo "$ID").$(. /etc/os-release; echo "$VERSION_ID")~$(. /etc/os-release; echo "$VERSION_CODENAME")"
-  fi
-  echo "Installing package docker-ce${DOCKER_VERSION}"
-  ALLOW_DOWNGRADE="--allow-downgrades"
-fi
-echo "Installing Docker CE packages..."
-timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION} || {
-    echo "Docker CE installation timed out or failed, retrying..."
-    sudo apt-get install -yf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
-}
+DOCKER_VERSION_EXPECT=${DOCKER_VERSION}
+INSTALLED_DOCKER_VERSION="$(docker version --format '{{.Server.Version}}' 2>/dev/null || true)"
 
-echo "Installing Docker plugins and container runtime..."
-timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin || {
-    echo "Docker plugins installation timed out or failed, retrying..."
-    sudo apt-get install -yf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin
-}
+# GitHub-hosted runners already ship Docker, buildx and compose. Reinstalling them
+# from apt on every run is redundant and is the slowest/flakiest part of this setup
+# (frequent apt timeouts that exceed the retry action's window). Only (re)install
+# Docker CE when a specific version is requested that differs from what is already
+# present; otherwise use the runner's pre-installed Docker.
+if [ -z "${DOCKER_VERSION}" ]; then
+    echo "No specific Docker version requested; using pre-installed Docker ${INSTALLED_DOCKER_VERSION:-unknown}."
+elif [ "${DOCKER_VERSION}" = "${INSTALLED_DOCKER_VERSION}" ]; then
+    echo "Docker ${DOCKER_VERSION} is already installed; skipping reinstall."
+else
+    echo "Installing Docker CE ${DOCKER_VERSION} for AMD64 / ARM64 (runner has ${INSTALLED_DOCKER_VERSION:-none})"
+    sudo apt-get update -qq || true
+    sudo apt-get install -yq ca-certificates curl wget jq
+    sudo install -m 0755 -d /etc/apt/keyrings
+    sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+    sudo chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update -qq || true
+    if [[ "${DOCKER_VERSION}" == "20.10"* ]]; then
+        DOCKER_VERSION="=5:${DOCKER_VERSION}~3-0~$(. /etc/os-release; echo "$ID")-$(. /etc/os-release; echo "$VERSION_CODENAME")"
+    else
+        DOCKER_VERSION="=5:${DOCKER_VERSION}-1~$(. /etc/os-release; echo "$ID").$(. /etc/os-release; echo "$VERSION_ID")~$(. /etc/os-release; echo "$VERSION_CODENAME")"
+    fi
+    ALLOW_DOWNGRADE="--allow-downgrades"
+    echo "Installing Docker CE packages docker-ce${DOCKER_VERSION}..."
+    timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION} || {
+        echo "Docker CE installation timed out or failed, retrying..."
+        sudo apt-get install -yf ${ALLOW_DOWNGRADE} docker-ce${DOCKER_VERSION} docker-ce-cli${DOCKER_VERSION}
+    }
+    echo "Installing Docker plugins and container runtime..."
+    timeout 5m sudo apt-get install -yqf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin || {
+        echo "Docker plugins installation timed out or failed, retrying..."
+        sudo apt-get install -yf ${ALLOW_DOWNGRADE} containerd.io docker-buildx-plugin docker-compose-plugin
+    }
+fi
 
 echo "Installing cross-compilation tools (may take a while)..."
 timeout 5m sudo apt-get install -yqf gcc-aarch64-linux-gnu qemu-user-static || {
