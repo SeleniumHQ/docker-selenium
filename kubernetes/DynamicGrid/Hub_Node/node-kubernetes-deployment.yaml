@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-node-kubernetes
-          image: selenium/node-kubernetes:4.46.0-20260707
+          image: selenium/node-kubernetes:4.47.0-20260808
           ports:
             - containerPort: 5555
           env:
