@@ -56,23 +56,37 @@ func parseFlags(args []string) (config, error) {
 func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelInfo}))
 
-	cfg, err := parseFlags(os.Args[1:])
+	// Graceful shutdown on SIGTERM/SIGINT.
+	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt)
+	defer stop()
+
+	os.Exit(realMain(ctx, os.Args[1:], logger))
+}
+
+// realMain resolves configuration and runs the server, returning a process exit
+// code. It is split from main (which owns os.Exit and signal wiring) so it can
+// be exercised in tests.
+func realMain(ctx context.Context, args []string, logger *slog.Logger) int {
+	cfg, err := parseFlags(args)
 	if err != nil {
 		// flag already printed usage/error for -h and parse failures.
 		if errors.Is(err, flag.ErrHelp) {
-			return
+			return 0
 		}
 		logger.Error("invalid flags", "err", err)
-		os.Exit(2)
+		return 2
 	}
 
-	if err := run(cfg, logger); err != nil {
+	if err := run(ctx, cfg, logger); err != nil {
 		logger.Error("server exited with error", "err", err)
-		os.Exit(1)
+		return 1
 	}
+	return 0
 }
 
-func run(cfg config, logger *slog.Logger) error {
+// run starts the gRPC server and blocks until ctx is cancelled or Serve returns.
+// Cancelling ctx triggers a graceful drain.
+func run(ctx context.Context, cfg config, logger *slog.Logger) error {
 	env := collectGridEnv()
 
 	var opts []grpc.ServerOption
@@ -100,13 +114,15 @@ func run(cfg config, logger *slog.Logger) error {
 		return err
 	}
 
-	// Graceful shutdown on SIGTERM/SIGINT.
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, os.Interrupt)
-	defer stop()
+	return serve(ctx, srv, healthSrv, lis, logger)
+}
 
+// serve runs srv on lis until ctx is cancelled (graceful drain) or Serve returns
+// on its own. It is split from run so the shutdown paths are unit-testable.
+func serve(ctx context.Context, srv *grpc.Server, healthSrv *health.Server, lis net.Listener, logger *slog.Logger) error {
 	serveErr := make(chan error, 1)
 	go func() {
-		logger.Info("selenium-grid external scaler listening", "address", cfg.listenAddr, "gridUrlFromEnv", env["SE_GRID_URL"] != "")
+		logger.Info("selenium-grid external scaler listening", "address", lis.Addr().String())
 		serveErr <- srv.Serve(lis)
 	}()
 
