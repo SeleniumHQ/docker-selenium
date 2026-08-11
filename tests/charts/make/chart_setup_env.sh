@@ -31,6 +31,12 @@ fi
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
+# Refresh the apt index up front so the package installs below (qemu-user-static,
+# conntrack, ...) don't 404 on a stale cached index. Previously this happened as a
+# side effect of the Docker reinstall's `apt-get update`; that reinstall is now
+# skipped when the runner already has the requested Docker, so do it explicitly.
+sudo apt-get update -qq || true
+
 DOCKER_VERSION_EXPECT=${DOCKER_VERSION}
 INSTALLED_DOCKER_VERSION="$(docker version --format '{{.Server.Version}}' 2>/dev/null || true)"
 
