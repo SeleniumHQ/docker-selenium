@@ -53,12 +53,12 @@ func (s *swapServer) set(body string) {
 func (s *swapServer) close() { s.srv.Close() }
 
 // chromeSession is the canonical active session used across the collector tests.
-// startTime 02/01/2.20.10:00:00 UTC == unix 1577959200.
+// startTime 02/01/2020 10:00:00 UTC == unix 1577959200.
 func chromeSession(t *testing.T) sessionEntry {
 	return sessionEntry{
 		ID:                    "s1",
 		Capabilities:          encode(t, caps{BrowserName: "chrome", BrowserVersion: "124", PlatformName: "linux", TestName: "login-test", ContainerName: "node-chrome-1"}),
-		StartTime:             "02/01/2.20.10:00:00",
+		StartTime:             "02/01/2020 10:00:00",
 		SessionDurationMillis: "42300",
 		NodeID:                "node-up",
 		NodeURI:               "http://node1:5555",
