@@ -190,8 +190,8 @@ selenium_grid_session_queue_size 1
 
 # HELP selenium_grid_node_status Node availability: 1=UP, 0.5=DRAINING, 0=DOWN.
 # TYPE selenium_grid_node_status gauge
-selenium_grid_node_status{node_id="abc",uri="http://node1:5555",version="4.20.0",os_name="Linux",os_arch="amd64",os_version="5.15"} 1
-selenium_grid_node_status{node_id="def",uri="http://node2:5555",version="4.20.0",os_name="Linux",os_arch="amd64",os_version="5.15"} 0.5
+selenium_grid_node_status{node_id="abc",uri="http://node1:5555",version="4.47.0",os_name="Linux",os_arch="amd64",os_version="5.15"} 1
+selenium_grid_node_status{node_id="def",uri="http://node2:5555",version="4.47.0",os_name="Linux",os_arch="amd64",os_version="5.15"} 0.5
 
 # HELP selenium_grid_node_stereotype_slots_total Slots available per node stereotype (browser/version/platform combination).
 # TYPE selenium_grid_node_stereotype_slots_total gauge
