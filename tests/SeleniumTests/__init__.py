@@ -30,11 +30,6 @@ TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').low
 TEST_PARALLEL_COUNT = int(os.environ.get('TEST_PARALLEL_COUNT', 5))
 TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
 TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
-# Remote file upload (LocalFileDetector) and managed-download retrieval only work when the Node
-# forwards the file operations to the browser session. That forwarding is unconditional for Docker
-# Dynamic Grid, but for Relay and Kubernetes sessions it requires SeleniumHQ/selenium#17914
-# (Selenium >= 4.48.0). Those harnesses keep this off until the Grid base includes the fix.
-TEST_UPLOAD_DOWNLOAD_REMOTE = os.environ.get('TEST_UPLOAD_DOWNLOAD_REMOTE', 'true').lower() == 'true'
 TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/amd64')
 TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PACKAGE', 'false').lower() == 'true'
@@ -132,10 +127,6 @@ class SeleniumGenericTests(unittest.TestCase):
         # Docker/Kubernetes and Relay) the Node forwards the upload to the session so the file lands
         # where sendKeys runs. Use LocalFileDetector so the client-side file is transferred remotely.
         # See SeleniumHQ/selenium#17914.
-        if not TEST_UPLOAD_DOWNLOAD_REMOTE:
-            self.skipTest(
-                "Remote file upload/download forwarding is disabled for this deployment (requires Selenium >= 4.48.0)"
-            )
         if TEST_NODE_RELAY == 'Android':
             self.skipTest("HTML file upload via LocalFileDetector is not applicable to the Android emulator relay")
         driver.file_detector = LocalFileDetector()
@@ -178,8 +169,6 @@ class SeleniumGenericTests(unittest.TestCase):
         # the session, so the file is fetched from where the browser stored it. Asserting the
         # retrieved file exists and is non-empty exercises that forwarding path.
         # See SeleniumHQ/selenium#17914.
-        if not TEST_UPLOAD_DOWNLOAD_REMOTE:
-            return
         download_dir = tempfile.mkdtemp()
         try:
             driver.download_file(file_name, download_dir)

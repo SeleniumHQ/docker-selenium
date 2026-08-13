@@ -11,6 +11,10 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - GENERATE_CONFIG=false
+      # The relay Node must also advertise managed downloads so a session requesting
+      # se:downloadsEnabled matches its slot; the Node then forwards the file operations to the
+      # standalone browser it relays into (SeleniumHQ/selenium#17914).
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
 
   standalone:
     image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
@@ -19,8 +23,6 @@ services:
       - SE_OPTS=--enable-cdp true --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
       - SE_NODE_ENABLE_CDP=true
       - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
-      # Managed downloads over Relay needs SeleniumHQ/selenium#17914 (Selenium >= 4.48.0); it stays
-      # off by default and is exercised once the Grid base includes the fix.
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
@@ -50,7 +52,6 @@ services:
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
       - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
-      - TEST_UPLOAD_DOWNLOAD_REMOTE=${TEST_UPLOAD_DOWNLOAD_REMOTE:-false}
       - TEST_NODE_RELAY=${TEST_NODE_RELAY}
       - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
