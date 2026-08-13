@@ -13,5 +13,5 @@ max-sessions = 1
 url = "http://standalone:4444/wd/hub"
 status-endpoint = "/status"
 configs = [
-    '3', '{"browserName":"${BROWSER_NAME}","platformName":"linux"}'
+    '3', '{"browserName":"${BROWSER_NAME}","platformName":"linux","se:downloadsEnabled":${SELENIUM_ENABLE_MANAGED_DOWNLOADS}}'
 ]

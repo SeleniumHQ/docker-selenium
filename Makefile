@@ -1202,7 +1202,8 @@ test_node_relay: hub node_base standalone_firefox
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
 		if [ $$node = "Android" ] ; then \
 			echo BROWSER=firefox >> .env \
-			&& echo BROWSER_NAME=firefox >> .env ; \
+			&& echo BROWSER_NAME=firefox >> .env \
+			&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=false >> .env ; \
 		fi ; \
 			if [ $$node = "NodeChrome" ] ; then \
 				echo BROWSER=chrome >> .env \
@@ -1219,7 +1220,8 @@ test_node_relay: hub node_base standalone_firefox
 			fi ; \
 			if [ $$node = "NodeFirefox" ] ; then \
 				echo BROWSER=firefox >> .env \
-				&& echo BROWSER_NAME=firefox >> .env ; \
+				&& echo BROWSER_NAME=firefox >> .env \
+				&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), true) >> .env ; \
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < relay_config.toml > ./videos/relay_config.toml ; \
@@ -1266,7 +1268,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
 		echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 		echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
-		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
+		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 		echo SE_UPLOAD_RETAIN_LOCAL_FILE=$(or $(SE_UPLOAD_RETAIN_LOCAL_FILE), "false") >> .env ; \
