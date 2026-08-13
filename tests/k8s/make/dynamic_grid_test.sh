@@ -237,9 +237,11 @@ export SELENIUM_GRID_PORT=${GRID_LOCAL_PORT}
 export SELENIUM_GRID_USERNAME=${GRID_USERNAME}
 export SELENIUM_GRID_PASSWORD=${GRID_PASSWORD}
 export SELENIUM_GRID_TEST_HEADLESS=${SELENIUM_GRID_TEST_HEADLESS:-"false"}
-# The browser runs in its own Job Pod and downloads into it, while the Node serves the
-# downloadable files from a Pod local directory, so managed downloads are not retrievable here
-export SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"false"}
+# The browser runs in its own Job Pod and downloads into it. The Node forwards the managed
+# download commands to the browser session instead of serving them from its own Pod local
+# directory (SeleniumHQ/selenium#17914), so the files are retrievable from where the browser
+# stored them. Enable managed downloads so the remote download verification exercises that path.
+export SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-"true"}
 export TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST:-"0"}
 export BINDING_VERSION=${BINDING_VERSION}
 export BASE_VERSION=${BASE_VERSION}

@@ -1268,7 +1268,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
 		echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 		echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
-		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
+		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 		echo SE_UPLOAD_RETAIN_LOCAL_FILE=$(or $(SE_UPLOAD_RETAIN_LOCAL_FILE), "false") >> .env ; \
