@@ -40,8 +40,6 @@ spec:
               value: "10"
             - name: SE_RECORD_VIDEO
               value: "true"
-            - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
-              value: "true"
           resources:
             requests:
               memory: "512Mi"

@@ -1202,8 +1202,7 @@ test_node_relay: hub node_base standalone_firefox
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
 		if [ $$node = "Android" ] ; then \
 			echo BROWSER=firefox >> .env \
-			&& echo BROWSER_NAME=firefox >> .env \
-			&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=false >> .env ; \
+			&& echo BROWSER_NAME=firefox >> .env ; \
 		fi ; \
 			if [ $$node = "NodeChrome" ] ; then \
 				echo BROWSER=chrome >> .env \
@@ -1220,8 +1219,7 @@ test_node_relay: hub node_base standalone_firefox
 			fi ; \
 			if [ $$node = "NodeFirefox" ] ; then \
 				echo BROWSER=firefox >> .env \
-				&& echo BROWSER_NAME=firefox >> .env \
-				&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), true) >> .env ; \
+				&& echo BROWSER_NAME=firefox >> .env ; \
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < relay_config.toml > ./videos/relay_config.toml ; \
