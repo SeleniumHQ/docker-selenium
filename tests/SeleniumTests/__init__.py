@@ -122,11 +122,7 @@ class SeleniumGenericTests(unittest.TestCase):
 
     def test_upload_file(self):
         driver = self.driver
-        # A local file must be transferred to the machine running the browser before the browser
-        # can select it. When the browser does not share the Node filesystem (Dynamic Grid on
-        # Docker/Kubernetes and Relay) the Node forwards the upload to the session so the file lands
-        # where sendKeys runs. Use LocalFileDetector so the client-side file is transferred remotely.
-        # See SeleniumHQ/selenium#17914.
+        # LocalFileDetector transfers the client-side file to the machine running the browser.
         if TEST_NODE_RELAY == 'Android':
             self.skipTest("HTML file upload via LocalFileDetector is not applicable to the Android emulator relay")
         driver.file_detector = LocalFileDetector()
@@ -164,11 +160,7 @@ class SeleniumGenericTests(unittest.TestCase):
             lambda d: len(d.get_downloadable_files()) > 0 and str(d.get_downloadable_files()[0]).endswith(file_name)
         )
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
-        # Retrieve the managed download to the client. When the browser does not share the Node
-        # filesystem (Dynamic Grid on Docker/Kubernetes and Relay) the Node forwards downloadFile to
-        # the session, so the file is fetched from where the browser stored it. Asserting the
-        # retrieved file exists and is non-empty exercises that forwarding path.
-        # See SeleniumHQ/selenium#17914.
+        # Retrieve the managed download to the client to exercise the remote file forwarding.
         download_dir = tempfile.mkdtemp()
         try:
             driver.download_file(file_name, download_dir)

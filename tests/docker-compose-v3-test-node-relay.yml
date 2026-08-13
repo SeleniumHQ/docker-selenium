@@ -11,18 +11,15 @@ services:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - GENERATE_CONFIG=false
-      # The relay Node must also advertise managed downloads so a session requesting
-      # se:downloadsEnabled matches its slot; the Node then forwards the file operations to the
-      # standalone browser it relays into (SeleniumHQ/selenium#17914).
-      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
 
   standalone:
     image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
     shm_size: 2gb
     environment:
-      - SE_OPTS=--enable-cdp true --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
+      - SE_OPTS=--enable-cdp true --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
       - SE_NODE_ENABLE_CDP=true
-      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
@@ -51,7 +48,7 @@ services:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
-      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
+      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
       - TEST_NODE_RELAY=${TEST_NODE_RELAY}
       - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
