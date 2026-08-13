@@ -16,8 +16,9 @@ services:
     image: ${NAMESPACE}/standalone-${BROWSER}:${TAG}
     shm_size: 2gb
     environment:
-      - SE_OPTS=--enable-cdp true
+      - SE_OPTS=--enable-cdp true --enable-managed-downloads ${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
       - SE_NODE_ENABLE_CDP=true
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
 
   selenium-hub:
     image: ${NAMESPACE}/hub:${TAG}
@@ -46,7 +47,7 @@ services:
       - RUN_IN_DOCKER_COMPOSE=true
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
-      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=false
+      - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-false}
       - TEST_NODE_RELAY=${TEST_NODE_RELAY}
       - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
