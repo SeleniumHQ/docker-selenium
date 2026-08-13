@@ -1,6 +1,8 @@
 import concurrent.futures
 import os
 import random
+import shutil
+import tempfile
 import time
 import traceback
 import unittest
@@ -11,6 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.remote.client_config import ClientConfig
+from selenium.webdriver.remote.file_detector import LocalFileDetector
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -117,6 +120,35 @@ class SeleniumGenericTests(unittest.TestCase):
         paused = video.get_property('paused')
         self.assertFalse(paused)
 
+    def test_upload_file(self):
+        driver = self.driver
+        # A local file must be transferred to the machine running the browser before the browser
+        # can select it. When the browser does not share the Node filesystem (Dynamic Grid on
+        # Docker/Kubernetes and Relay) the Node forwards the upload to the session so the file lands
+        # where sendKeys runs. Use LocalFileDetector so the client-side file is transferred remotely.
+        # See SeleniumHQ/selenium#17914.
+        if TEST_NODE_RELAY == 'Android':
+            self.skipTest("HTML file upload via LocalFileDetector is not applicable to the Android emulator relay")
+        driver.file_detector = LocalFileDetector()
+        upload_dir = tempfile.mkdtemp()
+        file_name = 'selenium-upload.txt'
+        file_path = os.path.join(upload_dir, file_name)
+        try:
+            with open(file_path, 'w') as upload_file:
+                upload_file.write('docker-selenium remote upload test')
+            driver.get(f'http://{TEST_SITE}/upload')
+            wait = WebDriverWait(driver, WEB_DRIVER_WAIT_TIMEOUT)
+            file_input = wait.until(EC.presence_of_element_located((By.ID, 'file-upload')))
+            file_input.send_keys(file_path)
+            driver.find_element(By.ID, 'file-submit').click()
+            uploaded_files = wait.until(EC.visibility_of_element_located((By.ID, 'uploaded-files')))
+            self.assertTrue(
+                file_name in uploaded_files.text,
+                f"Uploaded file '{file_name}' not reported by the server, got '{uploaded_files.text}'",
+            )
+        finally:
+            shutil.rmtree(upload_dir, ignore_errors=True)
+
     def test_download_file(self):
         driver = self.driver
         driver.get(f'http://{TEST_SITE}/download')
@@ -132,6 +164,19 @@ class SeleniumGenericTests(unittest.TestCase):
             lambda d: len(d.get_downloadable_files()) > 0 and str(d.get_downloadable_files()[0]).endswith(file_name)
         )
         self.assertTrue(str(driver.get_downloadable_files()[0]).endswith(file_name))
+        # Retrieve the managed download to the client. When the browser does not share the Node
+        # filesystem (Dynamic Grid on Docker/Kubernetes and Relay) the Node forwards downloadFile to
+        # the session, so the file is fetched from where the browser stored it. Asserting the
+        # retrieved file exists and is non-empty exercises that forwarding path.
+        # See SeleniumHQ/selenium#17914.
+        download_dir = tempfile.mkdtemp()
+        try:
+            driver.download_file(file_name, download_dir)
+            downloaded_file = os.path.join(download_dir, file_name)
+            self.assertTrue(os.path.isfile(downloaded_file), f"Downloaded file not found at {downloaded_file}")
+            self.assertGreater(os.path.getsize(downloaded_file), 0, "Downloaded file is empty")
+        finally:
+            shutil.rmtree(download_dir, ignore_errors=True)
 
     def tearDown(self):
         if TEST_CUSTOM_SPECIFIC_NAME:
