@@ -12,6 +12,9 @@ max-sessions = 1
 [relay]
 url = "http://standalone:4444/wd/hub"
 status-endpoint = "/status"
+# se:downloadsEnabled must be part of the relay stereotype so a session requesting managed
+# downloads matches this slot. Unlike a regular Node, --enable-managed-downloads does not add it to
+# a relay stereotype, which is taken verbatim from this config. See SeleniumHQ/selenium#17914.
 configs = [
-    '3', '{"browserName":"${BROWSER_NAME}","platformName":"linux"}'
+    '3', '{"browserName":"${BROWSER_NAME}","platformName":"linux","se:downloadsEnabled":${SELENIUM_ENABLE_MANAGED_DOWNLOADS}}'
 ]
