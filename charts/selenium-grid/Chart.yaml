@@ -23,7 +23,7 @@ dependencies:
   name: kube-prometheus-stack
   condition: monitoring.enabled, kube-prometheus-stack.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
-  version: ^0.19.0
+  version: ^0.20.0
   name: postgres
   alias: postgresql
   condition: postgresql.enabled
