@@ -56,8 +56,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /readyz
+            tcpSocket:
               port: 5555
             initialDelaySeconds: 15
             periodSeconds: 10
