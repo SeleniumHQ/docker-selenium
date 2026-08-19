@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # Build stage. TARGETOS/TARGETARCH are provided by buildx for multi-arch builds.
-FROM --platform=$BUILDPLATFORM golang:1.26 AS build
+FROM --platform=$BUILDPLATFORM golang:1.27 AS build
 ARG TARGETOS
 ARG TARGETARCH
 
