@@ -1,6 +1,6 @@
 module selenium-grid-exporter
 
-go 1.26.6
+go 1.27.1
 
 require (
 	github.com/prometheus/client_golang v1.24.1
