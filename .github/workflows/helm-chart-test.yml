@@ -79,9 +79,9 @@ jobs:
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: deployment
-          - k8s-version: 'v1.30.14'
+          - k8s-version: 'v1.31.14'
             cluster: 'minikube'
-            helm-version: 'v3.15.4'
+            helm-version: 'v3.16.4'
             docker-version: '27.5.1'
             python-version: '3.11'
             test-upgrade: true
