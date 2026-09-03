@@ -1,0 +1,95 @@
+# Test-only overlay for TEST_MULTIPLE_VERSIONS scale testing (see chart_test.sh).
+#
+# This intentionally does NOT mirror charts/selenium-grid/multiple-nodes-platform-version.yaml,
+# which is shipped chart documentation/example content and stays on the default
+# (Docker Hub) registry for real users.
+#
+# Two differences from that shipped file:
+#   1. imageRegistry is pinned to ghcr.io/seleniumhq for every previous-version Node.
+#      Those tags are never built locally in CI, so they are always pulled from a
+#      registry, and anonymous Docker Hub pulls hit the rate limit when a scale test
+#      brings up many previous-version Nodes at once. GHCR pulls are anonymous and
+#      unmetered for public images.
+#   2. The version range is pruned to just what tests/SeleniumTests/__init__.py
+#      actually requests (LIST_CHROMIUM_VERSIONS / LIST_FIREFOX_VERSIONS = 144.0-147.0),
+#      instead of the full historical list. Versions outside that range never receive
+#      a session request during the test, so they never scale up and never pull an
+#      image anyway - keeping them here would only add scaler triggers with no
+#      effect on coverage. Keep this range in sync with LIST_CHROMIUM_VERSIONS /
+#      LIST_FIREFOX_VERSIONS if those change.
+crossBrowsers:
+  chromeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-latest'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-146'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '146.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '146.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-145'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '145.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '145.0'
+    - nameOverride: '{{ $.Release.Name }}-node-chrome-144'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '144.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '144.0'
+  firefoxNode:
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-latest'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-147'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '147.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '147.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-146'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '146.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '146.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-145'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '145.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '145.0'
+    - nameOverride: '{{ $.Release.Name }}-node-firefox-144'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '144.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '144.0'
+  edgeNode:
+    - nameOverride: '{{ $.Release.Name }}-node-edge-latest'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: ''
+    - nameOverride: '{{ $.Release.Name }}-node-edge-146'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '146.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '146.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-145'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '145.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '145.0'
+    - nameOverride: '{{ $.Release.Name }}-node-edge-144'
+      imageRegistry: ghcr.io/seleniumhq
+      imageTag: '144.0-20260808'
+      hpa:
+        platformName: 'Linux'
+        browserVersion: '144.0'
