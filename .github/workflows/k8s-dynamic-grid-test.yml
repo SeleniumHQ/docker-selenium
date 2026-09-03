@@ -26,13 +26,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.34.2'
+          - k8s-version: 'v1.35.8'
             cluster: 'minikube'
             docker-version: '29.1.1'
             python-version: '3.10'
             os: ubuntu-22.04
             mode: standalone
-          - k8s-version: 'v1.34.2'
+          - k8s-version: 'v1.35.8'
             cluster: 'minikube'
             docker-version: '29.1.1'
             python-version: '3.10'
