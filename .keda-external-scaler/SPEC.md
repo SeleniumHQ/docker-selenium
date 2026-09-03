@@ -77,9 +77,10 @@ response — already mirrored at `.keda/scalers/selenium_grid_scaler.go`):
   requests, reserve free matching slots on existing UP nodes, then pack remaining
   requests onto hypothetical new nodes of capacity `nodeMaxSessions`; also count
   matching ongoing sessions
-- The metric convention per `jobScalingStrategy`:
-  - `default`/`custom` (and all ScaledObjects): `count = newRequestNodes + onGoingSessions`
-  - `accurate`/`eager`: `count = newRequestNodes`
+- The metric convention per `includeOngoingSessions`:
+  - `true` (default; correct for ScaledJob `default`/`custom` and all
+    ScaledObjects): `count = newRequestNodes + onGoingSessions`
+  - `false` (required for ScaledJob `accurate`/`eager`): `count = newRequestNodes`
 - Activation: `count > activationThreshold`
 
 ## Tech Stack
@@ -151,7 +152,7 @@ triggers:
       enableManagedDownloads: "true"
       activationThreshold: "0"
       unsafeSsl: "false"                # Grid TLS verification
-      jobScalingStrategy: default       # default|custom|accurate|eager
+      includeOngoingSessions: "true"    # set "false" for accurate|eager ScaledJobs
       authType: Basic                   # optional
       usernameFromEnv: SE_USERNAME      # resolved by KEDA from scale-target env
       passwordFromEnv: SE_PASSWORD
@@ -166,7 +167,7 @@ entirely by mounting them into the scaler Deployment.
 
 All values arrive as strings in the map; the server performs the same
 defaulting/validation the `keda:` struct tags did (`nodeMaxSessions=1`,
-`enableManagedDownloads=true`, `jobScalingStrategy∈{default,custom,accurate,eager}`,
+`enableManagedDownloads=true`, `includeOngoingSessions=true`,
 `sessionBrowserName←browserName`).
 
 ## Code Style
@@ -236,7 +237,7 @@ logging; no global mutable state except an HTTP client cache keyed by
    the same GraphQL fixture (verified by the shared test table).
 3. `GetMetricSpec` returns `selenium-grid[-browser][-version][-platform]` with
    `targetSize: 1`, matching the built-in naming after KEDA strips the index prefix.
-4. All four `jobScalingStrategy` values produce the two documented count
+4. Both `includeOngoingSessions` values produce the two documented count
    conventions (`+onGoingSessions` vs queue-only).
 5. Missing/invalid metadata yields `InvalidArgument`; Grid unreachable yields a
    non-OK status and KEDA logs it without crashing the server.

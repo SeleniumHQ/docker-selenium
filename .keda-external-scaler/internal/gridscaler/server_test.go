@@ -47,7 +47,7 @@ func newTestClient(t *testing.T, env map[string]string) pb.ExternalScalerClient 
 
 // fixtureGrid: 2 queued chrome requests + 1 on-going chrome session on a fully
 // occupied Node → newRequestNodes=2, onGoingSessions=1. Same fixture as KEDA's
-// Test_GetMetricsAndActivity_JobScalingStrategy.
+// Test_GetMetricsAndActivity_IncludeOngoingSessions.
 const fixtureGrid = `{
 	"data": {
 		"grid": { "sessionCount": 1, "maxSession": 1, "totalSlots": 1 },
@@ -89,31 +89,33 @@ func fakeGrid(t *testing.T, body string) *httptest.Server {
 	return server
 }
 
-// Ported from KEDA Test_GetMetricsAndActivity_JobScalingStrategy: expected metric
-// values are unchanged. default/custom include on-going sessions (3);
-// accurate/eager exclude them (2).
-func TestServer_GetMetrics_JobScalingStrategy(t *testing.T) {
+// Ported from KEDA Test_GetMetricsAndActivity_IncludeOngoingSessions: unset and
+// "true" include on-going sessions (3); "false" — the value required for the
+// accurate and eager ScaledJob strategies — excludes them (2).
+func TestServer_GetMetrics_IncludeOngoingSessions(t *testing.T) {
 	grid := fakeGrid(t, fixtureGrid)
 	client := newTestClient(t, nil)
 
 	tests := []struct {
-		name               string
-		jobScalingStrategy string
-		wantMetric         int64
+		name                   string
+		includeOngoingSessions string
+		wantMetric             int64
 	}{
-		{"default strategy includes on-going sessions", "default", 3},
-		{"custom strategy includes on-going sessions", "custom", 3},
-		{"accurate strategy excludes on-going sessions", "accurate", 2},
-		{"eager strategy excludes on-going sessions", "eager", 2},
+		{"unset defaults to including on-going sessions", "", 3},
+		{"true includes on-going sessions", "true", 3},
+		{"false excludes on-going sessions", "false", 2},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ref := &pb.ScaledObjectRef{ScalerMetadata: map[string]string{
-				"url":                grid.URL,
-				"browserName":        "chrome",
-				"jobScalingStrategy": tt.jobScalingStrategy,
-			}}
+			meta := map[string]string{
+				"url":         grid.URL,
+				"browserName": "chrome",
+			}
+			if tt.includeOngoingSessions != "" {
+				meta["includeOngoingSessions"] = tt.includeOngoingSessions
+			}
+			ref := &pb.ScaledObjectRef{ScalerMetadata: meta}
 
 			metrics, err := client.GetMetrics(context.Background(), &pb.GetMetricsRequest{
 				ScaledObjectRef: ref,
