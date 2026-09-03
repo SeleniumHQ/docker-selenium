@@ -29,7 +29,7 @@ parallel after T1. See [PLAN.md](PLAN.md) for rationale.
 - [ ] **T4: Metadata parsing with env fallback**
   - Acceptance: `parseMetadata(map[string]string, envDefaults)` reproduces the
     `keda:` tag behavior (defaults `nodeMaxSessions=1`,
-    `enableManagedDownloads=true`, `jobScalingStrategy` enum validation,
+    `enableManagedDownloads=true`, `includeOngoingSessions=true`,
     `sessionBrowserName←browserName`, required `url`); strips `FromEnv` key
     suffixes; precedence `<name>` > `<name>FromEnv` > `SE_*` server env.
   - Verify: `go test ./internal/gridscaler -run TestParseMetadata`
@@ -47,11 +47,11 @@ parallel after T1. See [PLAN.md](PLAN.md) for rationale.
 - [ ] **T6: gRPC server implementation (parity gate 2)**
   - Acceptance: `GetMetricSpec` returns normalized
     `selenium-grid[-browser][-version][-platform]` with `targetSize=1`;
-    `GetMetrics` returns count per `jobScalingStrategy` convention; `IsActive`
+    `GetMetrics` returns count per `includeOngoingSessions` convention; `IsActive`
     returns `count > activationThreshold`; `StreamIsActive` returns
     `Unimplemented`; bad metadata → `InvalidArgument`, Grid failure → `Internal`.
   - Verify: `go test ./internal/gridscaler -run TestServer -race` (in-process
-    grpc server + fake Grid fixtures covering all four strategies)
+    grpc server + fake Grid fixtures covering both count conventions)
   - Files: `internal/gridscaler/server.go`, `internal/gridscaler/server_test.go`
 
 - [ ] **T7: Binary entrypoint**

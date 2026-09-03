@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.47.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.47.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.47.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.48.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.48.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.48.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.48.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.47.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.49.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.48.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
@@ -1471,6 +1471,18 @@ test_k8s_autoscaling_job_count_strategy_default:
 	SELENIUM_GRID_MONITORING=false CLEAR_POD_HISTORY=true SET_MAX_REPLICAS=100 ENABLE_VIDEO_RECORDER=false \
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
+
+test_k8s_autoscaling_job_count_strategy_accurate_in_chaos:
+	MATRIX_TESTS=AutoScalingTestsScaleChaos SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate_with_node_max_sessions:
+	TEST_NODE_MAX_SESSIONS=3 SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate:
+	SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
 
 test_k8s_autoscaling_deployment_count_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \

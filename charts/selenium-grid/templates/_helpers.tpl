@@ -287,8 +287,9 @@ triggers:
     {{- if $useExternalScaler }}
       scalerAddress: {{ include "seleniumGrid.externalScaler.address" $ | quote }}
     {{- end }}
-    {{- if and (eq $.Values.autoscaling.scalingType "job") (not (hasKey (default dict .node.hpa) "jobScalingStrategy")) }}
-      jobScalingStrategy: {{ dig "scalingStrategy" "strategy" "default" $spec | quote }}
+    {{- if and (eq $.Values.autoscaling.scalingType "job") (not (hasKey (default dict .node.hpa) "includeOngoingSessions")) }}
+      {{- /* accurate/eager deduct pending (and running) Jobs without re-adding running work, so on-going sessions must be excluded from the metric - see SeleniumHQ/docker-selenium#3167 */}}
+      includeOngoingSessions: {{ ternary "false" "true" (has (dig "scalingStrategy" "strategy" "default" $spec) (list "accurate" "eager")) | quote }}
     {{- end }}
     {{- with .node.hpa }}
       {{- range $key, $value := . }}

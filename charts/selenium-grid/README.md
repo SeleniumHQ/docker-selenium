@@ -291,6 +291,7 @@ Understand list trigger parameters
 - `unsafeSsl` - Skip certificate validation when connecting over HTTPS. (Default: `false`, Optional)
 - `activationThreshold` - Target value for activating the scaler. Learn more about activation [here](./../concepts/scaling-deployments.md#activating-and-scaling-thresholds). (Default: `0`, Optional)
 - `nodeMaxSessions` - Number of maximum sessions that can run in parallel on a Node. Update this parameter align with node config `--max-sessions` (`SE_NODE_MAX_SESSIONS`) to have the correct scaling behavior. (Default: `1`, Optional).
+- `includeOngoingSessions` - Whether on-going sessions are counted toward the metric. (Default: `true`, Optional). When `autoscaling.scalingType` is `job`, the chart derives this from `autoscaling.scaledJobOptions.scalingStrategy.strategy`: strategies `default` and `custom` deduct the running Job count, so on-going sessions cancel out in that deduction and must stay in the metric (`true`); strategies `accurate` and `eager` deduct the pending (and running) Job count without re-adding running work, so counting on-going sessions there double-counts work in progress and causes runaway Node creation ([#3167](https://github.com/SeleniumHQ/docker-selenium/issues/3167)), hence `false`. Set `<node>.hpa.includeOngoingSessions` to override the derived value.
 
 Understand list trigger authentication
 
