@@ -5,8 +5,9 @@
 # `selenium-grid` scaler, so migrating from it is a mechanical change of `type`
 # plus adding `scalerAddress`.
 #
-# jobScalingStrategy MUST match spec.scalingStrategy.strategy below so the
-# emitted metric matches how KEDA computes effective max scale for Jobs.
+# includeOngoingSessions MUST agree with spec.scalingStrategy.strategy below so
+# the emitted metric matches how KEDA computes effective max scale for Jobs:
+# leave it "true" for `default`/`custom`, set it "false" for `accurate`/`eager`.
 apiVersion: keda.sh/v1alpha1
 kind: ScaledJob
 metadata:
@@ -42,7 +43,9 @@ spec:
         url: http://selenium-hub.selenium.svc:4444/graphql
         browserName: chrome
         nodeMaxSessions: "1"
-        jobScalingStrategy: default
+        # strategy below is `default`, which deducts running Jobs, so on-going
+        # sessions must stay in the metric. Set "false" for accurate/eager.
+        includeOngoingSessions: "true"
         activationThreshold: "0"
         # For basic-auth Grids, resolve credentials from the Job's own env:
         # usernameFromEnv: SE_ROUTER_USERNAME

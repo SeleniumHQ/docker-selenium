@@ -481,8 +481,12 @@ if [ "${SELENIUM_GRID_PROTOCOL}" = "https" ]; then
 fi
 
 if [ "${TEST_MULTIPLE_VERSIONS}" = "true" ]; then
+  # Test-only overlay, not the chart's shipped multiple-nodes-platform-version.yaml:
+  # points previous-version Nodes at GHCR (Docker Hub anonymous pulls hit the rate
+  # limit under scale testing) and prunes the range to what the tests actually
+  # request. See tests/charts/ci/multiple-nodes-platform-version-values.yaml.
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \
-  --values ${CHART_PATH}/multiple-nodes-platform-version.yaml \
+  --values ${TEST_VALUES_PATH}/multiple-nodes-platform-version-values.yaml \
   "
 elif [ "${TEST_MULTIPLE_PLATFORMS}" = "true" ] && [ "${TEST_MULTIPLE_PLATFORMS_RELAY}" != "true" ]; then
   HELM_COMMAND_SET_BASE_VALUES="${HELM_COMMAND_SET_BASE_VALUES} \

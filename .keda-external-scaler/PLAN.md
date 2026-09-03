@@ -71,7 +71,7 @@ Everything downstream of T6 is sequential.
 - **Gate 1 (after T3):** `go test ./internal/gridscaler` green with unmodified
   upstream expectations → algorithm parity proven.
 - **Gate 2 (after T6):** in-process gRPC + fake Grid fixture test green,
-  including all four `jobScalingStrategy` conventions and activation threshold →
+  including both `includeOngoingSessions` conventions and activation threshold →
   wire-level parity proven.
 - **Gate 3 (after T8):** `make image` builds linux/amd64+arm64; container starts
   and serves health check.
