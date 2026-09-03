@@ -1472,6 +1472,18 @@ test_k8s_autoscaling_job_count_strategy_default:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
+test_k8s_autoscaling_job_count_strategy_accurate_in_chaos:
+	MATRIX_TESTS=AutoScalingTestsScaleChaos SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate_with_node_max_sessions:
+	TEST_NODE_MAX_SESSIONS=3 SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate:
+	SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
 test_k8s_autoscaling_deployment_count_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \
 	make test_k8s_autoscaling_deployment_count
