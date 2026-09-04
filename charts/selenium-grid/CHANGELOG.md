@@ -1,3 +1,18 @@
+## :heavy_check_mark: selenium-grid-0.59.0
+
+- Chart is using image tag 4.48.0-20260909
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`55892978`](http://github.com/seleniumhq/docker-selenium/commit/558929784317317af43b8266bc42c3592dc46129) - [ci] Update tag 4.48.0-20260909 in docs and files :: Selenium CI Bot
+- [`514ae167`](http://github.com/seleniumhq/docker-selenium/commit/514ae167666483f52f3fc979c9a3cdcfe68266b7) - chore(deps): update helm release kube-prometheus-stack to v89 (#3219) :: renovate[bot]
+- [`4c61f383`](http://github.com/seleniumhq/docker-selenium/commit/4c61f3838a47a3ca89a6fed62d696bcd2e2730dc) - K8s: Replace external scaler jobScalingStrategy with includeOngoingSessions (#3218) :: Viet Nguyen Duc
+- [`4bdc5d6f`](http://github.com/seleniumhq/docker-selenium/commit/4bdc5d6fc4a47b378bc95f9784adb41911a17c4a) - chore(deps): update helm release postgres to ^0.20.0 (#3209) :: renovate[bot]
+- [`d7c0050e`](http://github.com/seleniumhq/docker-selenium/commit/d7c0050e7081ffa817c59b5cf84edab43eb7a0d4) - [ci] Update chart 0.58.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.58.0
 
 - Chart is using image tag 4.47.0-20260808
