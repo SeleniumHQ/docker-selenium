@@ -1,7 +1,7 @@
 matrix:
   browser:
     '155':
-      FIREFOX_VERSION: '155.0'
+      FIREFOX_VERSION: 155.0.1
     '154':
       FIREFOX_VERSION: 154.0.1
     '153':
