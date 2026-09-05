@@ -42,6 +42,9 @@ on:
       ci-tag:
         description: 'Tag the test jobs should pull'
         value: ${{ jobs.decide.outputs.ci-tag }}
+      src-hash:
+        description: 'Content hash the tag is keyed on'
+        value: ${{ jobs.decide.outputs.src-hash }}
       registry:
         description: 'Registry holding that tag'
         value: ${{ jobs.decide.outputs.registry }}
@@ -59,6 +62,7 @@ jobs:
     outputs:
       mode: ${{ steps.decide.outputs.mode }}
       ci-tag: ${{ steps.decide.outputs.ci-tag }}
+      src-hash: ${{ steps.decide.outputs.src-hash }}
       registry: ${{ steps.decide.outputs.registry }}
     steps:
       - name: Checkout code
@@ -72,8 +76,6 @@ jobs:
         env:
           IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           INPUT_TAG: ${{ inputs.ci-tag }}
           FORCE_BUILD: ${{ inputs.force-build }}
           REGISTRY: ${{ env.CI_REGISTRY }}
@@ -90,44 +92,49 @@ jobs:
             exit 0
           fi
 
-          if [ -n "${INPUT_TAG}" ]; then
-            TAG="${INPUT_TAG}"
-          elif [ -n "${PR_NUMBER}" ]; then
-            TAG="pr-${PR_NUMBER}"
-          else
-            # Not a pull request, so this is trunk. Publish under a run-scoped tag
-            # and let build-test.yml move :main only after the suite passes, so
-            # :main never points at an untested tree.
-            TAG="trunk-${HEAD_SHA:0:7}"
-          fi
+          # Key the image set on its own content, not on the branch or the
+          # pull request. Every path that can change what ends up in an image,
+          # hashed by blob id, so the tag is identical whenever the content is.
+          #
+          # This is what lets a merge promote the pull request's images rather
+          # than rebuilding them: SeleniumHQ squash-merges, so the pull request
+          # commit is not an ancestor of trunk and cannot be matched by sha, but
+          # the content hash is the same on both sides. Verified against #3228:
+          # its head and its squash merge both hash to fd9b32eb0465.
+          PATHS="Base Hub Distributor Router Sessions SessionQueue EventBus NodeBase
+                 NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
+                 NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
+                 .ffmpeg .keda-external-scaler Makefile"
+          SRC_HASH=$(git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort | sha256sum | cut -c1-12)
+          TAG="${INPUT_TAG:-src-${SRC_HASH}}"
+          echo "Source hash: ${SRC_HASH}"
           echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Images"
+            echo
+            echo "Source hash: \`${SRC_HASH}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
-          if [ "${FORCE_BUILD}" = "true" ] || [ -z "${PR_NUMBER}" ]; then
-            echo "Building: ${FORCE_BUILD:+forced}${PR_NUMBER:+}${PR_NUMBER:-not a pull request}."
+          if [ "${FORCE_BUILD}" = "true" ]; then
+            echo "Forced rebuild."
             echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+            echo "Forced rebuild." >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
-          # Anything that can change what ends up inside an image. The Makefile
-          # is included because it carries the build arguments and pinned
-          # versions; that is deliberately coarse. An unnecessary build costs
-          # minutes, a missed one ships an untested image.
-          CHANGED=$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")
-          if echo "${CHANGED}" | grep -qE '^(Base|Hub|Distributor|Router|Sessions|SessionQueue|EventBus|NodeBase|NodeChrome|NodeChromium|NodeEdge|NodeFirefox|NodeDocker|NodeKubernetes|NodeAllBrowsers|Standalone|StandaloneDocker|StandaloneKubernetes|Video|\.ffmpeg|\.keda-external-scaler)/|^Makefile$'; then
-            echo "Image content changed; building once and pushing ${TAG}."
-            echo "${CHANGED}" | grep -E '^(Base|Hub|Distributor|Router|Sessions|SessionQueue|EventBus|Node|Standalone|Video|\.ffmpeg|\.keda-external-scaler)|^Makefile$' | head -20
-            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Nothing image-affecting changed, so the last good trunk build will do
-          # - provided it exists. It will not on the first run after this lands.
-          if docker manifest inspect "${REGISTRY}/base:main" >/dev/null 2>&1; then
-            echo "No image content changed; reusing ${REGISTRY}/<image>:main."
-            echo "mode=reuse-main" >> "$GITHUB_OUTPUT"
-            echo "ci-tag=main" >> "$GITHUB_OUTPUT"
+          # Already built by an earlier run - the pull request that introduced
+          # this content, most often. Nothing to rebuild, on a pull request or on
+          # trunk. On trunk this is exactly the promotion case: the merge reuses
+          # the images its pull request built and tested, and promote-main then
+          # retags them.
+          if docker manifest inspect "${REGISTRY}/base:${TAG}" >/dev/null 2>&1; then
+            echo "Images for this content already exist; reusing ${TAG}."
+            echo "Reusing existing images - no rebuild." >> "$GITHUB_STEP_SUMMARY"
+            echo "mode=reuse" >> "$GITHUB_OUTPUT"
           else
-            echo "No image content changed, but :main does not exist yet; building."
+            echo "No images for this content; building ${TAG}."
+            echo "Image content is new - building once." >> "$GITHUB_STEP_SUMMARY"
             echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
           fi
 
@@ -190,6 +197,9 @@ jobs:
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" make build
 
+      # Also tag pr-<N>, so cleanup-pr-images.yml has something to delete when the
+      # pull request closes. The src-* tag is shared and must outlive any one
+      # pull request, so it is never the thing cleanup removes.
       - name: Push images
         if: inputs.push
         uses: nick-invision/retry@master
@@ -201,6 +211,10 @@ jobs:
             VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" \
               CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
               make push_ci_images
+            if [ -n "${{ github.event.pull_request.number }}" ]; then
+              CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+                PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images
+            fi
 
       - name: Summary
         if: always()

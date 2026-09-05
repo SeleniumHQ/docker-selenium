@@ -117,7 +117,7 @@ jobs:
     # rather than by the build job. The build published trunk-<sha>; this retags
     # that exact manifest, so no rebuild happens and the digest is identical.
     needs: [build-images, docker-test, helm-chart-test, k8s-dynamic-grid-test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !failure() && !cancelled() && needs.build-images.outputs.mode == 'build-and-push'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !failure() && !cancelled() && needs.build-images.outputs.mode != 'build-in-job'
     name: Promote tested images to main
     runs-on: ubuntu-24.04
     permissions:
