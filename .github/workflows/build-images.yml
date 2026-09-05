@@ -124,11 +124,14 @@ jobs:
           # pull request. Every path that can change what ends up in an image,
           # hashed by blob id, so the tag is identical whenever the content is.
           #
-          # This is what lets a merge promote the pull request's images rather
-          # than rebuilding them: SeleniumHQ squash-merges, so the pull request
-          # commit is not an ancestor of trunk and cannot be matched by sha, but
-          # the content hash is the same on both sides. Verified against #3228:
-          # its head and its squash merge both hash to fd9b32eb0465.
+          # This is what lets a merge reuse the pull request's images rather than
+          # rebuilding them: SeleniumHQ squash-merges, so the pull request commit
+          # is not an ancestor of trunk and cannot be matched by sha, but the
+          # content hash is the same on both sides. Checked against #3228, whose
+          # head and squash merge hash identically over these paths. The digest
+          # also covers BASE_VERSION, so the two sides match only while they
+          # resolve the same core - which is why `release` is threaded through
+          # from the calling workflow rather than resolved here.
           PATHS="Base Hub Distributor Router Sessions SessionQueue EventBus NodeBase
                  NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
                  NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
