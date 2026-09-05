@@ -17,7 +17,6 @@ It is meant to be run together with the rest of the Distributed components. Give
 # To execute this docker-compose yml file use `docker-compose -f docker-compose-v3-full-grid.yml up`
 # Add the `-d` flag at the end for detached execution
 # To stop the execution, hit Ctrl+C, and then `docker-compose -f docker-compose-v3-full-grid.yml down`
-version: "3"
 services:
   selenium-event-bus:
     image: selenium/event-bus:latest
@@ -36,8 +35,6 @@ services:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   selenium-session-queue:
     image: selenium/session-queue:latest
@@ -56,12 +53,8 @@ services:
       - selenium-session-queue
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
       - SE_SESSIONS_MAP_HOST=selenium-sessions
-      - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
-      - SE_SESSION_QUEUE_PORT=5559
 
   selenium-router:
     image: selenium/router:latest
@@ -74,11 +67,8 @@ services:
       - selenium-session-queue
     environment:
       - SE_DISTRIBUTOR_HOST=selenium-distributor
-      - SE_DISTRIBUTOR_PORT=5553
       - SE_SESSIONS_MAP_HOST=selenium-sessions
-      - SE_SESSIONS_MAP_PORT=5556
       - SE_SESSION_QUEUE_HOST=selenium-session-queue
-      - SE_SESSION_QUEUE_PORT=5559
 
   chrome:
     image: selenium/node-chrome:latest
@@ -87,8 +77,6 @@ services:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   edge:
     image: selenium/node-edge:latest
@@ -97,8 +85,6 @@ services:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 
   firefox:
     image: selenium/node-firefox:latest
@@ -107,8 +93,6 @@ services:
       - selenium-event-bus
     environment:
       - SE_EVENT_BUS_HOST=selenium-event-bus
-      - SE_EVENT_BUS_PUBLISH_PORT=4442
-      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
 ```
 
 After starting the complete compose file, point your WebDriver tests to http://localhost:4444.

@@ -27,20 +27,14 @@ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub
 ```bash
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-chrome:latest
 
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-edge:latest
 
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="2g" \
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 \
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 \
     selenium/node-firefox:latest
 ```
 
@@ -49,18 +43,12 @@ If you are using Windows Powershell, use this command:
 ```powershell
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-chrome:latest
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-edge:latest
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="2g" `
-    -e SE_EVENT_BUS_PUBLISH_PORT=4442 `
-    -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 `
     selenium/node-firefox:latest
 ```
 
