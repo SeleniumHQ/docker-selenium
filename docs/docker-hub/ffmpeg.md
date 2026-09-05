@@ -1,6 +1,5 @@
 ---
 description: A minimal static FFmpeg and Rclone binary for recording/uploading video function in Selenium Grid
-footer: false
 ---
 The static FFmpeg is built with enabling `libx264` and `libxcb` to record the format `x11grab` only.
 

@@ -88,17 +88,17 @@ The tag structure is as follows:
 selenium/hub-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
-### Example of a release with Selenium Grid Server 4.9.0, released on 20230426
+### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
 
 ```
-    Selenium Server 4.9.0
-    Release date 20230426
+    Selenium Server 4.48.0
+    Release date 20260909
 
 
 e126989f151e        selenium/hub   4
-e126989f151e        selenium/hub   4.9
-e126989f151e        selenium/hub   4.9.0
-e126989f151e        selenium/hub   4.9.0-20230426
+e126989f151e        selenium/hub   4.48
+e126989f151e        selenium/hub   4.48.0
+e126989f151e        selenium/hub   4.48.0-20260909
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

@@ -1,6 +1,5 @@
 ---
 description: Image with stable KEDA core version and patch implementation for Selenium Grid Scaler in Kubernetes
-footer: false
 ---
 # Introduction
 
@@ -17,9 +16,9 @@ The stable implementation will be merged to the upstream KEDA repository frequen
 Replace the image registry and tag of these KEDA components with the patched image tag:
 
 ```bash
-docker pull selenium/keda:2.15.1-selenium-grid-20240907
-docker pull selenium/keda-metrics-apiserver:2.15.1-selenium-grid-20240907
-docker pull selenium/keda-admission-webhooks:2.15.1-selenium-grid-20240907
+docker pull selenium/keda:2.20.1-20260909
+docker pull selenium/keda-metrics-apiserver:2.20.1-20260909
+docker pull selenium/keda-admission-webhooks:2.20.1-20260909
 ```
 
 Besides that, you also can use image tag `latest` or `nightly`.
@@ -31,15 +30,15 @@ If you are deploying KEDA core using their official Helm [chart](https://github.
     keda:
       registry: selenium
       repository: keda
-      tag: "2.15.1-selenium-grid-20240907"
+      tag: "2.20.1-20260909"
     metricsApiServer:
       registry: selenium
       repository: keda-metrics-apiserver
-      tag: "2.15.1-selenium-grid-20240907"
+      tag: "2.20.1-20260909"
     webhooks:
       registry: selenium
       repository: keda-admission-webhooks
-      tag: "2.15.1-selenium-grid-20240907"
+      tag: "2.20.1-20260909"
 ```
 
 If you are deployment Selenium Grid chart with `autoscaling.enabled` is `true` (implies installing KEDA sub-chart), KEDA images registry and tag already set in the `values.yaml`. Refer to list [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md).

@@ -43,5 +43,18 @@ pull-request check, and vice versa.
 ```bash
 make check_dockerhub_description                     # validate; no network, no credentials
 make update_dockerhub_description DRY_RUN=true       # report what would change
-make update_dockerhub_description                    # publish (needs DOCKER_USERNAME/DOCKER_PASSWORD)
+make update_dockerhub_description                    # publish
+```
+
+| Command | Credentials | Network |
+| --- | --- | --- |
+| `make check_dockerhub_description` | None. | None. Parses the files and compares them against the `Makefile`. |
+| `make update_dockerhub_description DRY_RUN=true` | `DOCKER_USERNAME` and `DOCKER_PASSWORD` must be **set**, but are not used — dummy values are fine. The dry run skips the login call and reads the current overviews from the public `GET` endpoint. | Yes, read-only. |
+| `make update_dockerhub_description` | `DOCKER_USERNAME` and `DOCKER_PASSWORD` must be real. | Yes, reads and writes. |
+
+Both `update_dockerhub_description` modes exit with `DOCKER_USERNAME and DOCKER_PASSWORD must be
+set.` when either variable is missing, so export a placeholder before a dry run:
+
+```bash
+DOCKER_USERNAME=x DOCKER_PASSWORD=x make update_dockerhub_description DRY_RUN=true
 ```

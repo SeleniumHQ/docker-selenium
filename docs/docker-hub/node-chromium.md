@@ -75,24 +75,24 @@ selenium/node-chromium-<browserVersion>-<browserDriver>-<browserDriverVersion>-<
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Chromium 125, ChromeDriver 125.0 and Selenium Grid Server 4.21.0, released on 20230426
+### Example of a release with Chromium 152, ChromeDriver 152.0 and Selenium Grid Server 4.48.0, released on 20260909
 
 ```
-    Chromium 112.0
-    ChromeDriver 112.0
-    Selenium Server 4.9.0
-    Release date 20230426
+    Chromium 152.0
+    ChromeDriver 152.0
+    Selenium Server 4.48.0
+    Release date 20260909
 
 
 e126989f151e        selenium/node-chromium   4
-e126989f151e        selenium/node-chromium   4.9
-e126989f151e        selenium/node-chromium   4.9.0
-e126989f151e        selenium/node-chromium   4.9.0-20230426
-e126989f151e        selenium/node-chromium   112.0                  
-e126989f151e        selenium/node-chromium   112.0-20230426         
-e126989f151e        selenium/node-chromium   112.0-chromedriver-112.0 
-e126989f151e        selenium/node-chromium   112.0-chromedriver-112.0-20230426
-e126989f151e        selenium/node-chromium   112.0-chromedriver-112.0-grid-4.9.0-20230426  
+e126989f151e        selenium/node-chromium   4.48
+e126989f151e        selenium/node-chromium   4.48.0
+e126989f151e        selenium/node-chromium   4.48.0-20260909
+e126989f151e        selenium/node-chromium   152.0                  
+e126989f151e        selenium/node-chromium   152.0-20260909         
+e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0 
+e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0-20260909
+e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0-grid-4.48.0-20260909  
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

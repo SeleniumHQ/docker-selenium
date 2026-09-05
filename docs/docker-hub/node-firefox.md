@@ -75,24 +75,24 @@ selenium/node-firefox-<browserVersion>-<browserDriver>-<browserDriverVersion>-<M
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Firefox 110, GeckoDriver 0.33.0 and Selenium Grid Server 4.9.0, released on 20230426
+### Example of a release with Firefox 155, GeckoDriver 0.37 and Selenium Grid Server 4.48.0, released on 20260909
 
 ```
-    Firefox 110.0
-    GeckoDriver 0.33.0
-    Selenium Server 4.9.0
-    Release date 20230426
+    Firefox 155.0
+    GeckoDriver 0.37
+    Selenium Server 4.48.0
+    Release date 20260909
 
 
 e126989f151e        selenium/node-firefox   4
-e126989f151e        selenium/node-firefox   4.9
-e126989f151e        selenium/node-firefox   4.9.0
-e126989f151e        selenium/node-firefox   4.9.0-20230426
-e126989f151e        selenium/node-firefox   110.0                  
-e126989f151e        selenium/node-firefox   110.0-20230426         
-e126989f151e        selenium/node-firefox   110.0-geckodriver-0.33.0 
-e126989f151e        selenium/node-firefox   110.0-geckodriver-0.33.0 -20230426
-e126989f151e        selenium/node-firefox   110.0-geckodriver-0.33.0 -grid-4.9.0-20230426  
+e126989f151e        selenium/node-firefox   4.48
+e126989f151e        selenium/node-firefox   4.48.0
+e126989f151e        selenium/node-firefox   4.48.0-20260909
+e126989f151e        selenium/node-firefox   155.0                  
+e126989f151e        selenium/node-firefox   155.0-20260909         
+e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37 
+e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37-20260909
+e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37-grid-4.48.0-20260909  
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

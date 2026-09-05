@@ -38,24 +38,24 @@ selenium/standalone-edge-<browserVersion>-<browserDriver>-<browserDriverVersion>
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Edge 112, EdgeDriver 112.0 and Selenium Grid Server 4.9.0, released on 20230426
+### Example of a release with Edge 152, EdgeDriver 152.0 and Selenium Grid Server 4.48.0, released on 20260909
 
 ```
-    Edge 112.0
-    EdgeDriver 112.0
-    Selenium Server 4.9.0
-    Release date 20230426
+    Edge 152.0
+    EdgeDriver 152.0
+    Selenium Server 4.48.0
+    Release date 20260909
 
 
 e126989f151e        selenium/standalone-edge   4
-e126989f151e        selenium/standalone-edge   4.9
-e126989f151e        selenium/standalone-edge   4.9.0
-e126989f151e        selenium/standalone-edge   4.9.0-20230426
-e126989f151e        selenium/standalone-edge   112.0                  
-e126989f151e        selenium/standalone-edge   112.0-20230426         
-e126989f151e        selenium/standalone-edge   112.0-edgedriver-112.0 
-e126989f151e        selenium/standalone-edge   112.0-edgedriver-112.0-20230426
-e126989f151e        selenium/standalone-edge   112.0-edgedriver-112.0-grid-4.9.0-20230426  
+e126989f151e        selenium/standalone-edge   4.48
+e126989f151e        selenium/standalone-edge   4.48.0
+e126989f151e        selenium/standalone-edge   4.48.0-20260909
+e126989f151e        selenium/standalone-edge   152.0                  
+e126989f151e        selenium/standalone-edge   152.0-20260909         
+e126989f151e        selenium/standalone-edge   152.0-edgedriver-152.0 
+e126989f151e        selenium/standalone-edge   152.0-edgedriver-152.0-20260909
+e126989f151e        selenium/standalone-edge   152.0-edgedriver-152.0-grid-4.48.0-20260909  
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

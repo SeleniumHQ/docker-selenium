@@ -22,9 +22,9 @@ The same Dynamic Grid concept is applied to a Kubernetes cluster. The Grid provi
 
 ### Minimal setup
 
-Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.41.0-20260222/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
+Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.48.0-20260909/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
 
-Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.41.0-20260222/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
+Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260909/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
 
 ```yaml
 # configmap.yaml
@@ -36,9 +36,9 @@ data:
   kubernetes.toml: |
     [kubernetes]
     configs = [
-        "selenium/standalone-chrome:4.41.0-20260222", '{"browserName": "chrome", "platformName": "linux"}',
-        "selenium/standalone-firefox:4.41.0-20260222", '{"browserName": "firefox", "platformName": "linux"}',
-        "selenium/standalone-edge:4.41.0-20260222", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+        "selenium/standalone-chrome:4.48.0-20260909", '{"browserName": "chrome", "platformName": "linux"}',
+        "selenium/standalone-firefox:4.48.0-20260909", '{"browserName": "firefox", "platformName": "linux"}',
+        "selenium/standalone-edge:4.48.0-20260909", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 ```
 
@@ -69,7 +69,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-standalone-kubernetes
-          image: selenium/standalone-kubernetes:4.41.0-20260222
+          image: selenium/standalone-kubernetes:4.48.0-20260909
           ports:
             - containerPort: 4444
           env:
@@ -155,17 +155,17 @@ selenium/standalone-kubernetes-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 
-### Example of a release with Selenium Grid Server 4.41.0, released on 20260222
+### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
 
 ```
-    Selenium Server 4.41.0
-    Release date 20260222
+    Selenium Server 4.48.0
+    Release date 20260909
 
 
 e126989f151e        selenium/standalone-kubernetes   4
-e126989f151e        selenium/standalone-kubernetes   4.41
-e126989f151e        selenium/standalone-kubernetes   4.41.0
-e126989f151e        selenium/standalone-kubernetes   4.41.0-20260222
+e126989f151e        selenium/standalone-kubernetes   4.48
+e126989f151e        selenium/standalone-kubernetes   4.48.0
+e126989f151e        selenium/standalone-kubernetes   4.48.0-20260909
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.
