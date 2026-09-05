@@ -55,7 +55,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@main
         with:
-          python-version: '3.12'
+          python-version: '3.14'
       - name: Run unit tests
         run: make test_dockerhub_description
       - name: Validate descriptions
