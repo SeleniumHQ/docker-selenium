@@ -12,8 +12,19 @@ Two modes:
   to catch anything the close event missed - a failed run, or a pull request that
   closed before this existed.
 
-Only ever deletes tags matching ``pr-<digits>``. A version tag, ``main``, or
-anything else is not something this touches, whatever the API returns.
+GHCR deletes *versions* - manifests - not individual tags, and one manifest
+carries both its ``src-<hash>`` tag and the ``pr-<N>`` alias for the pull request
+that built it. So ``pr-<N>`` cannot be removed while keeping ``src-<hash>``: they
+are the same object. The alias is therefore used as the handle for finding what a
+closed pull request left behind, and a version is removed only when every one of
+these holds:
+
+* it carries a ``pr-<N>`` tag whose pull request is closed
+* it carries no ``pr-<M>`` tag for a pull request that is still open, since two
+  pull requests with identical image content share one manifest
+* it is not the manifest ``main`` points at, which is the release promotion source
+* every tag on it is ``pr-*`` or ``src-*``, so a release tag, ``latest`` or
+  ``nightly`` can never be caught by this even if the API returns one
 """
 
 import argparse
@@ -27,6 +38,8 @@ import urllib.request
 
 API = "https://api.github.com"
 PR_TAG = re.compile(r"\Apr-(\d+)\Z")
+SRC_TAG = re.compile(r"\Asrc-[0-9a-f]{6,}\Z")
+MAIN_TAG = "main"
 
 # Kept in step with CI_IMAGES in the Makefile.
 IMAGES = [
@@ -98,34 +111,53 @@ def main(argv=None):
 
     deleted, kept, failed = 0, 0, []
     open_cache = {}
+    protected = 0
 
     print("## Pull request image cleanup\n")
     for image in IMAGES:
         try:
-            for version in versions(args.owner, image, token):
-                tags = version.get("metadata", {}).get("container", {}).get("tags", []) or []
-                targets = [t for t in tags if PR_TAG.match(t)]
-                if not targets:
-                    continue
-                number = int(PR_TAG.match(targets[0]).group(1))
+            all_versions = versions(args.owner, image, token)
+            # Whatever main points at is the promotion source for a release and is
+            # never removed, however old the pull request that first built it.
+            main_ids = {
+                v["id"]
+                for v in all_versions
+                if MAIN_TAG in (v.get("metadata", {}).get("container", {}).get("tags", []) or [])
+            }
 
-                if args.pr is not None and number != args.pr:
+            for version in all_versions:
+                tags = version.get("metadata", {}).get("container", {}).get("tags", []) or []
+                pr_tags = [t for t in tags if PR_TAG.match(t)]
+                if not pr_tags:
                     continue
-                if args.pr is None:
+
+                numbers = sorted(int(PR_TAG.match(t).group(1)) for t in pr_tags)
+                if args.pr is not None and args.pr not in numbers:
+                    continue
+
+                # Never touch anything carrying a tag outside the two CI families.
+                if any(not (PR_TAG.match(t) or SRC_TAG.match(t)) for t in tags):
+                    protected += 1
+                    continue
+
+                if version["id"] in main_ids:
+                    protected += 1
+                    continue
+
+                # Identical image content is one manifest, so a second pull request
+                # can be sharing it. Keep it while any of them is still open.
+                still_open = False
+                for number in numbers:
                     if number not in open_cache:
                         open_cache[number] = pr_is_open(args.owner, args.repo, number, token)
                     if open_cache[number]:
-                        kept += 1
-                        continue
-
-                # A version can carry several tags; only delete when every tag on
-                # it is a pr-* tag, so a shared manifest is never removed.
-                if set(tags) != set(targets):
+                        still_open = True
+                if still_open:
                     kept += 1
                     continue
 
                 if args.dry_run:
-                    print(f"- would delete `{image}:{','.join(targets)}`")
+                    print(f"- would delete `{image}:{','.join(sorted(tags))}`")
                     deleted += 1
                     continue
                 try:
@@ -137,7 +169,7 @@ def main(argv=None):
                     )
                     deleted += 1
                 except urllib.error.HTTPError as error:
-                    failed.append(f"{image}:{','.join(targets)} ({error.code})")
+                    failed.append(f"{image}:{','.join(sorted(tags))} ({error.code})")
         except Exception as error:  # noqa: BLE001 - one bad package must not stop the sweep
             failed.append(f"{image} ({error})")
 
@@ -145,7 +177,9 @@ def main(argv=None):
     print(f"Scope: {scope}\n")
     print(f"- Deleted: **{deleted}**")
     if kept:
-        print(f"- Kept (pull request still open, or tag shared): {kept}")
+        print(f"- Kept (a sharing pull request is still open): {kept}")
+    if protected:
+        print(f"- Protected (points at `main`, or carries a non-CI tag): {protected}")
     if failed:
         print(f"- Failed: {len(failed)}")
         for item in failed[:20]:
