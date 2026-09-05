@@ -110,6 +110,15 @@ generate_readme_charts:
 update_list_env_vars: install_python_deps
 	python3 scripts/generate_list_env_vars/extract_env.py
 
+update_dockerhub_description:
+	python3 scripts/dockerhub_description/update_description.py --namespace $(NAME) $(if $(DRY_RUN),--dry-run,)
+
+check_dockerhub_description:
+	python3 scripts/dockerhub_description/update_description.py --check
+
+test_dockerhub_description:
+	python3 -m unittest discover -s tests/dockerhub_description -v
+
 update_release_version: install_python_deps
 	python3 scripts/release_preparation/update_versions.py --expected-base-version $(EXPECTED_BASE_VERSION)
 

@@ -255,3 +255,14 @@ jobs:
           files: |
             package_versions.txt
             ${{ env.PUBLISH_YAML_MANIFESTS }}
+
+  update-dockerhub-description:
+    needs:
+      - deploy
+    if: ${{ needs.deploy.result == 'success' }}
+    name: Update Docker Hub descriptions
+    uses: ./.github/workflows/update-dockerhub-description.yml
+    secrets: inherit
+    with:
+      dry-run: false
+      ref: trunk
