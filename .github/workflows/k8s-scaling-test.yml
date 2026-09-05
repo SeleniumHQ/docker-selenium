@@ -8,6 +8,21 @@ on:
       DOCKER_PASSWORD:
         required: false
     inputs:
+      ci-mode:
+        description: 'reuse-main, build-and-push, or build-in-job'
+        required: false
+        type: string
+        default: 'build-in-job'
+      ci-tag:
+        description: 'Registry tag holding the prebuilt images'
+        required: false
+        type: string
+        default: ''
+      ci-registry:
+        description: 'Registry holding the prebuilt images'
+        required: false
+        type: string
+        default: ''
       release:
         description: 'Test a new release process'
         required: false
@@ -197,7 +212,24 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: CLUSTER=${CLUSTER} SERVICE_MESH=${SERVICE_MESH} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      # Built once by build-images.yml. Pull and retag to the local names the
+      # compose files already expect, so the test targets need no changes;
+      # SKIP_BUILD then stops their Make prerequisites rebuilding them.
+      - name: Use prebuilt images
+        if: inputs.ci-mode != 'build-in-job'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} CI_REGISTRY="${{ inputs.ci-registry }}" CI_TAG="${{ inputs.ci-tag }}" make pull_ci_images
+      - name: Skip in-job builds when images were pulled
+        if: inputs.ci-mode != 'build-in-job'
+        run: echo "SKIP_BUILD=true" >> $GITHUB_ENV
       - name: Build Docker images
+        if: inputs.ci-mode == 'build-in-job'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 30

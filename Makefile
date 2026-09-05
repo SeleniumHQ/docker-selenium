@@ -39,6 +39,75 @@ TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
 
+# --- CI image reuse -----------------------------------------------------------
+#
+# The PR test suite spans 37 matrix jobs and every one of them used to build the
+# images it needed, because each test target names image targets as prerequisites
+# (`test_video: video hub chrome firefox edge chromium`). Building once and
+# reusing the result is worth ~36 redundant builds per pull request.
+#
+#   SKIP_BUILD=true   every image-build target becomes a no-op, so the test
+#                     targets keep their prerequisites and need no edits. Use it
+#                     only when the images are already present locally.
+#   make push_ci_images / pull_ci_images   move that set through a registry.
+#
+# With SKIP_BUILD unset nothing below changes: `make build`, `make test` and every
+# other local workflow behave exactly as before.
+
+CI_REGISTRY := $(or $(CI_REGISTRY),ghcr.io/seleniumhq)
+CI_TAG := $(or $(CI_TAG),main)
+
+# The images a test run can need. Kept as one list so push and pull cannot drift.
+CI_IMAGES := base hub distributor router sessions session-queue event-bus \
+	node-base node-chrome node-chrome-for-testing node-chromium node-edge node-firefox \
+	node-all-browsers node-docker node-kubernetes \
+	standalone-chrome standalone-chrome-for-testing standalone-chromium standalone-edge \
+	standalone-firefox standalone-all-browsers standalone-docker standalone-kubernetes \
+	video keda-external-scaler
+
+# Image-build targets only. gen_certs, prepare_resources and update_go are
+# deliberately absent: they produce working-tree files the tests read, not images,
+# and must still run when the images come from a registry.
+SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bus \
+	node_base chrome chrome_only chrome-for-testing chrome-for-testing_only chromium \
+	edge edge_only firefox firefox_only all_browsers docker kubernetes \
+	standalone_chrome standalone_chrome_only standalone_chrome-for-testing \
+	standalone_chrome-for-testing_only standalone_chromium standalone_edge \
+	standalone_edge_only standalone_firefox standalone_firefox_only \
+	standalone_all_browsers standalone_docker standalone_kubernetes \
+	video ffmpeg keda_external_scaler
+
+
+# Push what was just built, so the rest of the run can reuse it.
+push_ci_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		echo "push $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		docker tag $(NAME)/$$image:$(TAG_VERSION) $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		docker push $(CI_REGISTRY)/$$image:$(CI_TAG); \
+	done
+
+# Pull the prebuilt set and give it the local names the compose files expect.
+# Fails on the first missing image: a clear error here beats a compose failure
+# fifteen minutes into a test job.
+pull_ci_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		echo "pull $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		docker pull --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		docker tag $(CI_REGISTRY)/$$image:$(CI_TAG) $(NAME)/$$image:$(TAG_VERSION); \
+	done
+	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
+
+# Promote a tested tag to another tag without rebuilding, so the digest released
+# is the digest tested. Used by deploy.yml to turn :main into the release tag.
+promote_ci_images:
+	@set -e; \
+	if [ -z "$(PROMOTE_TO)" ]; then echo "PROMOTE_TO is required"; exit 1; fi; \
+	for image in $(CI_IMAGES); do \
+		echo "promote $$image: $(CI_TAG) -> $(PROMOTE_TO)"; \
+		docker buildx imagetools create \
+			-t $(CI_REGISTRY)/$$image:$(PROMOTE_TO) $(CI_REGISTRY)/$$image:$(CI_TAG); \
+	done
+
 all: hub \
 	distributor \
 	router \
@@ -1572,3 +1641,13 @@ test_k8s_dynamic_grid_hub_node:
 	tag_and_push_browser_images \
 	test \
 	video
+
+# Placed last on purpose: GNU Make lets the last definition of a target win, so
+# these no-ops must come after the real build recipes above. Defining them at all
+# only happens when SKIP_BUILD=true, so an ordinary `make build` never sees them
+# and never prints an override warning.
+ifeq ($(strip $(SKIP_BUILD)),true)
+$(SKIP_BUILD_TARGETS):
+	@echo "SKIP_BUILD=true: using the prebuilt image for '$@'"
+endif
+

@@ -1,0 +1,215 @@
+name: Build images once
+
+# Builds the image set at most once per run and publishes it to GHCR, so the ~37
+# test matrix jobs can pull instead of each building the images it needs. Every
+# test target names image targets as Make prerequisites, so before this they all
+# built something; recent pull request runs took 75-88 minutes.
+#
+# Three modes, decided by the `decide` job and honoured by every test workflow:
+#
+#   reuse-main     the change cannot affect image content, so nothing is built
+#                  and the tests run against the last :main
+#   build-and-push build once, push :pr-<N>, every test job pulls it
+#   build-in-job   fork pull requests, which have no registry credentials, keep
+#                  today's behaviour and build in each job
+#
+# Fork detection compares the head repository against this one. A fork run never
+# receives credentials and never pushes. pull_request_target is deliberately not
+# used: it would run untrusted code with a registry write token.
+
+on:
+  workflow_call:
+    inputs:
+      ci-tag:
+        description: 'Tag to publish. Defaults to pr-<number> or main.'
+        required: false
+        type: string
+        default: ''
+      force-build:
+        description: 'Build even when the change looks image-neutral'
+        required: false
+        type: boolean
+        default: false
+      push:
+        description: 'Push the built images. False builds only, for verification.'
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      mode:
+        description: 'reuse-main, build-and-push, or build-in-job'
+        value: ${{ jobs.decide.outputs.mode }}
+      ci-tag:
+        description: 'Tag the test jobs should pull'
+        value: ${{ jobs.decide.outputs.ci-tag }}
+      registry:
+        description: 'Registry holding that tag'
+        value: ${{ jobs.decide.outputs.registry }}
+
+env:
+  CI_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  decide:
+    name: Decide whether to build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      mode: ${{ steps.decide.outputs.mode }}
+      ci-tag: ${{ steps.decide.outputs.ci-tag }}
+      registry: ${{ steps.decide.outputs.registry }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        env:
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          INPUT_TAG: ${{ inputs.ci-tag }}
+          FORCE_BUILD: ${{ inputs.force-build }}
+          REGISTRY: ${{ env.CI_REGISTRY }}
+        run: |
+          set -euo pipefail
+          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+
+          # A fork has no credentials for our registry, so it cannot use a
+          # prebuilt image and must not be handed one to push to.
+          if [ "${IS_FORK}" = "true" ]; then
+            echo "Fork pull request: building in each job, as before."
+            echo "mode=build-in-job" >> "$GITHUB_OUTPUT"
+            echo "ci-tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -n "${INPUT_TAG}" ]; then
+            TAG="${INPUT_TAG}"
+          elif [ -n "${PR_NUMBER}" ]; then
+            TAG="pr-${PR_NUMBER}"
+          else
+            # Not a pull request, so this is trunk. Publish under a run-scoped tag
+            # and let build-test.yml move :main only after the suite passes, so
+            # :main never points at an untested tree.
+            TAG="trunk-${HEAD_SHA:0:7}"
+          fi
+          echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+          if [ "${FORCE_BUILD}" = "true" ] || [ -z "${PR_NUMBER}" ]; then
+            echo "Building: ${FORCE_BUILD:+forced}${PR_NUMBER:+}${PR_NUMBER:-not a pull request}."
+            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Anything that can change what ends up inside an image. The Makefile
+          # is included because it carries the build arguments and pinned
+          # versions; that is deliberately coarse. An unnecessary build costs
+          # minutes, a missed one ships an untested image.
+          CHANGED=$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")
+          if echo "${CHANGED}" | grep -qE '^(Base|Hub|Distributor|Router|Sessions|SessionQueue|EventBus|NodeBase|NodeChrome|NodeChromium|NodeEdge|NodeFirefox|NodeDocker|NodeKubernetes|NodeAllBrowsers|Standalone|StandaloneDocker|StandaloneKubernetes|Video|\.ffmpeg|\.keda-external-scaler)/|^Makefile$'; then
+            echo "Image content changed; building once and pushing ${TAG}."
+            echo "${CHANGED}" | grep -E '^(Base|Hub|Distributor|Router|Sessions|SessionQueue|EventBus|Node|Standalone|Video|\.ffmpeg|\.keda-external-scaler)|^Makefile$' | head -20
+            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Nothing image-affecting changed, so the last good trunk build will do
+          # - provided it exists. It will not on the first run after this lands.
+          if docker manifest inspect "${REGISTRY}/base:main" >/dev/null 2>&1; then
+            echo "No image content changed; reusing ${REGISTRY}/<image>:main."
+            echo "mode=reuse-main" >> "$GITHUB_OUTPUT"
+            echo "ci-tag=main" >> "$GITHUB_OUTPUT"
+          else
+            echo "No image content changed, but :main does not exist yet; building."
+            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build and push ${{ needs.decide.outputs.ci-tag }}
+    needs: decide
+    if: needs.decide.outputs.mode == 'build-and-push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      - name: Set up environment
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: make setup_dev_env
+
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: 'false'
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
+
+      # Multi-arch, so the arm64 half of the test matrix pulls rather than
+      # building. The build is slower once; it used to be paid in every job.
+      - name: Set build date and platforms
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          make set_build_multiarch
+          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        if: inputs.push
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Build images
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 180
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: PLATFORMS="${PLATFORMS}" VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" make build
+
+      - name: Push images
+        if: inputs.push
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" \
+              CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+              make push_ci_images
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Images"
+            echo
+            echo "Mode: \`${{ needs.decide.outputs.mode }}\`"
+            echo "Tag: \`${{ env.CI_REGISTRY }}/<image>:${{ needs.decide.outputs.ci-tag }}\`"
+            echo
+            echo "Built once here; the test jobs pull instead of building."
+          } >> "$GITHUB_STEP_SUMMARY"

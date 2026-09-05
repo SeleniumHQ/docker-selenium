@@ -138,14 +138,44 @@ jobs:
         run: |
           make chart_render_template
           echo "PUBLISH_YAML_MANIFESTS=$(find ./tests/tests -name "k8s_*.yaml" | tr '\n' ',')" >> $GITHUB_ENV
-      - name: Build images
+      # Promote rather than rebuild. :main is the last trunk build whose full
+      # test suite passed, so pulling it means the digest released is the digest
+      # tested - a rebuild from the same source is close, but not the same thing.
+      # The build-test job above has already re-run the suite against it.
+      - name: Log in to GHCR
         if: github.event.inputs.skip-build-push-image != 'true'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Pull the tested main images
+        id: pull-main
+        if: github.event.inputs.skip-build-push-image != 'true'
+        continue-on-error: true
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} \
+              CI_REGISTRY="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" \
+              CI_TAG=main make pull_ci_images
+      # :main will not exist on the first release after this lands, and a release
+      # must not be blocked on that. Fall back to building exactly as before.
+      - name: Build images
+        if: github.event.inputs.skip-build-push-image != 'true' && steps.pull-main.outcome != 'success'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 180
           max_attempts: 3
           retry_wait_seconds: 60
           command: PLATFORMS="${PLATFORMS}" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make build
+      - name: Record how the images were obtained
+        if: github.event.inputs.skip-build-push-image != 'true'
+        run: |
+          if [ "${{ steps.pull-main.outcome }}" = "success" ]; then
+            echo "Promoting the tested :main images to ${GRID_VERSION}-${BUILD_DATE}." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No usable :main image; built from source for ${GRID_VERSION}-${BUILD_DATE}." >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
