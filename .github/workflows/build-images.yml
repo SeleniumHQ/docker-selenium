@@ -60,9 +60,6 @@ on:
         description: 'Registry holding that tag'
         value: ${{ jobs.decide.outputs.registry }}
 
-env:
-  CI_REGISTRY: ghcr.io/${{ github.repository_owner }}
-
 jobs:
   decide:
     name: Decide whether to build
@@ -103,9 +100,13 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           INPUT_TAG: ${{ inputs.ci-tag }}
           FORCE_BUILD: ${{ inputs.force-build }}
-          REGISTRY: ${{ env.CI_REGISTRY }}
+          OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
+          # A registry reference must be lowercase and the owner is not
+          # (SeleniumHQ), so fold it here. GitHub expressions have no lower().
+          REGISTRY="ghcr.io/$(echo "${OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "Registry: ${REGISTRY}"
           echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
 
           # A fork has no credentials for our registry, so it cannot use a
@@ -261,7 +262,7 @@ jobs:
           retry_wait_seconds: 60
           command: |
             VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" \
-              CI_REGISTRY="${{ env.CI_REGISTRY }}" \
+              CI_REGISTRY="${{ needs.decide.outputs.registry }}" \
               CI_TAG="${{ needs.decide.outputs.ci-tag }}-${{ matrix.arch }}" \
               make push_ci_images
 
@@ -272,7 +273,7 @@ jobs:
             echo "### Images (${{ matrix.arch }})"
             echo
             echo "Mode: \`${{ needs.decide.outputs.mode }}\`"
-            echo "Tag: \`${{ env.CI_REGISTRY }}/<image>:${{ needs.decide.outputs.ci-tag }}\`"
+            echo "Tag: \`${{ needs.decide.outputs.registry }}/<image>:${{ needs.decide.outputs.ci-tag }}\`"
             echo
             echo "Built once here; the test jobs pull instead of building."
           } >> "$GITHUB_STEP_SUMMARY"
@@ -294,12 +295,12 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
       - name: Merge the architecture tags
         run: |
-          CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+          CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
             make merge_ci_images
       # Alias for cleanup: pr-<N> is what gets deleted when the pull request
       # closes. The src-* tag is shared and must outlive any single one.
       - name: Tag the manifest for this pull request
         if: github.event.pull_request.number
         run: |
-          CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+          CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
             PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images
