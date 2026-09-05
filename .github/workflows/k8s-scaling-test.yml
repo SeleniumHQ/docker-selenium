@@ -223,7 +223,7 @@ jobs:
           max_attempts: 3
           retry_wait_seconds: 30
           command: |
-            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
             VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} CI_REGISTRY="${{ inputs.ci-registry }}" CI_TAG="${{ inputs.ci-tag }}" make pull_ci_images
       - name: Skip in-job builds when images were pulled
         if: inputs.ci-mode != 'build-in-job'

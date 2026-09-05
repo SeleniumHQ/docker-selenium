@@ -240,7 +240,7 @@ jobs:
 
       - name: Log in to GHCR
         if: inputs.push
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
 
       - name: Build images
         uses: nick-invision/retry@master
@@ -292,7 +292,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
       - name: Merge the architecture tags
         run: |
           CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \

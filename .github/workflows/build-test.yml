@@ -129,7 +129,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Log in to GHCR
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
       - name: Retag ${{ needs.build-images.outputs.ci-tag }} as main
         run: |
           CI_REGISTRY="${{ needs.build-images.outputs.registry }}" \

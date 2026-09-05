@@ -144,7 +144,7 @@ jobs:
       # The build-test job above has already re-run the suite against it.
       - name: Log in to GHCR
         if: github.event.inputs.skip-build-push-image != 'true'
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
       # Only reuse :main when it was built from this source and this core. The
       # hash covers both, so a stale :main - trunk moved on, or the core changed
       # under us - falls through to a rebuild instead of releasing the wrong bits.
