@@ -136,3 +136,71 @@ class DriftTest(TempDirTestCase):
         self.assertEqual(len(problems), 3)
         self.assertEqual(sum("built by the Makefile" in p for p in problems), 2)
         self.assertEqual(sum("no $(NAME)/" in p for p in problems), 1)
+
+
+class StubClient:
+    def __init__(self, remote, fail=()):
+        self.remote = remote
+        self.fail = set(fail)
+        self.patched = []
+
+    def get(self, name):
+        if name in self.fail:
+            raise RuntimeError("boom")
+        return self.remote.get(name, {"description": "", "full_description": ""})
+
+    def patch(self, name, short, full):
+        self.patched.append((name, short, full))
+
+
+class NeedsUpdateTest(unittest.TestCase):
+    def test_false_when_identical(self):
+        desc = ud.Description(name="hub", short="Hub", full="# Hub\n")
+        self.assertFalse(ud.needs_update(desc, {"description": "Hub", "full_description": "# Hub\n"}))
+
+    def test_false_when_only_trailing_whitespace_differs(self):
+        desc = ud.Description(name="hub", short="Hub", full="# Hub\n")
+        self.assertFalse(ud.needs_update(desc, {"description": "Hub", "full_description": "# Hub\n\n\n"}))
+
+    def test_true_when_short_description_differs(self):
+        desc = ud.Description(name="hub", short="Hub v2", full="# Hub\n")
+        self.assertTrue(ud.needs_update(desc, {"description": "Hub", "full_description": "# Hub\n"}))
+
+    def test_true_when_body_differs(self):
+        desc = ud.Description(name="hub", short="Hub", full="# Hub v2\n")
+        self.assertTrue(ud.needs_update(desc, {"description": "Hub", "full_description": "# Hub\n"}))
+
+    def test_true_when_remote_is_empty(self):
+        desc = ud.Description(name="keda-external-scaler", short="Scaler", full="# Scaler\n")
+        self.assertTrue(ud.needs_update(desc, {"description": "", "full_description": ""}))
+
+
+class SyncTest(unittest.TestCase):
+    def test_patches_only_changed_repositories(self):
+        descs = [
+            ud.Description(name="hub", short="Hub", full="# Hub\n"),
+            ud.Description(name="video", short="Video v2", full="# Video\n"),
+        ]
+        client = StubClient(
+            {
+                "hub": {"description": "Hub", "full_description": "# Hub\n"},
+                "video": {"description": "Video", "full_description": "# Video\n"},
+            }
+        )
+        self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 0))
+        self.assertEqual([name for name, _, _ in client.patched], ["video"])
+
+    def test_dry_run_never_patches(self):
+        descs = [ud.Description(name="video", short="Video v2", full="# Video\n")]
+        client = StubClient({"video": {"description": "Video", "full_description": "# Video\n"}})
+        self.assertEqual(ud.sync(descs, client, dry_run=True), (1, 0))
+        self.assertEqual(client.patched, [])
+
+    def test_continues_past_a_failing_repository(self):
+        descs = [
+            ud.Description(name="broken", short="Broken", full="# Broken\n"),
+            ud.Description(name="video", short="Video v2", full="# Video\n"),
+        ]
+        client = StubClient({"video": {"description": "Video", "full_description": "# Video\n"}}, fail=["broken"])
+        self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 1))
+        self.assertEqual([name for name, _, _ in client.patched], ["video"])
