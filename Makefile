@@ -78,17 +78,27 @@ SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bu
 	video ffmpeg keda_external_scaler
 
 # Push what was just built, so the rest of the run can reuse it.
+# video does not carry the grid tag: it is built as
+# $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE), and the compose files read it
+# from VIDEO_TAG. Assuming $(TAG_VERSION) for every image meant video was never
+# found locally, silently skipped on push, and then missing at merge.
+#
 # Skips images this build did not produce. On an arm64 runner that is Edge and
 # Chrome for Testing, which are amd64-only; without the check the loop would fail
 # tagging an image that was correctly never built.
 push_ci_images:
 	@set -e; pushed=0; skipped=""; \
 	for image in $(CI_IMAGES); do \
-		if ! docker image inspect $(NAME)/$$image:$(TAG_VERSION) >/dev/null 2>&1; then \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		if ! docker image inspect $(NAME)/$$image:$$local_tag >/dev/null 2>&1; then \
 			skipped="$$skipped $$image"; continue; \
 		fi; \
 		echo "push $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
-		docker tag $(NAME)/$$image:$(TAG_VERSION) $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		docker tag $(NAME)/$$image:$$local_tag $(CI_REGISTRY)/$$image:$(CI_TAG); \
 		docker push --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
 		pushed=$$((pushed+1)); \
 	done; \
@@ -101,9 +111,14 @@ push_ci_images:
 # fifteen minutes into a test job.
 pull_ci_images:
 	@set -e; for image in $(CI_IMAGES); do \
-		echo "pull $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		echo "pull $(CI_REGISTRY)/$$image:$(CI_TAG) -> $(NAME)/$$image:$$local_tag"; \
 		docker pull --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
-		docker tag $(CI_REGISTRY)/$$image:$(CI_TAG) $(NAME)/$$image:$(TAG_VERSION); \
+		docker tag $(CI_REGISTRY)/$$image:$(CI_TAG) $(NAME)/$$image:$$local_tag; \
 	done
 	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
 
