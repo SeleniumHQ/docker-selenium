@@ -77,7 +77,6 @@ SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bu
 	standalone_all_browsers standalone_docker standalone_kubernetes \
 	video ffmpeg keda_external_scaler
 
-
 # Push what was just built, so the rest of the run can reuse it.
 push_ci_images:
 	@set -e; for image in $(CI_IMAGES); do \
@@ -98,14 +97,13 @@ pull_ci_images:
 	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
 
 # Promote a tested tag to another tag without rebuilding, so the digest released
-# is the digest tested. Used by deploy.yml to turn :main into the release tag.
+# is the digest tested. Used to turn trunk-<sha> into :main, and :main into a
+# release tag.
 promote_ci_images:
-	@set -e; \
-	if [ -z "$(PROMOTE_TO)" ]; then echo "PROMOTE_TO is required"; exit 1; fi; \
-	for image in $(CI_IMAGES); do \
-		echo "promote $$image: $(CI_TAG) -> $(PROMOTE_TO)"; \
-		docker buildx imagetools create \
-			-t $(CI_REGISTRY)/$$image:$(PROMOTE_TO) $(CI_REGISTRY)/$$image:$(CI_TAG); \
+	@test -n "$(PROMOTE_TO)" || (echo "PROMOTE_TO is required" && exit 1)
+	@for image in $(CI_IMAGES); do \
+		echo "promote $$image: $(CI_TAG) -> $(PROMOTE_TO)" ; \
+		docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(PROMOTE_TO) $(CI_REGISTRY)/$$image:$(CI_TAG) || exit 1 ; \
 	done
 
 all: hub \
@@ -1650,4 +1648,3 @@ ifeq ($(strip $(SKIP_BUILD)),true)
 $(SKIP_BUILD_TARGETS):
 	@echo "SKIP_BUILD=true: using the prebuilt image for '$@'"
 endif
-
