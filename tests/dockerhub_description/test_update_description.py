@@ -80,3 +80,59 @@ class ValidateTest(unittest.TestCase):
         problems = ud.validate(desc)
         self.assertEqual(len(problems), 1)
         self.assertIn("empty", problems[0])
+
+
+MAKEFILE_SNIPPET = """
+hub: base
+\tcd ./Hub && docker buildx build -t $(NAME)/hub:$(TAG_VERSION) .
+
+video: base
+\tcd ./Video && docker buildx build -t $(NAME)/video:$(FFMPEG_TAG_VERSION) .
+
+keda:
+\tdocker buildx imagetools create -t $(NAME)/keda:latest upstream/keda:1
+"""
+
+
+class DriftTest(TempDirTestCase):
+    def makefile(self):
+        path = self.tmp_path / "Makefile"
+        path.write_text(MAKEFILE_SNIPPET)
+        return path
+
+    def docs(self, names):
+        docs = self.tmp_path / "docs"
+        docs.mkdir()
+        (docs / "_footer.md").write_text(FOOTER)
+        (docs / "README.md").write_text("# How to edit these\n")
+        for name in names:
+            (docs / f"{name}.md").write_text(f"---\ndescription: {name}\n---\n# {name}\n")
+        return docs
+
+    def test_image_names_parsed_from_makefile(self):
+        self.assertEqual(ud.image_names_from_makefile(self.makefile()), {"hub", "video", "keda"})
+
+    def test_description_files_skips_readme_and_underscore(self):
+        docs = self.docs(["hub", "video"])
+        self.assertEqual([p.stem for p in ud.description_files(docs)], ["hub", "video"])
+
+    def test_passes_when_sets_match(self):
+        self.assertEqual(ud.check_drift(self.docs(["hub", "video", "keda"]), self.makefile()), [])
+
+    def test_reports_image_without_description_file(self):
+        problems = ud.check_drift(self.docs(["hub", "video"]), self.makefile())
+        self.assertEqual(len(problems), 1)
+        self.assertIn("keda", problems[0])
+        self.assertIn("docs/docker-hub/keda.md", problems[0])
+
+    def test_reports_orphan_description_file(self):
+        problems = ud.check_drift(self.docs(["hub", "video", "keda", "retired-image"]), self.makefile())
+        self.assertEqual(len(problems), 1)
+        self.assertIn("retired-image", problems[0])
+
+    def test_reports_both_directions_at_once(self):
+        # keda and video are built but undocumented; retired-image is documented but not built.
+        problems = ud.check_drift(self.docs(["hub", "retired-image"]), self.makefile())
+        self.assertEqual(len(problems), 3)
+        self.assertEqual(sum("built by the Makefile" in p for p in problems), 2)
+        self.assertEqual(sum("no $(NAME)/" in p for p in problems), 1)

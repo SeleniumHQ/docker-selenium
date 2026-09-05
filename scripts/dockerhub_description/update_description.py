@@ -68,3 +68,25 @@ def validate(desc):
     if not desc.full.strip():
         problems.append(f"{desc.name}: full description is empty")
     return problems
+
+
+IMAGE_RE = re.compile(r"\$\(NAME\)/([a-z0-9._-]+)")
+
+
+def image_names_from_makefile(makefile):
+    return set(IMAGE_RE.findall(makefile.read_text()))
+
+
+def description_files(docs_dir):
+    return sorted(p for p in docs_dir.glob("*.md") if p.name != "README.md" and not p.name.startswith("_"))
+
+
+def check_drift(docs_dir, makefile):
+    documented = {p.stem for p in description_files(docs_dir)}
+    built = image_names_from_makefile(makefile)
+    problems = []
+    for name in sorted(built - documented):
+        problems.append(f"{name}: built by the Makefile but has no docs/docker-hub/{name}.md")
+    for name in sorted(documented - built):
+        problems.append(f"{name}: docs/docker-hub/{name}.md exists but no $(NAME)/{name} image is built")
+    return problems
