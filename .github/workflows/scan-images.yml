@@ -87,31 +87,14 @@ jobs:
         env:
           INPUT_IMAGES: ${{ inputs.images }}
           TAG: ${{ inputs.tag || 'latest' }}
+          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
         run: |
-          if [ -n "${INPUT_IMAGES}" ]; then
-            NAMES="${INPUT_IMAGES}"
-          else
-            # Read the tag_nightly target rather than the whole Makefile, so the
-            # list is exactly what nightly publishes and needs no second list to
-            # keep in step. This deliberately excludes selenium/keda,
-            # keda-metrics-apiserver and keda-admission-webhooks: those are
-            # straight re-tags of upstream kedacore images made by
-            # release_grid_scaler_nightly, which nightly does not run. A CVE in
-            # them is fixed by bumping KEDA_BASED_TAG, not by anything built
-            # here. Pass them via `images:` if you want them scanned anyway.
-            # Read the Makefile target that publishes the tag being scanned, so
-            # the list is exactly the release surface and needs no second list to
-            # keep in step.
-            case "${TAG}" in
-              nightly) TARGET=tag_nightly; SUFFIX=nightly ;;
-              *)       TARGET=tag_latest;  SUFFIX=latest  ;;
-            esac
-            NAMES=$(sed -n "/^${TARGET}:/,/^$/p" Makefile \
-                    | grep -oE "\$\(NAME\)/[a-z0-9._-]+:${SUFFIX}" \
-                    | sed "s|\$(NAME)/||; s|:${SUFFIX}||" | sort -u | tr '\n' ' ')
-          fi
-          echo "Scanning: ${NAMES}"
-          echo "images=$(printf '%s' "${NAMES}" | tr ' ' '\n' | grep . | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+          # --verify drops anything the Makefile builds but the registry does not
+          # have, so a missing tag is a warning here rather than an opaque Scout
+          # failure 27 jobs later.
+          IMAGES=$(python3 scripts/scan_images/resolve_images.py \
+                     --tag "${TAG}" --namespace "${NAMESPACE}" --images "${INPUT_IMAGES}" --verify)
+          echo "images=${IMAGES}" >> "$GITHUB_OUTPUT"
 
   scout:
     name: Scout ${{ matrix.image }}
