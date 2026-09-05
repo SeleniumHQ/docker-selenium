@@ -5,9 +5,12 @@ Source of truth for https://hub.docker.com/u/selenium. See
 specs/dockerhub-image-descriptions/spec.md.
 """
 
+import argparse
 import json
+import os
 import pathlib
 import re
+import sys
 import urllib.error
 import urllib.request
 from dataclasses import dataclass
@@ -165,3 +168,59 @@ def sync(descs, client, dry_run):
             errors += 1
             print(f"{prefix}{desc.name:<32} ERROR  {error}")
     return changed, errors
+
+
+def _load_all(docs_dir, makefile, only):
+    footer = FOOTER_FILE.read_text() if FOOTER_FILE.exists() else ""
+    problems = check_drift(docs_dir, makefile)
+    descs = []
+    for path in description_files(docs_dir):
+        if only and path.stem not in only:
+            continue
+        try:
+            desc = parse_description(path, footer)
+        except ValueError as error:
+            problems.append(str(error))
+            continue
+        problems.extend(validate(desc))
+        descs.append(desc)
+    return descs, problems
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Publish docs/docker-hub/ to Docker Hub.")
+    parser.add_argument("--namespace", default=os.environ.get("DOCKER_NAMESPACE") or "selenium")
+    parser.add_argument("--repo", action="append", default=[], help="Restrict to this repository; repeatable.")
+    parser.add_argument("--dry-run", action="store_true", help="Report what would change; write nothing.")
+    parser.add_argument("--check", action="store_true", help="Validate only. No network, no credentials.")
+    args = parser.parse_args(argv)
+
+    only = set(args.repo)
+    descs, problems = _load_all(DOCS_DIR, MAKEFILE, only)
+
+    if problems:
+        for problem in problems:
+            print(f"ERROR  {problem}", file=sys.stderr)
+        print(f"\n{len(problems)} problem(s) found.", file=sys.stderr)
+        return 1
+
+    if args.check:
+        print(f"{len(descs)} description(s) valid, no drift against the Makefile.")
+        return 0
+
+    username = os.environ.get("DOCKER_USERNAME")
+    secret = os.environ.get("DOCKER_PASSWORD")
+    if not username or not secret:
+        print("DOCKER_USERNAME and DOCKER_PASSWORD must be set.", file=sys.stderr)
+        return 2
+
+    token = None if args.dry_run else login(username, secret)
+    client = HubClient(args.namespace, token)
+    changed, errors = sync(descs, client, args.dry_run)
+    verb = "would change" if args.dry_run else "changed"
+    print(f"\n{len(descs)} repositories checked, {changed} {verb}, {errors} errors")
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
