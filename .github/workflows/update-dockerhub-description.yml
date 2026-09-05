@@ -1,0 +1,69 @@
+name: Update Docker Hub descriptions
+
+on:
+  pull_request:
+    paths:
+      - 'docs/docker-hub/**'
+      - 'scripts/dockerhub_description/**'
+      - 'Makefile'
+  push:
+    branches:
+      - trunk
+    paths:
+      - 'docs/docker-hub/**'
+  workflow_call:
+    inputs:
+      dry-run:
+        description: 'Report what would change without writing'
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Report what would change without writing'
+        required: false
+        type: boolean
+        default: true
+      repositories:
+        description: 'Space- or comma-separated repository names. Empty means all.'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  update-dockerhub-description:
+    name: Update Docker Hub descriptions
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@main
+        with:
+          python-version: '3.12'
+      - name: Run unit tests
+        run: make test_dockerhub_description
+      - name: Validate descriptions
+        run: make check_dockerhub_description
+      - name: Publish descriptions
+        if: github.event_name != 'pull_request'
+        run: |
+          ARGS=""
+          for repo in $(echo "${REPOSITORIES}" | tr ',' ' '); do
+            ARGS="${ARGS} --repo ${repo}"
+          done
+          if [ "${DRY_RUN}" = "true" ]; then
+            ARGS="${ARGS} --dry-run"
+          fi
+          python3 scripts/dockerhub_description/update_description.py --namespace "${NAMESPACE}" ${ARGS}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+          DRY_RUN: ${{ inputs.dry-run || 'false' }}
+          REPOSITORIES: ${{ inputs.repositories || '' }}
