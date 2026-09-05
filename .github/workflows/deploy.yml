@@ -145,9 +145,38 @@ jobs:
       - name: Log in to GHCR
         if: github.event.inputs.skip-build-push-image != 'true'
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      # Only reuse :main when it was built from this source and this core. The
+      # hash covers both, so a stale :main - trunk moved on, or the core changed
+      # under us - falls through to a rebuild instead of releasing the wrong bits.
+      - name: Is :main up to date for this release?
+        id: main-current
+        if: github.event.inputs.skip-build-push-image != 'true'
+        run: |
+          set -euo pipefail
+          REGISTRY="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+          PATHS="Base Hub Distributor Router Sessions SessionQueue EventBus NodeBase
+                 NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
+                 NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
+                 .ffmpeg .keda-external-scaler Makefile"
+          SRC_HASH=$(
+            { git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort; echo "core=${BASE_VERSION}"; } \
+              | sha256sum | cut -c1-12
+          )
+          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+          echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
+          MAIN=$(docker manifest inspect "${REGISTRY}/base:main" 2>/dev/null | sha256sum | cut -c1-12 || echo none)
+          SRC=$(docker manifest inspect "${REGISTRY}/base:src-${SRC_HASH}" 2>/dev/null | sha256sum | cut -c1-12 || echo missing)
+          if [ "${SRC}" != "missing" ] && [ "${SRC}" = "${MAIN}" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+            echo ":main matches src-${SRC_HASH} (core ${BASE_VERSION}); promoting it." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo ":main does not match src-${SRC_HASH} (core ${BASE_VERSION}); rebuilding." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Pull the tested main images
         id: pull-main
-        if: github.event.inputs.skip-build-push-image != 'true'
+        if: github.event.inputs.skip-build-push-image != 'true' && steps.main-current.outputs.current == 'true'
         continue-on-error: true
         uses: nick-invision/retry@master
         with:
@@ -156,7 +185,7 @@ jobs:
           retry_wait_seconds: 60
           command: |
             VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} \
-              CI_REGISTRY="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" \
+              CI_REGISTRY="${{ steps.main-current.outputs.registry }}" \
               CI_TAG=main make pull_ci_images
       # :main will not exist on the first release after this lands, and a release
       # must not be blocked on that. Fall back to building exactly as before.
@@ -172,9 +201,9 @@ jobs:
         if: github.event.inputs.skip-build-push-image != 'true'
         run: |
           if [ "${{ steps.pull-main.outcome }}" = "success" ]; then
-            echo "Promoting the tested :main images to ${GRID_VERSION}-${BUILD_DATE}." >> "$GITHUB_STEP_SUMMARY"
+            echo "Released ${GRID_VERSION}-${BUILD_DATE} by promoting the tested :main images." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "No usable :main image; built from source for ${GRID_VERSION}-${BUILD_DATE}." >> "$GITHUB_STEP_SUMMARY"
+            echo "Built ${GRID_VERSION}-${BUILD_DATE} from source; :main was not usable." >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"

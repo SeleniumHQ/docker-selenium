@@ -25,6 +25,11 @@ on:
         required: false
         type: string
         default: ''
+      core:
+        description: "Selenium core to build against: 'nightly' or 'stable'. Empty derives it."
+        required: false
+        type: string
+        default: ''
       force-build:
         description: 'Build even when the change looks image-neutral'
         required: false
@@ -42,6 +47,9 @@ on:
       ci-tag:
         description: 'Tag the test jobs should pull'
         value: ${{ jobs.decide.outputs.ci-tag }}
+      base-version:
+        description: 'Selenium core the images were built against'
+        value: ${{ jobs.decide.outputs.base-version }}
       src-hash:
         description: 'Content hash the tag is keyed on'
         value: ${{ jobs.decide.outputs.src-hash }}
@@ -63,6 +71,7 @@ jobs:
       mode: ${{ steps.decide.outputs.mode }}
       ci-tag: ${{ steps.decide.outputs.ci-tag }}
       src-hash: ${{ steps.decide.outputs.src-hash }}
+      base-version: ${{ steps.decide.outputs.base-version }}
       registry: ${{ steps.decide.outputs.registry }}
     steps:
       - name: Checkout code
@@ -70,6 +79,18 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
+      # Resolve the core first: the same source built against a different Selenium
+      # core produces different images, so the core has to be part of the key.
+      # Pull requests test against the upcoming nightly core, exactly as they did
+      # before this change; trunk and release build the stable one pinned in the
+      # Makefile. Those must never share a tag.
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ (inputs.core == 'stable' || (inputs.core == '' && github.event_name != 'pull_request')) && 'true' || 'false' }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
 
       - name: Decide
         id: decide
@@ -105,14 +126,24 @@ jobs:
                  NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
                  NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
                  .ffmpeg .keda-external-scaler Makefile"
-          SRC_HASH=$(git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort | sha256sum | cut -c1-12)
+          # BASE_VERSION is part of the digest on purpose. Identical source built
+          # against a nightly core and against the stable core are different
+          # images; keying only on the files would let a pull request's
+          # nightly-core build be promoted to :main and released.
+          SRC_HASH=$(
+            { git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort; echo "core=${BASE_VERSION}"; } \
+              | sha256sum | cut -c1-12
+          )
           TAG="${INPUT_TAG:-src-${SRC_HASH}}"
+          echo "Selenium core: ${BASE_VERSION}"
           echo "Source hash: ${SRC_HASH}"
           echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
+          echo "base-version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
           {
             echo "### Images"
             echo
+            echo "Selenium core: \`${BASE_VERSION}\`"
             echo "Source hash: \`${SRC_HASH}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -170,12 +201,9 @@ jobs:
           max_attempts: 3
           command: make setup_dev_env
 
-      - name: Set Selenium base version
-        uses: ./.github/actions/get-latest-upstream
-        with:
-          release: 'false'
-          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
-          authors: ${{ vars.AUTHORS || github.repository_owner }}
+      # Use exactly the core decide hashed on, so the tag and the image agree.
+      - name: Use the core decide resolved
+        run: echo "BASE_VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
 
       # Multi-arch, so the arm64 half of the test matrix pulls rather than
       # building. The build is slower once; it used to be paid in every job.
