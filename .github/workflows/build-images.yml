@@ -321,7 +321,25 @@ jobs:
           persist-credentials: false
       - name: Log in to GHCR
         run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
-      - name: Alias ${{ needs.decide.outputs.ci-tag }} as pr-${{ github.event.pull_request.number }}
+      # Two markers, deliberately:
+      #
+      #   pr-<N>          moves to the newest build, so a human can find "the
+      #                   current image for this pull request"
+      #   pr-<N>-<hash>   never moves, so every manifest this pull request ever
+      #                   used stays attributable to it
+      #
+      # The durable one is what makes close-time cleanup complete. The hash cannot
+      # be recomputed later: it covers BASE_VERSION, and for a pull request that is
+      # the nightly core, which moves - so replaying it after the fact would
+      # resolve a different nightly and a different hash.
+      - name: Mark ${{ needs.decide.outputs.ci-tag }} for pr-${{ github.event.pull_request.number }}
+        env:
+          REGISTRY: ${{ needs.decide.outputs.registry }}
+          CI_TAG: ${{ needs.decide.outputs.ci-tag }}
+          PR: ${{ github.event.pull_request.number }}
+          SRC_HASH: ${{ needs.decide.outputs.src-hash }}
         run: |
-          CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
-            PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images
+          set -euo pipefail
+          for marker in "pr-${PR}" "pr-${PR}-${SRC_HASH}"; do
+            CI_REGISTRY="${REGISTRY}" CI_TAG="${CI_TAG}" PROMOTE_TO="${marker}" make promote_ci_images
+          done

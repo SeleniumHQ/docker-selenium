@@ -38,7 +38,10 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 
 API = "https://api.github.com"
-PR_TAG = re.compile(r"\Apr-(\d+)\Z")
+# pr-<N> moves to a pull request's newest build; pr-<N>-<hash> is written once
+# per build and never moves, so every manifest a pull request used stays
+# attributable to it after the branch is gone.
+PR_TAG = re.compile(r"\Apr-(\d+)(?:-[0-9a-f]{6,})?\Z")
 SRC_TAG = re.compile(r"\Asrc-[0-9a-f]{6,}\Z")
 MAIN_TAG = "main"
 

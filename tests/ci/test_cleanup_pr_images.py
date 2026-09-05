@@ -204,3 +204,45 @@ class PruneOrphansTest(unittest.TestCase):
     def test_an_untagged_manifest_is_left_alone(self):
         vs = [tv(1, [], "2026-09-01")]
         self.assertEqual(orphan(vs, cutoff="2026-09-05"), [])
+
+
+class DurableMarkerTest(unittest.TestCase):
+    """pr-<N> moves; pr-<N>-<hash> does not, so a closed PR's whole set is findable."""
+
+    def test_both_marker_forms_yield_the_pull_request_number(self):
+        self.assertEqual(cp.PR_TAG.match("pr-3229").group(1), "3229")
+        self.assertEqual(cp.PR_TAG.match("pr-3229-331808bba75d").group(1), "3229")
+
+    def test_a_marker_suffix_must_be_a_hex_hash(self):
+        for tag in ["pr-3229-notahash", "pr-3229-", "pr-3229-abc", "pr-"]:
+            self.assertIsNone(cp.PR_TAG.match(tag), tag)
+
+    def test_closing_a_pull_request_now_reaches_every_build_it_made(self):
+        # three commits, three manifests; pr-100 moved to the newest, but each
+        # build kept its own durable marker
+        vs = [
+            version(1, ["src-a11111", "pr-100-a11111"]),
+            version(2, ["src-b22222", "pr-100-b22222"]),
+            version(3, ["src-c33333", "pr-100-c33333", "pr-100"]),
+        ]
+        self.assertEqual(sorted(decide(vs, closed={100})), [1, 2, 3])
+
+    def test_an_open_pull_request_keeps_all_of_its_builds(self):
+        vs = [
+            version(1, ["src-a11111", "pr-100-a11111"]),
+            version(2, ["src-b22222", "pr-100-b22222", "pr-100"]),
+        ]
+        self.assertEqual(decide(vs, closed=set()), [])
+
+    def test_a_manifest_two_pull_requests_used_survives_while_either_is_open(self):
+        # PR 101 reused what PR 100 built, so both markers sit on one manifest
+        vs = [version(1, ["src-a11111", "pr-100-a11111", "pr-101-a11111"])]
+        self.assertEqual(decide(vs, closed={100}), [])
+        self.assertEqual(decide(vs, closed={100, 101}), [1])
+
+    def test_targeting_one_pull_request_still_reaches_its_older_builds(self):
+        vs = [
+            version(1, ["src-a11111", "pr-100-a11111"]),
+            version(2, ["src-b22222", "pr-101-b22222"]),
+        ]
+        self.assertEqual(decide(vs, closed={100, 101}, target_pr=100), [1])
