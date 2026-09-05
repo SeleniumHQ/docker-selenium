@@ -18,6 +18,7 @@ from dataclasses import dataclass
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 DOCS_DIR = REPO_ROOT / "docs" / "docker-hub"
 FOOTER_FILE = DOCS_DIR / "_footer.md"
+VERSIONS_FILE = DOCS_DIR / "_versions.json"
 MAKEFILE = REPO_ROOT / "Makefile"
 
 SHORT_LIMIT = 100
@@ -45,6 +46,103 @@ def _parse_frontmatter(block, path):
         key, _, value = line.partition(":")
         fields[key.strip()] = value.strip()
     return fields
+
+
+EXAMPLE_HEADING = "### Example of a release"
+
+# Which entry in _versions.json a description's browser rows come from. Longest
+# repository names first so node-chrome-for-testing is not matched as node-chrome.
+BROWSER_OF_REPO = [
+    ("chrome-for-testing", "chrome-for-testing"),
+    ("chromium", "chromium"),
+    ("chrome", "chrome"),
+    ("firefox", "firefox"),
+    ("edge", "edge"),
+]
+
+
+def browser_key(name):
+    """The browsers entry a repository's example block needs, or None if it is grid-only."""
+    for suffix, key in BROWSER_OF_REPO:
+        if name in (f"node-{suffix}", f"standalone-{suffix}"):
+            return key
+    return None
+
+
+def example_span(text):
+    """(start, end) character offsets of the example block, or None if absent.
+
+    The block is the `### Example of a release` heading plus the fenced code
+    block beneath it. Nothing outside that span is ever substituted.
+    """
+    start = text.find(EXAMPLE_HEADING)
+    if start == -1:
+        return None
+    opening = text.find("\n```", start)
+    if opening == -1:
+        return None
+    closing = text.find("\n```", opening + 4)
+    if closing == -1:
+        return None
+    return start, closing + len("\n```")
+
+
+def substitute_example(text, versions, name):
+    """Replace the placeholder tokens in a description's example block.
+
+    Returns (text, problems). Ordered longest token first so `<Major>.<Minor>`
+    is consumed before the `<Major>` inside it.
+    """
+    span = example_span(text)
+    if span is None or not versions:
+        return text, []
+
+    grid = versions["grid"]
+    pairs = [
+        ("<Major>.<Minor>.<Patch>", grid["version"]),
+        ("<Major>.<Minor>", grid["major_minor"]),
+        ("<Major>", grid["major"]),
+        ("<YYYYMMDD>", grid["date"]),
+    ]
+
+    problems = []
+    key = browser_key(name)
+    if key:
+        entry = versions.get("browsers", {}).get(key)
+        if not entry:
+            problems.append(f"{name}: _versions.json has no browser entry for {key!r}")
+            return text, problems
+        browser, driver = entry["browser"], entry["driver"]
+        pairs += [
+            ("<BrowserMajor>.<BrowserMinor>", browser),
+            ("<BrowserMajor>", browser.split(".")[0]),
+            ("<DriverMajor>.<DriverMinor>", driver),
+            ("<GeckoDriverMajor>.<GeckoDriverMinor>", driver),
+        ]
+        if "browser_full" in entry:
+            pairs += [
+                ("<BrowserFullVersion>", entry["browser_full"]),
+                ("<DriverFullVersion>", entry["driver_full"]),
+            ]
+
+    start, end = span
+    block = text[start:end]
+    for token, value in pairs:
+        block = block.replace(token, value)
+
+    leftover = sorted(set(re.findall(r"<[A-Za-z]+>", block)))
+    if leftover:
+        problems.append(f"{name}: example block still holds unresolved placeholders {leftover}")
+
+    return text[:start] + block + text[end:], problems
+
+
+def load_versions(path=None):
+    """The generated version data, or None when it has not been produced yet."""
+    path = path or VERSIONS_FILE
+    if not path.exists():
+        return None
+    return json.loads(path.read_text())
 
 
 def parse_description(path, footer):
@@ -187,6 +285,13 @@ def _load_all(docs_dir, makefile, only):
     for name in sorted(only - known):
         problems.append(f"{name}: --repo named a repository with no docs/docker-hub/{name}.md")
 
+    versions = load_versions(docs_dir / VERSIONS_FILE.name)
+    if versions is None:
+        problems.append(
+            "_versions.json: missing from docs/docker-hub/ — the example blocks would be published "
+            "with their placeholders showing. Run `make update_dockerhub_versions`"
+        )
+
     descs = []
     for path in description_files(docs_dir):
         if only and path.stem not in only:
@@ -196,6 +301,8 @@ def _load_all(docs_dir, makefile, only):
         except ValueError as error:
             problems.append(str(error))
             continue
+        desc.full, example_problems = substitute_example(desc.full, versions, desc.name)
+        problems.extend(example_problems)
         problems.extend(validate(desc))
         descs.append(desc)
     return descs, problems
