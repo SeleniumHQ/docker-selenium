@@ -75,24 +75,24 @@ selenium/node-edge-<browserVersion>-<browserDriver>-<browserDriverVersion>-<Majo
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Edge 152, EdgeDriver 152.0 and Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Edge <BrowserMajor>, EdgeDriver <DriverMajor>.<DriverMinor> and Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Edge 152.0
-    EdgeDriver 152.0
-    Selenium Server 4.48.0
-    Release date 20260909
+    Edge <BrowserMajor>.<BrowserMinor>
+    EdgeDriver <DriverMajor>.<DriverMinor>
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/node-edge   4
-e126989f151e        selenium/node-edge   4.48
-e126989f151e        selenium/node-edge   4.48.0
-e126989f151e        selenium/node-edge   4.48.0-20260909
-e126989f151e        selenium/node-edge   152.0                  
-e126989f151e        selenium/node-edge   152.0-20260909         
-e126989f151e        selenium/node-edge   152.0-edgedriver-152.0 
-e126989f151e        selenium/node-edge   152.0-edgedriver-152.0-20260909
-e126989f151e        selenium/node-edge   152.0-edgedriver-152.0-grid-4.48.0-20260909  
+e126989f151e        selenium/node-edge   <Major>
+e126989f151e        selenium/node-edge   <Major>.<Minor>
+e126989f151e        selenium/node-edge   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/node-edge   <Major>.<Minor>.<Patch>-<YYYYMMDD>
+e126989f151e        selenium/node-edge   <BrowserMajor>.<BrowserMinor>
+e126989f151e        selenium/node-edge   <BrowserMajor>.<BrowserMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-edge   <BrowserMajor>.<BrowserMinor>-edgedriver-<DriverMajor>.<DriverMinor>
+e126989f151e        selenium/node-edge   <BrowserMajor>.<BrowserMinor>-edgedriver-<DriverMajor>.<DriverMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-edge   <BrowserMajor>.<BrowserMinor>-edgedriver-<DriverMajor>.<DriverMinor>-grid-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

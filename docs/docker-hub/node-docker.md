@@ -111,21 +111,21 @@ $ docker network rm grid
 The tag structure is as follows:
 
 ```
-selenium/standalone-docker-<Major>.<Minor>.<Patch>-<YYYYMMDD>
+selenium/node-docker-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 
-### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Selenium Server 4.48.0
-    Release date 20260909
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/node-docker   4
-e126989f151e        selenium/node-docker   4.48
-e126989f151e        selenium/node-docker   4.48.0
-e126989f151e        selenium/node-docker   4.48.0-20260909
+e126989f151e        selenium/node-docker   <Major>
+e126989f151e        selenium/node-docker   <Major>.<Minor>
+e126989f151e        selenium/node-docker   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/node-docker   <Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

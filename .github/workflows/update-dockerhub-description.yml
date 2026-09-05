@@ -18,6 +18,11 @@ on:
         required: false
         type: boolean
         default: false
+      ref:
+        description: 'Git ref to publish from. Empty means the default checkout.'
+        required: false
+        type: string
+        default: ''
   workflow_dispatch:
     inputs:
       dry-run:
@@ -31,6 +36,10 @@ on:
         type: string
         default: ''
 
+concurrency:
+  group: dockerhub-descriptions
+  cancel-in-progress: false
+
 jobs:
   update-dockerhub-description:
     name: Update Docker Hub descriptions
@@ -41,6 +50,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@main
         with:
+          ref: ${{ inputs.ref }}
           persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@main

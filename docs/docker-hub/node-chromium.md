@@ -75,24 +75,24 @@ selenium/node-chromium-<browserVersion>-<browserDriver>-<browserDriverVersion>-<
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Chromium 152, ChromeDriver 152.0 and Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Chromium <BrowserMajor>, ChromeDriver <DriverMajor>.<DriverMinor> and Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Chromium 152.0
-    ChromeDriver 152.0
-    Selenium Server 4.48.0
-    Release date 20260909
+    Chromium <BrowserMajor>.<BrowserMinor>
+    ChromeDriver <DriverMajor>.<DriverMinor>
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/node-chromium   4
-e126989f151e        selenium/node-chromium   4.48
-e126989f151e        selenium/node-chromium   4.48.0
-e126989f151e        selenium/node-chromium   4.48.0-20260909
-e126989f151e        selenium/node-chromium   152.0                  
-e126989f151e        selenium/node-chromium   152.0-20260909         
-e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0 
-e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0-20260909
-e126989f151e        selenium/node-chromium   152.0-chromedriver-152.0-grid-4.48.0-20260909  
+e126989f151e        selenium/node-chromium   <Major>
+e126989f151e        selenium/node-chromium   <Major>.<Minor>
+e126989f151e        selenium/node-chromium   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/node-chromium   <Major>.<Minor>.<Patch>-<YYYYMMDD>
+e126989f151e        selenium/node-chromium   <BrowserMajor>.<BrowserMinor>
+e126989f151e        selenium/node-chromium   <BrowserMajor>.<BrowserMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>
+e126989f151e        selenium/node-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>-grid-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

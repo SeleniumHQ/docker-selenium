@@ -77,17 +77,17 @@ This image is tagged with the Selenium Grid version only — there is no per-bro
 selenium/standalone-all-browsers-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
-### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Selenium Server 4.48.0
-    Release date 20260909
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/standalone-all-browsers   4
-e126989f151e        selenium/standalone-all-browsers   4.48
-e126989f151e        selenium/standalone-all-browsers   4.48.0
-e126989f151e        selenium/standalone-all-browsers   4.48.0-20260909
+e126989f151e        selenium/standalone-all-browsers   <Major>
+e126989f151e        selenium/standalone-all-browsers   <Major>.<Minor>
+e126989f151e        selenium/standalone-all-browsers   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/standalone-all-browsers   <Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

@@ -120,20 +120,20 @@ After starting the complete compose file, point your WebDriver tests to http://l
 The tag structure is as follows:
 
 ```
-selenium/session-queue-<Major>.<Minor>.<Patch>-<YYYYMMDD>
+selenium/router-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
-### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Selenium Server 4.48.0
-    Release date 20260909
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/router   4
-e126989f151e        selenium/router   4.48
-e126989f151e        selenium/router   4.48.0
-e126989f151e        selenium/router   4.48.0-20260909
+e126989f151e        selenium/router   <Major>
+e126989f151e        selenium/router   <Major>.<Minor>
+e126989f151e        selenium/router   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/router   <Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

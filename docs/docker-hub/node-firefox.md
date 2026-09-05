@@ -65,7 +65,7 @@ docker network rm grid
 The tag structure is as follows:
 
 ```
-selenium/node-edge-<Major>.<Minor>.<Patch>-<YYYYMMDD>
+selenium/node-firefox-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 Also with browser version and browser driver version
@@ -75,24 +75,24 @@ selenium/node-firefox-<browserVersion>-<browserDriver>-<browserDriverVersion>-<M
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Firefox 155, GeckoDriver 0.37 and Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Firefox <BrowserMajor>, GeckoDriver <GeckoDriverMajor>.<GeckoDriverMinor> and Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Firefox 155.0
-    GeckoDriver 0.37
-    Selenium Server 4.48.0
-    Release date 20260909
+    Firefox <BrowserMajor>.<BrowserMinor>
+    GeckoDriver <GeckoDriverMajor>.<GeckoDriverMinor>
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/node-firefox   4
-e126989f151e        selenium/node-firefox   4.48
-e126989f151e        selenium/node-firefox   4.48.0
-e126989f151e        selenium/node-firefox   4.48.0-20260909
-e126989f151e        selenium/node-firefox   155.0                  
-e126989f151e        selenium/node-firefox   155.0-20260909         
-e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37 
-e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37-20260909
-e126989f151e        selenium/node-firefox   155.0-geckodriver-0.37-grid-4.48.0-20260909  
+e126989f151e        selenium/node-firefox   <Major>
+e126989f151e        selenium/node-firefox   <Major>.<Minor>
+e126989f151e        selenium/node-firefox   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/node-firefox   <Major>.<Minor>.<Patch>-<YYYYMMDD>
+e126989f151e        selenium/node-firefox   <BrowserMajor>.<BrowserMinor>
+e126989f151e        selenium/node-firefox   <BrowserMajor>.<BrowserMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-firefox   <BrowserMajor>.<BrowserMinor>-geckodriver-<GeckoDriverMajor>.<GeckoDriverMinor>
+e126989f151e        selenium/node-firefox   <BrowserMajor>.<BrowserMinor>-geckodriver-<GeckoDriverMajor>.<GeckoDriverMinor>-<YYYYMMDD>
+e126989f151e        selenium/node-firefox   <BrowserMajor>.<BrowserMinor>-geckodriver-<GeckoDriverMajor>.<GeckoDriverMinor>-grid-<Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

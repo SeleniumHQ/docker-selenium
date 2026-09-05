@@ -122,17 +122,17 @@ Teams can keep multiple Dynamic Nodes on standby — lightweight processes consu
 
 This is a genuinely exciting milestone. Teams running large Kubernetes fleets can now enjoy true on-demand browser provisioning without a Docker socket sidecar. The browser Pod starts when the session starts, and disappears the moment it ends. Resources are consumed only when tests are actually running.
 
-### Example of a release with Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Selenium Server 4.48.0
-    Release date 20260909
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-e126989f151e        selenium/node-kubernetes   4
-e126989f151e        selenium/node-kubernetes   4.48
-e126989f151e        selenium/node-kubernetes   4.48.0
-e126989f151e        selenium/node-kubernetes   4.48.0-20260909
+e126989f151e        selenium/node-kubernetes   <Major>
+e126989f151e        selenium/node-kubernetes   <Major>.<Minor>
+e126989f151e        selenium/node-kubernetes   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/node-kubernetes   <Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.

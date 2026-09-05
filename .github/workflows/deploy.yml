@@ -259,9 +259,10 @@ jobs:
   update-dockerhub-description:
     needs:
       - deploy
-    if: ${{ !failure() && !cancelled() }}
+    if: ${{ needs.deploy.result == 'success' }}
     name: Update Docker Hub descriptions
     uses: ./.github/workflows/update-dockerhub-description.yml
     secrets: inherit
     with:
       dry-run: false
+      ref: trunk

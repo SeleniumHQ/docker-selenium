@@ -38,29 +38,29 @@ selenium/standalone-chromium-<browserVersion>-<browserDriver>-<browserDriverVers
 ```
 Plus all the permutations from the above one
 
-### Example of a release with Chromium 152, ChromeDriver 152.0 and Selenium Grid Server 4.48.0, released on 20260909
+### Example of a release with Chromium <BrowserMajor>, ChromeDriver <DriverMajor>.<DriverMinor> and Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
 
 ```
-    Chromium 152.0
-    ChromeDriver 152.0
-    Selenium Server 4.48.0
-    Release date 20260909
+    Chromium <BrowserMajor>.<BrowserMinor>
+    ChromeDriver <DriverMajor>.<DriverMinor>
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
 
 
-2cef49b284b5   selenium/standalone-chromium   152.0                                                           
-2cef49b284b5   selenium/standalone-chromium   152.0-20260909                                                  
-2cef49b284b5   selenium/standalone-chromium   152.0-chromedriver-152.0                                        
-2cef49b284b5   selenium/standalone-chromium   152.0-chromedriver-152.0-20260909                               
-2cef49b284b5   selenium/standalone-chromium   152.0-chromedriver-152.0-grid-4.48.0-20260909                   
-2cef49b284b5   selenium/standalone-chromium   152.0.7977.82                                                   
-2cef49b284b5   selenium/standalone-chromium   152.0.7977.82-20260909                                          
-2cef49b284b5   selenium/standalone-chromium   152.0.7977.82-chromedriver-152.0.7977.82                        
-2cef49b284b5   selenium/standalone-chromium   152.0.7977.82-chromedriver-152.0.7977.82-20260909               
-2cef49b284b5   selenium/standalone-chromium   152.0.7977.82-chromedriver-152.0.7977.82-grid-4.48.0-20260909   
-2cef49b284b5   selenium/standalone-chromium   4                                                               
-2cef49b284b5   selenium/standalone-chromium   4.48                                                            
-2cef49b284b5   selenium/standalone-chromium   4.48.0                                                          
-2cef49b284b5   selenium/standalone-chromium   4.48.0-20260909                                                 
+2cef49b284b5   selenium/standalone-chromium   <BrowserMajor>.<BrowserMinor>
+2cef49b284b5   selenium/standalone-chromium   <BrowserMajor>.<BrowserMinor>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>
+2cef49b284b5   selenium/standalone-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <BrowserMajor>.<BrowserMinor>-chromedriver-<DriverMajor>.<DriverMinor>-grid-<Major>.<Minor>.<Patch>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <BrowserFullVersion>
+2cef49b284b5   selenium/standalone-chromium   <BrowserFullVersion>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <BrowserFullVersion>-chromedriver-<DriverFullVersion>
+2cef49b284b5   selenium/standalone-chromium   <BrowserFullVersion>-chromedriver-<DriverFullVersion>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <BrowserFullVersion>-chromedriver-<DriverFullVersion>-grid-<Major>.<Minor>.<Patch>-<YYYYMMDD>
+2cef49b284b5   selenium/standalone-chromium   <Major>
+2cef49b284b5   selenium/standalone-chromium   <Major>.<Minor>
+2cef49b284b5   selenium/standalone-chromium   <Major>.<Minor>.<Patch>
+2cef49b284b5   selenium/standalone-chromium   <Major>.<Minor>.<Patch>-<YYYYMMDD>
 ```
 
 With that, you can use any of the different tags to get the most recent release in a simplified way.
