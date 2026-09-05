@@ -116,6 +116,16 @@ update_dockerhub_description:
 check_dockerhub_description:
 	python3 scripts/dockerhub_description/update_description.py --check
 
+# Reproduce the nightly image scan locally for one image, e.g.
+#   make scan_image_scout IMAGE=base
+#   make scan_image_scout IMAGE=node-chrome TAG=4.48.0-20260909
+# Needs `docker login`; Docker Scout must be enabled for the repository.
+scan_image_scout:
+	docker scout cves --only-fixed --format sarif \
+		--output scout-$(IMAGE).sarif $(NAME)/$(IMAGE):$(or $(TAG),nightly)
+	python3 scripts/scan_images/summarise_scout.py \
+		scout-$(IMAGE).sarif $(NAME)/$(IMAGE):$(or $(TAG),nightly)
+
 update_dockerhub_versions:
 	python3 scripts/dockerhub_description/resolve_versions.py --namespace $(NAME) $(if $(GRID_TAG),--grid-tag $(GRID_TAG),)
 
