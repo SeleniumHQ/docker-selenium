@@ -42,7 +42,20 @@ BASIC_AUTH_PASSWORD=${BASIC_AUTH_PASSWORD:-"myStrongPassword"}
 LOG_LEVEL=${LOG_LEVEL:-"INFO"}
 INGRESS_DISABLE_USE_HTTP2=${INGRESS_DISABLE_USE_HTTP2:-false}
 TEST_EXISTING_KEDA=${TEST_EXISTING_KEDA:-"false"}
-TEST_EXTERNAL_SCALER=${TEST_EXTERNAL_SCALER:-"false"}
+# The chart ships the external scaler as its default (#3169), so that is what
+# users run. KEDA's built-in selenium-grid scaler still miscounts ongoing
+# sessions upstream, which shows up here as "Unable to find a free slot for
+# request" while the nodes sit ready at 1/1.
+#
+# A test pointed at an existing KEDA install therefore gets the external scaler
+# too. Setting TEST_EXTERNAL_SCALER=false in a target still forces the built-in
+# one, which is how to keep a canary on upstream behaviour if that is wanted -
+# no target does so today.
+if [ "${TEST_EXISTING_KEDA}" = "true" ]; then
+  TEST_EXTERNAL_SCALER=${TEST_EXTERNAL_SCALER:-"true"}
+else
+  TEST_EXTERNAL_SCALER=${TEST_EXTERNAL_SCALER:-"false"}
+fi
 TEST_UPGRADE_CHART=${TEST_UPGRADE_CHART:-"false"}
 RENDER_HELM_TEMPLATE_ONLY=${RENDER_HELM_TEMPLATE_ONLY:-"false"}
 TEST_PV_CLAIM_NAME=${TEST_PV_CLAIM_NAME:-"selenium-grid-pvc-local"}
@@ -233,8 +246,8 @@ elif [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ] && [ "${TEST_EXISTING_KEDA}" = 
   "
 fi
 
-# Deterministically pin the scaler mode per test (the chart default is external);
-# built-in strategies keep TEST_EXTERNAL_SCALER=false so they still cover selenium-grid.
+# Pin the scaler mode per test. Defaulted above: external whenever an existing
+# KEDA install is used, matching the chart default, and built-in otherwise.
 if [ "${SELENIUM_GRID_AUTOSCALING}" = "true" ]; then
   HELM_COMMAND_SET_IMAGES="${HELM_COMMAND_SET_IMAGES} \
   --set autoscaling.externalScaler.enabled=${TEST_EXTERNAL_SCALER} \
