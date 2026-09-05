@@ -175,6 +175,36 @@ def summarise_one(path, image):
     return "\n".join(lines) + "\n"
 
 
+# Replaced once the tally is known; the status has to sit above the table, but
+# cannot be computed until every report has been read.
+STATUS_PLACEHOLDER = object()
+
+
+def _plural(count, noun):
+    return f"{count} {noun}" if count == 1 else f"{count} {noun}s"
+
+
+def _status_line(totals, affected, scanned):
+    """The one line a maintainer should be able to act on without reading further."""
+    scope = f"across {affected} of {_plural(scanned, 'image')}"
+    if totals["critical"]:
+        return (
+            f"**Status: ACTION NEEDED** — {totals['critical']} critical and {totals['high']} high "
+            f"with fixes available, {scope}."
+        )
+    if totals["high"]:
+        return (
+            f"**Status: ACTION NEEDED** — {totals['high']} high with fixes available, "
+            f"{scope}."
+        )
+    if affected:
+        return (
+            f"**Status: OK** — nothing critical or high. {sum(totals.values())} lower-severity "
+            f"findings have fixes available, {scope}."
+        )
+    return f"**Status: CLEAN** — no CVEs with a fix available across {_plural(scanned, 'image')}."
+
+
 def summarise_rollup(directory, tag, severity):
     root = pathlib.Path(directory)
     reports = sorted(root.glob("**/*.sarif"))
@@ -188,6 +218,8 @@ def summarise_rollup(directory, tag, severity):
         return "\n".join(lines) + "\n"
 
     lines.append(f"Reporting severities: **{severity}**. Every CVE listed has a fix available upstream.")
+    lines.append("")
+    lines.append(STATUS_PLACEHOLDER)
     lines.append("")
     lines.append("| Image | Critical | High | Medium | Low | Total fixable |")
     lines.append("| --- | ---: | ---: | ---: | ---: | ---: |")
@@ -211,6 +243,10 @@ def summarise_rollup(directory, tag, severity):
         cells = " | ".join(str(tally.get(name, 0)) for name in ["critical", "high", "medium", "low"])
         lines.append(f"| `{image}` | {cells} | {total} |")
 
+    affected = sum(1 for row in rows if row[4])
+    status = _status_line(totals, affected, len(rows))
+    lines = [status if line is STATUS_PLACEHOLDER else line for line in lines]
+
     grand = sum(totals.values())
     cells = " | ".join(str(totals[name]) for name in ["critical", "high", "medium", "low"])
     lines.append(f"| **Total** | {cells} | **{grand}** |")
@@ -218,13 +254,10 @@ def summarise_rollup(directory, tag, severity):
 
     if totals["critical"] or totals["high"]:
         lines.append(
-            f"**{totals['critical']} critical and {totals['high']} high** findings have a fix available. "
-            "Most will come from a shared base layer, so bumping the base image usually clears the same "
-            "CVE across every descendant at once - start with `base` and `node-base`."
+            "Most of these will come from a shared base layer, so bumping the base image usually clears "
+            "the same CVE across every descendant at once - start with `base` and `node-base`."
         )
-    else:
-        lines.append("Nothing critical or high with a fix available.")
-    lines.append("")
+        lines.append("")
     lines.append("Per-CVE detail is in the Security tab, and in the `scout-<image>` artifacts on this run.")
 
     if unreadable:

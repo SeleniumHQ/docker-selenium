@@ -195,7 +195,8 @@ class RollupTest(unittest.TestCase):
     def test_clean_run_says_nothing_actionable(self):
         self.write("a", [], [])
         out = ss.summarise_rollup(self.tmp, "nightly", "critical,high")
-        self.assertIn("Nothing critical or high", out)
+        self.assertIn("Status: CLEAN", out)
+        self.assertNotIn("ACTION NEEDED", out)
 
     def test_points_maintainers_at_the_shared_base_layer(self):
         self.write("a", [result("CVE-2026-1")], [rule("CVE-2026-1", security_severity="9.8")])
@@ -211,3 +212,61 @@ class RollupTest(unittest.TestCase):
         out = ss.summarise_rollup(self.tmp, "nightly", "critical,high")
         self.assertIn("`good`", out)
         self.assertIn("Could not read", out)
+
+
+class StatusLineTest(unittest.TestCase):
+    def status(self, critical=0, high=0, medium=0, low=0, affected=0, scanned=26):
+        totals = {"critical": critical, "high": high, "medium": medium, "low": low, "unknown": 0}
+        return ss._status_line(totals, affected, scanned)
+
+    def test_critical_demands_action_and_names_both_counts(self):
+        line = self.status(critical=2, high=3, affected=4)
+        self.assertIn("ACTION NEEDED", line)
+        self.assertIn("2 critical", line)
+        self.assertIn("3 high", line)
+        self.assertIn("4 of 26", line)
+
+    def test_high_alone_still_demands_action(self):
+        line = self.status(high=1, affected=1)
+        self.assertIn("ACTION NEEDED", line)
+        self.assertIn("1 high", line)
+
+    def test_only_lower_severities_is_ok_not_action_needed(self):
+        line = self.status(medium=5, low=2, affected=3)
+        self.assertIn("Status: OK", line)
+        self.assertNotIn("ACTION NEEDED", line)
+        self.assertIn("7 lower-severity", line)
+
+    def test_nothing_at_all_is_clean(self):
+        line = self.status()
+        self.assertIn("Status: CLEAN", line)
+        self.assertIn("26 images", line)
+
+
+class RollupStatusTest(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = pathlib.Path(self._tmp.name)
+        self.addCleanup(self._tmp.cleanup)
+
+    def write(self, image, results, rules):
+        d = self.tmp / f"scout-{image}"
+        d.mkdir(parents=True)
+        (d / f"scout-{image}.sarif").write_text(json.dumps(sarif(results, rules)))
+
+    def test_status_appears_above_the_table(self):
+        self.write("base", [result("CVE-2026-1")], [rule("CVE-2026-1", security_severity="9.8")])
+        out = ss.summarise_rollup(self.tmp, "latest", "critical,high")
+        self.assertIn("Status: ACTION NEEDED", out)
+        self.assertLess(out.index("Status:"), out.index("| Image |"))
+
+    def test_clean_rollup_reports_clean_status(self):
+        self.write("base", [], [])
+        out = ss.summarise_rollup(self.tmp, "latest", "critical,high")
+        self.assertIn("Status: CLEAN", out)
+
+    def test_no_placeholder_object_leaks_into_the_output(self):
+        self.write("base", [result("CVE-2026-1")], [rule("CVE-2026-1", security_severity="9.8")])
+        out = ss.summarise_rollup(self.tmp, "latest", "critical,high")
+        self.assertNotIn("object at 0x", out)
+        self.assertNotIn("STATUS_PLACEHOLDER", out)
