@@ -116,6 +116,9 @@ update_dockerhub_description:
 check_dockerhub_description:
 	python3 scripts/dockerhub_description/update_description.py --check
 
+update_dockerhub_versions:
+	python3 scripts/dockerhub_description/resolve_versions.py --namespace $(NAME) $(if $(GRID_TAG),--grid-tag $(GRID_TAG),)
+
 test_dockerhub_description:
 	python3 -m unittest discover -s tests/dockerhub_description -v
 

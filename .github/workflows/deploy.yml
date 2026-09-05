@@ -191,6 +191,8 @@ jobs:
           command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_latest
       - name: Update package versions
         run: make update_browser_versions_matrix
+      - name: Refresh Docker Hub example versions
+        run: make update_dockerhub_versions GRID_TAG="${GRID_VERSION}-${BUILD_DATE}"
 #          make generate_latest_sbom
 #          make fetch_grid_scaler_resources
       - name: Tag browser images

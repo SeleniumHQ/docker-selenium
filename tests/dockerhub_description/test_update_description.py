@@ -1,4 +1,7 @@
+import contextlib
 import importlib.util
+import io
+import json
 import pathlib
 import tempfile
 import unittest
@@ -187,13 +190,15 @@ class SyncTest(unittest.TestCase):
                 "video": {"description": "Video", "full_description": "# Video\n"},
             }
         )
-        self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 0))
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 0))
         self.assertEqual([name for name, _, _ in client.patched], ["video"])
 
     def test_dry_run_never_patches(self):
         descs = [ud.Description(name="video", short="Video v2", full="# Video\n")]
         client = StubClient({"video": {"description": "Video", "full_description": "# Video\n"}})
-        self.assertEqual(ud.sync(descs, client, dry_run=True), (1, 0))
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ud.sync(descs, client, dry_run=True), (1, 0))
         self.assertEqual(client.patched, [])
 
     def test_continues_past_a_failing_repository(self):
@@ -202,8 +207,32 @@ class SyncTest(unittest.TestCase):
             ud.Description(name="video", short="Video v2", full="# Video\n"),
         ]
         client = StubClient({"video": {"description": "Video", "full_description": "# Video\n"}}, fail=["broken"])
-        self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 1))
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 1))
         self.assertEqual([name for name, _, _ in client.patched], ["video"])
+
+
+VERSIONS = {
+    "grid": {
+        "tag": "4.48.0-20260909",
+        "version": "4.48.0",
+        "date": "20260909",
+        "major": "4",
+        "major_minor": "4.48",
+        "patch": "0",
+    },
+    "browsers": {
+        "chrome": {"browser": "152.0", "driver": "152.0"},
+        "chrome-for-testing": {"browser": "152.0", "driver": "152.0"},
+        "firefox": {"browser": "155.0", "driver": "0.37"},
+        "chromium": {
+            "browser": "152.0",
+            "driver": "152.0",
+            "browser_full": "152.0.7977.75",
+            "driver_full": "152.0.7977.75",
+        },
+    },
+}
 
 
 class LoadAllTest(TempDirTestCase):
@@ -212,11 +241,13 @@ class LoadAllTest(TempDirTestCase):
         path.write_text(MAKEFILE_SNIPPET)
         return path
 
-    def docs(self, names, footer=True):
+    def docs(self, names, footer=True, versions=True):
         docs = self.tmp_path / "docs"
         docs.mkdir()
         if footer:
             (docs / "_footer.md").write_text(FOOTER)
+        if versions:
+            (docs / "_versions.json").write_text(json.dumps(VERSIONS))
         for name in names:
             (docs / f"{name}.md").write_text(f"---\ndescription: {name}\n---\n# {name}\n")
         return docs
@@ -247,3 +278,117 @@ class LoadAllTest(TempDirTestCase):
         descs, problems = ud._load_all(docs, self.makefile(), {"hub"})
         self.assertEqual(problems, [])
         self.assertEqual([d.name for d in descs], ["hub"])
+
+
+GRID_BLOCK = """# Hub
+
+### Example of a release with Selenium Grid Server <Major>.<Minor>.<Patch>, released on <YYYYMMDD>
+
+```
+    Selenium Server <Major>.<Minor>.<Patch>
+    Release date <YYYYMMDD>
+e126989f151e        selenium/hub   <Major>
+e126989f151e        selenium/hub   <Major>.<Minor>
+e126989f151e        selenium/hub   <Major>.<Minor>.<Patch>
+e126989f151e        selenium/hub   <Major>.<Minor>.<Patch>-<YYYYMMDD>
+```
+
+Trailing prose with <Major> left alone.
+"""
+
+
+class BrowserKeyTest(unittest.TestCase):
+    def test_maps_node_and_standalone_to_the_same_browser(self):
+        self.assertEqual(ud.browser_key("node-chrome"), "chrome")
+        self.assertEqual(ud.browser_key("standalone-chrome"), "chrome")
+
+    def test_chrome_for_testing_is_not_matched_as_chrome(self):
+        self.assertEqual(ud.browser_key("node-chrome-for-testing"), "chrome-for-testing")
+        self.assertEqual(ud.browser_key("standalone-chrome-for-testing"), "chrome-for-testing")
+
+    def test_grid_only_images_have_no_browser(self):
+        for name in ["hub", "distributor", "router", "video", "node-docker", "standalone-kubernetes"]:
+            self.assertIsNone(ud.browser_key(name), name)
+
+
+class ExampleSpanTest(unittest.TestCase):
+    def test_returns_none_when_there_is_no_example_block(self):
+        self.assertIsNone(ud.example_span("# Hub\n\nNo example here.\n"))
+
+    def test_span_covers_heading_through_closing_fence(self):
+        start, end = ud.example_span(GRID_BLOCK)
+        block = GRID_BLOCK[start:end]
+        self.assertTrue(block.startswith("### Example of a release"))
+        self.assertTrue(block.rstrip().endswith("```"))
+
+
+class SubstituteExampleTest(unittest.TestCase):
+    def test_grid_tokens_are_replaced_longest_first(self):
+        out, problems = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")
+        self.assertEqual(problems, [])
+        self.assertIn("selenium/hub   4.48.0-20260909", out)
+        self.assertIn("selenium/hub   4.48.0\n", out)
+        self.assertIn("selenium/hub   4.48\n", out)
+        self.assertIn("selenium/hub   4\n", out)
+        self.assertIn("Selenium Grid Server 4.48.0, released on 20260909", out)
+
+    def test_nothing_outside_the_block_is_touched(self):
+        out, _ = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")
+        self.assertIn("Trailing prose with <Major> left alone.", out)
+
+    def test_browser_tokens_use_the_matching_entry(self):
+        text = GRID_BLOCK.replace("selenium/hub   <Major>\n", "selenium/x   <BrowserMajor>.<BrowserMinor>\n")
+        text = text.replace(
+            "Selenium Server",
+            "Firefox <BrowserMajor>, GeckoDriver <GeckoDriverMajor>.<GeckoDriverMinor>\n    Selenium Server",
+            1,
+        )
+        out, problems = ud.substitute_example(text, VERSIONS, "standalone-firefox")
+        self.assertEqual(problems, [])
+        self.assertIn("selenium/x   155.0", out)
+        self.assertIn("Firefox 155, GeckoDriver 0.37", out)
+
+    def test_chromium_full_version_tokens_are_replaced(self):
+        text = GRID_BLOCK.replace(
+            "selenium/hub   <Major>\n", "selenium/x   <BrowserFullVersion>-chromedriver-<DriverFullVersion>\n"
+        )
+        out, problems = ud.substitute_example(text, VERSIONS, "standalone-chromium")
+        self.assertEqual(problems, [])
+        self.assertIn("152.0.7977.75-chromedriver-152.0.7977.75", out)
+
+    def test_missing_browser_entry_is_reported(self):
+        out, problems = ud.substitute_example(GRID_BLOCK, VERSIONS, "standalone-edge")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("no browser entry", problems[0])
+        self.assertEqual(out, GRID_BLOCK)
+
+    def test_unresolved_placeholder_is_reported(self):
+        text = GRID_BLOCK.replace("selenium/hub   <Major>\n", "selenium/hub   <Unknown>\n")
+        _, problems = ud.substitute_example(text, VERSIONS, "hub")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("<Unknown>", problems[0])
+
+    def test_no_versions_leaves_text_untouched(self):
+        out, problems = ud.substitute_example(GRID_BLOCK, None, "hub")
+        self.assertEqual(out, GRID_BLOCK)
+        self.assertEqual(problems, [])
+
+    def test_text_without_an_example_block_is_untouched(self):
+        text = "# Hub\n\nNothing to substitute.\n"
+        out, problems = ud.substitute_example(text, VERSIONS, "hub")
+        self.assertEqual(out, text)
+        self.assertEqual(problems, [])
+
+
+class MissingVersionsTest(TempDirTestCase):
+    def test_missing_versions_file_is_reported(self):
+        docs = self.tmp_path / "docs"
+        docs.mkdir()
+        (docs / "_footer.md").write_text(FOOTER)
+        for name in ["hub", "video", "keda"]:
+            (docs / f"{name}.md").write_text(f"---\ndescription: {name}\n---\n# {name}\n")
+        makefile = self.tmp_path / "Makefile"
+        makefile.write_text(MAKEFILE_SNIPPET)
+        _, problems = ud._load_all(docs, makefile, set())
+        self.assertEqual(len(problems), 1)
+        self.assertIn("_versions.json", problems[0])
