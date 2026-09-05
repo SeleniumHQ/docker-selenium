@@ -135,6 +135,18 @@ jobs:
           CI_REGISTRY="${{ needs.build-images.outputs.registry }}" \
             CI_TAG="${{ needs.build-images.outputs.ci-tag }}" PROMOTE_TO=main \
             make promote_ci_images
+      # :main has just moved, so every older trunk manifest is now superseded.
+      # They carry no pr-* alias - only a pull request build creates one - so the
+      # closed-pull-request sweep can never reach them.
+      - name: Remove trunk images that main has superseded
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/ci/cleanup_pr_images.py \
+            --owner "${{ github.repository_owner }}" --prune-superseded --no-pr-sweep \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: Summary
         run: |
           {

@@ -76,3 +76,80 @@ class DeletionRuleTest(unittest.TestCase):
     def test_main_protection_applies_per_image_not_globally(self):
         vs = [version(1, ["src-aaaaaa", "pr-100", "main"]), version(2, ["src-bbbbbb", "pr-100"])]
         self.assertEqual(decide(vs, closed={100}), [2])
+
+
+def tv(vid, tags, created):
+    return {"id": vid, "created_at": created, "metadata": {"container": {"tags": tags}}}
+
+
+def supersede(versions):
+    """Mirror of prune_superseded's rule, exercised without HTTP."""
+    main_v = next((v for v in versions if cp.MAIN_TAG in v["metadata"]["container"]["tags"]), None)
+    if main_v is None:
+        return []
+    out = []
+    for v in versions:
+        tags = v["metadata"]["container"]["tags"]
+        if v["id"] == main_v["id"] or not tags:
+            continue
+        if any(not cp.SRC_TAG.match(t) for t in tags):
+            continue
+        if not v.get("created_at") or v["created_at"] >= main_v["created_at"]:
+            continue
+        out.append(v["id"])
+    return out
+
+
+class PruneSupersededTest(unittest.TestCase):
+    def test_removes_a_trunk_manifest_older_than_main(self):
+        vs = [tv(1, ["src-0d1111"], "2026-09-01"), tv(2, ["src-e42222", "main"], "2026-09-05")]
+        self.assertEqual(supersede(vs), [1])
+
+    def test_never_removes_what_main_points_at(self):
+        vs = [tv(2, ["src-e42222", "main"], "2026-09-05")]
+        self.assertEqual(supersede(vs), [])
+
+    def test_leaves_a_manifest_newer_than_main_alone(self):
+        # could be mid-promotion in a concurrent run
+        vs = [tv(1, ["src-e4e111"], "2026-09-06"), tv(2, ["src-a11122", "main"], "2026-09-05")]
+        self.assertEqual(supersede(vs), [])
+
+    def test_leaves_pull_request_manifests_to_the_other_sweep(self):
+        vs = [tv(1, ["src-0d1111", "pr-100"], "2026-09-01"), tv(2, ["src-e42222", "main"], "2026-09-05")]
+        self.assertEqual(supersede(vs), [])
+
+    def test_never_removes_a_release_or_floating_tag(self):
+        for tag in ["4.48.0-20260909", "latest", "nightly"]:
+            vs = [tv(1, ["src-0d1111", tag], "2026-09-01"), tv(2, ["src-e42222", "main"], "2026-09-05")]
+            self.assertEqual(supersede(vs), [], tag)
+
+    def test_does_nothing_when_there_is_no_main(self):
+        vs = [tv(1, ["src-0d1111"], "2026-09-01")]
+        self.assertEqual(supersede(vs), [])
+
+    def test_removes_several_superseded_manifests(self):
+        vs = [
+            tv(1, ["src-a11111"], "2026-09-01"),
+            tv(2, ["src-b22222"], "2026-09-02"),
+            tv(3, ["src-c33333", "main"], "2026-09-05"),
+        ]
+        self.assertEqual(sorted(supersede(vs)), [1, 2])
+
+    def test_skips_an_untagged_manifest(self):
+        vs = [tv(1, [], "2026-09-01"), tv(2, ["src-e42222", "main"], "2026-09-05")]
+        self.assertEqual(supersede(vs), [])
+
+
+class SrcTagStrictnessTest(unittest.TestCase):
+    def test_matches_a_real_source_hash(self):
+        self.assertTrue(cp.SRC_TAG.match("src-331808bba75d"))
+
+    def test_rejects_anything_that_is_not_a_hex_hash(self):
+        # a tag merely starting with src- must not be mistaken for one of ours
+        for tag in ["src-latest", "src-", "src-release", "srcs-aaaaaa", "src-aaa"]:
+            self.assertIsNone(cp.SRC_TAG.match(tag), tag)
+
+    def test_rejects_release_and_floating_tags(self):
+        for tag in ["main", "latest", "nightly", "4.48.0-20260909", "ffmpeg-8.1-20260905"]:
+            self.assertIsNone(cp.SRC_TAG.match(tag), tag)
+            self.assertIsNone(cp.PR_TAG.match(tag), tag)

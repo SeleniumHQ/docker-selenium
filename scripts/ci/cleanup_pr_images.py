@@ -96,12 +96,71 @@ def pr_is_open(owner, repo, number, token):
         raise
 
 
+def prune_superseded(owner, image, token, dry_run=False):
+    """Remove trunk-built src-* manifests that :main has superseded.
+
+    A trunk build publishes src-<hash> and, once its tests pass, :main is retagged
+    onto it. The previous trunk manifests keep their src-* tag for ever: they carry
+    no pr-* alias, because only a pull request build creates one, so the
+    closed-pull-request sweep can never reach them.
+
+    Superseded means created before whatever :main points at now. That is used
+    rather than an age in days because it cannot race: a manifest newer than the
+    current main might be mid-promotion in another run, and is left alone.
+    """
+    all_versions = versions(owner, image, token)
+    main_version = next(
+        (v for v in all_versions if MAIN_TAG in (v.get("metadata", {}).get("container", {}).get("tags", []) or [])),
+        None,
+    )
+    if main_version is None:
+        return 0, ["no :main tag, so nothing can be judged superseded"]
+
+    main_created = main_version.get("created_at", "")
+    removed, problems = 0, []
+    for version in all_versions:
+        tags = version.get("metadata", {}).get("container", {}).get("tags", []) or []
+        if version["id"] == main_version["id"] or not tags:
+            continue
+        # Only ever untagged-by-us src-* manifests: a pr-* alias means the
+        # pull-request sweep owns it, and anything else is a release tag.
+        if any(not SRC_TAG.match(t) for t in tags):
+            continue
+        if not version.get("created_at") or version["created_at"] >= main_created:
+            continue
+        if dry_run:
+            print(f"- would delete `{image}:{','.join(sorted(tags))}`")
+            removed += 1
+            continue
+        try:
+            _request(
+                f"{API}/orgs/{owner}/packages/container/"
+                f"{urllib.parse.quote(image, safe='')}/versions/{version['id']}",
+                token,
+                method="DELETE",
+            )
+            removed += 1
+        except urllib.error.HTTPError as error:
+            problems.append(f"{image}:{','.join(sorted(tags))} ({error.code})")
+    return removed, problems
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Delete pr-* image tags from GHCR.")
     parser.add_argument("--owner", required=True)
     parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", "").split("/")[-1] or "docker-selenium")
     parser.add_argument("--pr", type=int, default=None, help="Only this pull request.")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--no-pr-sweep",
+        action="store_true",
+        help="Skip the closed-pull-request sweep. Used on trunk, where only --prune-superseded applies.",
+    )
+    parser.add_argument(
+        "--prune-superseded",
+        action="store_true",
+        help="Also remove trunk-built src-* manifests older than what :main points at.",
+    )
     args = parser.parse_args(argv)
 
     token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
@@ -114,7 +173,7 @@ def main(argv=None):
     protected = 0
 
     print("## Pull request image cleanup\n")
-    for image in IMAGES:
+    for image in [] if args.no_pr_sweep else IMAGES:
         try:
             all_versions = versions(args.owner, image, token)
             # Whatever main points at is the promotion source for a release and is
@@ -173,7 +232,19 @@ def main(argv=None):
         except Exception as error:  # noqa: BLE001 - one bad package must not stop the sweep
             failed.append(f"{image} ({error})")
 
-    scope = f"PR #{args.pr}" if args.pr is not None else "all closed pull requests"
+    if args.prune_superseded:
+        print("\n### Superseded trunk images\n")
+        pruned = 0
+        for image in IMAGES:
+            try:
+                removed, problems = prune_superseded(args.owner, image, token, args.dry_run)
+                pruned += removed
+                failed.extend(problems)
+            except Exception as error:  # noqa: BLE001 - one bad package must not stop the sweep
+                failed.append(f"{image} ({error})")
+        print(f"- Superseded manifests deleted: **{pruned}**")
+
+    scope = "none" if args.no_pr_sweep else (f"PR #{args.pr}" if args.pr is not None else "all closed pull requests")
     print(f"Scope: {scope}\n")
     print(f"- Deleted: **{deleted}**")
     if kept:
