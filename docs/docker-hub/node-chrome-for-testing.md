@@ -24,7 +24,7 @@ docker network create grid
 2. Start the Hub using the created network
 
 ```bash
-docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.48.0-20260909
+docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.48.0-20260905
 ```
 
 3. Start the Node using the created network
@@ -33,7 +33,7 @@ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --platform linux/amd64 \
     --shm-size="2g" \
-    selenium/node-chrome-for-testing:4.48.0-20260909
+    selenium/node-chrome-for-testing:4.48.0-20260905
 ```
 
 If you are using Windows Powershell, use this command:
@@ -42,7 +42,7 @@ If you are using Windows Powershell, use this command:
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --platform linux/amd64 `
     --shm-size="2g" `
-    selenium/node-chrome-for-testing:4.48.0-20260909
+    selenium/node-chrome-for-testing:4.48.0-20260905
 ```
 
 4. Point your WebDriver tests to http://localhost:4444

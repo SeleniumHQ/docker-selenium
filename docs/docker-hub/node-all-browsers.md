@@ -38,7 +38,7 @@ docker network create grid
 2. Start the Hub using the created network
 
 ```bash
-docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.48.0-20260909
+docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub:4.48.0-20260905
 ```
 
 3. Start the Node using the created network
@@ -46,7 +46,7 @@ docker run -d -p 4442-4444:4442-4444 --net grid --name selenium-hub selenium/hub
 ```bash
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="3g" \
-    selenium/node-all-browsers:4.48.0-20260909
+    selenium/node-all-browsers:4.48.0-20260905
 ```
 
 If you are using Windows Powershell, use this command:
@@ -54,7 +54,7 @@ If you are using Windows Powershell, use this command:
 ```powershell
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub `
     --shm-size="3g" `
-    selenium/node-all-browsers:4.48.0-20260909
+    selenium/node-all-browsers:4.48.0-20260905
 ```
 
 4. Point your WebDriver tests to http://localhost:4444
@@ -83,7 +83,7 @@ Set `SE_NODE_ENABLE_BROWSER_<BROWSER>=false` to stop a browser from being regist
 docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub \
     --shm-size="3g" \
     -e SE_NODE_ENABLE_BROWSER_FIREFOX=false \
-    selenium/node-all-browsers:4.48.0-20260909
+    selenium/node-all-browsers:4.48.0-20260905
 ```
 
 The following environment variables accept the same `_<BROWSER>` suffix, so each browser can be configured independently within the one container:

@@ -6,9 +6,9 @@ data:
   kubernetes.toml: |
     [kubernetes]
     configs = [
-        "selenium/standalone-chromium:4.48.0-20260909", '{"browserName": "chrome", "platformName": "linux"}',
-        "selenium/standalone-firefox:4.48.0-20260909", '{"browserName": "firefox", "platformName": "linux"}',
-        "selenium/standalone-edge:4.48.0-20260909", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+        "selenium/standalone-chromium:4.48.0-20260905", '{"browserName": "chrome", "platformName": "linux"}',
+        "selenium/standalone-firefox:4.48.0-20260905", '{"browserName": "firefox", "platformName": "linux"}',
+        "selenium/standalone-edge:4.48.0-20260905", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
     termination-grace-period = 60
     assets-path = "/opt/selenium/assets"

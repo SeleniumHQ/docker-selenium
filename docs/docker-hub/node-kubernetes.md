@@ -22,9 +22,9 @@ The same Dynamic Grid concept is applied to a Kubernetes cluster. The Grid provi
 
 ### Minimal Hub+Node setup
 
-Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.48.0-20260909/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
+Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.48.0-20260905/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
 
-Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260909/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
+Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260905/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
 
 ```yaml
 # configmap.yaml
@@ -36,15 +36,15 @@ data:
   kubernetes.toml: |
     [kubernetes]
     configs = [
-        "selenium/standalone-chrome:4.48.0-20260909", '{"browserName": "chrome", "platformName": "linux"}',
-        "selenium/standalone-firefox:4.48.0-20260909", '{"browserName": "firefox", "platformName": "linux"}',
-        "selenium/standalone-edge:4.48.0-20260909", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+        "selenium/standalone-chrome:4.48.0-20260905", '{"browserName": "chrome", "platformName": "linux"}',
+        "selenium/standalone-firefox:4.48.0-20260905", '{"browserName": "firefox", "platformName": "linux"}',
+        "selenium/standalone-edge:4.48.0-20260905", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 ```
 
 The `configs` array pairs each browser image with a capability stereotype JSON string. The Node uses these to match incoming session requests against the right image, spin up the Pod, and report available slots to the Hub.
 
-The [Node deployment](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260909/kubernetes/DynamicGrid/Hub_Node/node-kubernetes-deployment.yaml) then mounts that ConfigMap as a file and points the Grid node at it:
+The [Node deployment](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260905/kubernetes/DynamicGrid/Hub_Node/node-kubernetes-deployment.yaml) then mounts that ConfigMap as a file and points the Grid node at it:
 
 ```yaml
 # node-kubernetes-deployment.yaml
@@ -60,7 +60,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-node-kubernetes
-          image: selenium/node-kubernetes:4.48.0-20260909
+          image: selenium/node-kubernetes:4.48.0-20260905
           ports:
             - containerPort: 5555
           env:
@@ -90,7 +90,7 @@ spec:
 
 Event bus connectivity (host), and node config (session timeout) are passed as environment variables. Browser stereotypes live entirely in the TOML file inside the ConfigMap, keeping them independently updatable without redeploying the Node.
 
-The [RBAC manifest](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260909/kubernetes/DynamicGrid/BaseConfig/rbac.yaml) grants the Node the minimal permissions needed — `create`, `delete`, and `get` on `pods` and `pods/log` in the configured namespace. No cluster-wide permissions needed.
+The [RBAC manifest](https://github.com/SeleniumHQ/docker-selenium/blob/4.48.0-20260905/kubernetes/DynamicGrid/BaseConfig/rbac.yaml) grants the Node the minimal permissions needed — `create`, `delete`, and `get` on `pods` and `pods/log` in the configured namespace. No cluster-wide permissions needed.
 
 ### Scaling strategy with InheritedPodSpec
 

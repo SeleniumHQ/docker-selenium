@@ -16,7 +16,7 @@ Chrome for Testing (CfT) is a Chrome flavour published by the Chrome team specif
 
 ```bash
 docker run -d -p 4444:4444 -p 7900:7900 --platform linux/amd64 --shm-size="2g" \
-    selenium/standalone-chrome-for-testing:4.48.0-20260909
+    selenium/standalone-chrome-for-testing:4.48.0-20260905
 ```
 
 2. Point your WebDriver tests to http://localhost:4444

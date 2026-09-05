@@ -30,7 +30,7 @@ Both the Chrome and the Chromium binary are present on `linux/amd64`, with Chrom
 
 ```bash
 docker run -d -p 4444:4444 -p 7900:7900 --shm-size="3g" \
-    selenium/standalone-all-browsers:4.48.0-20260909
+    selenium/standalone-all-browsers:4.48.0-20260905
 ```
 
 2. Point your WebDriver tests to http://localhost:4444
@@ -52,7 +52,7 @@ Set `SE_NODE_ENABLE_BROWSER_<BROWSER>=false` to stop a browser from being regist
 ```bash
 docker run -d -p 4444:4444 -p 7900:7900 --shm-size="3g" \
     -e SE_NODE_ENABLE_BROWSER_FIREFOX=false \
-    selenium/standalone-all-browsers:4.48.0-20260909
+    selenium/standalone-all-browsers:4.48.0-20260905
 ```
 
 The following environment variables accept the same `_<BROWSER>` suffix, so each browser can be configured independently within the one container:

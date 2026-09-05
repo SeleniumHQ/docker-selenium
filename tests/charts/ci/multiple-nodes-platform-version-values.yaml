@@ -25,19 +25,19 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-chrome-146'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '146.0-20260909'
+      imageTag: '146.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '146.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-145'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '145.0-20260909'
+      imageTag: '145.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '145.0'
     - nameOverride: '{{ $.Release.Name }}-node-chrome-144'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '144.0-20260909'
+      imageTag: '144.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '144.0'
@@ -48,25 +48,25 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-firefox-147'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '147.0-20260909'
+      imageTag: '147.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '147.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-146'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '146.0-20260909'
+      imageTag: '146.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '146.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-145'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '145.0-20260909'
+      imageTag: '145.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '145.0'
     - nameOverride: '{{ $.Release.Name }}-node-firefox-144'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '144.0-20260909'
+      imageTag: '144.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '144.0'
@@ -77,19 +77,19 @@ crossBrowsers:
         browserVersion: ''
     - nameOverride: '{{ $.Release.Name }}-node-edge-146'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '146.0-20260909'
+      imageTag: '146.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '146.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-145'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '145.0-20260909'
+      imageTag: '145.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '145.0'
     - nameOverride: '{{ $.Release.Name }}-node-edge-144'
       imageRegistry: ghcr.io/seleniumhq
-      imageTag: '144.0-20260909'
+      imageTag: '144.0-20260905'
       hpa:
         platformName: 'Linux'
         browserVersion: '144.0'
