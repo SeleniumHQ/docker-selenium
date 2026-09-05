@@ -69,32 +69,80 @@ jobs:
       - name: Lint format
         run: make lint_format_scripts
 
-  docker-test:
+  build-images:
     needs: [lint-format]
+    name: Build images once
+    uses: ./.github/workflows/build-images.yml
+    secrets: inherit
+
+  docker-test:
+    needs: [lint-format, build-images]
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Selenium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
+    secrets: inherit
     with:
+      ci-mode: ${{ needs.build-images.outputs.mode }}
+      ci-tag: ${{ needs.build-images.outputs.ci-tag }}
+      ci-registry: ${{ needs.build-images.outputs.registry }}
       release: ${{ inputs.release == 'true' }}
 
   helm-chart-test:
-    needs: [lint-format]
+    needs: [lint-format, build-images]
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
     secrets: inherit
     with:
+      ci-mode: ${{ needs.build-images.outputs.mode }}
+      ci-tag: ${{ needs.build-images.outputs.ci-tag }}
+      ci-registry: ${{ needs.build-images.outputs.registry }}
       release: ${{ inputs.release == 'true' }}
       test-patched-keda: ${{ github.event.inputs.test-patched-keda }}
 
   k8s-dynamic-grid-test:
-    needs: [lint-format]
+    needs: [lint-format, build-images]
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Dynamic Grid on Kubernetes
     uses: ./.github/workflows/k8s-dynamic-grid-test.yml
     secrets: inherit
     with:
+      ci-mode: ${{ needs.build-images.outputs.mode }}
+      ci-tag: ${{ needs.build-images.outputs.ci-tag }}
+      ci-registry: ${{ needs.build-images.outputs.registry }}
       release: ${{ inputs.release == 'true' }}
+
+  promote-main:
+    # :main must only ever denote a tree whose tests passed, so it is moved here
+    # rather than by the build job. The build published trunk-<sha>; this retags
+    # that exact manifest, so no rebuild happens and the digest is identical.
+    needs: [build-images, docker-test, helm-chart-test, k8s-dynamic-grid-test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !failure() && !cancelled() && needs.build-images.outputs.mode != 'build-in-job'
+    name: Promote tested images to main
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+      - name: Retag ${{ needs.build-images.outputs.ci-tag }} as main
+        run: |
+          CI_REGISTRY="${{ needs.build-images.outputs.registry }}" \
+            CI_TAG="${{ needs.build-images.outputs.ci-tag }}" PROMOTE_TO=main \
+            make promote_ci_images
+      - name: Summary
+        run: |
+          {
+            echo "### Promoted to \`:main\`"
+            echo
+            echo "\`${{ needs.build-images.outputs.ci-tag }}\` passed the full suite and is now \`:main\`."
+            echo "Retagged, not rebuilt, so the digest is unchanged."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   rerun-workflow-when-failure:
     name: Rerun workflow when failure

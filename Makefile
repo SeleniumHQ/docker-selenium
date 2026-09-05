@@ -39,6 +39,138 @@ TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
 
+# --- CI image reuse -----------------------------------------------------------
+#
+# The PR test suite spans 37 matrix jobs and every one of them used to build the
+# images it needed, because each test target names image targets as prerequisites
+# (`test_video: video hub chrome firefox edge chromium`). Building once and
+# reusing the result is worth ~36 redundant builds per pull request.
+#
+#   SKIP_BUILD=true   every image-build target becomes a no-op, so the test
+#                     targets keep their prerequisites and need no edits. Use it
+#                     only when the images are already present locally.
+#   make push_ci_images / pull_ci_images   move that set through a registry.
+#
+# With SKIP_BUILD unset nothing below changes: `make build`, `make test` and every
+# other local workflow behave exactly as before.
+
+CI_REGISTRY := $(or $(CI_REGISTRY),ghcr.io/seleniumhq)
+CI_TAG := $(or $(CI_TAG),main)
+
+# The images a test run can need. Kept as one list so push and pull cannot drift.
+CI_IMAGES := base hub distributor router sessions session-queue event-bus \
+	node-base node-chrome node-chrome-for-testing node-chromium node-edge node-firefox \
+	node-all-browsers node-docker node-kubernetes \
+	standalone-chrome standalone-chrome-for-testing standalone-chromium standalone-edge \
+	standalone-firefox standalone-all-browsers standalone-docker standalone-kubernetes \
+	video keda-external-scaler
+
+# Image-build targets only. gen_certs, prepare_resources and update_go are
+# deliberately absent: they produce working-tree files the tests read, not images,
+# and must still run when the images come from a registry.
+SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bus \
+	node_base chrome chrome_only chrome-for-testing chrome-for-testing_only chromium \
+	edge edge_only firefox firefox_only all_browsers docker kubernetes \
+	standalone_chrome standalone_chrome_only standalone_chrome-for-testing \
+	standalone_chrome-for-testing_only standalone_chromium standalone_edge \
+	standalone_edge_only standalone_firefox standalone_firefox_only \
+	standalone_all_browsers standalone_docker standalone_kubernetes \
+	video ffmpeg keda_external_scaler
+
+# Push what was just built, so the rest of the run can reuse it.
+# video does not carry the grid tag: it is built as
+# $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE), and the compose files read it
+# from VIDEO_TAG. Assuming $(TAG_VERSION) for every image meant video was never
+# found locally, silently skipped on push, and then missing at merge.
+#
+# Skips images this build did not produce. On an arm64 runner that is Edge and
+# Chrome for Testing, which are amd64-only; without the check the loop would fail
+# tagging an image that was correctly never built.
+push_ci_images:
+	@set -e; pushed=0; skipped=""; \
+	for image in $(CI_IMAGES); do \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		if ! docker image inspect $(NAME)/$$image:$$local_tag >/dev/null 2>&1; then \
+			skipped="$$skipped $$image"; continue; \
+		fi; \
+		echo "push $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		docker tag $(NAME)/$$image:$$local_tag $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		docker push --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		pushed=$$((pushed+1)); \
+	done; \
+	echo "pushed $$pushed image(s) as $(CI_TAG)"; \
+	if [ -n "$$skipped" ]; then echo "not built here, skipped:$$skipped"; fi; \
+		if [ "$$pushed" -eq 0 ]; then echo "nothing was pushed" >&2; exit 1; fi
+
+# Pull the prebuilt set and give it the local names the compose files expect.
+#
+# Edge and Chrome for Testing are amd64-only, so on arm64 their manifest list has
+# no matching entry and `docker pull` fails with "no matching manifest for
+# linux/arm64/v8". Skip those deliberately, by inspecting the manifest first -
+# and only those. An image missing from the registry entirely is still a hard
+# error, because that means the build or the merge went wrong, and a clear
+# failure here beats a compose failure fifteen minutes into a test job.
+pull_ci_images:
+	@set -e; arch=$$(docker version --format '{{.Server.Arch}}'); \
+	echo "pulling for linux/$$arch"; \
+	pulled=0; other_arch=""; \
+	for image in $(CI_IMAGES); do \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		ref="$(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		if ! manifest=$$(docker manifest inspect $$ref 2>/dev/null); then \
+			echo "$$ref is not in the registry" >&2; exit 1; \
+		fi; \
+		if ! echo "$$manifest" | tr -d ' ' | grep -q "\"architecture\":\"$$arch\""; then \
+			other_arch="$$other_arch $$image"; continue; \
+		fi; \
+		echo "pull $$ref -> $(NAME)/$$image:$$local_tag"; \
+		docker pull --quiet --platform linux/$$arch $$ref; \
+		docker tag $$ref $(NAME)/$$image:$$local_tag; \
+		pulled=$$((pulled+1)); \
+	done; \
+	echo "pulled $$pulled image(s) for linux/$$arch"; \
+	if [ -n "$$other_arch" ]; then echo "not built for linux/$$arch:$$other_arch"; fi; \
+		if [ "$$pulled" -eq 0 ]; then echo "nothing was pulled" >&2; exit 1; fi
+	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
+
+# Merge the per-architecture tags pushed by native runners into one manifest
+# list. Building multi-arch on a single runner means QEMU-emulating arm64, which
+# took over an hour; two native runners in parallel cost about one amd64 build.
+#
+# Edge and Chrome for Testing are amd64-only - the Makefile skips them when
+# PLATFORMS has no linux/amd64 - so their arm64 tag never exists and the list is
+# built from amd64 alone rather than failing.
+merge_ci_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		refs="" ; \
+		for arch in amd64 arm64; do \
+			if docker manifest inspect $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch >/dev/null 2>&1; then \
+				refs="$$refs $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch" ; \
+			fi ; \
+		done ; \
+		if [ -z "$$refs" ]; then echo "no architecture tags for $$image:$(CI_TAG)" ; exit 1 ; fi ; \
+			echo "merge $$image:$(CI_TAG) <-$$refs" ; \
+			docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(CI_TAG) $$refs ; \
+		done
+
+# Promote a tested tag to another tag without rebuilding, so the digest released
+# is the digest tested. Used to turn trunk-<sha> into :main, and :main into a
+# release tag.
+promote_ci_images:
+	@test -n "$(PROMOTE_TO)" || (echo "PROMOTE_TO is required" && exit 1)
+	@for image in $(CI_IMAGES); do \
+		echo "promote $$image: $(CI_TAG) -> $(PROMOTE_TO)" ; \
+		docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(PROMOTE_TO) $(CI_REGISTRY)/$$image:$(CI_TAG) || exit 1 ; \
+	done
+
 all: hub \
 	distributor \
 	router \
@@ -1572,3 +1704,12 @@ test_k8s_dynamic_grid_hub_node:
 	tag_and_push_browser_images \
 	test \
 	video
+
+# Placed last on purpose: GNU Make lets the last definition of a target win, so
+# these no-ops must come after the real build recipes above. Defining them at all
+# only happens when SKIP_BUILD=true, so an ordinary `make build` never sees them
+# and never prints an override warning.
+ifeq ($(strip $(SKIP_BUILD)),true)
+$(SKIP_BUILD_TARGETS):
+	@echo "SKIP_BUILD=true: using the prebuilt image for '$@'"
+endif

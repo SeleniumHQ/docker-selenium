@@ -1,0 +1,59 @@
+name: Clean up PR images
+
+# build-images.yml publishes one image set per pull request, tagged pr-<number>.
+# Without this they accumulate forever: 27 images per open pull request, none of
+# them useful once the pull request closes.
+#
+# Runs on close, whether merged or not - a rejected pull request leaves exactly
+# the same rubbish behind as a merged one. Also runs on a schedule to sweep tags
+# belonging to pull requests that closed while this workflow was failing, or
+# before it existed.
+
+on:
+  pull_request_target:
+    types: [closed]
+  schedule:
+    # Weekly sweep for anything the close event missed.
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: 'Delete images for this PR number. Empty means sweep all closed PRs.'
+        required: false
+        type: string
+        default: ''
+
+# pull_request_target is safe here only because this workflow never checks out or
+# runs any code from the pull request. It reads a number and calls an API.
+permissions:
+  contents: read
+  packages: write
+  pull-requests: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Delete pr-* image tags
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      - name: Delete the tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          EVENT_PR: ${{ github.event.pull_request.number }}
+          INPUT_PR: ${{ inputs.pr-number }}
+        run: |
+          set -euo pipefail
+          python3 scripts/ci/cleanup_pr_images.py \
+            --owner "${OWNER}" \
+            ${EVENT_PR:+--pr "${EVENT_PR}"} \
+            ${INPUT_PR:+--pr "${INPUT_PR}"} \
+            >> "$GITHUB_STEP_SUMMARY"
