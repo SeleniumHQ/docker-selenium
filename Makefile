@@ -107,19 +107,38 @@ push_ci_images:
 		if [ "$$pushed" -eq 0 ]; then echo "nothing was pushed" >&2; exit 1; fi
 
 # Pull the prebuilt set and give it the local names the compose files expect.
-# Fails on the first missing image: a clear error here beats a compose failure
-# fifteen minutes into a test job.
+#
+# Edge and Chrome for Testing are amd64-only, so on arm64 their manifest list has
+# no matching entry and `docker pull` fails with "no matching manifest for
+# linux/arm64/v8". Skip those deliberately, by inspecting the manifest first -
+# and only those. An image missing from the registry entirely is still a hard
+# error, because that means the build or the merge went wrong, and a clear
+# failure here beats a compose failure fifteen minutes into a test job.
 pull_ci_images:
-	@set -e; for image in $(CI_IMAGES); do \
+	@set -e; arch=$$(docker version --format '{{.Server.Arch}}'); \
+	echo "pulling for linux/$$arch"; \
+	pulled=0; other_arch=""; \
+	for image in $(CI_IMAGES); do \
 		case "$$image" in \
 			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
 			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
 			*)      local_tag="$(TAG_VERSION)" ;; \
 		esac; \
-		echo "pull $(CI_REGISTRY)/$$image:$(CI_TAG) -> $(NAME)/$$image:$$local_tag"; \
-		docker pull --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
-		docker tag $(CI_REGISTRY)/$$image:$(CI_TAG) $(NAME)/$$image:$$local_tag; \
-	done
+		ref="$(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		if ! manifest=$$(docker manifest inspect $$ref 2>/dev/null); then \
+			echo "$$ref is not in the registry" >&2; exit 1; \
+		fi; \
+		if ! echo "$$manifest" | tr -d ' ' | grep -q "\"architecture\":\"$$arch\""; then \
+			other_arch="$$other_arch $$image"; continue; \
+		fi; \
+		echo "pull $$ref -> $(NAME)/$$image:$$local_tag"; \
+		docker pull --quiet --platform linux/$$arch $$ref; \
+		docker tag $$ref $(NAME)/$$image:$$local_tag; \
+		pulled=$$((pulled+1)); \
+	done; \
+	echo "pulled $$pulled image(s) for linux/$$arch"; \
+	if [ -n "$$other_arch" ]; then echo "not built for linux/$$arch:$$other_arch"; fi; \
+		if [ "$$pulled" -eq 0 ]; then echo "nothing was pulled" >&2; exit 1; fi
 	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
 
 # Merge the per-architecture tags pushed by native runners into one manifest
