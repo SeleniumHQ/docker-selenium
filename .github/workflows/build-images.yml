@@ -48,8 +48,11 @@ on:
         description: 'Tag the test jobs should pull'
         value: ${{ jobs.decide.outputs.ci-tag }}
       base-version:
-        description: 'Selenium core the images were built against'
+        description: 'Selenium core version the images were built against'
         value: ${{ jobs.decide.outputs.base-version }}
+      base-release:
+        description: 'Upstream release tag that core came from'
+        value: ${{ jobs.decide.outputs.base-release }}
       src-hash:
         description: 'Content hash the tag is keyed on'
         value: ${{ jobs.decide.outputs.src-hash }}
@@ -72,6 +75,7 @@ jobs:
       ci-tag: ${{ steps.decide.outputs.ci-tag }}
       src-hash: ${{ steps.decide.outputs.src-hash }}
       base-version: ${{ steps.decide.outputs.base-version }}
+      base-release: ${{ steps.decide.outputs.base-release }}
       registry: ${{ steps.decide.outputs.registry }}
     steps:
       - name: Checkout code
@@ -135,11 +139,12 @@ jobs:
               | sha256sum | cut -c1-12
           )
           TAG="${INPUT_TAG:-src-${SRC_HASH}}"
-          echo "Selenium core: ${BASE_VERSION}"
+          echo "Selenium core: ${BASE_RELEASE} (${BASE_VERSION})"
           echo "Source hash: ${SRC_HASH}"
           echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
           echo "base-version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "base-release=${BASE_RELEASE}" >> "$GITHUB_OUTPUT"
           {
             echo "### Images"
             echo
@@ -202,8 +207,16 @@ jobs:
           command: make setup_dev_env
 
       # Use exactly the core decide hashed on, so the tag and the image agree.
+      # All three matter: Base/Dockerfile builds its download URL from the
+      # release tag AND the version
+      #   .../releases/download/${RELEASE}/selenium-server-${VERSION}.jar
+      # so carrying only BASE_VERSION leaves BASE_RELEASE on the Makefile default
+      # and asks for a jar that does not exist.
       - name: Use the core decide resolved
-        run: echo "BASE_VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
+        run: |
+          echo "BASE_VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
+          echo "BASE_RELEASE=${{ needs.decide.outputs.base-release }}" >> $GITHUB_ENV
+          echo "VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
 
       # Multi-arch, so the arm64 half of the test matrix pulls rather than
       # building. The build is slower once; it used to be paid in every job.
