@@ -171,8 +171,22 @@ def sync(descs, client, dry_run):
 
 
 def _load_all(docs_dir, makefile, only):
-    footer = FOOTER_FILE.read_text() if FOOTER_FILE.exists() else ""
     problems = check_drift(docs_dir, makefile)
+
+    footer_path = docs_dir / FOOTER_FILE.name
+    if footer_path.exists():
+        footer = footer_path.read_text()
+    else:
+        footer = ""
+        problems.append(
+            "_footer.md: the shared footer is missing from docs/docker-hub/ — every description "
+            "would be published without its documentation and licence links"
+        )
+
+    known = {path.stem for path in description_files(docs_dir)}
+    for name in sorted(only - known):
+        problems.append(f"{name}: --repo named a repository with no docs/docker-hub/{name}.md")
+
     descs = []
     for path in description_files(docs_dir):
         if only and path.stem not in only:

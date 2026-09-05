@@ -204,3 +204,46 @@ class SyncTest(unittest.TestCase):
         client = StubClient({"video": {"description": "Video", "full_description": "# Video\n"}}, fail=["broken"])
         self.assertEqual(ud.sync(descs, client, dry_run=False), (1, 1))
         self.assertEqual([name for name, _, _ in client.patched], ["video"])
+
+
+class LoadAllTest(TempDirTestCase):
+    def makefile(self):
+        path = self.tmp_path / "Makefile"
+        path.write_text(MAKEFILE_SNIPPET)
+        return path
+
+    def docs(self, names, footer=True):
+        docs = self.tmp_path / "docs"
+        docs.mkdir()
+        if footer:
+            (docs / "_footer.md").write_text(FOOTER)
+        for name in names:
+            (docs / f"{name}.md").write_text(f"---\ndescription: {name}\n---\n# {name}\n")
+        return docs
+
+    def test_reports_a_missing_footer_file(self):
+        docs = self.docs(["hub", "video", "keda"], footer=False)
+        descs, problems = ud._load_all(docs, self.makefile(), set())
+        self.assertEqual(len(problems), 1)
+        self.assertIn("_footer.md", problems[0])
+        self.assertEqual(len(descs), 3)
+
+    def test_present_footer_is_applied_and_reports_no_problem(self):
+        docs = self.docs(["hub", "video", "keda"])
+        descs, problems = ud._load_all(docs, self.makefile(), set())
+        self.assertEqual(problems, [])
+        self.assertTrue(all("## License" in d.full for d in descs))
+
+    def test_reports_an_unmatched_repo_filter(self):
+        docs = self.docs(["hub", "video", "keda"])
+        descs, problems = ud._load_all(docs, self.makefile(), {"hubb"})
+        self.assertEqual(len(problems), 1)
+        self.assertIn("--repo", problems[0])
+        self.assertIn("hubb", problems[0])
+        self.assertEqual(descs, [])
+
+    def test_a_matched_repo_filter_loads_only_that_repository(self):
+        docs = self.docs(["hub", "video", "keda"])
+        descs, problems = ud._load_all(docs, self.makefile(), {"hub"})
+        self.assertEqual(problems, [])
+        self.assertEqual([d.name for d in descs], ["hub"])
