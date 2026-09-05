@@ -78,12 +78,23 @@ SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bu
 	video ffmpeg keda_external_scaler
 
 # Push what was just built, so the rest of the run can reuse it.
+# Skips images this build did not produce. On an arm64 runner that is Edge and
+# Chrome for Testing, which are amd64-only; without the check the loop would fail
+# tagging an image that was correctly never built.
 push_ci_images:
-	@set -e; for image in $(CI_IMAGES); do \
+	@set -e; pushed=0; skipped=""; \
+	for image in $(CI_IMAGES); do \
+		if ! docker image inspect $(NAME)/$$image:$(TAG_VERSION) >/dev/null 2>&1; then \
+			skipped="$$skipped $$image"; continue; \
+		fi; \
 		echo "push $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
 		docker tag $(NAME)/$$image:$(TAG_VERSION) $(CI_REGISTRY)/$$image:$(CI_TAG); \
-		docker push $(CI_REGISTRY)/$$image:$(CI_TAG); \
-	done
+		docker push --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		pushed=$$((pushed+1)); \
+	done; \
+	echo "pushed $$pushed image(s) as $(CI_TAG)"; \
+	if [ -n "$$skipped" ]; then echo "not built here, skipped:$$skipped"; fi; \
+		if [ "$$pushed" -eq 0 ]; then echo "nothing was pushed" >&2; exit 1; fi
 
 # Pull the prebuilt set and give it the local names the compose files expect.
 # Fails on the first missing image: a clear error here beats a compose failure
@@ -95,6 +106,26 @@ pull_ci_images:
 		docker tag $(CI_REGISTRY)/$$image:$(CI_TAG) $(NAME)/$$image:$(TAG_VERSION); \
 	done
 	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
+
+# Merge the per-architecture tags pushed by native runners into one manifest
+# list. Building multi-arch on a single runner means QEMU-emulating arm64, which
+# took over an hour; two native runners in parallel cost about one amd64 build.
+#
+# Edge and Chrome for Testing are amd64-only - the Makefile skips them when
+# PLATFORMS has no linux/amd64 - so their arm64 tag never exists and the list is
+# built from amd64 alone rather than failing.
+merge_ci_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		refs="" ; \
+		for arch in amd64 arm64; do \
+			if docker manifest inspect $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch >/dev/null 2>&1; then \
+				refs="$$refs $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch" ; \
+			fi ; \
+		done ; \
+		if [ -z "$$refs" ]; then echo "no architecture tags for $$image:$(CI_TAG)" ; exit 1 ; fi ; \
+			echo "merge $$image:$(CI_TAG) <-$$refs" ; \
+			docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(CI_TAG) $$refs ; \
+		done
 
 # Promote a tested tag to another tag without rebuilding, so the digest released
 # is the digest tested. Used to turn trunk-<sha> into :main, and :main into a

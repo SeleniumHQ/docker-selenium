@@ -175,10 +175,21 @@ jobs:
           fi
 
   build:
-    name: Build and push ${{ needs.decide.outputs.ci-tag }}
+    # One native runner per architecture, in parallel. Building both on a single
+    # runner means QEMU-emulating arm64, which ran past an hour; this costs about
+    # one amd64 build. The repo already uses ubuntu-24.04-arm for its arm64 tests.
+    name: Build ${{ matrix.arch }} ${{ needs.decide.outputs.ci-tag }}
     needs: decide
     if: needs.decide.outputs.mode == 'build-and-push'
-    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: amd64
+            os: ubuntu-24.04
+          - arch: arm64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       packages: write
@@ -218,13 +229,13 @@ jobs:
           echo "BASE_RELEASE=${{ needs.decide.outputs.base-release }}" >> $GITHUB_ENV
           echo "VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
 
-      # Multi-arch, so the arm64 half of the test matrix pulls rather than
-      # building. The build is slower once; it used to be paid in every job.
-      - name: Set build date and platforms
+      # Native, single platform. Edge and Chrome for Testing are amd64-only and
+      # the Makefile skips them when PLATFORMS has no linux/amd64, so the arm64
+      # job simply does not produce those two.
+      - name: Set build date and platform
         run: |
           echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
-          make set_build_multiarch
-          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
+          echo "PLATFORMS=linux/${{ matrix.arch }}" >> $GITHUB_ENV
 
       - name: Log in to GHCR
         if: inputs.push
@@ -250,21 +261,45 @@ jobs:
           retry_wait_seconds: 60
           command: |
             VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" \
-              CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+              CI_REGISTRY="${{ env.CI_REGISTRY }}" \
+              CI_TAG="${{ needs.decide.outputs.ci-tag }}-${{ matrix.arch }}" \
               make push_ci_images
-            if [ -n "${{ github.event.pull_request.number }}" ]; then
-              CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
-                PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images
-            fi
 
       - name: Summary
         if: always()
         run: |
           {
-            echo "### Images"
+            echo "### Images (${{ matrix.arch }})"
             echo
             echo "Mode: \`${{ needs.decide.outputs.mode }}\`"
             echo "Tag: \`${{ env.CI_REGISTRY }}/<image>:${{ needs.decide.outputs.ci-tag }}\`"
             echo
             echo "Built once here; the test jobs pull instead of building."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  merge:
+    name: Merge into one manifest list
+    needs: [decide, build]
+    if: needs.decide.outputs.mode == 'build-and-push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Merge the architecture tags
+        run: |
+          CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+            make merge_ci_images
+      # Alias for cleanup: pr-<N> is what gets deleted when the pull request
+      # closes. The src-* tag is shared and must outlive any single one.
+      - name: Tag the manifest for this pull request
+        if: github.event.pull_request.number
+        run: |
+          CI_REGISTRY="${{ env.CI_REGISTRY }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+            PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images
