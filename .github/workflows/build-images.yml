@@ -7,9 +7,9 @@ name: Build images once
 #
 # Three modes, decided by the `decide` job and honoured by every test workflow:
 #
-#   reuse-main     the change cannot affect image content, so nothing is built
-#                  and the tests run against the last :main
-#   build-and-push build once, push :pr-<N>, every test job pulls it
+#   reuse          an identical image set is already published under this
+#                  content hash, so nothing is built and every test job pulls it
+#   build-and-push the content is new: build once, push, every test job pulls it
 #   build-in-job   fork pull requests, which have no registry credentials, keep
 #                  today's behaviour and build in each job
 #
@@ -25,11 +25,11 @@ on:
         required: false
         type: string
         default: ''
-      core:
-        description: "Selenium core to build against: 'nightly' or 'stable'. Empty derives it."
+      release:
+        description: "Build against the stable core ('true') or the nightly one ('false')"
         required: false
         type: string
-        default: ''
+        default: 'false'
       force-build:
         description: 'Build even when the change looks image-neutral'
         required: false
@@ -42,7 +42,7 @@ on:
         default: true
     outputs:
       mode:
-        description: 'reuse-main, build-and-push, or build-in-job'
+        description: 'reuse, build-and-push, or build-in-job'
         value: ${{ jobs.decide.outputs.mode }}
       ci-tag:
         description: 'Tag the test jobs should pull'
@@ -82,14 +82,16 @@ jobs:
           persist-credentials: false
 
       # Resolve the core first: the same source built against a different Selenium
-      # core produces different images, so the core has to be part of the key.
-      # Pull requests test against the upcoming nightly core, exactly as they did
-      # before this change; trunk and release build the stable one pinned in the
-      # Makefile. Those must never share a tag.
+      # core produces different images, so the core is part of the key.
+      #
+      # `release` comes from the caller and is the same value the test workflows
+      # feed their own get-latest-upstream, so the images and the tests can never
+      # disagree about which core is under test. Nightly runs pass false and get
+      # the nightly core, which is the whole point of nightly.
       - name: Set Selenium base version
         uses: ./.github/actions/get-latest-upstream
         with:
-          release: ${{ (inputs.core == 'stable' || (inputs.core == '' && github.event_name != 'pull_request')) && 'true' || 'false' }}
+          release: ${{ inputs.release || 'false' }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
           authors: ${{ vars.AUTHORS || github.repository_owner }}
 
@@ -165,7 +167,18 @@ jobs:
           # trunk. On trunk this is exactly the promotion case: the merge reuses
           # the images its pull request built and tested, and promote-main then
           # retags them.
-          if docker manifest inspect "${REGISTRY}/base:${TAG}" >/dev/null 2>&1; then
+          #
+          # The probe is the completeness marker, NOT base:<tag>. base is the
+          # first image the merge writes, so if a merge dies partway - and
+          # cancel-in-progress makes that routine - base:<tag> exists while later
+          # images do not. Probing base would then choose reuse for ever and
+          # every run would hard-fail in pull_ci_images, with no way out but a
+          # hand-deleted tag. The marker is written only after every image has
+          # merged, so a half-finished set simply rebuilds.
+          #
+          # It is another tag on the manifest base:<tag> already is, so it costs
+          # no storage and cannot itself be left behind.
+          if docker manifest inspect "${REGISTRY}/base:${TAG}-complete" >/dev/null 2>&1; then
             echo "Images for this content already exist; reusing ${TAG}."
             echo "Reusing existing images - no rebuild." >> "$GITHUB_STEP_SUMMARY"
             echo "mode=reuse" >> "$GITHUB_OUTPUT"
@@ -293,10 +306,25 @@ jobs:
           persist-credentials: false
       - name: Log in to GHCR
         run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+      # Retried: a registry blip here used to leave the set half-merged, which
+      # decide could not distinguish from a finished one.
       - name: Merge the architecture tags
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+              make merge_ci_images
+
+      # Only now is the set complete, and only now does decide consider it
+      # reusable. Deliberately a separate step after the retries: if the merge
+      # never succeeds, no marker is written and the next run rebuilds.
+      - name: Mark the set complete
         run: |
           CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
-            make merge_ci_images
+            make mark_ci_images_complete
 
   alias:
     # The pr-<N> alias marks a manifest as in use by an open pull request, so the

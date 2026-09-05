@@ -154,6 +154,21 @@ class SrcTagStrictnessTest(unittest.TestCase):
             self.assertIsNone(cp.SRC_TAG.match(tag), tag)
             self.assertIsNone(cp.PR_TAG.match(tag), tag)
 
+    def test_accepts_the_completeness_marker(self):
+        # build-images tags base:src-<hash>-complete once the whole set has
+        # merged, on the same manifest as src-<hash>. Unrecognised, it would read
+        # as a tag outside the CI families and protect every base manifest from
+        # cleanup for ever.
+        self.assertTrue(cp.SRC_TAG.match("src-331808bba75d-complete"))
+
+    def test_still_rejects_the_per_architecture_tags(self):
+        # Deliberate. src-<hash>-amd64 is the child manifest the merged index
+        # points at, not a copy of it: deleting the child breaks an index that
+        # may still be in use. They are left for a fix that deletes an index and
+        # its children together.
+        for tag in ["src-331808bba75d-amd64", "src-331808bba75d-arm64"]:
+            self.assertIsNone(cp.SRC_TAG.match(tag), tag)
+
 
 def orphan(versions, cutoff):
     """Mirror of prune_orphans' rule, exercised without HTTP."""

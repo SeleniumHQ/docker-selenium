@@ -161,9 +161,16 @@ merge_ci_images:
 			docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(CI_TAG) $$refs ; \
 		done
 
-# Promote a tested tag to another tag without rebuilding, so the digest released
-# is the digest tested. Used to turn trunk-<sha> into :main, and :main into a
-# release tag.
+# The marker decide reuses on. Written only once merge_ci_images has finished
+# every image, so "base:<tag> exists" can never be mistaken for "the whole set
+# exists". It is a second tag on the manifest base:<tag> already is - no extra
+# storage, and nothing for the cleanup to leak.
+mark_ci_images_complete:
+	docker buildx imagetools create -t $(CI_REGISTRY)/base:$(CI_TAG)-complete $(CI_REGISTRY)/base:$(CI_TAG)
+
+# Point another tag at an already-tested manifest, without rebuilding. Used for
+# the pr-<N> markers the cleanup keys on, and to retag a passing trunk set as
+# :main.
 promote_ci_images:
 	@test -n "$(PROMOTE_TO)" || (echo "PROMOTE_TO is required" && exit 1)
 	@for image in $(CI_IMAGES); do \

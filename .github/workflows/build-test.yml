@@ -18,6 +18,11 @@ on:
         required: false
         default: ''
         type: string
+      force-build:
+        description: 'Rebuild the images even when an identical set already exists'
+        required: false
+        default: false
+        type: boolean
   workflow_dispatch:
     inputs:
       rerunFailedOnly:
@@ -30,6 +35,11 @@ on:
         required: false
         default: ''
         type: string
+      force-build:
+        description: 'Rebuild the images even when an identical set already exists'
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       - trunk
@@ -74,6 +84,12 @@ jobs:
     name: Build images once
     uses: ./.github/workflows/build-images.yml
     secrets: inherit
+    with:
+      release: ${{ inputs.release || 'false' }}
+      # The manual way out of any bad image set: re-run this workflow from the
+      # Actions tab with force-build ticked and the tag is rebuilt from source,
+      # whatever is in the registry under it.
+      force-build: ${{ inputs.force-build || false }}
 
   docker-test:
     needs: [lint-format, build-images]
@@ -114,10 +130,22 @@ jobs:
 
   promote-main:
     # :main must only ever denote a tree whose tests passed, so it is moved here
-    # rather than by the build job. The build published trunk-<sha>; this retags
-    # that exact manifest, so no rebuild happens and the digest is identical.
+    # rather than by the build job. It retags the exact src-<hash> manifest the
+    # tests ran against, so no rebuild happens and the digest is identical.
+    # :main is a cache for later trunk runs, not a release source - deploy.yml
+    # builds its own images.
     needs: [build-images, docker-test, helm-chart-test, k8s-dynamic-grid-test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !failure() && !cancelled() && needs.build-images.outputs.mode != 'build-in-job'
+    # Every test job must have SUCCEEDED, not merely not-failed. The three of
+    # them skip on '[skip test]', a skipped job is not a failure, and the
+    # release bot pushes exactly such a commit after every release - one that
+    # rewrites Base/, NodeChrome/, Video/ and the Makefile, so the hash changes
+    # and a fresh, wholly untested manifest would have become :main.
+    if: >-
+      github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !cancelled()
+      && needs.build-images.outputs.mode != 'build-in-job'
+      && needs.docker-test.result == 'success'
+      && needs.helm-chart-test.result == 'success'
+      && needs.k8s-dynamic-grid-test.result == 'success'
     name: Promote tested images to main
     runs-on: ubuntu-24.04
     permissions:

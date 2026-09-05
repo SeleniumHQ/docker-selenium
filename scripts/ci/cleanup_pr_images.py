@@ -42,7 +42,11 @@ API = "https://api.github.com"
 # per build and never moves, so every manifest a pull request used stays
 # attributable to it after the branch is gone.
 PR_TAG = re.compile(r"\Apr-(\d+)(?:-[0-9a-f]{6,})?\Z")
-SRC_TAG = re.compile(r"\Asrc-[0-9a-f]{6,}\Z")
+# src-<hash> plus the -complete marker build-images writes on base once the
+# whole set has merged. The marker is another tag on the src-<hash> manifest,
+# so without it here every base manifest counts as carrying a tag outside the
+# CI families and is protected from cleanup for ever.
+SRC_TAG = re.compile(r"\Asrc-[0-9a-f]{6,}(?:-complete)?\Z")
 MAIN_TAG = "main"
 
 # Kept in step with CI_IMAGES in the Makefile.

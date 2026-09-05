@@ -9,7 +9,7 @@ on:
         required: false
     inputs:
       ci-mode:
-        description: 'reuse-main, build-and-push, or build-in-job'
+        description: 'reuse, build-and-push, or build-in-job'
         required: false
         type: string
         default: 'build-in-job'
