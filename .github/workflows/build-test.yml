@@ -80,6 +80,7 @@ jobs:
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Selenium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
+    secrets: inherit
     with:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
@@ -91,12 +92,11 @@ jobs:
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
+    secrets: inherit
     with:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
       ci-registry: ${{ needs.build-images.outputs.registry }}
-    secrets: inherit
-    with:
       release: ${{ inputs.release == 'true' }}
       test-patched-keda: ${{ github.event.inputs.test-patched-keda }}
 
@@ -105,12 +105,11 @@ jobs:
     if: contains(toJson(github.event.commits), '[skip test]') == false
     name: Test Dynamic Grid on Kubernetes
     uses: ./.github/workflows/k8s-dynamic-grid-test.yml
+    secrets: inherit
     with:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
       ci-registry: ${{ needs.build-images.outputs.registry }}
-    secrets: inherit
-    with:
       release: ${{ inputs.release == 'true' }}
 
   promote-main:
