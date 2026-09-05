@@ -1,0 +1,204 @@
+name: Scan image vulnerabilities
+
+# Scans the published images with Docker Scout and reports the CVEs that have a
+# fix available. Runs daily against `latest`, and again from nightly.yml against
+# `nightly` once those images are pushed.
+#
+# This replaces scan-dockerfile.yml, which ran Trivy with `scan-type: fs` over
+# the working tree. That scanned what we write; this scans what we ship. A CVE
+# disclosed in a base image or an OS package after the last release was
+# invisible to a source scan, which is most of them.
+#
+# The secret and misconfiguration scanning that scan-dockerfile.yml also did is
+# NOT covered here - Scout finds CVEs in image packages, not secrets in source.
+# That half lives on in scan-source.yml.
+#
+# The scan never blocks nightly. A vulnerability in an upstream base image is not
+# something a failed build can fix, and a red nightly that nobody can action is a
+# red nightly everybody learns to ignore.
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    # Daily, inherited from scan-dockerfile.yml which this replaces. Scans the
+    # `latest` tag, because that is what most users actually pull.
+    - cron: '0 0 * * *'
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Image tag to scan'
+        required: false
+        type: string
+        default: 'nightly'
+      images:
+        description: 'Space-separated image names. Empty means the default set.'
+        required: false
+        type: string
+        default: ''
+      only-severity:
+        description: 'Severities to report'
+        required: false
+        type: string
+        default: 'critical,high'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to scan'
+        required: false
+        type: string
+        default: 'nightly'
+      images:
+        description: 'Space-separated image names. Empty means the default set.'
+        required: false
+        type: string
+        default: ''
+      only-severity:
+        description: 'Severities to report'
+        required: false
+        type: choice
+        default: 'critical,high'
+        options:
+          - 'critical,high'
+          - 'critical,high,medium'
+          - 'critical,high,medium,low'
+
+env:
+  NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
+  ONLY_SEVERITY: ${{ inputs.only-severity || 'critical,high' }}
+
+jobs:
+  matrix:
+    name: Build image list
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      images: ${{ steps.list.outputs.images }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Resolve the images to scan
+        id: list
+        env:
+          INPUT_IMAGES: ${{ inputs.images }}
+          TAG: ${{ inputs.tag || 'latest' }}
+        run: |
+          if [ -n "${INPUT_IMAGES}" ]; then
+            NAMES="${INPUT_IMAGES}"
+          else
+            # Read the tag_nightly target rather than the whole Makefile, so the
+            # list is exactly what nightly publishes and needs no second list to
+            # keep in step. This deliberately excludes selenium/keda,
+            # keda-metrics-apiserver and keda-admission-webhooks: those are
+            # straight re-tags of upstream kedacore images made by
+            # release_grid_scaler_nightly, which nightly does not run. A CVE in
+            # them is fixed by bumping KEDA_BASED_TAG, not by anything built
+            # here. Pass them via `images:` if you want them scanned anyway.
+            # Read the Makefile target that publishes the tag being scanned, so
+            # the list is exactly the release surface and needs no second list to
+            # keep in step.
+            case "${TAG}" in
+              nightly) TARGET=tag_nightly; SUFFIX=nightly ;;
+              *)       TARGET=tag_latest;  SUFFIX=latest  ;;
+            esac
+            NAMES=$(sed -n "/^${TARGET}:/,/^$/p" Makefile \
+                    | grep -oE "\$\(NAME\)/[a-z0-9._-]+:${SUFFIX}" \
+                    | sed "s|\$(NAME)/||; s|:${SUFFIX}||" | sort -u | tr '\n' ' ')
+          fi
+          echo "Scanning: ${NAMES}"
+          echo "images=$(printf '%s' "${NAMES}" | tr ' ' '\n' | grep . | jq -R . | jq -sc .)" >> "$GITHUB_OUTPUT"
+
+  scout:
+    name: Scout ${{ matrix.image }}
+    needs: matrix
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        image: ${{ fromJson(needs.matrix.outputs.images) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      # Scout reads the SBOM attestation the images are already built with
+      # (--sbom=true --attest type=provenance,mode=max), so nothing is pulled.
+      - name: Fixable CVEs, SARIF for the Security tab
+        id: sarif
+        continue-on-error: true
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: registry://${{ vars.DOCKER_NAMESPACE || 'selenium' }}/${{ matrix.image }}:${{ inputs.tag || 'latest' }}
+          dockerhub-user: ${{ secrets.DOCKER_USERNAME }}
+          dockerhub-password: ${{ secrets.DOCKER_PASSWORD }}
+          only-fixed: true
+          sarif-file: scout-${{ matrix.image }}.sarif
+          write-comment: false
+          summary: false
+
+      - name: Upload to the Security tab
+        if: hashFiles(format('scout-{0}.sarif', matrix.image)) != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: scout-${{ matrix.image }}.sarif
+          category: scout-${{ matrix.image }}
+
+      - name: Job summary
+        if: always()
+        run: |
+          IMAGE="${NAMESPACE}/${{ matrix.image }}:${{ inputs.tag || 'latest' }}"
+          SARIF="scout-${{ matrix.image }}.sarif"
+          {
+            echo "### \`${IMAGE}\`"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ ! -f "${SARIF}" ]; then
+            echo "Scout produced no report. Check that Docker Scout is enabled for this repository." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          python3 scripts/scan_images/summarise_scout.py "${SARIF}" "${IMAGE}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the report as an artifact
+        if: always() && hashFiles(format('scout-{0}.sarif', matrix.image)) != ''
+        uses: actions/upload-artifact@main
+        with:
+          name: scout-${{ matrix.image }}
+          path: scout-${{ matrix.image }}.sarif
+          if-no-files-found: ignore
+
+  report:
+    name: Fixable CVE report
+    needs:
+      - matrix
+      - scout
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Download every Scout report
+        uses: actions/download-artifact@main
+        with:
+          pattern: scout-*
+          path: reports
+          merge-multiple: false
+      - name: Roll the reports up into one table
+        run: |
+          python3 scripts/scan_images/summarise_scout.py --rollup reports \
+            --tag "${{ inputs.tag || 'latest' }}" \
+            --severity "${ONLY_SEVERITY}" >> "$GITHUB_STEP_SUMMARY"

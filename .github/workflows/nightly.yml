@@ -172,3 +172,13 @@ jobs:
           draft: false
           prerelease: true
           append_body: false
+
+  scan-images:
+    needs:
+      - deploy
+    if: ${{ needs.deploy.result == 'success' }}
+    name: Scan nightly images
+    uses: ./.github/workflows/scan-images.yml
+    secrets: inherit
+    with:
+      tag: nightly
