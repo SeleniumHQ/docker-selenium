@@ -153,3 +153,54 @@ class SrcTagStrictnessTest(unittest.TestCase):
         for tag in ["main", "latest", "nightly", "4.48.0-20260909", "ffmpeg-8.1-20260905"]:
             self.assertIsNone(cp.SRC_TAG.match(tag), tag)
             self.assertIsNone(cp.PR_TAG.match(tag), tag)
+
+
+def orphan(versions, cutoff):
+    """Mirror of prune_orphans' rule, exercised without HTTP."""
+    out = []
+    for v in versions:
+        tags = v["metadata"]["container"]["tags"]
+        if not tags or any(not cp.SRC_TAG.match(t) for t in tags):
+            continue
+        created = v.get("created_at") or ""
+        if not created or created >= cutoff:
+            continue
+        out.append(v["id"])
+    return out
+
+
+class PruneOrphansTest(unittest.TestCase):
+    """The case a PR with several image-affecting commits leaves behind.
+
+    pr-<N> is retagged onto each new build, so earlier manifests keep only src-*.
+    """
+
+    def test_removes_earlier_builds_of_the_same_pull_request(self):
+        vs = [
+            tv(1, ["src-a11111"], "2026-09-01"),  # commit 1, alias moved away
+            tv(2, ["src-b22222"], "2026-09-02"),  # commit 2, alias moved away
+            tv(3, ["src-c33333", "pr-100"], "2026-09-03"),  # current build, aliased
+        ]
+        self.assertEqual(sorted(orphan(vs, cutoff="2026-09-03")), [1, 2])
+
+    def test_never_removes_the_currently_aliased_build(self):
+        vs = [tv(3, ["src-c33333", "pr-100"], "2026-09-01")]
+        self.assertEqual(orphan(vs, cutoff="2026-09-05"), [])
+
+    def test_never_removes_main_or_a_release_tag(self):
+        for tag in ["main", "latest", "nightly", "4.48.0-20260909"]:
+            vs = [tv(1, ["src-a11111", tag], "2026-09-01")]
+            self.assertEqual(orphan(vs, cutoff="2026-09-05"), [], tag)
+
+    def test_respects_the_age_guard(self):
+        # covers the minutes between a manifest being pushed and its alias landing
+        vs = [tv(1, ["src-a11111"], "2026-09-05")]
+        self.assertEqual(orphan(vs, cutoff="2026-09-01"), [])
+
+    def test_skips_a_manifest_with_no_creation_date(self):
+        vs = [{"id": 1, "created_at": None, "metadata": {"container": {"tags": ["src-a11111"]}}}]
+        self.assertEqual(orphan(vs, cutoff="2026-09-05"), [])
+
+    def test_an_untagged_manifest_is_left_alone(self):
+        vs = [tv(1, [], "2026-09-01")]
+        self.assertEqual(orphan(vs, cutoff="2026-09-05"), [])

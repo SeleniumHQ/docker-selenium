@@ -52,8 +52,18 @@ jobs:
           INPUT_PR: ${{ inputs.pr-number }}
         run: |
           set -euo pipefail
+          # On the weekly sweep also collect orphans: src-* manifests with no
+          # pr-* alias. A pull request retags pr-<N> onto each new build, so its
+          # earlier manifests keep only src-* and no other sweep can see them.
+          # Safe because every manifest an open pull request depends on is
+          # aliased, including one it merely reused - the age guard just covers
+          # the minutes between a push and its alias landing.
+          ORPHANS=""
+          if [ -z "${EVENT_PR}${INPUT_PR}" ]; then
+            ORPHANS="--prune-orphans 7"
+          fi
           python3 scripts/ci/cleanup_pr_images.py \
-            --owner "${OWNER}" \
+            --owner "${OWNER}" ${ORPHANS} \
             ${EVENT_PR:+--pr "${EVENT_PR}"} \
             ${INPUT_PR:+--pr "${INPUT_PR}"} \
             >> "$GITHUB_STEP_SUMMARY"

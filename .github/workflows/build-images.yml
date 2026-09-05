@@ -297,10 +297,31 @@ jobs:
         run: |
           CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
             make merge_ci_images
-      # Alias for cleanup: pr-<N> is what gets deleted when the pull request
-      # closes. The src-* tag is shared and must outlive any single one.
-      - name: Tag the manifest for this pull request
-        if: github.event.pull_request.number
+
+  alias:
+    # The pr-<N> alias marks a manifest as in use by an open pull request, so the
+    # cleanup can tell "nobody needs this" from "somebody still does". It has to
+    # be applied on reuse too: a pull request that matched an existing manifest
+    # never enters the build job, and without an alias its images looked orphaned
+    # and were deletable while it was still open.
+    #
+    # Tagging is idempotent, and several pull requests can alias one manifest -
+    # that is exactly how the cleanup sees a manifest as shared.
+    name: Tag the manifest for this pull request
+    needs: [decide, merge]
+    if: always() && github.event.pull_request.number && needs.decide.outputs.mode != 'build-in-job' && !failure() && !cancelled()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+      - name: Alias ${{ needs.decide.outputs.ci-tag }} as pr-${{ github.event.pull_request.number }}
         run: |
           CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
             PROMOTE_TO="pr-${{ github.event.pull_request.number }}" make promote_ci_images

@@ -35,6 +35,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime, timedelta, timezone
 
 API = "https://api.github.com"
 PR_TAG = re.compile(r"\Apr-(\d+)\Z")
@@ -145,6 +146,45 @@ def prune_superseded(owner, image, token, dry_run=False):
     return removed, problems
 
 
+def prune_orphans(owner, image, token, older_than_days, dry_run=False):
+    """Remove src-* manifests that no pull request and no branch still points at.
+
+    A pull request retags pr-<N> onto each new build, and a tag names one
+    manifest, so a pull request with several image-affecting commits leaves its
+    earlier manifests carrying only src-*. Nothing else refers to them: the
+    closed-pull-request sweep needs a pr-* tag it does not have, and the
+    superseded sweep only compares against :main.
+
+    An unaliased src-* is provably unused, because every manifest an open pull
+    request depends on is aliased - including one it merely reused. The age guard
+    only covers the minutes between a push and its alias landing.
+    """
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=older_than_days)).isoformat()
+    removed, problems = 0, []
+    for version in versions(owner, image, token):
+        tags = version.get("metadata", {}).get("container", {}).get("tags", []) or []
+        if not tags or any(not SRC_TAG.match(t) for t in tags):
+            continue
+        created = version.get("created_at") or ""
+        if not created or created >= cutoff:
+            continue
+        if dry_run:
+            print(f"- would delete `{image}:{','.join(sorted(tags))}` ({created[:10]})")
+            removed += 1
+            continue
+        try:
+            _request(
+                f"{API}/orgs/{owner}/packages/container/"
+                f"{urllib.parse.quote(image, safe='')}/versions/{version['id']}",
+                token,
+                method="DELETE",
+            )
+            removed += 1
+        except urllib.error.HTTPError as error:
+            problems.append(f"{image}:{','.join(sorted(tags))} ({error.code})")
+    return removed, problems
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Delete pr-* image tags from GHCR.")
     parser.add_argument("--owner", required=True)
@@ -155,6 +195,13 @@ def main(argv=None):
         "--no-pr-sweep",
         action="store_true",
         help="Skip the closed-pull-request sweep. Used on trunk, where only --prune-superseded applies.",
+    )
+    parser.add_argument(
+        "--prune-orphans",
+        type=int,
+        metavar="DAYS",
+        default=None,
+        help="Also remove src-* manifests with no pr-* alias older than DAYS.",
     )
     parser.add_argument(
         "--prune-superseded",
@@ -243,6 +290,18 @@ def main(argv=None):
             except Exception as error:  # noqa: BLE001 - one bad package must not stop the sweep
                 failed.append(f"{image} ({error})")
         print(f"- Superseded manifests deleted: **{pruned}**")
+
+    if args.prune_orphans is not None:
+        print(f"\n### Orphaned images older than {args.prune_orphans} days\n")
+        orphans = 0
+        for image in IMAGES:
+            try:
+                removed, problems = prune_orphans(args.owner, image, token, args.prune_orphans, args.dry_run)
+                orphans += removed
+                failed.extend(problems)
+            except Exception as error:  # noqa: BLE001 - one bad package must not stop the sweep
+                failed.append(f"{image} ({error})")
+        print(f"- Orphaned manifests deleted: **{orphans}**")
 
     scope = "none" if args.no_pr_sweep else (f"PR #{args.pr}" if args.pr is not None else "all closed pull requests")
     print(f"Scope: {scope}\n")
