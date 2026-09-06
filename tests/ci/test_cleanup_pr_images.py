@@ -1,15 +1,14 @@
 import importlib.util
+import io
 import pathlib
 import unittest
+import urllib.error
+from datetime import datetime, timedelta, timezone
 
 MODULE_PATH = pathlib.Path(__file__).parents[2] / "scripts" / "ci" / "cleanup_pr_images.py"
 spec = importlib.util.spec_from_file_location("cleanup_pr_images", MODULE_PATH)
 cp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(cp)
-
-
-def version(vid, tags):
-    return {"id": vid, "metadata": {"container": {"tags": tags}}}
 
 
 def decide(versions, closed, target_pr=None):
@@ -24,7 +23,7 @@ def decide(versions, closed, target_pr=None):
         numbers = sorted(int(cp.PR_TAG.match(t).group(1)) for t in pr_tags)
         if target_pr is not None and target_pr not in numbers:
             continue
-        if any(not (cp.PR_TAG.match(t) or cp.SRC_TAG.match(t)) for t in tags):
+        if any(not cp.is_ci_tag(t) for t in tags):
             continue
         if v["id"] in main_ids:
             continue
@@ -162,12 +161,15 @@ class SrcTagStrictnessTest(unittest.TestCase):
         self.assertTrue(cp.SRC_TAG.match("src-331808bba75d-complete"))
 
     def test_still_rejects_the_per_architecture_tags(self):
-        # Deliberate. src-<hash>-amd64 is the child manifest the merged index
-        # points at, not a copy of it: deleting the child breaks an index that
-        # may still be in use. They are left for a fix that deletes an index and
-        # its children together.
+        # Deliberate, and load-bearing. SRC_TAG identifies an index, and every
+        # sweep judges indexes only: src-<hash>-amd64 is the child manifest the
+        # index points at, not a copy of it, so deleting one on its own breaks an
+        # index that may still be in use. ARCH_TAG matches those instead, and
+        # delete_family removes them with their index.
         for tag in ["src-331808bba75d-amd64", "src-331808bba75d-arm64"]:
             self.assertIsNone(cp.SRC_TAG.match(tag), tag)
+            self.assertTrue(cp.ARCH_TAG.match(tag), tag)
+            self.assertTrue(cp.is_ci_tag(tag), tag)
 
 
 def orphan(versions, cutoff):
@@ -261,3 +263,126 @@ class DurableMarkerTest(unittest.TestCase):
             version(2, ["src-b22222", "pr-101-b22222"]),
         ]
         self.assertEqual(decide(vs, closed={100, 101}, target_pr=100), [1])
+
+
+def version(vid, tags, created="2020-01-01T00:00:00Z"):
+    return {"id": vid, "created_at": created, "metadata": {"container": {"tags": list(tags)}}}
+
+
+class RecordingApi:
+    """Stands in for the GitHub API: serves one package, records the deletes.
+
+    These tests drive the real functions rather than a restatement of their
+    rules, which is the only way a defect in delete_family can show up here.
+    """
+
+    def __init__(self, versions, fails=()):
+        self.versions = versions
+        self.fails = set(fails)
+        self.deleted = []
+
+    def request(self, url, token, method="GET"):
+        if method != "DELETE":
+            raise AssertionError(f"unexpected {method} {url}")
+        vid = int(url.rsplit("/", 1)[-1])
+        if vid in self.fails:
+            raise urllib.error.HTTPError(url, 403, "Forbidden", {}, None)
+        self.deleted.append(vid)
+
+    def install(self, testcase):
+        testcase.addCleanup(setattr, cp, "_request", cp._request)
+        testcase.addCleanup(setattr, cp, "versions", cp.versions)
+        cp._request = self.request
+        cp.versions = lambda owner, image, token: self.versions
+
+
+class ArchChildrenTest(unittest.TestCase):
+    def test_groups_children_under_the_hash_of_their_index(self):
+        found = cp.arch_children(
+            [
+                version(1, ["src-aaaaaaaaaaaa", "src-aaaaaaaaaaaa-complete"]),
+                version(2, ["src-aaaaaaaaaaaa-amd64"]),
+                version(3, ["src-aaaaaaaaaaaa-arm64"]),
+                version(4, ["src-bbbbbbbbbbbb-amd64"]),
+            ]
+        )
+        self.assertEqual(sorted(v["id"] for v in found["aaaaaaaaaaaa"]), [2, 3])
+        self.assertEqual([v["id"] for v in found["bbbbbbbbbbbb"]], [4])
+
+    def test_the_index_itself_is_not_a_child(self):
+        self.assertEqual(cp.arch_children([version(1, ["src-aaaaaaaaaaaa"])]), {})
+
+    def test_a_pr_alias_reveals_the_hash_it_belongs_to(self):
+        self.assertEqual(cp.tag_hash("pr-3229-aaaaaaaaaaaa"), "aaaaaaaaaaaa")
+        self.assertEqual(cp.tag_hash("src-aaaaaaaaaaaa-amd64"), "aaaaaaaaaaaa")
+        self.assertIsNone(cp.tag_hash("pr-3229"))
+        self.assertIsNone(cp.tag_hash("latest"))
+
+
+class DeleteFamilyTest(unittest.TestCase):
+    def test_an_index_takes_its_architecture_children_with_it(self):
+        api = RecordingApi([])
+        api.install(self)
+        index = version(1, ["src-aaaaaaaaaaaa", "src-aaaaaaaaaaaa-complete"])
+        children = cp.arch_children([version(2, ["src-aaaaaaaaaaaa-amd64"]), version(3, ["src-aaaaaaaaaaaa-arm64"])])
+        removed, problems = cp.delete_family("seleniumhq", "base", index, children, "t")
+        self.assertEqual(removed, 3)
+        self.assertEqual(problems, [])
+        self.assertEqual(api.deleted, [1, 2, 3], "the index must be deleted before its children")
+
+    def test_children_of_another_hash_are_left_alone(self):
+        api = RecordingApi([])
+        api.install(self)
+        children = cp.arch_children([version(9, ["src-bbbbbbbbbbbb-amd64"])])
+        cp.delete_family("seleniumhq", "base", version(1, ["src-aaaaaaaaaaaa"]), children, "t")
+        self.assertEqual(api.deleted, [1])
+
+    def test_a_refused_delete_is_reported_rather_than_raised(self):
+        api = RecordingApi([], fails={2})
+        api.install(self)
+        children = cp.arch_children([version(2, ["src-aaaaaaaaaaaa-amd64"])])
+        removed, problems = cp.delete_family("seleniumhq", "base", version(1, ["src-aaaaaaaaaaaa"]), children, "t")
+        self.assertEqual(removed, 1)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("403", problems[0])
+
+
+class OrphanSweepReachesChildrenTest(unittest.TestCase):
+    def test_the_children_no_sweep_could_previously_see_are_collected(self):
+        api = RecordingApi(
+            [
+                version(1, ["src-aaaaaaaaaaaa", "src-aaaaaaaaaaaa-complete"]),
+                version(2, ["src-aaaaaaaaaaaa-amd64"]),
+                version(3, ["src-aaaaaaaaaaaa-arm64"]),
+            ]
+        )
+        api.install(self)
+        removed, problems = cp.prune_orphans("seleniumhq", "base", "t", older_than_days=7)
+        self.assertEqual(removed, 3)
+        self.assertEqual(sorted(api.deleted), [1, 2, 3])
+        self.assertEqual(problems, [])
+
+    def test_a_child_is_never_deleted_while_its_index_is_too_new(self):
+        recent = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+        api = RecordingApi(
+            [
+                version(1, ["src-aaaaaaaaaaaa"], created=recent),
+                version(2, ["src-aaaaaaaaaaaa-amd64"]),
+            ]
+        )
+        api.install(self)
+        removed, _ = cp.prune_orphans("seleniumhq", "base", "t", older_than_days=7)
+        self.assertEqual(removed, 0, "deleting a child of a live index breaks that index")
+        self.assertEqual(api.deleted, [])
+
+    def test_a_release_tag_still_protects_the_whole_family(self):
+        api = RecordingApi(
+            [
+                version(1, ["src-aaaaaaaaaaaa", "4.48.0"]),
+                version(2, ["src-aaaaaaaaaaaa-amd64"]),
+            ]
+        )
+        api.install(self)
+        removed, _ = cp.prune_orphans("seleniumhq", "base", "t", older_than_days=7)
+        self.assertEqual(removed, 0)
+        self.assertEqual(api.deleted, [])
