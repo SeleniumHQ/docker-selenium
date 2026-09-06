@@ -136,16 +136,27 @@ jobs:
                  NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
                  NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
                  .ffmpeg .keda-external-scaler Makefile"
-          # BASE_VERSION is part of the digest on purpose. Identical source built
+          # The core is part of the digest on purpose. Identical source built
           # against a nightly core and against the stable core are different
           # images; keying only on the files would let a pull request's
           # nightly-core build be promoted to :main and released.
+          #
+          # It has to be the jar's digest and not its version. The nightly jar
+          # keeps the name selenium-server-4.49.0-SNAPSHOT.jar for a whole
+          # snapshot cycle while its contents change every night, so on
+          # BASE_VERSION alone every nightly hashes the same. Run 34032857205 is
+          # what that costs: the suite reused images built against an earlier
+          # nightly core and reported success, while the jar it was supposed to be
+          # testing had moved on. The digest changes when the jar does, so a new
+          # core rebuilds - and a stable release, whose jar never moves, keeps
+          # reusing exactly as before.
           SRC_HASH=$(
-            { git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort; echo "core=${BASE_VERSION}"; } \
+            { git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort; \
+              echo "core=${BASE_VERSION}@${BASE_ASSET_DIGEST}"; } \
               | sha256sum | cut -c1-12
           )
           TAG="${INPUT_TAG:-src-${SRC_HASH}}"
-          echo "Selenium core: ${BASE_RELEASE} (${BASE_VERSION})"
+          echo "Selenium core: ${BASE_RELEASE} (${BASE_VERSION}) ${BASE_ASSET_DIGEST}"
           echo "Source hash: ${SRC_HASH}"
           echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
