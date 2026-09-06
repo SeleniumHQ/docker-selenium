@@ -386,3 +386,16 @@ class OrphanSweepReachesChildrenTest(unittest.TestCase):
         removed, _ = cp.prune_orphans("seleniumhq", "base", "t", older_than_days=7)
         self.assertEqual(removed, 0)
         self.assertEqual(api.deleted, [])
+
+    def test_a_child_shared_with_another_index_is_left_alone(self):
+        # Two hashes whose images come out byte-identical share one manifest, and
+        # that manifest then carries an arch tag for each. Taking it with one
+        # index would break the other.
+        api = RecordingApi([])
+        api.install(self)
+        shared = version(2, ["src-aaaaaaaaaaaa-amd64", "src-bbbbbbbbbbbb-amd64"])
+        children = cp.arch_children([shared, version(3, ["src-aaaaaaaaaaaa-arm64"])])
+        removed, _ = cp.delete_family("seleniumhq", "base", version(1, ["src-aaaaaaaaaaaa"]), children, "t")
+        self.assertEqual(removed, 2)
+        self.assertEqual(api.deleted, [1, 3])
+        self.assertNotIn(2, api.deleted)

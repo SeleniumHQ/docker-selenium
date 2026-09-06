@@ -138,6 +138,12 @@ def delete_family(owner, image, version, children, token, dry_run=False):
     targets, seen = [version], {version["id"]}
     for digest in {tag_hash(tag) for tag in tags_of(version)} - {None}:
         for child in children.get(digest, []):
+            # Two hashes that build byte-identical images share one manifest, so
+            # this child can also be src-<other>-amd64 - and that other index is
+            # not ours to break. Only take a child that belongs to this hash
+            # alone.
+            if {tag_hash(tag) for tag in tags_of(child)} != {digest}:
+                continue
             if child["id"] not in seen:
                 seen.add(child["id"])
                 targets.append(child)
