@@ -79,21 +79,77 @@ jobs:
       - name: Lint format
         run: make lint_format_scripts
 
+  # Two decisions the whole run keys on, made once and in a shell rather than in
+  # an expression, because neither can be expressed correctly inline.
+  gate:
+    name: Decide what this run does
+    runs-on: ubuntu-24.04
+    outputs:
+      release: ${{ steps.gate.outputs.release }}
+      skip-tests: ${{ steps.gate.outputs.skip-tests }}
+    steps:
+      - name: Decide
+        id: gate
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
+          INPUT_RELEASE: ${{ inputs.release }}
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          # Anything on trunk that can end up as :main builds and tests against the
+          # stable core, so :main is a release candidate rather than a nightly
+          # snapshot. That is a push and a manual dispatch alike - promote-main
+          # accepts both, and a dispatch promoting a nightly-core set would put
+          # exactly the wrong thing behind the tag. A caller that states its own
+          # answer - deploy.yml with true, nightly.yml with false - always wins,
+          # so nightly stays nightly.
+          if [ -n "${INPUT_RELEASE}" ]; then
+            RELEASE="${INPUT_RELEASE}"
+          elif [ "${REF}" = "refs/heads/trunk" ] && { [ "${EVENT}" = "push" ] || [ "${EVENT}" = "workflow_dispatch" ]; }; then
+            RELEASE=true
+          else
+            RELEASE=false
+          fi
+          echo "release=${RELEASE}" >> "$GITHUB_OUTPUT"
+          echo "Selenium core: $([ "${RELEASE}" = "true" ] && echo stable || echo nightly)"
+
+          # [skip test] must be a line of its own, not a substring of the payload.
+          # The old check was contains(toJson(github.event.commits), '[skip test]'),
+          # which matched prose ABOUT the marker: a merge whose body explained the
+          # marker skipped the entire suite and blocked promotion, with a green
+          # run to show for it. Whole-line matching is the right shape rather than
+          # subject-only, because the release bot writes the marker as a second
+          # -m, i.e. in the body.
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+
+          commits = json.loads(os.environ.get("COMMITS") or "null") or []
+          skip = any(
+              line.strip() == "[skip test]"
+              for commit in commits
+              for line in (commit.get("message") or "").splitlines()
+          )
+          print(f"skip-tests={'true' if skip else 'false'}")
+          PY
+          echo "skip-tests decided from ${EVENT}"
+
   build-images:
-    needs: [lint-format]
+    needs: [lint-format, gate]
+    if: needs.gate.outputs.skip-tests == 'false'
     name: Build images once
     uses: ./.github/workflows/build-images.yml
     secrets: inherit
     with:
-      release: ${{ inputs.release || 'false' }}
+      release: ${{ needs.gate.outputs.release }}
       # The manual way out of any bad image set: re-run this workflow from the
       # Actions tab with force-build ticked and the tag is rebuilt from source,
       # whatever is in the registry under it.
       force-build: ${{ inputs.force-build || false }}
 
   docker-test:
-    needs: [lint-format, build-images]
-    if: contains(toJson(github.event.commits), '[skip test]') == false
+    needs: [lint-format, gate, build-images]
+    if: needs.gate.outputs.skip-tests == 'false'
     name: Test Selenium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
     secrets: inherit
@@ -101,11 +157,11 @@ jobs:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
       ci-registry: ${{ needs.build-images.outputs.registry }}
-      release: ${{ inputs.release == 'true' }}
+      release: ${{ needs.gate.outputs.release == 'true' }}
 
   helm-chart-test:
-    needs: [lint-format, build-images]
-    if: contains(toJson(github.event.commits), '[skip test]') == false
+    needs: [lint-format, gate, build-images]
+    if: needs.gate.outputs.skip-tests == 'false'
     name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
     secrets: inherit
@@ -113,12 +169,12 @@ jobs:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
       ci-registry: ${{ needs.build-images.outputs.registry }}
-      release: ${{ inputs.release == 'true' }}
+      release: ${{ needs.gate.outputs.release == 'true' }}
       test-patched-keda: ${{ github.event.inputs.test-patched-keda }}
 
   k8s-dynamic-grid-test:
-    needs: [lint-format, build-images]
-    if: contains(toJson(github.event.commits), '[skip test]') == false
+    needs: [lint-format, gate, build-images]
+    if: needs.gate.outputs.skip-tests == 'false'
     name: Test Dynamic Grid on Kubernetes
     uses: ./.github/workflows/k8s-dynamic-grid-test.yml
     secrets: inherit
@@ -126,7 +182,7 @@ jobs:
       ci-mode: ${{ needs.build-images.outputs.mode }}
       ci-tag: ${{ needs.build-images.outputs.ci-tag }}
       ci-registry: ${{ needs.build-images.outputs.registry }}
-      release: ${{ inputs.release == 'true' }}
+      release: ${{ needs.gate.outputs.release == 'true' }}
 
   promote-main:
     # :main must only ever denote a tree whose tests passed, so it is moved here
@@ -134,14 +190,18 @@ jobs:
     # tests ran against, so no rebuild happens and the digest is identical.
     # :main is a cache for later trunk runs, not a release source - deploy.yml
     # builds its own images.
-    needs: [build-images, docker-test, helm-chart-test, k8s-dynamic-grid-test]
+    needs: [gate, build-images, docker-test, helm-chart-test, k8s-dynamic-grid-test]
     # Every test job must have SUCCEEDED, not merely not-failed. The three of
     # them skip on '[skip test]', a skipped job is not a failure, and the
     # release bot pushes exactly such a commit after every release - one that
     # rewrites Base/, NodeChrome/, Video/ and the Makefile, so the hash changes
     # and a fresh, wholly untested manifest would have become :main.
+    # workflow_dispatch is allowed as well as push: without it there is no way to
+    # establish :main by hand after a trunk run that skipped its tests, and the
+    # tests still have to have passed in that run for this to fire.
     if: >-
-      github.event_name == 'push' && github.ref == 'refs/heads/trunk' && !cancelled()
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && github.ref == 'refs/heads/trunk' && !cancelled()
       && needs.build-images.outputs.mode != 'build-in-job'
       && needs.docker-test.result == 'success'
       && needs.helm-chart-test.result == 'success'
