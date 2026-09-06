@@ -275,6 +275,19 @@ release_built_images_ghcr_latest:
 			--tag $(GHCR_NAMESPACE)/$$image:latest docker.io/$(NAME)/$$image:latest ; \
 	done
 
+# :nightly, for every image, straight from the tag the nightly suite ran against.
+# Unlike a release, nothing here depends on the tag being created - nightly.yml
+# rewrites the docs after publishing, not before - so all 26 can be promoted,
+# which is exactly the set release_nightly used to push.
+promote_nightly_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		echo "promote $$image -> :nightly" ; \
+		docker buildx imagetools create \
+			--tag $(NAME)/$$image:nightly \
+			--tag $(GHCR_NAMESPACE)/$$image:nightly \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+
 # Point another tag at an already-tested manifest, without rebuilding. Used for
 # the pr-<N> markers the cleanup keys on, and to retag a passing trunk set as
 # :main.
