@@ -7,9 +7,48 @@ PUSH_IMAGE="${4:-false}"
 BROWSER=$5
 RELEASE_OLD_VERSION="${6:-false}"
 PLATFORM="${7:-linux/amd64}"
+# Set by deploy.yml when the release promotes its tested images rather than
+# rebuilding them. See retag() below.
+PROMOTE_TAGS="${PROMOTE_TAGS:-false}"
+PROMOTE_GHCR_NAMESPACE="${PROMOTE_GHCR_NAMESPACE:-}"
 
 TAG_VERSION=${VERSION}-${BUILD_DATE}
 NAMESPACE=${NAME:-selenium}
+
+# Give one already-published image another tag.
+#
+# PROMOTE_TAGS=true means the source lives in a registry and was never built
+# here: a release now publishes the manifest its tests ran against instead of
+# rebuilding it. `docker tag` cannot express that - it needs the image locally,
+# and a `docker pull` brings back only the runner's architecture, so the browser
+# tags would come out single-architecture while the release tags they alias are
+# multi-architecture. imagetools works on the index, registry to registry.
+#
+# PROMOTE_GHCR_NAMESPACE, when set, mirrors in the same call. The Makefile's
+# tag_and_push_browser_images_ghcr cannot do it afterwards, because it discovers
+# what to mirror with `docker images` - and on this path the local store is
+# empty.
+function retag() {
+  local __image=$1
+  local __tag=$2
+  local __source="${NAMESPACE}/${__image}:${TAG_VERSION}"
+
+  if [ "${PROMOTE_TAGS}" = "true" ]; then
+    local __targets=(--tag "${NAMESPACE}/${__image}:${__tag}")
+    if [ -n "${PROMOTE_GHCR_NAMESPACE}" ]; then
+      __targets+=(--tag "${PROMOTE_GHCR_NAMESPACE}/${__image}:${__tag}")
+    fi
+    docker buildx imagetools create "${__targets[@]}" "${__source}"
+    echo "Tagged ${NAMESPACE}/${__image}:${__tag}"
+    return
+  fi
+
+  docker tag "${__source}" "${NAMESPACE}/${__image}:${__tag}"
+  echo "Tagged ${NAMESPACE}/${__image}:${__tag}"
+  if [ "${PUSH_IMAGE}" = true ]; then
+    docker push "${NAMESPACE}/${__image}:${__tag}"
+  fi
+}
 
 function short_version() {
   local __long_version=$1
@@ -60,14 +99,8 @@ chrome)
   fi
 
   for chrome_tag in "${CHROME_TAGS[@]}"; do
-    docker tag ${NAMESPACE}/node-chrome:${TAG_VERSION} ${NAMESPACE}/node-chrome:${chrome_tag}
-    docker tag ${NAMESPACE}/standalone-chrome:${TAG_VERSION} ${NAMESPACE}/standalone-chrome:${chrome_tag}
-    echo "Tagged ${NAMESPACE}/node-chrome:${chrome_tag}"
-    echo "Tagged ${NAMESPACE}/standalone-chrome:${chrome_tag}"
-    if [ "${PUSH_IMAGE}" = true ]; then
-      docker push ${NAMESPACE}/node-chrome:${chrome_tag}
-      docker push ${NAMESPACE}/standalone-chrome:${chrome_tag}
-    fi
+    retag node-chrome "${chrome_tag}"
+    retag standalone-chrome "${chrome_tag}"
   done
 
   ;;
@@ -110,14 +143,8 @@ chromium)
   fi
 
   for chromium_tag in "${CHROMIUM_TAGS[@]}"; do
-    docker tag ${NAMESPACE}/node-chromium:${TAG_VERSION} ${NAMESPACE}/node-chromium:${chromium_tag}
-    docker tag ${NAMESPACE}/standalone-chromium:${TAG_VERSION} ${NAMESPACE}/standalone-chromium:${chromium_tag}
-    echo "Tagged ${NAMESPACE}/node-chromium:${chromium_tag}"
-    echo "Tagged ${NAMESPACE}/standalone-chromium:${chromium_tag}"
-    if [ "${PUSH_IMAGE}" = true ]; then
-      docker push ${NAMESPACE}/node-chromium:${chromium_tag}
-      docker push ${NAMESPACE}/standalone-chromium:${chromium_tag}
-    fi
+    retag node-chromium "${chromium_tag}"
+    retag standalone-chromium "${chromium_tag}"
   done
 
   ;;
@@ -160,14 +187,8 @@ edge)
   fi
 
   for edge_tag in "${EDGE_TAGS[@]}"; do
-    docker tag ${NAMESPACE}/node-edge:${TAG_VERSION} ${NAMESPACE}/node-edge:${edge_tag}
-    docker tag ${NAMESPACE}/standalone-edge:${TAG_VERSION} ${NAMESPACE}/standalone-edge:${edge_tag}
-    echo "Tagged ${NAMESPACE}/node-edge:${edge_tag}"
-    echo "Tagged ${NAMESPACE}/standalone-edge:${edge_tag}"
-    if [ "${PUSH_IMAGE}" = true ]; then
-      docker push ${NAMESPACE}/node-edge:${edge_tag}
-      docker push ${NAMESPACE}/standalone-edge:${edge_tag}
-    fi
+    retag node-edge "${edge_tag}"
+    retag standalone-edge "${edge_tag}"
   done
 
   ;;
@@ -209,14 +230,8 @@ firefox)
   fi
 
   for firefox_tag in "${FIREFOX_TAGS[@]}"; do
-    docker tag ${NAMESPACE}/node-firefox:${TAG_VERSION} ${NAMESPACE}/node-firefox:${firefox_tag}
-    docker tag ${NAMESPACE}/standalone-firefox:${TAG_VERSION} ${NAMESPACE}/standalone-firefox:${firefox_tag}
-    echo "Tagged ${NAMESPACE}/node-firefox:${firefox_tag}"
-    echo "Tagged ${NAMESPACE}/standalone-firefox:${firefox_tag}"
-    if [ "${PUSH_IMAGE}" = true ]; then
-      docker push ${NAMESPACE}/node-firefox:${firefox_tag}
-      docker push ${NAMESPACE}/standalone-firefox:${firefox_tag}
-    fi
+    retag node-firefox "${firefox_tag}"
+    retag standalone-firefox "${firefox_tag}"
   done
 
   ;;
@@ -259,14 +274,8 @@ chrome-for-testing)
   fi
 
   for chrome_tag in "${CHROME_TAGS[@]}"; do
-    docker tag ${NAMESPACE}/node-chrome-for-testing:${TAG_VERSION} ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}
-    docker tag ${NAMESPACE}/standalone-chrome-for-testing:${TAG_VERSION} ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}
-    echo "Tagged ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}"
-    echo "Tagged ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}"
-    if [ "${PUSH_IMAGE}" = true ]; then
-      docker push ${NAMESPACE}/node-chrome-for-testing:${chrome_tag}
-      docker push ${NAMESPACE}/standalone-chrome-for-testing:${chrome_tag}
-    fi
+    retag node-chrome-for-testing "${chrome_tag}"
+    retag standalone-chrome-for-testing "${chrome_tag}"
   done
 
   ;;

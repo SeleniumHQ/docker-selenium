@@ -77,14 +77,18 @@ CI_IMAGES := base hub distributor router sessions session-queue event-bus \
 # of which matter only to a build. Leaving it in cost minutes per job, added a
 # live-network flake to each one, and mutated hashed sources after the tag had
 # already been decided.
-SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bus \
+# Overridable from the environment, not just as a make argument: the release
+# needs `SKIP_BUILD=true SKIP_BUILD_TARGETS=base` to build the four tag-dependent
+# images on top of the base it just published, and a plain `:=` here would
+# silently ignore that and no-op the four as well.
+SKIP_BUILD_TARGETS := $(or $(SKIP_BUILD_TARGETS),base hub distributor router sessions sessionqueue event_bus \
 	node_base chrome chrome_only chrome-for-testing chrome-for-testing_only chromium \
 	edge edge_only firefox firefox_only all_browsers docker kubernetes \
 	standalone_chrome standalone_chrome_only standalone_chrome-for-testing \
 	standalone_chrome-for-testing_only standalone_chromium standalone_edge \
 	standalone_edge_only standalone_firefox standalone_firefox_only \
 	standalone_all_browsers standalone_docker standalone_kubernetes \
-	video ffmpeg keda_external_scaler update_go
+	video ffmpeg keda_external_scaler update_go)
 
 # Push what was just built, so the rest of the run can reuse it.
 # video does not carry the grid tag: it is built as
@@ -175,6 +179,101 @@ merge_ci_images:
 # storage, and nothing for the cleanup to leak.
 mark_ci_images_complete:
 	docker buildx imagetools create -t $(CI_REGISTRY)/base:$(CI_TAG)-complete $(CI_REGISTRY)/base:$(CI_TAG)
+
+# --- Release by promotion -----------------------------------------------------
+#
+# A release rebuilt every image the trunk suite had just built and tested, so
+# what got published was a rebuild of the tested source rather than the tested
+# artefact. Most images can be retagged instead.
+#
+# Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
+# exact standalone tags of the release being made -
+#   "selenium/standalone-chrome:4.48.0-20260905"
+# - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
+# two images cannot exist before the tag does, nor can the two standalones built
+# FROM them, so those four are still built at release time.
+RELEASE_PROMOTED_IMAGES := base hub distributor router sessions session-queue event-bus \
+	node-base node-chrome node-chrome-for-testing node-chromium node-edge node-firefox \
+	node-all-browsers standalone-chrome standalone-chrome-for-testing standalone-chromium \
+	standalone-edge standalone-firefox standalone-all-browsers keda-external-scaler
+
+RELEASE_BUILT_IMAGES := node-docker node-kubernetes standalone-docker standalone-kubernetes
+
+# Where a promotion lands. $(NAME) publishes to Docker Hub; pass
+# $(GHCR_NAMESPACE) to mirror the same manifest there.
+PROMOTE_NAMESPACE := $(or $(PROMOTE_NAMESPACE),$(NAME))
+
+# Registry to registry, on the index. Nothing is pulled, so the multi-architecture
+# manifest list arrives intact and the digest released is the digest tested.
+# Pulling per architecture and pushing from the local store is what published
+# single-architecture releases before.
+promote_release_images:
+	@set -e; for image in $(RELEASE_PROMOTED_IMAGES); do \
+		echo "promote $$image -> $(PROMOTE_NAMESPACE)/$$image:$(TAG_VERSION)" ; \
+		docker buildx imagetools create \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(TAG_VERSION) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR).$(MINOR) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR_MINOR_PATCH) \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+	docker buildx imagetools create \
+		--tag $(PROMOTE_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
+		$(CI_REGISTRY)/video:$(CI_TAG)
+
+# Separate from the version tags, exactly as release_latest is separate from
+# release: a prerelease publishes versions without moving :latest.
+promote_release_latest:
+	@set -e; for image in $(RELEASE_PROMOTED_IMAGES); do \
+		echo "promote $$image -> $(PROMOTE_NAMESPACE)/$$image:latest" ; \
+		docker buildx imagetools create --tag $(PROMOTE_NAMESPACE)/$$image:latest \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+	docker buildx imagetools create --tag $(PROMOTE_NAMESPACE)/video:latest \
+		$(CI_REGISTRY)/video:$(CI_TAG)
+
+# The four the promotion cannot cover. Built after the tag rewrite, FROM the base
+# image the promotion has just published, so they sit on the released base rather
+# than on a second local build of it. That is what
+#   SKIP_BUILD=true SKIP_BUILD_TARGETS=base
+# buys: `docker` and `kubernetes` name base as a prerequisite, and without this
+# make would rebuild it here and produce a different digest from the one released.
+release_built_images:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		for tag in $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			docker tag $(NAME)/$$image:$(TAG_VERSION) $(NAME)/$$image:$$tag ; \
+		done ; \
+		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			echo "push $(NAME)/$$image:$$tag" ; \
+			docker push --quiet $(NAME)/$$image:$$tag ; \
+		done ; \
+	done
+
+release_built_images_latest:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		docker tag $(NAME)/$$image:$(TAG_VERSION) $(NAME)/$$image:latest ; \
+		echo "push $(NAME)/$$image:latest" ; \
+		docker push --quiet $(NAME)/$$image:latest ; \
+	done
+
+# Mirror the four to GHCR from what was just pushed to Docker Hub, the way
+# release_ghcr already mirrors everything else.
+release_built_images_ghcr:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			docker buildx imagetools create \
+			--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
+		done ; \
+	done
+
+# :latest for the four, on GHCR. promote_release_latest covers the other 22, but
+# it copies from the CI tag - these four have no CI tag, because they did not
+# exist until the release built them.
+release_built_images_ghcr_latest:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		docker buildx imagetools create \
+			--tag $(GHCR_NAMESPACE)/$$image:latest docker.io/$(NAME)/$$image:latest ; \
+	done
 
 # Point another tag at an already-tested manifest, without rebuilding. Used for
 # the pr-<N> markers the cleanup keys on, and to retag a passing trunk set as

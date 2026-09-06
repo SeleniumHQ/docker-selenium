@@ -23,6 +23,18 @@ on:
         required: false
         default: false
         type: boolean
+    outputs:
+      # What a caller needs to publish the artefact this run actually tested,
+      # rather than rebuild its source. deploy.yml promotes from this tag.
+      ci-tag:
+        description: 'Registry tag holding the images these tests ran against'
+        value: ${{ jobs.build-images.outputs.ci-tag }}
+      ci-registry:
+        description: 'Registry holding that tag'
+        value: ${{ jobs.build-images.outputs.registry }}
+      ci-mode:
+        description: 'reuse, build-and-push, or build-in-job'
+        value: ${{ jobs.build-images.outputs.mode }}
   workflow_dispatch:
     inputs:
       rerunFailedOnly:
