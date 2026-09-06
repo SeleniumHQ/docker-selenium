@@ -59,7 +59,11 @@ jobs:
 
       - name: Delete the tags
         env:
-          GH_TOKEN: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
+          # The CI token, with no fallback. The packages are org-level, so
+          # GITHUB_TOKEN 403s on a version delete; without the secret the script
+          # stops with "GH_TOKEN is required" rather than reporting a clean sweep
+          # that removed nothing.
+          GH_TOKEN: ${{ secrets.SELENIUM_CI_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           EVENT_PR: ${{ github.event.pull_request.number }}
           INPUT_PR: ${{ inputs.pr-number }}
