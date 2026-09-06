@@ -7,10 +7,13 @@ else removes them.
 
 Two modes:
 
-* ``--pr N`` deletes the tags for one pull request, run when it closes.
-* no ``--pr`` sweeps every ``pr-*`` tag whose pull request is closed, run weekly
-  to catch anything the close event missed - a failed run, or a pull request that
-  closed before this existed.
+* ``--pr N`` deletes the tags for one pull request, run when it closes without
+  being merged.
+* no ``--pr`` sweeps every ``pr-*`` tag whose pull request is closed, run weekly.
+  This is what collects merged pull requests, which the close event deliberately
+  leaves alone so the trunk run started by the merge can still reuse them, and
+  anything the close event missed - a failed run, or a pull request that closed
+  before this existed.
 
 GHCR deletes *versions* - manifests - not individual tags, and one manifest
 carries both its ``src-<hash>`` tag and the ``pr-<N>`` alias for the pull request

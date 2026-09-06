@@ -4,10 +4,20 @@ name: Clean up PR images
 # Without this they accumulate forever: 27 images per open pull request, none of
 # them useful once the pull request closes.
 #
-# Runs on close, whether merged or not - a rejected pull request leaves exactly
-# the same rubbish behind as a merged one. Also runs on a schedule to sweep tags
-# belonging to pull requests that closed while this workflow was failing, or
-# before it existed.
+# Runs when a pull request is closed WITHOUT being merged - it leaves the same
+# rubbish behind and nothing else will ever want those images.
+#
+# A merged pull request is deliberately left alone here. Its manifests are the
+# ones the trunk run started seconds earlier is about to reuse: the merge commit
+# hashes to the same content, so decide chooses reuse and every test job pulls
+# that exact manifest. Deleting on merge either hard-fails those pulls or, at
+# best, forces the rebuild this whole design exists to avoid. They are collected
+# later instead - the weekly sweep sees a closed pull request, and by then either
+# promote-main has claimed them as :main (protected) or a later trunk build has
+# superseded them.
+#
+# The schedule also sweeps tags belonging to pull requests that closed while this
+# workflow was failing, or before it existed.
 
 on:
   pull_request_target:
@@ -37,6 +47,9 @@ concurrency:
 jobs:
   cleanup:
     name: Delete pr-* image tags
+    # Merged pull requests are skipped here; see the note above. A maintainer can
+    # still force one with workflow_dispatch and a pr-number.
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == false
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
@@ -46,7 +59,7 @@ jobs:
 
       - name: Delete the tags
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
           OWNER: ${{ github.repository_owner }}
           EVENT_PR: ${{ github.event.pull_request.number }}
           INPUT_PR: ${{ inputs.pr-number }}

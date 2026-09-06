@@ -169,7 +169,9 @@ jobs:
       - name: Remove trunk images that main has superseded
         continue-on-error: true
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The packages are org-level, so deleting a version needs the CI token;
+          # GITHUB_TOKEN 403s, and continue-on-error would have hidden that.
+          GH_TOKEN: ${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           python3 scripts/ci/cleanup_pr_images.py \
             --owner "${{ github.repository_owner }}" --prune-superseded --no-pr-sweep \

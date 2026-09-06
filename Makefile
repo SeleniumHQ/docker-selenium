@@ -65,9 +65,18 @@ CI_IMAGES := base hub distributor router sessions session-queue event-bus \
 	standalone-firefox standalone-all-browsers standalone-docker standalone-kubernetes \
 	video keda-external-scaler
 
-# Image-build targets only. gen_certs, prepare_resources and update_go are
+# Image-build targets, plus update_go. gen_certs and prepare_resources are
 # deliberately absent: they produce working-tree files the tests read, not images,
 # and must still run when the images come from a registry.
+#
+# update_go is here because it is a prerequisite of `base`, so it ran in every
+# test job on the reuse path - a `docker pull golang:latest` plus `go get -u` and
+# `go mod tidy` for two modules, over the network, in each of ~37 jobs. Nothing
+# read at test time comes out of it: it edits go.mod/go.sum and rewrites the
+# golang base image in .keda-external-scaler/, Hub/ and Router/ Dockerfiles, all
+# of which matter only to a build. Leaving it in cost minutes per job, added a
+# live-network flake to each one, and mutated hashed sources after the tag had
+# already been decided.
 SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bus \
 	node_base chrome chrome_only chrome-for-testing chrome-for-testing_only chromium \
 	edge edge_only firefox firefox_only all_browsers docker kubernetes \
@@ -75,7 +84,7 @@ SKIP_BUILD_TARGETS := base hub distributor router sessions sessionqueue event_bu
 	standalone_chrome-for-testing_only standalone_chromium standalone_edge \
 	standalone_edge_only standalone_firefox standalone_firefox_only \
 	standalone_all_browsers standalone_docker standalone_kubernetes \
-	video ffmpeg keda_external_scaler
+	video ffmpeg keda_external_scaler update_go
 
 # Push what was just built, so the rest of the run can reuse it.
 # video does not carry the grid tag: it is built as
@@ -139,7 +148,6 @@ pull_ci_images:
 	echo "pulled $$pulled image(s) for linux/$$arch"; \
 	if [ -n "$$other_arch" ]; then echo "not built for linux/$$arch:$$other_arch"; fi; \
 		if [ "$$pulled" -eq 0 ]; then echo "nothing was pulled" >&2; exit 1; fi
-	@echo "Retagged $(words $(CI_IMAGES)) images to $(NAME)/<image>:$(TAG_VERSION)"
 
 # Merge the per-architecture tags pushed by native runners into one manifest
 # list. Building multi-arch on a single runner means QEMU-emulating arm64, which
