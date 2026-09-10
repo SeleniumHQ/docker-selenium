@@ -90,6 +90,12 @@ SKIP_BUILD_TARGETS := $(or $(SKIP_BUILD_TARGETS),base hub distributor router ses
 	standalone_all_browsers standalone_docker standalone_kubernetes \
 	video ffmpeg keda_external_scaler update_go)
 
+# The same list, for the scripts that have to iterate it. generate_release_notes.sh
+# lists what a release published, and a second copy of these names in a shell
+# script is a copy that drifts.
+print_ci_images:
+	@echo $(CI_IMAGES)
+
 # Push what was just built, so the rest of the run can reuse it.
 # video does not carry the grid tag: it is built as
 # $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE), and the compose files read it
