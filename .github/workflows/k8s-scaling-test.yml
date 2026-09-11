@@ -201,8 +201,14 @@ jobs:
           echo "AUTHORS=${AUTHORS}" >> $GITHUB_ENV
         env:
           AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
+      # A pull request from a fork gets no secrets, so these are empty and the
+      # login exits 1 - failing the job before a single test runs. The other test
+      # workflows that log in here already tolerate that; this one was missed,
+      # which is why a fork pull request saw only the scaling jobs go red. The
+      # login is an anonymous-pull-limit courtesy, not a requirement: every image
+      # the cluster needs is either built in this job or public.
       - name: Login Docker Hub
-        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+        run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" || true
         env:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
