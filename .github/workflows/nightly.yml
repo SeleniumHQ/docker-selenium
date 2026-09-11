@@ -51,6 +51,14 @@ jobs:
             make setup_dev_env
       - name: Output Docker info
         run: docker info
+      # The release notes read the arm64 browser versions by running the arm64
+      # image. On the build path the multi-architecture build registered the
+      # emulators as a side effect; the promotion path builds nothing, so nothing
+      # would.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@main
+        with:
+          platforms: arm64
       - name: Set Selenium base version
         uses: ./.github/actions/get-latest-upstream
         with:
@@ -156,16 +164,28 @@ jobs:
           command: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" VERSION="${GRID_VERSION}" BUILD_DATE=${BUILD_DATE} make release_ghcr_nightly
 #      - name: Update package versions
 #        run: make generate_nightly_sbom
+      # The changelog is the range <latest release tag>...trunk. An empty
+      # LATEST_TAG silently turns that into HEAD...trunk - nothing - so stop here
+      # rather than publishing notes with no changelog in them.
       - name: Get current latest tag
-        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude=selenium-grid*)" >> $GITHUB_ENV
+        run: |
+          set -euo pipefail
+          LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude='selenium-grid*')
+          echo "LATEST_TAG=${LATEST_TAG}" >> $GITHUB_ENV
       - name: Display latest tag
         run: echo ${LATEST_TAG}
       - name: Sets env var for nightly tag
         run: |
           echo "NEXT_TAG=nightly" >> $GITHUB_ENV
-          echo "FILTER_IMAGE_TAG=nightly" >> $GITHUB_ENV
+      # :nightly is the only tag the nightly publishes - the promotion never
+      # writes a <version>-<date> tag, and on that path nothing is in the local
+      # image store either. IMAGE_TAG is what the notes read the versions and the
+      # published manifests from.
       - name: Create release notes (release_notes.md)
-        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+        run: |
+          IMAGE_TAG=nightly VIDEO_IMAGE_TAG=nightly \
+            GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" \
+            ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Set up Python
         uses: actions/setup-python@main
         with:
