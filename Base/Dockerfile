@@ -6,6 +6,13 @@ LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-sele
 # Arguments to define the version of dependencies to download
 ARG VERSION
 ARG RELEASE=selenium-${VERSION}
+# sha256 of the server jar this build is required to contain, as CI resolved it
+# before deciding to build. The download URL below is keyed on the release tag
+# and the version alone, and the nightly release keeps one asset name for a whole
+# snapshot cycle while its contents are replaced every night - so the URL is a
+# moving target and the two are not enough to say which core an image holds.
+# Empty on a local build, which takes whatever the URL currently serves.
+ARG SERVER_JAR_DIGEST=""
 # Default value should be aligned with upstream Selenium (https://github.com/SeleniumHQ/selenium/blob/trunk/MODULE.bazel)
 ARG OPENTELEMETRY_VERSION=1.65.0
 ARG GRPC_VERSION=1.83.1
@@ -25,6 +32,10 @@ ARG TZ="UTC"
 ARG JRE_VERSION=21
 ARG TARGETARCH
 ARG TARGETVARIANT
+
+# Recorded so a published image can be traced back to the core it was built
+# against without pulling it apart, and inherited by every image built FROM base.
+LABEL org.seleniumhq.selenium.core.digest="${SERVER_JAR_DIGEST}"
 
 USER root
 
@@ -130,6 +141,16 @@ RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
   && chmod -R 775 /opt/selenium /var/run/supervisor /var/log/supervisor /etc/passwd ${HOME} ${VIDEO_FOLDER} \
   && wget --no-verbose https://github.com/${AUTHORS}/selenium/releases/download/${RELEASE}/selenium-server-${VERSION}.jar \
     -O /opt/selenium/selenium-server.jar \
+  # CI decides whether to build from the digest it resolved before the build
+  # started. If the jar moved in between, the image would be published under a
+  # tag naming a core it does not contain, and the two architecture builds -
+  # which download independently - could even end up with different cores in one
+  # manifest. Fail here instead. Anything that is not a sha256 (a local build, or
+  # an upstream asset that predates the digest field) skips the check and says so.
+  && case "${SERVER_JAR_DIGEST}" in \
+       sha256:*) echo "${SERVER_JAR_DIGEST#sha256:}  /opt/selenium/selenium-server.jar" | sha256sum -c - ;; \
+       *) echo "Server jar digest not verified (SERVER_JAR_DIGEST=${SERVER_JAR_DIGEST:-none})" ;; \
+     esac \
   && chgrp -R 0 /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \
   && setfacl -Rm u:${SEL_USER}:rwx /opt /opt/selenium ${HOME} ${VIDEO_FOLDER} /opt/selenium/assets /var/run/supervisor /var/log/supervisor \

@@ -347,8 +347,13 @@ jobs:
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           branch: trunk
+      # The release publishes <version>-<date>, which is what the notes read by
+      # default. GHCR_NAMESPACE has to be passed though: the mirror above is
+      # keyed on the repository owner, not on the script's SeleniumHQ default.
       - name: Create release notes (release_notes.md)
-        run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
+        run: |
+          GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" \
+            ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Upload release notes
         uses: actions/upload-artifact@main
         with:

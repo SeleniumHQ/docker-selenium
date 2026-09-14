@@ -6,6 +6,11 @@ BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.48.0)
 BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.48.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
 BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.49.0-SNAPSHOT)
+# sha256 of the server jar the build must end up with, as get-latest-upstream
+# resolved it. Empty locally, where the build simply takes whatever the release
+# URL serves; CI passes it so a core that moved mid-build fails the build instead
+# of shipping under a tag that names the core it was supposed to have.
+BASE_ASSET_DIGEST := $(or $(BASE_ASSET_DIGEST),$(BASE_ASSET_DIGEST),)
 VERSION := $(or $(VERSION),$(VERSION),4.48.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
@@ -89,6 +94,12 @@ SKIP_BUILD_TARGETS := $(or $(SKIP_BUILD_TARGETS),base hub distributor router ses
 	standalone_edge_only standalone_firefox standalone_firefox_only \
 	standalone_all_browsers standalone_docker standalone_kubernetes \
 	video ffmpeg keda_external_scaler update_go)
+
+# The same list, for the scripts that have to iterate it. generate_release_notes.sh
+# lists what a release published, and a second copy of these names in a shell
+# script is a copy that drifts.
+print_ci_images:
+	@echo $(CI_IMAGES)
 
 # Push what was just built, so the rest of the run can reuse it.
 # video does not carry the grid tag: it is built as
@@ -488,6 +499,7 @@ gen_certs:
 
 base: update_go prepare_resources gen_certs
 	cd ./Base && SEL_PASSWD=$(SEL_PASSWD) docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg VERSION=$(BASE_VERSION) --build-arg RELEASE=$(BASE_RELEASE) --build-arg AUTHORS=$(AUTHORS) \
+	--build-arg SERVER_JAR_DIGEST=$(BASE_ASSET_DIGEST) \
 	--secret id=SEL_PASSWD --sbom=true --attest type=provenance,mode=max -t $(NAME)/base:$(TAG_VERSION) .
 
 base_nightly:
