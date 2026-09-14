@@ -262,6 +262,12 @@ jobs:
   rerun-workflow-when-failure:
     name: Rerun workflow when failure
     needs:
+      # build-images belongs here as much as the test jobs do. When the build fails all
+      # three tests are *skipped*, a skipped need is not a failure, so failure() was false
+      # and this job skipped too - no retry for the one class of failure that stops
+      # everything downstream. That is what six consecutive nightly failures in September
+      # 2026 (runs 34298460453 .. 34795622706) went without.
+      - build-images
       - docker-test
       - helm-chart-test
       - k8s-dynamic-grid-test

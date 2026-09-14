@@ -220,3 +220,40 @@ jobs:
     secrets: inherit
     with:
       tag: nightly
+
+  notify-failure:
+    needs:
+      - build-test
+      - deploy
+    # Only the scheduled run. A manual dispatch has someone watching it already.
+    if: failure() && github.event_name == 'schedule'
+    name: Report the nightly failure
+    runs-on: ubuntu-24.04
+    permissions:
+      issues: write
+    steps:
+      - name: Open or update the tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TITLE: Nightly build is failing
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          # One issue, reused. Six consecutive nightly failures in September 2026 went
+          # unreported because nothing watched this workflow, and the outage was found by
+          # noticing the release page had not moved. Six duplicate issues would be its own
+          # kind of noise, so an already-open one is commented on instead.
+          #
+          # Exact-title matching over a listing, not `--search`: the search index is
+          # eventually consistent and would happily report no match minutes after the
+          # issue was filed, producing exactly the duplicates this avoids.
+          number=$(gh issue list --repo "${REPO}" --state open --limit 100 \
+            --json number,title \
+            --jq "[.[] | select(.title == \"${TITLE}\")] | .[0].number // empty")
+          if [ -n "${number}" ]; then
+            gh issue comment "${number}" --repo "${REPO}" --body "Still failing: ${RUN_URL}"
+          else
+            gh issue create --repo "${REPO}" --title "${TITLE}" \
+              --body "The scheduled nightly run failed: ${RUN_URL}"
+          fi
