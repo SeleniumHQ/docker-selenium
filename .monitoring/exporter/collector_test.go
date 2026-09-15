@@ -52,20 +52,38 @@ func (s *swapServer) set(body string) {
 
 func (s *swapServer) close() { s.srv.Close() }
 
+// chromeSessionStart is the canonical session start used across the collector
+// tests. It is built with time.Date and rendered through gridDateFormat rather
+// than written out as a literal timestamp, so that no timestamp-shaped string
+// exists in this file at all.
+//
+// That is deliberate, not style. update_tag_in_docs_and_files.sh rewrites the
+// whole tree on every release with unescaped `sed` substitutions whose patterns
+// are version strings, and in a regex `.` matches any character. So the KEDA tag
+// pattern 2.20.1 also matches a run of digits and separators inside a formatted
+// timestamp, and rewrites that run to the literal version string. The timestamp
+// literal this replaced was corrupted exactly that way by the 4.47.0 release,
+// fixed in #3202, then corrupted again by the 4.48.0 release.
+//
+// A value that only exists at runtime cannot be corrupted by a sed over the
+// source, which is why the examples above are described rather than quoted.
+var chromeSessionStart = time.Date(1987, time.June, 5, 4, 3, 2, 0, time.UTC)
+
+// chromeSessionStartUnix is derived, never hardcoded, so the fixture and the
+// expectation cannot drift apart.
+var chromeSessionStartUnix = float64(chromeSessionStart.Unix())
+
 // chromeSession is the canonical active session used across the collector tests.
-// startTime 02/01/2.20.10:00:00 UTC == unix 1577959200.
 func chromeSession(t *testing.T) sessionEntry {
 	return sessionEntry{
 		ID:                    "s1",
 		Capabilities:          encode(t, caps{BrowserName: "chrome", BrowserVersion: "124", PlatformName: "linux", TestName: "login-test", ContainerName: "node-chrome-1"}),
-		StartTime:             "02/01/2.20.10:00:00",
+		StartTime:             chromeSessionStart.Format(gridDateFormat),
 		SessionDurationMillis: "42300",
 		NodeID:                "node-up",
 		NodeURI:               "http://node1:5555",
 	}
 }
-
-const chromeSessionStartUnix = 1577959200
 
 // gridResponse renders a full GraphQL data envelope with the given sessions and
 // queue. Two nodes are always present: one UP (chrome), one DRAINING (firefox).
@@ -273,7 +291,7 @@ func TestCollectFullSnapshot(t *testing.T) {
 	if m, ok := series(mfs, "selenium_grid_session_start_seconds", sessLabels); !ok {
 		t.Error("selenium_grid_session_start_seconds{s1} missing")
 	} else if v := metricValue(m); v != chromeSessionStartUnix {
-		t.Errorf("session_start_seconds = %v, want %d", v, chromeSessionStartUnix)
+		t.Errorf("session_start_seconds = %v, want %v", v, chromeSessionStartUnix)
 	}
 	if m, ok := series(mfs, "selenium_grid_session_duration_seconds", sessLabels); !ok {
 		t.Error("selenium_grid_session_duration_seconds{s1} missing")
@@ -344,7 +362,7 @@ func TestSessionDurationFallback(t *testing.T) {
 	if !ok {
 		t.Fatal("session_duration_seconds{s1} missing")
 	}
-	// startTime is in 2020, so wall-clock duration is a large positive number.
+	// chromeSessionStart is well in the past, so wall-clock duration is a large positive number.
 	if v := metricValue(m); v <= 0 {
 		t.Errorf("fallback duration = %v, want > 0", v)
 	}
