@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.48.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.48.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.48.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.49.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.49.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.49.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.49.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.48.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.50.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.49.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
@@ -188,7 +188,7 @@ mark_ci_images_complete:
 #
 # Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
 # exact standalone tags of the release being made -
-#   "selenium/standalone-chrome:4.48.0-20260905"
+#   "selenium/standalone-chrome:4.49.0-20260905"
 # - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
 # two images cannot exist before the tag does, nor can the two standalones built
 # FROM them, so those four are still built at release time.
@@ -377,7 +377,7 @@ check_dockerhub_description:
 
 # Reproduce the nightly image scan locally for one image, e.g.
 #   make scan_image_scout IMAGE=base
-#   make scan_image_scout IMAGE=node-chrome TAG=4.48.0-20260909
+#   make scan_image_scout IMAGE=node-chrome TAG=4.49.0-20260909
 # Needs `docker login`; Docker Scout must be enabled for the repository.
 scan_image_scout:
 	docker scout cves --only-fixed --format sarif \
