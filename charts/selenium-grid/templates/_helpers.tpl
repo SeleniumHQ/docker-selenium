@@ -381,10 +381,10 @@ template:
         {{- toYaml . | nindent 6 }}
       {{- end }}
     annotations:
-      checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
-      checksum/node-configmap: {{ include (print $.Template.BasePath "/node-configmap.yaml") . | sha256sum }}
-      checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
-      checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
+      checksum/event-bus-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/event-bus-configmap.yaml") }}
+      checksum/node-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/node-configmap.yaml") }}
+      checksum/logging-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/logging-configmap.yaml") }}
+      checksum/server-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/server-configmap.yaml") }}
       {{- with .node.annotations }}
         {{- toYaml . | nindent 6 }}
       {{- end }}
@@ -1108,4 +1108,13 @@ Usage: {{- $thisArray = include "utils.appendDefaultIfNotExist" (dict "currentAr
     {{- end -}}
   {{- end -}}
   {{- $currentArray | toYaml -}}
+{{- end -}}
+
+{{/*
+Compute a ConfigMap or Secret checksum from its data only, for checksum/* pod annotations.
+Hashing the whole manifest would include the chart labels, which change on every chart version
+bump and would restart the pods when no configuration changed.
+*/}}
+{{- define "seleniumGrid.configMapOrSecretContentHash" -}}
+{{ pick (include (print .ctx.Template.BasePath .name) .ctx | fromYaml) "data" "stringData" | toYaml | sha256sum }}
 {{- end -}}
