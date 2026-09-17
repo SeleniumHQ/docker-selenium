@@ -214,7 +214,7 @@ class SyncTest(unittest.TestCase):
 
 VERSIONS = {
     "grid": {
-        "tag": "4.48.0-20260909",
+        "tag": "4.49.0-20260909",
         "version": "4.48.0",
         "date": "20260909",
         "major": "4",
@@ -326,7 +326,7 @@ class SubstituteExampleTest(unittest.TestCase):
     def test_grid_tokens_are_replaced_longest_first(self):
         out, problems = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")
         self.assertEqual(problems, [])
-        self.assertIn("selenium/hub   4.48.0-20260909", out)
+        self.assertIn("selenium/hub   4.49.0-20260909", out)
         self.assertIn("selenium/hub   4.48.0\n", out)
         self.assertIn("selenium/hub   4.48\n", out)
         self.assertIn("selenium/hub   4\n", out)

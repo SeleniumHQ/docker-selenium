@@ -43,7 +43,7 @@ description is published, so the page on Docker Hub shows concrete tags while th
 never goes stale.
 
 **Do not hand-edit the numbers into the Markdown.** `update_tag_in_docs_and_files.sh` rewrites only
-an exact match of the previous release tag, so it can update `4.48.0-20260909` but not the bare
+an exact match of the previous release tag, so it can update `4.49.0-20260909` but not the bare
 `4.48` or `4.48.0` beside it. Pinning them by hand produces blocks that contradict themselves after
 the next release — "Grid Server 4.48.0, released on 20261010".
 

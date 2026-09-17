@@ -10,7 +10,7 @@ spec.loader.exec_module(rv)
 
 CHROME = """```
 ./tag_and_push_browser_images.sh 4.48.0 20260909 selenium false chrome true
-Selenium Grid version -> 4.48.0-20260909
+Selenium Grid version -> 4.49.0-20260909
 Chrome version -> 152.0.7977.82
 Short Chrome version -> 152.0
 ChromeDriver version -> 152.0.7977.82
@@ -19,21 +19,21 @@ Short ChromeDriver version -> 152.0
 """
 
 FIREFOX = """```
-Selenium Grid version -> 4.48.0-20260909
+Selenium Grid version -> 4.49.0-20260909
 Short Firefox version -> 155.0
 Short GeckoDriver version -> 0.37
 ```
 """
 
 EDGE = """```
-Selenium Grid version -> 4.48.0-20260909
+Selenium Grid version -> 4.49.0-20260909
 Short Edge version -> 152.0
 Short EdgeDriver version -> 152.0
 ```
 """
 
 CFT = """```
-Selenium Grid version -> 4.48.0-20260909
+Selenium Grid version -> 4.49.0-20260909
 Short Chrome for Testing version -> 152.0
 Short ChromeDriver version -> 152.0
 ```
@@ -110,7 +110,7 @@ class ParseChangelogTest(ChangelogTestCase):
         fields = rv.parse_changelog(path)
         self.assertEqual(fields["Chrome"], "152.0")
         self.assertEqual(fields["ChromeDriver"], "152.0")
-        self.assertEqual(fields["grid_tag"], "4.48.0-20260909")
+        self.assertEqual(fields["grid_tag"], "4.49.0-20260909")
 
     def test_prefers_the_short_version_over_the_full_one(self):
         fields = rv.parse_changelog(self._write(CHROME))
@@ -133,7 +133,7 @@ class ResolveTest(ChangelogTestCase):
         self.assertEqual(
             resolved["grid"],
             {
-                "tag": "4.48.0-20260909",
+                "tag": "4.49.0-20260909",
                 "version": "4.48.0",
                 "date": "20260909",
                 "major": "4",

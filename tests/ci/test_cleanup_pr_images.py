@@ -56,7 +56,7 @@ class DeletionRuleTest(unittest.TestCase):
         self.assertEqual(decide(vs, closed={100}), [])
 
     def test_never_deletes_a_release_tag_even_beside_a_pr_tag(self):
-        vs = [version(1, ["src-aaaaaa", "pr-100", "4.48.0-20260909"])]
+        vs = [version(1, ["src-aaaaaa", "pr-100", "4.49.0-20260909"])]
         self.assertEqual(decide(vs, closed={100}), [])
 
     def test_never_deletes_latest_or_nightly(self):
@@ -118,7 +118,7 @@ class PruneSupersededTest(unittest.TestCase):
         self.assertEqual(supersede(vs), [])
 
     def test_never_removes_a_release_or_floating_tag(self):
-        for tag in ["4.48.0-20260909", "latest", "nightly"]:
+        for tag in ["4.49.0-20260909", "latest", "nightly"]:
             vs = [tv(1, ["src-0d1111", tag], "2026-09-01"), tv(2, ["src-e42222", "main"], "2026-09-05")]
             self.assertEqual(supersede(vs), [], tag)
 
@@ -149,7 +149,7 @@ class SrcTagStrictnessTest(unittest.TestCase):
             self.assertIsNone(cp.SRC_TAG.match(tag), tag)
 
     def test_rejects_release_and_floating_tags(self):
-        for tag in ["main", "latest", "nightly", "4.48.0-20260909", "ffmpeg-8.1-20260905"]:
+        for tag in ["main", "latest", "nightly", "4.49.0-20260909", "ffmpeg-8.1-20260905"]:
             self.assertIsNone(cp.SRC_TAG.match(tag), tag)
             self.assertIsNone(cp.PR_TAG.match(tag), tag)
 
@@ -205,7 +205,7 @@ class PruneOrphansTest(unittest.TestCase):
         self.assertEqual(orphan(vs, cutoff="2026-09-05"), [])
 
     def test_never_removes_main_or_a_release_tag(self):
-        for tag in ["main", "latest", "nightly", "4.48.0-20260909"]:
+        for tag in ["main", "latest", "nightly", "4.49.0-20260909"]:
             vs = [tv(1, ["src-a11111", tag], "2026-09-01")]
             self.assertEqual(orphan(vs, cutoff="2026-09-05"), [], tag)
 
