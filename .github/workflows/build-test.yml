@@ -60,6 +60,16 @@ env:
   RUN_ATTEMPT: ${{ github.run_attempt }}
 
 jobs:
+  video-unit-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-python@main
+        with:
+          python-version: '3.14'
+      - run: python -m pip install pyzmq
+      - run: python -m unittest tests.test_video_service
+
   lint-format:
     name: Lint scripts format
     runs-on: ubuntu-24.04

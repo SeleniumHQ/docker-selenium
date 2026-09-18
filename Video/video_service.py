@@ -41,6 +41,7 @@ import re
 import signal
 import ssl
 import sys
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
@@ -66,6 +67,7 @@ class SessionClosedReason(Enum):
     TIMEOUT = "TIMEOUT"
     NODE_REMOVED = "NODE_REMOVED"
     NODE_RESTARTED = "NODE_RESTARTED"
+    UNKNOWN = "UNKNOWN"
 
 
 class SessionStatus(Enum):
@@ -125,6 +127,7 @@ class VideoService:
     """Unified video recording and upload service."""
 
     def __init__(self):
+        """Initialize recording, upload and recovery state. Args: None. Returns: None."""
         # Event bus configuration
         self.event_bus_host = os.environ.get("SE_EVENT_BUS_HOST", "localhost")
         self.event_bus_port = os.environ.get("SE_EVENT_BUS_PUBLISH_PORT", "4442")
@@ -216,6 +219,9 @@ class VideoService:
         # Session state management - single source of truth
         self.sessions: Dict[str, SessionState] = {}
         self.sessions_lock = asyncio.Lock()
+        self.missing_sessions = set()
+        # Keep only IDs after cleanup: stale status or events must never resurrect a closed session.
+        self.closed_session_ids = set()
 
         # Upload queue - internal communication between recorder and uploader
         self.upload_queue: asyncio.Queue[UploadTask] = asyncio.Queue()
@@ -273,6 +279,11 @@ class VideoService:
         the session; when the capability is absent, it falls back to the
         SE_RECORD_VIDEO environment default. This keeps the event-driven service
         consistent with the shell-mode helper (video_nodeQuery.py).
+
+        Args:
+            session_id: Session identifier used for automatic naming.
+            capabilities: Session recording and naming options.
+        Returns: Whether recording is enabled and the preferred filename.
         """
         record_video = capabilities.get(self.video_cap_name)
         if record_video is None:
@@ -287,7 +298,7 @@ class VideoService:
             fixed_path = Path(self.video_folder) / fixed_name
             if fixed_path.exists():
                 logger.warning(
-                    "Configured video file %r already exists in %s and may be overwritten",
+                    "Configured video file %r already exists in %s; a unique filename will be used",
                     fixed_name,
                     self.video_folder,
                 )
@@ -339,16 +350,11 @@ class VideoService:
         event_node_id = data.get("nodeId", "")
         return event_node_id == self.node_id
 
-    async def wait_for_node_ready(self) -> None:
-        """Wait for the Node /status endpoint to be reachable and resolve Node ID.
+    def _fetch_node_status(self) -> Optional[dict]:
+        """Fetch authenticated node status in a worker thread.
 
-        Polls the Node /status endpoint until it returns HTTP 200,
-        then extracts nodeId and externalUri from the response.
-
-        Response structure differs by mode:
-        - Standalone (hub): $.value.nodes[0].id, $.value.nodes[0].externalUri
-        - Distributed (node): $.value.node.nodeId, $.value.node.externalUri
-        - Standalone sidecar on dynamic grid node: falls back to $.value.node path
+        Args: None.
+        Returns: The decoded response, or None when the request fails.
         """
         node_status_url = f"{self.se_server_protocol}://{self.display_container}:{self.se_node_port}/status"
         headers = {}
@@ -359,38 +365,32 @@ class VideoService:
                 "utf-8"
             )
             headers["Authorization"] = f"Basic {auth_token}"
-            logger.info("Using Basic Auth for Node /status endpoint")
-        elif self.router_username or self.router_password:
-            logger.warning("Partial SE_ROUTER credentials provided; skipping Basic Auth for Node /status endpoint")
 
         ssl_context = None
         if self.se_server_protocol.lower() == "https" and not self.node_status_verify_ssl:
             ssl_context = ssl._create_unverified_context()
 
-        logger.info(
-            f"Waiting for Node /status endpoint: {node_status_url} " f"(verify_ssl={self.node_status_verify_ssl})"
-        )
+        req = Request(node_status_url, headers=headers)
+        try:
+            with urlopen(req, timeout=5, context=ssl_context) as resp:
+                if resp.status == 200:
+                    return json.loads(resp.read().decode("utf-8"))
+        except (URLError, OSError, json.JSONDecodeError, ValueError):
+            pass
+        return None
 
-        def _fetch_status() -> Optional[dict]:
-            """Blocking HTTP fetch run in a thread to avoid blocking the event loop."""
-            req = Request(node_status_url, headers=headers)
-            try:
-                if ssl_context is not None:
-                    resp_ctx = urlopen(req, timeout=5, context=ssl_context)
-                else:
-                    resp_ctx = urlopen(req, timeout=5)
-                with resp_ctx as resp:
-                    if resp.status == 200:
-                        return json.loads(resp.read().decode("utf-8"))
-            except (URLError, OSError, json.JSONDecodeError, ValueError):
-                pass
-            return None
+    async def wait_for_node_ready(self) -> None:
+        """Wait for standalone or direct-node status and resolve this node's identity.
+
+        Args: None.
+        Returns: None, including when shutdown interrupts readiness polling.
+        """
 
         while not self.shutdown_event.is_set():
             try:
                 # Run blocking urlopen in a thread so SIGTERM can be processed
                 # immediately by the event loop without waiting up to 5s.
-                body = await asyncio.to_thread(_fetch_status)
+                body = await asyncio.to_thread(self._fetch_node_status)
                 if body is not None:
                     if self.record_standalone:
                         nodes = body.get("value", {}).get("nodes", [])
@@ -424,10 +424,76 @@ class VideoService:
             except asyncio.TimeoutError:
                 pass
 
+    def _active_sessions(self, body: Optional[dict]) -> Optional[dict]:
+        """Validate a complete status snapshot for this node.
+
+        Args:
+            body: Decoded standalone or direct-node /status response.
+        Returns:
+            Session IDs mapped to create-event data, or None for uncertain status.
+        """
+        try:
+            value = body["value"]
+            nodes = value["nodes"] if "nodes" in value else [value["node"]]
+            matches = [node for node in nodes if (node.get("id") or node.get("nodeId")) == self.node_id]
+            if not self.node_id or len(matches) != 1 or not isinstance(matches[0]["slots"], list):
+                return None
+            active = {}
+            for slot in matches[0]["slots"]:
+                session = slot["session"]
+                if session is None:
+                    continue
+                session_id = session["sessionId"]
+                if not isinstance(session_id, str) or not session_id or session_id == "reserved":
+                    return None
+                if not isinstance(session["capabilities"], dict) or session_id in active:
+                    return None
+                active[session_id] = dict(session, nodeId=self.node_id)
+            return active
+        except (KeyError, TypeError, AttributeError):
+            return None
+
+    async def reconcile_sessions(self) -> None:
+        """Recover missed events in the same serial loop as event handling.
+
+        Args: None.
+        Returns: None. Uncertain snapshots never count as evidence of a close.
+        """
+        active = self._active_sessions(await asyncio.to_thread(self._fetch_node_status))
+        # Events queued during the fetch take priority; do not apply an older snapshot afterwards.
+        if self.shutdown_event.is_set() or active is None or await self.subscriber.poll(timeout=0):
+            self.missing_sessions.clear()
+            return
+        missing = {
+            sid
+            for sid, session in self.sessions.items()
+            if session.video_file is not None and session.status != SessionStatus.CLOSED
+        } - active.keys()
+        for session_id in sorted(missing & self.missing_sessions):
+            if self.shutdown_event.is_set() or await self.subscriber.poll(timeout=0):
+                self.missing_sessions.clear()
+                return
+            logger.warning(f"Recovering missed session-closed: {session_id}")
+            await self.handle_session_closed(dict(sessionId=session_id, nodeId=self.node_id, reason="UNKNOWN"))
+        self.missing_sessions = missing - self.closed_session_ids
+        # Finalize missing recordings before starting their replacements, including the grace poll.
+        if not self.missing_sessions:
+            for data in active.values():
+                if self.shutdown_event.is_set() or await self.subscriber.poll(timeout=0):
+                    break
+                await self.handle_session_created(data)
+
     # ==================== Recording Functions ====================
 
     async def start_recording(self, session: SessionState) -> bool:
-        """Start ffmpeg recording for a session."""
+        """Start ffmpeg recording unless shutdown has begun.
+
+        Args:
+            session: Initialized recording session.
+        Returns: True if ffmpeg started successfully, otherwise False.
+        """
+        if self.shutdown_event.is_set():
+            return False
         if session.ffmpeg_process is not None:
             logger.warning(f"Recording already in progress for session {session.session_id}")
             return False
@@ -753,7 +819,12 @@ class VideoService:
     # ==================== Event Handlers ====================
 
     async def handle_session_created(self, data: dict) -> None:
-        """Handle session-created event."""
+        """Initialize a session once and retry a failed recording startup.
+
+        Args:
+            data: Session ID, node ID and capabilities from an event or status.
+        Returns: None.
+        """
         session_id = data.get("sessionId")
         if not session_id:
             logger.warning("Received session-created without sessionId")
@@ -762,6 +833,15 @@ class VideoService:
         # Filter: only process sessions belonging to this Node
         if not self.is_own_node_event(data):
             event_node_id = data.get("nodeId", "unknown")
+            return
+
+        if self.shutdown_event.is_set() or session_id in self.closed_session_ids:
+            return
+        self.missing_sessions.discard(session_id)
+        session = self.sessions.get(session_id)
+        if session is not None and session.video_file is not None:
+            if session.record_video and session.status == SessionStatus.CREATED:
+                await self.start_recording(session)
             return
 
         capabilities = data.get("capabilities", {})
@@ -778,6 +858,15 @@ class VideoService:
                 video_filename = f"{subfolder_key}/{video_filename}"
                 logger.info(f"Created session subfolder: {session_subdir}")
 
+        # Never overwrite an earlier recording, including one still queued for upload.
+        video_path = Path(video_filename)
+        while record_video and (
+            (Path(self.video_folder) / video_filename).exists()
+            or any(s.video_file == video_filename for s in self.sessions.values())
+        ):
+            stem = video_path.stem.encode("utf-8")[:180].decode("utf-8", errors="ignore")
+            video_filename = str(video_path.with_name(f"{stem}_{uuid.uuid4().hex}{video_path.suffix}"))
+
         retain_on_failure_cap = capabilities.get("se:retainOnFailure", None)
         if retain_on_failure_cap is None:
             retain_on_failure = self.retain_on_failure_enabled
@@ -785,15 +874,13 @@ class VideoService:
             retain_on_failure = str(retain_on_failure_cap).lower() == "true"
 
         async with self.sessions_lock:
-            session = SessionState(
-                session_id=session_id,
-                capabilities=capabilities,
-                video_file=video_filename,
-                record_video=record_video,
-                retain_on_failure=retain_on_failure,
-                test_name=capabilities.get(self.test_name_cap, ""),
-            )
-            self.sessions[session_id] = session
+            # Preserve failure events received before the create event.
+            session = self.sessions.setdefault(session_id, SessionState(session_id=session_id))
+            session.capabilities = capabilities
+            session.video_file = video_filename
+            session.record_video = record_video
+            session.retain_on_failure = retain_on_failure
+            session.test_name = capabilities.get(self.test_name_cap, "")
 
         logger.info(
             f"Session created: {session_id}, record={record_video}, "
@@ -804,7 +891,12 @@ class VideoService:
             await self.start_recording(session)
 
     async def handle_session_closed(self, data: dict) -> None:
-        """Handle session-closed event."""
+        """Finalize a session once and remember closure beyond state cleanup.
+
+        Args:
+            data: Session ID, node ID and close reason from an event or recovery.
+        Returns: None.
+        """
         session_id = data.get("sessionId")
         if not session_id:
             logger.warning("Received session-closed without sessionId")
@@ -815,11 +907,16 @@ class VideoService:
             event_node_id = data.get("nodeId", "unknown")
             return
 
+        if session_id in self.closed_session_ids:
+            return
+        self.closed_session_ids.add(session_id)
+        self.missing_sessions.discard(session_id)
+
         reason_str = data.get("reason", "QUIT_COMMAND")
         try:
             reason = SessionClosedReason(reason_str)
         except ValueError:
-            reason = SessionClosedReason.QUIT_COMMAND
+            reason = SessionClosedReason.UNKNOWN
 
         async with self.sessions_lock:
             session = self.sessions.get(session_id)
@@ -863,7 +960,12 @@ class VideoService:
             self.shutdown_event.set()
 
     async def handle_session_event(self, data: dict) -> None:
-        """Handle custom session-event."""
+        """Track custom failure events without recreating cleaned-up closed state.
+
+        Args:
+            data: Session ID, node ID, event type and optional payload.
+        Returns: None.
+        """
         session_id = data.get("sessionId")
         event_type = data.get("eventType", "")
         payload = data.get("payload", {})
@@ -880,6 +982,8 @@ class VideoService:
         async with self.sessions_lock:
             session = self.sessions.get(session_id)
             if session is None:
+                if session_id in self.closed_session_ids:
+                    return
                 # Create placeholder for late-arriving events
                 session = SessionState(session_id=session_id)
                 self.sessions[session_id] = session
@@ -904,7 +1008,11 @@ class VideoService:
     # ==================== Event Bus ====================
 
     async def subscribe_events(self) -> None:
-        """Subscribe to event bus and process events."""
+        """Own lifecycle operations serially, using status to recover lost events.
+
+        Args: None.
+        Returns: None after shutdown; in-progress finalization is allowed to finish.
+        """
         self.context = zmq.asyncio.Context()
         self.subscriber = self.context.socket(zmq.SUB)
         self.subscriber.setsockopt(zmq.LINGER, 0)
@@ -948,10 +1056,18 @@ class VideoService:
         }
 
         logger.info(f"Subscribed to events: {list(handlers.keys())}")
+        next_status_check = 0.0
 
         try:
             while not self.shutdown_event.is_set():
                 try:
+                    if asyncio.get_running_loop().time() >= next_status_check and not await self.subscriber.poll(
+                        timeout=0
+                    ):
+                        await self.reconcile_sessions()
+                        next_status_check = asyncio.get_running_loop().time() + max(1, self.node_poll_interval)
+                        if self.shutdown_event.is_set():
+                            break
                     if await self.subscriber.poll(timeout=1000):
                         frames = await self.subscriber.recv_multipart()
 
@@ -1034,7 +1150,11 @@ class VideoService:
                 pass
 
     async def cleanup(self) -> None:
-        """Cleanup all resources."""
+        """Finalize remaining recordings and signal the uploader to drain.
+
+        Args: None.
+        Returns: None after all recordings have been stopped and queued.
+        """
         logger.info("Shutting down...")
 
         # Cancel delayed session-cleanup tasks immediately — they have a 60s
@@ -1052,6 +1172,7 @@ class VideoService:
 
         for session in active_sessions:
             logger.info(f"Stopping recording: {session.session_id}")
+            session.close_reason = session.close_reason or SessionClosedReason.UNKNOWN
             stopped = await self.stop_recording(session)
             if stopped:
                 discard = session.retain_on_failure and not session.is_failed

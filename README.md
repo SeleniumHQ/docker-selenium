@@ -794,7 +794,7 @@ options.set_capability('se:recordVideo', False)
 ```
 
 This per-session control applies to both recording modes:
-- **Event-driven mode** (`SE_VIDEO_EVENT_DRIVEN=true`, default in the Node images): the recorder subscribes to the Grid event bus and reads `se:recordVideo` from each session's capabilities on the `SessionCreated` event.
+- **Event-driven mode** (`SE_VIDEO_EVENT_DRIVEN=true`, default in the Node images): the recorder subscribes to the Grid event bus and reads `se:recordVideo` from each session's capabilities on the `SessionCreated` event. It also checks Node `/status` using `SE_VIDEO_POLL_INTERVAL` (minimum one second) to recover missed lifecycle events.
 - **Shell/polling mode** (`SE_VIDEO_EVENT_DRIVEN=false`): the recorder queries the Node `/status` endpoint (or the Hub GraphQL endpoint) based on the Node SessionId and extracts `se:recordVideo` from the capabilities before deciding whether to start recording.
 
 Notes: For the shell/polling mode to reach the GraphQL endpoint, the recorder container needs to know the Hub URL. The Hub URL can be passed via environment variable `SE_NODE_GRID_URL`. For example `SE_NODE_GRID_URL` is `http://selenium-hub:4444`.
@@ -866,6 +866,10 @@ When using in Dynamic Grid, those variables should be combined with the prefix `
 ## Retain recordings for failed sessions only
 
 In event-driven mode (`SE_VIDEO_EVENT_DRIVEN=true`, the default), the video service subscribes to the Grid's ZeroMQ event bus and reacts to session lifecycle events in real time. This enables a **retain-on-failure** strategy: record every session, but automatically discard the video when the session passes and only keep (and upload) recordings from sessions that fail.
+
+Status recovery uses the same serial event loop: two consecutive complete snapshots must omit a session before its recording is finalized. Failed requests, malformed responses, another node's status, and reserved slots are not treated as proof of closure. Inferred closes have an unknown outcome, so their videos are kept when retain-on-failure is enabled. Recovery cannot reconstruct video from before recording started, or detect a session whose entire lifetime falls between polls when both events are lost.
+
+Closed session IDs are remembered for the lifetime of the video service, even after detailed session state is cleaned up, to prevent stale status or delayed events from restarting them. Only IDs are retained; restart/drain the recorder periodically for unbounded workloads. If a requested filename is already present or assigned to another session, a unique suffix protects the earlier recording and pending uploads. Nonconflicting names and session subfolders are unchanged.
 
 Enable it globally with the environment variable:
 
