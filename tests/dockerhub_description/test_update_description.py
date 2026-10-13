@@ -215,10 +215,10 @@ class SyncTest(unittest.TestCase):
 VERSIONS = {
     "grid": {
         "tag": "4.49.0-20260909",
-        "version": "4.48.0",
+        "version": "4.49.0",
         "date": "20260909",
         "major": "4",
-        "major_minor": "4.48",
+        "major_minor": "4.49",
         "patch": "0",
     },
     "browsers": {
@@ -327,10 +327,10 @@ class SubstituteExampleTest(unittest.TestCase):
         out, problems = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")
         self.assertEqual(problems, [])
         self.assertIn("selenium/hub   4.49.0-20260909", out)
-        self.assertIn("selenium/hub   4.48.0\n", out)
-        self.assertIn("selenium/hub   4.48\n", out)
+        self.assertIn("selenium/hub   4.49.0\n", out)
+        self.assertIn("selenium/hub   4.49\n", out)
         self.assertIn("selenium/hub   4\n", out)
-        self.assertIn("Selenium Grid Server 4.48.0, released on 20260909", out)
+        self.assertIn("Selenium Grid Server 4.49.0, released on 20260909", out)
 
     def test_nothing_outside_the_block_is_touched(self):
         out, _ = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")

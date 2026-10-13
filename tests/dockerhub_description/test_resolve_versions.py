@@ -46,7 +46,7 @@ class ChangelogTestCase(unittest.TestCase):
         self.root = pathlib.Path(self._tmp.name)
         self.addCleanup(self._tmp.cleanup)
 
-    def changelog(self, version="4.48.0", entries=None):
+    def changelog(self, version="4.49.0", entries=None):
         entries = (
             entries
             if entries is not None
@@ -129,15 +129,15 @@ class ResolveTest(ChangelogTestCase):
     def test_resolves_grid_and_every_changelog_browser(self):
         resolved, problems = rv.resolve(self.changelog(), "selenium", skip_chromium=True)
         self.assertEqual(problems, [])
-        self.assertEqual(resolved["release"], "4.48.0")
+        self.assertEqual(resolved["release"], "4.49.0")
         self.assertEqual(
             resolved["grid"],
             {
                 "tag": "4.49.0-20260909",
-                "version": "4.48.0",
+                "version": "4.49.0",
                 "date": "20260909",
                 "major": "4",
-                "major_minor": "4.48",
+                "major_minor": "4.49",
                 "patch": "0",
             },
         )
