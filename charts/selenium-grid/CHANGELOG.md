@@ -1,3 +1,61 @@
+## :heavy_check_mark: selenium-grid-0.60.0
+
+- Chart is using image tag 4.49.0-20260909
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`b5524b97`](http://github.com/seleniumhq/docker-selenium/commit/b5524b97bbdc09740a4534c54d18078c75a97ca3) - [ci] Fix LATEST_TAG sort picking a stale tag and skipping the chart bump (#3254) :: Viet Nguyen Duc
+- [`d737780f`](http://github.com/seleniumhq/docker-selenium/commit/d737780f467f622fd22e14447039b1a4c1d7d5eb) - Update Helm release redis to ^0.35.0 (#3239) :: renovate[bot]
+- [`770bbc72`](http://github.com/seleniumhq/docker-selenium/commit/770bbc7260b4caf60d88f2cc88b0f1787ce89442) - [ci] Update chart 0.59.1 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.59.1
+
+- Chart is using image tag 4.48.0-20260905
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`25c7c8c6`](http://github.com/seleniumhq/docker-selenium/commit/25c7c8c6622ee23e1cf3e53e76390a6f22d5eebe) - [ci] Update tag 4.48.0-20260905 in docs and files :: Selenium CI Bot
+- [`fea11ec9`](http://github.com/seleniumhq/docker-selenium/commit/fea11ec9c590b9252ddebd347beebdf8c9646ccb) - [ci] Update chart 0.59.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.59.0
+
+- Chart is using image tag 4.48.0-20260909
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`55892978`](http://github.com/seleniumhq/docker-selenium/commit/558929784317317af43b8266bc42c3592dc46129) - [ci] Update tag 4.48.0-20260909 in docs and files :: Selenium CI Bot
+- [`514ae167`](http://github.com/seleniumhq/docker-selenium/commit/514ae167666483f52f3fc979c9a3cdcfe68266b7) - chore(deps): update helm release kube-prometheus-stack to v89 (#3219) :: renovate[bot]
+- [`4c61f383`](http://github.com/seleniumhq/docker-selenium/commit/4c61f3838a47a3ca89a6fed62d696bcd2e2730dc) - K8s: Replace external scaler jobScalingStrategy with includeOngoingSessions (#3218) :: Viet Nguyen Duc
+- [`4bdc5d6f`](http://github.com/seleniumhq/docker-selenium/commit/4bdc5d6fc4a47b378bc95f9784adb41911a17c4a) - chore(deps): update helm release postgres to ^0.20.0 (#3209) :: renovate[bot]
+- [`d7c0050e`](http://github.com/seleniumhq/docker-selenium/commit/d7c0050e7081ffa817c59b5cf84edab43eb7a0d4) - [ci] Update chart 0.58.0 changelog :: Selenium CI Bot
+
+## :heavy_check_mark: selenium-grid-0.58.0
+
+- Chart is using image tag 4.47.0-20260808
+- Chart is tested on Kubernetes versions: v1.29.15,v1.30.14,v1.31.14,v1.32.10,v1.34.2
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.14.3,v3.15.4,v3.16.4,v3.17.4,v3.18.6,v3.19.2,v4.0.1
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Fixed
+- [`5fa7e163`](http://github.com/seleniumhq/docker-selenium/commit/5fa7e163d68fd792eb808441f9d258e851df786c) - fix(chart): expose external scaler securityContext with seccompProfile (#3196) (#3199) :: Viet Nguyen Duc
+
+### Changed
+- [`88bad408`](http://github.com/seleniumhq/docker-selenium/commit/88bad4087e7df1a7c15f51343845740608c4e259) - [ci] Update tag 4.47.0-20260808 in docs and files :: Selenium CI Bot
+- [`65ed9ce8`](http://github.com/seleniumhq/docker-selenium/commit/65ed9ce8a1ee4cc58fbc9e84ee6da711f2b99bda) - chore(deps): update helm release redis to ^0.34.0 (#3193) :: renovate[bot]
+- [`5ed1e1e0`](http://github.com/seleniumhq/docker-selenium/commit/5ed1e1e0b68944ec13efae4b0b758d2a1e7e1faf) - chore(deps): update helm release kube-prometheus-stack to v88 (#3186) :: renovate[bot]
+- [`19787e6e`](http://github.com/seleniumhq/docker-selenium/commit/19787e6efd7a775ee3f524f33bf182f23fd8d227) - chore(deps): update helm release redis to ^0.33.0 - abandoned (#3183) :: renovate[bot]
+- [`31e1cf95`](http://github.com/seleniumhq/docker-selenium/commit/31e1cf953a06a87fc3634d03fddeaefdac8fbc27) - [ci] Update chart 0.57.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.57.0
 
 - Chart is using image tag 4.46.0-20260707

@@ -79,8 +79,8 @@ func TestParseFlagsDefaults(t *testing.T) {
 }
 
 func TestParseFlagsOverridesAndEnv(t *testing.T) {
-	t.Setenv("LISTEN_ADDRESS", ":9999")           // overridden by flag below
-	t.Setenv("SE_GRID_HTTP_TIMEOUT", "500")        // bare int → ms (env default)
+	t.Setenv("LISTEN_ADDRESS", ":9999")     // overridden by flag below
+	t.Setenv("SE_GRID_HTTP_TIMEOUT", "500") // bare int → ms (env default)
 	t.Setenv("TLS_CERT_FILE", "/etc/cert.pem")
 	t.Setenv("TLS_KEY_FILE", "/etc/key.pem")
 

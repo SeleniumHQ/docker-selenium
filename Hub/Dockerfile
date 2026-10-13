@@ -3,7 +3,7 @@ ARG VERSION=latest
 #========================
 # Exporter build stage
 #========================
-FROM golang:1.26 AS exporter-builder
+FROM golang:1.27 AS exporter-builder
 WORKDIR /src
 COPY --from=exporter-src . .
 RUN go mod edit -go=$(go env GOVERSION | sed 's/go//') && go mod tidy

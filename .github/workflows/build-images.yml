@@ -1,0 +1,387 @@
+name: Build images once
+
+# Builds the image set at most once per run and publishes it to GHCR, so the ~37
+# test matrix jobs can pull instead of each building the images it needs. Every
+# test target names image targets as Make prerequisites, so before this they all
+# built something; recent pull request runs took 75-88 minutes.
+#
+# Three modes, decided by the `decide` job and honoured by every test workflow:
+#
+#   reuse          an identical image set is already published under this
+#                  content hash, so nothing is built and every test job pulls it
+#   build-and-push the content is new: build once, push, every test job pulls it
+#   build-in-job   fork pull requests, which have no registry credentials, keep
+#                  today's behaviour and build in each job
+#
+# Fork detection compares the head repository against this one. A fork run never
+# receives credentials and never pushes. pull_request_target is deliberately not
+# used: it would run untrusted code with a registry write token.
+
+on:
+  workflow_call:
+    inputs:
+      ci-tag:
+        description: 'Tag to publish. Defaults to pr-<number> or main.'
+        required: false
+        type: string
+        default: ''
+      release:
+        description: "Build against the stable core ('true') or the nightly one ('false')"
+        required: false
+        type: string
+        default: 'false'
+      force-build:
+        description: 'Build even when the change looks image-neutral'
+        required: false
+        type: boolean
+        default: false
+      push:
+        description: 'Push the built images. False builds only, for verification.'
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      mode:
+        description: 'reuse, build-and-push, or build-in-job'
+        value: ${{ jobs.decide.outputs.mode }}
+      ci-tag:
+        description: 'Tag the test jobs should pull'
+        value: ${{ jobs.decide.outputs.ci-tag }}
+      base-version:
+        description: 'Selenium core version the images were built against'
+        value: ${{ jobs.decide.outputs.base-version }}
+      base-release:
+        description: 'Upstream release tag that core came from'
+        value: ${{ jobs.decide.outputs.base-release }}
+      src-hash:
+        description: 'Content hash the tag is keyed on'
+        value: ${{ jobs.decide.outputs.src-hash }}
+      registry:
+        description: 'Registry holding that tag'
+        value: ${{ jobs.decide.outputs.registry }}
+
+jobs:
+  decide:
+    name: Decide whether to build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read
+    outputs:
+      mode: ${{ steps.decide.outputs.mode }}
+      ci-tag: ${{ steps.decide.outputs.ci-tag }}
+      src-hash: ${{ steps.decide.outputs.src-hash }}
+      base-version: ${{ steps.decide.outputs.base-version }}
+      base-release: ${{ steps.decide.outputs.base-release }}
+      registry: ${{ steps.decide.outputs.registry }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Resolve the core first: the same source built against a different Selenium
+      # core produces different images, so the core is part of the key.
+      #
+      # `release` comes from the caller and is the same value the test workflows
+      # feed their own get-latest-upstream, so the images and the tests can never
+      # disagree about which core is under test. Nightly runs pass false and get
+      # the nightly core, which is the whole point of nightly.
+      - name: Set Selenium base version
+        uses: ./.github/actions/get-latest-upstream
+        with:
+          release: ${{ inputs.release || 'false' }}
+          gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
+          authors: ${{ vars.AUTHORS || github.repository_owner }}
+
+      - name: Decide
+        id: decide
+        env:
+          IS_FORK: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          INPUT_TAG: ${{ inputs.ci-tag }}
+          FORCE_BUILD: ${{ inputs.force-build }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          set -euo pipefail
+          # A registry reference must be lowercase and the owner is not
+          # (SeleniumHQ), so fold it here. GitHub expressions have no lower().
+          REGISTRY="ghcr.io/$(echo "${OWNER}" | tr '[:upper:]' '[:lower:]')"
+          echo "Registry: ${REGISTRY}"
+          echo "registry=${REGISTRY}" >> "$GITHUB_OUTPUT"
+
+          # A fork has no credentials for our registry, so it cannot use a
+          # prebuilt image and must not be handed one to push to.
+          if [ "${IS_FORK}" = "true" ]; then
+            echo "Fork pull request: building in each job, as before."
+            echo "mode=build-in-job" >> "$GITHUB_OUTPUT"
+            echo "ci-tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Key the image set on its own content, not on the branch or the
+          # pull request. Every path that can change what ends up in an image,
+          # hashed by blob id, so the tag is identical whenever the content is.
+          #
+          # This is what lets a merge reuse the pull request's images rather than
+          # rebuilding them: SeleniumHQ squash-merges, so the pull request commit
+          # is not an ancestor of trunk and cannot be matched by sha, but the
+          # content hash is the same on both sides. Checked against #3228, whose
+          # head and squash merge hash identically over these paths. The digest
+          # also covers BASE_VERSION, so the two sides match only while they
+          # resolve the same core - which is why `release` is threaded through
+          # from the calling workflow rather than resolved here.
+          PATHS="Base Hub Distributor Router Sessions SessionQueue EventBus NodeBase
+                 NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
+                 NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video
+                 .ffmpeg .keda-external-scaler Makefile"
+          # The core is part of the digest on purpose. Identical source built
+          # against a nightly core and against the stable core are different
+          # images; keying only on the files would let a pull request's
+          # nightly-core build be promoted to :main and released.
+          #
+          # It has to be the jar's digest and not its version. The nightly jar
+          # keeps the name selenium-server-4.49.0-SNAPSHOT.jar for a whole
+          # snapshot cycle while its contents change every night, so on
+          # BASE_VERSION alone every nightly hashes the same. Run 34032857205 is
+          # what that costs: the suite reused images built against an earlier
+          # nightly core and reported success, while the jar it was supposed to be
+          # testing had moved on. The digest changes when the jar does, so a new
+          # core rebuilds - and a stable release, whose jar never moves, keeps
+          # reusing exactly as before.
+          SRC_HASH=$(
+            { git ls-tree -r HEAD -- $PATHS | awk '{print $3, $4}' | sort; \
+              echo "core=${BASE_VERSION}@${BASE_ASSET_DIGEST}"; } \
+              | sha256sum | cut -c1-12
+          )
+          TAG="${INPUT_TAG:-src-${SRC_HASH}}"
+          echo "Selenium core: ${BASE_RELEASE} (${BASE_VERSION}) ${BASE_ASSET_DIGEST}"
+          echo "Source hash: ${SRC_HASH}"
+          echo "ci-tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "src-hash=${SRC_HASH}" >> "$GITHUB_OUTPUT"
+          echo "base-version=${BASE_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "base-release=${BASE_RELEASE}" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Images"
+            echo
+            echo "Selenium core: \`${BASE_VERSION}\`"
+            echo "Source hash: \`${SRC_HASH}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${FORCE_BUILD}" = "true" ]; then
+            echo "Forced rebuild."
+            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+            echo "Forced rebuild." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          # Already built by an earlier run - the pull request that introduced
+          # this content, most often. Nothing to rebuild, on a pull request or on
+          # trunk. On trunk this is exactly the promotion case: the merge reuses
+          # the images its pull request built and tested, and promote-main then
+          # retags them.
+          #
+          # The probe is the completeness marker, NOT base:<tag>. base is the
+          # first image the merge writes, so if a merge dies partway - and
+          # cancel-in-progress makes that routine - base:<tag> exists while later
+          # images do not. Probing base would then choose reuse for ever and
+          # every run would hard-fail in pull_ci_images, with no way out but a
+          # hand-deleted tag. The marker is written only after every image has
+          # merged, so a half-finished set simply rebuilds.
+          #
+          # It is another tag on the manifest base:<tag> already is, so it costs
+          # no storage and cannot itself be left behind.
+          if docker manifest inspect "${REGISTRY}/base:${TAG}-complete" >/dev/null 2>&1; then
+            echo "Images for this content already exist; reusing ${TAG}."
+            echo "Reusing existing images - no rebuild." >> "$GITHUB_STEP_SUMMARY"
+            echo "mode=reuse" >> "$GITHUB_OUTPUT"
+          else
+            echo "No images for this content; building ${TAG}."
+            echo "Image content is new - building once." >> "$GITHUB_STEP_SUMMARY"
+            echo "mode=build-and-push" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    # One native runner per architecture, in parallel. Building both on a single
+    # runner means QEMU-emulating arm64, which ran past an hour; this costs about
+    # one amd64 build. The repo already uses ubuntu-24.04-arm for its arm64 tests.
+    name: Build ${{ matrix.arch }} ${{ needs.decide.outputs.ci-tag }}
+    needs: decide
+    if: needs.decide.outputs.mode == 'build-and-push'
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: amd64
+            os: ubuntu-24.04
+          - arch: arm64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      - name: Set up environment
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: make setup_dev_env
+
+      # Use exactly the core decide hashed on, so the tag and the image agree.
+      # All three matter: Base/Dockerfile builds its download URL from the
+      # release tag AND the version
+      #   .../releases/download/${RELEASE}/selenium-server-${VERSION}.jar
+      # so carrying only BASE_VERSION leaves BASE_RELEASE on the Makefile default
+      # and asks for a jar that does not exist.
+      - name: Use the core decide resolved
+        run: |
+          echo "BASE_VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
+          echo "BASE_RELEASE=${{ needs.decide.outputs.base-release }}" >> $GITHUB_ENV
+          echo "VERSION=${{ needs.decide.outputs.base-version }}" >> $GITHUB_ENV
+
+      # Native, single platform. Edge and Chrome for Testing are amd64-only and
+      # the Makefile skips them when PLATFORMS has no linux/amd64, so the arm64
+      # job simply does not produce those two.
+      - name: Set build date and platform
+        run: |
+          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
+          echo "PLATFORMS=linux/${{ matrix.arch }}" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        if: inputs.push
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+
+      - name: Build images
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 180
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: PLATFORMS="${PLATFORMS}" VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" make build
+
+      # Also tag pr-<N>, so cleanup-pr-images.yml has something to delete when the
+      # pull request closes. The src-* tag is shared and must outlive any one
+      # pull request, so it is never the thing cleanup removes.
+      - name: Push images
+        if: inputs.push
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            VERSION="${BASE_VERSION}" BUILD_DATE="${BUILD_DATE}" \
+              CI_REGISTRY="${{ needs.decide.outputs.registry }}" \
+              CI_TAG="${{ needs.decide.outputs.ci-tag }}-${{ matrix.arch }}" \
+              make push_ci_images
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### Images (${{ matrix.arch }})"
+            echo
+            echo "Mode: \`${{ needs.decide.outputs.mode }}\`"
+            echo "Tag: \`${{ needs.decide.outputs.registry }}/<image>:${{ needs.decide.outputs.ci-tag }}\`"
+            echo
+            echo "Built once here; the test jobs pull instead of building."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  merge:
+    name: Merge into one manifest list
+    needs: [decide, build]
+    if: needs.decide.outputs.mode == 'build-and-push'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+      # Retried: a registry blip here used to leave the set half-merged, which
+      # decide could not distinguish from a finished one.
+      - name: Merge the architecture tags
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: |
+            CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+              make merge_ci_images
+
+      # Only now is the set complete, and only now does decide consider it
+      # reusable. Deliberately a separate step after the retries: if the merge
+      # never succeeds, no marker is written and the next run rebuilds.
+      - name: Mark the set complete
+        run: |
+          CI_REGISTRY="${{ needs.decide.outputs.registry }}" CI_TAG="${{ needs.decide.outputs.ci-tag }}" \
+            make mark_ci_images_complete
+
+  alias:
+    # The pr-<N> alias marks a manifest as in use by an open pull request, so the
+    # cleanup can tell "nobody needs this" from "somebody still does". It has to
+    # be applied on reuse too: a pull request that matched an existing manifest
+    # never enters the build job, and without an alias its images looked orphaned
+    # and were deletable while it was still open.
+    #
+    # Tagging is idempotent, and several pull requests can alias one manifest -
+    # that is exactly how the cleanup sees a manifest as shared.
+    name: Tag the manifest for this pull request
+    needs: [decide, merge]
+    if: always() && github.event.pull_request.number && needs.decide.outputs.mode != 'build-in-job' && !failure() && !cancelled()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+      # Two markers, deliberately:
+      #
+      #   pr-<N>          moves to the newest build, so a human can find "the
+      #                   current image for this pull request"
+      #   pr-<N>-<hash>   never moves, so every manifest this pull request ever
+      #                   used stays attributable to it
+      #
+      # The durable one is what makes close-time cleanup complete. The hash cannot
+      # be recomputed later: it covers BASE_VERSION, and for a pull request that is
+      # the nightly core, which moves - so replaying it after the fact would
+      # resolve a different nightly and a different hash.
+      - name: Mark ${{ needs.decide.outputs.ci-tag }} for pr-${{ github.event.pull_request.number }}
+        env:
+          REGISTRY: ${{ needs.decide.outputs.registry }}
+          CI_TAG: ${{ needs.decide.outputs.ci-tag }}
+          PR: ${{ github.event.pull_request.number }}
+          SRC_HASH: ${{ needs.decide.outputs.src-hash }}
+        run: |
+          set -euo pipefail
+          for marker in "pr-${PR}" "pr-${PR}-${SRC_HASH}"; do
+            CI_REGISTRY="${REGISTRY}" CI_TAG="${CI_TAG}" PROMOTE_TO="${marker}" make promote_ci_images
+          done

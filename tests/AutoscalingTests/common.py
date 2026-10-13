@@ -1,11 +1,13 @@
 import concurrent.futures
 import csv
+import math
 import os
 import random
 import signal
 import subprocess
 import time
 import unittest
+from collections import Counter
 
 from csv2md.table import Table
 from selenium import webdriver
@@ -57,25 +59,38 @@ def create_session(browser_name):
     return driver
 
 
-def wait_for_count_matches(sessions, timeout=10, interval=5):
+def expected_pod_count(sessions, node_max_sessions):
+    # Each browser type scales independently (its own ScaledJob/trigger), so the
+    # expected pod count is the sum of per-browser ceilings, not a single ceiling
+    # over the total - packing sessions across types would understate it.
+    counts = Counter(browser_name for _, browser_name in sessions)
+    return sum(math.ceil(count / node_max_sessions) for count in counts.values())
+
+
+def wait_for_count_matches(sessions, node_max_sessions=1, timeout=60, interval=5):
+    # Regression guard for https://github.com/SeleniumHQ/docker-selenium/issues/3167:
+    # a ScaledJob strategy that double-counts on-going sessions never converges
+    # pod count to the expected value, so a bounded poll that hard-fails on timeout
+    # catches that runaway growth instead of only warning about it.
+    expected = expected_pod_count(sessions, node_max_sessions)
     elapsed = 0
+    pod_count = get_pod_count()
     while elapsed < timeout:
         pod_count = get_pod_count()
-        if pod_count == len(sessions):
-            break
-        print(f"VALIDATING: Waiting for pods to match sessions... ({elapsed}/{timeout} seconds elapsed)")
+        if pod_count == expected:
+            print(f"PASS: Pod count ({pod_count}) matches expected ({expected}) after {elapsed} seconds.")
+            return
+        print(f"VALIDATING: pod_count={pod_count}, expected={expected}... ({elapsed}/{timeout} seconds elapsed)")
         time.sleep(interval)
         elapsed += interval
-    if pod_count != len(sessions):
-        print(
-            f"WARN: Mismatch between pod count and session count after {timeout} seconds. Gaps: {pod_count - len(sessions)}"
-        )
-    else:
-        print(f"PASS: Pod count matches session count after {elapsed} seconds.")
+    raise AssertionError(
+        f"Pod count mismatch: expected {expected} pods for {len(sessions)} sessions "
+        f"(node_max_sessions={node_max_sessions}), got {pod_count} after {timeout} seconds"
+    )
 
 
 def close_all_sessions(sessions):
-    for session in sessions:
+    for session, _ in sessions:
         session.quit()
     sessions.clear()
     return sessions
@@ -84,13 +99,15 @@ def close_all_sessions(sessions):
 def create_sessions_in_parallel(new_request_sessions):
     failed_jobs = 0
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [
-            executor.submit(create_session, random.choice(list(BROWSER.keys()))) for _ in range(new_request_sessions)
-        ]
+        futures = {
+            executor.submit(create_session, browser_name): browser_name
+            for browser_name in (random.choice(list(BROWSER.keys())) for _ in range(new_request_sessions))
+        }
         sessions = []
         for future in concurrent.futures.as_completed(futures):
+            browser_name = futures[future]
             try:
-                sessions.append(future.result())
+                sessions.append((future.result(), browser_name))
             except Exception as e:
                 print(f"ERROR: Failed to create session: {e}")
                 failed_jobs += 1
@@ -102,7 +119,7 @@ def randomly_quit_sessions(sessions, sublist_size):
     if sessions:
         sessions_to_quit = random.sample(sessions, min(sublist_size, len(sessions)))
         for session in sessions_to_quit:
-            session.quit()
+            session[0].quit()
             sessions.remove(session)
         print(f"QUIT: {len(sessions_to_quit)} sessions have been randomly quit.")
         return len(sessions_to_quit)

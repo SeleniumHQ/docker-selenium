@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-standalone-kubernetes
-          image: selenium/standalone-kubernetes:4.46.0-20260707
+          image: selenium/standalone-kubernetes:4.48.0-20260905
           ports:
             - containerPort: 4444
           env:
@@ -39,6 +39,8 @@ spec:
             - name: SE_DYNAMIC_MAX_SESSIONS
               value: "10"
             - name: SE_RECORD_VIDEO
+              value: "true"
+            - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
               value: "true"
           resources:
             requests:

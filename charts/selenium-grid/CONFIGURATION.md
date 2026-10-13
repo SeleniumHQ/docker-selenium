@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.57.0](https://img.shields.io/badge/Version-0.57.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.46.0-20260707](https://img.shields.io/badge/AppVersion-4.46.0--20260707-informational?style=flat-square)
+![Version: 0.60.0](https://img.shields.io/badge/Version-0.60.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.49.0-20260909](https://img.shields.io/badge/AppVersion-4.49.0--20260909-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -18,11 +18,11 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.19.0 |
-| https://cloudpirates-io.github.io/helm-charts | redis | ^0.34.0 |
+| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.21.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.36.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^88.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^90.0.0 |
 | https://traefik.github.io/charts | traefik | ^41.0.0 |
 
 ## Values
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.46.0-20260707"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.46.0-20260707"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260707"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.48.0-20260905"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.48.0-20260905"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20260905"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |

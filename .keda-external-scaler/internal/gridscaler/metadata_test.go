@@ -43,7 +43,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -60,7 +60,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -76,7 +76,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -97,7 +97,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -117,7 +117,7 @@ func Test_parseMetadata(t *testing.T) {
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
 				Capabilities:           "{\"myApp:version\": \"beta\"}",
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -136,7 +136,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -158,7 +158,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -196,7 +196,7 @@ func Test_parseMetadata(t *testing.T) {
 				NodeMaxSessions:        3,
 				TargetValue:            1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -216,24 +216,24 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
-			name: "invalid jobScalingStrategy should throw an error",
+			name: "invalid includeOngoingSessions should throw an error",
 			meta: map[string]string{
-				"url":                "http://selenium-hub:4444/graphql",
-				"browserName":        "chrome",
-				"jobScalingStrategy": "bogus",
+				"url":                    "http://selenium-hub:4444/graphql",
+				"browserName":            "chrome",
+				"includeOngoingSessions": "bogus",
 			},
 			wantErr: true,
 		},
 		{
-			name: "accurate jobScalingStrategy is accepted",
+			name: "includeOngoingSessions can be disabled",
 			meta: map[string]string{
-				"url":                "http://selenium-hub:4444/graphql",
-				"browserName":        "chrome",
-				"jobScalingStrategy": "accurate",
+				"url":                    "http://selenium-hub:4444/graphql",
+				"browserName":            "chrome",
+				"includeOngoingSessions": "false",
 			},
 			want: &Metadata{
 				URL:                    "http://selenium-hub:4444/graphql",
@@ -242,7 +242,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "accurate",
+				IncludeOngoingSessions: false,
 			},
 		},
 		{
@@ -259,7 +259,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: false,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		// External-scaler-specific: *FromEnv and server-env fallback resolution.
@@ -280,7 +280,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -300,7 +300,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 		{
@@ -319,7 +319,7 @@ func Test_parseMetadata(t *testing.T) {
 				TargetValue:            1,
 				NodeMaxSessions:        1,
 				EnableManagedDownloads: true,
-				JobScalingStrategy:     "default",
+				IncludeOngoingSessions: true,
 			},
 		},
 	}

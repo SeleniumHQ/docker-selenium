@@ -8,7 +8,7 @@ This is a functional extraction of KEDA's built-in `selenium-grid` scaler
 (`kedacore/keda/pkg/scalers/selenium_grid_scaler.go`), so that Selenium's
 autoscaling logic can be released on the docker-selenium cadence instead of
 KEDA's. The scaling algorithm — capability matching (mirroring Grid's
-`DefaultSlotMatcher`), slot reservation, and the per-`jobScalingStrategy` count
+`DefaultSlotMatcher`), slot reservation, and the `includeOngoingSessions` count
 conventions — is ported verbatim and covered by KEDA's own upstream test table.
 
 ## How it differs from the built-in scaler
@@ -43,13 +43,37 @@ the scaler):
 | `enableManagedDownloads` | `true` | |
 | `activationThreshold` | `0` | scale-from-zero threshold |
 | `unsafeSsl` | `false` | skip Grid TLS verification |
-| `jobScalingStrategy` | `default` | `default`\|`custom`\|`accurate`\|`eager`; must match the ScaledJob's `scalingStrategy.strategy` |
+| `includeOngoingSessions` | `true` | count on-going sessions toward the metric; must be `false` for ScaledJob `scalingStrategy.strategy` `accurate` or `eager` (see [On-going sessions](#on-going-sessions)) |
 | `authType` | `""` | `Basic` (default) or a bearer scheme like `OAuth2`/`Bearer` |
 | `username` / `password` | — | Grid basic auth |
 | `accessToken` | — | Grid bearer token (with non-Basic `authType`) |
 
 Any key may also be supplied as `<key>FromEnv` (KEDA resolves it from the scale
 target's container env before sending).
+
+### On-going sessions
+
+The metric this scaler returns is the number of Nodes the Grid needs. On-going
+sessions are work the Grid is already serving, so whether they belong in that
+number depends on which Job count KEDA's executor deducts for you
+(`pkg/scaling/executor/scale_jobs.go`):
+
+| ScaledJob strategy | KEDA deducts | `includeOngoingSessions` | Metric emitted |
+|---|---|---|---|
+| `default` | running Job count | `true` (default) | queued requests + on-going sessions |
+| `custom` | `customScalingRunningJobPercentage` of running Job count | `true` (default) | queued requests + on-going sessions |
+| `accurate` | pending Job count | **`false`** | queued requests only |
+| `eager` | running + pending Job count (bounded by `maxScale`) | **`false`** | queued requests only |
+| _ScaledObject (HPA)_ | running replicas via HPA | `true` (default) | queued requests + on-going sessions |
+
+`accurate` and `eager` never re-add running work, so counting on-going sessions
+there double-counts sessions already in progress and produces runaway Node
+creation that never scales back down
+([#3167](https://github.com/SeleniumHQ/docker-selenium/issues/3167)).
+
+The Selenium Grid Helm chart derives this for you from
+`autoscaling.scaledJobOptions.scalingStrategy.strategy`; set
+`<node>.hpa.includeOngoingSessions` to override.
 
 ## Authentication
 

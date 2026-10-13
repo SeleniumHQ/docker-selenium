@@ -46,8 +46,8 @@ RUN chmod +x /opt/bin/wrap_chrome_binary \
 # Latest released version will be used by default
 #============================================
 ARG CHROME_DRIVER_VERSION
-COPY --chown="${SEL_UID}:${SEL_GID}" install-chromedriver.sh /opt/bin/
-RUN chmod +x /opt/bin/install-chromedriver.sh \
+COPY --chown="${SEL_UID}:${SEL_GID}" install-chromedriver.sh resolve-chromedriver-source.sh /opt/bin/
+RUN chmod +x /opt/bin/install-chromedriver.sh /opt/bin/resolve-chromedriver-source.sh \
     && /opt/bin/install-chromedriver.sh
 
 #============================================

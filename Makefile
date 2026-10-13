@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.47.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.47.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.47.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.50.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.50.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.50.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.48.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.47.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.51.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.50.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
@@ -38,6 +38,265 @@ KEDA_BASED_TAG := $(or $(KEDA_BASED_TAG),$(KEDA_BASED_TAG),2.20.1)
 TEST_PATCHED_KEDA := $(or $(TEST_PATCHED_KEDA),$(TEST_PATCHED_KEDA),false)
 TRACING_EXPORTER_ENDPOINT := $(or $(TRACING_EXPORTER_ENDPOINT),$(TRACING_EXPORTER_ENDPOINT),http://\$$KUBERNETES_NODE_HOST_IP:4317)
 GHCR_NAMESPACE := $(or $(GHCR_NAMESPACE),$(GHCR_NAMESPACE),ghcr.io/seleniumhq)
+
+# --- CI image reuse -----------------------------------------------------------
+#
+# The PR test suite spans 37 matrix jobs and every one of them used to build the
+# images it needed, because each test target names image targets as prerequisites
+# (`test_video: video hub chrome firefox edge chromium`). Building once and
+# reusing the result is worth ~36 redundant builds per pull request.
+#
+#   SKIP_BUILD=true   every image-build target becomes a no-op, so the test
+#                     targets keep their prerequisites and need no edits. Use it
+#                     only when the images are already present locally.
+#   make push_ci_images / pull_ci_images   move that set through a registry.
+#
+# With SKIP_BUILD unset nothing below changes: `make build`, `make test` and every
+# other local workflow behave exactly as before.
+
+CI_REGISTRY := $(or $(CI_REGISTRY),ghcr.io/seleniumhq)
+CI_TAG := $(or $(CI_TAG),main)
+
+# The images a test run can need. Kept as one list so push and pull cannot drift.
+CI_IMAGES := base hub distributor router sessions session-queue event-bus \
+	node-base node-chrome node-chrome-for-testing node-chromium node-edge node-firefox \
+	node-all-browsers node-docker node-kubernetes \
+	standalone-chrome standalone-chrome-for-testing standalone-chromium standalone-edge \
+	standalone-firefox standalone-all-browsers standalone-docker standalone-kubernetes \
+	video keda-external-scaler
+
+# Image-build targets, plus update_go. gen_certs and prepare_resources are
+# deliberately absent: they produce working-tree files the tests read, not images,
+# and must still run when the images come from a registry.
+#
+# update_go is here because it is a prerequisite of `base`, so it ran in every
+# test job on the reuse path - a `docker pull golang:latest` plus `go get -u` and
+# `go mod tidy` for two modules, over the network, in each of ~37 jobs. Nothing
+# read at test time comes out of it: it edits go.mod/go.sum and rewrites the
+# golang base image in .keda-external-scaler/, Hub/ and Router/ Dockerfiles, all
+# of which matter only to a build. Leaving it in cost minutes per job, added a
+# live-network flake to each one, and mutated hashed sources after the tag had
+# already been decided.
+# Overridable from the environment, not just as a make argument: the release
+# needs `SKIP_BUILD=true SKIP_BUILD_TARGETS=base` to build the four tag-dependent
+# images on top of the base it just published, and a plain `:=` here would
+# silently ignore that and no-op the four as well.
+SKIP_BUILD_TARGETS := $(or $(SKIP_BUILD_TARGETS),base hub distributor router sessions sessionqueue event_bus \
+	node_base chrome chrome_only chrome-for-testing chrome-for-testing_only chromium \
+	edge edge_only firefox firefox_only all_browsers docker kubernetes \
+	standalone_chrome standalone_chrome_only standalone_chrome-for-testing \
+	standalone_chrome-for-testing_only standalone_chromium standalone_edge \
+	standalone_edge_only standalone_firefox standalone_firefox_only \
+	standalone_all_browsers standalone_docker standalone_kubernetes \
+	video ffmpeg keda_external_scaler update_go)
+
+# Push what was just built, so the rest of the run can reuse it.
+# video does not carry the grid tag: it is built as
+# $(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE), and the compose files read it
+# from VIDEO_TAG. Assuming $(TAG_VERSION) for every image meant video was never
+# found locally, silently skipped on push, and then missing at merge.
+#
+# Skips images this build did not produce. On an arm64 runner that is Edge and
+# Chrome for Testing, which are amd64-only; without the check the loop would fail
+# tagging an image that was correctly never built.
+push_ci_images:
+	@set -e; pushed=0; skipped=""; \
+	for image in $(CI_IMAGES); do \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		if ! docker image inspect $(NAME)/$$image:$$local_tag >/dev/null 2>&1; then \
+			skipped="$$skipped $$image"; continue; \
+		fi; \
+		echo "push $(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		docker tag $(NAME)/$$image:$$local_tag $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		docker push --quiet $(CI_REGISTRY)/$$image:$(CI_TAG); \
+		pushed=$$((pushed+1)); \
+	done; \
+	echo "pushed $$pushed image(s) as $(CI_TAG)"; \
+	if [ -n "$$skipped" ]; then echo "not built here, skipped:$$skipped"; fi; \
+		if [ "$$pushed" -eq 0 ]; then echo "nothing was pushed" >&2; exit 1; fi
+
+# Pull the prebuilt set and give it the local names the compose files expect.
+#
+# Edge and Chrome for Testing are amd64-only, so on arm64 their manifest list has
+# no matching entry and `docker pull` fails with "no matching manifest for
+# linux/arm64/v8". Skip those deliberately, by inspecting the manifest first -
+# and only those. An image missing from the registry entirely is still a hard
+# error, because that means the build or the merge went wrong, and a clear
+# failure here beats a compose failure fifteen minutes into a test job.
+pull_ci_images:
+	@set -e; arch=$$(docker version --format '{{.Server.Arch}}'); \
+	echo "pulling for linux/$$arch"; \
+	pulled=0; other_arch=""; \
+	for image in $(CI_IMAGES); do \
+		case "$$image" in \
+			video)  local_tag="$(FFMPEG_TAG_VERSION)-$(BUILD_DATE)" ;; \
+			ffmpeg) local_tag="$(FFMPEG_VERSION)-$(BUILD_DATE)" ;; \
+			*)      local_tag="$(TAG_VERSION)" ;; \
+		esac; \
+		ref="$(CI_REGISTRY)/$$image:$(CI_TAG)"; \
+		if ! manifest=$$(docker manifest inspect $$ref 2>/dev/null); then \
+			echo "$$ref is not in the registry" >&2; exit 1; \
+		fi; \
+		if ! echo "$$manifest" | tr -d ' ' | grep -q "\"architecture\":\"$$arch\""; then \
+			other_arch="$$other_arch $$image"; continue; \
+		fi; \
+		echo "pull $$ref -> $(NAME)/$$image:$$local_tag"; \
+		docker pull --quiet --platform linux/$$arch $$ref; \
+		docker tag $$ref $(NAME)/$$image:$$local_tag; \
+		pulled=$$((pulled+1)); \
+	done; \
+	echo "pulled $$pulled image(s) for linux/$$arch"; \
+	if [ -n "$$other_arch" ]; then echo "not built for linux/$$arch:$$other_arch"; fi; \
+		if [ "$$pulled" -eq 0 ]; then echo "nothing was pulled" >&2; exit 1; fi
+
+# Merge the per-architecture tags pushed by native runners into one manifest
+# list. Building multi-arch on a single runner means QEMU-emulating arm64, which
+# took over an hour; two native runners in parallel cost about one amd64 build.
+#
+# Edge and Chrome for Testing are amd64-only - the Makefile skips them when
+# PLATFORMS has no linux/amd64 - so their arm64 tag never exists and the list is
+# built from amd64 alone rather than failing.
+merge_ci_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		refs="" ; \
+		for arch in amd64 arm64; do \
+			if docker manifest inspect $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch >/dev/null 2>&1; then \
+				refs="$$refs $(CI_REGISTRY)/$$image:$(CI_TAG)-$$arch" ; \
+			fi ; \
+		done ; \
+		if [ -z "$$refs" ]; then echo "no architecture tags for $$image:$(CI_TAG)" ; exit 1 ; fi ; \
+			echo "merge $$image:$(CI_TAG) <-$$refs" ; \
+			docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(CI_TAG) $$refs ; \
+		done
+
+# The marker decide reuses on. Written only once merge_ci_images has finished
+# every image, so "base:<tag> exists" can never be mistaken for "the whole set
+# exists". It is a second tag on the manifest base:<tag> already is - no extra
+# storage, and nothing for the cleanup to leak.
+mark_ci_images_complete:
+	docker buildx imagetools create -t $(CI_REGISTRY)/base:$(CI_TAG)-complete $(CI_REGISTRY)/base:$(CI_TAG)
+
+# --- Release by promotion -----------------------------------------------------
+#
+# A release rebuilt every image the trunk suite had just built and tested, so
+# what got published was a rebuild of the tested source rather than the tested
+# artefact. Most images can be retagged instead.
+#
+# Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
+# exact standalone tags of the release being made -
+#   "selenium/standalone-chrome:4.50.0-20260905"
+# - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
+# two images cannot exist before the tag does, nor can the two standalones built
+# FROM them, so those four are still built at release time.
+RELEASE_PROMOTED_IMAGES := base hub distributor router sessions session-queue event-bus \
+	node-base node-chrome node-chrome-for-testing node-chromium node-edge node-firefox \
+	node-all-browsers standalone-chrome standalone-chrome-for-testing standalone-chromium \
+	standalone-edge standalone-firefox standalone-all-browsers keda-external-scaler
+
+RELEASE_BUILT_IMAGES := node-docker node-kubernetes standalone-docker standalone-kubernetes
+
+# Where a promotion lands. $(NAME) publishes to Docker Hub; pass
+# $(GHCR_NAMESPACE) to mirror the same manifest there.
+PROMOTE_NAMESPACE := $(or $(PROMOTE_NAMESPACE),$(NAME))
+
+# Registry to registry, on the index. Nothing is pulled, so the multi-architecture
+# manifest list arrives intact and the digest released is the digest tested.
+# Pulling per architecture and pushing from the local store is what published
+# single-architecture releases before.
+promote_release_images:
+	@set -e; for image in $(RELEASE_PROMOTED_IMAGES); do \
+		echo "promote $$image -> $(PROMOTE_NAMESPACE)/$$image:$(TAG_VERSION)" ; \
+		docker buildx imagetools create \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(TAG_VERSION) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR).$(MINOR) \
+			--tag $(PROMOTE_NAMESPACE)/$$image:$(MAJOR_MINOR_PATCH) \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+	docker buildx imagetools create \
+		--tag $(PROMOTE_NAMESPACE)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) \
+		$(CI_REGISTRY)/video:$(CI_TAG)
+
+# Separate from the version tags, exactly as release_latest is separate from
+# release: a prerelease publishes versions without moving :latest.
+promote_release_latest:
+	@set -e; for image in $(RELEASE_PROMOTED_IMAGES); do \
+		echo "promote $$image -> $(PROMOTE_NAMESPACE)/$$image:latest" ; \
+		docker buildx imagetools create --tag $(PROMOTE_NAMESPACE)/$$image:latest \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+	docker buildx imagetools create --tag $(PROMOTE_NAMESPACE)/video:latest \
+		$(CI_REGISTRY)/video:$(CI_TAG)
+
+# The four the promotion cannot cover. Built after the tag rewrite, FROM the base
+# image the promotion has just published, so they sit on the released base rather
+# than on a second local build of it. That is what
+#   SKIP_BUILD=true SKIP_BUILD_TARGETS=base
+# buys: `docker` and `kubernetes` name base as a prerequisite, and without this
+# make would rebuild it here and produce a different digest from the one released.
+release_built_images:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		for tag in $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			docker tag $(NAME)/$$image:$(TAG_VERSION) $(NAME)/$$image:$$tag ; \
+		done ; \
+		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			echo "push $(NAME)/$$image:$$tag" ; \
+			docker push --quiet $(NAME)/$$image:$$tag ; \
+		done ; \
+	done
+
+release_built_images_latest:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		docker tag $(NAME)/$$image:$(TAG_VERSION) $(NAME)/$$image:latest ; \
+		echo "push $(NAME)/$$image:latest" ; \
+		docker push --quiet $(NAME)/$$image:latest ; \
+	done
+
+# Mirror the four to GHCR from what was just pushed to Docker Hub, the way
+# release_ghcr already mirrors everything else.
+release_built_images_ghcr:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		for tag in $(TAG_VERSION) $(MAJOR) $(MAJOR).$(MINOR) $(MAJOR_MINOR_PATCH); do \
+			docker buildx imagetools create \
+			--tag $(GHCR_NAMESPACE)/$$image:$$tag docker.io/$(NAME)/$$image:$$tag ; \
+		done ; \
+	done
+
+# :latest for the four, on GHCR. promote_release_latest covers the other 22, but
+# it copies from the CI tag - these four have no CI tag, because they did not
+# exist until the release built them.
+release_built_images_ghcr_latest:
+	@set -e; for image in $(RELEASE_BUILT_IMAGES); do \
+		docker buildx imagetools create \
+			--tag $(GHCR_NAMESPACE)/$$image:latest docker.io/$(NAME)/$$image:latest ; \
+	done
+
+# :nightly, for every image, straight from the tag the nightly suite ran against.
+# Unlike a release, nothing here depends on the tag being created - nightly.yml
+# rewrites the docs after publishing, not before - so all 26 can be promoted,
+# which is exactly the set release_nightly used to push.
+promote_nightly_images:
+	@set -e; for image in $(CI_IMAGES); do \
+		echo "promote $$image -> :nightly" ; \
+		docker buildx imagetools create \
+			--tag $(NAME)/$$image:nightly \
+			--tag $(GHCR_NAMESPACE)/$$image:nightly \
+			$(CI_REGISTRY)/$$image:$(CI_TAG) ; \
+	done
+
+# Point another tag at an already-tested manifest, without rebuilding. Used for
+# the pr-<N> markers the cleanup keys on, and to retag a passing trunk set as
+# :main.
+promote_ci_images:
+	@test -n "$(PROMOTE_TO)" || (echo "PROMOTE_TO is required" && exit 1)
+	@for image in $(CI_IMAGES); do \
+		echo "promote $$image: $(CI_TAG) -> $(PROMOTE_TO)" ; \
+		docker buildx imagetools create -t $(CI_REGISTRY)/$$image:$(PROMOTE_TO) $(CI_REGISTRY)/$$image:$(CI_TAG) || exit 1 ; \
+	done
 
 all: hub \
 	distributor \
@@ -109,6 +368,28 @@ generate_readme_charts:
 
 update_list_env_vars: install_python_deps
 	python3 scripts/generate_list_env_vars/extract_env.py
+
+update_dockerhub_description:
+	python3 scripts/dockerhub_description/update_description.py --namespace $(NAME) $(if $(DRY_RUN),--dry-run,)
+
+check_dockerhub_description:
+	python3 scripts/dockerhub_description/update_description.py --check
+
+# Reproduce the nightly image scan locally for one image, e.g.
+#   make scan_image_scout IMAGE=base
+#   make scan_image_scout IMAGE=node-chrome TAG=4.50.0-20260909
+# Needs `docker login`; Docker Scout must be enabled for the repository.
+scan_image_scout:
+	docker scout cves --only-fixed --format sarif \
+		--output scout-$(IMAGE).sarif $(NAME)/$(IMAGE):$(or $(TAG),nightly)
+	python3 scripts/scan_images/summarise_scout.py \
+		scout-$(IMAGE).sarif $(NAME)/$(IMAGE):$(or $(TAG),nightly)
+
+update_dockerhub_versions:
+	python3 scripts/dockerhub_description/resolve_versions.py --namespace $(NAME) $(if $(GRID_TAG),--grid-tag $(GRID_TAG),)
+
+test_dockerhub_description:
+	python3 -m unittest discover -s tests/dockerhub_description -v
 
 update_release_version: install_python_deps
 	python3 scripts/release_preparation/update_versions.py --expected-base-version $(EXPECTED_BASE_VERSION)
@@ -1202,7 +1483,8 @@ test_node_relay: hub node_base standalone_firefox
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
 		if [ $$node = "Android" ] ; then \
 			echo BROWSER=firefox >> .env \
-			&& echo BROWSER_NAME=firefox >> .env ; \
+			&& echo BROWSER_NAME=firefox >> .env \
+			&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=false >> .env ; \
 		fi ; \
 			if [ $$node = "NodeChrome" ] ; then \
 				echo BROWSER=chrome >> .env \
@@ -1219,7 +1501,8 @@ test_node_relay: hub node_base standalone_firefox
 			fi ; \
 			if [ $$node = "NodeFirefox" ] ; then \
 				echo BROWSER=firefox >> .env \
-				&& echo BROWSER_NAME=firefox >> .env ; \
+				&& echo BROWSER_NAME=firefox >> .env \
+				&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), true) >> .env ; \
 			fi ; \
 			export $$(cat .env | xargs) ; \
 			envsubst < relay_config.toml > ./videos/relay_config.toml ; \
@@ -1266,7 +1549,7 @@ test_node_docker: hub standalone_docker standalone_chrome standalone_firefox sta
 		echo TEST_PARALLEL_HARDENING=$(or $(TEST_PARALLEL_HARDENING), "false") >> .env ; \
 		echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 		echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
-		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "false") >> .env ; \
+		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), "true") >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
 		echo RECORD_STANDALONE=$(or $(RECORD_STANDALONE), "true") >> .env ; \
 		echo SE_UPLOAD_RETAIN_LOCAL_FILE=$(or $(SE_UPLOAD_RETAIN_LOCAL_FILE), "false") >> .env ; \
@@ -1470,6 +1753,18 @@ test_k8s_autoscaling_job_count_strategy_default:
 	VERSION=$(TAG_VERSION) VIDEO_TAG=$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) KEDA_BASED_NAME=$(KEDA_BASED_NAME) KEDA_BASED_TAG=$(KEDA_BASED_TAG) NAMESPACE=$(NAMESPACE) BINDING_VERSION=$(BINDING_VERSION) BASE_VERSION=$(BASE_VERSION) \
 	./tests/charts/make/chart_test.sh JobAutoscaling
 
+test_k8s_autoscaling_job_count_strategy_accurate_in_chaos:
+	MATRIX_TESTS=AutoScalingTestsScaleChaos SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate_with_node_max_sessions:
+	TEST_NODE_MAX_SESSIONS=3 SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
+test_k8s_autoscaling_job_count_strategy_accurate:
+	SCALING_STRATEGY=accurate \
+	make test_k8s_autoscaling_job_count_strategy_default
+
 test_k8s_autoscaling_deployment_count_in_chaos:
 	MATRIX_TESTS=AutoScalingTestsScaleChaos \
 	make test_k8s_autoscaling_deployment_count
@@ -1536,3 +1831,12 @@ test_k8s_dynamic_grid_hub_node:
 	tag_and_push_browser_images \
 	test \
 	video
+
+# Placed last on purpose: GNU Make lets the last definition of a target win, so
+# these no-ops must come after the real build recipes above. Defining them at all
+# only happens when SKIP_BUILD=true, so an ordinary `make build` never sees them
+# and never prints an override warning.
+ifeq ($(strip $(SKIP_BUILD)),true)
+$(SKIP_BUILD_TARGETS):
+	@echo "SKIP_BUILD=true: using the prebuilt image for '$@'"
+endif

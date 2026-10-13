@@ -32,32 +32,45 @@ echo "Installing ChromeDriver..."
 ARCH=$(dpkg --print-architecture)
 echo "Detected architecture: ${ARCH}"
 
-if [ "${ARCH}" = "amd64" ]; then
+CHROME_MAJOR_VERSION=""
+if [ -z "${CHROME_DRIVER_VERSION}" ]; then
+  CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
+  echo "Detected Chrome major version: ${CHROME_MAJOR_VERSION}"
+fi
+
+# Chrome versions before 115 predate Chrome for Testing and are served by the frozen
+# chromedriver.storage.googleapis.com API, which only ever had linux64. That path is left
+# exactly as it was rather than routed through the resolver.
+if [ "${ARCH}" = "amd64" ] && [ -n "${CHROME_MAJOR_VERSION}" ] && [ "${CHROME_MAJOR_VERSION}" -lt 115 ]; then
+  DRIVER_SOURCE="legacy"
   DRIVER_ARCH="linux64"
-
-  # Determine ChromeDriver version and URL
-  if [ ! -z "$CHROME_DRIVER_VERSION" ]; then
-    # Use specified version
-    echo "Using specified ChromeDriver version: ${CHROME_DRIVER_VERSION}"
-    CHROME_DRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/$CHROME_DRIVER_VERSION/${DRIVER_ARCH}/chromedriver-${DRIVER_ARCH}.zip"
-  else
-    # Auto-detect version based on Chrome version
-    CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
-    echo "Detected Chrome major version: ${CHROME_MAJOR_VERSION}"
-
-    if [ $CHROME_MAJOR_VERSION -lt 115 ]; then
-      # Use old ChromeDriver API for versions < 115
-      echo "Getting ChromeDriver latest version from https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"
-      CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//')
-      CHROME_DRIVER_URL="https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip"
-    else
-      # Use new Chrome for Testing API for versions >= 115
-      echo "Getting ChromeDriver latest version from https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"
-      CHROME_DRIVER_VERSION=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//')
-      CHROME_DRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/$CHROME_DRIVER_VERSION/${DRIVER_ARCH}/chromedriver-${DRIVER_ARCH}.zip"
-    fi
+  RESOLVED_VERSION=""
+else
+  # Where the driver comes from is the decision that used to fail the whole build: on
+  # arm64 this script exited 1 whenever the Debian chromium-driver archive had not caught
+  # up with a Chrome stable promotion, which took all 26 images down with it for six
+  # consecutive nights in September 2026. Chrome for Testing now publishes linux-arm64
+  # from Chrome 153, so that is the first choice on every architecture; the Debian
+  # package stays as the fallback for the older majors it has no arm64 build for.
+  if ! DRIVER_RESOLUTION=$(/opt/bin/resolve-chromedriver-source.sh "${ARCH}" "${CHROME_MAJOR_VERSION}" "${CHROME_DRIVER_VERSION}"); then
+    echo "Could not determine where to get a ChromeDriver for ${ARCH}" >&2
+    exit 1
   fi
+  read -r DRIVER_SOURCE DRIVER_ARCH RESOLVED_VERSION <<<"${DRIVER_RESOLUTION}"
+fi
 
+if [ "${DRIVER_SOURCE}" = "legacy" ]; then
+  # Use old ChromeDriver API for versions < 115
+  echo "Getting ChromeDriver latest version from https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"
+  CHROME_DRIVER_VERSION=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | sed 's/\r$//')
+  CHROME_DRIVER_URL="https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip"
+elif [ "${DRIVER_SOURCE}" = "cft" ]; then
+  CHROME_DRIVER_VERSION="${RESOLVED_VERSION}"
+  echo "Using the Chrome for Testing ${DRIVER_ARCH} ChromeDriver: ${CHROME_DRIVER_VERSION}"
+  CHROME_DRIVER_URL="https://storage.googleapis.com/chrome-for-testing-public/$CHROME_DRIVER_VERSION/${DRIVER_ARCH}/chromedriver-${DRIVER_ARCH}.zip"
+fi
+
+if [ "${DRIVER_SOURCE}" != "chromium-package" ]; then
   echo "Using ChromeDriver from: ${CHROME_DRIVER_URL}"
   echo "Using ChromeDriver version: ${CHROME_DRIVER_VERSION}"
 
@@ -79,14 +92,12 @@ if [ "${ARCH}" = "amd64" ]; then
     rm -rf /opt/selenium/chromedriver-${DRIVER_ARCH}
   fi
 else
+  echo "Google does not build a ${ARCH} ChromeDriver for this Chrome version, getting the Chromium driver version from ${CHROMIUM_MATRIX_URL}"
   # Determine the Chromium driver package version, it has to match the Chrome major version
   if [ ! -z "$CHROME_DRIVER_VERSION" ]; then
     echo "Using specified Chromium driver package version: ${CHROME_DRIVER_VERSION}"
     CHROME_DRIVER_PACKAGE_VERSION="${CHROME_DRIVER_VERSION}"
   else
-    CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/")
-    echo "Detected Chrome major version: ${CHROME_MAJOR_VERSION}"
-    echo "Google does not build ChromeDriver for linux/${ARCH}, getting the Chromium driver version from ${CHROMIUM_MATRIX_URL}"
     CHROME_DRIVER_PACKAGE_VERSION=$(wget -qO- "${CHROMIUM_MATRIX_URL}" |
       awk -v major="'${CHROME_MAJOR_VERSION}':" '$1 == major {found=1; next} found && $1 == "CHROMIUM_PACKAGE_VERSION:" {print $2; exit}')
     if [ -z "${CHROME_DRIVER_PACKAGE_VERSION}" ]; then

@@ -42,6 +42,8 @@ class SeleniumAutoscalingTests(unittest.TestCase):
                 print(f"ADDING: Created {new_request_sessions} new sessions in {elapsed_time:.2f} seconds.")
                 print(f"INFO: Total sessions: {total_sessions}")
                 print(f"INFO: Total pods: {total_pods}")
+                wait_for_count_matches(SESSIONS, TEST_NODE_MAX_SESSIONS)
+                total_pods = get_pod_count()
                 closed_session = randomly_quit_sessions(SESSIONS, random.randint(3, 12))
                 RESULTS.append(
                     {

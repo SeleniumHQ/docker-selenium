@@ -8,6 +8,21 @@ on:
       DOCKER_PASSWORD:
         required: false
     inputs:
+      ci-mode:
+        description: 'reuse, build-and-push, or build-in-job'
+        required: false
+        type: string
+        default: 'build-in-job'
+      ci-tag:
+        description: 'Registry tag holding the prebuilt images'
+        required: false
+        type: string
+        default: ''
+      ci-registry:
+        description: 'Registry holding the prebuilt images'
+        required: false
+        type: string
+        default: ''
       release:
         description: 'Test a new release process'
         required: false
@@ -71,44 +86,65 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - k8s-version: 'v1.34.2'
+          - k8s-version: 'v1.35.8'
             cluster: 'minikube'
-            helm-version: 'v4.0.1'
+            helm-version: 'v4.1.4'
             docker-version: '29.1.1'
             python-version: '3.13'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_in_chaos
-          - k8s-version: 'v1.34.2'
+          - k8s-version: 'v1.35.8'
             cluster: 'minikube'
-            helm-version: 'v3.19.2'
+            helm-version: 'v3.20.2'
             docker-version: '29.1.1'
             python-version: '3.13'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_job_count_strategy_default_with_node_max_sessions
-          - k8s-version: 'v1.33.6'
+          - k8s-version: 'v1.34.11'
             cluster: 'minikube'
-            helm-version: 'v3.19.2'
+            helm-version: 'v3.20.2'
             docker-version: '29.1.1'
             python-version: '3.12'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_job_count_strategy_default
-          - k8s-version: 'v1.30.14'
+          - k8s-version: 'v1.35.8'
             cluster: 'minikube'
-            helm-version: 'v3.15.4'
+            helm-version: 'v4.1.4'
+            docker-version: '29.1.1'
+            python-version: '3.13'
+            os: ubuntu-22.04
+            test-strategy: test_k8s_autoscaling_job_count_strategy_accurate_in_chaos
+          - k8s-version: 'v1.35.8'
+            cluster: 'minikube'
+            helm-version: 'v3.20.2'
+            docker-version: '29.1.1'
+            python-version: '3.13'
+            os: ubuntu-22.04
+            test-strategy: test_k8s_autoscaling_job_count_strategy_accurate_with_node_max_sessions
+          - k8s-version: 'v1.34.11'
+            cluster: 'minikube'
+            helm-version: 'v3.20.2'
+            docker-version: '29.1.1'
+            python-version: '3.12'
+            os: ubuntu-22.04
+            test-strategy: test_k8s_autoscaling_job_count_strategy_accurate
+          - k8s-version: 'v1.31.14'
+            cluster: 'minikube'
+            helm-version: 'v3.16.4'
             docker-version: '27.5.1'
             python-version: '3.12'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_deployment_count_in_chaos
-          - k8s-version: 'v1.31.14'
+          - k8s-version: 'v1.32.13'
             cluster: 'minikube'
-            helm-version: 'v3.16.4'
+            helm-version: 'v3.17.4'
             docker-version: '28.5.2'
             python-version: '3.13'
             os: ubuntu-22.04
             test-strategy: test_k8s_autoscaling_deployment_count_with_node_max_sessions
-          - k8s-version: 'v1.32.10'
+          - k8s-version: 'v1.33.13'
             cluster: 'minikube'
-            helm-version: 'v3.17.4'
+            helm-version: 'v3.18.6'
             docker-version: '28.5.2'
             python-version: '3.11'
             os: ubuntu-22.04
@@ -176,7 +212,24 @@ jobs:
           timeout_minutes: 10
           max_attempts: 3
           command: CLUSTER=${CLUSTER} SERVICE_MESH=${SERVICE_MESH} KUBERNETES_VERSION=${KUBERNETES_VERSION} NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_cluster_setup
+      # Built once by build-images.yml. Pull and retag to the local names the
+      # compose files already expect, so the test targets need no changes;
+      # SKIP_BUILD then stops their Make prerequisites rebuilding them.
+      - name: Use prebuilt images
+        if: inputs.ci-mode != 'build-in-job'
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 45
+          max_attempts: 3
+          retry_wait_seconds: 30
+          command: |
+            echo "${{ secrets.SELENIUM_CI_TOKEN || secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME || github.actor }}" --password-stdin
+            VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} CI_REGISTRY="${{ inputs.ci-registry }}" CI_TAG="${{ inputs.ci-tag }}" make pull_ci_images
+      - name: Skip in-job builds when images were pulled
+        if: inputs.ci-mode != 'build-in-job'
+        run: echo "SKIP_BUILD=true" >> $GITHUB_ENV
       - name: Build Docker images
+        if: inputs.ci-mode == 'build-in-job'
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 30

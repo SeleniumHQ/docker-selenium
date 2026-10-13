@@ -50,10 +50,24 @@ runs:
             RELEASE=$(echo "${RELEASES}" | jq -r '[.[]? | select(.prerelease == false)] | .[0].tag_name')
           fi
         fi
-        jar_file=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases/tags/${RELEASE} | jq -r '.assets[] | select(.name | endswith(".jar")) | .name' | tail -n 1)
+        ASSET=$(curl -s -H "$AUTH_HEADER" https://api.github.com/repos/${AUTHORS}/selenium/releases/tags/${RELEASE} | jq -r '[.assets[] | select(.name | endswith(".jar"))] | last')
+        jar_file=$(echo "${ASSET}" | jq -r '.name')
         echo "Server package: ${jar_file}"
         VERSION=$(echo $jar_file | sed 's/selenium-server-//;s/\.jar//')
+        # What that jar actually IS, not just what it is called. The nightly jar
+        # keeps one name - selenium-server-4.49.0-SNAPSHOT.jar - for a whole
+        # snapshot cycle while its contents are replaced every night, so the
+        # version alone cannot tell two nightly cores apart. Anything keyed on the
+        # core needs this, or it will treat last week's nightly as today's.
+        ASSET_DIGEST=$(echo "${ASSET}" | jq -r '.digest // empty')
+        if [ -z "${ASSET_DIGEST}" ] || [ "${ASSET_DIGEST}" = "null" ]; then
+          # Older assets predate the digest field; identity then comes from the
+          # asset id and the time it was last uploaded, which move together.
+          ASSET_DIGEST=$(echo "${ASSET}" | jq -r '"\(.id)-\(.updated_at)"')
+        fi
         echo "BASE_RELEASE=${RELEASE} | BASE_VERSION=${VERSION} | VERSION=${VERSION}"
+        echo "Server package digest: ${ASSET_DIGEST}"
         echo "BASE_RELEASE=${RELEASE}" >> $GITHUB_ENV
         echo "BASE_VERSION=${VERSION}" >> $GITHUB_ENV
+        echo "BASE_ASSET_DIGEST=${ASSET_DIGEST}" >> $GITHUB_ENV
         echo "VERSION=${VERSION}" >> $GITHUB_ENV

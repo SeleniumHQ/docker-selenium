@@ -22,7 +22,7 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: '20260707'
+        default: '20260909'
       browser-name:
         description: 'Browser name to build. E.g: chrome'
         required: true
@@ -31,7 +31,7 @@ on:
       browser-versions:
         description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        default: '[95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151]'
+        default: '[95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155]'
       push-image:
         description: 'Push image after testing successfully'
         required: true
@@ -72,6 +72,19 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+      # reuse-base means this run never builds base/hub itself - it pulls an
+      # already-published image tag. Leaving grid-version blank here falls
+      # through to "Get Grid version" below, which resolves to whatever
+      # get-latest-upstream reports as the newest upstream Selenium release -
+      # not a version docker-selenium has actually published - and fails confusingly
+      # with "<image>: not found" three retries later instead of failing here.
+      - name: Validate grid-version is set when reusing the base image
+        if: env.REUSE_BASE == 'true' && env.GRID_VERSION == ''
+        run: |
+          echo "::error::reuse-base is true but grid-version is empty."
+          echo "::error::Leaving grid-version blank makes this job resolve the Grid core from the latest upstream Selenium release, not a version docker-selenium has actually published - the base image pull will 404."
+          echo "::error::Set grid-version (and build-date) to a Grid version docker-selenium has already published, or set reuse-base to false to build the base image fresh."
+          exit 1
       - name: Set up containerd image store feature
         uses: nick-invision/retry@master
         with:
@@ -108,6 +121,21 @@ jobs:
         run: |
           echo ${GRID_VERSION}
           echo "GRID_VERSION=${GRID_VERSION}" >> "$GITHUB_OUTPUT"
+      # grid-version/build-date can both be non-blank and still wrong - e.g. a
+      # correct grid-version with build-date left at this workflow's own stale
+      # default - so check the registry directly instead of only checking for
+      # blank inputs. See
+      # https://github.com/SeleniumHQ/docker-selenium/actions/runs/38400547199/job/115306752228
+      - name: Validate the base image exists on Docker Hub
+        if: env.REUSE_BASE == 'true'
+        run: |
+          TAG="${GRID_VERSION}-${BUILD_DATE}"
+          STATUS=$(curl -sS -o /dev/null -w "%{http_code}" "https://hub.docker.com/v2/repositories/${NAMESPACE}/node-base/tags/${TAG}/")
+          if [ "${STATUS}" != "200" ]; then
+            echo "::error::reuse-base is true but ${NAMESPACE}/node-base:${TAG} does not exist on Docker Hub (HTTP ${STATUS})."
+            echo "::error::grid-version/build-date must match a Grid version docker-selenium has already published, or set reuse-base to false to build the base image fresh."
+            exit 1
+          fi
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:

@@ -81,10 +81,19 @@ func (s *Server) StreamIsActive(*pb.ScaledObjectRef, grpc.ServerStreamingServer[
 	return status.Error(codes.Unimplemented, "StreamIsActive is not supported; use KEDA trigger type 'external', not 'external-push'")
 }
 
-// scrapeAndCount queries the Grid and computes the node count for meta, applying
-// the jobScalingStrategy convention: default/custom (and ScaledObjects) report
-// queued requests plus on-going sessions; accurate/eager report queued requests
-// only, to avoid double-counting in-progress work (SeleniumHQ/docker-selenium#3167).
+// scrapeAndCount queries the Grid and computes the node count for meta.
+//
+// On-going sessions are work the Grid is already serving, so whether they belong
+// in the count depends on whether the consumer subtracts already-running work for
+// us. ScaledObjects (HPA), and ScaledJobs using the "default" or "custom"
+// strategy, deduct the running Job count from the desired scale, so on-going
+// sessions cancel out in that deduction and the count must include them for the
+// arithmetic to resolve to the number of *new* Nodes to create. ScaledJobs using
+// "accurate" deduct the pending Job count and "eager" deducts running plus pending
+// (bounded by maxScale); neither re-adds running work, so including on-going
+// sessions double-counts work already in progress and causes runaway Job creation
+// that never scales back down (SeleniumHQ/docker-selenium#3167). Set
+// includeOngoingSessions=false for those two strategies.
 func (s *Server) scrapeAndCount(ctx context.Context, meta *Metadata) (int64, error) {
 	b, err := s.grid.Query(ctx, meta)
 	if err != nil {
@@ -96,10 +105,9 @@ func (s *Server) scrapeAndCount(ctx context.Context, meta *Metadata) (int64, err
 	if err != nil {
 		return 0, err
 	}
-	count := newRequestNodes + onGoingSessions
-	switch meta.JobScalingStrategy {
-	case "accurate", "eager":
-		count = newRequestNodes
+	count := newRequestNodes
+	if meta.IncludeOngoingSessions {
+		count += onGoingSessions
 	}
 	return count, nil
 }

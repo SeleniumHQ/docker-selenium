@@ -23,7 +23,7 @@ type Metadata struct {
 	NodeMaxSessions        int64
 	EnableManagedDownloads bool
 	Capabilities           string
-	JobScalingStrategy     string
+	IncludeOngoingSessions bool
 
 	TargetValue int64
 }
@@ -39,13 +39,6 @@ var envFallbacks = map[string]string{
 	"username":    "SE_USERNAME",
 	"password":    "SE_PASSWORD",
 	"accessToken": "SE_ACCESS_TOKEN",
-}
-
-var validJobScalingStrategies = map[string]struct{}{
-	"default":  {},
-	"custom":   {},
-	"accurate": {},
-	"eager":    {},
 }
 
 // parseMetadata builds a Metadata from the scalerMetadata map KEDA sends and the
@@ -83,7 +76,7 @@ func parseMetadata(scalerMetadata map[string]string, env map[string]string) (*Me
 		TargetValue:            1,
 		NodeMaxSessions:        1,
 		EnableManagedDownloads: true,
-		JobScalingStrategy:     "default",
+		IncludeOngoingSessions: true,
 	}
 
 	meta.URL = lookup("url")
@@ -133,11 +126,12 @@ func parseMetadata(scalerMetadata map[string]string, env map[string]string) (*Me
 		meta.EnableManagedDownloads = b
 	}
 
-	if v := lookup("jobScalingStrategy"); v != "" {
-		if _, ok := validJobScalingStrategies[v]; !ok {
-			return nil, fmt.Errorf("invalid jobScalingStrategy %q, must be one of default, custom, accurate, eager", v)
+	if v := lookup("includeOngoingSessions"); v != "" {
+		b, err := strconv.ParseBool(v)
+		if err != nil {
+			return nil, fmt.Errorf("parsing includeOngoingSessions: %w", err)
 		}
-		meta.JobScalingStrategy = v
+		meta.IncludeOngoingSessions = b
 	}
 
 	if meta.SessionBrowserName == "" {

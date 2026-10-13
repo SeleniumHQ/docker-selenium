@@ -20,7 +20,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-node-kubernetes
-          image: selenium/node-kubernetes:4.46.0-20260707
+          image: selenium/node-kubernetes:4.48.0-20260905
           ports:
             - containerPort: 5555
           env:
@@ -40,6 +40,8 @@ spec:
               value: "10"
             - name: SE_RECORD_VIDEO
               value: "true"
+            - name: SE_NODE_ENABLE_MANAGED_DOWNLOADS
+              value: "true"
           resources:
             requests:
               memory: "512Mi"
@@ -54,8 +56,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /readyz
+            tcpSocket:
               port: 5555
             initialDelaySeconds: 15
             periodSeconds: 10
