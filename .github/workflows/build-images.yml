@@ -30,6 +30,11 @@ on:
         required: false
         type: string
         default: 'false'
+      version:
+        description: 'Specific Selenium version or release tag to use, e.g 4.42.1. Overrides release when set.'
+        required: false
+        type: string
+        default: ''
       force-build:
         description: 'Build even when the change looks image-neutral'
         required: false
@@ -92,6 +97,7 @@ jobs:
         uses: ./.github/actions/get-latest-upstream
         with:
           release: ${{ inputs.release || 'false' }}
+          version: ${{ inputs.version || '' }}
           gh_cli_token: ${{ secrets.GITHUB_TOKEN }}
           authors: ${{ vars.AUTHORS || github.repository_owner }}
 
@@ -130,8 +136,8 @@ jobs:
           # content hash is the same on both sides. Checked against #3228, whose
           # head and squash merge hash identically over these paths. The digest
           # also covers BASE_VERSION, so the two sides match only while they
-          # resolve the same core - which is why `release` is threaded through
-          # from the calling workflow rather than resolved here.
+          # resolve the same core - which is why `release` and `version` are
+          # threaded through from the calling workflow rather than resolved here.
           PATHS="Base Hub Distributor Router Sessions SessionQueue EventBus NodeBase
                  NodeChrome NodeChromium NodeEdge NodeFirefox NodeDocker NodeKubernetes
                  NodeAllBrowsers Standalone StandaloneDocker StandaloneKubernetes Video

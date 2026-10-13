@@ -13,6 +13,11 @@ on:
         required: false
         type: string
         default: 'false'
+      version:
+        description: 'Specific Selenium version or release tag to use, e.g 4.42.1. Overrides release when set.'
+        required: false
+        type: string
+        default: ''
       test-patched-keda:
         description: 'Test patched KEDA (true/false)'
         required: false
@@ -154,6 +159,7 @@ jobs:
     secrets: inherit
     with:
       release: ${{ needs.gate.outputs.release }}
+      version: ${{ inputs.version || '' }}
       # The manual way out of any bad image set: re-run this workflow from the
       # Actions tab with force-build ticked and the tag is rebuilt from source,
       # whatever is in the registry under it.

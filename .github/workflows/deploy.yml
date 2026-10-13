@@ -49,6 +49,7 @@ jobs:
     secrets: inherit
     with:
       release: ${{ github.event.inputs.stable || true }}
+      version: ${{ github.event.inputs.version || '' }}
 
   deploy:
     needs:
