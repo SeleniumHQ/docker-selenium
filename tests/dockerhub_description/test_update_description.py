@@ -212,14 +212,26 @@ class SyncTest(unittest.TestCase):
         self.assertEqual([name for name, _, _ in client.patched], ["video"])
 
 
+# The only literal occurrence of the current release tag in this file - the
+# rest is parsed from it, the same way resolve_versions.py's own `resolve()`
+# parses grid["version"]/major/minor/patch from grid_tag. That way
+# update_tag_in_docs_and_files.sh's tag-rewrite sed (which only ever replaces an
+# exact match of the full tag, never a bare major.minor.patch substring) cannot
+# leave this fixture internally inconsistent the way it did before - see
+# https://github.com/SeleniumHQ/docker-selenium/actions/runs/38405769195/job/115324853452
+GRID_TAG = "4.49.0-20260909"
+GRID_VERSION, _, GRID_DATE = GRID_TAG.rpartition("-")
+GRID_MAJOR, GRID_MINOR, GRID_PATCH = GRID_VERSION.split(".")
+GRID_MAJOR_MINOR = f"{GRID_MAJOR}.{GRID_MINOR}"
+
 VERSIONS = {
     "grid": {
-        "tag": "4.49.0-20260909",
-        "version": "4.48.0",
-        "date": "20260909",
-        "major": "4",
-        "major_minor": "4.48",
-        "patch": "0",
+        "tag": GRID_TAG,
+        "version": GRID_VERSION,
+        "date": GRID_DATE,
+        "major": GRID_MAJOR,
+        "major_minor": GRID_MAJOR_MINOR,
+        "patch": GRID_PATCH,
     },
     "browsers": {
         "chrome": {"browser": "152.0", "driver": "152.0"},
@@ -326,11 +338,11 @@ class SubstituteExampleTest(unittest.TestCase):
     def test_grid_tokens_are_replaced_longest_first(self):
         out, problems = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")
         self.assertEqual(problems, [])
-        self.assertIn("selenium/hub   4.49.0-20260909", out)
-        self.assertIn("selenium/hub   4.48.0\n", out)
-        self.assertIn("selenium/hub   4.48\n", out)
-        self.assertIn("selenium/hub   4\n", out)
-        self.assertIn("Selenium Grid Server 4.48.0, released on 20260909", out)
+        self.assertIn(f"selenium/hub   {GRID_TAG}", out)
+        self.assertIn(f"selenium/hub   {GRID_VERSION}\n", out)
+        self.assertIn(f"selenium/hub   {GRID_MAJOR_MINOR}\n", out)
+        self.assertIn(f"selenium/hub   {GRID_MAJOR}\n", out)
+        self.assertIn(f"Selenium Grid Server {GRID_VERSION}, released on {GRID_DATE}", out)
 
     def test_nothing_outside_the_block_is_touched(self):
         out, _ = ud.substitute_example(GRID_BLOCK, VERSIONS, "hub")

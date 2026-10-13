@@ -19,16 +19,16 @@ dependencies:
   name: jaeger
   condition: tracing.enabled, jaeger.enabled
 - repository: https://prometheus-community.github.io/helm-charts
-  version: ^89.0.0
+  version: ^92.0.0
   name: kube-prometheus-stack
   condition: monitoring.enabled, kube-prometheus-stack.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
-  version: ^0.20.0
+  version: ^0.21.0
   name: postgres
   alias: postgresql
   condition: postgresql.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
-  version: ^0.35.0
+  version: ^0.37.0
   name: redis
   condition: redis.enabled
 maintainers:
