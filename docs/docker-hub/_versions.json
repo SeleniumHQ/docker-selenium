@@ -23,6 +23,10 @@
       "driver": "152.0",
       "browser_full": "152.0.7977.82",
       "driver_full": "152.0.7977.82"
+    },
+    "firefox": {
+      "browser": "156.0",
+      "driver": "0.37"
     }
   }
 }
