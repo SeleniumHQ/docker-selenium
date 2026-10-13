@@ -22,7 +22,7 @@ on:
         description: 'Build date in format YYYYMMDD. Must provide if reusing base image'
         required: false
         type: string
-        default: '20260905'
+        default: '20260909'
       browser-name:
         description: 'Browser name to build. E.g: edge'
         required: true
@@ -121,6 +121,21 @@ jobs:
         run: |
           echo ${GRID_VERSION}
           echo "GRID_VERSION=${GRID_VERSION}" >> "$GITHUB_OUTPUT"
+      # grid-version/build-date can both be non-blank and still wrong - e.g. a
+      # correct grid-version with build-date left at this workflow's own stale
+      # default - so check the registry directly instead of only checking for
+      # blank inputs. See
+      # https://github.com/SeleniumHQ/docker-selenium/actions/runs/38400547199/job/115306752228
+      - name: Validate the base image exists on Docker Hub
+        if: env.REUSE_BASE == 'true'
+        run: |
+          TAG="${GRID_VERSION}-${BUILD_DATE}"
+          STATUS=$(curl -sS -o /dev/null -w "%{http_code}" "https://hub.docker.com/v2/repositories/${NAMESPACE}/node-base/tags/${TAG}/")
+          if [ "${STATUS}" != "200" ]; then
+            echo "::error::reuse-base is true but ${NAMESPACE}/node-base:${TAG} does not exist on Docker Hub (HTTP ${STATUS})."
+            echo "::error::grid-version/build-date must match a Grid version docker-selenium has already published, or set reuse-base to false to build the base image fresh."
+            exit 1
+          fi
       - name: Login Docker Hub
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
