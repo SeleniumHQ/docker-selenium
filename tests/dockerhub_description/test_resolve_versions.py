@@ -8,9 +8,21 @@ spec = importlib.util.spec_from_file_location("resolve_versions", MODULE_PATH)
 rv = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(rv)
 
-CHROME = """```
+# The only literal occurrence of the current release tag in this file - every
+# other version below is parsed from it, the same way resolve_versions.py's own
+# `resolve()` parses grid["version"]/major/minor/patch from grid_tag. That way
+# update_tag_in_docs_and_files.sh's tag-rewrite sed (which only ever replaces an
+# exact match of the full tag, never a bare major.minor.patch substring) cannot
+# leave this file internally inconsistent the way it did before - see
+# https://github.com/SeleniumHQ/docker-selenium/actions/runs/38405769195/job/115324853452
+GRID_TAG = "4.49.0-20260909"
+GRID_VERSION, _, GRID_DATE = GRID_TAG.rpartition("-")
+GRID_MAJOR, GRID_MINOR, GRID_PATCH = GRID_VERSION.split(".")
+GRID_MAJOR_MINOR = f"{GRID_MAJOR}.{GRID_MINOR}"
+
+CHROME = f"""```
 ./tag_and_push_browser_images.sh 4.48.0 20260909 selenium false chrome true
-Selenium Grid version -> 4.49.0-20260909
+Selenium Grid version -> {GRID_TAG}
 Chrome version -> 152.0.7977.82
 Short Chrome version -> 152.0
 ChromeDriver version -> 152.0.7977.82
@@ -18,22 +30,22 @@ Short ChromeDriver version -> 152.0
 ```
 """
 
-FIREFOX = """```
-Selenium Grid version -> 4.49.0-20260909
+FIREFOX = f"""```
+Selenium Grid version -> {GRID_TAG}
 Short Firefox version -> 155.0
 Short GeckoDriver version -> 0.37
 ```
 """
 
-EDGE = """```
-Selenium Grid version -> 4.49.0-20260909
+EDGE = f"""```
+Selenium Grid version -> {GRID_TAG}
 Short Edge version -> 152.0
 Short EdgeDriver version -> 152.0
 ```
 """
 
-CFT = """```
-Selenium Grid version -> 4.49.0-20260909
+CFT = f"""```
+Selenium Grid version -> {GRID_TAG}
 Short Chrome for Testing version -> 152.0
 Short ChromeDriver version -> 152.0
 ```
@@ -46,7 +58,7 @@ class ChangelogTestCase(unittest.TestCase):
         self.root = pathlib.Path(self._tmp.name)
         self.addCleanup(self._tmp.cleanup)
 
-    def changelog(self, version="4.48.0", entries=None):
+    def changelog(self, version=GRID_VERSION, entries=None):
         entries = (
             entries
             if entries is not None
@@ -110,7 +122,7 @@ class ParseChangelogTest(ChangelogTestCase):
         fields = rv.parse_changelog(path)
         self.assertEqual(fields["Chrome"], "152.0")
         self.assertEqual(fields["ChromeDriver"], "152.0")
-        self.assertEqual(fields["grid_tag"], "4.49.0-20260909")
+        self.assertEqual(fields["grid_tag"], GRID_TAG)
 
     def test_prefers_the_short_version_over_the_full_one(self):
         fields = rv.parse_changelog(self._write(CHROME))
@@ -129,16 +141,16 @@ class ResolveTest(ChangelogTestCase):
     def test_resolves_grid_and_every_changelog_browser(self):
         resolved, problems = rv.resolve(self.changelog(), "selenium", skip_chromium=True)
         self.assertEqual(problems, [])
-        self.assertEqual(resolved["release"], "4.48.0")
+        self.assertEqual(resolved["release"], GRID_VERSION)
         self.assertEqual(
             resolved["grid"],
             {
-                "tag": "4.49.0-20260909",
-                "version": "4.48.0",
-                "date": "20260909",
-                "major": "4",
-                "major_minor": "4.48",
-                "patch": "0",
+                "tag": GRID_TAG,
+                "version": GRID_VERSION,
+                "date": GRID_DATE,
+                "major": GRID_MAJOR,
+                "major_minor": GRID_MAJOR_MINOR,
+                "patch": GRID_PATCH,
             },
         )
         self.assertEqual(sorted(resolved["browsers"]), ["chrome", "chrome-for-testing", "edge", "firefox"])

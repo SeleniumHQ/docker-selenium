@@ -116,8 +116,22 @@ jobs:
         run: echo ${GRID_VERSION}
       - name: Sets env var for the next tag
         run: echo "NEXT_TAG=${GRID_VERSION}-${BUILD_DATE}" >> $GITHUB_ENV
+      # git tag --sort=-version:refname picks the lexically/numerically highest
+      # tag across the WHOLE repo, not the most recent release. BUILD_DATE is the
+      # upstream Selenium build date, not docker-selenium's release date, so nothing
+      # keeps it monotonic with release order: 4.48.0-20260909 sorts ahead of
+      # 4.48.0-20260905 even though it shipped a day earlier. That picked
+      # 4.48.0-20260909 as LATEST_TAG for the 4.49.0-20260909 release, which made
+      # update_tag_in_docs_and_files.sh rewrite almost nothing (the real previous
+      # tag was 4.48.0-20260905) and, because its Chart.yaml bump only fires when
+      # LATEST_TAG matches the chart's current appVersion, silently skipped the
+      # Helm chart version bump - so no push to charts/selenium-grid/Chart.yaml,
+      # and helm-chart-release.yml's path filter never triggered.
+      # git describe instead walks commit ancestry from HEAD, so it finds the
+      # nearest reachable tag regardless of how its name sorts - the same
+      # approach nightly.yml already uses successfully.
       - name: Get latest tag
-        run: echo "LATEST_TAG=$(git tag --sort=-version:refname | grep "^[^selenium]" | head -n 1)" >> $GITHUB_ENV
+        run: echo "LATEST_TAG=$(git describe --tags --abbrev=0 --exclude=nightly --exclude='selenium-grid*')" >> $GITHUB_ENV
       - name: Display latest tag
         run: echo ${LATEST_TAG}
       - name: Update tag in docs and files
