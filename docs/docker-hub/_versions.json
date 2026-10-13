@@ -24,6 +24,10 @@
       "browser_full": "152.0.7977.82",
       "driver_full": "152.0.7977.82"
     },
+    "edge": {
+      "browser": "153.0",
+      "driver": "153.0"
+    },
     "firefox": {
       "browser": "156.0",
       "driver": "0.37"
