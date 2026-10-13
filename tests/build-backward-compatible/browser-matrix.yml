@@ -1,21 +1,35 @@
 matrix:
   browser:
+    '158':
+      FIREFOX_VERSION: '158.0'
+      FIREFOX_PLATFORMS: linux/amd64,linux/arm64
+    '157':
+      FIREFOX_VERSION: 157.0.1
+      FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '156':
-      FIREFOX_VERSION: '156.0'
+      FIREFOX_VERSION: 156.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '155':
       FIREFOX_VERSION: 155.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
+      CFT_VERSION: 155.0.8059.39
+      CHROME_VERSION: google-chrome-stable=155.0.8059.39-1
+      CHROME_PLATFORMS: linux/amd64,linux/arm64
+      EDGE_VERSION: microsoft-edge-stable=155.0.4283.45-1
     '154':
       FIREFOX_VERSION: 154.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
+      CFT_VERSION: 154.0.8037.92
+      CHROME_VERSION: google-chrome-stable=154.0.8037.97-1
+      CHROME_PLATFORMS: linux/amd64,linux/arm64
+      EDGE_VERSION: microsoft-edge-stable=154.0.4258.62-1
     '153':
       FIREFOX_VERSION: 153.0.4
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
-      CFT_VERSION: 153.0.8010.47
-      CHROME_VERSION: google-chrome-stable=153.0.8010.47-1
+      CFT_VERSION: 153.0.8010.52
+      CHROME_VERSION: google-chrome-stable=153.0.8010.52-1
       CHROME_PLATFORMS: linux/amd64,linux/arm64
-      EDGE_VERSION: microsoft-edge-stable=153.0.4234.32-1
+      EDGE_VERSION: microsoft-edge-stable=153.0.4234.48-1
     '152':
       FIREFOX_VERSION: 152.0.6
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
