@@ -474,6 +474,12 @@ components:
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Router
     extraEnvFrom: []
+    # -- Extra volume mounts for Router container
+    extraVolumeMounts: []
+    # -- Extra volumes for Router pod
+    extraVolumes: []
+    # -- Init containers for Router pod
+    initContainers: []
     # -- Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -582,6 +588,12 @@ components:
     extraEnvironmentVariables: []
     # -- Specify extra environment variables from ConfigMap and Secret for Distributor
     extraEnvFrom: []
+    # -- Extra volume mounts for Distributor container
+    extraVolumeMounts: []
+    # -- Extra volumes for Distributor pod
+    extraVolumes: []
+    # -- Init containers for Distributor pod
+    initContainers: []
     # -- Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter
     affinity: {}
     # -- Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter
@@ -997,6 +1009,8 @@ hub:
   # - name: logs-volume
   #   persistentVolumeClaim:
   #     claimName: external-logs-pvc
+  # -- Init containers for Hub pod
+  initContainers: []
   # -- Resources for selenium-hub container
   resources:
     requests:

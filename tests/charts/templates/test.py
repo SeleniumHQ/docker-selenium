@@ -570,6 +570,19 @@ class ChartTemplateTests(unittest.TestCase):
         self.assertEqual(count, len(resources_name), "No router deployment found")
 
 
+    def test_extra_volumes_and_init_containers_in_router_and_distributor(self):
+        resources_name = [f'{RELEASE_NAME}selenium-router', f'{RELEASE_NAME}selenium-distributor']
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in resources_name and doc['kind'] == 'Deployment':
+                logger.info(f"Assert extraVolumes, extraVolumeMounts and initContainers are set in {doc['metadata']['name']}")
+                pod_spec = doc['spec']['template']['spec']
+                self.assertIn('fetch-agent', [c['name'] for c in pod_spec['initContainers']])
+                self.assertIn('agent', [v['name'] for v in pod_spec['volumes']])
+                self.assertIn('/agent', [m['mountPath'] for m in pod_spec['containers'][0]['volumeMounts']])
+                count += 1
+        self.assertEqual(count, len(resources_name), "No router or distributor deployment found")
+
 if __name__ == '__main__':
     failed = False
     try:

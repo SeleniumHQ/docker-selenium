@@ -202,6 +202,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.router.disableUI | bool | `false` | Disable the Grid UI |
 | components.router.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Router |
 | components.router.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Router |
+| components.router.extraVolumeMounts | list | `[]` | Extra volume mounts for Router container |
+| components.router.extraVolumes | list | `[]` | Extra volumes for Router pod |
+| components.router.initContainers | list | `[]` | Init containers for Router pod |
 | components.router.affinity | object | `{}` | Specify affinity for router pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.router.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for router pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.router.dnsPolicy | string | `""` | Specify dnsPolicy for router pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
@@ -238,6 +241,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | components.distributor.externalDatastore.redis | object | `{"implementation":"org.openqa.selenium.grid.distributor.redis.RedisBackedDistributor","url":"redis://{{ $.Release.Name }}-redis:6379"}` | Configure Redis backed Distributor |
 | components.distributor.extraEnvironmentVariables | list | `[]` | Specify extra environment variables for Distributor |
 | components.distributor.extraEnvFrom | list | `[]` | Specify extra environment variables from ConfigMap and Secret for Distributor |
+| components.distributor.extraVolumeMounts | list | `[]` | Extra volume mounts for Distributor container |
+| components.distributor.extraVolumes | list | `[]` | Extra volumes for Distributor pod |
+| components.distributor.initContainers | list | `[]` | Init containers for Distributor pod |
 | components.distributor.affinity | object | `{}` | Specify affinity for distributor pods, this overwrites global.seleniumGrid.affinity parameter |
 | components.distributor.topologySpreadConstraints | list | `[]` | Specify topologySpreadConstraints for Distributor pods, this overwrites global.seleniumGrid.topologySpreadConstraints parameter |
 | components.distributor.dnsPolicy | string | `""` | Specify dnsPolicy for Distributor pods, this overwrites global.seleniumGrid.dnsPolicy parameter |
@@ -378,6 +384,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | hub.extraEnvFrom | list | `[]` | Custom environment variables by sourcing entire configMap, Secret, etc. for selenium-hub |
 | hub.extraVolumeMounts | list | `[]` | Extra volume mounts for Hub container |
 | hub.extraVolumes | list | `[]` | Extra volumes for Hub pod |
+| hub.initContainers | list | `[]` | Init containers for Hub pod |
 | hub.resources | object | `{"limits":{"cpu":"1","memory":"2Gi"},"requests":{"cpu":"0.5","memory":"1Gi"}}` | Resources for selenium-hub container |
 | hub.replicas | int | `1` | Number of replicas |
 | hub.securityContext | object | `{}` | SecurityContext for selenium-hub container |
