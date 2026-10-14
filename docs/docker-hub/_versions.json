@@ -10,6 +10,10 @@
     "patch": "0"
   },
   "browsers": {
+    "chrome": {
+      "browser": "155.0",
+      "driver": "155.0"
+    },
     "chrome-for-testing": {
       "browser": "155.0",
       "driver": "155.0"
