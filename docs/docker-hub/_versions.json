@@ -27,6 +27,10 @@
     "edge": {
       "browser": "155.0",
       "driver": "155.0"
+    },
+    "firefox": {
+      "browser": "158.0",
+      "driver": "0.37"
     }
   }
 }
