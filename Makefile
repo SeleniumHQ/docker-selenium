@@ -377,7 +377,7 @@ check_dockerhub_description:
 
 # Reproduce the nightly image scan locally for one image, e.g.
 #   make scan_image_scout IMAGE=base
-#   make scan_image_scout IMAGE=node-chrome TAG=4.50.0-20260909
+#   make scan_image_scout IMAGE=node-chrome TAG=4.50.0-20261010
 # Needs `docker login`; Docker Scout must be enabled for the repository.
 scan_image_scout:
 	docker scout cves --only-fixed --format sarif \

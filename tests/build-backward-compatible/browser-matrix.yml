@@ -12,7 +12,7 @@ matrix:
     '155':
       FIREFOX_VERSION: 155.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
-      CFT_VERSION: 155.0.8059.39
+      CFT_VERSION: 155.0.8059.79
       CHROME_VERSION: google-chrome-stable=155.0.8059.39-1
       CHROME_PLATFORMS: linux/amd64,linux/arm64
       EDGE_VERSION: microsoft-edge-stable=155.0.4283.45-1
@@ -176,24 +176,28 @@ matrix:
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/08/2024-08-05-09-44-37-mozilla-central/firefox-130.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 130.0.6723.116
+      EDGE_VERSION: microsoft-edge-stable=130.0.2849.80-1
     '129':
       CHROME_VERSION: google-chrome-stable=129.0.6668.100-1
       FIREFOX_VERSION: 129.0.2
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/07/2024-07-08-09-36-09-mozilla-central/firefox-129.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 129.0.6668.100
+      EDGE_VERSION: microsoft-edge-stable=129.0.2792.89-1
     '128':
       CHROME_VERSION: google-chrome-stable=128.0.6613.137-1
       FIREFOX_VERSION: 128.0.3
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/06/2024-06-09-20-51-51-mozilla-central/firefox-128.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 128.0.6613.137
+      EDGE_VERSION: microsoft-edge-stable=128.0.2739.79-1
     '127':
       CHROME_VERSION: google-chrome-stable=127.0.6533.119-1
       FIREFOX_VERSION: 127.0.2
       FIREFOX_DOWNLOAD_URL: https://download-installer.cdn.mozilla.net/pub/firefox/nightly/2024/05/2024-05-12-21-26-37-mozilla-central/firefox-127.0a1.en-US.linux-aarch64.deb
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 127.0.6533.119
+      EDGE_VERSION: microsoft-edge-stable=127.0.2651.105-1
     '126':
       EDGE_VERSION: microsoft-edge-stable=126.0.2592.113-1
       CHROME_VERSION: google-chrome-stable=126.0.6478.182-1
@@ -243,10 +247,12 @@ matrix:
       CHROME_VERSION: google-chrome-stable=117.0.5938.149-1
       FIREFOX_VERSION: 117.0.1
       CFT_VERSION: 117.0.5938.149
+      EDGE_VERSION: microsoft-edge-stable=117.0.2045.55-1
     '116':
       CHROME_VERSION: google-chrome-stable=116.0.5845.187-1
       FIREFOX_VERSION: 116.0.3
       CFT_VERSION: 116.0.5845.96
+      EDGE_VERSION: microsoft-edge-stable=116.0.1938.81-1
     '115':
       EDGE_VERSION: microsoft-edge-stable=115.0.1901.203-1
       CHROME_VERSION: google-chrome-stable=115.0.5790.170-1
@@ -319,3 +325,4 @@ matrix:
     '95':
       CHROME_VERSION: google-chrome-stable=95.0.4638.69-1
       FIREFOX_VERSION: 95.0.2
+      EDGE_VERSION: microsoft-edge-stable=95.0.1020.40-1

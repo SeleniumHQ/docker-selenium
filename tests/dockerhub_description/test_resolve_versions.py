@@ -15,13 +15,13 @@ spec.loader.exec_module(rv)
 # exact match of the full tag, never a bare major.minor.patch substring) cannot
 # leave this file internally inconsistent the way it did before - see
 # https://github.com/SeleniumHQ/docker-selenium/actions/runs/38405769195/job/115324853452
-GRID_TAG = "4.49.0-20260909"
+GRID_TAG = "4.50.0-20261010"
 GRID_VERSION, _, GRID_DATE = GRID_TAG.rpartition("-")
 GRID_MAJOR, GRID_MINOR, GRID_PATCH = GRID_VERSION.split(".")
 GRID_MAJOR_MINOR = f"{GRID_MAJOR}.{GRID_MINOR}"
 
 CHROME = f"""```
-./tag_and_push_browser_images.sh 4.48.0 20260909 selenium false chrome true
+./tag_and_push_browser_images.sh 4.48.0 20261010 selenium false chrome true
 Selenium Grid version -> {GRID_TAG}
 Chrome version -> 152.0.7977.82
 Short Chrome version -> 152.0
