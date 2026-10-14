@@ -171,13 +171,13 @@ def main(argv=None):
     parser.add_argument(
         "--grid-tag",
         default=None,
-        help="Grid tag to record, e.g. 4.50.0-20261010. Overrides the CHANGELOG, for use during a "
+        help="Grid tag to record, e.g. 4.51.0-20261010. Overrides the CHANGELOG, for use during a "
         "release when the new CHANGELOG entry does not exist yet.",
     )
     args = parser.parse_args(argv)
 
     if args.grid_tag and not re.fullmatch(r"\d+\.\d+\.\d+-\d{8}", args.grid_tag):
-        print(f"--grid-tag must look like 4.50.0-20261010, got {args.grid_tag!r}", file=sys.stderr)
+        print(f"--grid-tag must look like 4.51.0-20261010, got {args.grid_tag!r}", file=sys.stderr)
         return 1
 
     resolved, problems = resolve(CHANGELOG_DIR, args.namespace, args.skip_chromium, args.grid_tag)

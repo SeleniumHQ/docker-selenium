@@ -122,7 +122,7 @@ jobs:
       # upstream Selenium build date, not docker-selenium's release date, so nothing
       # keeps it monotonic with release order: 4.48.0-20261010 sorts ahead of
       # 4.48.0-20260905 even though it shipped a day earlier. That picked
-      # 4.48.0-20261010 as LATEST_TAG for the 4.50.0-20261010 release, which made
+      # 4.48.0-20261010 as LATEST_TAG for the 4.51.0-20261010 release, which made
       # update_tag_in_docs_and_files.sh rewrite almost nothing (the real previous
       # tag was 4.48.0-20260905) and, because its Chart.yaml bump only fires when
       # LATEST_TAG matches the chart's current appVersion, silently skipped the
