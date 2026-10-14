@@ -13,7 +13,7 @@ matrix:
       FIREFOX_VERSION: 155.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
       CFT_VERSION: 155.0.8059.79
-      CHROME_VERSION: google-chrome-stable=155.0.8059.39-1
+      CHROME_VERSION: google-chrome-stable=155.0.8059.79-1
       CHROME_PLATFORMS: linux/amd64,linux/arm64
       EDGE_VERSION: microsoft-edge-stable=155.0.4283.45-1
     '154':
