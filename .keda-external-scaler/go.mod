@@ -1,6 +1,6 @@
 module github.com/SeleniumHQ/docker-selenium/keda-external-scaler
 
-go 1.27.1
+go 1.27.2
 
 require (
 	github.com/go-logr/logr v1.4.4
@@ -9,8 +9,8 @@ require (
 )
 
 require (
-	golang.org/x/net v0.59.0 // indirect
-	golang.org/x/sys v0.48.0 // indirect
-	golang.org/x/text v0.42.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260911204522-f61a6ca850bd // indirect
+	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20261012220534-4341edf3f941 // indirect
 )

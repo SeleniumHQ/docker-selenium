@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.59.1](https://img.shields.io/badge/Version-0.59.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.48.0-20260905](https://img.shields.io/badge/AppVersion-4.48.0--20260905-informational?style=flat-square)
+![Version: 0.60.0](https://img.shields.io/badge/Version-0.60.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.49.0-20260909](https://img.shields.io/badge/AppVersion-4.49.0--20260909-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -18,11 +18,11 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.20.0 |
-| https://cloudpirates-io.github.io/helm-charts | redis | ^0.35.0 |
+| https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.21.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.36.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
 | https://kedacore.github.io/charts | keda | ^2.20.0 |
-| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^89.0.0 |
+| https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^90.0.0 |
 | https://traefik.github.io/charts | traefik | ^41.0.0 |
 
 ## Values

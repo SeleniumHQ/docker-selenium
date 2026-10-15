@@ -1,3 +1,16 @@
+## :heavy_check_mark: selenium-grid-0.60.0
+
+- Chart is using image tag 4.49.0-20260909
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`b5524b97`](http://github.com/seleniumhq/docker-selenium/commit/b5524b97bbdc09740a4534c54d18078c75a97ca3) - [ci] Fix LATEST_TAG sort picking a stale tag and skipping the chart bump (#3254) :: Viet Nguyen Duc
+- [`d737780f`](http://github.com/seleniumhq/docker-selenium/commit/d737780f467f622fd22e14447039b1a4c1d7d5eb) - Update Helm release redis to ^0.35.0 (#3239) :: renovate[bot]
+- [`770bbc72`](http://github.com/seleniumhq/docker-selenium/commit/770bbc7260b4caf60d88f2cc88b0f1787ce89442) - [ci] Update chart 0.59.1 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.59.1
 
 - Chart is using image tag 4.48.0-20260905
