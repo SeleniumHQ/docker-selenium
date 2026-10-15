@@ -21,10 +21,10 @@ spec:
     metadata:
       labels: *router_labels
       annotations:
-        checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
-        checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
-        checksum/router-configmap: {{ include (print $.Template.BasePath "/router-configmap.yaml") . | sha256sum }}
-        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        checksum/logging-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/logging-configmap.yaml") }}
+        checksum/server-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/server-configmap.yaml") }}
+        checksum/router-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/router-configmap.yaml") }}
+        checksum/secrets: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/secrets.yaml") }}
     {{- with .Values.components.router.annotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
