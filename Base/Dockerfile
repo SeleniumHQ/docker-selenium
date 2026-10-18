@@ -113,8 +113,7 @@ RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
   && ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    cat /etc/timezone \
+    dpkg-reconfigure -f noninteractive tzdata \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========

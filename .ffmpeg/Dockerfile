@@ -10,11 +10,13 @@ ARG GO_VERSION="latest"
 
 USER root
 
+ENV LANG=C.UTF-8
+
 #======================================
 # Install build tools
 #======================================
 ARG TOOLS_DEPS="autoconf automake cmake libfreetype6 gcc build-essential libtool make nasm pkg-config zlib1g-dev numactl \
-libnuma-dev yasm git curl jq wget ca-certificates \
+libnuma-dev yasm git curl jq wget ca-certificates libarchive-tools \
 libx11-dev libxcb1-dev libpulse-dev libasound2-dev"
 
 RUN apt-get update -qqy \
@@ -27,7 +29,9 @@ RUN if [ "${GO_VERSION}" = "latest" ]; then \
         GO_VERSION=$(curl -sk https://go.dev/dl/?mode=json | jq -r '.[0].version'); \
     fi \
     && curl -skLO https://go.dev/dl/${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz \
-    && tar -xf ${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz -C /usr/local \
+    # GNU tar on this base fails under QEMU cross-arch emulation with
+    # "Cannot open: Function not implemented"; bsdtar doesn't hit it.
+    && bsdtar -xf ${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz -C /usr/local \
     && rm -rf ${GO_VERSION}.linux-$(dpkg --print-architecture).tar.gz* \
     && ln -sf /usr/local/go/bin/go /usr/bin/go \
     && go version
