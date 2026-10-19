@@ -90,9 +90,14 @@ if [ "$latest_chart_app_version" == $LATEST_TAG ] && [ "$latest_chart_app_versio
   echo -e "\033[0;32m Updating chart version...\033[0m"
   echo -e "\033[0;32m LATEST_CHART_VERSION -> ${latest_chart_version}\033[0m"
   echo -e "\033[0;32m NEXT_CHART_VERSION -> ${next_chart_version}\033[0m"
+  # sed treats the pattern as a regex, where "." matches any character - an
+  # unescaped chart version like "0.60.0" can match a 6-digit substring deep
+  # inside an unrelated date (it did: "...20260905..." -> "...20.61.05...").
+  # Escape it so only the literal version string can match.
+  latest_chart_version_pattern=$(printf '%s' "$latest_chart_version" | sed 's/[.[\*^$/]/\\&/g')
   # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
-  find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
-  find . \( -type d -name .git -prune \) -o -type f -wholename '*/bug_report.yml' -print0 | xargs -0 sed -i "s/${latest_chart_version}/${next_chart_version}/g"
+  find . \( -type d -name .git -prune \) -o -type f -wholename '*/selenium-grid/Chart.yaml' -print0 | xargs -0 sed -i "s/${latest_chart_version_pattern}/${next_chart_version}/g"
+  find . \( -type d -name .git -prune \) -o -type f -wholename '*/bug_report.yml' -print0 | xargs -0 sed -i "s/${latest_chart_version_pattern}/${next_chart_version}/g"
 fi
 
 git diff | cat
