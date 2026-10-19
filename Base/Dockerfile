@@ -1,4 +1,4 @@
-FROM ubuntu:noble@sha256:c4a8d5503dfb2a3eb8ab5f807da5bc69a85730fb49b5cfca2330194ebcc41c7b
+FROM ubuntu:resolute@sha256:c098726dd9b9733f3e885f8de0ef375206a311b0a317eadc40d347b1115fb944
 ARG AUTHORS=SeleniumHQ
 LABEL authors="${AUTHORS} <docker-selenium@seleniumhq.org>"
 LABEL org.opencontainers.image.source="https://github.com/${AUTHORS}/docker-selenium"
@@ -46,10 +46,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # Miscellaneous packages
 # Includes minimal runtime used for executing non GUI Java programs
 #========================
-#RUN echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" > /etc/apt/sources.list \
-#    && echo "deb-src [arch=amd64] http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse\n" >> /etc/apt/sources.list \
-#    && echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list \
-#    && echo "deb-src [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" >> /etc/apt/sources.list
+#RUN echo "deb [arch=amd64] http://archive.ubuntu.com/ubuntu resolute main restricted universe multiverse\n" > /etc/apt/sources.list \
+#    && echo "deb-src [arch=amd64] http://archive.ubuntu.com/ubuntu resolute main restricted universe multiverse\n" >> /etc/apt/sources.list \
+#    && echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports resolute main restricted universe multiverse" >> /etc/apt/sources.list \
+#    && echo "deb-src [arch=arm64] http://ports.ubuntu.com/ubuntu-ports resolute main restricted universe multiverse" >> /etc/apt/sources.list
 
 RUN apt-get -qqy update \
   && apt-get upgrade -yq \
@@ -90,10 +90,7 @@ RUN --mount=type=secret,id=SEL_PASSWD \
 ENV PATH="$VENV_PATH/bin:$PATH" \
     VIRTUAL_ENV="$VENV_PATH"
 
-RUN gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 \
-    && gpg --export F23C5A6CF475977595C89F51BA6932366A755776 > /usr/share/keyrings/deadsnakes.pgp \
-    && echo "deb [signed-by=/usr/share/keyrings/deadsnakes.pgp] https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu noble main" | tee /etc/apt/sources.list.d/deadsnakes.list \
-    && apt-get -qqy update \
+RUN apt-get -qqy update \
     && apt-get upgrade -yq \
     && apt-get -qqy --no-install-recommends install python${PYTHON_VERSION} python${PYTHON_VERSION}-venv \
     && dpkg-divert --add --rename --divert /usr/bin/python3.distrib /usr/bin/python3 \
@@ -116,8 +113,7 @@ RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
 # Possible alternative: https://github.com/docker/docker/issues/3359#issuecomment-32150214
 #===================
   && ln -fs /usr/share/zoneinfo/${TZ} /etc/localtime && \
-    dpkg-reconfigure -f noninteractive tzdata && \
-    cat /etc/timezone \
+    dpkg-reconfigure -f noninteractive tzdata \
 #==========
 # Selenium & relaxing permissions for OpenShift and other non-sudo environments
 #==========
