@@ -26,14 +26,14 @@ Use trigger type `external`, not `external-push` — the Grid exposes no push si
 The Selenium Grid Helm chart wires this scaler up for you when `autoscaling.enabled=true`; see the chart [configuration](https://github.com/SeleniumHQ/docker-selenium/blob/trunk/charts/selenium-grid/CONFIGURATION.md). To deploy it by hand:
 
 ```bash
-docker pull selenium/keda-external-scaler:4.48.0-20260905
+docker pull selenium/keda-external-scaler:4.51.0-20261010
 ```
 
 ```yaml
 # Deployment (excerpt) — the scaler serves gRPC on :8080
 containers:
   - name: selenium-grid-scaler
-    image: selenium/keda-external-scaler:4.48.0-20260905
+    image: selenium/keda-external-scaler:4.51.0-20261010
     ports:
       - containerPort: 8080
     env:

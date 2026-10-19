@@ -189,7 +189,7 @@ mark_ci_images_complete:
 #
 # Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
 # exact standalone tags of the release being made -
-#   "selenium/standalone-chrome:4.51.0-20260905"
+#   "selenium/standalone-chrome:4.51.0-20261010"
 # - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
 # two images cannot exist before the tag does, nor can the two standalones built
 # FROM them, so those four are still built at release time.
