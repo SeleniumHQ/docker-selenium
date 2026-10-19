@@ -1,5 +1,5 @@
 FROM ubuntu:resolute AS builder
-ARG FFMPEG_VERSION="8.1"
+ARG FFMPEG_VERSION="9.0"
 ARG RCLONE_VER="latest"
 ARG GO_VERSION="latest"
 #ARG GO_CRYPTO_VERSION="v0.36.0"
