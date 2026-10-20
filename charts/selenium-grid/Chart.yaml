@@ -2,12 +2,19 @@ apiVersion: v2
 name: selenium-grid
 description: A Helm chart for creating a Selenium Grid Server in Kubernetes
 type: application
-version: 0.62.1
+version: 0.62.2
 appVersion: 4.51.0-20261010
 icon: https://github.com/SeleniumHQ/docker-selenium/raw/trunk/logo.png
 dependencies:
 - repository: https://kedacore.github.io/charts
-  version: ^2.20.0
+  # 2.21.0 is the first release carrying the built-in selenium-grid scaler's
+  # includeOngoingSessions trigger param (kedacore/keda#8107); below that, the
+  # scalingStrategy.strategy=accurate/eager default this chart ships causes
+  # the runaway Job creation in #3167 whenever the built-in scaler
+  # (autoscaling.externalScaler.enabled=false) is used instead of this
+  # project's external scaler, which has carried the fix on its own since
+  # before this param existed upstream, regardless of the KEDA version.
+  version: ^2.21.0
   name: keda
   condition: autoscaling.enabled, keda.enabled
 - repository: https://traefik.github.io/charts
