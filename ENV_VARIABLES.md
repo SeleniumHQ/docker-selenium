@@ -106,6 +106,8 @@
 | SE_NODE_GRACEFUL_SHUTDOWN |  |  |  |
 | SE_VIDEO_CONTAINER_NAME |  |  |  |
 | SE_RECORD_VIDEO | false |  |  |
+| SE_VIDEO_READY_ENABLED | (derived) | Controls whether `video_ready.py` (the video-readiness HTTP server, `VIDEO_READY_PORT`, default 9000) starts at all. Defaults to `true` whenever `SE_RECORD_VIDEO` or `SE_VIDEO_EVENT_DRIVEN` is `true` - the Node image default (`SE_VIDEO_EVENT_DRIVEN=true`) keeps it running even with `SE_RECORD_VIDEO=false`, so a session can still turn recording on via the `se:recordVideo` capability. Set this directly to `false` to force the server off (e.g. to free the port under `network_mode: host`) regardless of the other two, or `true` to force it on. |  |
+| VIDEO_READY_PORT | 9000 | Port `video_ready.py` listens on for readiness checks |  |
 | SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP | false |  |  |
 | SE_NODE_MAX_SESSIONS | 1 | Set the number of maximum concurrent sessions per browser Node, by default is 1 | --max-sessions |
 | SE_NODE_OVERRIDE_MAX_SESSIONS | false | By default is false, enable this flag for setting max session take effect in browser Node | --override-max-sessions |
