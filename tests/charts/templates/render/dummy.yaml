@@ -153,6 +153,20 @@ components:
     extraEnvironmentVariables:
       - name: SE_JAVA_OPTS
         value: "-Xmx1g"
+    initContainers:
+      - name: fetch-agent
+        image: busybox:1.36
+        command: ["true"]
+        volumeMounts:
+          - name: agent
+            mountPath: /agent
+    extraVolumeMounts:
+      - name: agent
+        mountPath: /agent
+        readOnly: true
+    extraVolumes:
+      - name: agent
+        emptyDir: {}
   distributor:
     newSessionThreadPoolSize: 24
     annotations:
@@ -161,6 +175,20 @@ components:
     extraEnvironmentVariables:
       - name: SE_JAVA_OPTS
         value: "-Xmx2g"
+    initContainers:
+      - name: fetch-agent
+        image: busybox:1.36
+        command: ["true"]
+        volumeMounts:
+          - name: agent
+            mountPath: /agent
+    extraVolumeMounts:
+      - name: agent
+        mountPath: /agent
+        readOnly: true
+    extraVolumes:
+      - name: agent
+        emptyDir: {}
   eventBus:
     annotations:
       "restartOnUpdate": "true"
