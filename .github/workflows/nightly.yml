@@ -164,6 +164,15 @@ jobs:
         run: |
           echo "NEXT_TAG=nightly" >> $GITHUB_ENV
           echo "FILTER_IMAGE_TAG=nightly" >> $GITHUB_ENV
+      # Promoted images only exist in the registries as :nightly, not locally
+      # under the dated tag, so pull them for the version table and image list.
+      - name: Pull promoted nightly images
+        if: steps.publish.outputs.promote == 'true'
+        run: |
+          for image in base node-chrome node-chrome-for-testing node-edge node-firefox node-chromium video; do
+            docker pull "${NAME}/${image}:nightly"
+          done
+          echo "IMAGE_TAG=nightly" >> $GITHUB_ENV
       - name: Create release notes (release_notes.md)
         run: ./generate_release_notes.sh ${LATEST_TAG} origin/trunk ${GRID_VERSION} ${BUILD_DATE}
       - name: Set up Python

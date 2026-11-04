@@ -9,6 +9,13 @@ FFMPEG_TAG_VERSION=$(grep FFMPEG_TAG_VERSION Makefile | sed 's/.*,\([^)]*\))/\1/
 AUTHORS=${AUTHORS:-"SeleniumHQ"}
 
 TAG_VERSION=${GRID_VERSION}-${BUILD_DATE}
+# When images were promoted registry-to-registry (nightly), only the moving tag
+# exists, so IMAGE_TAG=nightly points the version probes at the pulled images.
+VIDEO_TAG_VERSION=${FFMPEG_TAG_VERSION}-${BUILD_DATE}
+if [ -n "${IMAGE_TAG}" ]; then
+  TAG_VERSION=${IMAGE_TAG}
+  VIDEO_TAG_VERSION=${IMAGE_TAG}
+fi
 
 echo "" >>release_notes.md
 echo "### Changelog" >release_notes.md
@@ -22,8 +29,8 @@ CHROMEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-chrome:${TAG_VERSION} c
 EDGEDRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-edge:${TAG_VERSION} msedgedriver --version | awk '{print $4}')
 FIREFOX_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
 GECKODRIVER_VERSION=$(docker run --rm ${NAMESPACE}/node-firefox:${TAG_VERSION} geckodriver --version | awk 'NR==1{print $2}')
-FFMPEG_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} ffmpeg -version | awk '{print $3}' | head -n 1)
-RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${FFMPEG_TAG_VERSION}-${BUILD_DATE} rclone version | head -n 1 | awk '{print $2}' | tr -d 'v')
+FFMPEG_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${VIDEO_TAG_VERSION} ffmpeg -version | awk '{print $3}' | head -n 1)
+RCLONE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/video:${VIDEO_TAG_VERSION} rclone version | head -n 1 | awk '{print $2}' | tr -d 'v')
 JRE_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} java --version | grep -oP '\b\d+\.\d+\.\d+\b' | head -1)
 OS_VERSION=$(docker run --entrypoint="" --rm ${NAMESPACE}/base:${TAG_VERSION} cat /etc/os-release | grep PRETTY_NAME | cut -d '"' -f 2)
 FIREFOX_ARM64_VERSION=$(docker run --rm --platform linux/arm64 ${NAMESPACE}/node-firefox:${TAG_VERSION} firefox --version | awk '{print $3}')
