@@ -1,12 +1,12 @@
 NAME := $(or $(NAME),$(NAME),selenium)
 CURRENT_DATE := $(shell date '+%Y%m%d')
 BUILD_DATE := $(or $(BUILD_DATE),$(BUILD_DATE),$(CURRENT_DATE))
-BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.51.0)
-BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.51.0)
-BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.51.0)
+BASE_RELEASE := $(or $(BASE_RELEASE),$(BASE_RELEASE),selenium-4.52.0)
+BASE_VERSION := $(or $(BASE_VERSION),$(BASE_VERSION),4.52.0)
+BINDING_VERSION := $(or $(BINDING_VERSION),$(BINDING_VERSION),4.52.0)
 BASE_RELEASE_NIGHTLY := $(or $(BASE_RELEASE_NIGHTLY),$(BASE_RELEASE_NIGHTLY),nightly)
-BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.52.0-SNAPSHOT)
-VERSION := $(or $(VERSION),$(VERSION),4.51.0)
+BASE_VERSION_NIGHTLY := $(or $(BASE_VERSION_NIGHTLY),$(BASE_VERSION_NIGHTLY),4.53.0-SNAPSHOT)
+VERSION := $(or $(VERSION),$(VERSION),4.52.0)
 MVN_SELENIUM_VERSION := $(or $(MVN_SELENIUM_VERSION),$(MVN_SELENIUM_VERSION),latest.release)
 TAG_VERSION := $(VERSION)-$(BUILD_DATE)
 CHART_VERSION_NIGHTLY := $(or $(CHART_VERSION_NIGHTLY),$(CHART_VERSION_NIGHTLY),1.0.0-nightly)
@@ -19,13 +19,14 @@ BUILD_ARGS := $(BUILD_ARGS) --progress plain
 MAJOR := $(word 1,$(subst ., ,$(TAG_VERSION)))
 MINOR := $(word 2,$(subst ., ,$(TAG_VERSION)))
 MAJOR_MINOR_PATCH := $(word 1,$(subst -, ,$(TAG_VERSION)))
-FFMPEG_VERSION := $(or $(FFMPEG_VERSION),$(FFMPEG_VERSION),8.1)
+FFMPEG_VERSION := $(or $(FFMPEG_VERSION),$(FFMPEG_VERSION),9.0)
 FFMPEG_TAG_PREV_VERSION := $(or $(FFMPEG_TAG_PREV_VERSION),$(FFMPEG_TAG_PREV_VERSION),ffmpeg-8.1)
 FFMPEG_TAG_VERSION := $(or $(FFMPEG_TAG_VERSION),$(FFMPEG_TAG_VERSION),ffmpeg-8.1)
 FFMPEG_BASED_NAME := $(or $(FFMPEG_BASED_NAME),$(FFMPEG_BASED_NAME),selenium)
 FFMPEG_BASED_TAG := $(or $(FFMPEG_BASED_TAG),$(FFMPEG_BASED_TAG),latest)
 CURRENT_PLATFORM := $(shell if [ `arch` = "aarch64" ] || [ `arch` = "arm64" ]; then echo "linux/arm64"; else echo "linux/amd64"; fi)
 PLATFORMS := $(or $(PLATFORMS),$(shell echo $$PLATFORMS),$(CURRENT_PLATFORM))
+ARCH := $(or $(ARCH),$(ARCH),$(subst linux/,,$(CURRENT_PLATFORM)))
 SEL_PASSWD := $(or $(SEL_PASSWD),$(SEL_PASSWD),secret)
 CHROMIUM_VERSION := $(or $(CHROMIUM_VERSION),$(CHROMIUM_VERSION),latest)
 FIREFOX_DOWNLOAD_URL := $(or $(FIREFOX_DOWNLOAD_URL),$(FIREFOX_DOWNLOAD_URL),)
@@ -188,7 +189,7 @@ mark_ci_images_complete:
 #
 # Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
 # exact standalone tags of the release being made -
-#   "selenium/standalone-chrome:4.51.0-20260905"
+#   "selenium/standalone-chrome:4.52.0-20261010"
 # - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
 # two images cannot exist before the tag does, nor can the two standalones built
 # FROM them, so those four are still built at release time.
@@ -377,7 +378,7 @@ check_dockerhub_description:
 
 # Reproduce the nightly image scan locally for one image, e.g.
 #   make scan_image_scout IMAGE=base
-#   make scan_image_scout IMAGE=node-chrome TAG=4.51.0-20261010
+#   make scan_image_scout IMAGE=node-chrome TAG=4.52.0-20261010
 # Needs `docker login`; Docker Scout must be enabled for the repository.
 scan_image_scout:
 	docker scout cves --only-fixed --format sarif \
@@ -821,10 +822,6 @@ mirror_browser_channel_image_ghcr:
 		--tag $(GHCR_NAMESPACE)/$$image:$(BROWSER_TAG) docker.io/$(NAME)/$$image:$(BROWSER_TAG) ; \
 	done
 
-tag_ffmpeg_latest:
-	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:latest
-	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(NAME)/ffmpeg:$(FFMPEG_VERSION)
-
 tag_latest:
 	docker tag $(NAME)/base:$(TAG_VERSION) $(NAME)/base:latest
 	docker tag $(NAME)/hub:$(TAG_VERSION) $(NAME)/hub:latest
@@ -859,15 +856,31 @@ tag_latest:
 		;; \
 	esac
 
+# One native runner builds amd64, another builds arm64 - no QEMU emulating the
+# other architecture, which used to run past an hour. Each pushes its own
+# single-arch result to GHCR under an arch-suffixed tag so a separate merge job,
+# once both finish, can combine them into one real multi-arch manifest. Same
+# split build-images.yml uses for every other image.
+push_ffmpeg_arch:
+	docker tag $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) $(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)-$(ARCH)
+	docker push $(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)-$(ARCH)
+
+merge_ffmpeg_arch:
+	docker buildx imagetools create -t $(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) \
+		$(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)-amd64 \
+		$(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)-arm64
+
+# The merged manifest already lives on GHCR; retag it there and copy it to
+# Docker Hub under the public release tags, rather than rebuilding or
+# re-pushing any layers.
 release_ffmpeg_latest:
-	docker push $(NAME)/ffmpeg:latest
-	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)
-	docker push $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE)
+	for tag in latest $(FFMPEG_VERSION) $(FFMPEG_VERSION)-$(BUILD_DATE); do \
+		docker buildx imagetools create -t docker.io/$(NAME)/ffmpeg:$$tag $(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) ; \
+	done
 
 release_ffmpeg_ghcr_latest:
-	for tag in latest $(FFMPEG_VERSION) $(FFMPEG_VERSION)-$(BUILD_DATE); do \
-		docker buildx imagetools create \
-		--tag $(GHCR_NAMESPACE)/ffmpeg:$$tag docker.io/$(NAME)/ffmpeg:$$tag ; \
+	for tag in latest $(FFMPEG_VERSION); do \
+		docker buildx imagetools create -t $(GHCR_NAMESPACE)/ffmpeg:$$tag $(GHCR_NAMESPACE)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) ; \
 	done
 
 release_latest:

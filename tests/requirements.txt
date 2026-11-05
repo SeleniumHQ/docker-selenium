@@ -9,4 +9,4 @@ yamllint
 isort
 black
 shfmt-py
-mbake
+mbake>=1.5.0

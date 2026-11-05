@@ -18,67 +18,163 @@ on:
         default: false
 
 jobs:
-  deploy:
-    name: Build and Deploy FFmpeg
+  prepare:
+    name: Prepare build inputs
     runs-on: ubuntu-24.04
-    permissions: write-all
+    outputs:
+      build-date: ${{ steps.vars.outputs.build-date }}
+      ghcr-namespace: ${{ steps.vars.outputs.ghcr-namespace }}
     steps:
+      # A registry reference must be lowercase and the owner is not
+      # (SeleniumHQ); computed once here so every job agrees on the same value.
+      - name: Compute build date and GHCR namespace
+        id: vars
+        env:
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          echo "build-date=$(date '+%Y%m%d')" >> "$GITHUB_OUTPUT"
+          echo "ghcr-namespace=ghcr.io/$(echo "${OWNER}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+  build:
+    # One native runner per architecture, in parallel. Building both on a single
+    # runner means QEMU-emulating arm64, which ran past an hour and, on this
+    # base, hit GNU tar failing under emulation entirely. The repo already uses
+    # ubuntu-24.04-arm for its arm64 tests and for build-images.yml.
+    name: Build ${{ matrix.arch }}
+    needs: prepare
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - arch: amd64
+            os: ubuntu-24.04
+          - arch: arm64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUILD_DATE: ${{ needs.prepare.outputs.build-date }}
+      ARCH: ${{ matrix.arch }}
+      PLATFORMS: linux/${{ matrix.arch }}
+      GHCR_NAMESPACE: ${{ needs.prepare.outputs.ghcr-namespace }}
+    steps:
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Checkout code
         uses: actions/checkout@main
         with:
           persist-credentials: false
           fetch-depth: 0
+
       - name: Set up containerd image store feature
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 10
           max_attempts: 3
-          command: |
-            make setup_dev_env
+          command: make setup_dev_env
+
       - name: Output Docker info
         run: docker info
-      - name: Sets build date
-        run: |
-          echo "BUILD_DATE=$(date '+%Y%m%d')" >> $GITHUB_ENV
-          echo "NAME=${NAMESPACE}" >> $GITHUB_ENV
-          make set_build_multiarch
-          cat .env | xargs -I {} echo {} >> $GITHUB_ENV
-        env:
-          NAMESPACE: ${{ vars.DOCKER_NAMESPACE || 'selenium' }}
-          AUTHORS: ${{ vars.AUTHORS || github.repository_owner }}
-      - name: Build images
+
+      # Native, single platform - no QEMU.
+      - name: Build image
         uses: nick-invision/retry@master
         with:
-          timeout_minutes: 300
+          timeout_minutes: 180
           max_attempts: 2
           retry_wait_seconds: 60
-          command: |
-            PLATFORMS="${PLATFORMS}" make ffmpeg
-            make tag_ffmpeg_latest
+          command: make ffmpeg
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
+
+      - name: Push arch-specific image to GHCR
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 20
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: make push_ffmpeg_arch
+
+  merge:
+    name: Merge into one manifest list
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUILD_DATE: ${{ needs.prepare.outputs.build-date }}
+      GHCR_NAMESPACE: ${{ needs.prepare.outputs.ghcr-namespace }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
+
+      # Retried: a registry blip here used to leave the set half-merged.
+      - name: Merge the architecture tags
+        uses: nick-invision/retry@master
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          retry_wait_seconds: 60
+          command: make merge_ffmpeg_arch
+
+  deploy:
+    name: Deploy release
+    needs: [prepare, merge]
+    if: ${{ github.event.inputs.release == 'true' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUILD_DATE: ${{ needs.prepare.outputs.build-date }}
+      GHCR_NAMESPACE: ${{ needs.prepare.outputs.ghcr-namespace }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+
       - name: Login Docker Hub
-        if: ${{ github.event.inputs.release == 'true' }}
         run: docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
         env:
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Login GitHub Container Registry
-        if: ${{ github.event.inputs.release == 'true' }}
         run: echo "${{ secrets.SELENIUM_CI_TOKEN }}" | docker login ghcr.io -u "${{ secrets.SELENIUM_CI_USERNAME }}" --password-stdin
-      - name: Deploy new images
-        if: ${{ github.event.inputs.release == 'true' }}
+
+      # The merged manifest already lives on GHCR; copy it to Docker Hub rather
+      # than rebuilding or re-pushing any layers.
+      - name: Deploy new images to Docker Hub
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          command: |
-            make release_ffmpeg_latest
-      - name: Mirror images to GHCR
-        if: ${{ github.event.inputs.release == 'true' }}
+          command: make release_ffmpeg_latest
+
+      - name: Tag GHCR latest
         uses: nick-invision/retry@master
         with:
           timeout_minutes: 20
           max_attempts: 5
           retry_wait_seconds: 300
-          command: |
-            GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" make release_ffmpeg_ghcr_latest
+          command: make release_ffmpeg_ghcr_latest

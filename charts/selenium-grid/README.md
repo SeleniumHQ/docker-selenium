@@ -142,6 +142,18 @@ To do this [KEDA](https://keda.sh/docs/latest/scalers/selenium-grid-scaler/) is 
 autoscaling using `autoscaling.enabling` KEDA is installed automatically. To instead use an existing
 installation of KEDA you can enable autoscaling with `autoscaling.enableWithExistingKEDA` instead.
 
+**With an existing KEDA installation and the built-in `selenium-grid` scaler**
+(`autoscaling.externalScaler.enabled: false`), make sure it's **KEDA ≥ 2.21.0**.
+This chart's default `scalingType: job` strategy (`accurate`) relies on the
+built-in scaler honouring the `includeOngoingSessions` trigger parameter this
+chart sets automatically; older KEDA versions silently ignore it and hit the
+runaway Job creation in
+[#3167](https://github.com/SeleniumHQ/docker-selenium/issues/3167). The chart's
+own bundled KEDA subchart dependency already requires `^2.21.0` for this
+reason; this only matters when bringing your own installation. The default
+[external scaler](#use-the-standalone-selenium-grid-external-scaler) isn't
+affected by the KEDA version at all, since it carries this fix itself.
+
 KEDA can scale either with
 [deployments](https://keda.sh/docs/latest/concepts/scaling-deployments/#scaling-of-deployments-and-statefulsets)
 or [jobs](https://keda.sh/docs/latest/concepts/scaling-jobs/) and the charts support both types. This
@@ -154,13 +166,16 @@ Refer to [README](../../.keda/README.md)
 
 ### Use the standalone Selenium Grid external scaler
 
-By default the chart uses KEDA's built-in `selenium-grid` scaler, which is released
-on KEDA's cadence. The chart can instead deploy the standalone
-[Selenium Grid KEDA external scaler](../../.keda-external-scaler/README.md), a gRPC
-scaler owned by this project, so scaling fixes ship with docker-selenium releases.
-Scaling behaviour is identical; only the trigger wiring changes.
+By default (`autoscaling.externalScaler.enabled: true`) the chart deploys the
+standalone [Selenium Grid KEDA external scaler](../../.keda-external-scaler/README.md),
+a gRPC scaler owned by this project, so scaling fixes ship with docker-selenium
+releases instead of waiting on KEDA's own release cadence. Set
+`autoscaling.externalScaler.enabled: false` to use KEDA's built-in
+`selenium-grid` scaler instead - scaling behaviour is identical; only the
+trigger wiring changes.
 
-Enable it with:
+The external scaler is already enabled by default; the example below is for
+reference, or to re-enable it after having set it to `false`:
 
 ```yaml
 autoscaling:
