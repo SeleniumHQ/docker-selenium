@@ -31,6 +31,10 @@ spec:
     spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+    {{- with .Values.components.router.initContainers }}
+      initContainers:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
       containers:
         - name: {{ template "seleniumGrid.router.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.router.imageTag }}
@@ -114,6 +118,9 @@ spec:
               mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
           {{- end }}
+        {{- with .Values.components.router.extraVolumeMounts }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
         {{- if .Values.components.router.startupProbe.enabled }}
           {{- with .Values.components.router.startupProbe }}
           startupProbe:
@@ -217,4 +224,7 @@ spec:
           secret:
             secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
       {{- end }}
+    {{- with .Values.components.router.extraVolumes }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
 {{- end }}
