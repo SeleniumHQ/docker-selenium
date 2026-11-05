@@ -189,7 +189,7 @@ mark_ci_images_complete:
 #
 # Most, not all. NodeDocker/config.toml and NodeKubernetes/config.toml name the
 # exact standalone tags of the release being made -
-#   "selenium/standalone-chrome:4.52.0-20261010"
+#   "selenium/standalone-chrome:4.52.0-20261101"
 # - and update_tag_in_docs_and_files.sh rewrites them as part of tagging. Those
 # two images cannot exist before the tag does, nor can the two standalones built
 # FROM them, so those four are still built at release time.
@@ -378,7 +378,7 @@ check_dockerhub_description:
 
 # Reproduce the nightly image scan locally for one image, e.g.
 #   make scan_image_scout IMAGE=base
-#   make scan_image_scout IMAGE=node-chrome TAG=4.52.0-20261010
+#   make scan_image_scout IMAGE=node-chrome TAG=4.52.0-20261101
 # Needs `docker login`; Docker Scout must be enabled for the repository.
 scan_image_scout:
 	docker scout cves --only-fixed --format sarif \

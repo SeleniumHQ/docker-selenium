@@ -43,9 +43,9 @@ description is published, so the page on Docker Hub shows concrete tags while th
 never goes stale.
 
 **Do not hand-edit the numbers into the Markdown.** `update_tag_in_docs_and_files.sh` rewrites only
-an exact match of the previous release tag, so it can update `4.51.0-20261010` but not the bare
+an exact match of the previous release tag, so it can update `4.52.0-20261101` but not the bare
 `4.48` or `4.48.0` beside it. Pinning them by hand produces blocks that contradict themselves after
-the next release — "Grid Server 4.48.0, released on 20261010".
+the next release — "Grid Server 4.48.0, released on 20261101".
 
 | Placeholder | Source |
 | --- | --- |
@@ -58,7 +58,7 @@ versions change, and the release itself, where the Grid tag changes. To refresh 
 
 ```bash
 make update_dockerhub_versions                          # needs network for chromium only
-make update_dockerhub_versions GRID_TAG=4.49.0-20261010  # pin the Grid tag explicitly
+make update_dockerhub_versions GRID_TAG=4.49.0-20261101  # pin the Grid tag explicitly
 ```
 
 If a placeholder has no value, publishing fails rather than putting `<Major>` on a public page.
