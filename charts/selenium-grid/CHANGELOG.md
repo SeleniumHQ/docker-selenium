@@ -1,3 +1,17 @@
+## :heavy_check_mark: selenium-grid-0.63.0
+
+- Chart is using image tag 4.52.0-20261101
+- Chart is tested on Kubernetes versions: v1.31.14,v1.32.13,v1.33.13,v1.35.8
+- Chart is tested on container runtime Docker versions: 27.5.1,28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.16.4,v3.17.4,v3.18.6,v3.19.5,v3.20.2,v4.1.4
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`edd01ca3`](http://github.com/seleniumhq/docker-selenium/commit/edd01ca35df9abe528d15ed6f01fdfa51a81f277) - [ci] Update tag 4.52.0-20261101 in docs and files :: Selenium CI Bot
+- [`cf94a60b`](http://github.com/seleniumhq/docker-selenium/commit/cf94a60b6077aca717a48eb8abb6b6056567b92a) - [chart] Require KEDA >=2.21.0 so the built-in scaler honors includeOngoingSessions (#3278) :: Viet Nguyen Duc
+- [`a9e582c3`](http://github.com/seleniumhq/docker-selenium/commit/a9e582c3e61d5db1c64967bf9b40470cffc15118) - Update Helm release redis to ^0.38.0 (#3283) :: renovate[bot]
+- [`7d9aaf4c`](http://github.com/seleniumhq/docker-selenium/commit/7d9aaf4cd13f119dce64eb258d665149131de011) - [ci] Update chart 0.62.1 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.62.1
 
 - Chart is using image tag 4.51.0-20261010
