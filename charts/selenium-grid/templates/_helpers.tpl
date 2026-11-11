@@ -176,6 +176,13 @@ Is ingress enabled
 {{- end -}}
 
 {{/*
+Is HTTPRoute used to expose Grid externally (only when ingress is disabled and a hostname is set)
+*/}}
+{{- define "seleniumGrid.httpRoute.external" -}}
+{{- and (ne (include "seleniumGrid.ingress.enabled" $) "true") .Values.httpRoute.enabled (not (empty .Values.httpRoute.hostnames)) | ternary "true" "" -}}
+{{- end -}}
+
+{{/*
 Is monitoring enabled
 */}}
 {{- define "seleniumGrid.monitoring.enabled" -}}
@@ -839,6 +846,9 @@ Graphql Url for internal monitoring exporter
 {{- if or (eq (include "seleniumGrid.server.secureConnection" $) "true") (eq (include "seleniumGrid.ingress.secureConnection" $) "true") -}}
   {{- $schema = "https" -}}
 {{- end -}}
+{{- if eq (include "seleniumGrid.httpRoute.external" $) "true" -}}
+  {{- $schema = default "https" .Values.httpRoute.scheme -}}
+{{- end -}}
 {{- $schema }}
 {{- end -}}
 
@@ -866,6 +876,8 @@ Graphql Url for internal monitoring exporter
   {{- else if and .Values.ingress.hostname (ne (tpl .Values.ingress.hostname $) "selenium-grid.local") -}}
     {{- $host = (tpl .Values.ingress.hostname $) -}}
   {{- end -}}
+{{- else if eq (include "seleniumGrid.httpRoute.external" $) "true" -}}
+  {{- $host = tpl (first .Values.httpRoute.hostnames) $ -}}
 {{- else if .Values.global.K8S_PUBLIC_IP -}}
   {{- $host = .Values.global.K8S_PUBLIC_IP -}}
 {{- end -}}
@@ -879,7 +891,12 @@ Graphql Url for internal monitoring exporter
 
 {{- define "seleniumGrid.url.port" -}}
 {{- $port := ":4444" -}}
-{{- if eq (include "seleniumGrid.ingress.enabled" $) "true" -}}
+{{- if eq (include "seleniumGrid.httpRoute.external" $) "true" -}}
+  {{- $port = "" -}}
+  {{- with .Values.httpRoute.port -}}
+    {{- $port = printf ":%v" . -}}
+  {{- end -}}
+{{- else if eq (include "seleniumGrid.ingress.enabled" $) "true" -}}
   {{- if or (ne (.Values.ingress.ports.http | toString) "80") (ne (.Values.ingress.ports.https | toString) "443") -}}
     {{- $port = printf ":%s" (ternary (.Values.ingress.ports.http | toString) (.Values.ingress.ports.https | toString) (eq (include "seleniumGrid.url.schema" .) "http")) -}}
   {{- else if and .Values.ingress.hostname (eq (tpl .Values.ingress.hostname $) "selenium-grid.local") }}

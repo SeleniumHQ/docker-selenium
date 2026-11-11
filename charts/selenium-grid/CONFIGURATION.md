@@ -124,6 +124,17 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | ingress.pathType | string | `"Prefix"` | Default path type for the ingress resource |
 | ingress.paths | list | `[]` | List of paths for the ingress resource. This will override the default path |
 | ingress.tls | list | `[]` | TLS backend configuration for ingress resource |
+| httpRoute.enabled | bool | `false` | Enable to create HTTPRoute resource |
+| httpRoute.nameOverride | string | `nil` | Override name of the HTTPRoute resource |
+| httpRoute.annotations | object | `{}` | Custom annotations for HTTPRoute resource |
+| httpRoute.labels | object | `{}` | Custom labels for HTTPRoute resource |
+| httpRoute.parentRefs | list | `[]` | Gateways this route attaches to (e.g. `[{name: my-gateway, namespace: gateway-ns, sectionName: https}]`) |
+| httpRoute.hostnames | list | `[]` | Hostnames for the HTTPRoute. The first one is used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.scheme | string | `"https"` | Scheme exposed by the Gateway listener. Used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.port | string | `""` | Port exposed by the Gateway listener. Empty means default port of the scheme. Used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.timeouts | object | `{}` | Timeouts for the default rule (e.g. `{request: 3600s, backendRequest: 3600s}`) |
+| httpRoute.filters | list | `[]` | Filters for the default rule |
+| httpRoute.rules | list | `[]` | List of rules for the HTTPRoute. This will override the default rule |
 | busConfigMap.nameOverride | string | `nil` | Override the name of the bus configMap |
 | busConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | busConfigMap.annotations | object | `{}` | Custom annotations for configmap |
