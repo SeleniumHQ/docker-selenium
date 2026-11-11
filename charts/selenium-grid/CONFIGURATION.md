@@ -1,6 +1,6 @@
 # selenium-grid
 
-![Version: 0.63.0](https://img.shields.io/badge/Version-0.63.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.52.0-20261101](https://img.shields.io/badge/AppVersion-4.52.0--20261101-informational?style=flat-square)
+![Version: 0.62.0](https://img.shields.io/badge/Version-0.62.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 4.51.0-20261010](https://img.shields.io/badge/AppVersion-4.51.0--20261010-informational?style=flat-square)
 
 A Helm chart for creating a Selenium Grid Server in Kubernetes
 
@@ -19,9 +19,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | Repository | Name | Version |
 |------------|------|---------|
 | https://cloudpirates-io.github.io/helm-charts | postgresql(postgres) | ^0.21.0 |
-| https://cloudpirates-io.github.io/helm-charts | redis | ^0.38.0 |
+| https://cloudpirates-io.github.io/helm-charts | redis | ^0.37.0 |
 | https://jaegertracing.github.io/helm-charts | jaeger | ^4.0.0 |
-| https://kedacore.github.io/charts | keda | ^2.21.0 |
+| https://kedacore.github.io/charts | keda | ^2.20.0 |
 | https://prometheus-community.github.io/helm-charts | kube-prometheus-stack | ^92.0.0 |
 | https://traefik.github.io/charts | traefik | ^42.0.0 |
 
@@ -31,9 +31,9 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 |-----|------|---------|-------------|
 | global.K8S_PUBLIC_IP | string | `""` | Public IP of the host running Kubernetes cluster. This is used to access the Selenium Grid from outside the cluster when ingress is disabled or enabled without a hostname is set. This is part of constructing SE_NODE_GRID_URL and rewrite URL of `se:vnc`, `se:cdp` in the capabilities when `ingress.hostname` is unset |
 | global.seleniumGrid.imageRegistry | string | `"selenium"` | Image registry for all selenium components |
-| global.seleniumGrid.imageTag | string | `"4.52.0-20261101"` | Image tag for all selenium components |
-| global.seleniumGrid.nodesImageTag | string | `"4.52.0-20261101"` | Image tag for browser's nodes |
-| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20261101"` | Image tag for browser's video recorder |
+| global.seleniumGrid.imageTag | string | `"4.51.0-20261010"` | Image tag for all selenium components |
+| global.seleniumGrid.nodesImageTag | string | `"4.51.0-20261010"` | Image tag for browser's nodes |
+| global.seleniumGrid.videoImageTag | string | `"ffmpeg-8.1-20261010"` | Image tag for browser's video recorder |
 | global.seleniumGrid.kubectlImage | string | `"bitnamilegacy/kubectl:latest"` | kubectl image is used to execute kubectl commands in utility jobs |
 | global.seleniumGrid.imagePullSecret | string | `""` | Pull secret for all components, can be overridden individually |
 | global.seleniumGrid.logLevel | string | `"INFO"` | Log level for all components. Possible values describe here: https://www.selenium.dev/documentation/grid/configuration/cli_options/#logging |
@@ -124,6 +124,17 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | ingress.pathType | string | `"Prefix"` | Default path type for the ingress resource |
 | ingress.paths | list | `[]` | List of paths for the ingress resource. This will override the default path |
 | ingress.tls | list | `[]` | TLS backend configuration for ingress resource |
+| httpRoute.enabled | bool | `false` | Enable to create HTTPRoute resource |
+| httpRoute.nameOverride | string | `nil` | Override name of the HTTPRoute resource |
+| httpRoute.annotations | object | `{}` | Custom annotations for HTTPRoute resource |
+| httpRoute.labels | object | `{}` | Custom labels for HTTPRoute resource |
+| httpRoute.parentRefs | list | `[]` | Gateways this route attaches to (e.g. `[{name: my-gateway, namespace: gateway-ns, sectionName: https}]`) |
+| httpRoute.hostnames | list | `[]` | Hostnames for the HTTPRoute. The first one is used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.scheme | string | `"https"` | Scheme exposed by the Gateway listener. Used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.port | string | `""` | Port exposed by the Gateway listener. Empty means default port of the scheme. Used to construct SE_NODE_GRID_URL when ingress is disabled |
+| httpRoute.timeouts | object | `{}` | Timeouts for the default rule (e.g. `{request: 3600s, backendRequest: 3600s}`) |
+| httpRoute.filters | list | `[]` | Filters for the default rule |
+| httpRoute.rules | list | `[]` | List of rules for the HTTPRoute. This will override the default rule |
 | busConfigMap.nameOverride | string | `nil` | Override the name of the bus configMap |
 | busConfigMap.data | object | `{"SE_JAVA_OPTS":"-XX:+UseG1GC -XX:MaxGCPauseMillis=1000 -XX:MaxRAMPercentage=100"}` | Override or add extra data to the ConfigMap. The property that appears last within the ConfigMap overwrites any preceding values |
 | busConfigMap.annotations | object | `{}` | Custom annotations for configmap |
