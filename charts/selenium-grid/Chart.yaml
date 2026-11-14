@@ -35,7 +35,7 @@ dependencies:
   alias: postgresql
   condition: postgresql.enabled
 - repository: https://cloudpirates-io.github.io/helm-charts
-  version: ^0.38.0
+  version: ^0.39.0
   name: redis
   condition: redis.enabled
 maintainers:
