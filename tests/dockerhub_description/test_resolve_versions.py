@@ -2,6 +2,7 @@ import importlib.util
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 MODULE_PATH = pathlib.Path(__file__).parents[2] / "scripts" / "dockerhub_description" / "resolve_versions.py"
 spec = importlib.util.spec_from_file_location("resolve_versions", MODULE_PATH)
@@ -177,3 +178,57 @@ class ResolveTest(ChangelogTestCase):
         resolved, problems = rv.resolve(root, "selenium", skip_chromium=True)
         self.assertIsNone(resolved)
         self.assertTrue(any("Selenium Grid version" in p for p in problems))
+
+
+class EdgeVersionsTest(ChangelogTestCase):
+    NO_EDGE = {"chrome_152.md": CHROME, "chrome-for-testing_152.md": CFT, "firefox_155.md": FIREFOX}
+    TAGS = [
+        "beta",
+        "dev",
+        f"99.0-edgedriver-99.0-grid-{GRID_TAG}",
+        f"156.0-edgedriver-156.0-{GRID_DATE}",
+        f"156.0.4314.58-edgedriver-156.0.4314.58-grid-{GRID_TAG}",
+        f"155.0-edgedriver-155.1-grid-{GRID_TAG}",
+    ]
+
+    def test_picks_the_highest_browser_version_with_a_grid_tag(self):
+        with mock.patch.object(rv, "_hub_tags", return_value=self.TAGS):
+            self.assertEqual(rv.edge_versions("selenium"), {"browser": "155.0", "driver": "155.1"})
+
+    def test_raises_when_no_tag_matches(self):
+        with mock.patch.object(rv, "_hub_tags", return_value=["beta", "dev"]):
+            with self.assertRaisesRegex(RuntimeError, "node-edge"):
+                rv.edge_versions("selenium")
+
+    def test_missing_edge_changelog_uses_the_registry(self):
+        root = self.changelog(entries=self.NO_EDGE)
+        with mock.patch.object(rv, "_hub_tags", return_value=self.TAGS), mock.patch.object(
+            rv, "chromium_versions", return_value={"browser": "152.0", "driver": "152.0"}
+        ):
+            resolved, problems = rv.resolve(root, "selenium")
+        self.assertEqual(problems, [])
+        self.assertEqual(resolved["browsers"]["edge"], {"browser": "155.0", "driver": "155.1"})
+
+    def test_edge_changelog_wins_over_the_registry(self):
+        with mock.patch.object(rv, "_hub_tags", return_value=self.TAGS) as hub_tags, mock.patch.object(
+            rv, "chromium_versions", return_value={"browser": "152.0", "driver": "152.0"}
+        ):
+            resolved, problems = rv.resolve(self.changelog(), "selenium")
+        self.assertEqual(problems, [])
+        self.assertEqual(resolved["browsers"]["edge"], {"browser": "152.0", "driver": "152.0"})
+        hub_tags.assert_not_called()
+
+    def test_registry_failure_is_reported_without_aborting(self):
+        root = self.changelog(entries=self.NO_EDGE)
+        with mock.patch.object(rv, "_hub_tags", side_effect=OSError("offline")):
+            resolved, problems = rv.resolve(root, "selenium", skip_chromium=False)
+        self.assertNotIn("edge", resolved["browsers"])
+        self.assertTrue(any(p.startswith("edge:") and "offline" in p for p in problems))
+
+    def test_skip_chromium_does_not_contact_the_registry_for_edge(self):
+        root = self.changelog(entries=self.NO_EDGE)
+        with mock.patch.object(rv, "_hub_tags") as hub_tags:
+            resolved, problems = rv.resolve(root, "selenium", skip_chromium=True)
+        hub_tags.assert_not_called()
+        self.assertNotIn("edge", resolved["browsers"])
+        self.assertEqual(len(problems), 1)
