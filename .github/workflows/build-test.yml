@@ -84,14 +84,16 @@ jobs:
       - name: Lint format
         run: make lint_format_scripts
 
-  # Two decisions the whole run keys on, made once and in a shell rather than in
-  # an expression, because neither can be expressed correctly inline.
+  # The decisions the whole run keys on, made once and in a shell rather than in
+  # an expression, because none can be expressed correctly inline.
   gate:
     name: Decide what this run does
     runs-on: ubuntu-24.04
     outputs:
       release: ${{ steps.gate.outputs.release }}
       skip-tests: ${{ steps.gate.outputs.skip-tests }}
+      run-docker-tests: ${{ steps.select.outputs.run-docker-tests }}
+      run-k8s-tests: ${{ steps.select.outputs.run-k8s-tests }}
     steps:
       - name: Decide
         id: gate
@@ -138,6 +140,40 @@ jobs:
           print(f"skip-tests={'true' if skip else 'false'}")
           PY
           echo "skip-tests decided from ${EVENT}"
+      - name: Checkout code
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@main
+        with:
+          persist-credentials: false
+      # Only a pull request narrows the suite, from the files it changes. Trunk,
+      # nightly and release runs always test everything, and so does a pull request
+      # whose changed files cannot be read.
+      - name: Select tests for the changed files
+        id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          EXPECTED_FILES: ${{ github.event.pull_request.changed_files }}
+        run: |
+          selection=""
+          if [ "${EVENT}" = "pull_request" ]; then
+            selection="$(gh api --paginate "repos/${REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+              --jq '.[] | [.filename, .previous_filename // empty] | @tsv' \
+              | python3 scripts/ci/select_pr_tests.py --expected-files "${EXPECTED_FILES}")" || selection=""
+          fi
+          if [ -z "${selection}" ]; then
+            selection=$'run-docker-tests=true\nrun-k8s-tests=true'
+          fi
+          echo "${selection}" | tee -a "$GITHUB_OUTPUT"
+          {
+            echo "### Tests selected for this run"
+            echo
+            echo '```'
+            echo "${selection}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   build-images:
     needs: [lint-format, gate]
@@ -155,7 +191,7 @@ jobs:
 
   docker-test:
     needs: [lint-format, gate, build-images]
-    if: needs.gate.outputs.skip-tests == 'false'
+    if: needs.gate.outputs.skip-tests == 'false' && needs.gate.outputs.run-docker-tests == 'true'
     name: Test Selenium Grid on Docker
     uses: ./.github/workflows/docker-test.yml
     secrets: inherit
@@ -167,7 +203,7 @@ jobs:
 
   helm-chart-test:
     needs: [lint-format, gate, build-images]
-    if: needs.gate.outputs.skip-tests == 'false'
+    if: needs.gate.outputs.skip-tests == 'false' && needs.gate.outputs.run-k8s-tests == 'true'
     name: Test Selenium Grid on Kubernetes
     uses: ./.github/workflows/helm-chart-test.yml
     secrets: inherit
@@ -180,7 +216,7 @@ jobs:
 
   k8s-dynamic-grid-test:
     needs: [lint-format, gate, build-images]
-    if: needs.gate.outputs.skip-tests == 'false'
+    if: needs.gate.outputs.skip-tests == 'false' && needs.gate.outputs.run-k8s-tests == 'true'
     name: Test Dynamic Grid on Kubernetes
     uses: ./.github/workflows/k8s-dynamic-grid-test.yml
     secrets: inherit
