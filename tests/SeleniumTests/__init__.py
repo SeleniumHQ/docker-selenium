@@ -29,8 +29,6 @@ WEB_DRIVER_WAIT_TIMEOUT = int(os.environ.get('WEB_DRIVER_WAIT_TIMEOUT', 60))
 TEST_PARALLEL_HARDENING = os.environ.get('TEST_PARALLEL_HARDENING', 'false').lower() == 'true'
 TEST_PARALLEL_COUNT = int(os.environ.get('TEST_PARALLEL_COUNT', 5))
 TEST_DELAY_AFTER_TEST = int(os.environ.get('TEST_DELAY_AFTER_TEST', 0))
-TEST_NODE_RELAY = os.environ.get('TEST_NODE_RELAY', 'false')
-TEST_ANDROID_PLATFORM_API = os.environ.get('ANDROID_PLATFORM_API')
 TEST_PLATFORMS = os.environ.get('TEST_PLATFORMS', 'linux/amd64')
 TEST_FIREFOX_INSTALL_LANG_PACKAGE = os.environ.get('TEST_FIREFOX_INSTALL_LANG_PACKAGE', 'false').lower() == 'true'
 TEST_ADD_CAPS_RECORD_VIDEO = os.environ.get('TEST_ADD_CAPS_RECORD_VIDEO', 'true').lower() == 'true'
@@ -63,9 +61,6 @@ CLIENT_CONFIG = ClientConfig(
     password=SELENIUM_GRID_PASSWORD,
     ca_certs=CHART_CERT_PATH,
 )
-
-if TEST_NODE_RELAY == 'Android':
-    time.sleep(90)
 
 
 class SeleniumGenericTests(unittest.TestCase):
@@ -123,8 +118,6 @@ class SeleniumGenericTests(unittest.TestCase):
     def test_upload_file(self):
         driver = self.driver
         # LocalFileDetector transfers the client-side file to the machine running the browser.
-        if TEST_NODE_RELAY == 'Android':
-            self.skipTest("HTML file upload via LocalFileDetector is not applicable to the Android emulator relay")
         driver.file_detector = LocalFileDetector()
         upload_dir = tempfile.mkdtemp()
         file_name = 'selenium-upload.txt'
@@ -211,17 +204,6 @@ class ChromeTests(SeleniumGenericTests):
                 if browser_version:
                     options.set_capability('browserVersion', browser_version)
                 options.set_capability('platformName', LIST_PLATFORMS[0])
-            if TEST_NODE_RELAY == 'Android':
-                options.set_capability('platformName', TEST_NODE_RELAY)
-                options.set_capability('appium:platformVersion', TEST_ANDROID_PLATFORM_API)
-                options.set_capability('appium:deviceName', 'emulator-5554')
-                options.set_capability('appium:automationName', 'uiautomator2')
-                options.set_capability('appium:browserName', 'chrome')
-                options.set_capability('appium:adbExecTimeout', 120000)
-                options.set_capability('appium:uiautomator2ServerInstallTimeout', 120000)
-                options.set_capability('appium:appWaitDuration', 120000)
-                options.set_capability('appium:suppressKillServer', True)
-                options.set_capability('appium:allowDelayAdb', False)
             if TEST_MULTIPLE_PLATFORMS:
                 platform_name = random.choice(LIST_PLATFORMS)
                 if platform_name:
