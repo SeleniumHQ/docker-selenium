@@ -1491,7 +1491,7 @@ test_node_relay: hub node_base standalone_firefox
 		envsubst < relay_config.toml > ./videos/relay_config.toml ; \
 		DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile relay-config-$$relay_config -f docker-compose-v3-test-node-relay.yml up --remove-orphans --no-log-prefix --build --exit-code-from tests ; \
 		if [ $$? -ne 0 ]; then exit 1; fi ; \
-	done
+		done
 
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \
