@@ -128,7 +128,8 @@ traefik:
     websecure:
       hostPort: 443
   service:
-    type: LoadBalancer
+    spec:
+      type: LoadBalancer
   tlsStore:
     default:
       defaultCertificate:
