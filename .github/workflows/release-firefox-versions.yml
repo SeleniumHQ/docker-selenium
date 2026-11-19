@@ -31,7 +31,7 @@ on:
       browser-versions:
         description: 'List browser version to build. E.g: [130, 131]'
         required: true
-        default: '[98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]'
+        default: '[98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159]'
       push-image:
         description: 'Push image after testing successfully'
         required: true
@@ -177,14 +177,17 @@ jobs:
             FIREFOX_VERSION=${FIREFOX_VERSION} make test_firefox_standalone \
             && make test_firefox_standalone_java
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
+        id: push
         if: env.PUSH_IMAGE == 'true'
         run: |
           ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE} true true
       - name: Mirror images to GHCR
         if: env.PUSH_IMAGE == 'true'
         run: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" BROWSER_NAME="${BROWSER_NAME}" make mirror_browser_images_ghcr
+      # The changelog file is written during the build, so upload it only after
+      # the images were pushed. A version that fails its tests or push gets no entry.
       - name: Upload changelog
-        if: always()
+        if: always() && steps.push.outcome == 'success'
         uses: actions/upload-artifact@main
         with:
           name: image_tags_${{ env.GRID_VERSION }}_${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}
@@ -192,7 +195,9 @@ jobs:
           if-no-files-found: ignore
 
   pr-results:
-    if: (!failure() && !cancelled() && (github.event.inputs.pr-changelog == 'true'))
+    # Runs even when some browser versions fail, so the versions that were built
+    # and pushed still get their CHANGELOG entries.
+    if: (!cancelled() && needs.deploy.outputs.GRID_VERSION != '' && (github.event.inputs.pr-changelog == 'true'))
     uses: ./.github/workflows/create-changelog-pr.yml
     needs: deploy
     with:
