@@ -63,30 +63,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Every scenario runs on the newest supported Kubernetes and Helm versions.
+        # One job runs on the oldest supported versions, see "Supported versions"
+        # in charts/selenium-grid/README.md.
         include:
-          - k8s-version: 'v1.35.8'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.20.2'
+            helm-version: 'v4.3.2'
             docker-version: '29.1.1'
-            python-version: '3.10'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: disabled
-          - k8s-version: 'v1.35.8'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.19.5'
+            helm-version: 'v4.3.2'
             docker-version: '29.1.1'
-            python-version: '3.10'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job
-          - k8s-version: 'v1.35.8'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v4.1.4'
+            helm-version: 'v4.3.2'
             docker-version: '29.1.1'
             python-version: '3.14'
             test-upgrade: true
@@ -94,62 +97,60 @@ jobs:
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: deployment
-          - k8s-version: 'v1.31.14'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.16.4'
-            docker-version: '27.5.1'
-            python-version: '3.11'
+            helm-version: 'v4.3.2'
+            docker-version: '29.1.1'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job_https
-          - k8s-version: 'v1.31.14'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.16.4'
-            docker-version: '27.5.1'
-            python-version: '3.12'
+            helm-version: 'v4.3.2'
+            docker-version: '29.1.1'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: job_hostname
-          - k8s-version: 'v1.32.13'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.17.4'
-            docker-version: '27.5.1'
-            python-version: '3.13'
+            helm-version: 'v4.3.2'
+            docker-version: '29.1.1'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: deployment_https
-          - k8s-version: 'v1.33.13'
+          - k8s-version: 'v1.37.2'
             cluster: 'minikube'
-            helm-version: 'v3.18.6'
-            docker-version: '28.5.2'
-            python-version: '3.10'
+            helm-version: 'v4.3.2'
+            docker-version: '29.1.1'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
             check-records-output: true
             test-strategy: playwright_connect_grid
-          - k8s-version: 'v1.33.13'
+          - k8s-version: 'v1.34.13'
             cluster: 'minikube'
-            helm-version: 'v3.19.5'
+            helm-version: 'v3.22.1'
             docker-version: '28.5.2'
-            python-version: '3.10'
+            python-version: '3.14'
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: false
-            test-strategy: job_externalScaler
-            external-scaler: true
+            check-records-output: true
+            test-strategy: job
     env:
       CLUSTER: ${{ matrix.cluster }}
       KUBERNETES_VERSION: ${{ matrix.k8s-version }}
-      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}${{ matrix.external-scaler && '-external-scaler' || '' }}"
-      TEST_EXTERNAL_SCALER: ${{ matrix.external-scaler }}
+      ARTIFACT_NAME: "${{ matrix.k8s-version }}-${{ matrix.test-strategy }}"
       HELM_VERSION: ${{ matrix.helm-version }}
       DOCKER_VERSION: ${{ matrix.docker-version }}
       TEST_UPGRADE_CHART: ${{ matrix.test-upgrade }}

@@ -7,6 +7,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
 * [Selenium-Grid Helm Chart](#selenium-grid-helm-chart)
   * [Contents](#contents)
   * [Introduction](#introduction)
+  * [Supported versions](#supported-versions)
   * [Installing the chart](#installing-the-chart)
     * [Installing the Nightly chart](#installing-the-nightly-chart)
     * [Chart Release Name convention](#chart-release-name-convention)
@@ -61,6 +62,18 @@ We offer a Helm chart to simplify the deployment of Selenium Grid Docker images 
 - Chart changes are tracked in [CHANGELOG](CHANGELOG.md).
 - Sanity/Regression tests for the chart features are tracked in [TESTING](TESTING.md).
 - There are some reference values file that used to test and deploy Selenium Grid chart. You can find them in [tests/charts/refValues](../../tests/charts/refValues) and [tests/charts/ci](../../tests/charts/ci).
+
+## Supported versions
+
+The chart is tested in CI against these versions:
+
+| Tool       | Supported                                  | Tested in CI                    |
+|------------|--------------------------------------------|---------------------------------|
+| Kubernetes | The latest four minor releases (1.34–1.37) | 1.37 (all scenarios), 1.34      |
+| Helm       | Helm 4, and the latest Helm 3 release      | 4.3 (all scenarios), 3.22       |
+
+When a new Kubernetes minor version is released, the oldest one is dropped from this list.
+Older versions may still work, but they are not tested.
 
 ## Installing the chart
 
