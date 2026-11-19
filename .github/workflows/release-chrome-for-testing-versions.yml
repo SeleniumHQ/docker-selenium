@@ -177,14 +177,17 @@ jobs:
             make test_chrome-for-testing_standalone \
             && make test_chrome-for-testing_standalone_java
       - name: Push images with Grid core ${{ env.GRID_VERSION }} and ${{ env.BROWSER_NAME }} v${{ env.BROWSER_VERSION }}
+        id: push
         if: env.PUSH_IMAGE == 'true'
         run: |
           ./tests/build-backward-compatible/bootstrap.sh ${GRID_VERSION} ${BROWSER_VERSION} ${BROWSER_NAME} ${REUSE_BASE} true true
       - name: Mirror images to GHCR
         if: env.PUSH_IMAGE == 'true'
         run: GHCR_NAMESPACE="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')" BROWSER_NAME="${BROWSER_NAME}" make mirror_browser_images_ghcr
+      # The changelog file is written during the build, so upload it only after
+      # the images were pushed. A version that fails its tests or push gets no entry.
       - name: Upload changelog
-        if: always()
+        if: always() && steps.push.outcome == 'success'
         uses: actions/upload-artifact@main
         with:
           name: image_tags_${{ env.GRID_VERSION }}_${{ env.BROWSER_NAME }}_${{ env.BROWSER_VERSION }}
