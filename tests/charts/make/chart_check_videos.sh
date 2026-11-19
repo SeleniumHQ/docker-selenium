@@ -4,7 +4,8 @@
 # The tests write one session ID per line to SESSION_LOG. Each recorded video is
 # uploaded to the ftp-server pod and named "<test name>_<session ID>.mp4". This
 # script waits until every session has a video and the file sizes stop changing,
-# copies the videos out of the pod, and checks each one with ffmpeg.
+# copies the videos out of the pod, and checks that every session's video was copied
+# and is intact with ffmpeg, copying again until VERIFY_TIMEOUT if not.
 # On failure, it saves logs of the video and FTP pods to DIAG_DIR.
 
 SELENIUM_NAMESPACE=${SELENIUM_NAMESPACE:-"selenium"}
@@ -12,6 +13,7 @@ SESSION_LOG=${SESSION_LOG:-"./tests/tests/sessions.txt"}
 OUTPUT_DIR=${OUTPUT_DIR:-"./tests/collected-videos"}
 DIAG_DIR=${DIAG_DIR:-"./tests/tests/video-check"}
 UPLOAD_TIMEOUT=${UPLOAD_TIMEOUT:-300}
+VERIFY_TIMEOUT=${VERIFY_TIMEOUT:-120}
 POLL_INTERVAL=${POLL_INTERVAL:-10}
 FTP_DIR=${FTP_DIR:-"/ftp/seluser"}
 VIDEO_IMAGE=${VIDEO_IMAGE:?"VIDEO_IMAGE must be set to the video image that provides ffmpeg"}
@@ -84,21 +86,48 @@ while :; do
   sleep "${POLL_INTERVAL}"
 done
 
-rm -rf "${OUTPUT_DIR}"
-mkdir -p "${OUTPUT_DIR}"
-kubectl cp -n "${SELENIUM_NAMESPACE}" "${FTP_POD}:${FTP_DIR}" "${OUTPUT_DIR}" >/dev/null ||
-  fail "Could not copy the videos out of pod ${FTP_POD}"
-
-corrupted=0
-while IFS= read -r file; do
-  if ! docker run --rm -u "$(id -u)" -v "$(pwd):$(pwd)" -w "$(pwd)" --entrypoint="" "${VIDEO_IMAGE}" \
-    ffmpeg -v error -i "${file}" -f null - >/dev/null 2>"${file}.ffmpeg.txt"; then
-    echo "Corrupted video: ${file}"
-    cat "${file}.ffmpeg.txt"
-    corrupted=$((corrupted + 1))
+# Copies the videos out of the pod and checks them. Sets PROBLEM and returns 1 when
+# a session's video was not copied or a video is not intact.
+copy_and_verify() {
+  rm -rf "${OUTPUT_DIR}"
+  mkdir -p "${OUTPUT_DIR}"
+  if ! kubectl cp -n "${SELENIUM_NAMESPACE}" "${FTP_POD}:${FTP_DIR}" "${OUTPUT_DIR}" >/dev/null; then
+    PROBLEM="Could not copy the videos out of pod ${FTP_POD}"
+    return 1
   fi
-  rm -f "${file}.ffmpeg.txt"
-done < <(find "${OUTPUT_DIR}" -type f -name '*.mp4')
+  local copied missing=() corrupted=() file session
+  copied=$(find "${OUTPUT_DIR}" -type f -name '*.mp4')
+  for session in "${SESSIONS[@]}"; do
+    echo "${copied}" | grep -qE "(/|_)${session}\.mp4$" || missing+=("${session}")
+  done
+  if [ ${#missing[@]} -gt 0 ]; then
+    PROBLEM="Videos of ${#missing[@]} session(s) were not copied: ${missing[*]}"
+    return 1
+  fi
+  while IFS= read -r file; do
+    if ! docker run --rm -u "$(id -u)" -v "$(pwd):$(pwd)" -w "$(pwd)" --entrypoint="" "${VIDEO_IMAGE}" \
+      ffmpeg -v error -i "${file}" -f null - >/dev/null 2>"${file}.ffmpeg.txt"; then
+      echo "Not intact: ${file}"
+      cat "${file}.ffmpeg.txt"
+      corrupted+=("${file}")
+    fi
+    rm -f "${file}.ffmpeg.txt"
+  done <<<"${copied}"
+  if [ ${#corrupted[@]} -gt 0 ]; then
+    PROBLEM="${#corrupted[@]} video file(s) are not intact"
+    return 1
+  fi
+  return 0
+}
 
-[ ${corrupted} -eq 0 ] || fail "${corrupted} video file(s) are corrupted"
+# The uploader writes each video in place under its final name, so a stable size does
+# not prove an upload finished. Copy and check again until the videos are complete.
+deadline=$((SECONDS + VERIFY_TIMEOUT))
+until copy_and_verify; do
+  if [ ${SECONDS} -ge ${deadline} ]; then
+    fail "${PROBLEM}"
+  fi
+  echo "${PROBLEM}, checking again in ${POLL_INTERVAL}s"
+  sleep "${POLL_INTERVAL}"
+done
 echo "All ${#SESSIONS[@]} session video(s) are present and intact"
