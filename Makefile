@@ -1612,6 +1612,9 @@ chart_build: copy_dashboards
 chart_release:
 	NAMESPACE=$(NAMESPACE) ./tests/charts/make/chart_release.sh
 
+chart_test_video_integrity:
+	VIDEO_IMAGE=$(NAME)/video:$(FFMPEG_TAG_VERSION)-$(BUILD_DATE) ./tests/charts/make/chart_check_videos.sh
+
 test_video_integrity:
 	# Using ffmpeg to verify file integrity
 	# https://superuser.com/questions/100288/how-can-i-check-the-integrity-of-a-video-file-avi-mpeg-mp4
