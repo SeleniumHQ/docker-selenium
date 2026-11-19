@@ -458,6 +458,23 @@ You can override the default calculation by another value via `components.distri
 
 This is a list of common issues that you might encounter when enabling autoscaling in Selenium Grid.
 
+- `helm upgrade` fails with Helm 4 and `scalingType: deployment`.
+
+Helm 4 applies changes server side. Once KEDA scales a node Deployment, it owns the `.spec.replicas` field, and chart versions before this fix fail the upgrade with an error like
+
+> Error: UPGRADE FAILED: conflict occurred while applying object selenium/selenium-node-firefox apps/v1, Kind=Deployment: Apply failed with 1 conflict: conflict with "kube-controller-manager" with subresource "scale" using apps/v1: .spec.replicas
+
+The chart now keeps the replica count that is live in the cluster when it upgrades a node Deployment, so the conflict does not happen. With an older chart version, use one of these to upgrade:
+
+```bash
+# Let Helm take over .spec.replicas. KEDA scales the Deployment again afterwards.
+helm upgrade ... --force-conflicts
+# Or apply the upgrade on the client side, as Helm 3 does.
+helm upgrade ... --server-side=false
+# Or stop setting replicas in the node Deployments.
+helm upgrade ... --set autoscaling.setReplicasInSpec=false
+```
+
 - Autoscaling isn't working when deploying KEDA core and Selenium Grid in different namespaces.
 
 For example, you deployed KEDA core in `keda` namespace, and Selenium Grid in `selenium` namespace with config `autoscaling.enableWithExistingKEDA=true`. You observe that the ScaledObject/ScaledJob is created but the scaler isn't triggered.

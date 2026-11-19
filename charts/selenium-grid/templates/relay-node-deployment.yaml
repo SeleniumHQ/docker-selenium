@@ -19,7 +19,7 @@ spec:
   {{- if not (eq (include "seleniumGrid.useKEDA" $) "true") }}
   replicas: {{ $nodeConfig.replicas }}
   {{- else }}
-  replicas: {{ default $.Values.autoscaling.scaledOptions.minReplicaCount ($nodeConfig.scaledOptions).minReplicaCount }}
+  replicas: {{ include "seleniumGrid.node.kedaReplicas" (list $ $nodeConfig (include "seleniumGrid.relayNode.fullname" (list $nodeConfig $))) }}
   {{- end }}
   revisionHistoryLimit: {{ $.Values.global.seleniumGrid.revisionHistoryLimit }}
   selector:
