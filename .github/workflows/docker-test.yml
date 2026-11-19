@@ -212,7 +212,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@main
         with:
-          python-version: '3.14'
+          python-version: '3.15'
           check-latest: true
       - name: Get branch name (only for push to branch)
         if: github.event_name == 'push'
