@@ -31,10 +31,9 @@ fi
 # Trap ERR signal and call on_failure function
 trap 'on_failure' ERR
 
-# Refresh the apt index up front so the package installs below (qemu-user-static,
-# conntrack, ...) don't 404 on a stale cached index. Previously this happened as a
-# side effect of the Docker reinstall's `apt-get update`; that reinstall is now
-# skipped when the runner already has the requested Docker, so do it explicitly.
+# Refresh the apt index up front so the package installs below (conntrack, ...)
+# don't 404 on a stale cached index. The Docker reinstall is skipped when the
+# runner already has the requested Docker, so it cannot be relied on for this.
 sudo apt-get update -qq || true
 
 DOCKER_VERSION_EXPECT=${DOCKER_VERSION}
@@ -79,11 +78,6 @@ else
     }
 fi
 
-echo "Installing cross-compilation tools (may take a while)..."
-timeout 5m sudo apt-get install -yqf gcc-aarch64-linux-gnu qemu-user-static || {
-    echo "Cross-compilation tools installation timed out or failed, retrying without quiet mode..."
-    sudo apt-get install -yf gcc-aarch64-linux-gnu qemu-user-static
-}
 sudo chmod 666 /var/run/docker.sock
 if [ -n "${DOCKER_VERSION_EXPECT}" ]; then
   DOCKER_VERSION_ACTUAL="$(docker version --format '{{.Server.Version}}')"
@@ -221,13 +215,7 @@ mkdir -p $HOME/go/bin
 GOBIN=$HOME/go/bin go install github.com/norwoodj/helm-docs/cmd/helm-docs@latest
 $HOME/go/bin/helm-docs -h || true
 echo "==============================="
-echo "Installing envsubst for AMD64 / ARM64"
-ENVSUBST_VERSION="$(curl -s -L -o /dev/null -w '%{url_effective}\n' https://github.com/a8m/envsubst/releases/latest | sed -E 's#.*/tag/v([0-9.]+).*#\1#')"
-ARCH=$(if [ "$(dpkg --print-architecture)" = "amd64" ]; then echo "x86_64"; else echo "$(dpkg --print-architecture)"; fi)
-curl -fsSL https://github.com/a8m/envsubst/releases/download/v${ENVSUBST_VERSION}/envsubst-$(uname -s)-${ARCH} -o envsubst
-chmod +x envsubst
-sudo mv envsubst /usr/local/bin
-sudo ln -sf /usr/local/bin/envsubst /usr/bin/envsubst
+"$(dirname "$0")/../../../scripts/ci/install_envsubst.sh"
 echo "==============================="
 echo "Installing Node for AMD64 / ARM64"
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
