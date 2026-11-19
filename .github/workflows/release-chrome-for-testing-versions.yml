@@ -192,7 +192,9 @@ jobs:
           if-no-files-found: ignore
 
   pr-results:
-    if: (!failure() && !cancelled() && (github.event.inputs.pr-changelog == 'true'))
+    # Runs even when some browser versions fail, so the versions that were built
+    # and pushed still get their CHANGELOG entries.
+    if: (!cancelled() && needs.deploy.outputs.GRID_VERSION != '' && (github.event.inputs.pr-changelog == 'true'))
     uses: ./.github/workflows/create-changelog-pr.yml
     needs: deploy
     with:

@@ -10,6 +10,15 @@ MIN_FIREFOX_VERSION = 98
 MIN_EDGE_VERSION = 114
 MIN_CFT_VERSION = 113
 
+# Versions whose packages cannot be installed on the Ubuntu 26.04 base image.
+# Their .deb packages depend on libraries that 26.04 no longer ships:
+# libu2f-udev (Chrome and Edge), libgdk-pixbuf2.0-0 and libgtk-3-0 (Firefox).
+# browser-matrix.yml keeps them, since fetch_version.py restores entries from
+# the upstream matrices, so they are left out of the workflow lists here.
+EXCLUDED_CHROME_VERSIONS = set(range(109, 128))
+EXCLUDED_EDGE_VERSIONS = set(range(114, 128))
+EXCLUDED_FIREFOX_VERSIONS = set(range(122, 135))
+
 
 def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_edge_version, min_cft_version):
     """Read the browser matrix YAML file and extract browser versions.
@@ -41,6 +50,7 @@ def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_
             and chrome_version != 'null'
             and str(chrome_version).strip()
             and version_int >= min_chrome_version
+            and version_int not in EXCLUDED_CHROME_VERSIONS
         ):
             chrome_versions.append(version_int)
 
@@ -51,12 +61,19 @@ def read_browser_matrix(file_path, min_chrome_version, min_firefox_version, min_
             and firefox_version != 'null'
             and str(firefox_version).strip()
             and version_int >= min_firefox_version
+            and version_int not in EXCLUDED_FIREFOX_VERSIONS
         ):
             firefox_versions.append(version_int)
 
         # Check for Edge versions (not null or empty) and above minimum
         edge_version = details.get('EDGE_VERSION')
-        if edge_version and edge_version != 'null' and str(edge_version).strip() and version_int >= min_edge_version:
+        if (
+            edge_version
+            and edge_version != 'null'
+            and str(edge_version).strip()
+            and version_int >= min_edge_version
+            and version_int not in EXCLUDED_EDGE_VERSIONS
+        ):
             edge_versions.append(version_int)
 
         # Check for Chrome for Testing versions (not null or empty) and above minimum
