@@ -93,7 +93,6 @@ IMAGE_NAME_MAP = {
 }
 
 TEST_NAME_MAP = {
-    "Android": "ChromeTests",
     # Chrome Images
     'NodeChrome': 'ChromeTests',
     'NodeAllChrome': 'ChromeTests',

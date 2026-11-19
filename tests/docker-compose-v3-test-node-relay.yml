@@ -1,5 +1,8 @@
 services:
-  node-relay-standalone:
+  # Relay configured from a TOML file
+  node-relay-config-file:
+    profiles:
+      - relay-config-file
     image: ${NAMESPACE}/node-base:${TAG}
     shm_size: 2gb
     depends_on:
@@ -49,51 +52,27 @@ services:
       - SELENIUM_GRID_HOST=selenium-hub
       - BINDING_VERSION=${BINDING_VERSION}
       - SELENIUM_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
-      - TEST_NODE_RELAY=${TEST_NODE_RELAY}
-      - ANDROID_PLATFORM_API=${ANDROID_PLATFORM_API}
       - TEST_DELAY_AFTER_TEST=${TEST_DELAY_AFTER_TEST}
     command: ["/bin/bash", "-c", "./bootstrap.sh ${NODE}"]
 
-  node-relay-emulator:
+  # Relay configured from SE_NODE_RELAY_* environment variables
+  node-relay-config-env:
     profiles:
-      - Android
+      - relay-config-env
     image: ${NAMESPACE}/node-base:${TAG}
     shm_size: 2gb
     depends_on:
       - selenium-hub
-      - emulator
+      - standalone
     environment:
       - SE_EVENT_BUS_HOST=selenium-hub
       - SE_LOG_LEVEL=${LOG_LEVEL}
       - SE_NODE_SESSION_TIMEOUT=${SESSION_TIMEOUT}
-      - SE_NODE_RELAY_URL=http://emulator:4723
+      - SE_NODE_ENABLE_MANAGED_DOWNLOADS=${SELENIUM_ENABLE_MANAGED_DOWNLOADS:-true}
+      - SE_NODE_RELAY_URL=http://standalone:4444/wd/hub
+      - SE_NODE_RELAY_STATUS_ENDPOINT=/status
       - SE_NODE_RELAY_PROTOCOL_VERSION=HTTP/1.1
       - SE_NODE_RELAY_MAX_SESSIONS=1
-      - SE_NODE_RELAY_PLATFORM_NAME=Android
-      - SE_NODE_RELAY_PLATFORM_VERSION=${ANDROID_PLATFORM_API}
-      - SE_NODE_RELAY_BROWSER_NAME=chrome
+      - SE_NODE_RELAY_PLATFORM_NAME=linux
+      - SE_NODE_RELAY_BROWSER_NAME=${BROWSER_NAME}
       - SE_NODE_RELAY_STEREOTYPE_EXTRA={"myApp:version":"beta","myApp:publish":"public"}
-      - SE_NODE_RELAY_WEB_VNC=ws://emulator:6080/websockify
-
-  emulator:
-    profiles:
-      - Android
-    image: ${ANDROID_BASED_NAME}/${ANDROID_BASED_IMAGE}:${TAG}
-    shm_size: 2gb
-    build:
-      args:
-        ANDROID_BASED_NAME: ${ANDROID_BASED_NAME}
-        ANDROID_BASED_IMAGE: ${ANDROID_BASED_IMAGE}
-        ANDROID_BASED_TAG: ${ANDROID_BASED_TAG}
-        CHROME_DRIVER_URL: https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip
-      dockerfile: ./Dockerfile.emulator
-    environment:
-      - EMULATOR_DEVICE=Nexus 5
-      - WEB_VNC=true
-      - APPIUM=true
-      - WEB_LOG=true
-      - WEB_LOG_PORT=9001
-      - EMULATOR_NO_SKIN=true
-      - EMULATOR_NAME=emulator-5554
-    devices:
-      - /dev/kvm

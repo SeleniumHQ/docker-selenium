@@ -1472,56 +1472,26 @@ test_video: video hub chrome firefox edge chromium
 
 test_node_relay: hub node_base standalone_firefox
 	sudo rm -rf ./tests/tests ./tests/videos; mkdir -p ./tests/videos ; \
-	if [ "$(PLATFORMS)" = "linux/amd64" ]; then \
-		list_nodes="Android NodeFirefox" ; \
-	else \
-		list_nodes="NodeFirefox" ; \
-	fi; \
-	for node in $${list_nodes} ; do \
+	for relay_config in file env ; do \
 		cd ./tests || true ; \
 		echo TAG=$(TAG_VERSION) > .env ; \
 		echo NAMESPACE=$(NAME) >> .env ; \
 		echo LOG_LEVEL=$(or $(LOG_LEVEL), "INFO") >> .env ; \
 		echo REQUEST_TIMEOUT=$(or $(REQUEST_TIMEOUT), 300) >> .env ; \
 		echo SESSION_TIMEOUT=$(or $(SESSION_TIMEOUT), 300) >> .env ; \
-		echo ANDROID_BASED_NAME=$(or $(ANDROID_BASED_NAME),budtmo) >> .env ; \
-		echo ANDROID_BASED_IMAGE=$(or $(ANDROID_BASED_IMAGE),docker-android) >> .env ; \
-		echo ANDROID_BASED_TAG=$(or $(ANDROID_BASED_TAG),emulator_14.0) >> .env ; \
-		echo ANDROID_PLATFORM_API=$(or $(ANDROID_PLATFORM_API),14) >> .env ; \
 		echo TEST_DELAY_AFTER_TEST=$(or $(TEST_DELAY_AFTER_TEST), 0) >> .env ; \
-		echo NODE=$$node >> .env ; \
-		echo TEST_NODE_RELAY=$$node >> .env ; \
+		echo NODE=NodeFirefox >> .env ; \
 		echo UID=$$(id -u) >> .env ; \
 		echo BINDING_VERSION=$(BINDING_VERSION) >> .env ; \
 		echo BASE_VERSION=$(BASE_VERSION) >> .env ; \
-		if [ $$node = "Android" ] ; then \
-			echo BROWSER=firefox >> .env \
-			&& echo BROWSER_NAME=firefox >> .env \
-			&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=false >> .env ; \
-		fi ; \
-			if [ $$node = "NodeChrome" ] ; then \
-				echo BROWSER=chrome >> .env \
-				&& BROWSER_NAMEchrome >> .env ; \
-			fi ; \
-			if [ $$node = "NodeChromium" ] ; then \
-				echo BROWSER=chromium >> .env \
-				&& echo BROWSER_NAME=chrome >> .env ; \
-				echo SELENIUM_GRID_TEST_HEADLESS=true >> .env ; \
-			fi ; \
-			if [ $$node = "NodeEdge" ] ; then \
-				echo BROWSER=edge >> .env \
-				&& echo BROWSER_NAME=MicrosoftEdge >> .env ; \
-			fi ; \
-			if [ $$node = "NodeFirefox" ] ; then \
-				echo BROWSER=firefox >> .env \
-				&& echo BROWSER_NAME=firefox >> .env \
-				&& echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), true) >> .env ; \
-			fi ; \
-			export $$(cat .env | xargs) ; \
-			envsubst < relay_config.toml > ./videos/relay_config.toml ; \
-			DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile $$node -f docker-compose-v3-test-node-relay.yml up --remove-orphans --no-log-prefix --build --exit-code-from tests ; \
-			if [ $$? -ne 0 ]; then exit 1; fi ; \
-			done
+		echo BROWSER=firefox >> .env ; \
+		echo BROWSER_NAME=firefox >> .env ; \
+		echo SELENIUM_ENABLE_MANAGED_DOWNLOADS=$(or $(SELENIUM_ENABLE_MANAGED_DOWNLOADS), true) >> .env ; \
+		export $$(cat .env | xargs) ; \
+		envsubst < relay_config.toml > ./videos/relay_config.toml ; \
+		DOCKER_DEFAULT_PLATFORM=$(PLATFORMS) docker compose --profile relay-config-$$relay_config -f docker-compose-v3-test-node-relay.yml up --remove-orphans --no-log-prefix --build --exit-code-from tests ; \
+		if [ $$? -ne 0 ]; then exit 1; fi ; \
+		done
 
 test_standalone_docker: standalone_docker
 	DOCKER_COMPOSE_FILE=docker-compose-v3-test-standalone-docker.yaml CONFIG_FILE=standalone_docker_config.toml HUB_CHECKS_INTERVAL=45 TEST_CUSTOM_SPECIFIC_NAME=true \

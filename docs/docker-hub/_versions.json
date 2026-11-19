@@ -19,10 +19,14 @@
       "driver": "155.0"
     },
     "chromium": {
-      "browser": "155.0",
-      "driver": "155.0",
-      "browser_full": "155.0.8059.39",
-      "driver_full": "155.0.8059.39"
+      "browser": "156.0",
+      "driver": "156.0",
+      "browser_full": "156.0.8078.79",
+      "driver_full": "156.0.8078.79"
+    },
+    "edge": {
+      "browser": "156.0",
+      "driver": "156.0"
     },
     "firefox": {
       "browser": "158.0",

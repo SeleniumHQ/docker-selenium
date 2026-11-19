@@ -42,11 +42,6 @@ on:
         value: ${{ jobs.build-images.outputs.mode }}
   workflow_dispatch:
     inputs:
-      rerunFailedOnly:
-        description: 'Rerun only failed jobs'
-        required: false
-        type: boolean
-        default: true
       test-patched-keda:
         description: 'Test patched KEDA (true/false)'
         required: false
@@ -78,13 +73,6 @@ concurrency:
   cancel-in-progress: true
 
 permissions: write-all
-
-env:
-  GH_CLI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GH_CLI_TOKEN_PR: ${{ secrets.TRIGGER_CI_TOKEN || secrets.GITHUB_TOKEN }}
-  RUN_ID: ${{ github.run_id }}
-  RERUN_FAILED_ONLY: ${{ github.event.inputs.rerunFailedOnly || true }}
-  RUN_ATTEMPT: ${{ github.run_attempt }}
 
 jobs:
   lint-format:
@@ -264,40 +252,3 @@ jobs:
             echo "\`${{ needs.build-images.outputs.ci-tag }}\` passed the full suite and is now \`:main\`."
             echo "Retagged, not rebuilt, so the digest is unchanged."
           } >> "$GITHUB_STEP_SUMMARY"
-
-  rerun-workflow-when-failure:
-    name: Rerun workflow when failure
-    needs:
-      # build-images belongs here as much as the test jobs do. When the build fails all
-      # three tests are *skipped*, a skipped need is not a failure, so failure() was false
-      # and this job skipped too - no retry for the one class of failure that stops
-      # everything downstream. That is what six consecutive nightly failures in September
-      # 2026 (runs 34298460453 .. 34795622706) went without.
-      - build-images
-      - docker-test
-      - helm-chart-test
-      - k8s-dynamic-grid-test
-    if: failure() && ( github.run_attempt < 3 )
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@main
-      - name: Install GitHub CLI
-        run: |
-          sudo apt update
-          sudo apt install gh
-      - name: Authenticate GitHub CLI for PR
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "$GH_CLI_TOKEN_PR" | gh auth login --with-token
-      - name: Authenticate GitHub CLI
-        if: github.event_name != 'pull_request'
-        run: |
-          echo "$GH_CLI_TOKEN" | gh auth login --with-token
-      - name: Rerun workflow when failure
-        run: |
-          echo "Rerun workflow ID $RUN_ID in attempt #$(($RUN_ATTEMPT + 1))"
-          gh workflow run rerun-failed.yml \
-            --repo $GITHUB_REPOSITORY \
-            --raw-field runId=$RUN_ID \
-            --raw-field rerunFailedOnly=$RERUN_FAILED_ONLY

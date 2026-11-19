@@ -16,8 +16,9 @@ Sources, in order of authority:
 * CHANGELOG/<version>/<browser>_<major>.md - written by tag_and_push_browser_images.sh
   during the release, so it records exactly what was tagged. Covers chrome,
   chrome-for-testing, edge and firefox.
-* The Docker Hub tag list - used only for chromium, which produces no changelog
-  entry because its version is discovered at build time by running the image.
+* The Docker Hub tag list - used for chromium, which produces no changelog entry
+  because its version is discovered at build time by running the image, and for
+  edge when the release has no edge changelog.
 
 Run via `make update_dockerhub_versions`.
 """
@@ -52,6 +53,10 @@ CHANGELOG_BROWSERS = {
 CHROMIUM_REPO = "standalone-chromium"
 CHROMIUM_SHORT_RE = re.compile(r"\A(\d+\.\d+)-chromedriver-(\d+\.\d+)\Z")
 CHROMIUM_FULL_RE = re.compile(r"\A(\d+\.\d+\.\d+\.\d+)-chromedriver-(\d+\.\d+\.\d+\.\d+)\Z")
+
+# edge tags that pin a browser, its driver and a Grid release
+EDGE_REPO = "node-edge"
+EDGE_SHORT_RE = re.compile(r"\A(\d+\.\d+)-edgedriver-(\d+\.\d+)-grid-\d+\.\d+\.\d+-\d{8}\Z")
 
 
 def latest_release_dir(changelog_dir):
@@ -117,6 +122,15 @@ def chromium_versions(namespace):
     }
 
 
+def edge_versions(namespace):
+    """The newest edge browser and driver published for a Grid release."""
+    matches = [found for found in map(EDGE_SHORT_RE.match, _hub_tags(namespace, EDGE_REPO)) if found]
+    if not matches:
+        raise RuntimeError(f"could not find browser-and-driver tags for selenium/{EDGE_REPO}")
+    newest = max(matches, key=lambda found: [int(part) for part in found.group(1).split(".")])
+    return {"browser": newest.group(1), "driver": newest.group(2)}
+
+
 def resolve(changelog_dir, namespace, skip_chromium=False, grid_tag_override=None):
     release_dir = latest_release_dir(changelog_dir)
     browsers, problems = {}, []
@@ -125,7 +139,14 @@ def resolve(changelog_dir, namespace, skip_chromium=False, grid_tag_override=Non
     for key, (prefix, browser_label, driver_label) in sorted(CHANGELOG_BROWSERS.items()):
         path = newest_changelog(release_dir, prefix)
         if path is None:
-            problems.append(f"{key}: no {prefix}_*.md in {release_dir.name}")
+            problem = f"{key}: no {prefix}_*.md in {release_dir.name}"
+            if key == "edge" and not skip_chromium:
+                try:
+                    browsers[key] = edge_versions(namespace)
+                    continue
+                except Exception as error:  # noqa: BLE001 - network failure must be reported, not fatal-by-traceback
+                    problem = f"{problem}, and could not resolve from the registry: {error}"
+            problems.append(problem)
             continue
         fields = parse_changelog(path)
         if browser_label not in fields or driver_label not in fields:
@@ -166,7 +187,9 @@ def resolve(changelog_dir, namespace, skip_chromium=False, grid_tag_override=Non
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Resolve versions for the Docker Hub example blocks.")
     parser.add_argument("--namespace", default="selenium")
-    parser.add_argument("--skip-chromium", action="store_true", help="Do not contact the registry for chromium.")
+    parser.add_argument(
+        "--skip-chromium", action="store_true", help="Do not contact the registry for chromium or a missing edge."
+    )
     parser.add_argument("--check", action="store_true", help="Fail if the generated file is out of date.")
     parser.add_argument(
         "--grid-tag",
