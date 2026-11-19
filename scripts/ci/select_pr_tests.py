@@ -35,7 +35,6 @@ SHARED_PATTERNS = (
 K8S_PATTERNS = ("charts/selenium-grid/*", "tests/charts/*", "tests/k8s/*")
 
 DOCKER_PATTERNS = (
-    "tests/Dockerfile.emulator",
     "tests/config.toml",
     "tests/config_video_sidecar.toml",
     "tests/docker-compose-v3-test-*",

@@ -36,7 +36,6 @@ class SelectTests(unittest.TestCase):
 
     def test_docker_test_files_run_only_docker(self):
         for path in (
-            "tests/Dockerfile.emulator",
             "tests/config.toml",
             "tests/docker-compose-v3-test-video.yml",
             "tests/docker-compose-v3-test-node-docker.yaml",
