@@ -806,7 +806,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | keda.additionalAnnotations | string | `nil` | Annotations for KEDA resources |
 | keda.http.timeout | int | `60000` |  |
 | keda.webhooks | object | `{"enabled":false}` | Enable KEDA admission webhooks component |
-| traefik | object | `{"ingressClass":{"enabled":true,"isDefaultClass":false,"name":"traefik"},"service":{"annotations":null},"tlsStore":{"default":{"defaultCertificate":null}}}` | Configuration for dependency chart traefik |
+| traefik | object | `{"ingressClass":{"enabled":true,"isDefaultClass":false,"name":"traefik"},"service":{"annotations":null},"tlsStore":{}}` | Configuration for dependency chart traefik |
 | kube-prometheus-stack | object | `{"cleanPrometheusOperatorObjectNames":true,"grafana":{"adminPassword":"admin","adminUser":"admin"},"nodeExporter":{"enabled":false},"prometheusOperator":{"admissionWebhooks":{"enabled":false,"patch":{"enabled":false}},"tls":{"enabled":false}}}` | Configuration for dependency chart kube-prometheus-stack |
 | jaeger | object | `{"jaeger":{"extraEnv":[{"name":"QUERY_BASE_PATH","value":"/jaeger"}]},"storage":{"type":"badger"}}` | Configuration for dependency chart jaeger |
 | postgresql.enabled | bool | `false` | Enable to install PostgreSQL along with Grid |
