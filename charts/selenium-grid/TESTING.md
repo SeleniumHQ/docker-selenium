@@ -38,8 +38,8 @@ We have a CI pipeline to test the Helm chart with the following test cases.
 
 | Matrix                    | job      | deployment | job_https | job_hostname | deployment_https |
 |---------------------------|----------|------------|-----------|--------------|------------------|
-| Cluster                   | Kind     | Kind       | Kind      | Minikube     | Minikube         |
-| Kubernetes version        | v1.25.16 | v1.26.14   | v1.27.11  | v1.28.7      | v1.29.2          |
+| Cluster                   | Minikube | Minikube   | Minikube  | Minikube     | Minikube         |
+| Kubernetes version        | v1.37.2  | v1.37.2    | v1.37.2   | v1.37.2      | v1.37.2          |
 | Autoscaling               | x        | x          | x         | x            | x                |
 | Scaling type `deployment` |          | x          |           |              | x                |
 | Scaling type `job`        | x        |            | x         | x            |                  |
@@ -52,6 +52,8 @@ We have a CI pipeline to test the Helm chart with the following test cases.
 | Enable video recorder     | x        | x          | x         | x            | x                |
 | Enable video uploader     | x        | x          | x         | x            | x                |
 | Test headless             |          | x          | x         |              |                  |
+
+The `job` scenario also runs on the oldest supported versions. See [Supported versions](README.md#supported-versions).
 
 ## Test Chart Template
 - By using `helm template` command, the chart template is tested without installing it to Kubernetes cluster.

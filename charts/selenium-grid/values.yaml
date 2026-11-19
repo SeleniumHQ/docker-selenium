@@ -2376,10 +2376,12 @@ traefik:
     name: traefik
 #  additionalArguments:
 #    - "--serverstransport.insecureskipverify=true"
-  tlsStore:
-    default:
-      defaultCertificate:
-        # secretName: ""
+  # Set a default certificate with, for example:
+  #   tlsStore:
+  #     default:
+  #       defaultCertificate:
+  #         secretName: "my-tls-secret"
+  tlsStore: {}
   service:
     annotations:
 #      service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "3600"
