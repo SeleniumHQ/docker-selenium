@@ -1,3 +1,21 @@
+## :heavy_check_mark: selenium-grid-0.64.0
+
+- Chart is using image tag 4.53.0-20261120
+- Chart is tested on Kubernetes versions: v1.34.13,v1.37.2
+- Chart is tested on container runtime Docker versions: 28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.22.1,v4.3.2
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`9c5f0de1`](http://github.com/seleniumhq/docker-selenium/commit/9c5f0de1e698e7a32a9c7bae4cf8358b5a103384) - [ci] Update tag 4.53.0-20261120 in docs and files :: Selenium CI Bot
+- [`5ea1dd06`](http://github.com/seleniumhq/docker-selenium/commit/5ea1dd06a483285d7883f60205bbd758ca73d637) - [chart] Keep live node replicas on upgrade so Helm 4 does not conflict with KEDA (#3310) :: Diego Molina
+- [`477a43c4`](http://github.com/seleniumhq/docker-selenium/commit/477a43c44e20e12b9989766407f9e1e7da29f1b6) - Update Helm release redis to ^0.40.0 (#3305) :: renovate[bot]
+- [`eefad140`](http://github.com/seleniumhq/docker-selenium/commit/eefad140ae8b3c3588bd38b961a5e12bfad2d3e6) - [ci] Test the chart on the supported Kubernetes and Helm versions (#3306) :: Diego Molina
+- [`5b418a8d`](http://github.com/seleniumhq/docker-selenium/commit/5b418a8dd91adf7295231443833e5dbd0aae456e) - Update Helm release kube-prometheus-stack to v93 (#3293) :: renovate[bot]
+- [`f7e90827`](http://github.com/seleniumhq/docker-selenium/commit/f7e908278b9ecbb19f3241bac5ca759b067e9398) - Update Helm release postgres to ^0.22.0 (#3292) :: renovate[bot]
+- [`aa205c78`](http://github.com/seleniumhq/docker-selenium/commit/aa205c78873d3b8f4d22e9777396bb162f48af98) - Update Helm release redis to ^0.39.0 (#3297) :: renovate[bot]
+- [`17c12473`](http://github.com/seleniumhq/docker-selenium/commit/17c124730af5f9e705855502fc17c23d396ae4d6) - [ci] Update chart 0.63.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.63.0
 
 - Chart is using image tag 4.52.0-20261101
