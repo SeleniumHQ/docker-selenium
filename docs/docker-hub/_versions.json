@@ -10,6 +10,10 @@
     "patch": "0"
   },
   "browsers": {
+    "chrome": {
+      "browser": "158.0",
+      "driver": "158.0"
+    },
     "chrome-for-testing": {
       "browser": "158.0",
       "driver": "158.0"
