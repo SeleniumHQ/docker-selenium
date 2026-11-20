@@ -681,15 +681,15 @@ ffmpeg:
 	cd ./.ffmpeg && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) --build-arg FFMPEG_VERSION=$(FFMPEG_VERSION) $(FROM_IMAGE_ARGS) -t $(NAME)/ffmpeg:$(FFMPEG_VERSION)-$(BUILD_DATE) .
 
 all_browsers: node_base
-	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd ./NodeChromium && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-base --build-arg CHROMIUM_VERSION=$(CHROMIUM_VERSION) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || exit 1 ; \
 	cd .. ; \
-	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd ./NodeFirefox && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers --build-arg FIREFOX_DOWNLOAD_URL=$(FIREFOX_DOWNLOAD_URL) -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || exit 1 ; \
 	cd .. ; \
 	cd ./NodeChrome && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || true ; \
 	cd .. ; \
 	cd ./NodeEdge && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || true ; \
 	cd .. ; \
-	cd ./NodeAllBrowsers && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . ; \
+	cd ./NodeAllBrowsers && docker buildx build --platform $(PLATFORMS) $(BUILD_ARGS) $(FROM_IMAGE_ARGS) --build-arg BASE=node-all-browsers -t $(NAME)/node-all-browsers:$(TAG_VERSION) . || exit 1 ; \
 	cd .. ;
 
 standalone_all_browsers: all_browsers
