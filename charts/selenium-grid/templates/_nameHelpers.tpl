@@ -193,6 +193,13 @@ Ingress fullname
 {{- tpl (default (include "seleniumGrid.component.name" (list "selenium-ingress" $)) .Values.ingress.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+HTTPRoute fullname
+*/}}
+{{- define "seleniumGrid.httpRoute.fullname" -}}
+{{- tpl (default (include "seleniumGrid.component.name" (list "selenium-httproute" $)) .Values.httpRoute.nameOverride) $ | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "seleniumGrid.ingress.traefik.serversTransport.name" -}}
 {{- $name := default (include "seleniumGrid.component.name" (list "selenium-ingress-serverstransport" $)) .Values.ingress.traefik.serversTransport.nameOverride -}}
 {{- tpl $name $ | trunc 63 | trimSuffix "-" -}}
