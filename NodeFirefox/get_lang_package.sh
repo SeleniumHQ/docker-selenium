@@ -21,8 +21,11 @@ fi
 # Create target directory if it doesn't exist
 mkdir -p "${TARGET_DIR}"
 
+# Retry downloads that fail or stall, so one slow file does not fail the whole build
+CURL_OPTS=(-fsSLk --connect-timeout 15 --max-time 120 --retry 5 --retry-delay 5 --retry-all-errors)
+
 # Download the list of files
-wget -q -O - "${BASE_URL}" | grep -oP '(?<=href=")[^"]*.xpi' >/tmp/xpi_files.txt
+curl "${CURL_OPTS[@]}" "${BASE_URL}" | grep -oP '(?<=href=")[^"]*.xpi' >/tmp/xpi_files.txt
 
 echo "Downloading language packs for Firefox version $VERSION to $TARGET_DIR ..."
 
@@ -30,7 +33,7 @@ echo "Downloading language packs for Firefox version $VERSION to $TARGET_DIR ...
 while IFS= read -r file; do
   file=$(basename "${file}")
   echo "Downloading "${BASE_URL}${file}" ..."
-  curl -sk -o "${TARGET_DIR}/${file}" "${BASE_URL}${file}"
+  curl "${CURL_OPTS[@]}" -o "${TARGET_DIR}/${file}" "${BASE_URL}${file}"
   target_file="${TARGET_DIR}/langpack-${file%.xpi}@firefox.mozilla.org.xpi"
   mv "${TARGET_DIR}/${file}" "${target_file}"
   if [ -f "${target_file}" ]; then

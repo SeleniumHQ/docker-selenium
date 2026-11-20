@@ -179,7 +179,14 @@ if [ "${TEST_UPGRADE_CHART}" != "true" ] && [ "${RENDER_HELM_TEMPLATE_ONLY}" != 
   sudo rm -rf ${HOST_PATH}; sudo mkdir -p ${HOST_PATH}/logs
   sudo chmod -R 777 ${HOST_PATH}
   kubectl create ns ${SELENIUM_NAMESPACE} || true
+  FTP_SERVER_EXISTED=$(kubectl get deployment ftp-server -n ${SELENIUM_NAMESPACE} --ignore-not-found -o name || true)
   kubectl apply -n ${SELENIUM_NAMESPACE} -f ${LOCAL_PVC_YAML}
+  # The host folder was just recreated. A running ftp-server pod would keep writing
+  # to the deleted folder, so restart it to mount the new one.
+  if [ -n "${FTP_SERVER_EXISTED}" ]; then
+    kubectl rollout restart deployment/ftp-server -n ${SELENIUM_NAMESPACE}
+  fi
+  kubectl rollout status deployment/ftp-server -n ${SELENIUM_NAMESPACE} --timeout=180s
   kubectl apply -n ${SELENIUM_NAMESPACE} -f "${TEST_VALUES_PATH}/the-internet-deployment.yaml"
   kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=ftp-server
   kubectl describe pod,svc,pv,pvc -n ${SELENIUM_NAMESPACE} -l app=the-internet
@@ -599,6 +606,8 @@ export TEST_MULTIPLE_PLATFORMS=${TEST_MULTIPLE_PLATFORMS}
 export TEST_MULTIPLE_PLATFORMS_RELAY=${TEST_MULTIPLE_PLATFORMS_RELAY}
 export TEST_CUSTOM_SPECIFIC_NAME=${TEST_CUSTOM_SPECIFIC_NAME}
 export TEST_SITE="${TEST_SITE}"
+# The tests log each session ID here, so the video check can expect one video per session
+export TEST_SESSION_LOG="$(realpath ./tests/tests)/sessions.txt"
 if [ "${MATRIX_BROWSER}" = "NoAutoscaling" ]; then
   ./tests/bootstrap.sh NodeFirefox
   if [ "${TEST_PLATFORMS}" = "linux/amd64" ]; then

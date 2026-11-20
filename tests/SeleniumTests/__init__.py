@@ -3,6 +3,7 @@ import os
 import random
 import shutil
 import tempfile
+import threading
 import time
 import traceback
 import unittest
@@ -61,6 +62,19 @@ CLIENT_CONFIG = ClientConfig(
     password=SELENIUM_GRID_PASSWORD,
     ca_certs=CHART_CERT_PATH,
 )
+
+
+TEST_SESSION_LOG = os.environ.get('TEST_SESSION_LOG')
+_SESSION_LOG_LOCK = threading.Lock()
+
+
+def log_session(session_id):
+    """Append a session ID to TEST_SESSION_LOG, so the video check can expect one video per session."""
+    if not TEST_SESSION_LOG:
+        return
+    with _SESSION_LOG_LOCK:
+        with open(TEST_SESSION_LOG, 'a') as session_log:
+            session_log.write(f"{session_id}\n")
 
 
 class SeleniumGenericTests(unittest.TestCase):
@@ -226,6 +240,7 @@ class ChromeTests(SeleniumGenericTests):
             print(
                 f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
+            log_session(self.driver.session_id)
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -276,6 +291,7 @@ class EdgeTests(SeleniumGenericTests):
             print(
                 f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
+            log_session(self.driver.session_id)
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())
@@ -331,6 +347,7 @@ class FirefoxTests(SeleniumGenericTests):
             print(
                 f"Begin: {self._testMethodName} ({self.__class__.__name__}) WebDriver initialization completed in {end_time - start_time} (s) - SessionID: {self.driver.session_id}"
             )
+            log_session(self.driver.session_id)
         except Exception as e:
             print(f"::error::Exception: {str(e)}")
             print(traceback.format_exc())

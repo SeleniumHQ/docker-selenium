@@ -66,6 +66,7 @@ jobs:
         # Every scenario runs on the newest supported Kubernetes and Helm versions.
         # One job runs on the oldest supported versions, see "Supported versions"
         # in charts/selenium-grid/README.md.
+        # Recorded videos are checked in the job scenario on the newest versions only.
         include:
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -75,7 +76,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: disabled
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -95,7 +96,7 @@ jobs:
             test-upgrade: true
             service-mesh: true
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: deployment
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -105,7 +106,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: job_https
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -115,7 +116,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: job_hostname
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -125,7 +126,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: deployment_https
           - k8s-version: 'v1.37.2'
             cluster: 'minikube'
@@ -135,7 +136,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: playwright_connect_grid
           - k8s-version: 'v1.34.13'
             cluster: 'minikube'
@@ -145,7 +146,7 @@ jobs:
             test-upgrade: true
             service-mesh: false
             os: ubuntu-22.04
-            check-records-output: true
+            check-records-output: false
             test-strategy: job
     env:
       CLUSTER: ${{ matrix.cluster }}
@@ -269,7 +270,7 @@ jobs:
             NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} TEST_UPGRADE_CHART=false make chart_test_autoscaling_${{ matrix.test-strategy }}
             exit_code=$?
             if [[ "${CHECK_RECORD_OUTPUT}" = "true" ]] && [[ "${exit_code}" -eq 0 ]]; then
-              NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make test_video_integrity
+              NAME=${IMAGE_REGISTRY} VERSION=${BRANCH} BUILD_DATE=${BUILD_DATE} make chart_test_video_integrity
               exit_code=$?
             fi
             exit ${exit_code}
@@ -293,6 +294,7 @@ jobs:
           name: ${{ env.ARTIFACT_NAME }}-videos
           path: |
             ./tests/videos/
+            ./tests/collected-videos/
             !./tests/videos/**/*.hprof
       - name: Test chart upgrade
         if: (matrix.test-upgrade == true)

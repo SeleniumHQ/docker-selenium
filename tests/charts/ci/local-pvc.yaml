@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
         - name: ftp-server
-          image: delfer/alpine-ftp-server:latest
+          image: delfer/alpine-ftp-server:latest@sha256:b27013e7436cea343826ba7edb77aa3a8b2d22df14e366b82d10a3b0b5ecc880
           ports:
             - name: ftp
               containerPort: 21
