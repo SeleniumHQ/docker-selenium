@@ -169,6 +169,27 @@ Is autoscaling using KEDA enabled
 {{- end -}}
 
 {{/*
+Replicas for a node Deployment that KEDA scales.
+On upgrade, keep the replica count that is live in the cluster. KEDA owns that
+field once it scales the Deployment, and Helm 4 applies changes server side, so
+writing a different value fails the upgrade with a field manager conflict.
+On install, or when the cluster cannot be read (helm template, Argo CD), use
+minReplicaCount.
+Usage: include "seleniumGrid.node.kedaReplicas" (list $ $nodeConfig $deploymentName)
+*/}}
+{{- define "seleniumGrid.node.kedaReplicas" -}}
+{{- $root := index . 0 -}}
+{{- $nodeConfig := index . 1 -}}
+{{- $name := index . 2 -}}
+{{- $replicas := default $root.Values.autoscaling.scaledOptions.minReplicaCount ($nodeConfig.scaledOptions).minReplicaCount -}}
+{{- $live := lookup "apps/v1" "Deployment" $root.Release.Namespace $name -}}
+{{- if and $live (hasKey $live "spec") (hasKey $live.spec "replicas") -}}
+{{- $replicas = int $live.spec.replicas -}}
+{{- end -}}
+{{- $replicas -}}
+{{- end -}}
+
+{{/*
 Is ingress enabled
 */}}
 {{- define "seleniumGrid.ingress.enabled" -}}
