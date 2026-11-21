@@ -33,6 +33,10 @@ spec:
     spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template "seleniumGrid.serviceAccount.fullname" . }}
+    {{- with .Values.components.distributor.initContainers }}
+      initContainers:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
       containers:
         - name: {{ template "seleniumGrid.distributor.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.components.distributor.imageTag }}
@@ -122,6 +126,9 @@ spec:
               mountPath: {{ .Values.tls.certVolumeMountPath | quote }}
               readOnly: true
           {{- end }}
+        {{- with .Values.components.distributor.extraVolumeMounts }}
+            {{- tpl (toYaml .) $ | nindent 12 }}
+        {{- end }}
           ports:
             - containerPort: {{ .Values.components.distributor.port }}
               protocol: TCP
@@ -232,4 +239,7 @@ spec:
           secret:
             secretName: {{ include "seleniumGrid.tls.fullname" .  | quote }}
       {{- end }}
+    {{- with .Values.components.distributor.extraVolumes }}
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
 {{- end }}
