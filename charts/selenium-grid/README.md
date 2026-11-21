@@ -47,6 +47,7 @@ This chart enables the creation of a Selenium Grid Server in Kubernetes.
     * [Node Registration](#node-registration)
     * [Configuration of tracing observability](#configuration-of-tracing-observability)
     * [Configuration of Session Map using External Datastore](#configuration-of-session-map-using-external-datastore)
+    * [High availability](#high-availability)
     * [Configuration of Selenium Grid chart](#configuration-of-selenium-grid-chart)
     * [Configuration of KEDA](#configuration-of-keda)
     * [Configuration of Traefik Ingress Controller](#configuration-of-traefik-ingress-controller)
@@ -1258,6 +1259,54 @@ components:
 redis:
   enabled: true
 ```
+
+### High availability
+
+Run more than one replica of the Grid components to keep the Grid reachable during a rollout or when a pod fails.
+
+This needs the Grid deployed in distributed mode (`isolateComponents: true`). In basic mode, the Hub keeps its state in memory and always runs as a single pod.
+
+| Component | Can run more than 1 replica | Requirement |
+|-----------|-----------------------------|-------------|
+| Router | Yes | None. It keeps no state. |
+| Distributor | Yes | Redis external datastore (Grid 4.44.0 or later). |
+| Session Map | Yes | Redis or PostgreSQL external datastore. |
+| Session Queue | Yes | Redis external datastore (Grid 4.46.0 or later). |
+| Event Bus | No | Keep 1 replica. Events are not shared between Event Bus pods. |
+
+When the external datastore of a component is not enabled, the chart runs 1 replica of it, whatever value `replicas` has.
+
+Example values with Redis installed by the chart:
+
+```yaml
+isolateComponents: true
+
+components:
+  router:
+    replicas: 2
+  distributor:
+    replicas: 2
+    externalDatastore:
+      enabled: true
+      backend: redis
+  sessionMap:
+    replicas: 2
+    externalDatastore:
+      enabled: true
+      backend: redis
+  sessionQueue:
+    replicas: 2
+    externalDatastore:
+      enabled: true
+      backend: redis
+
+redis:
+  enabled: true
+```
+
+To use your own Redis, leave `redis.enabled: false` and set its address under `components.<component>.externalDatastore.redis`: `url` for the Distributor and the Session Queue, `hostname` and `port` for the Session Map.
+
+The Redis that the chart installs runs as a single pod (`redis.architecture: standalone`). For a setup with no single point of failure, use a highly available Redis.
 
 ### Configuration of Selenium Grid chart
 
