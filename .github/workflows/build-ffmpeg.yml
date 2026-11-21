@@ -20,7 +20,7 @@ on:
 jobs:
   prepare:
     name: Prepare build inputs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       build-date: ${{ steps.vars.outputs.build-date }}
       ghcr-namespace: ${{ steps.vars.outputs.ghcr-namespace }}
@@ -110,7 +110,7 @@ jobs:
   merge:
     name: Merge into one manifest list
     needs: [prepare, build]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
@@ -139,7 +139,7 @@ jobs:
     name: Deploy release
     needs: [prepare, merge]
     if: ${{ github.event.inputs.release == 'true' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

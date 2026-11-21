@@ -68,7 +68,7 @@ on:
 jobs:
   decide:
     name: Decide whether to build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: read
@@ -315,7 +315,7 @@ jobs:
     name: Merge into one manifest list
     needs: [decide, build]
     if: needs.decide.outputs.mode == 'build-and-push'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
@@ -358,7 +358,7 @@ jobs:
     name: Tag the manifest for this pull request
     needs: [decide, merge]
     if: always() && github.event.pull_request.number && needs.decide.outputs.mode != 'build-in-job' && !failure() && !cancelled()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write
