@@ -86,6 +86,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Secure Connection](#secure-connection)
   * [Browser language and locale](#browser-language-and-locale)
   * [Managing processes in container](#managing-processes-in-container)
+  * [Read-only root filesystem](#read-only-root-filesystem)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
 * [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
@@ -1614,6 +1615,73 @@ Or, you can mount the container directory `$(readlink -f $(which firefox)))/dist
 | SE_SUPERVISORD_CHILD_LOG_DIR | `/tmp`                 | supervisord.childlogdir |
 | SE_SUPERVISORD_LOG_FILE      | `/tmp/supervisord.log` | supervisord.logfile     |
 | SE_SUPERVISORD_PID_FILE      | `/tmp/supervisord.pid` | supervisord.pidfile     |
+
+The logs of the processes managed by `supervisord` (Xvfb, VNC, noVNC and the browser leftovers cleanup) are written to `SE_SUPERVISORD_CHILD_LOG_DIR`. To keep them in `/var/log/supervisor` as before, set `SE_SUPERVISORD_CHILD_LOG_DIR=/var/log/supervisor`.
+
+## Read-only root filesystem
+
+The containers can run with a read-only root filesystem (`docker run --read-only`, or `readOnlyRootFilesystem: true` in Kubernetes). The following paths and settings need to be writable:
+
+| Path or setting                                       | Used for                                                                       |
+|-------------------------------------------------------|--------------------------------------------------------------------------------|
+| `/tmp`                                                | `supervisord` and process logs, browser profiles, driver files, X11 sockets    |
+| `/var/tmp`                                            | Xvfb framebuffer                                                               |
+| `/dev/shm`                                            | Browser shared memory (`--shm-size` or an in-memory volume)                    |
+| `CONFIG_FILE=/tmp/config.toml`                        | Generated Grid config. The default path `/opt/selenium/config.toml` is read-only |
+| `XDG_CONFIG_HOME=/tmp/.config`, `XDG_CACHE_HOME=/tmp/.cache` | Files that browsers and PulseAudio write under the home directory       |
+
+Other paths only need to be writable when the related feature is used, for example `/videos` for video recording, or the downloads directory (`/home/seluser/Downloads`) for file downloads.
+
+Example with Docker:
+
+``` bash
+$ docker run --rm -it -p 4444:4444 --shm-size="2g" --read-only \
+  --tmpfs /tmp:uid=1200,gid=1201,mode=1777 \
+  --tmpfs /var/tmp:uid=1200,gid=1201,mode=1777 \
+  -e CONFIG_FILE=/tmp/config.toml \
+  -e XDG_CONFIG_HOME=/tmp/.config \
+  -e XDG_CACHE_HOME=/tmp/.cache \
+  selenium/standalone-firefox:4.53.0-20261120
+```
+
+Example with Kubernetes:
+
+```yaml
+spec:
+  securityContext:
+    runAsUser: 1200
+    runAsGroup: 1201
+    fsGroup: 1201
+  containers:
+    - name: selenium-node-firefox
+      image: selenium/node-firefox:4.53.0-20261120
+      env:
+        - name: CONFIG_FILE
+          value: /tmp/config.toml
+        - name: XDG_CONFIG_HOME
+          value: /tmp/.config
+        - name: XDG_CACHE_HOME
+          value: /tmp/.cache
+      securityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: var-tmp
+          mountPath: /var/tmp
+        - name: dshm
+          mountPath: /dev/shm
+  volumes:
+    - name: tmp
+      emptyDir: {}
+    - name: var-tmp
+      emptyDir: {}
+    - name: dshm
+      emptyDir:
+        medium: Memory
+        sizeLimit: 2Gi
+```
 
 ___
 
