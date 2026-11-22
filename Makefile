@@ -392,6 +392,9 @@ update_dockerhub_versions:
 test_dockerhub_description:
 	python3 -m unittest discover -s tests/dockerhub_description -v
 
+test_logger:
+	python3 -m unittest discover -s tests/logger -v
+
 update_release_version: install_python_deps
 	python3 scripts/release_preparation/update_versions.py --expected-base-version $(EXPECTED_BASE_VERSION)
 

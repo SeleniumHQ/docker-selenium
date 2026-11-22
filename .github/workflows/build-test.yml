@@ -83,6 +83,8 @@ jobs:
         uses: actions/checkout@main
       - name: Lint format
         run: make lint_format_scripts
+      - name: Test shared logger
+        run: make test_logger
 
   # The decisions the whole run keys on, made once and in a shell rather than in
   # an expression, because none can be expressed correctly inline.
