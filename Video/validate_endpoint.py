@@ -3,28 +3,16 @@
 import base64
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 
 import requests
 
 
 def get_timestamp():
-    """Get formatted timestamp based on SE_LOG_TIMESTAMP_FORMAT."""
-    ts_format = os.environ.get('SE_LOG_TIMESTAMP_FORMAT', '%Y-%m-%d %H:%M:%S,%f')
-    # Convert bash format to Python format
-    if '%3N' in ts_format:
-        # Replace %3N (bash milliseconds) with %f (Python microseconds) and trim later
-        ts_format_python = ts_format.replace('%3N', '%f')
-        timestamp = datetime.now(timezone.utc).strftime(ts_format_python)
-        # Convert microseconds to milliseconds (trim last 3 digits)
-        if '%f' in ts_format_python:
-            # Find the microseconds part and trim to milliseconds
-            parts = timestamp.rsplit(',', 1)
-            if len(parts) == 2 and len(parts[1]) == 6:
-                timestamp = parts[0] + ',' + parts[1][:3]
-    else:
-        timestamp = datetime.now(timezone.utc).strftime(ts_format)
-    return timestamp
+    """Get formatted timestamp based on SE_LOG_TIMESTAMP_FORMAT, which uses `date` syntax (%3N for milliseconds)."""
+    ts_format = os.environ.get('SE_LOG_TIMESTAMP_FORMAT', '%Y-%m-%d %H:%M:%S,%3N')
+    now = datetime.now()
+    return now.strftime(ts_format.replace('%3N', f'{now.microsecond // 1000:03d}'))
 
 
 def create_session():
@@ -89,30 +77,34 @@ def validate_endpoint(endpoint, graphql_endpoint=False, connection_timeout=5, re
 
     except requests.exceptions.Timeout:
         print(
-            f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} timed out (connection: {connection_timeout}s, read: {read_timeout}s)"
+            f"{get_timestamp()} WARN [{process_name}] - Endpoint {endpoint} timed out (connection: {connection_timeout}s, read: {read_timeout}s)"
         )
         return False
     except requests.exceptions.ConnectionError:
-        print(f"{get_timestamp()} [{process_name}] - Failed to connect to endpoint {endpoint}")
+        print(f"{get_timestamp()} WARN [{process_name}] - Failed to connect to endpoint {endpoint}")
         return False
     except requests.exceptions.RequestException as e:
-        print(f"{get_timestamp()} [{process_name}] - Error connecting to endpoint {endpoint}: {str(e)}")
+        print(f"{get_timestamp()} WARN [{process_name}] - Error connecting to endpoint {endpoint}: {str(e)}")
         return False
 
     # Handle different status codes
     if status_code == 404:
-        print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is not found - status code: {status_code}")
+        print(
+            f"{get_timestamp()} WARN [{process_name}] - Endpoint {endpoint} is not found - status code: {status_code}"
+        )
         return False
     elif status_code == 401:
         print(
-            f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} requires authentication - status code: {status_code}. Please provide valid credentials via SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD environment variables."
+            f"{get_timestamp()} WARN [{process_name}] - Endpoint {endpoint} requires authentication - status code: {status_code}. Please provide valid credentials via SE_ROUTER_USERNAME and SE_ROUTER_PASSWORD environment variables."
         )
         return False
     elif status_code != 200:
-        print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is not available - status code: {status_code}")
+        print(
+            f"{get_timestamp()} WARN [{process_name}] - Endpoint {endpoint} is not available - status code: {status_code}"
+        )
         return False
 
-    print(f"{get_timestamp()} [{process_name}] - Endpoint {endpoint} is reachable - status code: {status_code}")
+    print(f"{get_timestamp()} INFO [{process_name}] - Endpoint {endpoint} is reachable - status code: {status_code}")
     return True
 
 

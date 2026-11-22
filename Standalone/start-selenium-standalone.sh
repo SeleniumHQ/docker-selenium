@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
+
+source /opt/bin/logger.sh
 #
 # IMPORTANT: Change this file only in directory Standalone!
 
 # Check if Chrome components update is enabled
 if [ "${SE_UPDATE_CHROME_COMPONENTS}" = "true" ] && [ -f /opt/bin/update-chrome-components.sh ]; then
-  echo "Chrome components update enabled, checking for updates..."
-  echo "Note that after the container gets restarted, updated binaries will be lost unless you call the update script within the build container process."
+  log_info "Chrome components update enabled, checking for updates..."
+  log_info "Note that after the container gets restarted, updated binaries will be lost unless you call the update script within the build container process."
   /opt/bin/update-chrome-components.sh
 fi
 
@@ -25,26 +27,26 @@ function append_se_opts() {
   local log_message="${3:-true}"
   if [[ "${SE_OPTS}" != *"${option}"* ]]; then
     if [ "${log_message}" = "true" ]; then
-      echo "Appending Selenium option: ${option} ${value}"
+      log_info "Appending Selenium option: ${option} ${value}"
     else
-      echo "Appending Selenium option: ${option} $(mask ${value})"
+      log_info "Appending Selenium option: ${option} $(mask ${value})"
     fi
     SE_OPTS="${SE_OPTS} ${option}"
     if [ ! -z "${value}" ]; then
       SE_OPTS="${SE_OPTS} ${value}"
     fi
   else
-    echo "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
+    log_info "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
   fi
 }
 
 if [ ! -z "$SE_SUB_PATH" ]; then
-  echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
+  log_info "Using SE_SUB_PATH: ${SE_SUB_PATH}"
   SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
 fi
 
 if [ ! -z "$SE_OPTS" ]; then
-  echo "Appending Selenium options: ${SE_OPTS}"
+  log_info "Appending Selenium options: ${SE_OPTS}"
 fi
 
 if [ ! -z "$SE_DISABLE_UI" ]; then
@@ -123,18 +125,18 @@ fi
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
   # Configure truststore for the server
   if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
+    log_info "Appending Java options: -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
   fi
   if [ -f "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Getting Truststore password from ${SE_JAVA_SSL_TRUST_STORE_PASSWORD} to set Java options: -Djavax.net.ssl.trustStorePassword"
+    log_info "Getting Truststore password from ${SE_JAVA_SSL_TRUST_STORE_PASSWORD} to set Java options: -Djavax.net.ssl.trustStorePassword"
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="$(cat ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
   fi
   if [ ! -z "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
+    log_info "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
   fi
-  echo "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
+  log_info "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   # Configure certificate and private key for component communication
   if [ ! -z "$SE_HTTPS_CERTIFICATE" ]; then
@@ -158,14 +160,14 @@ if [ ! -z "$SE_NEW_SESSION_THREAD_POOL_SIZE" ]; then
 fi
 
 if [ "$GENERATE_CONFIG" = true ]; then
-  echo "Generating Selenium Config"
+  log_info "Generating Selenium Config"
   /opt/bin/generate_config
   /opt/bin/generate_relay_config
 fi
 
-echo "Selenium Grid Standalone configuration: "
+log_info "Selenium Grid Standalone configuration: "
 cat "${CONFIG_FILE}"
-echo "Starting Selenium Grid Standalone..."
+log_info "Starting Selenium Grid Standalone..."
 
 EXTRA_LIBS=""
 if [ -n "${SE_EXTRA_LIBS}" ]; then
@@ -179,7 +181,7 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
   elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
     EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
   fi
-  echo "Tracing is enabled"
+  log_info "Tracing is enabled"
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.resource.attributes=service.name=${SE_OTEL_SERVICE_NAME}${SE_OTEL_RESOURCE_ATTRIBUTES:+,${SE_OTEL_RESOURCE_ATTRIBUTES}}"
   fi
@@ -198,11 +200,11 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
 else
   append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
-  echo "Tracing is disabled"
+  log_info "Tracing is disabled"
 fi
 
 if [ -n "${EXTRA_LIBS}" ]; then
-  echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
+  log_info "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
 fi
 
 CHROME_DRIVER_PATH_PROPERTY=-Dwebdriver.chrome.driver=/usr/bin/chromedriver
@@ -229,7 +231,9 @@ if [ -n "${JAVA_OPTS}" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS ${JAVA_OPTS}"
 fi
 
-echo "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+log_info "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+
+set_log_timestamp_opts
 
 java ${SE_JAVA_OPTS} \
   ${CHROME_DRIVER_PATH_PROPERTY} \
@@ -245,4 +249,5 @@ java ${SE_JAVA_OPTS} \
   --bind-host ${SE_BIND_HOST} \
   --config ${CONFIG_FILE} \
   ${SUB_PATH_CONFIG} \
+  "${LOG_TIMESTAMP_OPTS[@]}" \
   ${SE_OPTS}

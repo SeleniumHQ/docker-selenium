@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+
+source /opt/bin/logger.sh
 #==============================================
 # OpenShift or non-sudo environments support
 # https://docs.openshift.com/container-platform/3.11/creating_images/guidelines.html#openshift-specific-guidelines
@@ -11,7 +13,7 @@ if ! whoami &>/dev/null; then
 fi
 
 if [ -n "${VIRTUAL_ENV}" ]; then
-  echo "Virtual environment detected at ${VIRTUAL_ENV}, activating..."
+  log_info "Virtual environment detected at ${VIRTUAL_ENV}, activating..."
   source ${VIRTUAL_ENV}/bin/activate
   python3 --version
 fi
@@ -40,10 +42,10 @@ supervisord --configuration /etc/supervisord.conf &
 SUPERVISOR_PID=$!
 
 function shutdown {
-  echo "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
+  log_info "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
   kill -s SIGTERM ${SUPERVISOR_PID}
   wait ${SUPERVISOR_PID}
-  echo "Shutdown complete"
+  log_info "Shutdown complete"
 }
 
 trap shutdown SIGTERM SIGINT

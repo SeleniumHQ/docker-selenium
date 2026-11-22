@@ -87,6 +87,7 @@ Talk to us at https://www.selenium.dev/support/
   * [Browser language and locale](#browser-language-and-locale)
   * [Managing processes in container](#managing-processes-in-container)
   * [Read-only root filesystem](#read-only-root-filesystem)
+  * [Log format](#log-format)
 * [Building the images](#building-the-images)
 * [Build the images with specific versions](#build-the-images-with-specific-versions)
 * [Upgrade browser version in the images](#upgrade-browser-version-in-the-images)
@@ -1682,6 +1683,28 @@ spec:
         medium: Memory
         sizeLimit: 2Gi
 ```
+
+
+## Log format
+
+The scripts in the images and the video recorder write their logs with the same layout as the Selenium server:
+
+```
+2026-11-20 10:15:30,123 INFO [start-selenium-node] - Starting Selenium Grid Node...
+2026-11-20 10:15:32,456 INFO [NodeServer$1.start] - Starting registration process for Node http://172.18.0.3:5555
+```
+
+Each line has a timestamp, a level (`INFO`, `WARN` or `ERROR`), the process or class name, and the message.
+
+The timestamp format is set with `SE_LOG_TIMESTAMP_FORMAT`, using `date` syntax (`%3N` for milliseconds). The default is `%Y-%m-%d %H:%M:%S,%3N`. The images convert it and pass it to the Selenium server with `--log-timestamp-format`, so all lines use the same format. For example:
+
+``` bash
+$ docker run --rm -it -p 4444:4444 --shm-size="2g" \
+  -e SE_LOG_TIMESTAMP_FORMAT="%H:%M:%S.%3N" \
+  selenium/standalone-chrome:4.53.0-20261120
+```
+
+When the format uses a `date` token that has no Java equivalent, the Selenium server keeps its default format and a warning is logged. To set the server format directly, pass `--log-timestamp-format` in `SE_OPTS`.
 
 ___
 

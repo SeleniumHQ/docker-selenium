@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source /opt/bin/logger.sh
+
 SCREEN_WIDTH=${SCREEN_WIDTH:-$SE_SCREEN_WIDTH}
 SCREEN_HEIGHT=${SCREEN_HEIGHT:-$SE_SCREEN_HEIGHT}
 SCREEN_DEPTH=${SCREEN_DEPTH:-$SE_SCREEN_DEPTH}
@@ -19,5 +21,5 @@ if [ "${START_XVFB:-$SE_START_XVFB}" = true ]; then
     --server-args="-screen 0 ${GEOMETRY} -fbdir /var/tmp -dpi ${SCREEN_DPI} -listen tcp -noreset -ac +extension RANDR" \
     /usr/bin/fluxbox -display ${DISPLAY}
 else
-  echo "Xvfb and Fluxbox won't start. Chrome/Firefox/Edge can only run in headless mode. Remember to set the 'headless' flag in your test."
+  log_info "Xvfb and Fluxbox won't start. Chrome/Firefox/Edge can only run in headless mode. Remember to set the 'headless' flag in your test."
 fi

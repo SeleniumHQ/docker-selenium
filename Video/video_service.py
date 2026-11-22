@@ -41,6 +41,7 @@ import re
 import signal
 import ssl
 import sys
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum, auto
@@ -52,10 +53,24 @@ from urllib.request import Request, urlopen
 import zmq
 import zmq.asyncio
 
-# Configure logging
-LOG_FORMAT = "%(asctime)s [video.service] - %(message)s"
-LOG_DATEFMT = os.environ.get("SE_LOG_TIMESTAMP_FORMAT", "%Y-%m-%d %H:%M:%S,%f")[:-3]
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATEFMT)
+# Configure logging. Lines have the same layout as the Selenium server logs:
+# <timestamp> <LEVEL> [video.service] - <message>
+LOG_FORMAT = "%(asctime)s %(levelname)s [video.service] - %(message)s"
+LOG_DATEFMT = os.environ.get("SE_LOG_TIMESTAMP_FORMAT", "%Y-%m-%d %H:%M:%S,%3N")
+
+
+class TimestampFormatter(logging.Formatter):
+    """Formats timestamps with SE_LOG_TIMESTAMP_FORMAT, which uses `date` syntax (%3N for milliseconds)."""
+
+    def formatTime(self, record, datefmt=None):
+        fmt = (datefmt or LOG_DATEFMT).replace("%3N", f"{int(record.msecs):03d}")
+        return time.strftime(fmt, self.converter(record.created))
+
+
+logging.addLevelName(logging.WARNING, "WARN")
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(TimestampFormatter(LOG_FORMAT, datefmt=LOG_DATEFMT))
+logging.basicConfig(level=logging.INFO, handlers=[_log_handler])
 logger = logging.getLogger(__name__)
 
 
