@@ -11,7 +11,7 @@ import requests
 def get_timestamp():
     """Get formatted timestamp based on SE_LOG_TIMESTAMP_FORMAT, which uses `date` syntax (%3N for milliseconds)."""
     ts_format = os.environ.get('SE_LOG_TIMESTAMP_FORMAT', '%Y-%m-%d %H:%M:%S,%3N')
-    now = datetime.now()
+    now = datetime.now().astimezone()
     return now.strftime(ts_format.replace('%3N', f'{now.microsecond // 1000:03d}'))
 
 

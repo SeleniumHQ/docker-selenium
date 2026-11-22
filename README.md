@@ -1704,6 +1704,8 @@ $ docker run --rm -it -p 4444:4444 --shm-size="2g" \
   selenium/standalone-chrome:4.53.0-20261120
 ```
 
+Timestamps use the container time zone, set with `TZ` (default `UTC`).
+
 When the format uses a `date` token that has no Java equivalent, the Selenium server keeps its default format and a warning is logged. To set the server format directly, pass `--log-timestamp-format` in `SE_OPTS`.
 
 ___

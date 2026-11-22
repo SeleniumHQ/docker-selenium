@@ -27,12 +27,15 @@ log_error() {
   _se_log ERROR "$@" >&2
 }
 
-# Converts a `date` format to a Java SimpleDateFormat pattern, so the Selenium server
-# logs use the same timestamp as the scripts. Returns 1 for unsupported `date` tokens.
+# Converts a `date` format to a Java date pattern, so the Selenium server logs use the
+# same timestamp as the scripts. Returns 1 for unsupported `date` tokens.
+# Text other than digits, spaces and - : , . / is quoted, so letters and characters that
+# Java patterns reserve (like [ ] { } #) are printed as they are.
 to_java_timestamp_format() {
   local input="${1}"
   local output=""
   local literal=""
+  local safe_chars='^[0-9 :,./-]$'
   local i char token
   for ((i = 0; i < ${#input}; i++)); do
     char="${input:i:1}"
@@ -63,18 +66,24 @@ to_java_timestamp_format() {
       *) return 1 ;;
       esac
       i=$((i + ${#token}))
-    elif [[ "${char}" =~ [A-Za-z] ]]; then
-      # Letters are pattern characters in Java, so quote them to keep them as text
-      literal="${char}"
-      while [[ "${input:i+1:1}" =~ [A-Za-z] ]]; do
+    elif [[ "${char}" =~ ${safe_chars} ]]; then
+      output+="${char}"
+    else
+      # Quote the run of text up to the next safe character or token. A quote inside is written twice.
+      literal=""
+      while :; do
+        if [ "${char}" = "'" ]; then
+          literal+="''"
+        else
+          literal+="${char}"
+        fi
+        char="${input:i+1:1}"
+        if [ -z "${char}" ] || [ "${char}" = "%" ] || [[ "${char}" =~ ${safe_chars} ]]; then
+          break
+        fi
         i=$((i + 1))
-        literal+="${input:i:1}"
       done
       output+="'${literal}'"
-    elif [ "${char}" = "'" ]; then
-      output+="''"
-    else
-      output+="${char}"
     fi
   done
   echo "${output}"

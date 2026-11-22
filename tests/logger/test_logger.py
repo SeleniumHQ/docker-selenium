@@ -30,6 +30,8 @@ class ToJavaTimestampFormatTest(unittest.TestCase):
             '%Y-%m-%dT%H:%M:%S%z': "yyyy-MM-dd'T'HH:mm:ssZ",
             '%d/%b/%Y at %I:%M %p': "dd/MMM/yyyy 'at' hh:mm a",
             "%H:%M 'x' %%": "HH:mm '''x''' %",
+            '[%Y-%m-%d %H:%M:%S]': "'['yyyy-MM-dd HH:mm:ss']'",
+            '%H:%M #{x}': "HH:mm '#{x}'",
         }
         for date_format, java_format in cases.items():
             with self.subTest(date_format=date_format):
