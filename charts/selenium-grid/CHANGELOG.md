@@ -1,3 +1,18 @@
+## :heavy_check_mark: selenium-grid-0.65.0
+
+- Chart is using image tag 4.54.0-20261123
+- Chart is tested on Kubernetes versions: v1.34.13,v1.37.2
+- Chart is tested on container runtime Docker versions: 28.5.2,29.1.1
+- Chart is tested on Helm versions: v3.22.1,v4.3.2
+- Chart is tested autoscaling capabilities with KEDA image tag: 2.20.1
+
+### Changed
+- [`b085332c`](http://github.com/seleniumhq/docker-selenium/commit/b085332ca1b2091680a0aafdd0c64a95d81b6362) - [ci] Update tag 4.54.0-20261123 in docs and files :: Selenium CI Bot
+- [`aebc456b`](http://github.com/seleniumhq/docker-selenium/commit/aebc456b3a89aa1b60f82d7595374b3bcfc7176c) - [chart] Honor kube-prometheus-stack.enabled: false (#3321) :: Diego Molina
+- [`b31998fa`](http://github.com/seleniumhq/docker-selenium/commit/b31998fa45b83be7069ee05e32c0c6009391b807) - [chart] Allow setting schedulerName for node pods (#3320) :: Diego Molina
+- [`518bc2d5`](http://github.com/seleniumhq/docker-selenium/commit/518bc2d5ab6f52fc788babda3c2218adfe9bd379) - [docs] Document high availability setup in the Helm chart (#3315) :: Diego Molina
+- [`1e127b3d`](http://github.com/seleniumhq/docker-selenium/commit/1e127b3dda85605fff897f7d84a10e99d3469edb) - [ci] Update chart 0.64.0 changelog :: Selenium CI Bot
+
 ## :heavy_check_mark: selenium-grid-0.64.0
 
 - Chart is using image tag 4.53.0-20261120
