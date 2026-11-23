@@ -1,5 +1,8 @@
 matrix:
   browser:
+    '161':
+      FIREFOX_VERSION: '161.0'
+      FIREFOX_PLATFORMS: linux/amd64,linux/arm64
     '160':
       FIREFOX_VERSION: 160.0.1
       FIREFOX_PLATFORMS: linux/amd64,linux/arm64
