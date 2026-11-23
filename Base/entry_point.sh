@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source /opt/bin/logger.sh
+
 NODE_CONFIG_DIRECTORY=${NODE_CONFIG_DIRECTORY:-"/opt/bin"}
 #==============================================
 # OpenShift or non-sudo environments support
@@ -13,7 +15,7 @@ if ! whoami &>/dev/null; then
 fi
 
 if [ -n "${VIRTUAL_ENV}" ]; then
-  echo "Virtual environment detected at ${VIRTUAL_ENV}, activating..."
+  log_info "Virtual environment detected at ${VIRTUAL_ENV}, activating..."
   source ${VIRTUAL_ENV}/bin/activate
   python3 --version
 fi
@@ -23,19 +25,19 @@ supervisord --configuration /etc/supervisord.conf &
 SUPERVISOR_PID=$!
 
 function shutdown {
-  echo "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
+  log_info "Trapped SIGTERM/SIGINT/x so shutting down supervisord..."
   if [ "${SE_NODE_GRACEFUL_SHUTDOWN}" = "true" ]; then
-    echo "Waiting for Selenium Node to shutdown gracefully..."
+    log_info "Waiting for Selenium Node to shutdown gracefully..."
     bash ${NODE_CONFIG_DIRECTORY}/nodePreStop.sh
   fi
   if [ -n "${SE_VIDEO_CONTAINER_NAME}" ]; then
     # For K8s, when video sidecar container and shareProcessNamespace are enabled in pod spec
-    echo "Shutting down ${SE_VIDEO_CONTAINER_NAME} container..."
+    log_info "Shutting down ${SE_VIDEO_CONTAINER_NAME} container..."
     pkill -f "${SE_VIDEO_CONTAINER_NAME}"
   fi
   kill -s SIGTERM ${SUPERVISOR_PID}
   wait ${SUPERVISOR_PID}
-  echo "Shutdown complete"
+  log_info "Shutdown complete"
 }
 
 trap shutdown SIGTERM SIGINT

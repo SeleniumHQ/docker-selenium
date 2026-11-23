@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+source /opt/bin/logger.sh
+
 # set -e: exit asap if a command exits with a non-zero status
 set -e
 
-echo "Starting Selenium Grid Router..."
+log_info "Starting Selenium Grid Router..."
 
 function append_se_opts() {
   local option="${1}"
@@ -11,65 +13,65 @@ function append_se_opts() {
   local log_message="${3:-true}"
   if [[ "${SE_OPTS}" != *"${option}"* ]]; then
     if [ "${log_message}" = "true" ]; then
-      echo "Appending Selenium option: ${option} ${value}"
+      log_info "Appending Selenium option: ${option} ${value}"
     else
-      echo "Appending Selenium option: ${option} $(mask ${value})"
+      log_info "Appending Selenium option: ${option} $(mask ${value})"
     fi
     SE_OPTS="${SE_OPTS} ${option}"
     if [ ! -z "${value}" ]; then
       SE_OPTS="${SE_OPTS} ${value}"
     fi
   else
-    echo "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
+    log_info "Selenium option: ${option} already set in env variable SE_OPTS. Ignore new option: ${option} ${value}"
   fi
 }
 
 if [[ -z "${SE_SESSIONS_MAP_HOST}" ]]; then
-  echo "SE_SESSIONS_MAP_HOST not set, exiting!" 1>&2
+  log_error "SE_SESSIONS_MAP_HOST not set, exiting!"
   exit 1
 fi
 
 if [[ -z "${SE_SESSIONS_MAP_PORT}" ]]; then
-  echo "SE_SESSIONS_MAP_PORT not set, exiting!" 1>&2
+  log_error "SE_SESSIONS_MAP_PORT not set, exiting!"
   exit 1
 fi
 
 if [[ -z "${SE_DISTRIBUTOR_HOST}" ]]; then
-  echo "DISTRIBUTOR_HOST not set, exiting!" 1>&2
+  log_error "DISTRIBUTOR_HOST not set, exiting!"
   exit 1
 fi
 
 if [[ -z "${SE_DISTRIBUTOR_PORT}" ]]; then
-  echo "DISTRIBUTOR_PORT not set, exiting!" 1>&2
+  log_error "DISTRIBUTOR_PORT not set, exiting!"
   exit 1
 fi
 
 if [[ -z "${SE_SESSION_QUEUE_HOST}" ]]; then
-  echo "SE_SESSION_QUEUE_HOST not set, exiting!" 1>&2
+  log_error "SE_SESSION_QUEUE_HOST not set, exiting!"
   exit 1
 fi
 
 if [[ -z "${SE_SESSION_QUEUE_PORT}" ]]; then
-  echo "SE_SESSION_QUEUE_PORT not set, exiting!" 1>&2
+  log_error "SE_SESSION_QUEUE_PORT not set, exiting!"
   exit 1
 fi
 
 if [ ! -z "$SE_SUB_PATH" ]; then
-  echo "Using SE_SUB_PATH: ${SE_SUB_PATH}"
+  log_info "Using SE_SUB_PATH: ${SE_SUB_PATH}"
   SUB_PATH_CONFIG="--sub-path ${SE_SUB_PATH}"
 fi
 
 if [ ! -z "$SE_OPTS" ]; then
-  echo "Appending Selenium options: ${SE_OPTS}"
+  log_info "Appending Selenium options: ${SE_OPTS}"
 fi
 
 if [ ! -z "$SE_ROUTER_HOST" ]; then
-  echo "Using SE_ROUTER_HOST: ${SE_ROUTER_HOST}"
+  log_info "Using SE_ROUTER_HOST: ${SE_ROUTER_HOST}"
   HOST_CONFIG="--host ${SE_ROUTER_HOST}"
 fi
 
 if [ ! -z "$SE_ROUTER_PORT" ]; then
-  echo "Using SE_ROUTER_PORT: ${SE_ROUTER_PORT}"
+  log_info "Using SE_ROUTER_PORT: ${SE_ROUTER_PORT}"
   PORT_CONFIG="--port ${SE_ROUTER_PORT}"
 fi
 
@@ -96,18 +98,18 @@ fi
 if [ "${SE_ENABLE_TLS}" = "true" ]; then
   # Configure truststore for the server
   if [ ! -z "$SE_JAVA_SSL_TRUST_STORE" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
+    log_info "Appending Java options: -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStore=${SE_JAVA_SSL_TRUST_STORE}"
   fi
   if [ -f "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Getting Truststore password from ${SE_JAVA_SSL_TRUST_STORE_PASSWORD} to set Java options: -Djavax.net.ssl.trustStorePassword"
+    log_info "Getting Truststore password from ${SE_JAVA_SSL_TRUST_STORE_PASSWORD} to set Java options: -Djavax.net.ssl.trustStorePassword"
     SE_JAVA_SSL_TRUST_STORE_PASSWORD="$(cat ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
   fi
   if [ ! -z "${SE_JAVA_SSL_TRUST_STORE_PASSWORD}" ]; then
-    echo "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
+    log_info "Appending Java options: -Djavax.net.ssl.trustStorePassword=$(mask ${SE_JAVA_SSL_TRUST_STORE_PASSWORD})"
     SE_JAVA_OPTS="$SE_JAVA_OPTS -Djavax.net.ssl.trustStorePassword=${SE_JAVA_SSL_TRUST_STORE_PASSWORD}"
   fi
-  echo "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
+  log_info "Appending Java options: -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Djdk.internal.httpclient.disableHostnameVerification=${SE_JAVA_DISABLE_HOSTNAME_VERIFICATION}"
   # Configure certificate and private key for component communication
   if [ ! -z "$SE_HTTPS_CERTIFICATE" ]; then
@@ -150,7 +152,7 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
   elif [ -z "${EXTRA_LIBS}" ] && [ -n "${EXTERNAL_JARS}" ]; then
     EXTRA_LIBS="--ext ${EXTERNAL_JARS}"
   fi
-  echo "Tracing is enabled"
+  log_info "Tracing is enabled"
   if [ -n "$SE_OTEL_SERVICE_NAME" ]; then
     SE_OTEL_JVM_ARGS="$SE_OTEL_JVM_ARGS -Dotel.resource.attributes=service.name=${SE_OTEL_SERVICE_NAME}${SE_OTEL_RESOURCE_ATTRIBUTES:+,${SE_OTEL_RESOURCE_ATTRIBUTES}}"
   fi
@@ -169,11 +171,11 @@ if [ "${SE_ENABLE_TRACING}" = "true" ] && [ -n "${SE_OTEL_EXPORTER_ENDPOINT}" ];
 else
   append_se_opts "--tracing" "false"
   SE_JAVA_OPTS="$SE_JAVA_OPTS -Dwebdriver.remote.enableTracing=false"
-  echo "Tracing is disabled"
+  log_info "Tracing is disabled"
 fi
 
 if [ -n "${EXTRA_LIBS}" ]; then
-  echo "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
+  log_info "Classpath will be enriched with these external jars : ${EXTRA_LIBS}"
 fi
 
 if [ -n "${SE_JAVA_HTTPCLIENT_VERSION}" ]; then
@@ -196,7 +198,9 @@ if [ -n "${JAVA_OPTS}" ]; then
   SE_JAVA_OPTS="$SE_JAVA_OPTS ${JAVA_OPTS}"
 fi
 
-echo "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+log_info "Using JAVA_OPTS: ${SE_JAVA_OPTS}"
+
+set_log_timestamp_opts
 
 java ${SE_JAVA_OPTS} \
   -jar /opt/selenium/selenium-server.jar \
@@ -211,4 +215,5 @@ java ${SE_JAVA_OPTS} \
   ${HOST_CONFIG} \
   ${PORT_CONFIG} \
   ${SUB_PATH_CONFIG} \
+  "${LOG_TIMESTAMP_OPTS[@]}" \
   ${SE_OPTS}

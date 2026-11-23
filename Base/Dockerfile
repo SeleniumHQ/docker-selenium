@@ -159,7 +159,7 @@ RUN if [ "${TARGETARCH}" = "arm" ] && [ "${TARGETVARIANT}" = "v7" ]; then \
 #======================================
 # Add Grid check script
 #======================================
-COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh handle_heap_dump.sh /opt/bin/
+COPY --chown="${SEL_UID}:${SEL_GID}" check-grid.sh entry_point.sh logger.sh configs/node/nodeGridUrl.sh configs/node/nodePreStop.sh handle_heap_dump.sh /opt/bin/
 COPY --chown="${SEL_UID}:${SEL_GID}" mask /usr/local/bin/
 RUN chmod +x /opt/bin/*.sh /usr/local/bin/mask
 

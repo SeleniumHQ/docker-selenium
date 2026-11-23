@@ -15,7 +15,7 @@
 | SE_VIDEO_WAIT_ATTEMPTS |  |  |  |
 | SE_VIDEO_FILE_READY_WAIT_ATTEMPTS |  |  |  |
 | SE_VIDEO_WAIT_UPLOADER_SHUTDOWN_ATTEMPTS |  |  |  |
-| SE_LOG_TIMESTAMP_FORMAT | %Y-%m-%d %H:%M:%S,%3N |  |  |
+| SE_LOG_TIMESTAMP_FORMAT | %Y-%m-%d %H:%M:%S,%3N | Timestamp format of the log lines, in `date` syntax (%3N for milliseconds). It is applied to the scripts and video recorder logs, and converted for the Selenium server logs | --log-timestamp-format |
 | SE_VIDEO_RECORD_STANDALONE |  |  |  |
 | SE_NODE_PORT |  |  | --port |
 | SE_ROUTER_USERNAME |  | Set the username for basic authentication | --username |

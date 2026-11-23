@@ -46,8 +46,10 @@
   description: ''
   cli: ''
 - name: SE_LOG_TIMESTAMP_FORMAT
-  description: ''
-  cli: ''
+  description: Timestamp format of the log lines, in `date` syntax (%3N for milliseconds).
+    It is applied to the scripts and video recorder logs, and converted for the Selenium
+    server logs
+  cli: --log-timestamp-format
 - name: SE_VIDEO_RECORD_STANDALONE
   description: ''
   cli: ''
