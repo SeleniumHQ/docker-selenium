@@ -84,12 +84,21 @@ jobs:
           set -euo pipefail
           if [ -n "${PR_BASE_SHA}" ]; then
             BASE_SHA="$(git merge-base "${PR_BASE_SHA}" HEAD)"
-          elif [ -n "${PUSH_BEFORE_SHA}" ] && [ "${PUSH_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ] \
-            && git cat-file -e "${PUSH_BEFORE_SHA}^{commit}" 2>/dev/null; then
-            BASE_SHA="${PUSH_BEFORE_SHA}"
-          else
+          elif [ -z "${PUSH_BEFORE_SHA}" ] || [ "${PUSH_BEFORE_SHA}" = "0000000000000000000000000000000000000000" ]; then
             # A new branch has no previous commit, so compare with where it left trunk
             BASE_SHA="$(git merge-base origin/trunk HEAD)"
+          else
+            # The previous tip of the branch. After a force-push it is not in the
+            # checkout, so fetch it. Comparing with trunk instead would report
+            # findings that were already on the branch as new.
+            if ! git cat-file -e "${PUSH_BEFORE_SHA}^{commit}" 2>/dev/null; then
+              git fetch --no-tags --depth=1 origin "${PUSH_BEFORE_SHA}" || true
+            fi
+            if ! git cat-file -e "${PUSH_BEFORE_SHA}^{commit}" 2>/dev/null; then
+              echo "::error::Previous commit ${PUSH_BEFORE_SHA} of this branch is not available, so the scan has no base to compare with."
+              exit 1
+            fi
+            BASE_SHA="${PUSH_BEFORE_SHA}"
           fi
           echo "Base commit: ${BASE_SHA}"
           git worktree add --detach "${RUNNER_TEMP}/base" "${BASE_SHA}"
