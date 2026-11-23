@@ -31,6 +31,16 @@ class ScaledJobTemplateTests(unittest.TestCase):
             self.assertEqual(spec.get("minReplicaCount"), 0)
             self.assertEqual(spec.get("successfulJobsHistoryLimit"), 0)
 
+    def test_scheduler_name_set_only_where_configured(self):
+        scaled_jobs = {
+            doc["metadata"]["name"]: doc for doc in LIST_OF_DOCUMENTS if doc and doc.get("kind") == "ScaledJob"
+        }
+        expected = {"selenium-node-chrome": "custom-scheduler", "selenium-node-firefox": None}
+        for name, scheduler_name in expected.items():
+            logger.info(f"Assert schedulerName in ScaledJob {name}")
+            pod_spec = scaled_jobs[name]["spec"]["jobTargetRef"]["template"]["spec"]
+            self.assertEqual(pod_spec.get("schedulerName"), scheduler_name)
+
 
 if __name__ == "__main__":
     failed = False

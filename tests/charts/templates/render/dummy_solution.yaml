@@ -135,6 +135,7 @@ selenium-grid:
         backend: redis
 
   chromeNode:
+    schedulerName: custom-scheduler
     nodeMaxSessions: 2
     nodeDrainAfterSessionCount: 10
     affinity: *affinity
