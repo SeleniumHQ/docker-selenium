@@ -797,6 +797,9 @@ template:
   {{- with .node.priorityClassName }}
     priorityClassName: {{ . }}
   {{- end }}
+  {{- with .node.schedulerName }}
+    schedulerName: {{ . }}
+  {{- end }}
     terminationGracePeriodSeconds: {{ template "seleniumGrid.node.terminationGracePeriodSeconds" $ }}
     volumes:
       - name: {{ tpl (default (include "seleniumGrid.node.configmap.fullname" $) $.Values.nodeConfigMap.scriptVolumeMountName) $ }}

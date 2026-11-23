@@ -187,6 +187,7 @@ components:
       backend: postgresql
 
 chromeNode:
+  schedulerName: custom-scheduler
   nodeMaxSessions: 2
   nodeDrainAfterSessionCount: 10
   annotations:

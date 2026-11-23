@@ -518,6 +518,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | chromeNode.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
 | chromeNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | chromeNode.priorityClassName | string | `""` | Priority class name for chrome-node pods |
+| chromeNode.schedulerName | string | `""` | Scheduler name for chrome-node pods (if not set, the default scheduler is used) |
 | chromeNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
 | chromeNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | chromeNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
@@ -580,6 +581,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | firefoxNode.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
 | firefoxNode.dshmVolumeSizeLimit | string | `"2Gi"` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | firefoxNode.priorityClassName | string | `""` | Priority class name for firefox-node pods |
+| firefoxNode.schedulerName | string | `""` | Scheduler name for firefox-node pods (if not set, the default scheduler is used) |
 | firefoxNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
 | firefoxNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | firefoxNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
@@ -642,6 +644,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | edgeNode.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
 | edgeNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | edgeNode.priorityClassName | string | `""` | Priority class name for edge-node pods |
+| edgeNode.schedulerName | string | `""` | Scheduler name for edge-node pods (if not set, the default scheduler is used) |
 | edgeNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
 | edgeNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | edgeNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
@@ -705,6 +708,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | relayNode.service.sessionAffinity | string | `""` | Set session affinity to None, ClientIP or ClientIPString |
 | relayNode.dshmVolumeSizeLimit | string | `""` | Size limit for DSH volume mounted in container (if not set, default is disabled, e.g "1Gi") |
 | relayNode.priorityClassName | string | `""` | Priority class name for relay-node pods |
+| relayNode.schedulerName | string | `""` | Scheduler name for relay-node pods (if not set, the default scheduler is used) |
 | relayNode.startupProbe | object | `{"enabled":true,"failureThreshold":12,"initialDelaySeconds":0,"path":"/status","periodSeconds":5,"successThreshold":1,"timeoutSeconds":60}` | Startup probe settings |
 | relayNode.readinessProbe | object | `{"enabled":true,"failureThreshold":10,"initialDelaySeconds":10,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":10}` | Readiness probe settings |
 | relayNode.livenessProbe | object | `{"enabled":false,"failureThreshold":6,"initialDelaySeconds":30,"path":"/status","periodSeconds":10,"successThreshold":1,"timeoutSeconds":60}` | Liveness probe settings |
