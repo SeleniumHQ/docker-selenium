@@ -798,7 +798,7 @@ template:
     priorityClassName: {{ . }}
   {{- end }}
   {{- with .node.schedulerName }}
-    schedulerName: {{ . }}
+    schedulerName: {{ . | quote }}
   {{- end }}
     terminationGracePeriodSeconds: {{ template "seleniumGrid.node.terminationGracePeriodSeconds" $ }}
     volumes:
