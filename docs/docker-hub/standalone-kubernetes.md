@@ -22,9 +22,9 @@ The same Dynamic Grid concept is applied to a Kubernetes cluster. The Grid provi
 
 ### Minimal setup
 
-Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.53.0-20261120/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
+Along with them, reference Kubernetes manifests are available at [kubernetes/DynamicGrid/](https://github.com/SeleniumHQ/docker-selenium/tree/4.54.0-20261123/kubernetes/DynamicGrid). These are intentionally simplex — designed for local practice and getting started quickly.
 
-Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.53.0-20261120/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
+Browser stereotypes and Dynamic Grid tuning live in a TOML config file, delivered to the Node Pod via a [ConfigMap](https://github.com/SeleniumHQ/docker-selenium/blob/4.54.0-20261123/kubernetes/DynamicGrid/BaseConfig/configmap.yaml):
 
 ```yaml
 # configmap.yaml
@@ -36,9 +36,9 @@ data:
   kubernetes.toml: |
     [kubernetes]
     configs = [
-        "selenium/standalone-chrome:4.53.0-20261120", '{"browserName": "chrome", "platformName": "linux"}',
-        "selenium/standalone-firefox:4.53.0-20261120", '{"browserName": "firefox", "platformName": "linux"}',
-        "selenium/standalone-edge:4.53.0-20261120", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
+        "selenium/standalone-chrome:4.54.0-20261123", '{"browserName": "chrome", "platformName": "linux"}',
+        "selenium/standalone-firefox:4.54.0-20261123", '{"browserName": "firefox", "platformName": "linux"}',
+        "selenium/standalone-edge:4.54.0-20261123", '{"browserName": "MicrosoftEdge", "platformName": "linux"}'
     ]
 ```
 
@@ -69,7 +69,7 @@ spec:
       terminationGracePeriodSeconds: 300
       containers:
         - name: selenium-standalone-kubernetes
-          image: selenium/standalone-kubernetes:4.53.0-20261120
+          image: selenium/standalone-kubernetes:4.54.0-20261123
           ports:
             - containerPort: 4444
           env:
