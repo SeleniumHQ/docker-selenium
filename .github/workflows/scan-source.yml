@@ -19,9 +19,13 @@ on:
   push:
     paths:
       - '**/Dockerfile'
+      - '.github/workflows/scan-source.yml'
+      - 'scripts/ci/new_scan_findings.py'
   pull_request:
     paths:
       - '**/Dockerfile'
+      - '.github/workflows/scan-source.yml'
+      - 'scripts/ci/new_scan_findings.py'
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
@@ -37,16 +41,20 @@ jobs:
       - uses: actions/checkout@main
         with:
           persist-credentials: false
+          # Pull requests and pushes also scan the base commit, so the history is needed
+          fetch-depth: 0
 
       # A secret or a misconfiguration in a change is the author's to fix before
-      # it lands, so pull requests fail on it. Scheduled runs report everything
-      # and fail on nothing, because a new detection rule firing on old code is
-      # not a reason to go red.
+      # it lands, so pull requests fail on it. The scan covers the whole tree, so a
+      # change fails only on findings that the base commit does not have (see the
+      # "Fail on new findings" step). Scheduled runs report everything and fail on
+      # nothing, because a new detection rule firing on old code is not a reason
+      # to go red.
       - name: Set severity for PRs
         if: github.event_name == 'pull_request' || github.event_name == 'push'
         run: |
           echo "SEVERITY=HIGH,CRITICAL" >> $GITHUB_ENV
-          echo "EXIT_CODE=1" >> $GITHUB_ENV
+          echo "EXIT_CODE=0" >> $GITHUB_ENV
       - name: Set severity for others
         if: github.event_name != 'pull_request' && github.event_name != 'push'
         run: |
@@ -62,10 +70,41 @@ jobs:
           output: 'source-results.sarif'
           # No 'vuln': scan-images.yml scans the published images for CVEs.
           scanners: 'secret,misconfig'
-          skip-dirs: 'tests,Video'
+          skip-dirs: 'tests,Video,.cache'
           exit-code: '${{ env.EXIT_CODE }}'
           severity: '${{ env.SEVERITY }}'
           limit-severities-for-sarif: true
+
+      - name: Scan base commit
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -n "${PR_BASE_SHA}" ]; then
+            BASE_SHA="$(git merge-base "${PR_BASE_SHA}" HEAD)"
+          elif [ -n "${PUSH_BEFORE_SHA}" ] && [ "${PUSH_BEFORE_SHA}" != "0000000000000000000000000000000000000000" ] \
+            && git cat-file -e "${PUSH_BEFORE_SHA}^{commit}" 2>/dev/null; then
+            BASE_SHA="${PUSH_BEFORE_SHA}"
+          else
+            # A new branch has no previous commit, so compare with where it left trunk
+            BASE_SHA="$(git merge-base origin/trunk HEAD)"
+          fi
+          echo "Base commit: ${BASE_SHA}"
+          git worktree add --detach "${RUNNER_TEMP}/base" "${BASE_SHA}"
+          trivy fs --quiet \
+            --cache-dir "${GITHUB_WORKSPACE}/.cache/trivy" \
+            --scanners secret,misconfig \
+            --skip-dirs tests,Video,.cache \
+            --severity "${SEVERITY}" \
+            --format sarif \
+            --output base-results.sarif \
+            "${RUNNER_TEMP}/base"
+
+      - name: Fail on new findings
+        if: github.event_name == 'pull_request' || github.event_name == 'push'
+        run: python3 scripts/ci/new_scan_findings.py base-results.sarif source-results.sarif
 
       - name: Upload source scan results to annotations
         if: always()
