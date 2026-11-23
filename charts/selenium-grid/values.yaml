@@ -1402,6 +1402,8 @@ chromeNode:
   dshmVolumeSizeLimit: ""
   # -- Priority class name for chrome-node pods
   priorityClassName: ""
+  # -- Scheduler name for chrome-node pods (if not set, the default scheduler is used)
+  schedulerName: ""
 
   # -- Startup probe settings
   startupProbe:
@@ -1606,6 +1608,8 @@ firefoxNode:
   dshmVolumeSizeLimit: "2Gi"
   # -- Priority class name for firefox-node pods
   priorityClassName: ""
+  # -- Scheduler name for firefox-node pods (if not set, the default scheduler is used)
+  schedulerName: ""
 
   # -- Startup probe settings
   startupProbe:
@@ -1810,6 +1814,8 @@ edgeNode:
   dshmVolumeSizeLimit: ""
   # -- Priority class name for edge-node pods
   priorityClassName: ""
+  # -- Scheduler name for edge-node pods (if not set, the default scheduler is used)
+  schedulerName: ""
 
   # -- Startup probe settings
   startupProbe:
@@ -2015,6 +2021,8 @@ relayNode:
   dshmVolumeSizeLimit: ""
   # -- Priority class name for relay-node pods
   priorityClassName: ""
+  # -- Scheduler name for relay-node pods (if not set, the default scheduler is used)
+  schedulerName: ""
 
   # -- Startup probe settings
   startupProbe:

@@ -65,7 +65,6 @@ autoscaling:
       completions: 1
       activeDeadlineSeconds: 600
       backoffLimit: 0
-      template:
     pollingInterval: 30
     successfulJobsHistoryLimit: 0
     failedJobsHistoryLimit: 5
@@ -187,6 +186,7 @@ components:
       backend: postgresql
 
 chromeNode:
+  schedulerName: custom-scheduler
   nodeMaxSessions: 2
   nodeDrainAfterSessionCount: 10
   annotations:

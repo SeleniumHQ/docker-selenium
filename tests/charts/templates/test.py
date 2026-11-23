@@ -419,6 +419,19 @@ class ChartTemplateTests(unittest.TestCase):
                 count += 1
         self.assertEqual(count, len(resources_name), "No deployment resources found with topologySpreadConstraints")
 
+    def test_scheduler_name_set_only_where_configured(self):
+        nodes = {
+            f'{RELEASE_NAME}selenium-node-chrome': 'custom-scheduler',
+            f'{RELEASE_NAME}selenium-node-firefox': None,
+        }
+        count = 0
+        for doc in LIST_OF_DOCUMENTS:
+            if doc['metadata']['name'] in nodes and doc['kind'] == 'Deployment':
+                logger.info(f"Assert schedulerName in resource {doc['metadata']['name']}")
+                self.assertEqual(doc['spec']['template']['spec'].get('schedulerName'), nodes[doc['metadata']['name']])
+                count += 1
+        self.assertEqual(count, len(nodes), "Not all node deployments found")
+
     def test_not_create_basic_auth_secret_when_nameOverride_is_set(self):
         resources_name = [f'{RELEASE_NAME}selenium-basic-auth-secrets']
         count = 0
