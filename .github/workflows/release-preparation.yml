@@ -52,7 +52,7 @@ jobs:
         if: steps.check-pr.outputs.pr-exists == 'true'
         uses: actions-js/push@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           author_email: "selenium-ci@users.noreply.github.com"
           author_name: "Selenium CI Bot"
           message: "[build] Update Selenium Grid ${{ inputs.grid-version }}"
