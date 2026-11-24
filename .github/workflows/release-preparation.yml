@@ -50,7 +50,7 @@ jobs:
           EXPECTED_BASE_VERSION: ${{ inputs.grid-version }}
       - name: Commit & Push changes
         if: steps.check-pr.outputs.pr-exists == 'true'
-        uses: actions-js/push@master
+        uses: actions-js/push@968f4695ca558093eadb24ad83cc5891f47e0cdc # v1.6
         with:
           github_token: ${{ secrets.SELENIUM_CI_TOKEN }}
           author_email: "selenium-ci@users.noreply.github.com"
