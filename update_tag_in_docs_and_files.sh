@@ -32,7 +32,11 @@ find . \( -type d -name .git -prune \) -o -type f ! -name 'CHANGELOG.md' -print0
 # describe`). Every later release's LATEST_TAG eventually collides with one of
 # those literals, so without this exclusion the comment keeps getting quietly
 # rewritten into a false account of its own history.
-TAG_REWRITE_SKIP_PATHS="( -path ./charts/selenium-grid/multiple-nodes-platform-version.yaml -o -path ./tests/charts/ci/multiple-nodes-platform-version-values.yaml -o -path ./.github/workflows/deploy.yml )"
+#
+# go.mod/go.sum hold Go pseudo-versions (v0.0.0-<yyyymmddhhmmss>-<commit>) whose
+# timestamp must match the upstream commit. The bare-date pass would rewrite it
+# and break `go mod download`.
+TAG_REWRITE_SKIP_PATHS="( -path ./charts/selenium-grid/multiple-nodes-platform-version.yaml -o -path ./tests/charts/ci/multiple-nodes-platform-version-values.yaml -o -path ./.github/workflows/deploy.yml -o -name go.mod -o -name go.sum )"
 
 # If you want to test this locally and you are using macOS, do `brew install gnu-sed` and change `sed` for `gsed`.
 find . \( -type d -name .git -prune -o -type d -name 'CHANGELOG' -prune -o $TAG_REWRITE_SKIP_PATHS -prune \) -o -type f ! -name 'CHANGELOG.md' -print0 | xargs -0 sed -i "s/${LATEST_TAG}/${NEXT_TAG}/g"
