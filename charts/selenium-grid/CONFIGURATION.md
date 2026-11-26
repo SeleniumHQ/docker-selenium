@@ -476,7 +476,7 @@ A Helm chart for creating a Selenium Grid Server in Kubernetes
 | autoscaling.scaledObjectOptions.advanced.restoreToOriginalReplicaCount | bool | `true` |  |
 | autoscaling.scaledObjectOptions.scaleTargetRef.kind | string | `"Deployment"` | Target reference for KEDA ScaledObject |
 | autoscaling.scaledOverProvisionRatio | string | `""` |  |
-| autoscaling.terminationGracePeriodSeconds | int | `3600` | Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it |
+| autoscaling.terminationGracePeriodSeconds | int | `3600` | Define terminationGracePeriodSeconds for scalingType "deployment" and "job". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it |
 | autoscaling.deregisterLifecycle | string | `nil` | Define preStop command to shut down the node gracefully when scalingType is set to "deployment" |
 | crossBrowsers.chromeNode | list | `[{"nameOverride":null}]` | Additional chrome nodes, array of objects with the same structure as `chromeNode` |
 | crossBrowsers.firefoxNode | list | `[{"nameOverride":null}]` | Additional firefox nodes, array of objects with the same structure as `firefoxNode` |

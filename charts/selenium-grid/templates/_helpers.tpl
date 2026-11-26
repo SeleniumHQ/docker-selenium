@@ -991,17 +991,15 @@ lifecycle: {{ $lifecycle | nindent 2 }}
 
 {{/*
 Define terminationGracePeriodSeconds of the node pod.
-1. IF KEDA is activated, scalingType is "deployment", use autoscaling.terminationGracePeriodSeconds
+1. IF KEDA is activated, scalingType is "deployment" or "job", use autoscaling.terminationGracePeriodSeconds
 2. IF node.terminationGracePeriodSeconds is greater than autoscaling.terminationGracePeriodSeconds, use node.terminationGracePeriodSeconds
 */}}
 {{- define "seleniumGrid.node.terminationGracePeriodSeconds" -}}
 {{- $autoscalingPeriod := default 0 .Values.autoscaling.terminationGracePeriodSeconds | int -}}
 {{- $nodePeriod := default 0 .node.terminationGracePeriodSeconds | int -}}
 {{- $period := $nodePeriod -}}
-{{- if and (eq .Values.autoscaling.scalingType "deployment") (eq (include "seleniumGrid.useKEDA" $) "true") -}}
+{{- if and (or (eq .Values.autoscaling.scalingType "deployment") (eq .Values.autoscaling.scalingType "job")) (eq (include "seleniumGrid.useKEDA" $) "true") -}}
   {{- $period = ternary $nodePeriod $autoscalingPeriod (gt $nodePeriod $autoscalingPeriod) -}}
-{{- else if and (eq .Values.autoscaling.scalingType "job") (eq (include "seleniumGrid.useKEDA" $) "true") }}
-  {{- $period = 30 -}}
 {{- end -}}
 {{- $period -}}
 {{- end -}}

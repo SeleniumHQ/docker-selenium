@@ -249,7 +249,7 @@ chromeNode:
 
 ### Settings when scalingType with `deployment` 
 
-By default, `autoscaling.terminationGracePeriodSeconds` is set to 3600 seconds. This is used when scalingType is set to `deployment`. You can adjust this value, it will affect to all nodes.
+By default, `autoscaling.terminationGracePeriodSeconds` is set to 3600 seconds. This is used when scalingType is set to `deployment` or `job`. You can adjust this value, it will affect to all nodes.
 
 In case individual node which needs to set different period, you can override the upstream settings with `.terminationGracePeriodSeconds` for each node type. Note that override value must be greater than upstream setting to take effect. For example:
 
@@ -301,6 +301,8 @@ autoscaling:
 ```
 
 ### Settings when scalingType with `job`
+
+Node pod `terminationGracePeriodSeconds` uses the same `autoscaling.terminationGracePeriodSeconds` and per-node override as `deployment`.
 
 Settings that KEDA [ScaledJob spec](https://keda.sh/docs/latest/concepts/scaling-jobs/#scaledjob-spec) supports can be set via `autoscaling.scaledJobOptions`.
 

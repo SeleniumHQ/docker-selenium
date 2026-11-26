@@ -31,6 +31,29 @@ class ScaledJobTemplateTests(unittest.TestCase):
             self.assertEqual(spec.get("minReplicaCount"), 0)
             self.assertEqual(spec.get("successfulJobsHistoryLimit"), 0)
 
+    def test_terminationGracePeriodSeconds_in_job_autoscaling(self):
+        scaled_jobs = {
+            doc["metadata"]["name"]: doc for doc in LIST_OF_DOCUMENTS if doc and doc.get("kind") == "ScaledJob"
+        }
+        higher_than_global = {"selenium-node-chrome": 7200}
+        inherits_global = {"selenium-node-edge": 3600, "selenium-node-firefox": 3600}
+        for name, expected in higher_than_global.items():
+            logger.info(f"Assert terminationGracePeriodSeconds is set in resource {name}")
+            pod_spec = scaled_jobs[name]["spec"]["jobTargetRef"]["template"]["spec"]
+            self.assertEqual(
+                pod_spec["terminationGracePeriodSeconds"],
+                expected,
+                "node.terminationGracePeriodSeconds doesn't override a higher value than autoscaling.terminationGracePeriodSeconds",
+            )
+        for name, expected in inherits_global.items():
+            logger.info(f"Assert terminationGracePeriodSeconds is set in resource {name}")
+            pod_spec = scaled_jobs[name]["spec"]["jobTargetRef"]["template"]["spec"]
+            self.assertEqual(
+                pod_spec["terminationGracePeriodSeconds"],
+                expected,
+                "node.terminationGracePeriodSeconds doesn't inherit the global value autoscaling.terminationGracePeriodSeconds",
+            )
+
     def test_scheduler_name_set_only_where_configured(self):
         scaled_jobs = {
             doc["metadata"]["name"]: doc for doc in LIST_OF_DOCUMENTS if doc and doc.get("kind") == "ScaledJob"
