@@ -1265,7 +1265,7 @@ autoscaling:
       kind: Deployment
   # For example, over over-provisioning ratio `1.2` means 20% more than the actual requests
   scaledOverProvisionRatio: ""
-  # -- Define terminationGracePeriodSeconds for scalingType "deployment". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it
+  # -- Define terminationGracePeriodSeconds for scalingType "deployment" and "job". Period for `deregisterLifecycle` to gracefully shut down the node before force terminating it
   terminationGracePeriodSeconds: 3600
   # -- Define preStop command to shut down the node gracefully when scalingType is set to "deployment"
   deregisterLifecycle:
