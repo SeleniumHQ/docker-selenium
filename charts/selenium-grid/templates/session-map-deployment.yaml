@@ -21,10 +21,10 @@ spec:
     metadata:
       labels: *session_map_labels
       annotations:
-        checksum/event-bus-configmap: {{ include (print $.Template.BasePath "/event-bus-configmap.yaml") . | sha256sum }}
-        checksum/logging-configmap: {{ include (print $.Template.BasePath "/logging-configmap.yaml") . | sha256sum }}
-        checksum/server-configmap: {{ include (print $.Template.BasePath "/server-configmap.yaml") . | sha256sum }}
-        checksum/secrets: {{ include (print $.Template.BasePath "/secrets.yaml") . | sha256sum }}
+        checksum/event-bus-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/event-bus-configmap.yaml") }}
+        checksum/logging-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/logging-configmap.yaml") }}
+        checksum/server-configmap: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/server-configmap.yaml") }}
+        checksum/secrets: {{ include "seleniumGrid.configMapOrSecretContentHash" (dict "ctx" . "name" "/secrets.yaml") }}
     {{- with .Values.components.sessionMap.annotations }}
         {{- toYaml . | nindent 8 }}
     {{- end }}
