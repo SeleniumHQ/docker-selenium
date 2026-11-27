@@ -268,7 +268,7 @@ jobs:
   publish-results:
     name: Publish Results
     if: (!failure() && !cancelled() && (github.event.inputs.publish-results == 'true'))
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-and-test
     steps:
       - name: Checkout code
@@ -303,7 +303,7 @@ jobs:
   pr-results:
     name: Create a PR with the results
     if: (!failure() && !cancelled() && (github.event.inputs.pr-results == 'true'))
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: build-and-test
     steps:
       - name: Checkout code

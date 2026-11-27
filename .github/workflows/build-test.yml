@@ -77,7 +77,7 @@ permissions: write-all
 jobs:
   lint-format:
     name: Lint scripts format
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -90,7 +90,7 @@ jobs:
   # an expression, because none can be expressed correctly inline.
   gate:
     name: Decide what this run does
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       release: ${{ steps.gate.outputs.release }}
       skip-tests: ${{ steps.gate.outputs.skip-tests }}
@@ -251,7 +251,7 @@ jobs:
       && needs.helm-chart-test.result == 'success'
       && needs.k8s-dynamic-grid-test.result == 'success'
     name: Promote tested images to main
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       packages: write

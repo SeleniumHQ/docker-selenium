@@ -50,7 +50,7 @@ jobs:
     # Merged pull requests are skipped here; see the note above. A maintainer can
     # still force one with workflow_dispatch and a pr-number.
     if: github.event_name != 'pull_request_target' || github.event.pull_request.merged == false
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
         uses: actions/checkout@main

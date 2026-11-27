@@ -57,7 +57,7 @@ env:
 jobs:
   deploy:
     name: Node/Standalone Edge
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions: write-all
     strategy:
       fail-fast: false

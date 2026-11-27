@@ -72,7 +72,7 @@ env:
 jobs:
   matrix:
     name: Build image list
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -99,7 +99,7 @@ jobs:
   scout:
     name: Scout ${{ matrix.image }}
     needs: matrix
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       security-events: write
@@ -166,7 +166,7 @@ jobs:
       - matrix
       - scout
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
