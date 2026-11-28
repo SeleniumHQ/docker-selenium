@@ -36,6 +36,10 @@ spec:
     spec:
       serviceAccountName: {{ template "seleniumGrid.serviceAccount.fullname" . }}
       serviceAccount: {{ template  "seleniumGrid.serviceAccount.fullname" . }}
+    {{- with .Values.hub.initContainers }}
+      initContainers:
+        {{- tpl (toYaml .) $ | nindent 8 }}
+    {{- end }}
       containers:
         - name: {{ template "seleniumGrid.hub.fullname" . }}
           {{- $imageTag := default .Values.global.seleniumGrid.imageTag .Values.hub.imageTag }}
